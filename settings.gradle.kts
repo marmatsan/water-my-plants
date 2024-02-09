@@ -28,5 +28,7 @@ include(
     ":app",
     ":core:core_data",
     ":core:core_domain",
-    ":core:core_ui"
+    ":core:core_ui",
+    ":onboarding:onboarding_domain",
+    ":onboarding:onboarding_ui"
 )
