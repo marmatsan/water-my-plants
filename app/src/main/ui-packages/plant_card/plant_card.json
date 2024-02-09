@@ -1,0 +1,2327 @@
+{
+  "name": "plant_card",
+  "version": 32,
+  "source-key": {
+    "type": "figma",
+    "file": "2IEnWM0yaCVvI5ojVYGtnG",
+    "node": "101:3605",
+    "version": "5026544645",
+    "component-id": "439f1ce17f8992e0df93bbeedc2a413d80d307e8"
+  },
+  "default": "State=Enabled",
+  "design": {
+    "atoms": [
+      {
+        "type": "group",
+        "id": "top_level",
+        "root": "true"
+      },
+      {
+        "type": "group",
+        "id": "top_level_synth"
+      },
+      {
+        "type": "group",
+        "id": "Water cuantity"
+      },
+      {
+        "type": "group",
+        "id": "Calendar"
+      },
+      {
+        "type": "group",
+        "id": "Plant card image"
+      },
+      {
+        "type": "group",
+        "id": "Description and action"
+      },
+      {
+        "type": "group",
+        "id": "Watered"
+      },
+      {
+        "type": "group",
+        "id": "Desciption"
+      },
+      {
+        "type": "group",
+        "id": "Icon button"
+      },
+      {
+        "type": "group",
+        "id": "container"
+      },
+      {
+        "type": "group",
+        "id": "state-layer"
+      },
+      {
+        "type": "group",
+        "id": "Icon"
+      },
+      {
+        "type": "group",
+        "id": "container1"
+      },
+      {
+        "type": "vector",
+        "id": "Vector"
+      },
+      {
+        "type": "text",
+        "id": "Monstera"
+      },
+      {
+        "type": "text",
+        "id": "Short Description"
+      },
+      {
+        "type": "text",
+        "id": "50ml"
+      },
+      {
+        "type": "text",
+        "id": "Today"
+      },
+      {
+        "type": "group",
+        "id": "Description and Icon"
+      }
+    ],
+    "modes": {
+      "State=Enabled": {
+        "rules": [
+          {
+            "id": "top_level",
+            "border-radius": "12.0",
+            "is-structured": "false",
+            "children": [
+              "top_level_synth",
+              "Water cuantity",
+              "Calendar"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "199.99999999999983",
+              "saturation": "0.012244897959183746",
+              "value": "0.9607843137254902"
+            }
+          },
+          {
+            "id": "top_level_synth",
+            "opacity": "100.0",
+            "border-radius": "12.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "main-axis-align": "start",
+            "children": [
+              "Plant card image",
+              "Description and action"
+            ]
+          },
+          {
+            "id": "Water cuantity",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "12.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "50ml"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Calendar",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "36.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "Today"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Plant card image",
+            "padding": "10.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "188.0"
+              }
+            },
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Description and action",
+            "padding": {
+              "left": "8.0",
+              "top": "16.0",
+              "right": "8.0",
+              "bottom": "16.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Watered",
+              "Desciption"
+            ],
+            "item-spacing": "8.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Watered",
+            "padding": "4.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon button"
+            ]
+          },
+          {
+            "id": "Desciption",
+            "cross-axis-align": "start",
+            "children": [
+              "Monstera",
+              "Short Description"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon button",
+            "children": [
+              "container"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "container",
+            "border-radius": "8.0",
+            "arrangement": "row",
+            "children": [
+              "state-layer"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "194.54545454545453",
+              "saturation": "0.13807531380753135",
+              "value": "0.9372549019607843"
+            }
+          },
+          {
+            "id": "state-layer",
+            "padding": "8.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "children": [
+              "container1"
+            ]
+          },
+          {
+            "id": "container1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "children": [
+              "Vector"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "-0.75"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "-0.75"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "20.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "16.778039932250977"
+              }
+            },
+            "vector-content": "vector.svg"
+          },
+          {
+            "id": "Monstera",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.title-small.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$plantName",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.title-small.size",
+            "letter-spacing": "^md.sys.typescale.title-small.tracking",
+            "line-height": "^md.sys.typescale.title-small.line-height",
+            "typeface": "^md.sys.typescale.title-small.font"
+          },
+          {
+            "id": "Short Description",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.body-medium.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "203.99999999999994",
+              "saturation": "0.06849315068493146",
+              "value": "0.28627450980392155"
+            },
+            "text-content": "$shortDescription",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.body-medium.size",
+            "letter-spacing": "^md.sys.typescale.body-medium.tracking",
+            "line-height": "^md.sys.typescale.body-medium.line-height",
+            "typeface": "^md.sys.typescale.body-medium.font"
+          },
+          {
+            "id": "50ml",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterCuantity",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          },
+          {
+            "id": "Today",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterDate",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          }
+        ]
+      },
+      "State=Hovered": {
+        "rules": [
+          {
+            "id": "top_level",
+            "border-radius": "12.0",
+            "drop-shadow": {
+              "color": {
+                "alpha": "0.14901960784313725",
+                "hue": "0.0",
+                "saturation": "0.0",
+                "value": "0.0"
+              },
+              "blur": "3.0",
+              "offset-x": "0.0",
+              "offset-y": "1.0",
+              "spread": "1.0",
+              "blend-mode": "normal"
+            },
+            "is-structured": "false",
+            "children": [
+              "top_level_synth",
+              "Water cuantity",
+              "Calendar"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "199.99999999999983",
+              "saturation": "0.012244897959183746",
+              "value": "0.9607843137254902"
+            }
+          },
+          {
+            "id": "top_level_synth",
+            "opacity": "100.0",
+            "border-radius": "12.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "main-axis-align": "start",
+            "children": [
+              "Plant card image",
+              "Description and Icon"
+            ]
+          },
+          {
+            "id": "Water cuantity",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "12.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "50ml"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Calendar",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "36.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "Today"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Plant card image",
+            "padding": "10.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "188.0"
+              }
+            },
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Description and Icon",
+            "padding": {
+              "left": "8.0",
+              "top": "16.0",
+              "right": "8.0",
+              "bottom": "16.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Watered",
+              "Desciption"
+            ],
+            "item-spacing": "8.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Watered",
+            "padding": "4.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon button"
+            ]
+          },
+          {
+            "id": "Desciption",
+            "cross-axis-align": "start",
+            "children": [
+              "Monstera",
+              "Short Description"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon button",
+            "children": [
+              "container"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "container",
+            "border-radius": "8.0",
+            "arrangement": "row",
+            "children": [
+              "state-layer"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "194.54545454545453",
+              "saturation": "0.13807531380753135",
+              "value": "0.9372549019607843"
+            }
+          },
+          {
+            "id": "state-layer",
+            "padding": "8.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "children": [
+              "container1"
+            ]
+          },
+          {
+            "id": "container1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "children": [
+              "Vector"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "-0.75"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "-0.75"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "20.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "16.778039932250977"
+              }
+            },
+            "vector-content": "vector1.svg"
+          },
+          {
+            "id": "Monstera",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.title-small.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$plantName",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.title-small.size",
+            "letter-spacing": "^md.sys.typescale.title-small.tracking",
+            "line-height": "^md.sys.typescale.title-small.line-height",
+            "typeface": "^md.sys.typescale.title-small.font"
+          },
+          {
+            "id": "Short Description",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.body-medium.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "203.99999999999994",
+              "saturation": "0.06849315068493146",
+              "value": "0.28627450980392155"
+            },
+            "text-content": "$shortDescription",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.body-medium.size",
+            "letter-spacing": "^md.sys.typescale.body-medium.tracking",
+            "line-height": "^md.sys.typescale.body-medium.line-height",
+            "typeface": "^md.sys.typescale.body-medium.font"
+          },
+          {
+            "id": "50ml",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterCuantity",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          },
+          {
+            "id": "Today",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterDate",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          }
+        ]
+      },
+      "State=Focused": {
+        "rules": [
+          {
+            "id": "top_level",
+            "border-radius": "12.0",
+            "stroke-width": "1.0",
+            "stroke-color": {
+              "alpha": "1.0",
+              "hue": "200.0",
+              "saturation": "0.014999999999999947",
+              "value": "0.7843137254901961"
+            },
+            "is-structured": "false",
+            "children": [
+              "top_level_synth",
+              "Water cuantity",
+              "Calendar"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "199.99999999999983",
+              "saturation": "0.012244897959183746",
+              "value": "0.9607843137254902"
+            }
+          },
+          {
+            "id": "top_level_synth",
+            "opacity": "100.0",
+            "border-radius": "12.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "main-axis-align": "start",
+            "children": [
+              "Plant card image",
+              "Description and Icon"
+            ]
+          },
+          {
+            "id": "Water cuantity",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "12.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "50ml"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Calendar",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "36.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "Today"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Plant card image",
+            "padding": "10.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "188.0"
+              }
+            },
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Description and Icon",
+            "padding": {
+              "left": "8.0",
+              "top": "16.0",
+              "right": "8.0",
+              "bottom": "16.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Watered",
+              "Desciption"
+            ],
+            "item-spacing": "8.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Watered",
+            "padding": "4.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon button"
+            ]
+          },
+          {
+            "id": "Desciption",
+            "cross-axis-align": "start",
+            "children": [
+              "Monstera",
+              "Short Description"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon button",
+            "children": [
+              "container"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "container",
+            "border-radius": "8.0",
+            "arrangement": "row",
+            "children": [
+              "state-layer"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "194.54545454545453",
+              "saturation": "0.13807531380753135",
+              "value": "0.9372549019607843"
+            }
+          },
+          {
+            "id": "state-layer",
+            "padding": "8.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "children": [
+              "container1"
+            ]
+          },
+          {
+            "id": "container1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "children": [
+              "Vector"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "-0.75"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "-0.75"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "20.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "16.778039932250977"
+              }
+            },
+            "vector-content": "vector2.svg"
+          },
+          {
+            "id": "Monstera",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.title-small.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$plantName",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.title-small.size",
+            "letter-spacing": "^md.sys.typescale.title-small.tracking",
+            "line-height": "^md.sys.typescale.title-small.line-height",
+            "typeface": "^md.sys.typescale.title-small.font"
+          },
+          {
+            "id": "Short Description",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.body-medium.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "203.99999999999994",
+              "saturation": "0.06849315068493146",
+              "value": "0.28627450980392155"
+            },
+            "text-content": "$shortDescription",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.body-medium.size",
+            "letter-spacing": "^md.sys.typescale.body-medium.tracking",
+            "line-height": "^md.sys.typescale.body-medium.line-height",
+            "typeface": "^md.sys.typescale.body-medium.font"
+          },
+          {
+            "id": "50ml",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterCuantity",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          },
+          {
+            "id": "Today",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterDate",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          }
+        ]
+      },
+      "State=Pressed": {
+        "rules": [
+          {
+            "id": "top_level",
+            "border-radius": "12.0",
+            "is-structured": "false",
+            "children": [
+              "top_level_synth",
+              "Water cuantity",
+              "Calendar"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "199.99999999999983",
+              "saturation": "0.012244897959183746",
+              "value": "0.9607843137254902"
+            }
+          },
+          {
+            "id": "top_level_synth",
+            "opacity": "100.0",
+            "border-radius": "12.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "main-axis-align": "start",
+            "children": [
+              "Plant card image",
+              "Description and Icon"
+            ]
+          },
+          {
+            "id": "Water cuantity",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "12.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "50ml"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Calendar",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "36.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "Today"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Plant card image",
+            "padding": "10.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "188.0"
+              }
+            },
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Description and Icon",
+            "padding": {
+              "left": "8.0",
+              "top": "16.0",
+              "right": "8.0",
+              "bottom": "16.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Watered",
+              "Desciption"
+            ],
+            "item-spacing": "8.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Watered",
+            "padding": "4.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon button"
+            ]
+          },
+          {
+            "id": "Desciption",
+            "cross-axis-align": "start",
+            "children": [
+              "Monstera",
+              "Short Description"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon button",
+            "children": [
+              "container"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "container",
+            "border-radius": "8.0",
+            "arrangement": "row",
+            "children": [
+              "state-layer"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "194.54545454545453",
+              "saturation": "0.13807531380753135",
+              "value": "0.9372549019607843"
+            }
+          },
+          {
+            "id": "state-layer",
+            "padding": "8.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "children": [
+              "container1"
+            ]
+          },
+          {
+            "id": "container1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "children": [
+              "Vector"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "-0.75"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "-0.75"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "20.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "16.778039932250977"
+              }
+            },
+            "vector-content": "vector3.svg"
+          },
+          {
+            "id": "Monstera",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.title-small.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$plantName",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.title-small.size",
+            "letter-spacing": "^md.sys.typescale.title-small.tracking",
+            "line-height": "^md.sys.typescale.title-small.line-height",
+            "typeface": "^md.sys.typescale.title-small.font"
+          },
+          {
+            "id": "Short Description",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.body-medium.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "203.99999999999994",
+              "saturation": "0.06849315068493146",
+              "value": "0.28627450980392155"
+            },
+            "text-content": "$shortDescription",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.body-medium.size",
+            "letter-spacing": "^md.sys.typescale.body-medium.tracking",
+            "line-height": "^md.sys.typescale.body-medium.line-height",
+            "typeface": "^md.sys.typescale.body-medium.font"
+          },
+          {
+            "id": "50ml",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterCuantity",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          },
+          {
+            "id": "Today",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterDate",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          }
+        ]
+      },
+      "State=Dragged": {
+        "rules": [
+          {
+            "id": "top_level",
+            "border-radius": "12.0",
+            "drop-shadow": {
+              "color": {
+                "alpha": "0.2980392156862745",
+                "hue": "0.0",
+                "saturation": "0.0",
+                "value": "0.0"
+              },
+              "blur": "3.0",
+              "offset-x": "0.0",
+              "offset-y": "1.0",
+              "spread": "0.0",
+              "blend-mode": "normal"
+            },
+            "is-structured": "false",
+            "children": [
+              "top_level_synth",
+              "Water cuantity",
+              "Calendar"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "199.99999999999983",
+              "saturation": "0.012244897959183746",
+              "value": "0.9607843137254902"
+            }
+          },
+          {
+            "id": "top_level_synth",
+            "opacity": "100.0",
+            "border-radius": "12.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "main-axis-align": "start",
+            "children": [
+              "Plant card image",
+              "Description and Icon"
+            ]
+          },
+          {
+            "id": "Water cuantity",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "12.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "50ml"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Calendar",
+            "opacity": "0.5600000023841858",
+            "padding": {
+              "left": "6.0",
+              "top": "2.0",
+              "right": "6.0",
+              "bottom": "2.0"
+            },
+            "border-radius": "4.0",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "12.0"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "36.0"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "children": [
+              "Today"
+            ],
+            "item-spacing": "4.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.007999999999999972",
+              "value": "0.9803921568627451"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "Plant card image",
+            "padding": "10.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "188.0"
+              }
+            },
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Description and Icon",
+            "padding": {
+              "left": "8.0",
+              "top": "16.0",
+              "right": "8.0",
+              "bottom": "16.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Watered",
+              "Desciption"
+            ],
+            "item-spacing": "8.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Watered",
+            "padding": "4.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "48.0"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon button"
+            ]
+          },
+          {
+            "id": "Desciption",
+            "cross-axis-align": "start",
+            "children": [
+              "Monstera",
+              "Short Description"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon button",
+            "children": [
+              "container"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "container",
+            "border-radius": "8.0",
+            "arrangement": "row",
+            "children": [
+              "state-layer"
+            ],
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "194.54545454545453",
+              "saturation": "0.13807531380753135",
+              "value": "0.9372549019607843"
+            }
+          },
+          {
+            "id": "state-layer",
+            "padding": "8.0",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "children": [
+              "Icon"
+            ],
+            "item-spacing": "10.0",
+            "clip-content": "false"
+          },
+          {
+            "id": "Icon",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "children": [
+              "container1"
+            ]
+          },
+          {
+            "id": "container1",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "children": [
+              "Vector"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "Vector",
+            "alignment": {
+              "horizontal": {
+                "attachment": "start",
+                "offset": "-0.75"
+              },
+              "vertical": {
+                "attachment": "start",
+                "offset": "-0.75"
+              }
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "20.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "16.778039932250977"
+              }
+            },
+            "vector-content": "vector4.svg"
+          },
+          {
+            "id": "Monstera",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.title-small.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$plantName",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.title-small.size",
+            "letter-spacing": "^md.sys.typescale.title-small.tracking",
+            "line-height": "^md.sys.typescale.title-small.line-height",
+            "typeface": "^md.sys.typescale.title-small.font"
+          },
+          {
+            "id": "Short Description",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "font-weight": "^md.sys.typescale.body-medium.weight",
+            "color": {
+              "alpha": "1.0",
+              "hue": "203.99999999999994",
+              "saturation": "0.06849315068493146",
+              "value": "0.28627450980392155"
+            },
+            "text-content": "$shortDescription",
+            "overflow": "visible",
+            "max-lines": "-1",
+            "text-align": "left",
+            "text-size": "^md.sys.typescale.body-medium.size",
+            "letter-spacing": "^md.sys.typescale.body-medium.tracking",
+            "line-height": "^md.sys.typescale.body-medium.line-height",
+            "typeface": "^md.sys.typescale.body-medium.font"
+          },
+          {
+            "id": "50ml",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterCuantity",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          },
+          {
+            "id": "Today",
+            "relative-transform": [
+              [
+                "1.0",
+                "-3.2162460400088464e-16",
+                "0.0"
+              ],
+              [
+                "8.040615100022116e-17",
+                "1.0",
+                "0.0"
+              ]
+            ],
+            "font-weight": "500.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "204.0",
+              "saturation": "0.16666666666666666",
+              "value": "0.11764705882352941"
+            },
+            "text-content": "$waterDate",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-align-vertical": "center",
+            "text-size": "11.0",
+            "letter-spacing": "0.5",
+            "line-height": "1.454545440673828",
+            "typeface": "Poppins"
+          }
+        ]
+      }
+    }
+  },
+  "parameters": {
+    "plantName": {
+      "data-type": "text",
+      "required": false,
+      "description": ""
+    },
+    "shortDescription": {
+      "data-type": "text",
+      "required": false,
+      "description": ""
+    },
+    "waterCuantity": {
+      "data-type": "text",
+      "required": false,
+      "description": ""
+    },
+    "waterDate": {
+      "data-type": "text",
+      "required": false,
+      "description": ""
+    }
+  },
+  "ambients": {
+    "md.sys.typescale.title-small.font": {
+      "data-type": "typeface",
+      "description": null
+    },
+    "md.sys.typescale.title-small.weight": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.title-small.size": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.title-small.tracking": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.title-small.line-height": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.body-medium.font": {
+      "data-type": "typeface",
+      "description": null
+    },
+    "md.sys.typescale.body-medium.weight": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.body-medium.size": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.body-medium.tracking": {
+      "data-type": "double",
+      "description": null
+    },
+    "md.sys.typescale.body-medium.line-height": {
+      "data-type": "double",
+      "description": null
+    }
+  },
+  "previews": [
+    {
+      "design": "State=Enabled",
+      "size": {
+        "width": 168.0,
+        "height": 280.0
+      },
+      "parameters": {
+        "plantName": "Monstera",
+        "shortDescription": "Short Description",
+        "waterCuantity": "50ml",
+        "waterDate": "Today"
+      },
+      "ambients": {
+        "md.sys.typescale.title-small.font": "Poppins",
+        "md.sys.typescale.title-small.weight": 500.0,
+        "md.sys.typescale.title-small.size": 14.0,
+        "md.sys.typescale.title-small.tracking": 0.10000000149011612,
+        "md.sys.typescale.title-small.line-height": 1.4285714721679688,
+        "md.sys.typescale.body-medium.font": "Poppins",
+        "md.sys.typescale.body-medium.weight": 400.0,
+        "md.sys.typescale.body-medium.size": 14.0,
+        "md.sys.typescale.body-medium.tracking": 0.25,
+        "md.sys.typescale.body-medium.line-height": 1.4285714721679688
+      }
+    },
+    {
+      "design": "State=Hovered",
+      "size": {
+        "width": 168.0,
+        "height": 280.0
+      },
+      "parameters": {
+        "plantName": "Monstera",
+        "shortDescription": "Short Description",
+        "waterCuantity": "50ml",
+        "waterDate": "Today"
+      },
+      "ambients": {
+        "md.sys.typescale.title-small.font": "Poppins",
+        "md.sys.typescale.title-small.weight": 500.0,
+        "md.sys.typescale.title-small.size": 14.0,
+        "md.sys.typescale.title-small.tracking": 0.10000000149011612,
+        "md.sys.typescale.title-small.line-height": 1.4285714721679688,
+        "md.sys.typescale.body-medium.font": "Poppins",
+        "md.sys.typescale.body-medium.weight": 400.0,
+        "md.sys.typescale.body-medium.size": 14.0,
+        "md.sys.typescale.body-medium.tracking": 0.25,
+        "md.sys.typescale.body-medium.line-height": 1.4285714721679688
+      }
+    },
+    {
+      "design": "State=Focused",
+      "size": {
+        "width": 168.0,
+        "height": 280.0
+      },
+      "parameters": {
+        "plantName": "Monstera",
+        "shortDescription": "Short Description",
+        "waterCuantity": "50ml",
+        "waterDate": "Today"
+      },
+      "ambients": {
+        "md.sys.typescale.title-small.font": "Poppins",
+        "md.sys.typescale.title-small.weight": 500.0,
+        "md.sys.typescale.title-small.size": 14.0,
+        "md.sys.typescale.title-small.tracking": 0.10000000149011612,
+        "md.sys.typescale.title-small.line-height": 1.4285714721679688,
+        "md.sys.typescale.body-medium.font": "Poppins",
+        "md.sys.typescale.body-medium.weight": 400.0,
+        "md.sys.typescale.body-medium.size": 14.0,
+        "md.sys.typescale.body-medium.tracking": 0.25,
+        "md.sys.typescale.body-medium.line-height": 1.4285714721679688
+      }
+    },
+    {
+      "design": "State=Pressed",
+      "size": {
+        "width": 168.0,
+        "height": 280.0
+      },
+      "parameters": {
+        "plantName": "Monstera",
+        "shortDescription": "Short Description",
+        "waterCuantity": "50ml",
+        "waterDate": "Today"
+      },
+      "ambients": {
+        "md.sys.typescale.title-small.font": "Poppins",
+        "md.sys.typescale.title-small.weight": 500.0,
+        "md.sys.typescale.title-small.size": 14.0,
+        "md.sys.typescale.title-small.tracking": 0.10000000149011612,
+        "md.sys.typescale.title-small.line-height": 1.4285714721679688,
+        "md.sys.typescale.body-medium.font": "Poppins",
+        "md.sys.typescale.body-medium.weight": 400.0,
+        "md.sys.typescale.body-medium.size": 14.0,
+        "md.sys.typescale.body-medium.tracking": 0.25,
+        "md.sys.typescale.body-medium.line-height": 1.4285714721679688
+      }
+    },
+    {
+      "design": "State=Dragged",
+      "size": {
+        "width": 168.0,
+        "height": 280.0
+      },
+      "parameters": {
+        "plantName": "Monstera",
+        "shortDescription": "Short Description",
+        "waterCuantity": "50ml",
+        "waterDate": "Today"
+      },
+      "ambients": {
+        "md.sys.typescale.title-small.font": "Poppins",
+        "md.sys.typescale.title-small.weight": 500.0,
+        "md.sys.typescale.title-small.size": 14.0,
+        "md.sys.typescale.title-small.tracking": 0.10000000149011612,
+        "md.sys.typescale.title-small.line-height": 1.4285714721679688,
+        "md.sys.typescale.body-medium.font": "Poppins",
+        "md.sys.typescale.body-medium.weight": 400.0,
+        "md.sys.typescale.body-medium.size": 14.0,
+        "md.sys.typescale.body-medium.tracking": 0.25,
+        "md.sys.typescale.body-medium.line-height": 1.4285714721679688
+      }
+    }
+  ],
+  "adin-component-search-paths": [],
+  "image-search-paths": [],
+  "vector-search-paths": []
+}
