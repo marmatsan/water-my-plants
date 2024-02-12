@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,10 +22,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.dimensions.theme.onBackgroundVariant
 import com.marmatsan.onboarding_ui.R
-import java.time.format.TextStyle
 
 @Composable
 fun WelcomeScreen(
@@ -34,6 +33,7 @@ fun WelcomeScreen(
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
+    val density = LocalDensity.current
 
     Column(
         modifier = modifier
@@ -119,7 +119,7 @@ fun WelcomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Button(
-                    modifier = modifier.height(ButtonDefaults.MinHeight + 16.dp),
+                    modifier = modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
                     onClick = {
 
                     }
