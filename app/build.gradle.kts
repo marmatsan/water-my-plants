@@ -26,6 +26,9 @@ android {
 }
 
 dependencies {
+    /* Modules */
+    implementation(projects.core.coreUi)
+
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
     implementation(libs.bundles.androidx.datastore.datastore)
