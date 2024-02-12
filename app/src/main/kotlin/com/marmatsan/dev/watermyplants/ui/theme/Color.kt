@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.marmatsan.dev.watermyplants.ui.theme
 
 import androidx.compose.ui.graphics.Color
