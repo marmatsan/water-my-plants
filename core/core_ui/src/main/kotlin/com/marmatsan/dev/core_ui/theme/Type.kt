@@ -1,4 +1,4 @@
-package com.marmatsan.dev.watermyplants.ui.theme
+package com.marmatsan.dev.core_ui.dimensions.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -7,7 +7,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
-import com.marmatsan.app.R
+import com.marmatsan.core_ui.R
 
 val fontFamily = FontFamily(
     Font(

@@ -1,4 +1,4 @@
-package com.marmatsan.dev.watermyplants.ui.theme
+package com.marmatsan.dev.core_ui.dimensions.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.marmatsan.dev.watermyplants.ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.dimensions.theme.WaterMyPlantsTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,13 +68,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { paddingValues ->
-                   /* val navController = rememberNavController()
-                    SetupNavGraph(
-                        navController = navController,
-                        startDestination = startDestination,
-                        paddingValues = paddingValues,
-                        snackbarHostState = snackbarHostState
-                    )*/
+                    /* val navController = rememberNavController()
+                     SetupNavGraph(
+                         navController = navController,
+                         startDestination = startDestination,
+                         paddingValues = paddingValues,
+                         snackbarHostState = snackbarHostState
+                     )*/
                 }
             }
         }
