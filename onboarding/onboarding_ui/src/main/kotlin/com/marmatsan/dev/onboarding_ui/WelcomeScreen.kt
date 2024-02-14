@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.marmatsan.core_ui.iconadd.IconAdd
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.dimensions.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.dimensions.theme.onBackgroundVariant
 import com.marmatsan.onboarding_ui.R
 
@@ -35,116 +37,164 @@ fun WelcomeScreen(
     onCreatePlantClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val spacing = LocalSpacing.current
-    val density = LocalDensity.current
-
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(all = spacing.default),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+            .background(
+                color = MaterialTheme.colorScheme.background
+            )
+            .padding(
+                all = LocalSpacing.current.default
+            ),
+        verticalArrangement = Arrangement.spacedBy(
+            space = LocalSpacing.current.default,
+            alignment = Alignment.Top
+        ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Header
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(all = spacing.default),
-            contentAlignment = Alignment.Center
+        Header(
+            modifier = modifier.padding(
+                all = LocalSpacing.current.default
+            )
+        )
+        Body(
+            modifier = modifier.padding(
+                all = LocalSpacing.current.default
+            )
+        )
+    }
+}
+
+@Composable
+fun Header(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Illustration=2
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                painter = painterResource(id = R.drawable.illustration_2),
+                painter = painterResource(id = R.drawable.illustration_2_objects_left),
                 contentDescription = ""
             )
-            Text(
-                text = "Welcome to Water My Plants!",
-                style = MaterialTheme.typography.displaySmall.copy(textAlign = TextAlign.Center)
+            Image(
+                painter = painterResource(id = R.drawable.illustration_2_objects_right),
+                contentDescription = ""
             )
         }
-        // Body
+        // Header text
+        Text(
+            text = "Welcome to Water My Plants!",
+            style = MaterialTheme.typography.displaySmall.copy(textAlign = TextAlign.Center)
+        )
+    }
+}
+
+@Composable
+fun Body(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(
+            space = LocalSpacing.current.default,
+            alignment = Alignment.Top
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Welcome animation
+        Row(
+            modifier = modifier
+                .wrapContentSize()
+                .padding(
+                    top = LocalSpacing.current.large,
+                    bottom = LocalSpacing.current.large
+                ),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = (-38).dp,
+                alignment = Alignment.CenterHorizontally
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.illustration_1_plant_1),
+                contentDescription = ""
+            )
+            Image(
+                painter = painterResource(id = R.drawable.illustration_1_plant_2),
+                contentDescription = ""
+            )
+            Image(
+                painter = painterResource(id = R.drawable.illustration_1_plant_3),
+                contentDescription = ""
+            )
+        }
+        // Welcome text
         Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = LocalSpacing.current.small,
+                    vertical = LocalSpacing.current.large
+                ),
+            verticalArrangement = Arrangement.spacedBy(
+                LocalSpacing.current.small,
+                Alignment.CenterVertically
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Welcome animation
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(
-                    (-38).dp,
-                    Alignment.CenterHorizontally
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.plant_1),
-                    contentDescription = ""
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.plant_2),
-                    contentDescription = ""
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.plant_3),
-                    contentDescription = ""
-                )
-            }
-            // Welcome text
-            Column(
-                modifier = modifier
-                    .padding(
-                        horizontal = spacing.small,
-                        vertical = spacing.large
-                    ),
-                verticalArrangement = Arrangement.spacedBy(
-                    spacing.small,
-                    Alignment.CenterVertically
-                ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = "Start your journey",
-                    style = MaterialTheme.typography.titleLarge.copy(textAlign = TextAlign.Center)
-                )
-                Text(
-                    text = "There are no plants in the list, please add your first plant",
-                    style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
-                    color = MaterialTheme.colorScheme.onBackgroundVariant
-                )
-            }
-            // Button container
-            Column(
-                verticalArrangement = Arrangement.spacedBy(
-                    spacing.small,
-                    Alignment.Top
-                ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Button(
-                    modifier = modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
-                    onClick = {
+            Text(
+                text = "Start your journey",
+                style = MaterialTheme.typography.titleLarge.copy(textAlign = TextAlign.Center)
+            )
+            Text(
+                text = "There are no plants in the list, please add your first plant",
+                style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
+                color = MaterialTheme.colorScheme.onBackgroundVariant
+            )
+        }
+        // Button container
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(all = LocalSpacing.current.default),
+            verticalArrangement = Arrangement.spacedBy(
+                space = LocalSpacing.current.small,
+                alignment = Alignment.Top
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Button(
+                modifier = modifier.height(ButtonDefaults.MinHeight + LocalDensity.current.positiveTwo),
+                onClick = {
 
-                    }
-                ) {
-                    IconAdd(
-                        modifier = Modifier
-                            .height(IntrinsicSize.Min)
-                            .width(IntrinsicSize.Min)
-                    )
-                    Text(
-                        text = "Add my first plant",
-                        style = MaterialTheme.typography.labelLarge,
-                    )
                 }
+            ) {
+                IconAdd(
+                    modifier = Modifier
+                        .height(IntrinsicSize.Min)
+                        .width(IntrinsicSize.Min)
+                )
+                Text(
+                    text = "Add my first plant",
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
     }
-
 }
 
 @Preview
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen(onCreatePlantClick = { /*TODO*/ })
+    WaterMyPlantsTheme {
+        WelcomeScreen(onCreatePlantClick = { })
+    }
 }
