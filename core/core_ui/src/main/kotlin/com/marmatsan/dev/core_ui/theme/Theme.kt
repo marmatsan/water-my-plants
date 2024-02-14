@@ -11,6 +11,49 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.marmatsan.dev.core_ui.theme.error10
+import com.marmatsan.dev.core_ui.theme.error100
+import com.marmatsan.dev.core_ui.theme.error20
+import com.marmatsan.dev.core_ui.theme.error30
+import com.marmatsan.dev.core_ui.theme.error40
+import com.marmatsan.dev.core_ui.theme.error80
+import com.marmatsan.dev.core_ui.theme.error90
+import com.marmatsan.dev.core_ui.theme.neutral0
+import com.marmatsan.dev.core_ui.theme.neutral10
+import com.marmatsan.dev.core_ui.theme.neutral20
+import com.marmatsan.dev.core_ui.theme.neutral40
+import com.marmatsan.dev.core_ui.theme.neutral6
+import com.marmatsan.dev.core_ui.theme.neutral70
+import com.marmatsan.dev.core_ui.theme.neutral90
+import com.marmatsan.dev.core_ui.theme.neutral95
+import com.marmatsan.dev.core_ui.theme.neutral98
+import com.marmatsan.dev.core_ui.theme.neutralVariant30
+import com.marmatsan.dev.core_ui.theme.neutralVariant50
+import com.marmatsan.dev.core_ui.theme.neutralVariant60
+import com.marmatsan.dev.core_ui.theme.neutralVariant80
+import com.marmatsan.dev.core_ui.theme.neutralVariant90
+import com.marmatsan.dev.core_ui.theme.primary10
+import com.marmatsan.dev.core_ui.theme.primary100
+import com.marmatsan.dev.core_ui.theme.primary20
+import com.marmatsan.dev.core_ui.theme.primary30
+import com.marmatsan.dev.core_ui.theme.primary40
+import com.marmatsan.dev.core_ui.theme.primary80
+import com.marmatsan.dev.core_ui.theme.primary90
+import com.marmatsan.dev.core_ui.theme.secondary10
+import com.marmatsan.dev.core_ui.theme.secondary100
+import com.marmatsan.dev.core_ui.theme.secondary20
+import com.marmatsan.dev.core_ui.theme.secondary30
+import com.marmatsan.dev.core_ui.theme.secondary40
+import com.marmatsan.dev.core_ui.theme.secondary80
+import com.marmatsan.dev.core_ui.theme.secondary90
+import com.marmatsan.dev.core_ui.theme.shapes
+import com.marmatsan.dev.core_ui.theme.tertiary10
+import com.marmatsan.dev.core_ui.theme.tertiary100
+import com.marmatsan.dev.core_ui.theme.tertiary20
+import com.marmatsan.dev.core_ui.theme.tertiary30
+import com.marmatsan.dev.core_ui.theme.tertiary40
+import com.marmatsan.dev.core_ui.theme.tertiary80
+import com.marmatsan.dev.core_ui.theme.tertiary90
 
 private val DarkColorScheme = darkColorScheme(
     primary = primary80,
@@ -98,6 +141,7 @@ fun WaterMyPlantsTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
+        shapes = shapes,
         typography = Typography,
         content = content
     )

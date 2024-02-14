@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.marmatsan.dev.core_ui.dimensions.theme
+package com.marmatsan.dev.core_ui.theme
 
 import androidx.compose.ui.graphics.Color
 
