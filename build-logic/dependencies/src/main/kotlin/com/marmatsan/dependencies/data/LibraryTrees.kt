@@ -108,6 +108,17 @@ val androidXComposeLibraryTree = tree(Library(group = "androidx")) {
         )
         tree(
             Library(
+                group = "material", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "material",
+                        artifacts = listOf("material-icons-extended"),
+                        version = DependenciesPlugin.Versions.composeVersion
+                    )
+                )
+            )
+        )
+        tree(
+            Library(
                 group = "material3", artifactsGroups = listOf(
                     ArtifactsGroup(
                         name = "material3",
