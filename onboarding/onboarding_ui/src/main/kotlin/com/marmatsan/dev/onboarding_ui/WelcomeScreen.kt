@@ -5,15 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.marmatsan.core_ui.iconadd.IconAdd
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.dimensions.theme.WaterMyPlantsTheme
@@ -59,7 +56,7 @@ fun WelcomeScreen(
         )
         Body(
             modifier = modifier.padding(
-                all = LocalSpacing.current.default
+                    all = LocalSpacing.current.default
             )
         )
     }
@@ -92,6 +89,7 @@ fun Header(
         // Header text
         Text(
             text = "Welcome to Water My Plants!",
+            color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.displaySmall.copy(textAlign = TextAlign.Center)
         )
     }
@@ -101,10 +99,14 @@ fun Header(
 fun Body(
     modifier: Modifier = Modifier
 ) {
+    val spacing = LocalSpacing.current
+
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(all = spacing.default),
         verticalArrangement = Arrangement.spacedBy(
-            space = LocalSpacing.current.default,
+            space = spacing.default,
             alignment = Alignment.Top
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -112,10 +114,11 @@ fun Body(
         // Welcome animation
         Row(
             modifier = modifier
-                .wrapContentSize()
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(
-                    top = LocalSpacing.current.large,
-                    bottom = LocalSpacing.current.large
+                    top = spacing.large,
+                    bottom = spacing.large
                 ),
             horizontalArrangement = Arrangement.spacedBy(
                 space = (-38).dp,
@@ -140,21 +143,25 @@ fun Body(
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .weight(1f)
                 .padding(
-                    horizontal = LocalSpacing.current.small,
-                    vertical = LocalSpacing.current.large
+                    horizontal = spacing.large,
+                    vertical = spacing.default
                 ),
             verticalArrangement = Arrangement.spacedBy(
-                LocalSpacing.current.small,
+                spacing.small,
                 Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
+                modifier = modifier.fillMaxWidth(),
                 text = "Start your journey",
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.titleLarge.copy(textAlign = TextAlign.Center)
             )
             Text(
+                modifier = modifier.fillMaxWidth(),
                 text = "There are no plants in the list, please add your first plant",
                 style = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center),
                 color = MaterialTheme.colorScheme.onBackgroundVariant
@@ -164,9 +171,10 @@ fun Body(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(all = LocalSpacing.current.default),
+                .weight(1f)
+                .padding(all = spacing.default),
             verticalArrangement = Arrangement.spacedBy(
-                space = LocalSpacing.current.small,
+                space = spacing.default,
                 alignment = Alignment.Top
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -177,11 +185,6 @@ fun Body(
 
                 }
             ) {
-                IconAdd(
-                    modifier = Modifier
-                        .height(IntrinsicSize.Min)
-                        .width(IntrinsicSize.Min)
-                )
                 Text(
                     text = "Add my first plant",
                     style = MaterialTheme.typography.labelLarge,

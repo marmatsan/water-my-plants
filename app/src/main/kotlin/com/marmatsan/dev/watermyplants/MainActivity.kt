@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.marmatsan.dev.core_ui.dimensions.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.onboarding_ui.WelcomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,18 +65,19 @@ class MainActivity : ComponentActivity() {
                 // val startDestination by splashScreenViewModel.startDestination.collectAsStateWithLifecycle()
                 val snackbarHostState = remember { SnackbarHostState() }
 
-                Scaffold(
+               /* Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { paddingValues ->
-                    /* val navController = rememberNavController()
+                    *//* val navController = rememberNavController()
                      SetupNavGraph(
                          navController = navController,
                          startDestination = startDestination,
                          paddingValues = paddingValues,
                          snackbarHostState = snackbarHostState
-                     )*/
-                }
+                     )*//*
+                }*/
+                WelcomeScreen(onCreatePlantClick = { /*TODO*/ })
             }
         }
     }

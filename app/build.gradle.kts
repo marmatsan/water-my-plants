@@ -28,6 +28,7 @@ android {
 dependencies {
     /* Modules */
     implementation(projects.core.coreUi)
+    implementation(projects.onboarding.onboardingUi)
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
