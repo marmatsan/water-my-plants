@@ -30,5 +30,8 @@ include(
     ":core:core_domain",
     ":core:core_ui",
     ":onboarding:onboarding_domain",
-    ":onboarding:onboarding_ui"
+    ":onboarding:onboarding_ui",
+    ":catalog:catalog_data",
+    ":catalog:catalog_domain",
+    ":catalog:catalog_ui"
 )
