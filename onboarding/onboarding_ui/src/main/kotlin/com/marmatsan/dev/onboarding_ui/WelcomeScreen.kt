@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -185,8 +186,14 @@ fun Body(
 
                 }
             ) {
+                Icon(
+                    painter = painterResource(id = com.marmatsan.core_ui.R.drawable.icon_add_18),
+                    contentDescription = ""
+                )
                 Text(
+                    modifier = modifier.padding(start = spacing.small),
                     text = "Add my first plant",
+                    color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.labelLarge,
                 )
             }
