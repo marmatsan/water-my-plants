@@ -1,4 +1,0 @@
-{
-  "preview-theme": "androidx.compose.material3.MaterialTheme",
-  "ambient-translations-path": "core/core_ui/src/main/ui-package-resources/style-mappings/figma_styles.json"
-}

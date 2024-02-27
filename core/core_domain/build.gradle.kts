@@ -4,6 +4,5 @@ plugins {
 }
 
 dependencies {
-    /* Modules */
-    implementation(projects.core.coreUi)
+
 }

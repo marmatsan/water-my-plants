@@ -6,5 +6,5 @@ plugins {
 }
 
 dependencies {
-
+    implementation(projects.core.coreDomain)
 }
