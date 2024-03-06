@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,22 +22,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.marmatsan.core_ui.button.ButtonStyle
 import com.marmatsan.core_ui.illustration.Illustration
 import com.marmatsan.core_ui.illustration.Number
 import com.marmatsan.dev.core_ui.components.relay.RelayButton
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
-import com.marmatsan.dev.core_ui.dimensions.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.dimensions.theme.onBackgroundVariant
+import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
 import com.marmatsan.onboarding_ui.R
 
 @Composable
 fun WelcomeScreen(
-    onCreatePlantClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCreatePlantClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -118,13 +118,11 @@ fun Body(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Illustration(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = spacing.large,
-                    vertical = spacing.large
-                ),
-            number = Number.Value1
+            number = Number.Value1,
+            padding = PaddingValues(
+                horizontal = spacing.large,
+                vertical = spacing.large
+            )
         )
         Content(
             modifier = Modifier
@@ -158,12 +156,21 @@ fun Content(
                 )
         )
         RelayButton(
-            text = stringResource(id = R.string.welcome_screen_button_create_plant),
-            density = density.positiveTwo,
-            icon = Icons.Outlined.Add
-        ) {
-            // TODO
-        }
+            modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
+            buttonStyle = ButtonStyle.Filled,
+            label = stringResource(id = R.string.welcome_screen_button_create_plant),
+            icon = {
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = stringResource(id = com.marmatsan.core_domain.R.string.cd_button_icon),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            },
+            onClick = {
+
+            }
+        )
     }
 }
 
@@ -197,7 +204,8 @@ fun Texts(
 }
 
 @Preview(
-    device = Devices.PIXEL_7_PRO
+    widthDp = 484,
+    heightDp = 988
 )
 @Composable
 fun WelcomeScreenPreview() {
