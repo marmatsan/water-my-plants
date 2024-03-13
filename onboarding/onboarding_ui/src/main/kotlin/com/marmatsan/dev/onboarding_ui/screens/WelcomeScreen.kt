@@ -26,8 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.core_ui.button.ButtonStyle
 import com.marmatsan.core_ui.illustration.Illustration
-import com.marmatsan.core_ui.illustration.Number
-import com.marmatsan.dev.core_ui.components.relay.RelayButton
+import com.marmatsan.dev.core_ui.components.custom.button.Button
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
@@ -155,10 +154,10 @@ fun Content(
                     all = spacing.default
                 )
         )
-        RelayButton(
+        Button(
             modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
             buttonStyle = ButtonStyle.Filled,
-            label = stringResource(id = R.string.welcome_screen_button_create_plant),
+            labelText = stringResource(id = R.string.welcome_screen_button_create_plant),
             icon = {
                 Icon(
                     modifier = Modifier.size(18.dp),
@@ -203,10 +202,7 @@ fun Texts(
     }
 }
 
-@Preview(
-    widthDp = 484,
-    heightDp = 988
-)
+@Preview
 @Composable
 fun WelcomeScreenPreview() {
     WaterMyPlantsTheme {

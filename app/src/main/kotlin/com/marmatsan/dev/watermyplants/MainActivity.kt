@@ -11,8 +11,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.marmatsan.dev.core_ui.components.custom.Picker
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.onboarding_ui.screens.WelcomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                          snackbarHostState = snackbarHostState
                      )*//*
                 }*/
-                WelcomeScreen(onCreatePlantClick = { /*TODO*/ })
+                Picker()
             }
         }
     }

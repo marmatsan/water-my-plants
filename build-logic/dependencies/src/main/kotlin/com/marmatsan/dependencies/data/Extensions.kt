@@ -12,6 +12,9 @@ fun VersionCatalog.getLibrary(libraryAlias: String): String {
 fun DependencyHandlerScope.implementation(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("implementation", dependencyNotation)
 
+fun DependencyHandlerScope.implementation(dependency: org.gradle.api.artifacts.Dependency): org.gradle.api.artifacts.Dependency? =
+    add("implementation", dependency)
+
 fun DependencyHandlerScope.testImplementation(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("testImplementation", dependencyNotation)
 
@@ -21,12 +24,7 @@ fun DependencyHandlerScope.ksp(dependencyNotation: String): org.gradle.api.artif
 fun DependencyResolutionManagement.buildVersionCatalogs() {
     versionCatalogs {
         create("libs") {
-            nonComposeLibraryTrees.forEach {
-                createLibraries(it.getLibraries())
-            }
-        }
-        create("libsCompose") {
-            composeLibraryTrees.forEach {
+            libraryTrees.forEach {
                 createLibraries(it.getLibraries())
             }
         }

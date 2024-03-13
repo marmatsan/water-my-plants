@@ -89,6 +89,9 @@ val ColorScheme.onBackgroundVariant: Color
 val ColorScheme.surfaceContainerLow: Color
     @Composable
     get() = if (!isSystemInDarkTheme()) neutral96 else neutral10
+val ColorScheme.surfaceContainerHighest: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral90 else neutral22
 
 @Composable
 fun WaterMyPlantsTheme(
@@ -110,7 +113,7 @@ fun WaterMyPlantsTheme(
         SideEffect {
             val window = (view.context as Activity).window
             // TODO: bugfix-Only change if app theme is device theme is set to dark
-            // TODO: update-Change to edge-to-edge https://developer.android.com/develop/ui/views/layout/edge-to-edge
+            // TODO: feature-Change to edge-to-edge https://developer.android.com/develop/ui/views/layout/edge-to-edge
             window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isInDarkTheme
         }

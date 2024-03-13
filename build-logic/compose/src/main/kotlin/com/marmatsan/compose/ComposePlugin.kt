@@ -39,17 +39,20 @@ class ComposePlugin : Plugin<Project> {
             }
 
             composeOptions {
-                kotlinCompilerExtensionVersion = DependenciesPlugin.Versions.composeCompilerVersion
+                kotlinCompilerExtensionVersion =
+                    DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
             }
 
         }
 
-        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libsCompose")
+        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+        libs.libraryAliases.forEach {
+            println(it)
+        }
 
         project.dependencies {
-            libs.libraryAliases.forEach { libraryAlias ->
-                implementation(libs.getLibrary(libraryAlias))
-            }
+            implementation(platform(libs.getLibrary("androidx.compose")))
         }
 
     }

@@ -31,3 +31,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Relay UI packages
+core/core_ui/src/main/ui-packages/
