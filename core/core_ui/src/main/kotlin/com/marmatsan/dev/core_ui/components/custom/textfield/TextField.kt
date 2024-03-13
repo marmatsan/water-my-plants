@@ -1,13 +1,24 @@
 package com.marmatsan.dev.core_ui.components.custom.textfield
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable
 fun TextField(
@@ -162,6 +173,38 @@ fun TextField(
                 disabledSupportingTextColor = textFieldColors.disabledSupportingTextColor,
                 errorSupportingTextColor = textFieldColors.errorSupportingTextColor
             )
+        )
+    }
+}
+
+class TextFieldStyleParameterProvider : PreviewParameterProvider<TextFieldStyle> {
+    override val values: Sequence<TextFieldStyle>
+        get() = sequenceOf(*TextFieldStyle.entries.toTypedArray())
+}
+
+@Preview
+@Composable
+private fun TextFieldPreview(
+    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
+) {
+    WaterMyPlantsTheme {
+        TextField(
+            textFieldStyle = textFieldStyle,
+            label = { Text("Label") },
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = ""
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Cancel,
+                    contentDescription = ""
+                )
+            }
         )
     }
 }

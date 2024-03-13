@@ -47,7 +47,14 @@ private val DarkColorScheme = darkColorScheme(
     onErrorContainer = error90,
     outline = neutralVariant60,
     outlineVariant = neutralVariant30,
-    scrim = neutral0
+    scrim = neutral0,
+    surfaceBright = neutral24,
+    surfaceContainer = neutral12,
+    surfaceContainerHigh = neutral17,
+    surfaceContainerHighest = neutral22,
+    surfaceContainerLow = neutral10,
+    surfaceContainerLowest = neutral4,
+    surfaceDim = neutral6
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -79,19 +86,20 @@ private val LightColorScheme = lightColorScheme(
     onErrorContainer = error10,
     outline = neutralVariant50,
     outlineVariant = neutralVariant80,
-    scrim = neutral0
+    scrim = neutral0,
+    surfaceBright = neutral98,
+    surfaceContainer = neutral94,
+    surfaceContainerHigh = neutral92,
+    surfaceContainerHighest = neutral90,
+    surfaceContainerLow = neutral96,
+    surfaceContainerLowest = neutral100,
+    surfaceDim = neutral87
 )
 
 // Extended MaterialTheme colors
 val ColorScheme.onBackgroundVariant: Color
     @Composable
     get() = if (!isSystemInDarkTheme()) neutral40 else neutral70
-val ColorScheme.surfaceContainerLow: Color
-    @Composable
-    get() = if (!isSystemInDarkTheme()) neutral96 else neutral10
-val ColorScheme.surfaceContainerHighest: Color
-    @Composable
-    get() = if (!isSystemInDarkTheme()) neutral90 else neutral22
 
 @Composable
 fun WaterMyPlantsTheme(
