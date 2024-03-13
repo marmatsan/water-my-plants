@@ -27,7 +27,7 @@ class TextFieldColors(
         }
     val disabledContainerColor: Color
         @Composable get() = when (textFieldStyle) {
-            TextFieldStyle.Filled -> MaterialTheme.colorScheme.onSurface
+            TextFieldStyle.Filled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f)
             TextFieldStyle.Outlined -> Color.Transparent
         }
     val errorContainerColor: Color
@@ -44,7 +44,7 @@ class TextFieldColors(
     val unfocusedIndicatorColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledIndicatorColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorIndicatorColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
     val focusedLeadingIconColor: Color
@@ -52,7 +52,7 @@ class TextFieldColors(
     val unfocusedLeadingIconColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledLeadingIconColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorLeadingIconColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val focusedTrailingIconColor: Color
@@ -60,7 +60,7 @@ class TextFieldColors(
     val unfocusedTrailingIconColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledTrailingIconColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorTrailingIconColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
     val focusedLabelColor: Color
@@ -68,7 +68,7 @@ class TextFieldColors(
     val unfocusedLabelColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledLabelColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorLabelColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
     val focusedPlaceholderColor: Color
@@ -76,7 +76,7 @@ class TextFieldColors(
     val unfocusedPlaceholderColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledPlaceholderColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorPlaceholderColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val focusedSupportingTextColor: Color
@@ -84,7 +84,7 @@ class TextFieldColors(
     val unfocusedSupportingTextColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledSupportingTextColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+        @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     val errorSupportingTextColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
     val focusedPrefixColor: Color
@@ -92,7 +92,7 @@ class TextFieldColors(
     val unfocusedPrefixColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledPrefixColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorPrefixColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
     val focusedSuffixColor: Color
@@ -100,7 +100,7 @@ class TextFieldColors(
     val unfocusedSuffixColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
     val disabledSuffixColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onSurface
+        @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     val errorSuffixColor: Color
         @Composable get() = MaterialTheme.colorScheme.error
 }

@@ -184,13 +184,70 @@ class TextFieldStyleParameterProvider : PreviewParameterProvider<TextFieldStyle>
 
 @Preview
 @Composable
-private fun TextFieldPreview(
+private fun TextFieldLabelTextPreview(
     @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
 ) {
     WaterMyPlantsTheme {
         TextField(
             textFieldStyle = textFieldStyle,
             label = { Text("Label") },
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = ""
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Cancel,
+                    contentDescription = ""
+                )
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TextFieldDisabledTextPreview(
+    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
+) {
+    WaterMyPlantsTheme {
+        TextField(
+            textFieldStyle = textFieldStyle,
+            label = { Text("Label") },
+            readOnly = true,
+            enabled = false,
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = ""
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Cancel,
+                    contentDescription = ""
+                )
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TextFieldInputTextPreview(
+    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
+) {
+    WaterMyPlantsTheme {
+        TextField(
+            textFieldStyle = textFieldStyle,
+            label = { Text("Label") },
+            value = "Input",
             leadingIcon = {
                 Icon(
                     modifier = Modifier.size(24.dp),
