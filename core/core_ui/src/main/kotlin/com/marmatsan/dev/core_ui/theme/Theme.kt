@@ -1,5 +1,6 @@
-package com.marmatsan.dev.core_ui.dimensions.theme
+package com.marmatsan.dev.core_ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -9,51 +10,13 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import com.marmatsan.dev.core_ui.theme.error10
-import com.marmatsan.dev.core_ui.theme.error100
-import com.marmatsan.dev.core_ui.theme.error20
-import com.marmatsan.dev.core_ui.theme.error30
-import com.marmatsan.dev.core_ui.theme.error40
-import com.marmatsan.dev.core_ui.theme.error80
-import com.marmatsan.dev.core_ui.theme.error90
-import com.marmatsan.dev.core_ui.theme.neutral0
-import com.marmatsan.dev.core_ui.theme.neutral10
-import com.marmatsan.dev.core_ui.theme.neutral20
-import com.marmatsan.dev.core_ui.theme.neutral40
-import com.marmatsan.dev.core_ui.theme.neutral6
-import com.marmatsan.dev.core_ui.theme.neutral70
-import com.marmatsan.dev.core_ui.theme.neutral90
-import com.marmatsan.dev.core_ui.theme.neutral95
-import com.marmatsan.dev.core_ui.theme.neutral98
-import com.marmatsan.dev.core_ui.theme.neutralVariant30
-import com.marmatsan.dev.core_ui.theme.neutralVariant50
-import com.marmatsan.dev.core_ui.theme.neutralVariant60
-import com.marmatsan.dev.core_ui.theme.neutralVariant80
-import com.marmatsan.dev.core_ui.theme.neutralVariant90
-import com.marmatsan.dev.core_ui.theme.primary10
-import com.marmatsan.dev.core_ui.theme.primary100
-import com.marmatsan.dev.core_ui.theme.primary20
-import com.marmatsan.dev.core_ui.theme.primary30
-import com.marmatsan.dev.core_ui.theme.primary40
-import com.marmatsan.dev.core_ui.theme.primary80
-import com.marmatsan.dev.core_ui.theme.primary90
-import com.marmatsan.dev.core_ui.theme.secondary10
-import com.marmatsan.dev.core_ui.theme.secondary100
-import com.marmatsan.dev.core_ui.theme.secondary20
-import com.marmatsan.dev.core_ui.theme.secondary30
-import com.marmatsan.dev.core_ui.theme.secondary40
-import com.marmatsan.dev.core_ui.theme.secondary80
-import com.marmatsan.dev.core_ui.theme.secondary90
-import com.marmatsan.dev.core_ui.theme.shapes
-import com.marmatsan.dev.core_ui.theme.tertiary10
-import com.marmatsan.dev.core_ui.theme.tertiary100
-import com.marmatsan.dev.core_ui.theme.tertiary20
-import com.marmatsan.dev.core_ui.theme.tertiary30
-import com.marmatsan.dev.core_ui.theme.tertiary40
-import com.marmatsan.dev.core_ui.theme.tertiary80
-import com.marmatsan.dev.core_ui.theme.tertiary90
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import com.marmatsan.dev.core_ui.dimensions.theme.Typography
 
 private val DarkColorScheme = darkColorScheme(
     primary = primary80,
@@ -122,26 +85,43 @@ private val LightColorScheme = lightColorScheme(
 // Extended MaterialTheme colors
 val ColorScheme.onBackgroundVariant: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) neutral70 else neutral40
+    get() = if (!isSystemInDarkTheme()) neutral40 else neutral70
+val ColorScheme.surfaceContainerLow: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral96 else neutral10
+val ColorScheme.surfaceContainerHighest: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral90 else neutral22
 
 @Composable
 fun WaterMyPlantsTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    isInDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     // Dynamic color is available on Android 12+
     val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val colorScheme = when {
-        supportsDynamicColors && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
-        supportsDynamicColors && !darkTheme -> dynamicLightColorScheme(LocalContext.current)
-        darkTheme -> DarkColorScheme
+        supportsDynamicColors && isInDarkTheme -> dynamicDarkColorScheme(LocalContext.current)
+        supportsDynamicColors && !isInDarkTheme -> dynamicLightColorScheme(LocalContext.current)
+        isInDarkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            // TODO: bugfix-Only change if app theme is device theme is set to dark
+            // TODO: feature-Change to edge-to-edge https://developer.android.com/develop/ui/views/layout/edge-to-edge
+            window.statusBarColor = colorScheme.surface.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isInDarkTheme
+        }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        shapes = shapes,
+        shapes = Shapes,
         typography = Typography,
         content = content
     )

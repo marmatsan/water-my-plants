@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plant_screen_button_add_image">Add image</string>
+    <string name="plant_screen_button_change_image">Change image</string>
+    <string name="plant_screen_buton_create_plant">Create plant</string>
+    <string name="plant_screen_dialog_ai_assistant_headline">AI assistant</string>
+    <string name="plant_screen_dialog_ai_assistant_body">Do you want the assistance of the integrated AI? It will identify the plant type from the photo you have added and automatically populate its associated information.\n\nYou can make manual changes afterward as needed.</string>
+    <string name="plant_screen_dialog_action2">Cancel</string>
+    <string name="plant_screen_dialog_action1">Confirm</string>
+    <string name="plant_screen_dialog_plant_size_headline">Plant size</string>
+    <string name="plant_screen_text_field_label_plant_name">Plant name*</string>
+    <string name="plant_screen_text_field_label_watering_days">Watering days*</string>
+    <string name="plant_screen_text_field_label_watering_time">Watering time*</string>
+    <string name="plant_screen_text_field_label_water_amount">Water amount*</string>
+    <string name="plant_screen_text_field_label_plant_size">Plant size</string>
+    <string name="plant_screen_text_field_label_description">Description</string>
+    <string name="plant_screen_assist_chip_keep_changes">Keep changes</string>
+    <string name="plant_screen_assist_chip_regenerate">Regenerate</string>
+    <string name="plant_screen_assist_chip_discard_changes">Discard</string>
+    <string name="plant_screen_dialog_plant_size_option_1">Small</string>
+    <string name="plant_screen_dialog_plant_size_option_2">Medium</string>
+    <string name="plant_screen_dialog_plant_size_option_3">Large</string>
+    <string name="plant_screen_dialog_plant_size_option_4">Extra large</string>
+    <string name="plant_screen_dialog_watering_days_headline">Watering days</string>
+    <string name="plant_screen_dialog_watering_days_day1">Monday</string>
+    <string name="plant_screen_dialog_watering_days_day2">Tuesday</string>
+    <string name="plant_screen_dialog_watering_days_day3">Wednesday</string>
+    <string name="plant_screen_dialog_watering_days_day4">Thursday</string>
+    <string name="plant_screen_dialog_watering_days_day5">Friday</string>
+    <string name="plant_screen_dialog_watering_days_day6">Saturday</string>
+    <string name="plant_screen_dialog_watering_days_day7">Sunday</string>
+</resources>

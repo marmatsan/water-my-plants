@@ -4,35 +4,44 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-val shapes = Shapes(
+object ShapesDefaults {
+    val none = 0.dp
+    val extraSmall = 4.dp
+    val small = 8.dp
+    val medium = 12.dp
+    val large = 16.dp
+    val extraLarge = 28.dp
+}
+
+val Shapes = Shapes(
     extraSmall = RoundedCornerShape(
-        topStart = 4.dp,
-        topEnd = 4.dp,
-        bottomStart = 4.dp,
-        bottomEnd = 4.dp
+        topStart = ShapesDefaults.extraSmall,
+        topEnd = ShapesDefaults.extraSmall,
+        bottomStart = ShapesDefaults.extraSmall,
+        bottomEnd = ShapesDefaults.extraSmall
     ),
     small = RoundedCornerShape(
-        topStart = 8.dp,
-        topEnd = 8.dp,
-        bottomStart = 8.dp,
-        bottomEnd = 8.dp
+        topStart = ShapesDefaults.small,
+        topEnd = ShapesDefaults.small,
+        bottomStart = ShapesDefaults.small,
+        bottomEnd = ShapesDefaults.small
     ),
     medium = RoundedCornerShape(
-        topStart = 12.dp,
-        topEnd = 12.dp,
-        bottomStart = 12.dp,
-        bottomEnd = 12.dp
+        topStart = ShapesDefaults.medium,
+        topEnd = ShapesDefaults.medium,
+        bottomStart = ShapesDefaults.medium,
+        bottomEnd = ShapesDefaults.medium
     ),
     large = RoundedCornerShape(
-        topStart = 16.dp,
-        topEnd = 16.dp,
-        bottomStart = 16.dp,
-        bottomEnd = 16.dp
+        topStart = ShapesDefaults.large,
+        topEnd = ShapesDefaults.large,
+        bottomStart = ShapesDefaults.large,
+        bottomEnd = ShapesDefaults.large
     ),
     extraLarge = RoundedCornerShape(
-        topStart = 28.dp,
-        topEnd = 28.dp,
-        bottomStart = 28.dp,
-        bottomEnd = 28.dp
+        topStart = ShapesDefaults.extraLarge,
+        topEnd = ShapesDefaults.extraLarge,
+        bottomStart = ShapesDefaults.extraLarge,
+        bottomEnd = ShapesDefaults.extraLarge
     )
 )
