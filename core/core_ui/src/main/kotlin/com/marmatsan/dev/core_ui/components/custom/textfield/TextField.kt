@@ -3,6 +3,7 @@ package com.marmatsan.dev.core_ui.components.custom.textfield
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,8 +26,8 @@ fun TextField(
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     singleLine: Boolean = false,
-    maxLines: Double = 1.0,
-    minLines: Double = 1.0,
+    maxLines: Int = 1,
+    minLines: Int = 1,
     textFieldColors: TextFieldColors = TextFieldColors(
         textFieldStyle
     ),
@@ -50,8 +51,8 @@ fun TextField(
             supportingText = supportingText,
             isError = isError,
             singleLine = singleLine,
-            maxLines = maxLines.toInt(),
-            minLines = minLines.toInt(),
+            maxLines = maxLines,
+            minLines = minLines,
             shape = RoundedCornerShape(
                 topStart = textFieldCornerRadii.borderRadiusTopStart,
                 topEnd = textFieldCornerRadii.borderRadiusTopEnd,
@@ -120,8 +121,8 @@ fun TextField(
             supportingText = supportingText,
             isError = isError,
             singleLine = singleLine,
-            maxLines = maxLines.toInt(),
-            minLines = minLines.toInt(),
+            maxLines = maxLines,
+            minLines = minLines,
             shape = RoundedCornerShape(
                 topStart = textFieldCornerRadii.borderRadiusTopStart,
                 topEnd = textFieldCornerRadii.borderRadiusTopEnd,

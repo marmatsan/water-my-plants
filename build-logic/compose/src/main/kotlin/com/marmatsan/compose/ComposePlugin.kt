@@ -47,12 +47,40 @@ class ComposePlugin : Plugin<Project> {
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-        libs.libraryAliases.forEach {
-            println(it)
-        }
+        println(libs.getLibrary("androidx.compose"))
 
         project.dependencies {
             implementation(platform(libs.getLibrary("androidx.compose")))
+            implementation("androidx.compose.animation:animation")
+            implementation("androidx.compose.animation:animation-core")
+            implementation("androidx.compose.animation:animation-graphics")
+            implementation("androidx.compose.foundation:foundation")
+            implementation("androidx.compose.foundation:foundation-layout")
+            implementation("androidx.compose.material:material")
+            implementation("androidx.compose.material:material-icons-core")
+            implementation("androidx.compose.material:material-icons-extended")
+            implementation("androidx.compose.material:material-ripple")
+            implementation("androidx.compose.material3:material3")
+            implementation("androidx.compose.material3:material3-window-size-class")
+            implementation("androidx.compose.runtime:runtime")
+            implementation("androidx.compose.runtime:runtime-livedata")
+            implementation("androidx.compose.runtime:runtime-rxjava2")
+            implementation("androidx.compose.runtime:runtime-rxjava3")
+            implementation("androidx.compose.runtime:runtime-saveable")
+            implementation("androidx.compose.ui:ui")
+            implementation("androidx.compose.ui:ui-geometry")
+            implementation("androidx.compose.ui:ui-graphics")
+            implementation("androidx.compose.ui:ui-test")
+            implementation("androidx.compose.ui:ui-test-junit4")
+            implementation("androidx.compose.ui:ui-test-manifest")
+            implementation("androidx.compose.ui:ui-text")
+            implementation("androidx.compose.ui:ui-text-google-fonts")
+            implementation("androidx.compose.ui:ui-tooling")
+            implementation("androidx.compose.ui:ui-tooling-data")
+            implementation("androidx.compose.ui:ui-tooling-preview")
+            implementation("androidx.compose.ui:ui-unit")
+            implementation("androidx.compose.ui:ui-util")
+            implementation("androidx.compose.ui:ui-viewbinding")
         }
 
     }

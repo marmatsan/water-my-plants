@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
@@ -23,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.surfaceContainerLow
 
 @Composable
 fun Button(
