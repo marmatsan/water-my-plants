@@ -39,18 +39,15 @@ class ComposePlugin : Plugin<Project> {
             }
 
             composeOptions {
-                kotlinCompilerExtensionVersion =
-                    DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
+                kotlinCompilerExtensionVersion = DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
             }
 
         }
 
-        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-        println(libs.getLibrary("androidx.compose"))
+        val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libsCompose")
 
         project.dependencies {
-            implementation(platform(libs.getLibrary("androidx.compose")))
+            implementation(platform("androidx.compose:compose-bom:2024.02.02"))
             implementation("androidx.compose.animation:animation")
             implementation("androidx.compose.animation:animation-core")
             implementation("androidx.compose.animation:animation-graphics")
@@ -81,6 +78,9 @@ class ComposePlugin : Plugin<Project> {
             implementation("androidx.compose.ui:ui-unit")
             implementation("androidx.compose.ui:ui-util")
             implementation("androidx.compose.ui:ui-viewbinding")
+            libs.libraryAliases.forEach { libraryAlias ->
+                implementation(libs.getLibrary(libraryAlias))
+            }
         }
 
     }

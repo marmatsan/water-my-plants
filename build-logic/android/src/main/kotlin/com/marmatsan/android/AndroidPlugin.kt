@@ -3,10 +3,6 @@ package com.marmatsan.android
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
-import com.marmatsan.dependencies.data.getLibrary
-import com.marmatsan.dependencies.data.implementation
-import com.marmatsan.dependencies.data.ksp
-import com.marmatsan.dependencies.data.testImplementation
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -71,21 +67,13 @@ class AndroidPlugin : Plugin<Project> {
         }
         // Applied plugins
         project.pluginManager.apply("org.jetbrains.kotlin.android")
-        project.pluginManager.apply("com.google.dagger.hilt.android")
         project.pluginManager.apply("com.google.devtools.ksp")
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            /* Dependency injection */
-            implementation(libs.getLibrary("com.google.dagger.hilt.android"))
-            ksp(libs.getLibrary("com.google.dagger.hilt.android.compiler"))
 
-            /* Testing */
-            testImplementation(libs.getLibrary("org.junit.jupiter"))
-            testImplementation(libs.getLibrary("com.willowtreeapps.assertk"))
-            testImplementation(libs.getLibrary("io.mockk"))
         }
 
         project.tasks.withType<Test> {

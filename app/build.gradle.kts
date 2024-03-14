@@ -33,6 +33,4 @@ dependencies {
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
-    implementation(libs.bundles.androidx.datastore.datastore)
-    implementation(libs.com.google.protobuf)
 }

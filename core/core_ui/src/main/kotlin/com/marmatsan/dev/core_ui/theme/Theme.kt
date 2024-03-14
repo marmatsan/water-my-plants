@@ -47,14 +47,7 @@ private val DarkColorScheme = darkColorScheme(
     onErrorContainer = error90,
     outline = neutralVariant60,
     outlineVariant = neutralVariant30,
-    scrim = neutral0,
-    surfaceBright = neutral24,
-    surfaceContainer = neutral12,
-    surfaceContainerHigh = neutral17,
-    surfaceContainerHighest = neutral22,
-    surfaceContainerLow = neutral10,
-    surfaceContainerLowest = neutral4,
-    surfaceDim = neutral6
+    scrim = neutral0
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -86,20 +79,41 @@ private val LightColorScheme = lightColorScheme(
     onErrorContainer = error10,
     outline = neutralVariant50,
     outlineVariant = neutralVariant80,
-    scrim = neutral0,
-    surfaceBright = neutral98,
-    surfaceContainer = neutral94,
-    surfaceContainerHigh = neutral92,
-    surfaceContainerHighest = neutral90,
-    surfaceContainerLow = neutral96,
-    surfaceContainerLowest = neutral100,
-    surfaceDim = neutral87
+    scrim = neutral0
 )
 
 // Extended MaterialTheme colors
 val ColorScheme.onBackgroundVariant: Color
     @Composable
     get() = if (!isSystemInDarkTheme()) neutral40 else neutral70
+
+val ColorScheme.surfaceBright: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral98 else neutral24
+
+val ColorScheme.surfaceContainer: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral94 else neutral12
+
+val ColorScheme.surfaceContainerHigh: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral92 else neutral17
+
+val ColorScheme.surfaceContainerHighest: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral90 else neutral22
+
+val ColorScheme.surfaceContainerLow: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral96 else neutral10
+
+val ColorScheme.surfaceContainerLowest: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral100 else neutral4
+
+val ColorScheme.surfaceDim: Color
+    @Composable
+    get() = if (!isSystemInDarkTheme()) neutral87 else neutral6
 
 @Composable
 fun WaterMyPlantsTheme(

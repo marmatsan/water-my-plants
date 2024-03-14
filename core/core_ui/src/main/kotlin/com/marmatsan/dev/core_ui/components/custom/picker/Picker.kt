@@ -1,7 +1,7 @@
 package com.marmatsan.dev.core_ui.components.custom.picker
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -20,7 +20,7 @@ fun Picker(
     label: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = {
         Icon(
-            imageVector = Icons.Rounded.ExpandMore,
+            imageVector = Icons.Rounded.Add,
             contentDescription = ""
         )
     }
@@ -33,9 +33,7 @@ fun Picker(
         onValueChange = onValueChange,
         label = label,
         trailingIcon = trailingIcon,
-        textFieldColors = TextFieldDefaults.colors().copy(
-            
-        )
+        textFieldColors = TextFieldDefaults.colors()
     )
 
 }

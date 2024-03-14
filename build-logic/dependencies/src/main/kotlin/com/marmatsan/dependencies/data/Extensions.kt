@@ -24,7 +24,12 @@ fun DependencyHandlerScope.ksp(dependencyNotation: String): org.gradle.api.artif
 fun DependencyResolutionManagement.buildVersionCatalogs() {
     versionCatalogs {
         create("libs") {
-            libraryTrees.forEach {
+            nonComposeLibraryTrees.forEach {
+                createLibraries(it.getLibraries())
+            }
+        }
+        create("libsCompose") {
+            composeLibraryTrees.forEach {
                 createLibraries(it.getLibraries())
             }
         }

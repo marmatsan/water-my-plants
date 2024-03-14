@@ -7,28 +7,6 @@ import com.marmatsan.dependencies.plugin.DependenciesPlugin
 val androidXLibraryTree = tree(Library(group = "androidx")) {
     tree(
         Library(
-            group = "activity", artifactsGroups = listOf(
-                ArtifactsGroup(
-                    name = "activity",
-                    artifacts = listOf("activity-compose"),
-                    version = DependenciesPlugin.Versions.ACTIVITY_COMPOSE_VERSION
-                )
-            )
-        )
-    )
-    tree(
-        Library(
-            group = "compose", artifactsGroups = listOf(
-                ArtifactsGroup(
-                    name = "compose-bom",
-                    artifacts = listOf("compose-bom"),
-                    version = DependenciesPlugin.Versions.COMPOSE_BOM_VERSION
-                )
-            )
-        )
-    )
-    tree(
-        Library(
             group = "core", artifactsGroups = listOf(
                 ArtifactsGroup(
                     name = "core-ktx",
@@ -59,8 +37,61 @@ val androidXLibraryTree = tree(Library(group = "androidx")) {
             group = "lifecycle", artifactsGroups = listOf(
                 ArtifactsGroup(
                     name = "lifecycle",
-                    artifacts = listOf("lifecycle-runtime-ktx", "lifecycle-viewmodel"),
+                    artifacts = listOf("lifecycle-runtime-ktx"),
                     version = DependenciesPlugin.Versions.LIFECYCLE_VERSION
+                )
+            )
+        )
+    )
+}
+
+val androidXComposeLibraryTree = tree(Library(group = "androidx")) {
+    tree(
+        Library(
+            group = "activity", artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "activity",
+                    artifacts = listOf("activity-compose"),
+                    version = DependenciesPlugin.Versions.ACTIVITY_COMPOSE_VERSION
+                )
+            )
+        )
+    )
+    tree(
+        Library(
+            group = "compose"
+        )
+    ) {
+        tree(
+            Library(
+                group = "compiler", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "compiler",
+                        artifacts = listOf("compiler"),
+                        version = DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
+                    )
+                )
+            )
+        )
+    }
+    tree(
+        Library(
+            group = "lifecycle", artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "lifecycle",
+                    artifacts = listOf("lifecycle-viewmodel-compose", "lifecycle-runtime-compose"),
+                    version = DependenciesPlugin.Versions.LIFECYCLE_VERSION
+                )
+            )
+        )
+    )
+    tree(
+        Library(
+            group = "navigation", artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "navigation",
+                    artifacts = listOf("navigation-compose"),
+                    version = DependenciesPlugin.Versions.NAVIGATION_COMPOSE_VERSION
                 )
             )
         )
@@ -84,43 +115,6 @@ val comLibraryTree = tree(Library(group = "com")) {
             )
         }
     }
-    tree(Library(group = "google")) {
-        tree(
-            Library(
-                group = "dagger", artifactsGroups = listOf(
-                    ArtifactsGroup(
-                        name = "dagger",
-                        artifacts = listOf("hilt-android", "hilt-android-compiler"),
-                        version = DependenciesPlugin.Versions.DAGGER_HILT_VERSION
-                    )
-                )
-            )
-        )
-        tree(
-            Library(
-                group = "protobuf", artifactsGroups = listOf(
-                    ArtifactsGroup(
-                        name = "protobuf",
-                        artifacts = listOf("protobuf-javalite"),
-                        version = DependenciesPlugin.Versions.PROTOBUF_JAVALITE_VERSION
-                    )
-                )
-            )
-        )
-    }
-    tree(Library(group = "willowtreeapps")) {
-        tree(
-            Library(
-                group = "assertk", artifactsGroups = listOf(
-                    ArtifactsGroup(
-                        name = "assertk",
-                        artifacts = listOf("assertk"),
-                        version = DependenciesPlugin.Versions.ASSERTK_VERSION
-                    )
-                )
-            )
-        )
-    }
 }
 
 val orgLibraryTree = tree(Library(group = "org")) {
@@ -128,11 +122,6 @@ val orgLibraryTree = tree(Library(group = "org")) {
         tree(
             Library(
                 group = "kotlinx", artifactsGroups = listOf(
-                    ArtifactsGroup(
-                        name = "serialization",
-                        artifacts = listOf("kotlinx-serialization-json"),
-                        version = DependenciesPlugin.Versions.KOTLINX_SERIALIZATION_JSON_VERSION
-                    ),
                     ArtifactsGroup(
                         name = "gradle-configuration",
                         artifacts = listOf("kotlin-gradle-plugin", "kotlin-android-extensions"),
@@ -157,47 +146,5 @@ val orgLibraryTree = tree(Library(group = "org")) {
     }
 }
 
-val ioLibraryTree = tree(Library(group = "io")) {
-    tree(
-        Library(
-            group = "mockk", artifactsGroups = listOf(
-                ArtifactsGroup(
-                    name = "mockk",
-                    artifacts = listOf("mockk"),
-                    version = DependenciesPlugin.Versions.MOCKK_VERSION
-                )
-            )
-        )
-    )
-    tree(
-        Library(
-            group = "coil-kt", artifactsGroups = listOf(
-                ArtifactsGroup(
-                    name = "coil-compose",
-                    artifacts = listOf("coil-compose"),
-                    version = DependenciesPlugin.Versions.COIL_VERSION
-                )
-            )
-        )
-    )
-    tree(
-        Library(
-            group = "ktor", artifactsGroups = listOf(
-                ArtifactsGroup(
-                    name = "ktor",
-                    artifacts = listOf(
-                        "ktor-client-core",
-                        "ktor-client-android",
-                        "ktor-client-serialization",
-                        "ktor-client-content-negotiation",
-                        "ktor-serialization-kotlinx-json",
-                        "ktor-client-logging"
-                    ),
-                    version = DependenciesPlugin.Versions.KTOR_VERSION
-                )
-            )
-        )
-    )
-}
-
-val libraryTrees = listOf(androidXLibraryTree, comLibraryTree, orgLibraryTree, ioLibraryTree)
+val nonComposeLibraryTrees = listOf(androidXLibraryTree, comLibraryTree, orgLibraryTree)
+val composeLibraryTrees = listOf(androidXComposeLibraryTree)
