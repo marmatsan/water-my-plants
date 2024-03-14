@@ -1,7 +1,6 @@
 package com.marmatsan.dev.core_ui.components.custom.textfield
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Search
@@ -14,6 +13,7 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -44,9 +44,10 @@ fun TextField(
         TextFieldStyle.Filled -> TextFieldDefaults.colors()
         TextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors()
     },
-    textFieldCornerRadii: TextFieldCornerRadii = TextFieldCornerRadii(
-        textFieldStyle
-    )
+    textFieldShape: Shape = when (textFieldStyle) {
+        TextFieldStyle.Filled -> TextFieldDefaults.shape
+        TextFieldStyle.Outlined -> OutlinedTextFieldDefaults.shape
+    }
 ) {
     when (textFieldStyle) {
         TextFieldStyle.Filled -> TextField(
@@ -66,12 +67,7 @@ fun TextField(
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,
-            shape = RoundedCornerShape(
-                topStart = textFieldCornerRadii.borderRadiusTopStart,
-                topEnd = textFieldCornerRadii.borderRadiusTopEnd,
-                bottomEnd = textFieldCornerRadii.borderRadiusBottomEnd,
-                bottomStart = textFieldCornerRadii.borderRadiusBottomStart
-            ),
+            shape = textFieldShape,
             colors = textFieldColors
         )
 
@@ -92,12 +88,7 @@ fun TextField(
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,
-            shape = RoundedCornerShape(
-                topStart = textFieldCornerRadii.borderRadiusTopStart,
-                topEnd = textFieldCornerRadii.borderRadiusTopEnd,
-                bottomEnd = textFieldCornerRadii.borderRadiusBottomEnd,
-                bottomStart = textFieldCornerRadii.borderRadiusBottomStart
-            ),
+            shape = textFieldShape,
             colors = textFieldColors
         )
     }

@@ -4,7 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-object ShapesDefaults {
+object ShapeDefaults {
     val none = 0.dp
     val extraSmall = 4.dp
     val small = 8.dp
@@ -15,33 +15,33 @@ object ShapesDefaults {
 
 val Shapes = Shapes(
     extraSmall = RoundedCornerShape(
-        topStart = ShapesDefaults.extraSmall,
-        topEnd = ShapesDefaults.extraSmall,
-        bottomStart = ShapesDefaults.extraSmall,
-        bottomEnd = ShapesDefaults.extraSmall
+        topStart = ShapeDefaults.extraSmall,
+        topEnd = ShapeDefaults.extraSmall,
+        bottomStart = ShapeDefaults.extraSmall,
+        bottomEnd = ShapeDefaults.extraSmall
     ),
     small = RoundedCornerShape(
-        topStart = ShapesDefaults.small,
-        topEnd = ShapesDefaults.small,
-        bottomStart = ShapesDefaults.small,
-        bottomEnd = ShapesDefaults.small
+        topStart = ShapeDefaults.small,
+        topEnd = ShapeDefaults.small,
+        bottomStart = ShapeDefaults.small,
+        bottomEnd = ShapeDefaults.small
     ),
     medium = RoundedCornerShape(
-        topStart = ShapesDefaults.medium,
-        topEnd = ShapesDefaults.medium,
-        bottomStart = ShapesDefaults.medium,
-        bottomEnd = ShapesDefaults.medium
+        topStart = ShapeDefaults.medium,
+        topEnd = ShapeDefaults.medium,
+        bottomStart = ShapeDefaults.medium,
+        bottomEnd = ShapeDefaults.medium
     ),
     large = RoundedCornerShape(
-        topStart = ShapesDefaults.large,
-        topEnd = ShapesDefaults.large,
-        bottomStart = ShapesDefaults.large,
-        bottomEnd = ShapesDefaults.large
+        topStart = ShapeDefaults.large,
+        topEnd = ShapeDefaults.large,
+        bottomStart = ShapeDefaults.large,
+        bottomEnd = ShapeDefaults.large
     ),
     extraLarge = RoundedCornerShape(
-        topStart = ShapesDefaults.extraLarge,
-        topEnd = ShapesDefaults.extraLarge,
-        bottomStart = ShapesDefaults.extraLarge,
-        bottomEnd = ShapesDefaults.extraLarge
+        topStart = ShapeDefaults.extraLarge,
+        topEnd = ShapeDefaults.extraLarge,
+        bottomStart = ShapeDefaults.extraLarge,
+        bottomEnd = ShapeDefaults.extraLarge
     )
 )

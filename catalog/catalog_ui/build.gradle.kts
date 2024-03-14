@@ -5,5 +5,7 @@ plugins {
 }
 
 dependencies {
+    /* Modules */
     implementation(projects.core.coreUi)
+    implementation(projects.core.coreDomain)
 }
