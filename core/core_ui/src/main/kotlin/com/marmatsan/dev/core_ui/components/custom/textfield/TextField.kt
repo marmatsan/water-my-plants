@@ -10,6 +10,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -39,9 +40,10 @@ fun TextField(
     singleLine: Boolean = false,
     maxLines: Int = 1,
     minLines: Int = 1,
-    textFieldColors: TextFieldColors = TextFieldColors(
-        textFieldStyle
-    ),
+    textFieldColors: TextFieldColors = when (textFieldStyle) {
+        TextFieldStyle.Filled -> TextFieldDefaults.colors()
+        TextFieldStyle.Outlined -> OutlinedTextFieldDefaults.colors()
+    },
     textFieldCornerRadii: TextFieldCornerRadii = TextFieldCornerRadii(
         textFieldStyle
     )
@@ -70,51 +72,7 @@ fun TextField(
                 bottomEnd = textFieldCornerRadii.borderRadiusBottomEnd,
                 bottomStart = textFieldCornerRadii.borderRadiusBottomStart
             ),
-            colors = TextFieldDefaults.colors(
-                // TODO: Only non-overriden relayTextFieldColors: selectionColors
-                focusedTextColor = textFieldColors.focusedTextColor,
-                unfocusedTextColor = textFieldColors.unfocusedTextColor,
-                disabledTextColor = textFieldColors.disabledTextColor,
-                errorTextColor = textFieldColors.errorTextColor,
-                focusedContainerColor = textFieldColors.focusedContainerColor,
-                unfocusedContainerColor = textFieldColors.unfocusedContainerColor,
-                disabledContainerColor = textFieldColors.disabledContainerColor,
-                errorContainerColor = textFieldColors.errorContainerColor,
-                cursorColor = textFieldColors.cursorColor,
-                errorCursorColor = textFieldColors.errorCursorColor,
-                focusedIndicatorColor = textFieldColors.focusedIndicatorColor,
-                unfocusedIndicatorColor = textFieldColors.unfocusedIndicatorColor,
-                disabledIndicatorColor = textFieldColors.disabledIndicatorColor,
-                errorIndicatorColor = textFieldColors.errorIndicatorColor,
-                focusedLeadingIconColor = textFieldColors.focusedLeadingIconColor,
-                unfocusedLeadingIconColor = textFieldColors.unfocusedLeadingIconColor,
-                disabledLeadingIconColor = textFieldColors.disabledLeadingIconColor,
-                errorLeadingIconColor = textFieldColors.errorLeadingIconColor,
-                focusedTrailingIconColor = textFieldColors.focusedTrailingIconColor,
-                unfocusedTrailingIconColor = textFieldColors.unfocusedTrailingIconColor,
-                disabledTrailingIconColor = textFieldColors.disabledTrailingIconColor,
-                errorTrailingIconColor = textFieldColors.errorTrailingIconColor,
-                focusedLabelColor = textFieldColors.focusedLabelColor,
-                unfocusedLabelColor = textFieldColors.unfocusedLabelColor,
-                disabledLabelColor = textFieldColors.disabledLabelColor,
-                errorLabelColor = textFieldColors.errorLabelColor,
-                focusedPlaceholderColor = textFieldColors.focusedPlaceholderColor,
-                unfocusedPlaceholderColor = textFieldColors.unfocusedPlaceholderColor,
-                disabledPlaceholderColor = textFieldColors.disabledPlaceholderColor,
-                errorPlaceholderColor = textFieldColors.errorPlaceholderColor,
-                focusedSupportingTextColor = textFieldColors.focusedSupportingTextColor,
-                unfocusedSupportingTextColor = textFieldColors.unfocusedSupportingTextColor,
-                disabledSupportingTextColor = textFieldColors.disabledSupportingTextColor,
-                errorSupportingTextColor = textFieldColors.errorSupportingTextColor,
-                focusedPrefixColor = textFieldColors.focusedPrefixColor,
-                unfocusedPrefixColor = textFieldColors.unfocusedPrefixColor,
-                disabledPrefixColor = textFieldColors.disabledPrefixColor,
-                errorPrefixColor = textFieldColors.errorPrefixColor,
-                focusedSuffixColor = textFieldColors.focusedSuffixColor,
-                unfocusedSuffixColor = textFieldColors.unfocusedSuffixColor,
-                disabledSuffixColor = textFieldColors.disabledSuffixColor,
-                errorSuffixColor = textFieldColors.errorSuffixColor
-            )
+            colors = textFieldColors
         )
 
         TextFieldStyle.Outlined -> OutlinedTextField(
@@ -140,39 +98,7 @@ fun TextField(
                 bottomEnd = textFieldCornerRadii.borderRadiusBottomEnd,
                 bottomStart = textFieldCornerRadii.borderRadiusBottomStart
             ),
-            colors = OutlinedTextFieldDefaults.colors(
-                // TODO: Only non-overriden relayTextFieldColors: selectionColors
-                focusedTextColor = textFieldColors.focusedTextColor,
-                unfocusedTextColor = textFieldColors.unfocusedTextColor,
-                disabledTextColor = textFieldColors.disabledTextColor,
-                errorTextColor = textFieldColors.errorTextColor,
-                focusedContainerColor = textFieldColors.focusedContainerColor,
-                unfocusedContainerColor = textFieldColors.unfocusedContainerColor,
-                disabledContainerColor = textFieldColors.disabledContainerColor,
-                errorContainerColor = textFieldColors.errorContainerColor,
-                cursorColor = textFieldColors.cursorColor,
-                errorCursorColor = textFieldColors.errorCursorColor,
-                focusedLeadingIconColor = textFieldColors.focusedLeadingIconColor,
-                unfocusedLeadingIconColor = textFieldColors.unfocusedLeadingIconColor,
-                disabledLeadingIconColor = textFieldColors.disabledLeadingIconColor,
-                errorLeadingIconColor = textFieldColors.errorLeadingIconColor,
-                focusedTrailingIconColor = textFieldColors.focusedTrailingIconColor,
-                unfocusedTrailingIconColor = textFieldColors.unfocusedTrailingIconColor,
-                disabledTrailingIconColor = textFieldColors.disabledTrailingIconColor,
-                errorTrailingIconColor = textFieldColors.errorTrailingIconColor,
-                focusedLabelColor = textFieldColors.focusedLabelColor,
-                unfocusedLabelColor = textFieldColors.unfocusedLabelColor,
-                disabledLabelColor = textFieldColors.disabledLabelColor,
-                errorLabelColor = textFieldColors.errorLabelColor,
-                focusedPlaceholderColor = textFieldColors.focusedPlaceholderColor,
-                unfocusedPlaceholderColor = textFieldColors.unfocusedPlaceholderColor,
-                disabledPlaceholderColor = textFieldColors.disabledPlaceholderColor,
-                errorPlaceholderColor = textFieldColors.errorPlaceholderColor,
-                focusedSupportingTextColor = textFieldColors.focusedSupportingTextColor,
-                unfocusedSupportingTextColor = textFieldColors.unfocusedSupportingTextColor,
-                disabledSupportingTextColor = textFieldColors.disabledSupportingTextColor,
-                errorSupportingTextColor = textFieldColors.errorSupportingTextColor
-            )
+            colors = textFieldColors
         )
     }
 }
@@ -241,6 +167,34 @@ private fun TextFieldDisabledTextPreview(
 @Preview
 @Composable
 private fun TextFieldInputTextPreview(
+    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
+) {
+    WaterMyPlantsTheme {
+        TextField(
+            textFieldStyle = textFieldStyle,
+            label = { Text("Label") },
+            value = "Input",
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = ""
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Outlined.Cancel,
+                    contentDescription = ""
+                )
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TextFieldOverridenDisabledTextPreview(
     @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
 ) {
     WaterMyPlantsTheme {
