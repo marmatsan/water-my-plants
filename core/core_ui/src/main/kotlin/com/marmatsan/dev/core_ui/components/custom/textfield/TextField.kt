@@ -37,7 +37,7 @@ fun TextField(
     suffix: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
-    singleLine: Boolean = false,
+    singleLine: Boolean = true,
     maxLines: Int = 1,
     minLines: Int = 1,
     textFieldColors: TextFieldColors = when (textFieldStyle) {
