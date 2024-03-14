@@ -7,6 +7,17 @@ import com.marmatsan.dependencies.plugin.DependenciesPlugin
 val androidXLibraryTree = tree(Library(group = "androidx")) {
     tree(
         Library(
+            group = "activity", artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "activity",
+                    artifacts = listOf("activity-compose"),
+                    version = DependenciesPlugin.Versions.ACTIVITY_COMPOSE_VERSION
+                )
+            )
+        )
+    )
+    tree(
+        Library(
             group = "compose", artifactsGroups = listOf(
                 ArtifactsGroup(
                     name = "compose-bom",
@@ -48,7 +59,7 @@ val androidXLibraryTree = tree(Library(group = "androidx")) {
             group = "lifecycle", artifactsGroups = listOf(
                 ArtifactsGroup(
                     name = "lifecycle",
-                    artifacts = listOf("lifecycle-runtime-ktx"),
+                    artifacts = listOf("lifecycle-runtime-ktx", "lifecycle-viewmodel"),
                     version = DependenciesPlugin.Versions.LIFECYCLE_VERSION
                 )
             )

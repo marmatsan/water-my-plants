@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.marmatsan.core_ui.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.custom.button.Button
 import com.marmatsan.dev.core_ui.components.custom.button.ButtonStyle
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
@@ -81,9 +79,9 @@ fun Header(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Illustration(
+/*        Illustration(
             number = Number.Value2
-        )
+        )*/
         // Header text
         Text(
             modifier = Modifier
@@ -116,13 +114,13 @@ fun Body(
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Illustration(
+/*        Illustration(
             number = Number.Value1,
             padding = PaddingValues(
                 horizontal = spacing.large,
                 vertical = spacing.large
             )
-        )
+        )*/
         Content(
             modifier = Modifier
                 .fillMaxSize()

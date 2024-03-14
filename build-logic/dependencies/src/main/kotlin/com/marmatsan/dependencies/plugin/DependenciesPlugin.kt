@@ -9,6 +9,7 @@ class DependenciesPlugin : Plugin<Settings> {
     object Versions {
         const val APPLICATION_VERSION = "8.3.0"
         const val ASSERTK_VERSION = "0.28.0"
+        const val ACTIVITY_COMPOSE_VERSION = "1.8.2"
         const val COMPOSE_BOM_VERSION = "2024.02.02"
         const val COMPOSE_COMPILER_VERSION = "1.5.10"
         const val CORE_KTX_VERSION = "1.12.0"
