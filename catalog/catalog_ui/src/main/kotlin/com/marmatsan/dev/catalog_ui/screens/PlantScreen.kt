@@ -1,5 +1,9 @@
 package com.marmatsan.dev.catalog_ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.HideImage
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,15 +35,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_ui.components.custom.button.Button
-import com.marmatsan.dev.core_ui.components.custom.button.ButtonStyle
-import com.marmatsan.dev.core_ui.components.custom.picker.Picker
-import com.marmatsan.dev.core_ui.components.custom.textfield.TextField
+import com.marmatsan.dev.core_ui.components.button.Button
+import com.marmatsan.dev.core_ui.components.button.ButtonStyle
+import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
+import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
+import com.marmatsan.dev.core_ui.components.illustration.Design
+import com.marmatsan.dev.core_ui.components.illustration.Illustration
+import com.marmatsan.dev.core_ui.components.picker.Picker
+import com.marmatsan.dev.core_ui.components.textfield.TextField
+import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.LocalElevation
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
@@ -95,6 +111,10 @@ fun Header(
     Box(
         modifier = modifier
     ) {
+        Illustration(
+            modifier = Modifier.fillMaxSize(),
+            design = Design.Three
+        )
         HeaderContent(
             modifier = modifier.padding(
                 all = spacing.medium
@@ -107,12 +127,115 @@ fun Header(
 fun HeaderContent(
     modifier: Modifier = Modifier
 ) {
+    val spacing = LocalSpacing.current
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        PlantScreenHeader(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = spacing.default)
+        )
+        Image( // Plant icon
+            painter = painterResource(id = com.marmatsan.core_ui.R.drawable.plant_icon),
+            contentDescription = null
+        )
+        PlantScreenActions(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(all = spacing.default)
+        )
+    }
+}
 
+@Composable
+fun PlantScreenHeader(
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(
+            iconButtonStyle = IconButtonStyle.Filled,
+            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            ),
+            icon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    tint = MaterialTheme.colorScheme.onSecondary,
+                    contentDescription = null
+                )
+            }
+
+        )
+        IconButton(
+            iconButtonStyle = IconButtonStyle.Filled,
+            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
+            ),
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.HideImage,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    contentDescription = null
+                )
+            }
+
+        )
+    }
+}
+
+@Composable
+fun PlantScreenActions(
+    modifier: Modifier = Modifier
+) {
+    val spacing = LocalSpacing.current
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(
+            spacing.small,
+            Alignment.CenterHorizontally
+        ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Button(
+            modifier = Modifier.height(ButtonDefaults.MinHeight + LocalDensity.current.positiveTwo),
+            labelText = stringResource(id = R.string.plant_screen_button_add_image),
+            labelTextColor = MaterialTheme.colorScheme.onSecondary,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            ),
+            icon = {
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = Icons.Outlined.Add,
+                    tint = MaterialTheme.colorScheme.onSecondary,
+                    contentDescription = null
+                )
+            }
+        )
+        IconButton(
+            modifier = Modifier.size(48.dp),
+            iconButtonStyle = IconButtonStyle.Filled,
+            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            icon = {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = ImageVector.vectorResource(com.marmatsan.core_ui.R.drawable.icon_filled_sparkle),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    contentDescription = null
+                )
+            }
+        )
     }
 }
 
@@ -120,7 +243,6 @@ fun HeaderContent(
 fun Form(
     modifier: Modifier = Modifier
 ) {
-
     var plantName by remember {
         mutableStateOf(String.Empty)
     }
@@ -135,24 +257,28 @@ fun Form(
         }
     } else null
 
-    val waterAmountSupportingText: @Composable (() -> Unit)? = if (plantName.isNotBlank()) {
-        {
+    val waterAmountSupportingText: @Composable (() -> Unit)? = {
+        AnimatedVisibility(
+            visible = waterAmount.isNotEmpty(),
+            exit = slideOutVertically(
+                animationSpec = tween(5000)
+            )
+        ) {
             Text("${waterAmount.length}/4")
         }
-    } else null
+
+    }
 
     val spacing = LocalSpacing.current
     val colorScheme = MaterialTheme.colorScheme
 
-
-
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         shadowElevation = LocalElevation.current.level3
     ) {
         // Form
         Column(
-            modifier = modifier.padding(
+            modifier = Modifier.padding(
                 start = spacing.medium,
                 top = spacing.medium,
                 end = spacing.medium,
@@ -238,7 +364,7 @@ fun Form(
                             spacing.medium,
                             Alignment.CenterHorizontally
                         ),
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.Top,
                     ) {
                         TextField(
                             modifier = Modifier

@@ -23,8 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.marmatsan.dev.core_ui.components.custom.button.Button
-import com.marmatsan.dev.core_ui.components.custom.button.ButtonStyle
+import com.marmatsan.dev.core_ui.components.button.Button
+import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme

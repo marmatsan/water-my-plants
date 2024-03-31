@@ -39,7 +39,8 @@ class ComposePlugin : Plugin<Project> {
             }
 
             composeOptions {
-                kotlinCompilerExtensionVersion = DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
+                kotlinCompilerExtensionVersion =
+                    DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
             }
 
         }
@@ -47,7 +48,7 @@ class ComposePlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libsCompose")
 
         project.dependencies {
-            implementation(platform("androidx.compose:compose-bom:2024.02.02"))
+            implementation(platform("androidx.compose:compose-bom:${DependenciesPlugin.Versions.COMPOSE_BOM_VERSION}"))
             implementation("androidx.compose.animation:animation")
             implementation("androidx.compose.animation:animation-core")
             implementation("androidx.compose.animation:animation-graphics")

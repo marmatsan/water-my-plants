@@ -1,4 +1,4 @@
-package com.marmatsan.dev.core_ui.components.custom.button
+package com.marmatsan.dev.core_ui.components.button
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
@@ -28,14 +29,14 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 @Composable
 fun Button(
     modifier: Modifier = Modifier,
-    enabled : Boolean = true,
+    enabled: Boolean = true,
     buttonStyle: ButtonStyle = ButtonStyle.Filled,
-    containerColor: Color = when (buttonStyle) {
-        ButtonStyle.Filled -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Outlined -> Color.Transparent
-        ButtonStyle.Text -> Color.Transparent
-        ButtonStyle.Elevated -> MaterialTheme.colorScheme.surfaceContainerLow
-        ButtonStyle.Tonal -> MaterialTheme.colorScheme.secondaryContainer
+    colors: ButtonColors = when (buttonStyle) {
+        ButtonStyle.Filled -> ButtonDefaults.buttonColors()
+        ButtonStyle.Outlined -> ButtonDefaults.outlinedButtonColors()
+        ButtonStyle.Text -> ButtonDefaults.textButtonColors()
+        ButtonStyle.Elevated -> ButtonDefaults.elevatedButtonColors()
+        ButtonStyle.Tonal -> ButtonDefaults.filledTonalButtonColors()
     },
     labelText: String = String.Empty,
     labelTextColor: Color = when (buttonStyle) {
@@ -57,8 +58,8 @@ fun Button(
             Button(
                 modifier = buttonModifier,
                 enabled = enabled,
-                colors = ButtonDefaults.buttonColors(containerColor = containerColor),
-                onClick = { onClick() }
+                colors = colors,
+                onClick = onClick
             ) {
                 icon?.invoke()
                 Text(
@@ -75,7 +76,8 @@ fun Button(
             OutlinedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
-                onClick = { onClick() }
+                colors = colors,
+                onClick = onClick
             ) {
                 icon?.invoke()
                 Text(
@@ -92,7 +94,8 @@ fun Button(
             TextButton(
                 modifier = buttonModifier,
                 enabled = enabled,
-                onClick = { onClick() }
+                colors = colors,
+                onClick = onClick
             ) {
                 icon?.invoke()
                 Text(
@@ -109,7 +112,8 @@ fun Button(
             ElevatedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
-                onClick = { onClick() }
+                colors = colors,
+                onClick = onClick
             ) {
                 icon?.invoke()
                 Text(
@@ -127,9 +131,10 @@ fun Button(
             FilledTonalButton(
                 modifier = buttonModifier,
                 enabled = enabled,
-                onClick = { onClick() }
+                colors = colors,
+                onClick = onClick
             ) {
-                    icon?.invoke()
+                icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
@@ -139,7 +144,6 @@ fun Button(
                     style = MaterialTheme.typography.labelLarge
                 )
             }
-
     }
 
 }

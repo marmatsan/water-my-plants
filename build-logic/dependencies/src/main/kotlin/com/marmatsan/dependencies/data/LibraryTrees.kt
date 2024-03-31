@@ -59,7 +59,13 @@ val androidXComposeLibraryTree = tree(Library(group = "androidx")) {
     )
     tree(
         Library(
-            group = "compose"
+            group = "compose", artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "compose-bom",
+                    artifacts = listOf("compose-bom"),
+                    version = DependenciesPlugin.Versions.COMPOSE_BOM_VERSION
+                )
+            )
         )
     ) {
         tree(

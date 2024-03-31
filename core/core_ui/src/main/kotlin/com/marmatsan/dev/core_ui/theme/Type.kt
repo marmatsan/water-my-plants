@@ -1,4 +1,4 @@
-package com.marmatsan.dev.core_ui.dimensions.theme
+package com.marmatsan.dev.core_ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -72,11 +72,11 @@ val Typography = Typography(
         lineHeight = 32.sp
     ),
     titleMedium = TextStyle(
-        fontSize = 22.sp,
-        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Medium,
         fontFamily = fontFamily,
-        letterSpacing = 0.sp,
-        lineHeight = 28.sp
+        letterSpacing = 0.15.sp,
+        lineHeight = 24.sp
     ),
     titleSmall = TextStyle(
         fontSize = 14.sp,

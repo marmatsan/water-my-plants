@@ -1,4 +1,4 @@
-package com.marmatsan.dev.core_ui.components.custom.iconbutton
+package com.marmatsan.dev.core_ui.components.iconbutton
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -9,12 +9,12 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -26,22 +26,22 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 fun IconButton(
     modifier: Modifier = Modifier,
     padding: PaddingValues = PaddingValues(all = LocalSpacing.current.default),
-    enabled : Boolean = true,
+    enabled: Boolean = true,
     iconButtonStyle: IconButtonStyle = IconButtonStyle.Standard,
-    containerColor: Color = when (iconButtonStyle) {
-        IconButtonStyle.Standard -> Color.Transparent
-        IconButtonStyle.Filled -> MaterialTheme.colorScheme.primary
-        IconButtonStyle.Tonal -> MaterialTheme.colorScheme.secondaryContainer
-        IconButtonStyle.Outlined -> Color.Transparent
+    iconButtonColors: IconButtonColors = when (iconButtonStyle) {
+        IconButtonStyle.Standard -> IconButtonDefaults.iconButtonColors()
+        IconButtonStyle.Filled -> IconButtonDefaults.filledIconButtonColors()
+        IconButtonStyle.Tonal -> IconButtonDefaults.filledTonalIconButtonColors()
+        IconButtonStyle.Outlined -> IconButtonDefaults.outlinedIconButtonColors()
     },
-    onClick: () -> Unit = {},
     icon: @Composable () -> Unit = {
         Icon(
             modifier = Modifier.size(24.dp),
             imageVector = Icons.Filled.Settings,
             contentDescription = ""
         )
-    }
+    },
+    onClick: () -> Unit = {},
 ) {
 
     val iconModifier = modifier.padding(padding)
@@ -52,7 +52,7 @@ fun IconButton(
                 modifier = iconModifier,
                 enabled = enabled,
                 onClick = { onClick() },
-                colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
+                colors = iconButtonColors,
                 content = icon
             )
 
@@ -62,7 +62,7 @@ fun IconButton(
                 modifier = iconModifier,
                 enabled = enabled,
                 onClick = { onClick() },
-                colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
+                colors = iconButtonColors,
                 content = icon
             )
 
@@ -71,7 +71,7 @@ fun IconButton(
             FilledTonalIconButton(
                 modifier = iconModifier,
                 enabled = enabled,
-                colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
+                colors = iconButtonColors,
                 onClick = { onClick() },
                 content = icon
             )
@@ -81,7 +81,7 @@ fun IconButton(
             OutlinedIconButton(
                 modifier = iconModifier,
                 enabled = enabled,
-                colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
+                colors = iconButtonColors,
                 onClick = { onClick() },
                 content = icon
             )

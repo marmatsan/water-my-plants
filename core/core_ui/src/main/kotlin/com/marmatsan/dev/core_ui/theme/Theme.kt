@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.marmatsan.dev.core_ui.dimensions.theme.Typography
 
 private val DarkColorScheme = darkColorScheme(
     primary = primary80,

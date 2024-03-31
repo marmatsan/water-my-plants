@@ -1,4 +1,4 @@
-package com.marmatsan.dev.core_ui.components.custom.button
+package com.marmatsan.dev.core_ui.components.button
 
 enum class ButtonStyle {
     Filled,
