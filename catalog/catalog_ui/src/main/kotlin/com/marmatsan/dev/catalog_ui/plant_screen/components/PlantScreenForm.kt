@@ -34,7 +34,10 @@ fun PlantScreenForm(
     wateringDays: List<DayOfWeek>? = null,
     onWateringDaysChange: ((List<DayOfWeek>) -> Unit)? = null,
     waterAmount: String? = null,
-    onWaterAmountChange: ((String) -> Unit)? = null
+    onWaterAmountChange: ((String) -> Unit)? = null,
+    onWateringDaysClick: (() -> Unit)? = null,
+    onWateringTimeClick: (() -> Unit)? = null,
+    onPlantSizeClick: (() -> Unit)? = null
 ) {
 
     val plantNameSupportingText: @Composable (() -> Unit)? = if (name?.isNotBlank() == true) {
@@ -136,7 +139,7 @@ fun PlantScreenForm(
                             },
                             value = wateringDays?.joinToString(", ") { it.name } ?: String.Empty,
                             onValueChange = {
-                                
+
                             }
                         )
                         Picker(
