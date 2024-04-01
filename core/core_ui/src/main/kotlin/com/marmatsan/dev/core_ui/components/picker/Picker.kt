@@ -18,22 +18,25 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 @Composable
 fun Picker(
     modifier: Modifier = Modifier,
-    value: String = String.Empty,
-    onValueChange: ((String) -> Unit) = { },
+    value: String? = null,
+    onValueChange: ((String) -> Unit)? = null,
     label: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = {
         Icon(
             imageVector = Icons.Rounded.ExpandMore,
             contentDescription = ""
         )
-    }
+    },
+    onClick: (() -> Unit)? = null
 ) {
     TextField(
-        modifier = modifier.clickable {  },
+        modifier = modifier.clickable { onClick?.invoke() },
         readOnly = true,
         enabled = false,
-        value = value,
-        onValueChange = onValueChange,
+        value = value ?: String.Empty,
+        onValueChange = { newValue ->
+            onValueChange?.invoke(newValue)
+        },
         label = label,
         trailingIcon = trailingIcon,
         textFieldColors = TextFieldDefaults.colors(
@@ -53,7 +56,7 @@ fun Picker(
 fun PickerPreview() {
     WaterMyPlantsTheme {
         Picker(
-            label = { Text(text = "Watering days*")}
+            label = { Text(text = "Watering days*") }
         )
     }
 }
