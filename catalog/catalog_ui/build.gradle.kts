@@ -8,4 +8,5 @@ dependencies {
     /* Modules */
     implementation(projects.core.coreUi)
     implementation(projects.core.coreDomain)
+    implementation(projects.catalog.catalogDomain)
 }

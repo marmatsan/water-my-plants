@@ -11,7 +11,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.marmatsan.dev.catalog_ui.screens.PlantScreen
+import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreen
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 class MainActivity : ComponentActivity() {
