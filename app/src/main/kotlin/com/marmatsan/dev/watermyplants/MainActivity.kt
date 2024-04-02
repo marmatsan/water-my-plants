@@ -8,10 +8,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreen
+import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenViewModel
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,11 +64,11 @@ class MainActivity : ComponentActivity() {
                 // val startDestination by splashScreenViewModel.startDestination.collectAsStateWithLifecycle()
                 val snackbarHostState = remember { SnackbarHostState() }
 
-               /* Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    snackbarHost = { SnackbarHost(snackbarHostState) }
-                ) { paddingValues ->
-                    *//* val navController = rememberNavController()
+                /* Scaffold(
+                     modifier = Modifier.fillMaxSize(),
+                     snackbarHost = { SnackbarHost(snackbarHostState) }
+                 ) { paddingValues ->
+                     *//* val navController = rememberNavController()
                      SetupNavGraph(
                          navController = navController,
                          startDestination = startDestination,
@@ -73,7 +76,14 @@ class MainActivity : ComponentActivity() {
                          snackbarHostState = snackbarHostState
                      )*//*
                 }*/
-                PlantScreen()
+                val plantScreenViewModel by viewModels<PlantScreenViewModel>()
+                val plantScreenState by plantScreenViewModel.state.collectAsStateWithLifecycle()
+
+                PlantScreen(
+                    state = plantScreenState,
+                    onAction = plantScreenViewModel::onAction,
+                    UIEventFlow = plantScreenViewModel.UIEventFlow
+                )
             }
         }
     }

@@ -26,21 +26,43 @@ import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
+import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.dimensions.LocalDensity
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 @Composable
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onCreatePlantClick: () -> Unit = {}
+    onAction: (PlantScreenAction) -> Unit,
+    UIEventFlow: Flow<PlantScreenEvent>,
 ) {
     val spacing = LocalSpacing.current
+
+    ObserveAsEvents(flow = UIEventFlow) { event ->
+        when (event) { // TODO
+            else -> {}
+        }
+    }
+
+    if (state.plantSizeDialogVisible) {
+        PlantSizeDialog(
+            onDismissRequest = {},
+            onAcceptRequest = {},
+            plantSize = state.plant.size,
+            onPlantSizeChange = { newPlantSize ->
+                onAction(PlantScreenAction.OnSizeChange(newPlantSize))
+            }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -68,7 +90,16 @@ fun PlantScreen(
             modifier = modifier
                 .fillMaxSize()
                 .weight(5f),
-            name = state.plant.name.orEmpty()
+            name = state.plant.name.orEmpty(),
+            onPlantSizeClick = {
+                onAction(PlantScreenAction.OnPlantSizeClick)
+            },
+            onWateringDaysClick = {
+                onAction(PlantScreenAction.OnWateringDaysClick)
+            },
+            onWateringTimeClick = {
+                onAction(PlantScreenAction.OnWateringTimeClick)
+            }
         )
         ButtonContainer(
             modifier = modifier
@@ -177,7 +208,9 @@ fun ButtonContainer(
 fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
-            state = PlantScreenState()
+            state = PlantScreenState(),
+            onAction = {},
+            UIEventFlow = flow { }
         )
     }
 }

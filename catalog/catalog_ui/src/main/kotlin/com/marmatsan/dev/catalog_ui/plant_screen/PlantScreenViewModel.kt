@@ -1,10 +1,11 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
+import com.marmatsan.dev.core_ui.event.Event
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class PlantScreenViewModel : BaseViewModel<PlantScreenAction>() {
+class PlantScreenViewModel : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private val _state = MutableStateFlow(PlantScreenState())
     val state = _state.asStateFlow()
@@ -35,16 +36,16 @@ class PlantScreenViewModel : BaseViewModel<PlantScreenAction>() {
 
             }
 
-            is PlantScreenAction.OnWateringDaysClick -> {
+            is PlantScreenAction.OnPlantSizeClick -> {
+                _state.value = _state.value.copy(plantSizeDialogVisible = true)
+            }
 
+            is PlantScreenAction.OnWateringDaysClick -> {
+                _state.value = _state.value.copy(wateringDaysDialogVisible = true)
             }
 
             is PlantScreenAction.OnWateringTimeClick -> {
-
-            }
-
-            is PlantScreenAction.OnPlantSizeClick -> {
-
+                _state.value = _state.value.copy(wateringHourDialogVisible = true)
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
@@ -84,5 +85,9 @@ class PlantScreenViewModel : BaseViewModel<PlantScreenAction>() {
             }
         }
     }
+
+}
+
+sealed interface PlantScreenEvent : Event {
 
 }

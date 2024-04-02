@@ -1,7 +1,7 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
 import com.marmatsan.dev.catalog_domain.model.PlantSize
-import com.marmatsan.dev.core_ui.event.Action
+import com.marmatsan.dev.core_ui.action.Action
 import java.time.DayOfWeek
 
 sealed interface PlantScreenAction : Action {
@@ -11,9 +11,9 @@ sealed interface PlantScreenAction : Action {
     data object OnBack : PlantScreenAction
     data object OnCreatePlant : PlantScreenAction
     data object OnAIButtonClick : PlantScreenAction
+    data object OnPlantSizeClick : PlantScreenAction
     data object OnWateringDaysClick : PlantScreenAction
     data object OnWateringTimeClick : PlantScreenAction
-    data object OnPlantSizeClick : PlantScreenAction
 
     // Related to plant properties
     data class OnPlantNameChange(val plantName: String) : PlantScreenAction

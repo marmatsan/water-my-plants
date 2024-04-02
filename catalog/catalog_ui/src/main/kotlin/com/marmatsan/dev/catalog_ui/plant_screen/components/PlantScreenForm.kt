@@ -35,9 +35,9 @@ fun PlantScreenForm(
     onWateringDaysChange: ((List<DayOfWeek>) -> Unit)? = null,
     waterAmount: String? = null,
     onWaterAmountChange: ((String) -> Unit)? = null,
+    onPlantSizeClick: (() -> Unit)? = null,
     onWateringDaysClick: (() -> Unit)? = null,
-    onWateringTimeClick: (() -> Unit)? = null,
-    onPlantSizeClick: (() -> Unit)? = null
+    onWateringTimeClick: (() -> Unit)? = null
 ) {
 
     val plantNameSupportingText: @Composable (() -> Unit)? = if (name?.isNotBlank() == true) {
@@ -140,7 +140,8 @@ fun PlantScreenForm(
                             value = wateringDays?.joinToString(", ") { it.name } ?: String.Empty,
                             onValueChange = {
 
-                            }
+                            },
+                            onClick = onWateringDaysClick
                         )
                         Picker(
                             modifier = Modifier
@@ -148,7 +149,8 @@ fun PlantScreenForm(
                                 .weight(5f),
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_time))
-                            }
+                            },
+                            onClick = onWateringTimeClick
                         )
                     }
                     Row(
@@ -193,7 +195,8 @@ fun PlantScreenForm(
                                 .weight(5f),
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_size))
-                            }
+                            },
+                            onClick = onPlantSizeClick
                         )
                     }
                     // TODO: Change for CustomTextField()
