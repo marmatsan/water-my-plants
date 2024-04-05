@@ -27,6 +27,7 @@ import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantSizeDialog
+import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringDaysDialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Design
@@ -53,16 +54,33 @@ fun PlantScreen(
         }
     }
 
-    if (state.plantSizeDialogVisible) {
-        PlantSizeDialog(
-            onDismissRequest = {},
-            onAcceptRequest = {},
-            plantSize = state.plant.size,
-            onPlantSizeChange = { newPlantSize ->
-                onAction(PlantScreenAction.OnSizeChange(newPlantSize))
+    if (state.wateringDaysDialogVisible) {
+        PlantWateringDaysDialog(
+            wateringDays = state.plant.wateringDays,
+            onCancelWateringDaysDialog = {
+                onAction(PlantScreenAction.OnDismissWateringDaysDialog)
+            },
+            onConfirmWateringDaysDialog = { newWateringDays ->
+                onAction(PlantScreenAction.OnWateringDaysChange(newWateringDays))
+                onAction(PlantScreenAction.OnDismissWateringDaysDialog)
             }
         )
     }
+
+    if (state.plantSizeDialogVisible) {
+        PlantSizeDialog(
+            plantSize = state.plant.size,
+            onCancelPlantSizeDialog = {
+                onAction(PlantScreenAction.OnDismissPlantSizeDialog)
+            },
+            onConfirmPlantSizeDialog = { selectedPlantSize ->
+                onAction(PlantScreenAction.OnSizeChange(selectedPlantSize)) // TODO: Check
+                onAction(PlantScreenAction.OnDismissPlantSizeDialog)
+            }
+        )
+    }
+
+
 
     Column(
         modifier = modifier
@@ -90,7 +108,9 @@ fun PlantScreen(
             modifier = modifier
                 .fillMaxSize()
                 .weight(5f),
-            name = state.plant.name.orEmpty(),
+            name = state.plant.name,
+            plantSize = state.plant.size,
+            wateringDays = state.plant.wateringDays,
             onPlantSizeClick = {
                 onAction(PlantScreenAction.OnPlantSizeClick)
             },

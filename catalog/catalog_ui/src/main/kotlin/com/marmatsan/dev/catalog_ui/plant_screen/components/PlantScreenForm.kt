@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.catalog_ui.R
+import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
@@ -35,6 +36,7 @@ fun PlantScreenForm(
     onWateringDaysChange: ((List<DayOfWeek>) -> Unit)? = null,
     waterAmount: String? = null,
     onWaterAmountChange: ((String) -> Unit)? = null,
+    plantSize: PlantSize? = null,
     onPlantSizeClick: (() -> Unit)? = null,
     onWateringDaysClick: (() -> Unit)? = null,
     onWateringTimeClick: (() -> Unit)? = null
@@ -137,10 +139,25 @@ fun PlantScreenForm(
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_days))
                             },
-                            value = wateringDays?.joinToString(", ") { it.name } ?: String.Empty,
-                            onValueChange = {
-
-                            },
+                            value = wateringDays?.let { wateringDays ->
+                                val wateringDaysStringBuilder = StringBuilder()
+                                wateringDays.sorted().forEachIndexed { position, wateringDay ->
+                                    val stringResourceId = when (wateringDay) {
+                                        DayOfWeek.MONDAY -> R.string.plant_screen_dialog_watering_days_day1
+                                        DayOfWeek.TUESDAY -> R.string.plant_screen_dialog_watering_days_day2
+                                        DayOfWeek.WEDNESDAY -> R.string.plant_screen_dialog_watering_days_day3
+                                        DayOfWeek.THURSDAY -> R.string.plant_screen_dialog_watering_days_day4
+                                        DayOfWeek.FRIDAY -> R.string.plant_screen_dialog_watering_days_day5
+                                        DayOfWeek.SATURDAY -> R.string.plant_screen_dialog_watering_days_day6
+                                        DayOfWeek.SUNDAY -> R.string.plant_screen_dialog_watering_days_day7
+                                    }
+                                    wateringDaysStringBuilder.append(stringResource(id = stringResourceId))
+                                    if (position != wateringDays.lastIndex) {
+                                        wateringDaysStringBuilder.append(", ")
+                                    }
+                                }
+                                wateringDaysStringBuilder.toString()
+                            } ?: String.Empty,
                             onClick = onWateringDaysClick
                         )
                         Picker(
@@ -195,6 +212,13 @@ fun PlantScreenForm(
                                 .weight(5f),
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_size))
+                            },
+                            value = when (plantSize) {
+                                PlantSize.SMALL -> stringResource(id = R.string.plant_screen_dialog_plant_size_option_1)
+                                PlantSize.MEDIUM -> stringResource(id = R.string.plant_screen_dialog_plant_size_option_2)
+                                PlantSize.LARGE -> stringResource(id = R.string.plant_screen_dialog_plant_size_option_3)
+                                PlantSize.EXTRA_LARGE -> stringResource(id = R.string.plant_screen_dialog_plant_size_option_4)
+                                null -> String.Empty
                             },
                             onClick = onPlantSizeClick
                         )

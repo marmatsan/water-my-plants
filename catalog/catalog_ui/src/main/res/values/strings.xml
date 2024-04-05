@@ -22,6 +22,7 @@
     <string name="plant_screen_dialog_plant_size_option_3">Large</string>
     <string name="plant_screen_dialog_plant_size_option_4">Extra large</string>
     <string name="plant_screen_dialog_watering_days_headline">Watering days</string>
+    <string name="plant_screen_dialog_watering_time_headline">Watering time</string>
     <string name="plant_screen_dialog_watering_days_day1">Monday</string>
     <string name="plant_screen_dialog_watering_days_day2">Tuesday</string>
     <string name="plant_screen_dialog_watering_days_day3">Wednesday</string>

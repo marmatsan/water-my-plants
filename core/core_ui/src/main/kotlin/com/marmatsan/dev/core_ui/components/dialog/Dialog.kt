@@ -168,8 +168,7 @@ fun PlantSizeDialogPreview() {
             headline = "Dialog",
             acceptRequestActionLabel = "Accept",
             dismissRequestActionLabel = "Cancel",
-            supportingText = "Custom dialog",
-            showBottomDivider = true
+            supportingText = "Custom dialog"
         )
     }
 }

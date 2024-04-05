@@ -40,6 +40,14 @@ class PlantScreenViewModel : BaseViewModel<PlantScreenAction, PlantScreenEvent>(
                 _state.value = _state.value.copy(plantSizeDialogVisible = true)
             }
 
+            is PlantScreenAction.OnDismissPlantSizeDialog -> {
+                _state.value = _state.value.copy(plantSizeDialogVisible = false)
+            }
+
+            is PlantScreenAction.OnDismissWateringDaysDialog -> {
+                _state.value = _state.value.copy(wateringDaysDialogVisible = false)
+            }
+
             is PlantScreenAction.OnWateringDaysClick -> {
                 _state.value = _state.value.copy(wateringDaysDialogVisible = true)
             }
