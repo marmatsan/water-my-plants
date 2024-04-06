@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Search
@@ -45,6 +46,7 @@ fun TextField(
     suffix: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true,
     maxLines: Int = 1,
     minLines: Int = 1,
@@ -86,6 +88,7 @@ fun TextField(
             suffix = suffix,
             supportingText = supportingText,
             isError = isError,
+            keyboardOptions = keyboardOptions,
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,
@@ -107,6 +110,7 @@ fun TextField(
             suffix = suffix,
             supportingText = supportingText,
             isError = isError,
+            keyboardOptions = keyboardOptions,
             singleLine = singleLine,
             maxLines = maxLines,
             minLines = minLines,

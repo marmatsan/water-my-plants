@@ -3,6 +3,9 @@ package com.marmatsan.android
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
+import com.marmatsan.dependencies.data.getLibrary
+import com.marmatsan.dependencies.data.implementation
+import com.marmatsan.dependencies.data.ksp
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -73,7 +76,9 @@ class AndroidPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-
+            // Dependency injection
+            ksp(libs.getLibrary("me.tatarka.inject.kotlin.inject.compiler.ksp"))
+            implementation(libs.getLibrary("me.tatarka.inject.kotlin.inject.runtime"))
         }
 
         project.tasks.withType<Test> {

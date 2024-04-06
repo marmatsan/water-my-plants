@@ -9,7 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.components.textfield.TextField
@@ -27,10 +29,13 @@ fun Picker(
             contentDescription = ""
         )
     },
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.extraSmall
 ) {
     TextField(
-        modifier = modifier.clickable { onClick?.invoke() },
+        modifier = modifier
+            .clip(shape)
+            .clickable { onClick?.invoke() },
         readOnly = true,
         enabled = false,
         value = value ?: String.Empty,
@@ -46,7 +51,7 @@ fun Picker(
             disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
-        textFieldShape = MaterialTheme.shapes.extraSmall
+        textFieldShape = shape
     )
 
 }

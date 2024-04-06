@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,10 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.length
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
 import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
@@ -34,7 +37,7 @@ fun PlantScreenForm(
     onNameChange: ((String) -> Unit)? = null,
     wateringDays: List<DayOfWeek>? = null,
     onWateringDaysChange: ((List<DayOfWeek>) -> Unit)? = null,
-    waterAmount: String? = null,
+    waterAmount: Int? = null,
     onWaterAmountChange: ((String) -> Unit)? = null,
     plantSize: PlantSize? = null,
     onPlantSizeClick: (() -> Unit)? = null,
@@ -48,12 +51,11 @@ fun PlantScreenForm(
         }
     } else null
 
-    val waterAmountSupportingText: @Composable (() -> Unit)? =
-        if (waterAmount?.isNotBlank() == true) {
-            {
-                Text("${waterAmount.length}/4")
-            }
-        } else null
+    val waterAmountSupportingText: @Composable (() -> Unit)? = if (waterAmount != null) {
+        {
+            Text("${waterAmount.length()}/4")
+        }
+    } else null
 
     val spacing = LocalSpacing.current
     val colorScheme = MaterialTheme.colorScheme
@@ -185,12 +187,19 @@ fun PlantScreenForm(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(5f),
-                            value = waterAmount ?: String.Empty,
+                            value = waterAmount?.toString() ?: String.Empty,
                             onValueChange = { newWaterAmount ->
                                 onWaterAmountChange?.invoke(newWaterAmount)
                             },
                             label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_water_amount)) },
                             supportingText = waterAmountSupportingText,
+                            prefix = {
+                                Text(
+                                    text = stringResource(id = R.string.plant_screen_text_field_prefix_water_amount),
+                                    color = colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            },
                             textFieldColors = TextFieldDefaults.colors().copy(
                                 unfocusedTextColor = colorScheme.onSurface,
                                 unfocusedContainerColor = colorScheme.secondaryContainer,
@@ -203,6 +212,9 @@ fun PlantScreenForm(
                                 focusedLabelColor = colorScheme.onSurfaceVariant,
                                 focusedSupportingTextColor = colorScheme.onSurfaceVariant,
                                 cursorColor = colorScheme.onSecondaryContainer
+                            ),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number
                             ),
                             textFieldShape = MaterialTheme.shapes.extraSmall
                         )

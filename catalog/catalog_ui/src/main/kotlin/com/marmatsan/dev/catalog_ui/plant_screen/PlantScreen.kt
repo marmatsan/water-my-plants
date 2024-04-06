@@ -109,8 +109,9 @@ fun PlantScreen(
                 .fillMaxSize()
                 .weight(5f),
             name = state.plant.name,
-            plantSize = state.plant.size,
             wateringDays = state.plant.wateringDays,
+            waterAmount = state.plant.waterAmount,
+            plantSize = state.plant.size,
             onPlantSizeClick = {
                 onAction(PlantScreenAction.OnPlantSizeClick)
             },
@@ -119,6 +120,9 @@ fun PlantScreen(
             },
             onWateringTimeClick = {
                 onAction(PlantScreenAction.OnWateringTimeClick)
+            },
+            onWaterAmountChange = { newWaterAmount ->
+                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount.toInt()))
             }
         )
         ButtonContainer(

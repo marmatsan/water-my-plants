@@ -123,6 +123,22 @@ val comLibraryTree = tree(Library(group = "com")) {
     }
 }
 
+val meLibraryTree = tree(Library(group = "me")) {
+    tree(Library(group = "tatarka")) {
+        tree(
+            Library(
+                group = "inject", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "inject",
+                        artifacts = listOf("kotlin-inject-compiler-ksp", "kotlin-inject-runtime"),
+                        version = DependenciesPlugin.Versions.KOTLIN_INJECT_VERSION
+                    )
+                )
+            )
+        )
+    }
+}
+
 val orgLibraryTree = tree(Library(group = "org")) {
     tree(Library(group = "jetbrains")) {
         tree(
@@ -152,5 +168,11 @@ val orgLibraryTree = tree(Library(group = "org")) {
     }
 }
 
-val nonComposeLibraryTrees = listOf(androidXLibraryTree, comLibraryTree, orgLibraryTree)
+
+val nonComposeLibraryTrees = listOf(
+    androidXLibraryTree,
+    comLibraryTree,
+    meLibraryTree,
+    orgLibraryTree
+)
 val composeLibraryTrees = listOf(androidXComposeLibraryTree)

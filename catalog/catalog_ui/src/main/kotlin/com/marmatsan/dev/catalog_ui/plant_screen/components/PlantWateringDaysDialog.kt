@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -50,8 +49,8 @@ fun PlantWateringDaysDialog(
         content = {
             List(
                 tmpWateringDays = tmpWateringDays,
-                onWateringDaysChange = { newWateringDays ->
-                    tmpWateringDays = newWateringDays
+                onWateringDayChange = { changedWateringDay ->
+                    tmpWateringDays.toggle(changedWateringDay)
                 }
             )
         }
@@ -61,18 +60,12 @@ fun PlantWateringDaysDialog(
 @Composable
 fun List(
     tmpWateringDays: List<DayOfWeek>,
-    onWateringDaysChange: (SnapshotStateList<DayOfWeek>) -> Unit
+    onWateringDayChange: (DayOfWeek) -> Unit
 ) {
-    val currentWateringDays = remember {
-        mutableStateListOf<DayOfWeek>()
-    }
-
-    currentWateringDays.addAll(tmpWateringDays)
-
     DayOfWeek.entries.forEach { currentDayOfWeek ->
         ListItem(
             modifier = Modifier.clickable {
-                currentWateringDays.toggle(currentDayOfWeek)
+                onWateringDayChange(currentDayOfWeek)
             },
             colors = ListItemDefaults.colors(
                 containerColor = Color.Transparent
@@ -94,14 +87,9 @@ fun List(
             },
             leadingContent = {
                 Checkbox(
-                    checked = currentWateringDays.contains(currentDayOfWeek),
-                    onCheckedChange = { checked ->
-                        if (checked) {
-                            currentWateringDays.add(currentDayOfWeek)
-                        } else currentWateringDays.remove(
-                            currentDayOfWeek
-                        )
-                        onWateringDaysChange(currentWateringDays)
+                    checked = tmpWateringDays.contains(currentDayOfWeek),
+                    onCheckedChange = {
+                        onWateringDayChange(currentDayOfWeek)
                     }
                 )
             }
