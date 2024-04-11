@@ -1,11 +1,16 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
+import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidateWaterQuantityUseCase
 import com.marmatsan.dev.core_ui.event.Event
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import me.tatarka.inject.annotations.Inject
 
-class PlantScreenViewModel : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
+@Inject
+class PlantScreenViewModel(
+    private val validateWaterQuantityUseCase: ValidateWaterQuantityUseCase
+) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private val _state = MutableStateFlow(PlantScreenState())
     val state = _state.asStateFlow()
@@ -70,7 +75,7 @@ class PlantScreenViewModel : BaseViewModel<PlantScreenAction, PlantScreenEvent>(
 
             is PlantScreenAction.OnWaterAmountChange -> {
                 _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(waterAmount = action.waterAmount)
+                    plant = _state.value.plant.copy(waterAmount = validateWaterQuantityUseCase(action.waterAmount))
                 )
             }
 

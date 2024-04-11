@@ -13,9 +13,20 @@ import androidx.compose.runtime.remember
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidateWaterQuantityUseCase
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreen
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenViewModel
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.viewmodel.viewModelFactory
+import com.marmatsan.dev.watermyplants.di.ApplicationComponent
+import com.marmatsan.dev.watermyplants.di.applicationComponent
+import me.tatarka.inject.annotations.Component
+
+@Component
+abstract class MainActivityComponent(@Component val parent: ApplicationComponent) {
+    abstract val validateWaterQuantityUseCase: ValidateWaterQuantityUseCase
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +87,17 @@ class MainActivity : ComponentActivity() {
                          snackbarHostState = snackbarHostState
                      )*//*
                 }*/
-                val plantScreenViewModel by viewModels<PlantScreenViewModel>()
+                val mainActivityComponent =
+                    MainActivityComponent::class.create(applicationComponent)
+
+                val plantScreenViewModel = viewModel<PlantScreenViewModel>(
+                    factory = viewModelFactory {
+                        PlantScreenViewModel(
+                            validateWaterQuantityUseCase = mainActivityComponent.validateWaterQuantityUseCase
+                        )
+                    }
+                )
+
                 val plantScreenState by plantScreenViewModel.state.collectAsStateWithLifecycle()
 
                 PlantScreen(
