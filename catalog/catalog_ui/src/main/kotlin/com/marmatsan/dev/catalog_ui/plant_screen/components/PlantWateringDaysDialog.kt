@@ -27,7 +27,7 @@ fun PlantWateringDaysDialog(
     onConfirmWateringDaysDialog: (List<DayOfWeek>?) -> Unit,
     wateringDays: List<DayOfWeek>? = null
 ) {
-    var tmpWateringDays = remember {
+    val tmpWateringDays = remember {
         mutableStateListOf<DayOfWeek>()
     }
 

@@ -9,7 +9,7 @@ import me.tatarka.inject.annotations.Provides
 @Singleton
 abstract class ApplicationComponent(
     @get:Provides val context: Context,
-) : CatalogComponent
+) : CatalogComponent()
 
 interface ApplicationComponentProvider {
     val component: ApplicationComponent

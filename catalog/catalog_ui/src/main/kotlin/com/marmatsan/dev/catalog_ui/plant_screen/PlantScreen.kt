@@ -79,9 +79,7 @@ fun PlantScreen(
             }
         )
     }
-
-
-
+    
     Column(
         modifier = modifier
             .fillMaxSize()
