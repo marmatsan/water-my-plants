@@ -12,6 +12,9 @@ fun VersionCatalog.getLibrary(libraryAlias: String): String {
 fun DependencyHandlerScope.implementation(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("implementation", dependencyNotation)
 
+fun DependencyHandlerScope.implementation(dependency: org.gradle.api.artifacts.Dependency): org.gradle.api.artifacts.Dependency? =
+    add("implementation", dependency)
+
 fun DependencyHandlerScope.testImplementation(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("testImplementation", dependencyNotation)
 
