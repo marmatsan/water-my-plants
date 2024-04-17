@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -28,6 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import kotlinx.coroutines.launch
+
+enum class TextFieldStyle {
+    Filled,
+    Outlined
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,6 +44,7 @@ fun TextField(
     onValueChange: (String) -> Unit = {},
     enabled: Boolean = true,
     readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
     textFieldStyle: TextFieldStyle = TextFieldStyle.Filled,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
@@ -80,6 +88,7 @@ fun TextField(
             onValueChange = onValueChange,
             enabled = enabled,
             readOnly = readOnly,
+            textStyle = textStyle,
             label = label,
             placeholder = placeholder,
             leadingIcon = leadingIcon,
@@ -102,6 +111,7 @@ fun TextField(
             onValueChange = onValueChange,
             enabled = enabled,
             readOnly = readOnly,
+            textStyle = textStyle,
             label = label,
             placeholder = placeholder,
             leadingIcon = leadingIcon,
@@ -154,64 +164,7 @@ private fun TextFieldLabelTextPreview(
 
 @Preview
 @Composable
-private fun TextFieldDisabledTextPreview(
-    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
-) {
-    WaterMyPlantsTheme {
-        TextField(
-            textFieldStyle = textFieldStyle,
-            label = { Text("Label") },
-            readOnly = true,
-            enabled = false,
-            leadingIcon = {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = ""
-                )
-            },
-            trailingIcon = {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Cancel,
-                    contentDescription = ""
-                )
-            }
-        )
-    }
-}
-
-@Preview
-@Composable
 private fun TextFieldInputTextPreview(
-    @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
-) {
-    WaterMyPlantsTheme {
-        TextField(
-            textFieldStyle = textFieldStyle,
-            label = { Text("Label") },
-            value = "Input",
-            leadingIcon = {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = ""
-                )
-            },
-            trailingIcon = {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Outlined.Cancel,
-                    contentDescription = ""
-                )
-            }
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun TextFieldOverridenDisabledTextPreview(
     @PreviewParameter(TextFieldStyleParameterProvider::class) textFieldStyle: TextFieldStyle
 ) {
     WaterMyPlantsTheme {

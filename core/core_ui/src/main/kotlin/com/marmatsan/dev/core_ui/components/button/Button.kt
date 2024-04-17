@@ -23,8 +23,16 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+
+enum class ButtonStyle {
+    Filled,
+    Outlined,
+    Text,
+    Elevated,
+    Tonal
+}
 
 @Composable
 fun Button(

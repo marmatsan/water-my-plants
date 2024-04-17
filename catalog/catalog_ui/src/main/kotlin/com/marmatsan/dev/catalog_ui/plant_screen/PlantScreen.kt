@@ -28,14 +28,16 @@ import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringDaysDialog
+import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringTimeDialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
-import com.marmatsan.dev.core_ui.dimensions.LocalDensity
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
+import com.marmatsan.dev.core_ui.theme.LocalDensity
+import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.spacing
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -46,8 +48,6 @@ fun PlantScreen(
     onAction: (PlantScreenAction) -> Unit,
     UIEventFlow: Flow<PlantScreenEvent>,
 ) {
-    val spacing = LocalSpacing.current
-
     ObserveAsEvents(flow = UIEventFlow) { event ->
         when (event) { // TODO
             else -> {}
@@ -67,6 +67,19 @@ fun PlantScreen(
         )
     }
 
+    if (state.wateringTimeDialogVisible) {
+        PlantWateringTimeDialog(
+            wateringTime = state.plant.wateringTime,
+            onCancelWateringTimeDialog = {
+                onAction(PlantScreenAction.OnDismissWateringTimeDialog)
+            },
+            onConfirmWateringTimeDialog = { newWateringTime ->
+                onAction(PlantScreenAction.OnWateringTimeChange(newWateringTime))
+                onAction(PlantScreenAction.OnDismissWateringTimeDialog)
+            }
+        )
+    }
+
     if (state.plantSizeDialogVisible) {
         PlantSizeDialog(
             plantSize = state.plant.size,
@@ -79,7 +92,8 @@ fun PlantScreen(
             }
         )
     }
-    
+
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -108,10 +122,12 @@ fun PlantScreen(
                 .weight(5f),
             name = state.plant.name,
             wateringDays = state.plant.wateringDays,
+            wateringTime = state.plant.wateringTime,
             waterAmount = state.plant.waterAmount,
             plantSize = state.plant.size,
-            onPlantSizeClick = {
-                onAction(PlantScreenAction.OnPlantSizeClick)
+            description = state.plant.description,
+            onNameChange = { newName ->
+                onAction(PlantScreenAction.OnPlantNameChange(newName))
             },
             onWateringDaysClick = {
                 onAction(PlantScreenAction.OnWateringDaysClick)
@@ -120,7 +136,13 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnWateringTimeClick)
             },
             onWaterAmountChange = { newWaterAmount ->
-                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount.toInt()))
+                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount))
+            },
+            onPlantSizeClick = {
+                onAction(PlantScreenAction.OnPlantSizeClick)
+            },
+            onDescriptionChange = { newDescription ->
+                onAction(PlantScreenAction.OnDescriptionChange(newDescription))
             }
         )
         ButtonContainer(

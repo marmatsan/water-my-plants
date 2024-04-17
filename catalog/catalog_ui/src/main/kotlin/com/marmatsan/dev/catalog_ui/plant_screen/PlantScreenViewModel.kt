@@ -1,5 +1,6 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
+import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantNameUseCase
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidateWaterQuantityUseCase
 import com.marmatsan.dev.core_ui.event.Event
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
@@ -9,6 +10,7 @@ import me.tatarka.inject.annotations.Inject
 
 @Inject
 class PlantScreenViewModel(
+    private val validatePlantNameUseCase: ValidatePlantNameUseCase,
     private val validateWaterQuantityUseCase: ValidateWaterQuantityUseCase
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
@@ -34,37 +36,50 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnCreatePlant -> {
-
+                
             }
 
             is PlantScreenAction.OnAIButtonClick -> {
-
+                // TODO
             }
 
             is PlantScreenAction.OnPlantSizeClick -> {
-                _state.value = _state.value.copy(plantSizeDialogVisible = true)
+                _state.value =
+                    _state.value.copy(plantSizeDialogVisible = true)
             }
 
             is PlantScreenAction.OnDismissPlantSizeDialog -> {
-                _state.value = _state.value.copy(plantSizeDialogVisible = false)
+                _state.value =
+                    _state.value.copy(plantSizeDialogVisible = false)
             }
 
             is PlantScreenAction.OnDismissWateringDaysDialog -> {
-                _state.value = _state.value.copy(wateringDaysDialogVisible = false)
+                _state.value =
+                    _state.value.copy(wateringDaysDialogVisible = false)
+            }
+
+            is PlantScreenAction.OnDismissWateringTimeDialog -> {
+                _state.value =
+                    _state.value.copy(wateringTimeDialogVisible = false)
             }
 
             is PlantScreenAction.OnWateringDaysClick -> {
-                _state.value = _state.value.copy(wateringDaysDialogVisible = true)
+                _state.value =
+                    _state.value.copy(wateringDaysDialogVisible = true)
             }
 
             is PlantScreenAction.OnWateringTimeClick -> {
-                _state.value = _state.value.copy(wateringHourDialogVisible = true)
+                _state.value =
+                    _state.value.copy(wateringTimeDialogVisible = true)
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(name = action.plantName)
-                )
+                val (isValid, plantName) = validatePlantNameUseCase(action.plantName)
+                if (isValid) {
+                    _state.value = _state.value.copy(
+                        plant = _state.value.plant.copy(name = plantName)
+                    )
+                }
             }
 
             is PlantScreenAction.OnWateringDaysChange -> {
@@ -74,8 +89,17 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnWaterAmountChange -> {
+                val (isValid, intWaterAmount) = validateWaterQuantityUseCase(action.waterAmount)
+                if (isValid) {
+                    _state.value = _state.value.copy(
+                        plant = _state.value.plant.copy(waterAmount = intWaterAmount)
+                    )
+                }
+            }
+
+            is PlantScreenAction.OnWateringTimeChange -> {
                 _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(waterAmount = validateWaterQuantityUseCase(action.waterAmount))
+                    plant = _state.value.plant.copy(wateringTime = action.wateringTime)
                 )
             }
 

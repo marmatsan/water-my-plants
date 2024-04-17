@@ -22,8 +22,8 @@ import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
-import com.marmatsan.dev.core_ui.dimensions.LocalDensity
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalDensity
+import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable

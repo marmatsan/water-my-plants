@@ -12,5 +12,5 @@ data class PlantScreenState(
     val removePhotoAvailable: Boolean = false,
     val plantSizeDialogVisible: Boolean = false,
     val wateringDaysDialogVisible: Boolean = false,
-    val wateringHourDialogVisible: Boolean = false
+    val wateringTimeDialogVisible: Boolean = false
 )

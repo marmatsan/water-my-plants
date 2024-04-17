@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable
