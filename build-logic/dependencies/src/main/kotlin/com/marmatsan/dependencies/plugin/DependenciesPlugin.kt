@@ -15,9 +15,9 @@ class DependenciesPlugin : Plugin<Settings> {
         const val CORE_SPLASHSCREEN_VERSION = "1.0.1"
         const val DATASTORE_VERSION = "1.0.0"
         const val JUNIT5_VERSION = "5.10.2"
-        const val KOTLIN_VERSION = "1.9.23"
+        const val KOTLIN_VERSION = "2.0.0-RC1"
         const val KOTLIN_INJECT_VERSION = "0.6.3"
-        const val KSP_VERSION = "$KOTLIN_VERSION-1.0.19"
+        const val KSP_VERSION = "$KOTLIN_VERSION-1.0.20"
         const val LIFECYCLE_VERSION = "2.7.0"
         const val NAVIGATION_COMPOSE_VERSION = "2.7.7"
     }

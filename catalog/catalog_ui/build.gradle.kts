@@ -6,7 +6,9 @@ plugins {
 
 dependencies {
     /* Modules */
-    implementation(projects.core.coreUi)
+    // Core
     implementation(projects.core.coreDomain)
+    implementation(projects.core.coreUi)
+    // Catalog
     implementation(projects.catalog.catalogDomain)
 }

@@ -17,19 +17,27 @@ import org.gradle.kotlin.dsl.hasPlugin
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 class AndroidPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        try {
+            project.kotlinExtension.apply {
+                sourceSets.all {
+                    languageSettings {
+                        languageVersion = "2.0"
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            println("${project.name}:${e.message}")
+        }
 
+        // Check if the module is of type Application or Library
         val androidExtension = when {
-            project.plugins.hasPlugin(AppPlugin::class) -> {
-                project.extensions.getByType<ApplicationExtension>()
-            }
-
-            else -> {
-                project.extensions.getByType<LibraryExtension>()
-            }
+            project.plugins.hasPlugin(AppPlugin::class) -> project.extensions.getByType<ApplicationExtension>()
+            else -> project.extensions.getByType<LibraryExtension>()
         }
 
         androidExtension.apply {
@@ -60,7 +68,8 @@ class AndroidPlugin : Plugin<Project> {
 
                 project.tasks.withType<KotlinJvmCompile>().configureEach {
                     compilerOptions.languageVersion.set(KotlinVersion.KOTLIN_1_9)
-                    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+                    compilerOptions.apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+                    compilerOptions.jvmTarget.set(JvmTarget.JVM_19)
                 }
 
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -84,5 +93,6 @@ class AndroidPlugin : Plugin<Project> {
         project.tasks.withType<Test> {
             useJUnitPlatform()
         }
+
     }
 }
