@@ -23,16 +23,15 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.theme.LocalDensity
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.spacing
 
 @Composable
 fun PlantScreenActions(
     modifier: Modifier = Modifier,
-    AIButtonAvailable: Boolean = false
+    AIButtonAvailable: Boolean = false,
+    onAddImage: (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(
@@ -55,6 +54,9 @@ fun PlantScreenActions(
                     tint = MaterialTheme.colorScheme.onSecondary,
                     contentDescription = null
                 )
+            },
+            onClick = {
+                onAddImage?.invoke()
             }
         )
         if (AIButtonAvailable) {

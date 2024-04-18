@@ -1,12 +1,13 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
+import android.net.Uri
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_ui.action.Action
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 sealed interface PlantScreenAction : Action {
-    data object OnAddImage : PlantScreenAction
+    data class OnAddImage(val imageUri: Uri?) : PlantScreenAction
     data object OnChangeImage : PlantScreenAction
     data object OnRemoveImage : PlantScreenAction
     data object OnBack : PlantScreenAction

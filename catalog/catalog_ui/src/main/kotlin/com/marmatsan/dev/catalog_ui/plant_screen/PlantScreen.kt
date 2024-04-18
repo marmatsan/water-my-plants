@@ -1,6 +1,6 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
@@ -38,6 +38,8 @@ import com.marmatsan.dev.core_ui.theme.LocalDensity
 import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -93,7 +95,6 @@ fun PlantScreen(
         )
     }
 
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -113,8 +114,15 @@ fun PlantScreen(
                 .padding(
                     all = spacing.default
                 ),
-            removePhotoAvailable = state.removePhotoAvailable,
-            AIButtonAvailable = state.AIButtonAvailable
+            removePhotoAvailable = state.plant.image != null,
+            AIButtonAvailable = false,
+            image = state.plant.image,
+            onAddImage = { imageUri ->
+                onAction(PlantScreenAction.OnAddImage(imageUri))
+            },
+            onRemoveImage = {
+                onAction(PlantScreenAction.OnRemoveImage)
+            }
         )
         PlantScreenForm(
             modifier = modifier
@@ -163,14 +171,26 @@ fun PlantScreen(
 fun Header(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false
+    AIButtonAvailable: Boolean = false,
+    image: Uri? = null,
+    onAddImage: ((Uri) -> Unit)? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
     val spacing = LocalSpacing.current
 
     Box(
         modifier = modifier
     ) {
-        Illustration(
+        image?.let {
+            CoilImage(
+                modifier = Modifier.fillMaxSize(),
+                imageModel = { image },
+                imageOptions = ImageOptions(
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center
+                )
+            )
+        } ?: Illustration(
             modifier = Modifier.fillMaxSize(),
             design = Design.Three
         )
@@ -179,7 +199,9 @@ fun Header(
                 all = spacing.medium
             ),
             removePhotoAvailable = removePhotoAvailable,
-            AIButtonAvailable = AIButtonAvailable
+            AIButtonAvailable = AIButtonAvailable,
+            onAddImage = onAddImage,
+            onRemoveImage = onRemoveImage
         )
     }
 }
@@ -188,7 +210,9 @@ fun Header(
 fun HeaderContent(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false
+    AIButtonAvailable: Boolean = false,
+    onAddImage: ((Uri) -> Unit)? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
     val spacing = LocalSpacing.current
 
@@ -201,17 +225,15 @@ fun HeaderContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = spacing.default),
-            removePhotoAvailable = removePhotoAvailable
-        )
-        Image( // Plant icon
-            painter = painterResource(id = com.marmatsan.core_ui.R.drawable.plant_icon),
-            contentDescription = null
+            removePhotoAvailable = removePhotoAvailable,
+            onRemoveImage = onRemoveImage
         )
         PlantScreenActions(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(all = spacing.default),
-            AIButtonAvailable = AIButtonAvailable
+            AIButtonAvailable = AIButtonAvailable,
+            onAddImage = onAddImage,
         )
     }
 }

@@ -19,7 +19,8 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 @Composable
 fun PlantScreenHeader(
     modifier: Modifier = Modifier,
-    removePhotoAvailable: Boolean = false
+    removePhotoAvailable: Boolean = false,
+    onRemoveImage: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier,
@@ -52,8 +53,10 @@ fun PlantScreenHeader(
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         contentDescription = null
                     )
+                },
+                onClick = {
+                    onRemoveImage?.invoke()
                 }
-
             )
         }
     }
