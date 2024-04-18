@@ -121,6 +121,19 @@ val comLibraryTree = tree(Library(group = "com")) {
             )
         }
     }
+    tree(Library(group = "github")) {
+        tree(
+            Library(
+                group = "skydoves", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "landscapist",
+                        artifacts = listOf("landscapist-coil"),
+                        version = DependenciesPlugin.Versions.LANDSCAPIST_VERSION
+                    )
+                )
+            )
+        )
+    }
 }
 
 val meLibraryTree = tree(Library(group = "me")) {

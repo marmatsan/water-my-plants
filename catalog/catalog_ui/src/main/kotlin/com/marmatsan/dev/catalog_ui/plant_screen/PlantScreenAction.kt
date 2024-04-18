@@ -8,7 +8,6 @@ import java.time.LocalTime
 
 sealed interface PlantScreenAction : Action {
     data class OnAddImage(val imageUri: Uri?) : PlantScreenAction
-    data object OnChangeImage : PlantScreenAction
     data object OnRemoveImage : PlantScreenAction
     data object OnBack : PlantScreenAction
     data object OnCreatePlant : PlantScreenAction

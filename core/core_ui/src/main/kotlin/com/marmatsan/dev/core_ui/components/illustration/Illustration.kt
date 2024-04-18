@@ -2,6 +2,7 @@ package com.marmatsan.dev.core_ui.components.illustration
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -23,26 +24,36 @@ fun Illustration(
     when (design) {
         Design.One -> TODO()
         Design.Two -> TODO()
-        Design.Three -> Row(
-            modifier = modifier.padding(all = spacing.default),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+        Design.Three -> Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
         ) {
+            Row(
+                modifier = Modifier.padding(all = spacing.default),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    modifier = Modifier.weight(0.44938016f),
+                    painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_left),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = ""
+                )
+                Image(
+                    modifier = Modifier.weight(0.10123967f),
+                    painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_center),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = ""
+                )
+                Image(
+                    modifier = Modifier.weight(0.44938016f),
+                    painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_right),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = ""
+                )
+            }
             Image(
-                modifier = Modifier.weight(0.44938016f),
-                painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_left),
-                contentScale = ContentScale.FillBounds,
-                contentDescription = ""
-            )
-            Image(
-                modifier = Modifier.weight(0.10123967f),
-                painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_center),
-                contentScale = ContentScale.FillBounds,
-                contentDescription = ""
-            )
-            Image(
-                modifier = Modifier.weight(0.44938016f),
-                painter = painterResource(id = com.marmatsan.core_ui.R.drawable.illustration_3_objects_right),
+                painter = painterResource(id = com.marmatsan.core_ui.R.drawable.plant_icon),
                 contentScale = ContentScale.FillBounds,
                 contentDescription = ""
             )
@@ -50,10 +61,7 @@ fun Illustration(
     }
 }
 
-@Preview(
-    widthDp = 100,
-    heightDp = 50
-)
+@Preview()
 @Composable
 private fun IllustrationPreview() {
     WaterMyPlantsTheme {

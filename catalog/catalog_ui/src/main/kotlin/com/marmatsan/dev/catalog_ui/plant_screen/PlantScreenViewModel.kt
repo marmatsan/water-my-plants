@@ -17,18 +17,18 @@ class PlantScreenViewModel(
     private val _state = MutableStateFlow(PlantScreenState())
     val state = _state.asStateFlow()
 
-    override suspend fun handleAction(action: PlantScreenAction) {
+    override fun handleAction(action: PlantScreenAction) {
         when (action) {
             is PlantScreenAction.OnAddImage -> {
-
-            }
-
-            is PlantScreenAction.OnChangeImage -> {
-
+                _state.value = _state.value.copy(
+                    plant = _state.value.plant.copy(image = action.imageUri)
+                )
             }
 
             is PlantScreenAction.OnRemoveImage -> {
-
+                _state.value = _state.value.copy(
+                    plant = _state.value.plant.copy(image = null)
+                )
             }
 
             is PlantScreenAction.OnBack -> {
@@ -36,7 +36,7 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnCreatePlant -> {
-                
+
             }
 
             is PlantScreenAction.OnAIButtonClick -> {

@@ -35,7 +35,6 @@ import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.LocalDensity
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
@@ -176,8 +175,6 @@ fun Header(
     onAddImage: ((Uri) -> Unit)? = null,
     onRemoveImage: (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
-
     Box(
         modifier = modifier
     ) {
@@ -200,6 +197,7 @@ fun Header(
             ),
             removePhotoAvailable = removePhotoAvailable,
             AIButtonAvailable = AIButtonAvailable,
+            image = image,
             onAddImage = onAddImage,
             onRemoveImage = onRemoveImage
         )
@@ -212,10 +210,9 @@ fun HeaderContent(
     removePhotoAvailable: Boolean = false,
     AIButtonAvailable: Boolean = false,
     onAddImage: ((Uri) -> Unit)? = null,
+    image: Uri? = null,
     onRemoveImage: (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -233,6 +230,7 @@ fun HeaderContent(
                 .wrapContentSize()
                 .padding(all = spacing.default),
             AIButtonAvailable = AIButtonAvailable,
+            image = image,
             onAddImage = onAddImage,
         )
     }
@@ -242,8 +240,6 @@ fun HeaderContent(
 fun ButtonContainer(
     modifier: Modifier = Modifier
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier
             .wrapContentHeight()
