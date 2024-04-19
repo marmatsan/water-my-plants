@@ -1,17 +1,17 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
-import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantNameUseCase
-import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidateWaterQuantityUseCase
+import androidx.lifecycle.viewModelScope
+import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.core_ui.event.Event
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class PlantScreenViewModel(
-    private val validatePlantNameUseCase: ValidatePlantNameUseCase,
-    private val validateWaterQuantityUseCase: ValidateWaterQuantityUseCase
+    private val plantScreenUseCases: PlantScreenUseCases,
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private val _state = MutableStateFlow(PlantScreenState())
@@ -36,7 +36,9 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnCreatePlant -> {
-
+                viewModelScope.launch {
+                    plantScreenUseCases.insertPlantUseCase(input = _state.value.plant)
+                }
             }
 
             is PlantScreenAction.OnAIButtonClick -> {
@@ -74,7 +76,9 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
-                val (isValid, plantName) = validatePlantNameUseCase(action.plantName)
+                val (isValid, plantName) = plantScreenUseCases.validatePlantNameUseCase(
+                    action.plantName
+                )
                 if (isValid) {
                     _state.value = _state.value.copy(
                         plant = _state.value.plant.copy(name = plantName)
@@ -89,7 +93,9 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnWaterAmountChange -> {
-                val (isValid, intWaterAmount) = validateWaterQuantityUseCase(action.waterAmount)
+                val (isValid, intWaterAmount) = plantScreenUseCases.validateWaterQuantityUseCase(
+                    action.waterAmount
+                )
                 if (isValid) {
                     _state.value = _state.value.copy(
                         plant = _state.value.plant.copy(waterAmount = intWaterAmount)

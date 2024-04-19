@@ -11,7 +11,7 @@
     <string name="plant_screen_text_field_label_plant_name">Plant name*</string>
     <string name="plant_screen_text_field_label_watering_days">Watering days*</string>
     <string name="plant_screen_text_field_label_watering_time">Watering time*</string>
-    <string name="plant_screen_text_field_label_water_amount">Water amount*</string>
+    <string name="plant_screen_text_field_label_water_amount">Water amount</string>
     <string name="plant_screen_text_field_label_plant_size">Plant size</string>
     <string name="plant_screen_text_field_label_description">Description</string>
     <string name="plant_screen_text_field_prefix_water_amount">ml</string>

@@ -9,6 +9,7 @@ class DependenciesPlugin : Plugin<Settings> {
     object Versions {
         const val APPLICATION_VERSION = "8.3.0"
         const val ACTIVITY_COMPOSE_VERSION = "1.8.2"
+        const val ANDROID_COROUTINES_VERSION = "1.8.0"
         const val COMPOSE_BOM_VERSION = "2024.02.02"
         const val COMPOSE_COMPILER_VERSION = "1.5.11"
         const val CORE_KTX_VERSION = "1.12.0"
@@ -21,6 +22,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val LANDSCAPIST_VERSION = "2.3.3"
         const val LIFECYCLE_VERSION = "2.7.0"
         const val NAVIGATION_COMPOSE_VERSION = "2.7.7"
+        const val REALM_VERSION = "1.15.0"
     }
 
     override fun apply(settings: Settings) {
