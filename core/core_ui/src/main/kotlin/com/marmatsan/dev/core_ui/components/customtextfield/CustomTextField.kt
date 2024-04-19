@@ -33,6 +33,7 @@ fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: (@Composable () -> Unit)? = null,
+    supportingText: (@Composable () -> Unit)? = null, // TODO
     bodyTextStyle: TextStyle = TextStyle.Default,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {

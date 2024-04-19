@@ -13,11 +13,3 @@ fun <T> MutableList<T>.toggle(element: T) {
 
 val Int.length: Int
     inline get() = this.toString().length
-
-infix fun String.hasAtMostLengthOf(length: Int): Boolean {
-    return this.length <= length
-}
-
-infix fun Int.hasAtMostLengthOf(length: Int): Boolean {
-    return this.length <= length
-}

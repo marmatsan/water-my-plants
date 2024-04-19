@@ -1,6 +1,5 @@
 package com.marmatsan.dev.catalog_ui.plant_screen.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,9 +26,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.catalog_ui.R
+import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_domain.catalog.PlantDataConstraints
 import com.marmatsan.dev.core_domain.length
 import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
@@ -60,7 +59,6 @@ object PlantScreenFormStyle {
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlantScreenForm(
     modifier: Modifier = Modifier,
@@ -77,61 +75,6 @@ fun PlantScreenForm(
     onWateringDaysClick: (() -> Unit)? = null,
     onWateringTimeClick: (() -> Unit)? = null
 ) {
-    val plantNameSupportingText: @Composable (() -> Unit)? = if (name?.isNotBlank() == true) {
-        {
-            Text("${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}")
-        }
-    } else null
-
-    val waterAmountSupportingText: @Composable (() -> Unit)? = if (waterAmount != null) {
-        {
-            Text("${waterAmount.length}/${PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH}")
-        }
-    } else null
-
-    val descriptionSupportingText: @Composable (() -> Unit)? =
-        if (description?.isNotBlank() == true) {
-            {
-                Text("${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}")
-            }
-        } else null
-
-    @Composable
-    fun wateringDaysString(): String =
-        wateringDays?.let { wateringDays ->
-            val wateringDaysStringBuilder = StringBuilder()
-            wateringDays.sorted().forEachIndexed { position, wateringDay ->
-                val stringResourceId = when (wateringDay) {
-                    DayOfWeek.MONDAY -> R.string.plant_screen_dialog_watering_days_day1
-                    DayOfWeek.TUESDAY -> R.string.plant_screen_dialog_watering_days_day2
-                    DayOfWeek.WEDNESDAY -> R.string.plant_screen_dialog_watering_days_day3
-                    DayOfWeek.THURSDAY -> R.string.plant_screen_dialog_watering_days_day4
-                    DayOfWeek.FRIDAY -> R.string.plant_screen_dialog_watering_days_day5
-                    DayOfWeek.SATURDAY -> R.string.plant_screen_dialog_watering_days_day6
-                    DayOfWeek.SUNDAY -> R.string.plant_screen_dialog_watering_days_day7
-                }
-                wateringDaysStringBuilder.append(stringResource(id = stringResourceId))
-                if (position != wateringDays.lastIndex) {
-                    wateringDaysStringBuilder.append(", ")
-                }
-            }
-            wateringDaysStringBuilder.toString()
-        } ?: String.Empty
-
-    @Composable
-    fun wateringTimeString(): String = wateringTime?.toString() ?: String.Empty
-
-    @Composable
-    fun plantSizeString(): String = plantSize?.let { plantSize ->
-        val stringResourceId = when (plantSize) {
-            PlantSize.SMALL -> R.string.plant_screen_dialog_plant_size_option_1
-            PlantSize.MEDIUM -> R.string.plant_screen_dialog_plant_size_option_2
-            PlantSize.LARGE -> R.string.plant_screen_dialog_plant_size_option_3
-            PlantSize.EXTRA_LARGE -> R.string.plant_screen_dialog_plant_size_option_4
-        }
-        stringResource(id = stringResourceId)
-    } ?: String.Empty
-
     Surface(
         modifier = modifier,
         shadowElevation = LocalElevation.current.level3
@@ -179,7 +122,11 @@ fun PlantScreenForm(
                             onNameChange?.invoke(newName)
                         },
                         label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_name)) },
-                        supportingText = plantNameSupportingText,
+                        supportingText = if (name?.isNotBlank() == true) {
+                            {
+                                Text("${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}")
+                            }
+                        } else null,
                         textFieldColors = PlantScreenFormStyle.textFieldColors(),
                         textFieldShape = PlantScreenFormStyle.textFieldShape
                     )
@@ -201,14 +148,34 @@ fun PlantScreenForm(
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_days))
                             },
-                            value = wateringDaysString(),
+                            value = wateringDays?.let { wateringDays ->
+                                val wateringDaysStringBuilder = StringBuilder()
+                                val sortedWateringDays = wateringDays.sorted()
+
+                                sortedWateringDays.forEachIndexed { position, wateringDay ->
+                                    val stringResourceId = when (wateringDay) {
+                                        DayOfWeek.MONDAY -> R.string.plant_screen_dialog_watering_days_day1
+                                        DayOfWeek.TUESDAY -> R.string.plant_screen_dialog_watering_days_day2
+                                        DayOfWeek.WEDNESDAY -> R.string.plant_screen_dialog_watering_days_day3
+                                        DayOfWeek.THURSDAY -> R.string.plant_screen_dialog_watering_days_day4
+                                        DayOfWeek.FRIDAY -> R.string.plant_screen_dialog_watering_days_day5
+                                        DayOfWeek.SATURDAY -> R.string.plant_screen_dialog_watering_days_day6
+                                        DayOfWeek.SUNDAY -> R.string.plant_screen_dialog_watering_days_day7
+                                    }
+                                    wateringDaysStringBuilder.append(stringResource(id = stringResourceId))
+                                    if (position != sortedWateringDays.lastIndex) {
+                                        wateringDaysStringBuilder.append(", ")
+                                    }
+                                }
+                                wateringDaysStringBuilder.toString()
+                            } ?: String.Empty,
                             onClick = onWateringDaysClick
                         )
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(5f),
-                            value = wateringTimeString(),
+                            value = wateringTime?.toString() ?: String.Empty,
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_time))
                             },
@@ -236,7 +203,11 @@ fun PlantScreenForm(
                             },
                             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                             label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_water_amount)) },
-                            supportingText = waterAmountSupportingText,
+                            supportingText = if (waterAmount != null) {
+                                {
+                                    Text("${waterAmount.length}/${PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH}")
+                                }
+                            } else null,
                             suffix = {
                                 Text(
                                     text = stringResource(id = R.string.plant_screen_text_field_prefix_water_amount),
@@ -257,7 +228,15 @@ fun PlantScreenForm(
                             label = {
                                 Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_size))
                             },
-                            value = plantSizeString(),
+                            value = plantSize?.let { plantSize ->
+                                val stringResourceId = when (plantSize) {
+                                    PlantSize.SMALL -> R.string.plant_screen_dialog_plant_size_option_1
+                                    PlantSize.MEDIUM -> R.string.plant_screen_dialog_plant_size_option_2
+                                    PlantSize.LARGE -> R.string.plant_screen_dialog_plant_size_option_3
+                                    PlantSize.EXTRA_LARGE -> R.string.plant_screen_dialog_plant_size_option_4
+                                }
+                                stringResource(id = stringResourceId)
+                            } ?: String.Empty,
                             onClick = onPlantSizeClick
                         )
                     }
@@ -275,7 +254,12 @@ fun PlantScreenForm(
                                 color = colorScheme.onSurfaceVariant,
                                 style = if (description.isNullOrEmpty()) typography.bodyLarge else typography.bodySmall
                             )
-                        }
+                        },
+                        supportingText = if (description?.isNotBlank() == true) {
+                            {
+                                Text("${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}")
+                            }
+                        } else null
                     )
                 }
                 // Scroll indicator: TODO
