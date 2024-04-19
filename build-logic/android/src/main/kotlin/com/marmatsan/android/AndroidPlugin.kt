@@ -71,6 +71,7 @@ class AndroidPlugin : Plugin<Project> {
         // Applied plugins
         project.pluginManager.apply("org.jetbrains.kotlin.android")
         project.pluginManager.apply("com.google.devtools.ksp")
+        project.pluginManager.apply("io.realm.kotlin")
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -79,6 +80,10 @@ class AndroidPlugin : Plugin<Project> {
             // Dependency injection
             ksp(libs.getLibrary("me.tatarka.inject.kotlin.inject.compiler.ksp"))
             implementation(libs.getLibrary("me.tatarka.inject.kotlin.inject.runtime"))
+            // Coroutines
+            implementation(libs.getLibrary("org.jetbrains.kotlinx.kotlinx.coroutines.android"))
+            // Realm database
+            implementation(libs.getLibrary("io.realm.kotlin"))
         }
 
         project.tasks.withType<Test> {

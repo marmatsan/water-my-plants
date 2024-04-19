@@ -1,3 +1,3 @@
 package com.marmatsan.dev.core_domain.usecase
 
-interface UseCase
+interface UseCase<in T, out R>

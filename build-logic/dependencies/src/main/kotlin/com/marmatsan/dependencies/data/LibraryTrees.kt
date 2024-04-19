@@ -159,8 +159,16 @@ val orgLibraryTree = tree(Library(group = "org")) {
                 group = "kotlinx", artifactsGroups = listOf(
                     ArtifactsGroup(
                         name = "gradle-configuration",
-                        artifacts = listOf("kotlin-gradle-plugin", "kotlin-android-extensions"),
+                        artifacts = listOf(
+                            "kotlin-gradle-plugin",
+                            "kotlin-android-extensions"
+                        ),
                         version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                    ),
+                    ArtifactsGroup(
+                        name = "coroutines",
+                        artifacts = listOf("kotlinx-coroutines-android"),
+                        version = DependenciesPlugin.Versions.ANDROID_COROUTINES_VERSION
                     )
                 )
             )
@@ -181,11 +189,29 @@ val orgLibraryTree = tree(Library(group = "org")) {
     }
 }
 
+val ioLibraryTree = tree(Library(group = "io")) {
+    tree(Library(group = "realm")) {
+        tree(
+            Library(
+                group = "kotlin", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "realm",
+                        artifacts = listOf("library-base"),
+                        version = DependenciesPlugin.Versions.REALM_VERSION
+                    )
+                )
+            )
+        )
+    }
+}
 
 val nonComposeLibraryTrees = listOf(
     androidXLibraryTree,
     comLibraryTree,
     meLibraryTree,
-    orgLibraryTree
+    orgLibraryTree,
+    ioLibraryTree
 )
-val composeLibraryTrees = listOf(androidXComposeLibraryTree)
+val composeLibraryTrees = listOf(
+    androidXComposeLibraryTree
+)

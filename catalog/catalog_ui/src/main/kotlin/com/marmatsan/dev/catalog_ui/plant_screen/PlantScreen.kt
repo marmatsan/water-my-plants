@@ -34,8 +34,8 @@ import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
-import com.marmatsan.dev.core_ui.theme.LocalDensity
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
@@ -160,7 +160,10 @@ fun PlantScreen(
                 .padding(
                     horizontal = spacing.medium,
                     vertical = spacing.small
-                )
+                ),
+            onCreatePlant = {
+                onAction(PlantScreenAction.OnCreatePlant)
+            }
         )
     }
 
@@ -238,7 +241,8 @@ fun HeaderContent(
 
 @Composable
 fun ButtonContainer(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCreatePlant: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -250,7 +254,7 @@ fun ButtonContainer(
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(ButtonDefaults.MinHeight + LocalDensity.current.positiveFour),
+                .height(ButtonDefaults.MinHeight + density.positiveFour),
             buttonStyle = ButtonStyle.Outlined,
             labelText = "Create plant",
             icon = {
@@ -260,7 +264,8 @@ fun ButtonContainer(
                     tint = MaterialTheme.colorScheme.primary,
                     contentDescription = ""
                 )
-            }
+            },
+            onClick = onCreatePlant
         )
     }
 }

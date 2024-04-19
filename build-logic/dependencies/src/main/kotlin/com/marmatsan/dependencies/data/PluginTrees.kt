@@ -20,11 +20,26 @@ val orgPluginTree = tree(Plugin(id = "org")) {
         tree(Plugin(id = "kotlin")) {
             tree(Plugin(id = "android", version = DependenciesPlugin.Versions.KOTLIN_VERSION))
             tree(Plugin(id = "plugin")) {
-                tree(Plugin(id = "serialization", version = DependenciesPlugin.Versions.KOTLIN_VERSION))
+                tree(
+                    Plugin(
+                        id = "serialization",
+                        version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                    )
+                )
                 tree(Plugin(id = "parcelize", version = DependenciesPlugin.Versions.KOTLIN_VERSION))
             }
         }
     }
 }
 
-val pluginTrees = listOf(comPluginTree, orgPluginTree)
+val ioPluginTree = tree(Plugin(id = "io")) {
+    tree(Plugin(id = "realm")) {
+        tree(Plugin(id = "kotlin", version = DependenciesPlugin.Versions.REALM_VERSION))
+    }
+}
+
+val pluginTrees = listOf(
+    comPluginTree,
+    orgPluginTree,
+    ioPluginTree
+)

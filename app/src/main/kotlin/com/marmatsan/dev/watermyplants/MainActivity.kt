@@ -85,8 +85,7 @@ class MainActivity : ComponentActivity() {
                          snackbarHostState = snackbarHostState
                      )*//*
                 }*/
-                val mainActivityComponent =
-                    MainActivityComponent::class.create(applicationComponent)
+                val mainActivityComponent = MainActivityComponent::class.create(applicationComponent)
 
                 val plantScreenViewModel = viewModel { mainActivityComponent.plantScreenViewModel }
                 val plantScreenState by plantScreenViewModel.state.collectAsStateWithLifecycle()
