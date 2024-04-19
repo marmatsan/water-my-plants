@@ -1,6 +1,6 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
@@ -28,14 +28,17 @@ import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringDaysDialog
+import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringTimeDialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
-import com.marmatsan.dev.core_ui.dimensions.LocalDensity
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
+import com.marmatsan.dev.core_ui.theme.LocalDensity
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.spacing
+import com.skydoves.landscapist.ImageOptions
+import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -46,8 +49,6 @@ fun PlantScreen(
     onAction: (PlantScreenAction) -> Unit,
     UIEventFlow: Flow<PlantScreenEvent>,
 ) {
-    val spacing = LocalSpacing.current
-
     ObserveAsEvents(flow = UIEventFlow) { event ->
         when (event) { // TODO
             else -> {}
@@ -67,6 +68,19 @@ fun PlantScreen(
         )
     }
 
+    if (state.wateringTimeDialogVisible) {
+        PlantWateringTimeDialog(
+            wateringTime = state.plant.wateringTime,
+            onCancelWateringTimeDialog = {
+                onAction(PlantScreenAction.OnDismissWateringTimeDialog)
+            },
+            onConfirmWateringTimeDialog = { newWateringTime ->
+                onAction(PlantScreenAction.OnWateringTimeChange(newWateringTime))
+                onAction(PlantScreenAction.OnDismissWateringTimeDialog)
+            }
+        )
+    }
+
     if (state.plantSizeDialogVisible) {
         PlantSizeDialog(
             plantSize = state.plant.size,
@@ -79,7 +93,7 @@ fun PlantScreen(
             }
         )
     }
-    
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -99,8 +113,15 @@ fun PlantScreen(
                 .padding(
                     all = spacing.default
                 ),
-            removePhotoAvailable = state.removePhotoAvailable,
-            AIButtonAvailable = state.AIButtonAvailable
+            removePhotoAvailable = state.plant.image != null,
+            AIButtonAvailable = false,
+            image = state.plant.image,
+            onAddImage = { imageUri ->
+                onAction(PlantScreenAction.OnAddImage(imageUri))
+            },
+            onRemoveImage = {
+                onAction(PlantScreenAction.OnRemoveImage)
+            }
         )
         PlantScreenForm(
             modifier = modifier
@@ -108,10 +129,12 @@ fun PlantScreen(
                 .weight(5f),
             name = state.plant.name,
             wateringDays = state.plant.wateringDays,
+            wateringTime = state.plant.wateringTime,
             waterAmount = state.plant.waterAmount,
             plantSize = state.plant.size,
-            onPlantSizeClick = {
-                onAction(PlantScreenAction.OnPlantSizeClick)
+            description = state.plant.description,
+            onNameChange = { newName ->
+                onAction(PlantScreenAction.OnPlantNameChange(newName))
             },
             onWateringDaysClick = {
                 onAction(PlantScreenAction.OnWateringDaysClick)
@@ -120,7 +143,13 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnWateringTimeClick)
             },
             onWaterAmountChange = { newWaterAmount ->
-                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount.toInt()))
+                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount))
+            },
+            onPlantSizeClick = {
+                onAction(PlantScreenAction.OnPlantSizeClick)
+            },
+            onDescriptionChange = { newDescription ->
+                onAction(PlantScreenAction.OnDescriptionChange(newDescription))
             }
         )
         ButtonContainer(
@@ -141,14 +170,24 @@ fun PlantScreen(
 fun Header(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false
+    AIButtonAvailable: Boolean = false,
+    image: Uri? = null,
+    onAddImage: ((Uri) -> Unit)? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
-
     Box(
         modifier = modifier
     ) {
-        Illustration(
+        image?.let {
+            CoilImage(
+                modifier = Modifier.fillMaxSize(),
+                imageModel = { image },
+                imageOptions = ImageOptions(
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center
+                )
+            )
+        } ?: Illustration(
             modifier = Modifier.fillMaxSize(),
             design = Design.Three
         )
@@ -157,7 +196,10 @@ fun Header(
                 all = spacing.medium
             ),
             removePhotoAvailable = removePhotoAvailable,
-            AIButtonAvailable = AIButtonAvailable
+            AIButtonAvailable = AIButtonAvailable,
+            image = image,
+            onAddImage = onAddImage,
+            onRemoveImage = onRemoveImage
         )
     }
 }
@@ -166,10 +208,11 @@ fun Header(
 fun HeaderContent(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false
+    AIButtonAvailable: Boolean = false,
+    onAddImage: ((Uri) -> Unit)? = null,
+    image: Uri? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
@@ -179,17 +222,16 @@ fun HeaderContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = spacing.default),
-            removePhotoAvailable = removePhotoAvailable
-        )
-        Image( // Plant icon
-            painter = painterResource(id = com.marmatsan.core_ui.R.drawable.plant_icon),
-            contentDescription = null
+            removePhotoAvailable = removePhotoAvailable,
+            onRemoveImage = onRemoveImage
         )
         PlantScreenActions(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(all = spacing.default),
-            AIButtonAvailable = AIButtonAvailable
+            AIButtonAvailable = AIButtonAvailable,
+            image = image,
+            onAddImage = onAddImage,
         )
     }
 }
@@ -198,8 +240,6 @@ fun HeaderContent(
 fun ButtonContainer(
     modifier: Modifier = Modifier
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier
             .wrapContentHeight()
