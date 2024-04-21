@@ -15,12 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.spacing
 
 enum class IconButtonStyle {
     Standard,
@@ -32,9 +33,10 @@ enum class IconButtonStyle {
 @Composable
 fun IconButton(
     modifier: Modifier = Modifier,
-    padding: PaddingValues = PaddingValues(all = LocalSpacing.current.default),
+    padding: PaddingValues = PaddingValues(all = spacing.default),
     enabled: Boolean = true,
     iconButtonStyle: IconButtonStyle = IconButtonStyle.Standard,
+    shape: Shape? = null,
     iconButtonColors: IconButtonColors = when (iconButtonStyle) {
         IconButtonStyle.Standard -> IconButtonDefaults.iconButtonColors()
         IconButtonStyle.Filled -> IconButtonDefaults.filledIconButtonColors()
@@ -68,6 +70,7 @@ fun IconButton(
             FilledIconButton(
                 modifier = iconModifier,
                 enabled = enabled,
+                shape = shape ?: IconButtonDefaults.filledShape,
                 onClick = { onClick() },
                 colors = iconButtonColors,
                 content = icon
@@ -78,6 +81,7 @@ fun IconButton(
             FilledTonalIconButton(
                 modifier = iconModifier,
                 enabled = enabled,
+                shape = shape ?: IconButtonDefaults.filledShape,
                 colors = iconButtonColors,
                 onClick = { onClick() },
                 content = icon
@@ -88,6 +92,7 @@ fun IconButton(
             OutlinedIconButton(
                 modifier = iconModifier,
                 enabled = enabled,
+                shape = shape ?: IconButtonDefaults.outlinedShape,
                 colors = iconButtonColors,
                 onClick = { onClick() },
                 content = icon

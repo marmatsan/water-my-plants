@@ -18,6 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -38,6 +39,7 @@ enum class ButtonStyle {
 fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.shape,
     buttonStyle: ButtonStyle = ButtonStyle.Filled,
     colors: ButtonColors = when (buttonStyle) {
         ButtonStyle.Filled -> ButtonDefaults.buttonColors()
@@ -66,6 +68,7 @@ fun Button(
             Button(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -84,6 +87,7 @@ fun Button(
             OutlinedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -102,6 +106,7 @@ fun Button(
             TextButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -120,6 +125,7 @@ fun Button(
             ElevatedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -139,6 +145,7 @@ fun Button(
             FilledTonalButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Plant screen -->
     <string name="plant_screen_button_add_image">Add image</string>
     <string name="plant_screen_button_change_image">Change image</string>
     <string name="plant_screen_buton_create_plant">Create plant</string>
@@ -31,4 +32,9 @@
     <string name="plant_screen_dialog_watering_days_day5">Friday</string>
     <string name="plant_screen_dialog_watering_days_day6">Saturday</string>
     <string name="plant_screen_dialog_watering_days_day7">Sunday</string>
+
+    <!-- Components -->
+    <string name="components_home_screen_header_header_title">Plant catalog</string>
+    <string name="components_home_screen_header_search_bar_supporting_text">Search plant…</string>
+
 </resources>
