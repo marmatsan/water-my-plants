@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenHeader
+import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenTabs
 import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
@@ -20,7 +20,7 @@ import com.marmatsan.dev.core_ui.theme.spacing
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    state: HomeScreenState
+    state: HomeScreenState = HomeScreenState()
 ) {
     Box(
         modifier = modifier
@@ -30,28 +30,35 @@ fun HomeScreen(
             design = Design.Two
         )
         Column(
-            modifier = Modifier.padding(all = spacing.medium),
+            modifier = Modifier.padding(
+                horizontal = spacing.default,
+                vertical = spacing.medium
+            ),
             verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             HomeScreenHeader(
+                modifier = Modifier.padding(
+                    horizontal = spacing.medium
+                ),
                 query = "",
                 onQueryChange = {},
                 onSearch = {}
             )
+            Box {
+                HomeScreenTabs()
+            }
         }
     }
 }
 
-@Preview
+@Preview(
+    widthDp = 484,
+    heightDp = 988
+)
 @Composable
 private fun HomeScreenPreview() {
     WaterMyPlantsTheme {
-        HomeScreen(
-            modifier = Modifier.size(
-                width = 484.dp,
-                height = 988.dp
-            ),
-            state = HomeScreenState(plants = emptyList()))
+        HomeScreen()
     }
 }

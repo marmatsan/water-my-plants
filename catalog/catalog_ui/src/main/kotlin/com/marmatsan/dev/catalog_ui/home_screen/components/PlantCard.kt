@@ -61,7 +61,9 @@ fun PlantCard(
         )
     ) {
         PlantCardImage(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
             image = image
         )
         Container(
@@ -111,7 +113,7 @@ private fun Container(
                 start = spacing.medium,
                 top = spacing.medium,
                 end = spacing.small,
-                bottom = spacing.default
+                bottom = spacing.medium
             ),
         horizontalArrangement = Arrangement.spacedBy(
             spacing.small,

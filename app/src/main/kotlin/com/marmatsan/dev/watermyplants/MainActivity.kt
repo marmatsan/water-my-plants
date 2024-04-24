@@ -14,7 +14,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreen
+import com.marmatsan.dev.catalog_ui.home_screen.HomeScreen
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenViewModel
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.watermyplants.di.ApplicationComponent
@@ -85,16 +85,18 @@ class MainActivity : ComponentActivity() {
                          snackbarHostState = snackbarHostState
                      )*//*
                 }*/
-                val mainActivityComponent = MainActivityComponent::class.create(applicationComponent)
+                val mainActivityComponent =
+                    MainActivityComponent::class.create(applicationComponent)
 
                 val plantScreenViewModel = viewModel { mainActivityComponent.plantScreenViewModel }
                 val plantScreenState by plantScreenViewModel.state.collectAsStateWithLifecycle()
 
-                PlantScreen(
+                /*PlantScreen(
                     state = plantScreenState,
                     onAction = plantScreenViewModel::onAction,
                     UIEventFlow = plantScreenViewModel.UIEventFlow
-                )
+                )*/
+                HomeScreen()
             }
         }
     }
