@@ -27,16 +27,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.marmatsan.core_ui.R
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
+import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
+
+object PlantCardDefaults {
+    val minWidth: Dp = 168.dp
+    val minHeight: Dp = 268.dp
+    val maxWidth: Dp = 218.dp
+    val maxHeight: Dp = 268.dp
+}
 
 @Composable
 fun PlantCard(
@@ -61,9 +70,7 @@ fun PlantCard(
         )
     ) {
         PlantCardImage(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillAvailableSpace(),
             image = image
         )
         Container(
@@ -123,7 +130,10 @@ private fun Container(
     ) {
         // Info
         Column(
-            modifier = Modifier.padding(all = spacing.default),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(all = spacing.default),
             verticalArrangement = Arrangement.spacedBy(
                 spacing.default,
                 Alignment.CenterVertically
@@ -131,14 +141,18 @@ private fun Container(
             horizontalAlignment = Alignment.Start,
         ) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = name,
                 color = colorScheme.onSurface,
                 style = typography.titleSmall
             )
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = shortDescription,
                 color = colorScheme.onSurfaceVariant,
-                style = typography.bodyMedium
+                style = typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
         IconButton(
@@ -160,22 +174,16 @@ private fun Container(
     }
 }
 
-object PlantCardDefaults {
-    val minWidth: Dp = 168.dp
-    val minHeight: Dp = 268.dp
-}
-
-@Preview
+@Preview(
+    widthDp = 168,
+    heightDp = 268
+)
 @Composable
-fun PlantCardPreview() {
+fun PlantCardWithoutPhotoPreview() {
     WaterMyPlantsTheme {
         PlantCard(
-            modifier = Modifier.size(
-                width = PlantCardDefaults.minWidth,
-                height = PlantCardDefaults.minHeight,
-            ),
             name = "Monstera",
-            shortDescription = "Monstera plant"
+            shortDescription = "From Mexico"
         )
     }
 }

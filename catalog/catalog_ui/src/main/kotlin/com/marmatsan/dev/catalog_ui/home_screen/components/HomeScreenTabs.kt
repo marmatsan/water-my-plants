@@ -1,11 +1,11 @@
 package com.marmatsan.dev.catalog_ui.home_screen.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.TabRow
@@ -16,14 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
@@ -47,9 +45,10 @@ private data class TabData(
 @Composable
 fun HomeScreenTabs(
     modifier: Modifier = Modifier,
-    tabSelected: TabPage = TabPage.HISTORY,
+    tabSelected: TabPage = TabPage.UPCOMING,
     onTabSelected: ((tabPage: TabPage) -> Unit)? = null
 ) {
+
     var upcomingTopLeftCorner by remember {
         mutableStateOf(Offset.Zero)
     }
@@ -103,23 +102,7 @@ fun HomeScreenTabs(
     }
 
     TabRow(
-        modifier = Modifier.drawBehind {
-            drawCircle(
-                color = Color.Red,
-                radius = 20f,
-                center = upcomingTopLeftCorner
-            )
-            drawCircle(
-                color = Color.Red,
-                radius = 20f,
-                center = forgotToWaterTopLeftCorner
-            )
-            drawCircle(
-                color = Color.Red,
-                radius = 20f,
-                center = historyTopLeftCorner
-            )
-        },
+        modifier = modifier,
         selectedTabIndex = tabSelected.ordinal,
         containerColor = Color.Transparent,
         indicator = { _ ->
@@ -129,7 +112,7 @@ fun HomeScreenTabs(
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 ),
                 end = Offset(
-                    x = selectedTabData.leftCorner.x + selectedTabData.textSize.width - (selectedTabData.textSize.width - selectedTabData.textSize.width.shortSegmentOfGoldenRatio()),
+                    x = selectedTabData.leftCorner.x + selectedTabData.textSize.width.shortSegmentOfGoldenRatio(),
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 )
             )
@@ -185,27 +168,19 @@ private fun HomeTab(
         targetValue = if (selected) colorScheme.primary else colorScheme.onSurfaceVariant,
         label = "tab color"
     )
-    Row(
+
+    Text(
         modifier = modifier
+            .wrapContentSize()
             .clickable(onClick = onClick)
-            .padding(spacing.medium),
-        horizontalArrangement = Arrangement.spacedBy(
-            spacing.extraSmall,
-            Alignment.CenterHorizontally
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            modifier = Modifier
-                .onGloballyPositioned { layoutCoordinates ->
-                    // Log.d("LAYOUT_COORDINATES", "${layoutCoordinates.positionInWindow()}")
-                    layoutData?.invoke(layoutCoordinates.positionInWindow(), layoutCoordinates.size)
-                },
-            text = tabLabel,
-            color = color,
-            style = typography.titleMedium
-        )
-    }
+            .padding(spacing.medium)
+            .onGloballyPositioned { layoutCoordinates ->
+                layoutData?.invoke(layoutCoordinates.positionInParent(), layoutCoordinates.size)
+            },
+        text = tabLabel,
+        color = color,
+        style = typography.titleMedium
+    )
 }
 
 @Composable
@@ -215,23 +190,23 @@ private fun HomeScreenTabsIndicator(
 ) {
     val colorScheme = colorScheme
 
-    Box(
-        modifier = Modifier.drawBehind {
-            drawLine(
-                color = colorScheme.primary,
-                start = Offset(
-                    x = start.x + 1.dp.toPx(),
-                    y = start.y + 1.dp.toPx()
-                ),
-                end = Offset(
-                    x = end.x - 1.dp.toPx(),
-                    y = end.y + 1.dp.toPx()
-                ),
-                strokeWidth = 2.dp.toPx(),
-                cap = StrokeCap.Round
-            )
-        }
-    )
+    Canvas(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        drawLine(
+            color = colorScheme.primary,
+            start = Offset(
+                x = start.x + 1.dp.toPx(),
+                y = start.y + 1.dp.toPx()
+            ),
+            end = Offset(
+                x = end.x - 1.dp.toPx(),
+                y = end.y + 1.dp.toPx()
+            ),
+            strokeWidth = 2.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+    }
 }
 
 @Preview

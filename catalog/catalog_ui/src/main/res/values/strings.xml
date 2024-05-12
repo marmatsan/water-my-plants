@@ -36,6 +36,6 @@
     <!-- Components -->
     <string name="components_home_screen_header_header_title">Plant catalog</string>
     <string name="components_home_screen_tabs_tab_1">Upcoming</string>
-    <string name="components_home_screen_tabs_tab_2">Forgot to water</string>
+    <string name="components_home_screen_tabs_tab_2">Needs water</string>
     <string name="components_home_screen_tabs_tab_3">History</string>
 </resources>

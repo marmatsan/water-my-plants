@@ -38,17 +38,20 @@ class AndroidPlugin : Plugin<Project> {
             defaultConfig {
                 minSdk = 26
 
-                if (androidExtension is ApplicationExtension) {
-                    androidExtension.apply {
-                        defaultConfig {
+                when (androidExtension) {
+                    is ApplicationExtension -> {
+                        androidExtension.apply {
+                            defaultConfig {
 
-                            val majorVersion = 1
-                            val minorVersion = 0
-                            val bugfixVersion = 0
+                                val majorVersion = 1
+                                val minorVersion = 0
+                                val bugfixVersion = 0
 
-                            targetSdk = 34
-                            versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
-                            versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
+                                targetSdk = 34
+                                versionCode =
+                                    majorVersion * 1000 + minorVersion * 100 + bugfixVersion
+                                versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
+                            }
                         }
                     }
                 }
@@ -59,9 +62,13 @@ class AndroidPlugin : Plugin<Project> {
                 }
 
                 project.tasks.withType<KotlinJvmCompile>().configureEach {
-                    compilerOptions.languageVersion.set(KotlinVersion.KOTLIN_1_9)
-                    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+                    compilerOptions.apply {
+                        languageVersion.set(KotlinVersion.KOTLIN_1_9)
+                        jvmTarget.set(JvmTarget.JVM_17)
+                        freeCompilerArgs.set(listOf("-Xcontext-receivers"))
+                    }
                 }
+
 
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
