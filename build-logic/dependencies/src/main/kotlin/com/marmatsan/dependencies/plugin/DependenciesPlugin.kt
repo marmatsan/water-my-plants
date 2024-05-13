@@ -7,22 +7,22 @@ import org.gradle.api.initialization.Settings
 class DependenciesPlugin : Plugin<Settings> {
 
     object Versions {
-        const val APPLICATION_VERSION = "8.3.0"
-        const val ACTIVITY_COMPOSE_VERSION = "1.8.2"
-        const val ANDROID_COROUTINES_VERSION = "1.8.0"
-        const val COMPOSE_BOM_VERSION = "2024.04.01"
-        const val COMPOSE_COMPILER_VERSION = "1.5.12"
-        const val CORE_KTX_VERSION = "1.12.0"
-        const val CORE_SPLASHSCREEN_VERSION = "1.0.1"
-        const val DATASTORE_VERSION = "1.0.0"
-        const val JUNIT5_VERSION = "5.10.2"
+        const val APPLICATION_VERSION = "8.4.0"
+        const val ACTIVITY_COMPOSE_VERSION = "1.9.0"
+        const val ANDROID_COROUTINES_VERSION = "1.8.1"
+        const val COMPOSE_BOM_VERSION = "2024.05.00"
+        const val COMPOSE_COMPILER_VERSION = "1.5.13"
+        const val CORE_KTX_VERSION = "1.13.1"
+        const val CORE_SPLASHSCREEN_VERSION = "1.1.0-rc01"
+        const val DATASTORE_VERSION = "1.1.1"
+        const val JUNIT5_VERSION = "5.11.0-M1"
         const val KOTLIN_VERSION = "1.9.23"
         const val KOTLIN_INJECT_VERSION = "0.6.3"
         const val KSP_VERSION = "$KOTLIN_VERSION-1.0.19"
         const val LANDSCAPIST_VERSION = "2.3.3"
-        const val LIFECYCLE_VERSION = "2.7.0"
-        const val NAVIGATION_COMPOSE_VERSION = "2.7.7"
-        const val REALM_VERSION = "1.15.0"
+        const val LIFECYCLE_VERSION = "2.8.0-rc01"
+        const val NAVIGATION_COMPOSE_VERSION = "2.8.0-alpha08"
+        const val REALM_VERSION = "1.16.0"
     }
 
     override fun apply(settings: Settings) {
