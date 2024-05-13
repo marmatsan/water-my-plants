@@ -1,0 +1,49 @@
+package com.marmatsan.dev.watermyplants.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.marmatsan.dev.catalog_ui.home_screen.HomeScreen
+import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreen
+import com.marmatsan.dev.onboarding_ui.screens.WelcomeScreen
+import com.marmatsan.dev.watermyplants.MainActivityComponent
+import com.marmatsan.dev.watermyplants.create
+import com.marmatsan.dev.watermyplants.di.applicationComponent
+
+@Composable
+fun SetupNavGraph(
+    navHostController: NavHostController,
+    startDestination: Screen = Screen.WelcomeScreen
+) {
+    val mainActivityComponent =
+        MainActivityComponent::class.create(LocalContext.current.applicationComponent)
+
+    val plantScreenViewModel = viewModel { mainActivityComponent.plantScreenViewModel }
+    val plantScreenState by plantScreenViewModel.state.collectAsStateWithLifecycle()
+
+    NavHost(
+        navController = navHostController,
+        startDestination = startDestination
+    ) {
+        composable<Screen.WelcomeScreen> {
+            WelcomeScreen(
+                onCreatePlantClick = { navHostController.navigate(Screen.PlantScreen) }
+            )
+        }
+        composable<Screen.PlantScreen> {
+            PlantScreen(
+                state = plantScreenState,
+                onAction = plantScreenViewModel::onAction,
+                UIEventFlow = plantScreenViewModel.UIEventFlow
+            )
+        }
+        composable<Screen.HomeScreen> {
+            HomeScreen()
+        }
+    }
+}

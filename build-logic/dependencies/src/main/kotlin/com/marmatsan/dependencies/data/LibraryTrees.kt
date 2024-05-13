@@ -169,6 +169,11 @@ val orgLibraryTree = tree(Library(group = "org")) {
                         name = "coroutines",
                         artifacts = listOf("kotlinx-coroutines-android"),
                         version = DependenciesPlugin.Versions.ANDROID_COROUTINES_VERSION
+                    ),
+                    ArtifactsGroup(
+                        name = "serialization",
+                        artifacts = listOf("kotlinx-serialization-json"),
+                        version = DependenciesPlugin.Versions.SERIALIZATION_VERSION
                     )
                 )
             )

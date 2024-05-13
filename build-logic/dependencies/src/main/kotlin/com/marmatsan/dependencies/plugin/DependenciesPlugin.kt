@@ -23,6 +23,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val LIFECYCLE_VERSION = "2.8.0-rc01"
         const val NAVIGATION_COMPOSE_VERSION = "2.8.0-alpha08"
         const val REALM_VERSION = "1.16.0"
+        const val SERIALIZATION_VERSION = "1.6.3"
     }
 
     override fun apply(settings: Settings) {

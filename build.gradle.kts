@@ -5,4 +5,5 @@ plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.android) apply false
     alias(plugins.plugins.com.google.devtools.ksp) apply false
     alias(plugins.plugins.io.realm.kotlin) apply false
+    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization) apply false
 }

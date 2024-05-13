@@ -1,5 +1,6 @@
 plugins {
     alias(plugins.plugins.com.android.application)
+    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     id("com.marmatsan.android")
     id("com.marmatsan.compose")
 }
@@ -41,4 +42,5 @@ dependencies {
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
 }

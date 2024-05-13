@@ -25,10 +25,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.theme.LocalDensity
 import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
+import com.marmatsan.dev.core_ui.theme.spacing
 import com.marmatsan.onboarding_ui.R
 
 @Composable
@@ -59,7 +60,8 @@ fun WelcomeScreen(
         Body(
             modifier = modifier
                 .fillMaxSize()
-                .weight(0.66f)
+                .weight(0.66f),
+            onCreatePlantClick = onCreatePlantClick
         )
     }
 }
@@ -68,8 +70,6 @@ fun WelcomeScreen(
 fun Header(
     modifier: Modifier = Modifier
 ) {
-    val spacing = LocalSpacing.current
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -87,8 +87,7 @@ fun Header(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = spacing.small,
-                    end = spacing.small
+                    horizontal = spacing.large
                 ),
             text = stringResource(id = R.string.welcome_screen_header),
             color = MaterialTheme.colorScheme.onBackground,
@@ -99,10 +98,9 @@ fun Header(
 
 @Composable
 fun Body(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCreatePlantClick: () -> Unit
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier
             .padding(
@@ -114,12 +112,8 @@ fun Body(
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-/*        Illustration(
-            number = Number.Value1,
-            padding = PaddingValues(
-                horizontal = spacing.large,
-                vertical = spacing.large
-            )
+        /*Illustration(
+            design = Design.One,
         )*/
         Content(
             modifier = Modifier
@@ -127,18 +121,17 @@ fun Body(
                 .padding(
                     horizontal = spacing.large,
                     vertical = spacing.default
-                )
+                ),
+            onCreatePlantClick = onCreatePlantClick
         )
     }
 }
 
 @Composable
 fun Content(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCreatePlantClick: () -> Unit
 ) {
-    val spacing = LocalSpacing.current
-    val density = LocalDensity.current
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(spacing.large, Alignment.CenterVertically),
@@ -164,9 +157,7 @@ fun Content(
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
-            onClick = {
-
-            }
+            onClick = onCreatePlantClick
         )
     }
 }
