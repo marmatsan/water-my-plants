@@ -2,7 +2,6 @@ package com.marmatsan.dev.catalog_ui.plant_screen
 
 import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
-import com.marmatsan.dev.core_ui.event.Event
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -128,9 +127,5 @@ class PlantScreenViewModel(
             }
         }
     }
-
-}
-
-sealed interface PlantScreenEvent : Event {
 
 }

@@ -18,11 +18,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
@@ -39,22 +41,33 @@ import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+
+@Composable
+fun PlantScreenRoot(
+    modifier: Modifier = Modifier,
+    viewModel: PlantScreenViewModel
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val onAction = viewModel::onAction
+    val uiEventFlow = viewModel.uiEventFlow
+
+    ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
+        // TODO
+    }
+
+    PlantScreen(
+        modifier = modifier,
+        state = state,
+        onAction = onAction
+    )
+}
 
 @Composable
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit,
-    UIEventFlow: Flow<PlantScreenEvent>,
+    onAction: (PlantScreenAction) -> Unit
 ) {
-    ObserveAsEvents(flow = UIEventFlow) { event ->
-        when (event) { // TODO
-            else -> {}
-        }
-    }
-
     if (state.wateringDaysDialogVisible) {
         PlantWateringDaysDialog(
             wateringDays = state.plant.wateringDays,
@@ -192,7 +205,7 @@ fun Header(
             )
         } ?: Illustration(
             modifier = Modifier.fillMaxSize(),
-            design = Design.Three
+            design = Design.Four
         )
         HeaderContent(
             modifier = modifier.padding(
@@ -276,8 +289,7 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {},
-            UIEventFlow = flow { }
+            onAction = {}
         )
     }
 }

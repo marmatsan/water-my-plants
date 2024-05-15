@@ -2,7 +2,6 @@ package com.marmatsan.dev.onboarding_ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
+import com.marmatsan.dev.core_ui.components.illustration.Design
+import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
@@ -39,27 +39,27 @@ fun WelcomeScreen(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
             .background(
                 color = MaterialTheme.colorScheme.background
             )
             .padding(
-                all = LocalSpacing.current.default
+                all = spacing.default
             ),
         verticalArrangement = Arrangement.spacedBy(
-            space = LocalSpacing.current.default,
+            space = spacing.default,
             alignment = Alignment.Top
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Header(
             modifier = modifier
-                .fillMaxSize()
                 .weight(0.33f)
+                .padding(
+                    all = spacing.default
+                )
         )
         Body(
             modifier = modifier
-                .fillMaxSize()
                 .weight(0.66f),
             onCreatePlantClick = onCreatePlantClick
         )
@@ -70,18 +70,14 @@ fun WelcomeScreen(
 fun Header(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(
-                all = spacing.default
-            ),
-        contentAlignment = Alignment.Center
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-/*        Illustration(
-            number = Number.Value2
-        )*/
+        Illustration(
+            design = Design.Two
+        )
         // Header text
         Text(
             modifier = Modifier
@@ -92,6 +88,9 @@ fun Header(
             text = stringResource(id = R.string.welcome_screen_header),
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.displaySmall.copy(textAlign = TextAlign.Center)
+        )
+        Illustration(
+            design = Design.Three
         )
     }
 }
@@ -112,9 +111,15 @@ fun Body(
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        /*Illustration(
+        Illustration(
+            modifier = Modifier.padding(
+                start = spacing.large,
+                top = spacing.extraLarge,
+                end = spacing.large,
+                bottom = spacing.default
+            ),
             design = Design.One,
-        )*/
+        )
         Content(
             modifier = Modifier
                 .fillMaxSize()
@@ -166,8 +171,6 @@ fun Content(
 fun Texts(
     modifier: Modifier = Modifier
 ) {
-    val spacing = LocalSpacing.current
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(
