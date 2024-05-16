@@ -1,20 +1,54 @@
 package com.marmatsan.dev.catalog_ui.plant_screen
 
 import androidx.lifecycle.viewModelScope
+import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
+import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
+import com.marmatsan.dev.core_domain.result.Result
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class PlantScreenViewModel(
     private val plantScreenUseCases: PlantScreenUseCases,
+    private val repository: CatalogRepository
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private val _state = MutableStateFlow(PlantScreenState())
-    val state = _state.asStateFlow()
+
+    private val plantScreenStateFlow = _state.asStateFlow()
+    private val preferencesFlow = repository.getPreferencesFlow()
+
+    val state =
+        combine(plantScreenStateFlow, preferencesFlow) { plantScreenState, preferencesData ->
+            val createPlantButtonIsEnabledResult = plantScreenUseCases.validatePlantDataUseCase(
+                input = ValidatePlantDataParameters(
+                    isPlantNameValid = preferencesData.isPlantNameValid,
+                    isWateringDaysValid = preferencesData.isWateringDaysValid,
+                    isWateringTimeValid = preferencesData.isWateringTimeValid
+                )
+            )
+            PlantScreenState(
+                plant = plantScreenState.plant,
+                plantSizeDialogVisible = plantScreenState.plantSizeDialogVisible,
+                wateringDaysDialogVisible = plantScreenState.wateringDaysDialogVisible,
+                wateringTimeDialogVisible = plantScreenState.wateringTimeDialogVisible,
+                createPlantButtonIsEnabled = when (createPlantButtonIsEnabledResult) {
+                    is Result.Success -> true
+                    is Result.Error -> false
+                }
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = PlantScreenState()
+        )
 
     override fun handleAction(action: PlantScreenAction) {
         when (action) {
@@ -75,37 +109,50 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
-                val (isValid, plantName) = plantScreenUseCases.validatePlantNameUseCase(
-                    action.plantName
+                plantScreenUseCases.validatePlantNameUseCase(action.plantName).fold(
+                    onSuccess = {
+                        _state.value = _state.value.copy(
+                            plant = _state.value.plant.copy(name = action.plantName)
+                        )
+                        viewModelScope.launch {
+                            repository.saveIsPlantNameValid(true)
+                        }
+                    },
+                    onError = {
+                        viewModelScope.launch {
+                            repository.saveIsPlantNameValid(false)
+                        }
+                    }
                 )
-                if (isValid) {
-                    _state.value = _state.value.copy(
-                        plant = _state.value.plant.copy(name = plantName)
-                    )
-                }
             }
 
             is PlantScreenAction.OnWateringDaysChange -> {
                 _state.value = _state.value.copy(
                     plant = _state.value.plant.copy(wateringDays = action.wateringDays)
                 )
+                viewModelScope.launch {
+                    repository.saveIsWateringDaysValid(true)
+                }
             }
 
             is PlantScreenAction.OnWaterAmountChange -> {
-                val (isValid, intWaterAmount) = plantScreenUseCases.validateWaterQuantityUseCase(
-                    action.waterAmount
+                plantScreenUseCases.validateWaterQuantityUseCase(action.waterAmount).fold(
+                    onSuccess = { waterAmount ->
+                        _state.value = _state.value.copy(
+                            plant = _state.value.plant.copy(waterAmount = waterAmount)
+                        )
+                    },
+                    onError = {}
                 )
-                if (isValid) {
-                    _state.value = _state.value.copy(
-                        plant = _state.value.plant.copy(waterAmount = intWaterAmount)
-                    )
-                }
             }
 
             is PlantScreenAction.OnWateringTimeChange -> {
                 _state.value = _state.value.copy(
                     plant = _state.value.plant.copy(wateringTime = action.wateringTime)
                 )
+                viewModelScope.launch {
+                    repository.saveIsWateringTimeValid(true)
+                }
             }
 
             is PlantScreenAction.OnSizeChange -> {

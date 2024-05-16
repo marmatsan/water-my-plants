@@ -14,4 +14,5 @@ dependencies {
 
     /* Libraries */
     implementation(libs.com.github.skydoves)
+    implementation(libs.com.google.protobuf)
 }

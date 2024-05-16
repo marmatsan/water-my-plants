@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
             WaterMyPlantsTheme {
                 // val startDestination by splashScreenViewModel.isReady.collectAsStateWithLifecycle()
                 SetupNavGraph(
-                    navHostController = rememberNavController()
+                    navController = rememberNavController()
                 )
             }
         }

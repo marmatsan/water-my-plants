@@ -1,5 +1,8 @@
 package com.marmatsan.dev.core_domain.usecase
 
-interface SuspendingUseCase<in T, out R> : UseCase<T, R> {
-    suspend operator fun invoke(input: T): R
+import com.marmatsan.dev.core_domain.result.Result
+import com.marmatsan.dev.core_domain.result.RootError
+
+abstract class SuspendingUseCase<I, T, R : RootError> : UseCase {
+    abstract suspend operator fun invoke(input: I): Result<T, R>
 }

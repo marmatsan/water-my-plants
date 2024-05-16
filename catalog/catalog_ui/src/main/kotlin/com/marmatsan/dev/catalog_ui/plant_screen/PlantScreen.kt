@@ -33,8 +33,8 @@ import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringDaysDia
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringTimeDialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
+import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
@@ -45,7 +45,8 @@ import com.skydoves.landscapist.coil.CoilImage
 @Composable
 fun PlantScreenRoot(
     modifier: Modifier = Modifier,
-    viewModel: PlantScreenViewModel
+    viewModel: PlantScreenViewModel,
+    onCreatePlantClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
@@ -127,7 +128,7 @@ fun PlantScreen(
                     all = spacing.default
                 ),
             removePhotoAvailable = state.plant.image != null,
-            AIButtonAvailable = false,
+            aiButtonAvailable = false,
             image = state.plant.image,
             onAddImage = { imageUri ->
                 onAction(PlantScreenAction.OnAddImage(imageUri))
@@ -176,17 +177,17 @@ fun PlantScreen(
                 ),
             onCreatePlant = {
                 onAction(PlantScreenAction.OnCreatePlant)
-            }
+            },
+            createPlantButtonIsEnabled = state.createPlantButtonIsEnabled
         )
     }
-
 }
 
 @Composable
 fun Header(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false,
+    aiButtonAvailable: Boolean = false,
     image: Uri? = null,
     onAddImage: ((Uri) -> Unit)? = null,
     onRemoveImage: (() -> Unit)? = null
@@ -205,14 +206,14 @@ fun Header(
             )
         } ?: Illustration(
             modifier = Modifier.fillMaxSize(),
-            design = Design.Four
+            illustrationDesign = IllustrationDesign.Four
         )
         HeaderContent(
             modifier = modifier.padding(
                 all = spacing.medium
             ),
             removePhotoAvailable = removePhotoAvailable,
-            AIButtonAvailable = AIButtonAvailable,
+            AIButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
             onRemoveImage = onRemoveImage
@@ -255,6 +256,7 @@ fun HeaderContent(
 @Composable
 fun ButtonContainer(
     modifier: Modifier = Modifier,
+    createPlantButtonIsEnabled: Boolean,
     onCreatePlant: () -> Unit
 ) {
     Column(
@@ -268,6 +270,7 @@ fun ButtonContainer(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(ButtonDefaults.MinHeight + density.positiveFour),
+            enabled = createPlantButtonIsEnabled,
             buttonStyle = ButtonStyle.Outlined,
             labelText = "Create plant",
             icon = {

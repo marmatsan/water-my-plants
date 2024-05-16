@@ -15,24 +15,25 @@ import com.marmatsan.dev.watermyplants.di.applicationComponent
 
 @Composable
 fun SetupNavGraph(
-    navHostController: NavHostController,
+    navController: NavHostController,
     startDestination: Screen = Screen.WelcomeScreen
 ) {
     val mainActivityComponent =
         MainActivityComponent::class.create(LocalContext.current.applicationComponent)
 
     NavHost(
-        navController = navHostController,
+        navController = navController,
         startDestination = startDestination
     ) {
         composable<Screen.WelcomeScreen> {
             WelcomeScreen(
-                onCreatePlantClick = { navHostController.navigate(Screen.PlantScreen) }
+                onCreatePlantClick = { navController.navigate(Screen.PlantScreen) }
             )
         }
         composable<Screen.PlantScreen> {
             PlantScreenRoot(
-                viewModel = viewModel { mainActivityComponent.plantScreenViewModel }
+                viewModel = viewModel { mainActivityComponent.plantScreenViewModel },
+                onCreatePlantClick = { navController.navigate(Screen.HomeScreen) }
             )
         }
         composable<Screen.HomeScreen> {

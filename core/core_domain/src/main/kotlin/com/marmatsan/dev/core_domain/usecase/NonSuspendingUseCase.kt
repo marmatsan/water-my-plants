@@ -1,5 +1,8 @@
 package com.marmatsan.dev.core_domain.usecase
 
-interface NonSuspendingUseCase<in T, out R> : UseCase<T, R> {
-    operator fun invoke(input: T): R
+import com.marmatsan.dev.core_domain.result.Result
+import com.marmatsan.dev.core_domain.result.RootError
+
+abstract class NonSuspendingUseCase<I, T, R : RootError> : UseCase {
+    abstract operator fun invoke(input: I): Result<T, R>
 }

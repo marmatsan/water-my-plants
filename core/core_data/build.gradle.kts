@@ -6,4 +6,6 @@ plugins {
 dependencies {
     /* Modules */
     implementation(projects.core.coreDomain)
+    implementation(libs.com.google.protobuf)
+    implementation(libs.bundles.androidx.datastore.datastore)
 }

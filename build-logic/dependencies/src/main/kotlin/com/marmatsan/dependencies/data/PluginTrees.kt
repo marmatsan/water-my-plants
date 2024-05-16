@@ -12,6 +12,7 @@ val comPluginTree = tree(Plugin(id = "com")) {
         tree(Plugin(id = "devtools")) {
             tree(Plugin(id = "ksp", version = DependenciesPlugin.Versions.KSP_VERSION))
         }
+        tree(Plugin(id = "protobuf", version = DependenciesPlugin.Versions.PROTOBUF_PLUGIN_VERSION))
     }
 }
 

@@ -5,5 +5,6 @@ plugins {
 
 dependencies {
     /* Modules */
+    implementation(projects.core.coreDomain)
     implementation(projects.catalog.catalogDomain)
 }

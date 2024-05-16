@@ -24,8 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
+import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
@@ -76,7 +76,7 @@ fun Header(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Illustration(
-            design = Design.Two
+            illustrationDesign = IllustrationDesign.Two
         )
         // Header text
         Text(
@@ -90,7 +90,7 @@ fun Header(
             style = MaterialTheme.typography.displaySmall.copy(textAlign = TextAlign.Center)
         )
         Illustration(
-            design = Design.Three
+            illustrationDesign = IllustrationDesign.Three
         )
     }
 }
@@ -118,7 +118,7 @@ fun Body(
                 end = spacing.large,
                 bottom = spacing.default
             ),
-            design = Design.One,
+            illustrationDesign = IllustrationDesign.One,
         )
         Content(
             modifier = Modifier

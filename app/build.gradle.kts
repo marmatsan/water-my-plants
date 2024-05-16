@@ -43,4 +43,6 @@ dependencies {
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
+    implementation(libs.bundles.androidx.datastore.datastore)
+    implementation(libs.com.google.protobuf)
 }

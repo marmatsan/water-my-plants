@@ -27,8 +27,8 @@ import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenHeader
 import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenTabs
 import com.marmatsan.dev.catalog_ui.home_screen.components.PlantCard
 import com.marmatsan.dev.catalog_ui.home_screen.components.PlantCardDefaults
-import com.marmatsan.dev.core_ui.components.illustration.Design
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
+import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 
@@ -57,7 +57,7 @@ fun HomeScreen(
         ) {
             Illustration(
                 modifier = Modifier.height(329.dp),
-                design = Design.Two
+                illustrationDesign = IllustrationDesign.Two
             )
             Column(
                 modifier = Modifier.padding(

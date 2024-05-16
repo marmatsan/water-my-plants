@@ -1,4 +1,4 @@
-package com.marmatsan.dev.watermyplants.di
+package com.marmatsan.dev.core_domain.di
 
 import me.tatarka.inject.annotations.Scope
 import kotlin.annotation.AnnotationTarget.CLASS

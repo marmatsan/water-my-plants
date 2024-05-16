@@ -134,6 +134,19 @@ val comLibraryTree = tree(Library(group = "com")) {
             )
         )
     }
+    tree(Library(group = "google")) {
+        tree(
+            Library(
+                group = "protobuf", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "protobuf",
+                        artifacts = listOf("protobuf-java"),
+                        version = DependenciesPlugin.Versions.PROTOBUF_LIBRARY_VERSION
+                    )
+                )
+            )
+        )
+    }
 }
 
 val meLibraryTree = tree(Library(group = "me")) {
