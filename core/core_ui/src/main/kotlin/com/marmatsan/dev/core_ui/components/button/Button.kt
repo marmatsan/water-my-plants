@@ -11,13 +11,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -49,13 +48,6 @@ fun Button(
         ButtonStyle.Tonal -> ButtonDefaults.filledTonalButtonColors()
     },
     labelText: String = String.Empty,
-    labelTextColor: Color = when (buttonStyle) {
-        ButtonStyle.Filled -> MaterialTheme.colorScheme.onPrimary
-        ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Text -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Elevated -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Tonal -> MaterialTheme.colorScheme.onSecondaryContainer
-    },
     icon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
@@ -77,9 +69,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -96,9 +87,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -115,9 +105,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -134,9 +123,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -154,9 +142,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
     }
@@ -198,13 +185,6 @@ fun RelayButtonWithIconPreview(
                 Icon(
                     modifier = Modifier.size(18.dp),
                     imageVector = Icons.Outlined.Add,
-                    tint = when (buttonStyle) {
-                        ButtonStyle.Filled -> MaterialTheme.colorScheme.onPrimary
-                        ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Text -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Elevated -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Tonal -> MaterialTheme.colorScheme.onSecondaryContainer
-                    },
                     contentDescription = ""
                 )
             }

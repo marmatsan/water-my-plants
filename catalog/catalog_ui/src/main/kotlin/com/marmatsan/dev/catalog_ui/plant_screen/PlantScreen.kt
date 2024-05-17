@@ -213,7 +213,7 @@ fun Header(
                 all = spacing.medium
             ),
             removePhotoAvailable = removePhotoAvailable,
-            AIButtonAvailable = aiButtonAvailable,
+            aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
             onRemoveImage = onRemoveImage
@@ -225,7 +225,7 @@ fun Header(
 fun HeaderContent(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
-    AIButtonAvailable: Boolean = false,
+    aiButtonAvailable: Boolean = false,
     onAddImage: ((Uri) -> Unit)? = null,
     image: Uri? = null,
     onRemoveImage: (() -> Unit)? = null
@@ -246,7 +246,7 @@ fun HeaderContent(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(all = spacing.default),
-            AIButtonAvailable = AIButtonAvailable,
+            AIButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
         )
@@ -277,7 +277,6 @@ fun ButtonContainer(
                 Icon(
                     modifier = Modifier.size(18.dp),
                     imageVector = Icons.Outlined.Add,
-                    tint = MaterialTheme.colorScheme.primary,
                     contentDescription = ""
                 )
             },

@@ -58,28 +58,26 @@ fun PlantScreenActions(
     ) {
         Button(
             modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.secondary,
+                contentColor = colorScheme.onSecondary
+            ),
             labelText = if (image == null) {
                 stringResource(id = R.string.plant_screen_button_add_image)
             } else {
                 stringResource(id = R.string.plant_screen_button_change_image)
             },
-            labelTextColor = colorScheme.onSecondary,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorScheme.secondary
-            ),
             icon = {
                 if (image == null) {
                     Icon(
                         modifier = Modifier.size(18.dp),
                         imageVector = Icons.Outlined.Add,
-                        tint = colorScheme.onSecondary,
                         contentDescription = null
                     )
                 } else {
                     Icon(
                         modifier = Modifier.size(18.dp),
                         imageVector = Icons.Outlined.ChangeCircle,
-                        tint = colorScheme.onSecondary,
                         contentDescription = null
                     )
                 }

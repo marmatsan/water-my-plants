@@ -20,6 +20,14 @@ class PlantScreenViewModel(
     private val repository: CatalogRepository
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
+    init {
+        viewModelScope.launch {
+            repository.saveIsPlantNameValid(false)
+            repository.saveIsWateringDaysValid(false)
+            repository.saveIsWateringTimeValid(false)
+        }
+    }
+
     private val _state = MutableStateFlow(PlantScreenState())
 
     private val plantScreenStateFlow = _state.asStateFlow()
@@ -109,13 +117,18 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
-                plantScreenUseCases.validatePlantNameUseCase(action.plantName).fold(
+                val plantName = action.plantName
+                plantScreenUseCases.validatePlantNameUseCase(plantName).fold(
                     onSuccess = {
                         _state.value = _state.value.copy(
-                            plant = _state.value.plant.copy(name = action.plantName)
+                            plant = _state.value.plant.copy(name = plantName)
                         )
                         viewModelScope.launch {
-                            repository.saveIsPlantNameValid(true)
+                            if (plantName.isEmpty()) {
+                                repository.saveIsPlantNameValid(false)
+                            } else {
+                                repository.saveIsPlantNameValid(true)
+                            }
                         }
                     },
                     onError = {
