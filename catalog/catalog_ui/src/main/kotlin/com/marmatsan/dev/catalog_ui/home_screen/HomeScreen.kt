@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -18,10 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenHeader
 import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenTabs
@@ -31,6 +31,18 @@ import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
+
+@Composable
+fun HomeScreenRoot(
+    modifier: Modifier = Modifier,
+    viewModel: HomeScreenViewModel
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    HomeScreen(
+        modifier = modifier,
+        state = state
+    )
+}
 
 @Composable
 fun HomeScreen(
@@ -53,10 +65,10 @@ fun HomeScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = modifier.padding(paddingValues)
+            modifier = modifier.padding(paddingValues),
+            contentAlignment = Alignment.TopCenter
         ) {
             Illustration(
-                modifier = Modifier.height(329.dp),
                 illustrationDesign = IllustrationDesign.Two
             )
             Column(

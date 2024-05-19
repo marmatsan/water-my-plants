@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.marmatsan.dev.catalog_ui.home_screen.HomeScreen
+import com.marmatsan.dev.catalog_ui.home_screen.HomeScreenRoot
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenRoot
 import com.marmatsan.dev.catalog_ui.welcome_screen.WelcomeScreenRoot
 import com.marmatsan.dev.watermyplants.MainActivityComponent
@@ -38,7 +38,9 @@ fun SetupNavGraph(
             )
         }
         composable<Screen.HomeScreen> {
-            HomeScreen()
+            HomeScreenRoot(
+                viewModel = viewModel{ mainActivityComponent.homeScreenViewModel }
+            )
         }
     }
 }

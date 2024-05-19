@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CatalogRepository {
     suspend fun insertPlant(plant: Plant): Result<Unit, Error>
+    fun readAllPlantsFlow(): Flow<List<Plant>>
     suspend fun saveIsPlantNameValid(isPlantNameValid: Boolean)
     suspend fun saveIsWateringDaysValid(isWateringDaysValid: Boolean)
     suspend fun saveIsWateringTimeValid(isWateringTimeValid: Boolean)
