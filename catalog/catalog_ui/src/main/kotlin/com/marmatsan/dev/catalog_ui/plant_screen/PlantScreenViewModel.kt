@@ -20,14 +20,6 @@ class PlantScreenViewModel(
     private val repository: CatalogRepository
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
-    init {
-        viewModelScope.launch {
-            repository.saveIsPlantNameValid(false)
-            repository.saveIsWateringDaysValid(false)
-            repository.saveIsWateringTimeValid(false)
-        }
-    }
-
     private val _state = MutableStateFlow(PlantScreenState())
 
     private val plantScreenStateFlow = _state.asStateFlow()

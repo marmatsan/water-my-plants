@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -21,7 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,6 +83,9 @@ fun PlantScreenForm(
         modifier = modifier,
         shadowElevation = LocalElevation.current.level3
     ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+
         // Form
         Column(
             modifier = Modifier.padding(
@@ -115,6 +122,7 @@ fun PlantScreenForm(
                     verticalArrangement = Arrangement.spacedBy(spacing.medium, Alignment.Top),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    // Plant name
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = name ?: String.Empty,
@@ -127,9 +135,17 @@ fun PlantScreenForm(
                                 Text("${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}")
                             }
                         } else null,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            }
+                        ),
                         textFieldColors = PlantScreenFormStyle.textFieldColors(),
                         textFieldShape = PlantScreenFormStyle.textFieldShape
                     )
+                    // Watering days, Watering time
                     Row(
                         modifier = Modifier
                             .padding(all = spacing.default)
@@ -182,6 +198,7 @@ fun PlantScreenForm(
                             onClick = onWateringTimeClick
                         )
                     }
+                    // Water amount, Plant size
                     Row(
                         modifier = Modifier
                             .padding(all = spacing.default)
@@ -240,6 +257,7 @@ fun PlantScreenForm(
                             onClick = onPlantSizeClick
                         )
                     }
+                    // Description
                     CustomTextField(
                         modifier = modifier.fillMaxSize(),
                         bodyTextStyle = typography.bodyLarge,

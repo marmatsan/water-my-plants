@@ -46,7 +46,7 @@ import com.skydoves.landscapist.coil.CoilImage
 fun PlantScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: PlantScreenViewModel,
-    onCreatePlantClick: () -> Unit
+    navigate: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
@@ -59,7 +59,8 @@ fun PlantScreenRoot(
     PlantScreen(
         modifier = modifier,
         state = state,
-        onAction = onAction
+        onAction = onAction,
+        navigate = navigate
     )
 }
 
@@ -67,7 +68,8 @@ fun PlantScreenRoot(
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit
+    onAction: (PlantScreenAction) -> Unit,
+    navigate: () -> Unit
 ) {
     if (state.wateringDaysDialogVisible) {
         PlantWateringDaysDialog(
@@ -177,6 +179,7 @@ fun PlantScreen(
                 ),
             onCreatePlant = {
                 onAction(PlantScreenAction.OnCreatePlant)
+                navigate()
             },
             createPlantButtonIsEnabled = state.createPlantButtonIsEnabled
         )
@@ -291,7 +294,8 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {}
+            onAction = {},
+            navigate = {}
         )
     }
 }
