@@ -1,4 +1,4 @@
-package com.marmatsan.dev.onboarding_ui.screens
+package com.marmatsan.dev.catalog_ui.welcome_screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
@@ -30,7 +31,6 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
 import com.marmatsan.dev.core_ui.theme.spacing
-import com.marmatsan.onboarding_ui.R
 
 @Composable
 fun WelcomeScreen(

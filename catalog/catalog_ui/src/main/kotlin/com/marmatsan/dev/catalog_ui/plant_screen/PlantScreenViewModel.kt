@@ -124,11 +124,7 @@ class PlantScreenViewModel(
                             plant = _state.value.plant.copy(name = plantName)
                         )
                         viewModelScope.launch {
-                            if (plantName.isEmpty()) {
-                                repository.saveIsPlantNameValid(false)
-                            } else {
-                                repository.saveIsPlantNameValid(true)
-                            }
+                            repository.saveIsPlantNameValid(plantName.isNotEmpty())
                         }
                     },
                     onError = {

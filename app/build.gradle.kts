@@ -36,9 +36,6 @@ dependencies {
     implementation(projects.catalog.catalogData)
     implementation(projects.catalog.catalogDomain)
     implementation(projects.catalog.catalogUi)
-    // Onboarding
-    implementation(projects.onboarding.onboardingDomain)
-    implementation(projects.onboarding.onboardingUi)
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)

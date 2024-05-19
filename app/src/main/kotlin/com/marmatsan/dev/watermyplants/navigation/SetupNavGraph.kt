@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.marmatsan.dev.catalog_ui.home_screen.HomeScreen
 import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenRoot
-import com.marmatsan.dev.onboarding_ui.screens.WelcomeScreen
+import com.marmatsan.dev.catalog_ui.welcome_screen.WelcomeScreen
 import com.marmatsan.dev.watermyplants.MainActivityComponent
 import com.marmatsan.dev.watermyplants.create
 import com.marmatsan.dev.watermyplants.di.applicationComponent
