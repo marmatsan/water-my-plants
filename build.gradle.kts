@@ -6,4 +6,5 @@ plugins {
     alias(plugins.plugins.com.google.devtools.ksp) apply false
     alias(plugins.plugins.io.realm.kotlin) apply false
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization) apply false
+    alias(plugins.plugins.de.mannodermaus.android.junit5) apply false
 }

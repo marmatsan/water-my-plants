@@ -147,6 +147,19 @@ val comLibraryTree = tree(Library(group = "com")) {
             )
         )
     }
+    tree(Library(group = "willowtreeapps")) {
+        tree(
+            Library(
+                group = "assertk", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "assertk",
+                        artifacts = listOf("assertk"),
+                        version = DependenciesPlugin.Versions.ASSERTK_VERSION
+                    )
+                )
+            )
+        )
+    }
 }
 
 val meLibraryTree = tree(Library(group = "me")) {
@@ -198,7 +211,11 @@ val orgLibraryTree = tree(Library(group = "org")) {
                 group = "jupiter", artifactsGroups = listOf(
                     ArtifactsGroup(
                         name = "jupiter",
-                        artifacts = listOf("junit-jupiter"),
+                        artifacts = listOf(
+                            "junit-jupiter-api",
+                            "junit-jupiter-engine",
+                            "junit-jupiter-params"
+                        ),
                         version = DependenciesPlugin.Versions.JUNIT5_VERSION
                     )
                 )
@@ -221,6 +238,18 @@ val ioLibraryTree = tree(Library(group = "io")) {
             )
         )
     }
+    tree(
+        Library(
+            group = "mockk",
+            artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "mockk",
+                    artifacts = listOf("mockk"),
+                    version = DependenciesPlugin.Versions.MOCKK_VERSION
+                )
+            )
+        )
+    )
 }
 
 val nonComposeLibraryTrees = listOf(

@@ -1,6 +1,7 @@
 plugins {
     alias(plugins.plugins.com.android.application)
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
+    alias(plugins.plugins.de.mannodermaus.android.junit5)
     id("com.marmatsan.android")
     id("com.marmatsan.compose")
 }

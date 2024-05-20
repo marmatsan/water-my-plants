@@ -16,6 +16,17 @@ val comPluginTree = tree(Plugin(id = "com")) {
     }
 }
 
+val dePluginTree = tree(Plugin(id = "de")) {
+    tree(Plugin(id = "mannodermaus")) {
+        tree(
+            Plugin(
+                id = "android-junit5",
+                version = DependenciesPlugin.Versions.JUNIT5_PLUGIN_VERSION
+            )
+        )
+    }
+}
+
 val orgPluginTree = tree(Plugin(id = "org")) {
     tree(Plugin(id = "jetbrains")) {
         tree(Plugin(id = "kotlin")) {
@@ -41,6 +52,7 @@ val ioPluginTree = tree(Plugin(id = "io")) {
 
 val pluginTrees = listOf(
     comPluginTree,
+    dePluginTree,
     orgPluginTree,
     ioPluginTree
 )
