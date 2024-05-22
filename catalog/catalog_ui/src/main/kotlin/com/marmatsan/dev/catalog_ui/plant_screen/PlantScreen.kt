@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenForm
-import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantScreenHeader
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringDaysDialog
 import com.marmatsan.dev.catalog_ui.plant_screen.components.PlantWateringTimeDialog
@@ -35,6 +34,7 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
+import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
@@ -238,12 +238,12 @@ fun HeaderContent(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        PlantScreenHeader(
+        TwoIconButtonsHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = spacing.default),
-            removePhotoAvailable = removePhotoAvailable,
-            onRemoveImage = onRemoveImage
+            showSecondaryButton = removePhotoAvailable,
+            onSecondaryIconButtonClick = onRemoveImage
         )
         PlantScreenActions(
             modifier = Modifier

@@ -101,7 +101,7 @@ private fun PlantCardImage(
         Image(
             modifier = modifier,
             alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.plant_3),
+            painter = painterResource(id = R.drawable.plant_3_small),
             contentScale = ContentScale.None,
             contentDescription = null
         )

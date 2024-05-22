@@ -27,6 +27,7 @@ import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenHeader
 import com.marmatsan.dev.catalog_ui.home_screen.components.HomeScreenTabs
 import com.marmatsan.dev.catalog_ui.home_screen.components.PlantCard
 import com.marmatsan.dev.catalog_ui.home_screen.components.PlantCardDefaults
+import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
@@ -107,8 +108,8 @@ fun HomeScreen(
                 ) {
                     items(state.plants ?: emptyList()) { plant ->
                         PlantCard(
-                            name = plant.name,
-                            shortDescription = plant.shortDescription
+                            name = plant.name ?: String.Empty,
+                            shortDescription = plant.shortDescription ?: String.Empty
                         )
                     }
                 }

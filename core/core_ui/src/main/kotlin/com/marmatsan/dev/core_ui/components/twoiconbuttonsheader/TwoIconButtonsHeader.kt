@@ -1,4 +1,4 @@
-package com.marmatsan.dev.catalog_ui.plant_screen.components
+package com.marmatsan.dev.core_ui.components.twoiconbuttonsheader
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,10 +17,23 @@ import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable
-fun PlantScreenHeader(
+fun TwoIconButtonsHeader(
     modifier: Modifier = Modifier,
-    removePhotoAvailable: Boolean = false,
-    onRemoveImage: (() -> Unit)? = null
+    showSecondaryButton: Boolean = false,
+    primaryIconButtonIcon: @Composable () -> Unit = {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = null
+        )
+    },
+    secondaryIconButtonIcon: @Composable () -> Unit = {
+        Icon(
+            imageVector = Icons.Outlined.HideImage,
+            contentDescription = null
+        )
+    },
+    onPrimaryIconButtonClick: (() -> Unit)? = null,
+    onSecondaryIconButtonClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = modifier,
@@ -32,30 +45,20 @@ fun PlantScreenHeader(
             iconButtonColors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.secondary
             ),
-            icon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    tint = MaterialTheme.colorScheme.onSecondary,
-                    contentDescription = null
-                )
+            icon = primaryIconButtonIcon,
+            onClick = {
+                onPrimaryIconButtonClick?.invoke()
             }
-
         )
-        if (removePhotoAvailable) {
+        if (showSecondaryButton) {
             IconButton(
                 iconButtonStyle = IconButtonStyle.Filled,
                 iconButtonColors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 ),
-                icon = {
-                    Icon(
-                        imageVector = Icons.Outlined.HideImage,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        contentDescription = null
-                    )
-                },
+                icon = secondaryIconButtonIcon,
                 onClick = {
-                    onRemoveImage?.invoke()
+                    onSecondaryIconButtonClick?.invoke()
                 }
             )
         }
@@ -68,8 +71,8 @@ fun PlantScreenHeader(
 @Composable
 fun PlantScreenHeaderPreview() {
     WaterMyPlantsTheme {
-        PlantScreenHeader(
-            removePhotoAvailable = true
+        TwoIconButtonsHeader(
+            showSecondaryButton = true
         )
     }
 }
