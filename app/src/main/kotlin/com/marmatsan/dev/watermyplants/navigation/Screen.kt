@@ -9,4 +9,6 @@ sealed interface Screen {
     data object PlantScreen : Screen
     @Serializable
     data object HomeScreen : Screen
+    @Serializable
+    data object DetailScreen : Screen
 }
