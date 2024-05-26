@@ -125,15 +125,15 @@ private fun HeaderBackground(
             imageModel = { image }
         )
     } else {
-        Image(
-            modifier = modifier
-                .fillMaxSize()
-                .background(colorScheme.surfaceContainer),
-            alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.plant_3_small),
-            contentScale = ContentScale.Fit,
-            contentDescription = null
-        )
+            Image(
+                modifier = Modifier
+                    .background(colorScheme.surfaceContainer)
+                    .fillMaxSize(),
+                alignment = Alignment.Center,
+                painter = painterResource(id = R.drawable.plant_3_small),
+                contentScale = ContentScale.Fit,
+                contentDescription = null
+            )
     }
 }
 
