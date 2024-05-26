@@ -1,3 +1,5 @@
+@file:JvmName("WateringDaysDialogKt")
+
 package com.marmatsan.dev.catalog_ui.plant_screen.components
 
 import androidx.compose.foundation.clickable

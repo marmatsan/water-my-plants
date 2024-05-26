@@ -11,25 +11,34 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_ui.dimensions.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalSpacing
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+
+enum class ButtonStyle {
+    Filled,
+    Outlined,
+    Text,
+    Elevated,
+    Tonal
+}
 
 @Composable
 fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = ButtonDefaults.shape,
     buttonStyle: ButtonStyle = ButtonStyle.Filled,
     colors: ButtonColors = when (buttonStyle) {
         ButtonStyle.Filled -> ButtonDefaults.buttonColors()
@@ -39,13 +48,6 @@ fun Button(
         ButtonStyle.Tonal -> ButtonDefaults.filledTonalButtonColors()
     },
     labelText: String = String.Empty,
-    labelTextColor: Color = when (buttonStyle) {
-        ButtonStyle.Filled -> MaterialTheme.colorScheme.onPrimary
-        ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Text -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Elevated -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Tonal -> MaterialTheme.colorScheme.onSecondaryContainer
-    },
     icon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
@@ -58,6 +60,7 @@ fun Button(
             Button(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -66,9 +69,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -76,6 +78,7 @@ fun Button(
             OutlinedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -84,9 +87,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -94,6 +96,7 @@ fun Button(
             TextButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -102,9 +105,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -112,6 +114,7 @@ fun Button(
             ElevatedButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -120,9 +123,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
 
@@ -131,6 +133,7 @@ fun Button(
             FilledTonalButton(
                 modifier = buttonModifier,
                 enabled = enabled,
+                shape = shape,
                 colors = colors,
                 onClick = onClick
             ) {
@@ -139,9 +142,8 @@ fun Button(
                     modifier = Modifier.padding(
                         start = if (icon != null) spacing.small else spacing.default
                     ),
-                    color = labelTextColor,
                     text = labelText,
-                    style = MaterialTheme.typography.labelLarge
+                    style = typography.labelLarge
                 )
             }
     }
@@ -183,13 +185,6 @@ fun RelayButtonWithIconPreview(
                 Icon(
                     modifier = Modifier.size(18.dp),
                     imageVector = Icons.Outlined.Add,
-                    tint = when (buttonStyle) {
-                        ButtonStyle.Filled -> MaterialTheme.colorScheme.onPrimary
-                        ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Text -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Elevated -> MaterialTheme.colorScheme.primary
-                        ButtonStyle.Tonal -> MaterialTheme.colorScheme.onSecondaryContainer
-                    },
                     contentDescription = ""
                 )
             }

@@ -7,8 +7,12 @@ plugins {
 dependencies {
     /* Modules */
     // Core
-    implementation(projects.core.coreDomain)
     implementation(projects.core.coreUi)
+    implementation(projects.core.coreDomain)
     // Catalog
     implementation(projects.catalog.catalogDomain)
+
+    /* Libraries */
+    implementation(libs.com.github.skydoves)
+    implementation(libs.com.google.protobuf)
 }

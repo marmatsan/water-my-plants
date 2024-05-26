@@ -18,6 +18,9 @@ fun DependencyHandlerScope.implementation(dependency: org.gradle.api.artifacts.D
 fun DependencyHandlerScope.testImplementation(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("testImplementation", dependencyNotation)
 
+fun DependencyHandlerScope.testRuntimeOnly(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
+    add("testRuntimeOnly", dependencyNotation)
+
 fun DependencyHandlerScope.ksp(dependencyNotation: String): org.gradle.api.artifacts.Dependency? =
     add("ksp", dependencyNotation)
 
