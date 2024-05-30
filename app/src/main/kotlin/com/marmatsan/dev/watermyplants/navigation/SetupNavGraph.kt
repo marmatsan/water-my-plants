@@ -6,9 +6,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.marmatsan.dev.catalog_ui.home_screen.HomeScreenRoot
-import com.marmatsan.dev.catalog_ui.plant_screen.PlantScreenRoot
-import com.marmatsan.dev.catalog_ui.welcome_screen.WelcomeScreenRoot
+import androidx.navigation.toRoute
+import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenRoot
+import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
+import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenRoot
+import com.marmatsan.dev.catalog_ui.screen.welcome_screen.WelcomeScreenRoot
 import com.marmatsan.dev.watermyplants.MainActivityComponent
 import com.marmatsan.dev.watermyplants.create
 import com.marmatsan.dev.watermyplants.di.applicationComponent
@@ -27,8 +29,8 @@ fun SetupNavGraph(
     ) {
         composable<Screen.WelcomeScreen> {
             WelcomeScreenRoot(
-                navigate = { navController.navigate(Screen.PlantScreen) },
-                viewModel = viewModel { mainActivityComponent.welcomeScreenViewModel }
+                viewModel = viewModel { mainActivityComponent.welcomeScreenViewModel },
+                navigate = { navController.navigate(Screen.PlantScreen) }
             )
         }
         composable<Screen.PlantScreen> {
@@ -39,7 +41,22 @@ fun SetupNavGraph(
         }
         composable<Screen.HomeScreen> {
             HomeScreenRoot(
-                viewModel = viewModel{ mainActivityComponent.homeScreenViewModel }
+                viewModel = viewModel { mainActivityComponent.homeScreenViewModel },
+                navigate = { plant ->
+                    navController.navigate(Screen.DetailScreen(plant.id))
+                }
+            )
+        }
+        composable<Screen.DetailScreen> {
+            val args = it.toRoute<Screen.DetailScreen>()
+
+            val viewModel = viewModel {
+                mainActivityComponent.detailScreenViewModel
+            }
+            viewModel.setPlantId(args.plantId)
+
+            DetailScreenRoot(
+                viewModel = viewModel
             )
         }
     }

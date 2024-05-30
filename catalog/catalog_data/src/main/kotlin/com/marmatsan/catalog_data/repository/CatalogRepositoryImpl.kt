@@ -20,9 +20,27 @@ class CatalogRepositoryImpl(
     private val realm: Realm,
     private val preferences: Preferences
 ) : CatalogRepository {
-    override suspend fun insertPlant(plant: Plant): Result<Unit, Error> {
+    override suspend fun createPlant(plant: Plant): Result<Unit, Error> {
         realm.write {
             copyToRealm(plant.toRealmPlant())
+        }
+        return Result.Success()
+    }
+
+    override suspend fun readPlantById(plantId: String): Flow<Plant> =
+        realm.write {
+            realm.query<RealmPlant>(
+                query = "id == $0",
+                args = arrayOf(plantId)
+            )
+        }.asFlow().map { results ->
+            results.list.toList().first().toPlant()
+        }
+
+    override suspend fun deletePlant(plant: Plant): Result<Unit, Error> {
+        realm.write {
+            val latestPlant = findLatest(plant.toRealmPlant()) ?: return@write
+            delete(latestPlant)
         }
         return Result.Success()
     }

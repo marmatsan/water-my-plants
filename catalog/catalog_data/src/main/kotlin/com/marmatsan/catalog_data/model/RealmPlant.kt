@@ -6,7 +6,7 @@ import org.mongodb.kbson.ObjectId
 
 class RealmPlant : RealmObject {
     @PrimaryKey
-    var _id: ObjectId = ObjectId()
+    var id: ObjectId = ObjectId()
     var image: String? = null
     var name: String? = null
     var wateringDays: String? = null
