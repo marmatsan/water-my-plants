@@ -27,7 +27,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val NAVIGATION_COMPOSE_VERSION = "2.8.0-beta01"
         const val PROTOBUF_LIBRARY_VERSION = "4.26.1"
         const val PROTOBUF_PLUGIN_VERSION = "0.9.4"
-        const val REALM_VERSION = "1.16.0" // TODO: Realm currently does not support Kotlin 2.0
+        const val REALM_VERSION = "2.0.0" // TODO: Waiting for release https://github.com/realm/realm-kotlin/blob/main/CHANGELOG.md
         const val SERIALIZATION_VERSION = "1.6.3"
     }
 
