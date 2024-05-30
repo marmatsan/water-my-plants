@@ -11,5 +11,5 @@ class InsertPlantUseCase(
 ) : SuspendingUseCase<Plant, Unit, Error>() {
     override suspend fun invoke(
         input: Plant
-    ): Result<Unit, Error> = repository.insertPlant(input)
+    ): Result<Unit, Error> = repository.createPlant(input)
 }

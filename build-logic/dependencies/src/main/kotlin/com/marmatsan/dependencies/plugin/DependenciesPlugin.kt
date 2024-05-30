@@ -24,7 +24,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val LANDSCAPIST_VERSION = "2.3.3"
         const val LIFECYCLE_VERSION = "2.8.0-rc01"
         const val MOCKK_VERSION = "1.13.11"
-        const val NAVIGATION_COMPOSE_VERSION = "2.8.0-alpha08"
+        const val NAVIGATION_COMPOSE_VERSION = "2.8.0-beta01"
         const val PROTOBUF_LIBRARY_VERSION = "4.26.1"
         const val PROTOBUF_PLUGIN_VERSION = "0.9.4"
         const val REALM_VERSION = "1.16.0"

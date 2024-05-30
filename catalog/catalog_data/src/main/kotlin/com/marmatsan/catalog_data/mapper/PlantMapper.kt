@@ -5,11 +5,13 @@ import com.marmatsan.catalog_data.model.RealmPlant
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
+import org.mongodb.kbson.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 fun Plant.toRealmPlant(): RealmPlant {
     return RealmPlant().apply {
+        id = if (this@toRealmPlant.id.isEmpty()) ObjectId() else ObjectId(this@toRealmPlant.id)
         image = this@toRealmPlant.image?.toString()
         name = this@toRealmPlant.name
         wateringDays = this@toRealmPlant.wateringDays?.joinToString(",") { it.name }
@@ -24,6 +26,7 @@ fun Plant.toRealmPlant(): RealmPlant {
 
 fun RealmPlant.toPlant(): Plant {
     return Plant(
+        id = this@toPlant.id.toHexString(),
         image = this@toPlant.image?.let { Uri.parse(it) },
         name = this@toPlant.name ?: String.Empty,
         wateringDays = this@toPlant.wateringDays?.split(",")?.map {

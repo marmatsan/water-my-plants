@@ -1,10 +1,12 @@
 package com.marmatsan.dev.catalog_domain.model
 
 import android.net.Uri
+import com.marmatsan.dev.core_domain.Empty
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 data class Plant(
+    val id: String = String.Empty,
     val image: Uri? = null,
     val name: String? = null,
     val wateringDays: List<DayOfWeek>? = null,
