@@ -2,6 +2,7 @@ package com.marmatsan.dev.watermyplants.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -51,8 +52,9 @@ fun SetupNavGraph(
             val args = it.toRoute<Screen.DetailScreen>()
 
             val viewModel = viewModel {
-                mainActivityComponent.detailScreenViewModel
+                mainActivityComponent.detailScreenViewModel(createSavedStateHandle())
             }
+
             viewModel.setPlantId(args.plantId)
 
             DetailScreenRoot(

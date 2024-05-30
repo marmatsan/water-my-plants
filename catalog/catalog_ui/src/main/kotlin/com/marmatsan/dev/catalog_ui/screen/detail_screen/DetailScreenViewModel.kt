@@ -8,15 +8,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class DetailScreenViewModel(
     private val repository: CatalogRepository,
-    private val savedStateHandle: SavedStateHandle
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel<DetailScreenAction, DetailScreenEvent>() {
 
-    private val plantId: String = checkNotNull(savedStateHandle["plantId"])
+    companion object {
+        private const val PLANT_ID_KEY = "plantId"
+    }
+
+    private val plantId: String = checkNotNull(savedStateHandle[PLANT_ID_KEY])
 
     private val _state = MutableStateFlow(DetailScreenState())
     val state = _state.asStateFlow()
@@ -38,7 +43,7 @@ class DetailScreenViewModel(
 
             DetailScreenAction.OnDropdownMenuClick -> {
                 _state.value =
-                    _state.value.copy(isDropDownMenuVisible = !_state.value.isDropDownMenuVisible)
+                    _state.value.copy(isDropdownMenuVisible = !_state.value.isDropdownMenuVisible)
             }
 
             DetailScreenAction.OnDeletePlantClick -> {
@@ -54,7 +59,7 @@ class DetailScreenViewModel(
     }
 
     fun setPlantId(plantId: String) {
-        savedStateHandle["plantId"] = plantId
+        savedStateHandle[PLANT_ID_KEY] = plantId
     }
 
 }

@@ -14,6 +14,7 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import me.tatarka.inject.annotations.Inject
+import org.mongodb.kbson.ObjectId
 
 @Inject
 class CatalogRepositoryImpl(
@@ -31,7 +32,7 @@ class CatalogRepositoryImpl(
         realm.write {
             realm.query<RealmPlant>(
                 query = "id == $0",
-                args = arrayOf(plantId)
+                args = arrayOf(ObjectId(plantId))
             )
         }.asFlow().map { results ->
             results.list.toList().first().toPlant()

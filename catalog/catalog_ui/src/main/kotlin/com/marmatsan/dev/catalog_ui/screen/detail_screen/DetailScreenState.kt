@@ -5,5 +5,5 @@ import com.marmatsan.dev.catalog_domain.model.Plant
 data class DetailScreenState(
     val plant: Plant = Plant(),
     val isLoadingPlant: Boolean = true,
-    val isDropDownMenuVisible: Boolean = false
+    val isDropdownMenuVisible: Boolean = false
 )

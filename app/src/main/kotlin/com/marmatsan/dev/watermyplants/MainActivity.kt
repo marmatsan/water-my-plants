@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.compose.rememberNavController
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenViewModel
 import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenViewModel
@@ -24,7 +25,7 @@ abstract class MainActivityComponent(@Component val parent: ApplicationComponent
     abstract val welcomeScreenViewModel: WelcomeScreenViewModel
     abstract val plantScreenViewModel: PlantScreenViewModel
     abstract val homeScreenViewModel: HomeScreenViewModel
-    abstract val detailScreenViewModel: DetailScreenViewModel
+    abstract val detailScreenViewModel: (SavedStateHandle) -> DetailScreenViewModel
 }
 
 class MainActivity : ComponentActivity() {

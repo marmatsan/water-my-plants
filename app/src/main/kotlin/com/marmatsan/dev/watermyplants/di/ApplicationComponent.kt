@@ -14,8 +14,13 @@ import com.marmatsan.dev.core_domain.di.Singleton
 import com.marmatsan.dev.core_domain.preferences.Preferences
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.dynamic.DynamicMutableRealmObject
+import io.realm.kotlin.dynamic.DynamicRealmObject
+import io.realm.kotlin.dynamic.getValue
+import io.realm.kotlin.migration.AutomaticSchemaMigration
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
+import org.mongodb.kbson.ObjectId
 
 @Component
 @Singleton
@@ -25,12 +30,26 @@ abstract class ApplicationComponent(
     @Provides
     @Singleton
     fun provideRealmDatabase(): Realm {
+
+        val migration = AutomaticSchemaMigration { migrationContext ->
+            migrationContext.enumerate("RealmPlant") { oldObject: DynamicRealmObject, newObject: DynamicMutableRealmObject? ->
+                newObject?.run {
+                    // Rename property
+                    set("id", oldObject.getValue<ObjectId>("_id"))
+                }
+            }
+        }
+
         return Realm.open(
-            configuration = RealmConfiguration.create(
-                schema = setOf(
-                    RealmPlant::class
+            configuration = RealmConfiguration
+                .Builder(
+                    schema = setOf(
+                        RealmPlant::class
+                    )
                 )
-            )
+                .schemaVersion(2)
+                .migration(migration)
+                .build()
         )
     }
 

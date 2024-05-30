@@ -29,8 +29,6 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -112,7 +110,8 @@ fun DetailScreen(
             onDeletePlantClick = {
                 onAction(DetailScreenAction.OnDeletePlantClick)
             },
-            plant = state.plant
+            plant = state.plant,
+            isDropdownMenuVisible = state.isDropdownMenuVisible
         )
         Button(
             modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
@@ -134,7 +133,8 @@ private fun PlantDetailsContainer(
     onDropdownMenuClick: () -> Unit,
     onEditPlantClick: () -> Unit,
     onDeletePlantClick: () -> Unit,
-    plant: Plant
+    plant: Plant,
+    isDropdownMenuVisible: Boolean
 ) {
     Column(
         modifier = modifier
@@ -152,7 +152,8 @@ private fun PlantDetailsContainer(
             onDeletePlantClick = onDeletePlantClick,
             wateringDays = plant.wateringDays.toString(),
             wateringTime = plant.wateringTime.toString(),
-            waterAmount = plant.waterAmount.toString()
+            waterAmount = plant.waterAmount.toString(),
+            isDropdownMenuVisible = isDropdownMenuVisible
         )
         PlantInfo(
             modifier = modifier,
@@ -171,12 +172,9 @@ private fun Header(
     onDeletePlantClick: () -> Unit,
     wateringDays: String,
     wateringTime: String,
-    waterAmount: String
+    waterAmount: String,
+    isDropdownMenuVisible: Boolean
 ) {
-    val isDropdownMenuExpanded by remember {
-        mutableStateOf(false)
-    }
-
     Box(
         modifier = modifier
     ) {
@@ -228,7 +226,7 @@ private fun Header(
                         )
                         DropdownMenu(
                             modifier = Modifier.background(colorScheme.surfaceContainer),
-                            expanded = isDropdownMenuExpanded,
+                            expanded = isDropdownMenuVisible,
                             onDismissRequest = onDropdownMenuClick
                         ) {
                             DropdownMenuItem(

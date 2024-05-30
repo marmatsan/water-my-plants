@@ -43,4 +43,5 @@ dependencies {
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
     implementation(libs.bundles.androidx.datastore.datastore)
     implementation(libs.com.google.protobuf)
+    implementation(libs.androidx.lifecycle)
 }
