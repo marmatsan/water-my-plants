@@ -71,7 +71,7 @@ fun PlantScreen(
     onAction: (PlantScreenAction) -> Unit,
     navigate: () -> Unit
 ) {
-    if (state.wateringDaysDialogVisible) {
+    if (state.isWateringDaysDialogVisible) {
         PlantWateringDaysDialog(
             wateringDays = state.plant.wateringDays,
             onCancelWateringDaysDialog = {
@@ -84,7 +84,7 @@ fun PlantScreen(
         )
     }
 
-    if (state.wateringTimeDialogVisible) {
+    if (state.isWateringTimeDialogVisible) {
         PlantWateringTimeDialog(
             wateringTime = state.plant.wateringTime,
             onCancelWateringTimeDialog = {
@@ -97,7 +97,7 @@ fun PlantScreen(
         )
     }
 
-    if (state.plantSizeDialogVisible) {
+    if (state.isPlantSizeDialogVisible) {
         PlantSizeDialog(
             plantSize = state.plant.size,
             onCancelPlantSizeDialog = {
@@ -181,7 +181,7 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnCreatePlant)
                 navigate()
             },
-            createPlantButtonIsEnabled = state.createPlantButtonIsEnabled
+            createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
         )
     }
 }

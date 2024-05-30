@@ -3,10 +3,8 @@ package com.marmatsan.catalog_data.repository
 import com.marmatsan.catalog_data.mapper.toPlant
 import com.marmatsan.catalog_data.mapper.toRealmPlant
 import com.marmatsan.catalog_data.model.RealmPlant
-import com.marmatsan.core_domain.PreferencesData
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
-import com.marmatsan.dev.core_domain.preferences.Preferences
 import com.marmatsan.dev.core_domain.result.Error
 import com.marmatsan.dev.core_domain.result.Result
 import io.realm.kotlin.Realm
@@ -18,8 +16,7 @@ import org.mongodb.kbson.ObjectId
 
 @Inject
 class CatalogRepositoryImpl(
-    private val realm: Realm,
-    private val preferences: Preferences
+    private val realm: Realm
 ) : CatalogRepository {
     override suspend fun createPlant(plant: Plant): Result<Unit, Error> {
         realm.write {
@@ -52,21 +49,4 @@ class CatalogRepositoryImpl(
                 realmPlant.toPlant()
             }
         }
-
-
-    override suspend fun saveIsPlantNameValid(isPlantNameValid: Boolean) {
-        preferences.saveIsPlantNameValid(isPlantNameValid)
-    }
-
-    override suspend fun saveIsWateringDaysValid(isWateringDaysValid: Boolean) {
-        preferences.saveIsWateringDaysValid(isWateringDaysValid)
-    }
-
-    override suspend fun saveIsWateringTimeValid(isWateringTimeValid: Boolean) {
-        preferences.saveIsWateringTimeValid(isWateringTimeValid)
-    }
-
-    override fun getPreferencesFlow(): Flow<PreferencesData> {
-        return preferences.preferencesDataFlow()
-    }
 }

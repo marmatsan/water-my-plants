@@ -5,7 +5,7 @@ import com.marmatsan.dev.core_domain.result.Error
 import com.marmatsan.dev.core_domain.result.Result
 import com.marmatsan.dev.core_domain.usecase.NonSuspendingUseCase
 
-class ValidateWaterQuantityUseCase : NonSuspendingUseCase<String, Int?, Error>() {
+class ValidateWaterQuantityUseCase : NonSuspendingUseCase<String, Result<Int?, Error>>() {
     override fun invoke(
         input: String
     ): Result<Int?, Error> {

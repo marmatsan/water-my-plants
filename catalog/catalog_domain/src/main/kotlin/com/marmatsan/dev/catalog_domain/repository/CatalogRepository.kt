@@ -1,6 +1,5 @@
 package com.marmatsan.dev.catalog_domain.repository
 
-import com.marmatsan.core_domain.PreferencesData
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.core_domain.result.Error
 import com.marmatsan.dev.core_domain.result.Result
@@ -11,8 +10,4 @@ interface CatalogRepository {
     fun readAllPlantsFlow(): Flow<List<Plant>>
     suspend fun readPlantById(plantId: String): Flow<Plant>
     suspend fun deletePlant(plant: Plant): Result<Unit, Error>
-    suspend fun saveIsPlantNameValid(isPlantNameValid: Boolean)
-    suspend fun saveIsWateringDaysValid(isWateringDaysValid: Boolean)
-    suspend fun saveIsWateringTimeValid(isWateringTimeValid: Boolean)
-    fun getPreferencesFlow(): Flow<PreferencesData>
 }
