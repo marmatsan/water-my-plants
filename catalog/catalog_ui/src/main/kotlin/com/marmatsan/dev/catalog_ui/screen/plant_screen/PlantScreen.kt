@@ -16,7 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -114,7 +114,7 @@ fun PlantScreen(
         modifier = modifier
             .fillMaxSize()
             .background(
-                color = MaterialTheme.colorScheme.background
+                color = colorScheme.background
             )
             .padding(
                 all = spacing.default
@@ -171,7 +171,7 @@ fun PlantScreen(
         ButtonContainer(
             modifier = modifier
                 .background(
-                    color = MaterialTheme.colorScheme.background
+                    color = colorScheme.background
                 )
                 .padding(
                     horizontal = spacing.medium,

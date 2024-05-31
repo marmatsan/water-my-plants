@@ -5,11 +5,15 @@ import assertk.assertions.isEqualTo
 import com.marmatsan.catalog_data.model.RealmPlant
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.model.PlantSize
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 class PlantMapperTest {
+
+    private lateinit var plantData: PlantData
+    private lateinit var realmPlantData: RealmPlantData
 
     private data class PlantData(
         val name: String = "Monstera",
@@ -33,8 +37,11 @@ class PlantMapperTest {
         val watered: Boolean = false
     )
 
-    private val plantData = PlantData()
-    private val realmPlantData = RealmPlantData()
+    @BeforeEach
+    fun setUp() {
+        plantData = PlantData()
+        realmPlantData = RealmPlantData()
+    }
 
     @Test
     fun `Given a Plant, toRealmPlant mapper outputs a correct RealmPlant`() {

@@ -9,14 +9,11 @@ class ValidatePlantDataUseCase :
     override fun invoke(
         input: ValidatePlantDataParameters
     ): Boolean {
-        if (input.plantName == null || input.wateringDaysList == null || input.wateringTime == null) {
-            return false
-        }
+        val plantNameIsValid = !input.plantName.isNullOrBlank() && input.plantName.isNotEmpty()
+        val wateringDaysListIsValid = !input.wateringDaysList.isNullOrEmpty()
+        val wateringTimeIsValid = input.wateringTime != null
 
-        val plantNameIsValid = input.plantName.isNotBlank() && input.plantName.isNotEmpty()
-        val wateringDaysListIsValid = input.wateringDaysList.isNotEmpty()
-
-        return plantNameIsValid && wateringDaysListIsValid
+        return plantNameIsValid && wateringDaysListIsValid && wateringTimeIsValid
     }
 }
 

@@ -9,8 +9,6 @@ import org.mongodb.kbson.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalTime
 
-
-// TODO: Improve mappers and testing
 fun Plant.toRealmPlant(): RealmPlant {
     return RealmPlant().apply {
         id = if (this@toRealmPlant.id.isEmpty()) ObjectId() else ObjectId(this@toRealmPlant.id)
