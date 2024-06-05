@@ -9,10 +9,8 @@ import com.marmatsan.dev.core_domain.result.Result
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import org.mongodb.kbson.BsonObjectId
-import org.mongodb.kbson.ObjectId
 
 class DatabaseManagerLocalSourceImpl(
     private val realm: Realm
@@ -25,26 +23,27 @@ class DatabaseManagerLocalSourceImpl(
         return Result.Success()
     }
 
-    override suspend fun readPlantById(plantId: String): Flow<Plant> =
-        realm.query<RealmPlant>(
+    override fun readPlantById(plantId: String): Plant {
+        val realmPlant = realm.query<RealmPlant>(
             query = "id == $0",
             args = arrayOf(BsonObjectId(plantId))
-        ).asFlow().map { results ->
-            results.list.toList().first().toPlant()
-        }
+        ).find().firstOrNull()
 
-    override suspend fun deletePlantById(plantId: String): Flow<Result<Plant, Error>> =
-        realm.query<RealmPlant>(
+        return realmPlant?.toPlant()
+            ?: throw NoSuchElementException("Plant with id $plantId not found")
+    }
+
+    override suspend fun deletePlantById(plantId: String) {
+        val realmPlantToDelete = realm.query<RealmPlant>(
             query = "id == $0",
-            args = arrayOf(ObjectId(plantId))
-        ).asFlow()
-            .catch { error ->
+            args = arrayOf(BsonObjectId(plantId))
+        ).find().firstOrNull() ?: return
 
-            }
-            .map { results ->
-                val deletedPlant = results.list.toList().first().toPlant()
-                Result.Success(deletedPlant)
-            }
+        realm.write {
+            val latestRealmPlantToDelete = findLatest(realmPlantToDelete) ?: return@write
+            delete(latestRealmPlantToDelete)
+        }
+    }
 
     override fun readAllPlantsFlow(): Flow<List<Plant>> =
         realm.query<RealmPlant>().asFlow().map { results ->

@@ -1,5 +1,8 @@
 package com.marmatsan.dev.core_domain
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
 val String.Companion.Empty
     inline get() = ""
 
@@ -20,4 +23,22 @@ inline fun <T, R> T?.checkIfNull(
 ): R = when (this) {
     null -> ifNull()
     else -> ifNotNull(this)
+}
+
+@OptIn(ExperimentalContracts::class)
+fun <T> T?.isNull(): Boolean {
+    contract {
+        returns(value = true) implies (this@isNull == null)
+        returns(value = false) implies (this@isNull != null)
+    }
+    return this == null
+}
+
+@OptIn(ExperimentalContracts::class)
+fun <T> T?.isNotNull(): Boolean {
+    contract {
+        returns(value = true) implies (this@isNotNull != null)
+        returns(value = false) implies (this@isNotNull == null)
+    }
+    return this != null
 }

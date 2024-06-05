@@ -40,6 +40,7 @@ import com.marmatsan.core_ui.R
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.components.PlantDetails
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
@@ -69,9 +70,10 @@ fun DetailScreenRoot(
         }
     }
 
-    if (state.isLoadingPlant) {
+    if (state.plant.isNull()) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }

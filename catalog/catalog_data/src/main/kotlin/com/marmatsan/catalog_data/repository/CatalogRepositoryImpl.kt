@@ -15,10 +15,10 @@ class CatalogRepositoryImpl(
     override suspend fun createPlant(plant: Plant): Result<Unit, Error> =
         databaseManager.createPlant(plant)
 
-    override suspend fun readPlantById(plantId: String): Flow<Plant> =
+    override fun readPlantById(plantId: String): Plant =
         databaseManager.readPlantById(plantId)
 
-    override suspend fun deletePlantById(plantId: String): Flow<Result<Plant, Error>> =
+    override suspend fun deletePlantById(plantId: String): Unit =
         databaseManager.deletePlantById(plantId)
 
     override fun readAllPlantsFlow(): Flow<List<Plant>> = databaseManager.readAllPlantsFlow()

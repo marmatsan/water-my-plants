@@ -6,7 +6,6 @@ import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Assisted
@@ -28,15 +27,8 @@ class DetailScreenViewModel(
     val state = detailScreenMutableStateFlow.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            repository.readPlantById(plantId).collectLatest { plant ->
-                detailScreenMutableStateFlow.update { detailScreenState ->
-                    detailScreenState.copy(
-                        plant = plant,
-                        isLoadingPlant = false
-                    )
-                }
-            }
+        detailScreenMutableStateFlow.update { detailScreenState ->
+            detailScreenState.copy(plant = repository.readPlantById(plantId))
         }
     }
 
@@ -57,10 +49,9 @@ class DetailScreenViewModel(
             DetailScreenAction.OnDeletePlantClick -> {
                 viewModelScope.launch {
                     detailScreenMutableStateFlow.value.plant?.let { plant ->
-                        repository.deletePlantById(plant.id).collectLatest {
-                            sendEvent(DetailScreenEvent.PlantDeleted)
-                        }
-                    } ?: return@launch
+                        repository.deletePlantById(plant.id)
+                        sendEvent(DetailScreenEvent.PlantDeleted)
+                    }
                 }
             }
 
