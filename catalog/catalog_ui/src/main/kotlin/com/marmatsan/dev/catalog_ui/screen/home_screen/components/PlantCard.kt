@@ -64,10 +64,12 @@ fun PlantCard(
                 minWidth = PlantCardDefaults.minWidth,
                 minHeight = PlantCardDefaults.minHeight,
             )
+            .clip(
+                shapes.medium
+            )
             .clickable(
                 onClick = onClick
             ),
-        shape = shapes.medium,
         colors = CardColors(
             containerColor = colorScheme.surfaceContainerLow,
             contentColor = CardDefaults.cardColors().contentColor,

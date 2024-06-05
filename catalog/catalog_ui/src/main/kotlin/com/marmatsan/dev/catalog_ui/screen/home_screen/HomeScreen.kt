@@ -29,6 +29,7 @@ import com.marmatsan.dev.catalog_ui.screen.home_screen.components.HomeScreenTabs
 import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCard
 import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCardDefaults
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
@@ -60,7 +61,9 @@ fun HomeScreen(
         modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+
+                },
                 containerColor = colorScheme.primaryContainer,
                 contentColor = colorScheme.onPrimaryContainer
             ) {
@@ -102,7 +105,7 @@ fun HomeScreen(
                             bottom = spacing.small
                         )
                 )
-                if (state.plants == null) {
+                if (state.plants.isNull()) {
                     Box(
                         modifier = Modifier.fillAvailableSpace(),
                         contentAlignment = Alignment.Center
