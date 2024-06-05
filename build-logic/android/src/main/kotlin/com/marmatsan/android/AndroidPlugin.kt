@@ -71,7 +71,6 @@ class AndroidPlugin : Plugin<Project> {
                     }
                 }
 
-
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
             }
@@ -87,7 +86,7 @@ class AndroidPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            /* Dependency injection */
+            // Dependency injection
             ksp(libs.getLibrary("me.tatarka.inject.kotlin.inject.compiler.ksp"))
             implementation(libs.getLibrary("me.tatarka.inject.kotlin.inject.runtime"))
 

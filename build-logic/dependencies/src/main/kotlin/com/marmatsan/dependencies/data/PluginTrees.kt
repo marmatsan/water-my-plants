@@ -30,15 +30,31 @@ val dePluginTree = tree(Plugin(id = "de")) {
 val orgPluginTree = tree(Plugin(id = "org")) {
     tree(Plugin(id = "jetbrains")) {
         tree(Plugin(id = "kotlin")) {
-            tree(Plugin(id = "android", version = DependenciesPlugin.Versions.KOTLIN_VERSION))
+            tree(
+                Plugin(
+                    id = "android",
+                    version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                )
+            )
             tree(Plugin(id = "plugin")) {
+                tree(
+                    Plugin(
+                        id = "compose",
+                        version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                    )
+                )
                 tree(
                     Plugin(
                         id = "serialization",
                         version = DependenciesPlugin.Versions.KOTLIN_VERSION
                     )
                 )
-                tree(Plugin(id = "parcelize", version = DependenciesPlugin.Versions.KOTLIN_VERSION))
+                tree(
+                    Plugin(
+                        id = "parcelize",
+                        version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                    )
+                )
             }
         }
     }
@@ -46,7 +62,12 @@ val orgPluginTree = tree(Plugin(id = "org")) {
 
 val ioPluginTree = tree(Plugin(id = "io")) {
     tree(Plugin(id = "realm")) {
-        tree(Plugin(id = "kotlin", version = DependenciesPlugin.Versions.REALM_VERSION))
+        tree(
+            Plugin(
+                id = "kotlin",
+                version = DependenciesPlugin.Versions.REALM_VERSION
+            )
+        )
     }
 }
 

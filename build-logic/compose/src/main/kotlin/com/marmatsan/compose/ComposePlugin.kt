@@ -38,12 +38,9 @@ class ComposePlugin : Plugin<Project> {
                 compose = true
             }
 
-            composeOptions {
-                kotlinCompilerExtensionVersion =
-                    DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
-            }
-
         }
+
+        project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libsCompose")
 
