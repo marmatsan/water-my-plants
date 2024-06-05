@@ -6,7 +6,6 @@ import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -58,9 +57,7 @@ class DetailScreenViewModel(
             DetailScreenAction.OnDeletePlantClick -> {
                 viewModelScope.launch {
                     detailScreenMutableStateFlow.value.plant?.let { plant ->
-                        repository.deletePlantById(plant.id).catch {
-
-                        }.collectLatest {
+                        repository.deletePlantById(plant.id).collectLatest {
                             sendEvent(DetailScreenEvent.PlantDeleted)
                         }
                     } ?: return@launch

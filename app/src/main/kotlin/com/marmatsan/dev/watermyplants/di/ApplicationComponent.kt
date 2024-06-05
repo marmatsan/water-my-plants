@@ -35,7 +35,8 @@ abstract class ApplicationComponent(
                         RealmPlant::class
                     )
                 )
-                .schemaVersion(3)
+                .schemaVersion(4)
+                .deleteRealmIfMigrationNeeded()
                 //.migration(migration)
                 .build()
         )

@@ -19,7 +19,7 @@ import com.marmatsan.dev.watermyplants.di.applicationComponent
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
-    startDestination: Screen = Screen.WelcomeScreen
+    startDestination: Screen = Screen.HomeScreen
 ) {
     val mainActivityComponent =
         MainActivityComponent::class.create(LocalContext.current.applicationComponent)
