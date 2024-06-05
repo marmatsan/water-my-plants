@@ -8,7 +8,7 @@ import com.marmatsan.dev.core_domain.usecase.SuspendingUseCase
 
 class InsertPlantUseCase(
     private val repository: CatalogRepository
-) : SuspendingUseCase<Plant, Unit, Error>() {
+) : SuspendingUseCase<Plant, Result<Unit, Error>>() {
     override suspend fun invoke(
         input: Plant
     ): Result<Unit, Error> = repository.createPlant(input)

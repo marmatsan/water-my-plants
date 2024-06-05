@@ -4,8 +4,8 @@ import com.marmatsan.dev.catalog_domain.model.Plant
 
 data class PlantScreenState(
     val plant: Plant = Plant(),
-    val plantSizeDialogVisible: Boolean = false,
-    val wateringDaysDialogVisible: Boolean = false,
-    val wateringTimeDialogVisible: Boolean = false,
-    val createPlantButtonIsEnabled : Boolean = false
+    val isPlantSizeDialogVisible: Boolean = false,
+    val isWateringDaysDialogVisible: Boolean = false,
+    val isWateringTimeDialogVisible: Boolean = false,
+    val isCreatePlantButtonEnabled : Boolean = false
 )

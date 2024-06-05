@@ -16,15 +16,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
@@ -36,30 +33,9 @@ import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
 import com.marmatsan.dev.core_ui.theme.spacing
 
 @Composable
-fun WelcomeScreenRoot(
-    modifier: Modifier = Modifier,
-    navigate: () -> Unit,
-    viewModel: WelcomeScreenViewModel
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val onAction = viewModel::onAction
-
-    LaunchedEffect(state.finishedResettingPreferences) {
-        if (state.finishedResettingPreferences) {
-            navigate()
-        }
-    }
-
-    WelcomeScreen(
-        modifier = modifier,
-        onAction = onAction
-    )
-}
-
-@Composable
 fun WelcomeScreen(
     modifier: Modifier = Modifier,
-    onAction: (WelcomeScreenAction) -> Unit
+    navigate: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -85,9 +61,7 @@ fun WelcomeScreen(
         Body(
             modifier = modifier
                 .weight(0.66f),
-            onCreatePlantClick = {
-                onAction(WelcomeScreenAction.OnAddFirstPlantClick)
-            }
+            onCreatePlantClick = navigate
         )
     }
 }
@@ -225,7 +199,7 @@ fun Texts(
 fun WelcomeScreenPreview() {
     WaterMyPlantsTheme {
         WelcomeScreen(
-            onAction = {}
+            navigate = {}
         )
     }
 }

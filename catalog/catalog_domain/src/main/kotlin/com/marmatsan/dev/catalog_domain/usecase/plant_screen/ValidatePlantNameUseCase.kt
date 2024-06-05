@@ -5,7 +5,7 @@ import com.marmatsan.dev.core_domain.result.Error
 import com.marmatsan.dev.core_domain.result.Result
 import com.marmatsan.dev.core_domain.usecase.NonSuspendingUseCase
 
-class ValidatePlantNameUseCase : NonSuspendingUseCase<String, Unit, Error>() {
+class ValidatePlantNameUseCase : NonSuspendingUseCase<String, Result<Unit, Error>>() {
     override operator fun invoke(
         input: String
     ): Result<Unit, Error> {

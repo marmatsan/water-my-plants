@@ -1,67 +1,51 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
 import androidx.lifecycle.viewModelScope
-import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
-import com.marmatsan.dev.core_domain.result.Result
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class PlantScreenViewModel(
-    private val plantScreenUseCases: PlantScreenUseCases,
-    private val repository: CatalogRepository
+    private val plantScreenUseCases: PlantScreenUseCases
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
-    private val _state = MutableStateFlow(PlantScreenState())
+    private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
 
-    private val plantScreenStateFlow = _state.asStateFlow()
-    private val preferencesFlow = repository.getPreferencesFlow()
-
-    val state =
-        combine(plantScreenStateFlow, preferencesFlow) { plantScreenState, preferencesData ->
-            val createPlantButtonIsEnabledResult = plantScreenUseCases.validatePlantDataUseCase(
-                input = ValidatePlantDataParameters(
-                    isPlantNameValid = preferencesData.isPlantNameValid,
-                    isWateringDaysValid = preferencesData.isWateringDaysValid,
-                    isWateringTimeValid = preferencesData.isWateringTimeValid
-                )
+    val state = plantScreenStateFlow.map { plantScreenState ->
+        val isCreatePlantButtonEnabled = plantScreenUseCases.validatePlantDataUseCase(
+            ValidatePlantDataParameters(
+                plantName = plantScreenState.plant.name,
+                wateringDaysList = plantScreenState.plant.wateringDays,
+                wateringTime = plantScreenState.plant.wateringTime
             )
-            PlantScreenState(
-                plant = plantScreenState.plant,
-                plantSizeDialogVisible = plantScreenState.plantSizeDialogVisible,
-                wateringDaysDialogVisible = plantScreenState.wateringDaysDialogVisible,
-                wateringTimeDialogVisible = plantScreenState.wateringTimeDialogVisible,
-                createPlantButtonIsEnabled = when (createPlantButtonIsEnabledResult) {
-                    is Result.Success -> true
-                    is Result.Error -> false
-                }
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = PlantScreenState()
         )
+        plantScreenState.copy(isCreatePlantButtonEnabled = isCreatePlantButtonEnabled)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+        initialValue = PlantScreenState()
+    )
 
     override fun handleAction(action: PlantScreenAction) {
         when (action) {
             is PlantScreenAction.OnAddImage -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(image = action.imageUri)
-                )
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(image = action.imageUri))
+                }
             }
 
             is PlantScreenAction.OnRemoveImage -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(image = null)
-                )
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(image = null))
+                }
             }
 
             is PlantScreenAction.OnBack -> {
@@ -70,7 +54,7 @@ class PlantScreenViewModel(
 
             is PlantScreenAction.OnCreatePlant -> {
                 viewModelScope.launch {
-                    plantScreenUseCases.insertPlantUseCase(input = _state.value.plant)
+                    plantScreenUseCases.insertPlantUseCase(input = plantScreenStateFlow.value.plant)
                 }
             }
 
@@ -79,101 +63,97 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnPlantSizeClick -> {
-                _state.value =
-                    _state.value.copy(plantSizeDialogVisible = true)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isPlantSizeDialogVisible = true)
+                }
             }
 
             is PlantScreenAction.OnDismissPlantSizeDialog -> {
-                _state.value =
-                    _state.value.copy(plantSizeDialogVisible = false)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isPlantSizeDialogVisible = false)
+                }
             }
 
             is PlantScreenAction.OnDismissWateringDaysDialog -> {
-                _state.value =
-                    _state.value.copy(wateringDaysDialogVisible = false)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isWateringDaysDialogVisible = false)
+                }
             }
 
             is PlantScreenAction.OnDismissWateringTimeDialog -> {
-                _state.value =
-                    _state.value.copy(wateringTimeDialogVisible = false)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isWateringTimeDialogVisible = false)
+                }
             }
 
             is PlantScreenAction.OnWateringDaysClick -> {
-                _state.value =
-                    _state.value.copy(wateringDaysDialogVisible = true)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isWateringDaysDialogVisible = true)
+                }
             }
 
             is PlantScreenAction.OnWateringTimeClick -> {
-                _state.value =
-                    _state.value.copy(wateringTimeDialogVisible = true)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(isWateringTimeDialogVisible = true)
+                }
             }
 
             is PlantScreenAction.OnPlantNameChange -> {
                 val plantName = action.plantName
                 plantScreenUseCases.validatePlantNameUseCase(plantName).fold(
                     onSuccess = {
-                        _state.value = _state.value.copy(
-                            plant = _state.value.plant.copy(name = plantName)
-                        )
-                        viewModelScope.launch {
-                            repository.saveIsPlantNameValid(plantName.isNotEmpty())
+                        plantScreenStateFlow.update { plantScreenState ->
+                            plantScreenState.copy(plant = plantScreenState.plant.copy(name = plantName))
                         }
                     },
                     onError = {
-                        viewModelScope.launch {
-                            repository.saveIsPlantNameValid(false)
-                        }
+
                     }
                 )
             }
 
             is PlantScreenAction.OnWateringDaysChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(wateringDays = action.wateringDays)
-                )
-                viewModelScope.launch {
-                    repository.saveIsWateringDaysValid(true)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(wateringDays = action.wateringDays))
                 }
             }
 
             is PlantScreenAction.OnWaterAmountChange -> {
                 plantScreenUseCases.validateWaterQuantityUseCase(action.waterAmount).fold(
                     onSuccess = { waterAmount ->
-                        _state.value = _state.value.copy(
-                            plant = _state.value.plant.copy(waterAmount = waterAmount)
-                        )
+                        plantScreenStateFlow.update { plantScreenState ->
+                            plantScreenState.copy(plant = plantScreenState.plant.copy(waterAmount = waterAmount))
+                        }
                     },
-                    onError = {}
+                    onError = {
+
+                    }
                 )
             }
 
             is PlantScreenAction.OnWateringTimeChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(wateringTime = action.wateringTime)
-                )
-                viewModelScope.launch {
-                    repository.saveIsWateringTimeValid(true)
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(wateringTime = action.wateringTime))
                 }
             }
 
             is PlantScreenAction.OnSizeChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(size = action.size)
-                )
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(size = action.size))
+                }
             }
 
             is PlantScreenAction.OnDescriptionChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(description = action.description)
-                )
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(description = action.description))
+                }
             }
 
             is PlantScreenAction.OnShortDescriptionChange -> {
-                _state.value = _state.value.copy(
-                    plant = _state.value.plant.copy(shortDescription = action.shortDescription)
-                )
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(shortDescription = action.shortDescription))
+                }
             }
         }
     }
-
 }

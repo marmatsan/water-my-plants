@@ -29,8 +29,6 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -46,6 +44,7 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
+import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.ShapeDefaults
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
@@ -58,10 +57,17 @@ import java.time.LocalTime
 @Composable
 fun DetailScreenRoot(
     modifier: Modifier = Modifier,
-    viewModel: DetailScreenViewModel
+    viewModel: DetailScreenViewModel,
+    navigate: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
+
+    ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { detailScreenEvent ->
+        when (detailScreenEvent) {
+            DetailScreenEvent.PlantDeleted -> navigate()
+        }
+    }
 
     if (state.isLoadingPlant) {
         Box(
@@ -98,43 +104,47 @@ fun DetailScreen(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        PlantDetailsContainer(
-            modifier = Modifier.weight(1f),
-            onBackClick = {
-                onAction(DetailScreenAction.OnBackClick)
-            },
-            onDropdownMenuClick = {
-                onAction(DetailScreenAction.OnDropdownMenuClick)
-            },
-            onEditPlantClick = {
-                onAction(DetailScreenAction.OnEditPlantClick)
-            },
-            onDeletePlantClick = {
-                onAction(DetailScreenAction.OnDeletePlantClick)
-            },
-            plant = state.plant
-        )
-        Button(
-            modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
-            labelText = "Mark as watered",
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.WaterDrop,
-                    contentDescription = null
-                )
-            }
-        )
+        state.plant?.let { plant ->
+            PlantDetailsContainer(
+                modifier = Modifier.weight(1f),
+                plant = plant,
+                isDropdownMenuVisible = state.isDropdownMenuVisible,
+                onBackClick = {
+                    onAction(DetailScreenAction.OnBackClick)
+                },
+                onDropdownMenuClick = {
+                    onAction(DetailScreenAction.OnDropdownMenuClick)
+                },
+                onEditPlantClick = {
+                    onAction(DetailScreenAction.OnEditPlantClick)
+                },
+                onDeletePlantClick = {
+                    onAction(DetailScreenAction.OnDeletePlantClick)
+                }
+            )
+            Button(
+                modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
+                labelText = "Mark as watered",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.WaterDrop,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
     }
 }
 
 @Composable
 private fun PlantDetailsContainer(
     modifier: Modifier = Modifier,
+    plant: Plant,
+    isDropdownMenuVisible: Boolean,
     onBackClick: () -> Unit,
     onDropdownMenuClick: () -> Unit,
     onEditPlantClick: () -> Unit,
-    onDeletePlantClick: () -> Unit,
-    plant: Plant
+    onDeletePlantClick: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -152,7 +162,8 @@ private fun PlantDetailsContainer(
             onDeletePlantClick = onDeletePlantClick,
             wateringDays = plant.wateringDays.toString(),
             wateringTime = plant.wateringTime.toString(),
-            waterAmount = plant.waterAmount.toString()
+            waterAmount = plant.waterAmount.toString(),
+            isDropdownMenuVisible = isDropdownMenuVisible
         )
         PlantInfo(
             modifier = modifier,
@@ -171,12 +182,9 @@ private fun Header(
     onDeletePlantClick: () -> Unit,
     wateringDays: String,
     wateringTime: String,
-    waterAmount: String
+    waterAmount: String,
+    isDropdownMenuVisible: Boolean
 ) {
-    val isDropdownMenuExpanded by remember {
-        mutableStateOf(false)
-    }
-
     Box(
         modifier = modifier
     ) {
@@ -228,7 +236,7 @@ private fun Header(
                         )
                         DropdownMenu(
                             modifier = Modifier.background(colorScheme.surfaceContainer),
-                            expanded = isDropdownMenuExpanded,
+                            expanded = isDropdownMenuVisible,
                             onDismissRequest = onDropdownMenuClick
                         ) {
                             DropdownMenuItem(

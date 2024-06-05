@@ -6,26 +6,37 @@ import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class DetailScreenViewModel(
     private val repository: CatalogRepository,
-    private val savedStateHandle: SavedStateHandle
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel<DetailScreenAction, DetailScreenEvent>() {
 
-    private val plantId: String = checkNotNull(savedStateHandle["plantId"])
+    companion object {
+        private const val PLANT_ID_KEY = "plantId"
+    }
 
-    private val _state = MutableStateFlow(DetailScreenState())
-    val state = _state.asStateFlow()
+    private val plantId: String = checkNotNull(savedStateHandle[PLANT_ID_KEY])
+
+    private val detailScreenMutableStateFlow = MutableStateFlow(DetailScreenState())
+    val state = detailScreenMutableStateFlow.asStateFlow()
 
     init {
         viewModelScope.launch {
             repository.readPlantById(plantId).collectLatest { plant ->
-                _state.value = _state.value.copy(plant = plant)
-                _state.value = _state.value.copy(isLoadingPlant = false)
+                detailScreenMutableStateFlow.update { detailScreenState ->
+                    detailScreenState.copy(
+                        plant = plant,
+                        isLoadingPlant = false
+                    )
+                }
             }
         }
     }
@@ -37,13 +48,22 @@ class DetailScreenViewModel(
             }
 
             DetailScreenAction.OnDropdownMenuClick -> {
-                _state.value =
-                    _state.value.copy(isDropDownMenuVisible = !_state.value.isDropDownMenuVisible)
+                detailScreenMutableStateFlow.update { detailScreenState ->
+                    detailScreenState.copy(
+                        isDropdownMenuVisible = !detailScreenState.isDropdownMenuVisible
+                    )
+                }
             }
 
             DetailScreenAction.OnDeletePlantClick -> {
                 viewModelScope.launch {
-                    repository.deletePlant(_state.value.plant)
+                    detailScreenMutableStateFlow.value.plant?.let { plant ->
+                        repository.deletePlantById(plant.id).catch {
+
+                        }.collectLatest {
+                            sendEvent(DetailScreenEvent.PlantDeleted)
+                        }
+                    } ?: return@launch
                 }
             }
 
@@ -54,7 +74,7 @@ class DetailScreenViewModel(
     }
 
     fun setPlantId(plantId: String) {
-        savedStateHandle["plantId"] = plantId
+        savedStateHandle[PLANT_ID_KEY] = plantId
     }
 
 }

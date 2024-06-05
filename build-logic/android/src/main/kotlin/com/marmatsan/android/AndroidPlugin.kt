@@ -89,10 +89,13 @@ class AndroidPlugin : Plugin<Project> {
             // Dependency injection
             ksp(libs.getLibrary("me.tatarka.inject.kotlin.inject.compiler.ksp"))
             implementation(libs.getLibrary("me.tatarka.inject.kotlin.inject.runtime"))
+
             /* Coroutines */
             implementation(libs.getLibrary("org.jetbrains.kotlinx.kotlinx.coroutines.android"))
+
             /* Realm database */
             implementation(libs.getLibrary("io.realm.kotlin"))
+
             /* Testing */
             // Junit5
             testImplementation(libs.getLibrary("org.junit.jupiter.junit.jupiter.api"))

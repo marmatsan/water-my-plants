@@ -29,14 +29,17 @@ fun RealmPlant.toPlant(): Plant {
         id = this@toPlant.id.toHexString(),
         image = this@toPlant.image?.let { Uri.parse(it) },
         name = this@toPlant.name ?: String.Empty,
-        wateringDays = this@toPlant.wateringDays?.split(",")?.map {
-            DayOfWeek.valueOf(it)
-        },
-        wateringTime = LocalTime.parse(this@toPlant.wateringTime),
+        wateringDays = this@toPlant.wateringDays
+            ?.split(",")
+            ?.filter {
+                it != "null"
+            }?.map {
+                DayOfWeek.valueOf(it)
+            },
+        wateringTime = LocalTime.parse(if (this@toPlant.wateringTime == "null") "18:00" else this@toPlant.wateringTime),
         waterAmount = this@toPlant.waterAmount,
-        size = this@toPlant.size?.let {
-            PlantSize.valueOf(it)
-        },
+        size = if (this@toPlant.size == "null" || this@toPlant.size == null) PlantSize.SMALL else
+            PlantSize.valueOf(this@toPlant.size!!),
         description = this@toPlant.description,
         shortDescription = this@toPlant.shortDescription ?: String.Empty,
         watered = this@toPlant.watered

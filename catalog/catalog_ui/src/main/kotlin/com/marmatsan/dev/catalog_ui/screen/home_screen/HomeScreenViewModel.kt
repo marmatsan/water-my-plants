@@ -11,7 +11,7 @@ import me.tatarka.inject.annotations.Inject
 
 @Inject
 class HomeScreenViewModel(
-    repository: CatalogRepository
+    private val repository: CatalogRepository
 ) : BaseViewModel<HomeScreenAction, HomeScreenEvent>() {
 
     private val homeScreenStateFlow = MutableStateFlow(HomeScreenState())
@@ -29,7 +29,7 @@ class HomeScreenViewModel(
     )
 
     override fun handleAction(action: HomeScreenAction) {
-        TODO("Not yet implemented")
+
     }
 
 }
