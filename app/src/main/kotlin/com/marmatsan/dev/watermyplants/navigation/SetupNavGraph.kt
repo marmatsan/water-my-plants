@@ -59,7 +59,10 @@ fun SetupNavGraph(
             viewModel.setPlantId(args.plantId)
 
             DetailScreenRoot(
-                viewModel = viewModel
+                viewModel = viewModel,
+                navigate = {
+                    navController.navigate(Screen.HomeScreen)
+                }
             )
         }
     }

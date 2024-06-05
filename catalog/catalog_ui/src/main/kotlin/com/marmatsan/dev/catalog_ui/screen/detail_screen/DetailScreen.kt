@@ -44,6 +44,7 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
+import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.ShapeDefaults
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
@@ -56,10 +57,17 @@ import java.time.LocalTime
 @Composable
 fun DetailScreenRoot(
     modifier: Modifier = Modifier,
-    viewModel: DetailScreenViewModel
+    viewModel: DetailScreenViewModel,
+    navigate: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
+
+    ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { detailScreenEvent ->
+        when (detailScreenEvent) {
+            DetailScreenEvent.PlantDeleted -> navigate()
+        }
+    }
 
     if (state.isLoadingPlant) {
         Box(
@@ -96,45 +104,47 @@ fun DetailScreen(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        PlantDetailsContainer(
-            modifier = Modifier.weight(1f),
-            onBackClick = {
-                onAction(DetailScreenAction.OnBackClick)
-            },
-            onDropdownMenuClick = {
-                onAction(DetailScreenAction.OnDropdownMenuClick)
-            },
-            onEditPlantClick = {
-                onAction(DetailScreenAction.OnEditPlantClick)
-            },
-            onDeletePlantClick = {
-                onAction(DetailScreenAction.OnDeletePlantClick)
-            },
-            plant = state.plant,
-            isDropdownMenuVisible = state.isDropdownMenuVisible
-        )
-        Button(
-            modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
-            labelText = "Mark as watered",
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.WaterDrop,
-                    contentDescription = null
-                )
-            }
-        )
+        state.plant?.let { plant ->
+            PlantDetailsContainer(
+                modifier = Modifier.weight(1f),
+                plant = plant,
+                isDropdownMenuVisible = state.isDropdownMenuVisible,
+                onBackClick = {
+                    onAction(DetailScreenAction.OnBackClick)
+                },
+                onDropdownMenuClick = {
+                    onAction(DetailScreenAction.OnDropdownMenuClick)
+                },
+                onEditPlantClick = {
+                    onAction(DetailScreenAction.OnEditPlantClick)
+                },
+                onDeletePlantClick = {
+                    onAction(DetailScreenAction.OnDeletePlantClick)
+                }
+            )
+            Button(
+                modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
+                labelText = "Mark as watered",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.WaterDrop,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
     }
 }
 
 @Composable
 private fun PlantDetailsContainer(
     modifier: Modifier = Modifier,
+    plant: Plant,
+    isDropdownMenuVisible: Boolean,
     onBackClick: () -> Unit,
     onDropdownMenuClick: () -> Unit,
     onEditPlantClick: () -> Unit,
-    onDeletePlantClick: () -> Unit,
-    plant: Plant,
-    isDropdownMenuVisible: Boolean
+    onDeletePlantClick: () -> Unit
 ) {
     Column(
         modifier = modifier

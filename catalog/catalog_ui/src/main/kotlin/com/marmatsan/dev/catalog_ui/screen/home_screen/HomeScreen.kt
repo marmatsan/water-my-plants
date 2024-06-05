@@ -16,6 +16,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCardDefau
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
+import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 
@@ -100,26 +102,36 @@ fun HomeScreen(
                             bottom = spacing.small
                         )
                 )
-                LazyVerticalGrid(
-                    modifier = Modifier,
-                    contentPadding = PaddingValues(
-                        horizontal = spacing.medium,
-                        vertical = spacing.default
-                    ),
-                    columns = GridCells.Adaptive(minSize = PlantCardDefaults.minWidth),
-                    horizontalArrangement = Arrangement.spacedBy(spacing.medium),
-                    verticalArrangement = Arrangement.spacedBy(spacing.medium)
-                ) {
-                    items(state.plants ?: emptyList()) { plant ->
-                        PlantCard(
-                            name = plant.name ?: String.Empty,
-                            shortDescription = plant.shortDescription ?: String.Empty,
-                            onClick = {
-                                navigate(plant)
-                            }
-                        )
+                if (state.plants == null) {
+                    Box(
+                        modifier = Modifier.fillAvailableSpace(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "There are no plants :(")
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        modifier = Modifier,
+                        contentPadding = PaddingValues(
+                            horizontal = spacing.medium,
+                            vertical = spacing.default
+                        ),
+                        columns = GridCells.Adaptive(minSize = PlantCardDefaults.minWidth),
+                        horizontalArrangement = Arrangement.spacedBy(spacing.medium),
+                        verticalArrangement = Arrangement.spacedBy(spacing.medium)
+                    ) {
+                        items(state.plants) { plant ->
+                            PlantCard(
+                                name = plant.name ?: String.Empty,
+                                shortDescription = plant.shortDescription ?: String.Empty,
+                                onClick = {
+                                    navigate(plant)
+                                }
+                            )
+                        }
                     }
                 }
+
             }
         }
     }
