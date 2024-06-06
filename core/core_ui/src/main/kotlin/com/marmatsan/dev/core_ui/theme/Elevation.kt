@@ -1,5 +1,7 @@
 package com.marmatsan.dev.core_ui.theme
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.Dp
@@ -16,3 +18,9 @@ data class Elevation(
 )
 
 val LocalElevation = compositionLocalOf { Elevation() }
+
+/** Retrieves the current [Elevation] at the call site's position in the hierarchy. */
+val elevation: Elevation
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalElevation.current

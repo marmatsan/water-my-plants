@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
@@ -37,8 +39,9 @@ import com.marmatsan.dev.core_domain.length
 import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
-import com.marmatsan.dev.core_ui.theme.LocalElevation
+import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.elevation
 import com.marmatsan.dev.core_ui.theme.spacing
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -81,7 +84,7 @@ fun PlantScreenForm(
 ) {
     Surface(
         modifier = modifier,
-        shadowElevation = LocalElevation.current.level3
+        shadowElevation = elevation.level3
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
@@ -124,7 +127,9 @@ fun PlantScreenForm(
                 ) {
                     // Plant name
                     TextField(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clearFocusOnKeyboardDismiss(),
                         value = name ?: String.Empty,
                         onValueChange = { newName ->
                             onNameChange?.invoke(newName)
@@ -160,9 +165,14 @@ fun PlantScreenForm(
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
+                                .weight(5f)
+                                .height(TextFieldDefaults.MinHeight),
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_days))
+                                Text(
+                                    text = stringResource(id = R.string.plant_screen_text_field_label_watering_days),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             value = wateringDays?.let { wateringDays ->
                                 val wateringDaysStringBuilder = StringBuilder()
@@ -193,7 +203,11 @@ fun PlantScreenForm(
                                 .weight(5f),
                             value = wateringTime?.toString() ?: String.Empty,
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_time))
+                                Text(
+                                    text = stringResource(id = R.string.plant_screen_text_field_label_watering_time),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             onClick = onWateringTimeClick
                         )
