@@ -145,7 +145,7 @@ class PlantScreenViewModel(
 
             is PlantScreenAction.OnDescriptionChange -> {
                 plantScreenStateFlow.update { plantScreenState ->
-                    plantScreenState.copy(plant = plantScreenState.plant.copy(description = action.description))
+                    plantScreenState.copy(plant = plantScreenState.plant.copy(description = action.description.ifEmpty { null }))
                 }
             }
 

@@ -35,10 +35,11 @@ import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_domain.length
-import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
+import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
 import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.elevation
@@ -62,9 +63,11 @@ object PlantScreenFormStyle {
         cursorColor = colorScheme.onSecondaryContainer
     )
 
+    @Composable
+    fun pickerColors(): TextFieldColors = textFieldColors()
+
     val textFieldShape: Shape @Composable get() = shapes.extraSmall
 }
-
 
 @Composable
 fun PlantScreenForm(
@@ -134,8 +137,14 @@ fun PlantScreenForm(
                         onValueChange = { newName ->
                             onNameChange?.invoke(newName)
                         },
-                        label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_name)) },
-                        supportingText = if (name?.isNotBlank() == true) {
+                        label = {
+                            Text(
+                                text = stringResource(id = R.string.plant_screen_text_field_label_plant_name),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        supportingText = if (name.isNotNull()) {
                             {
                                 Text("${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}")
                             }
@@ -227,14 +236,21 @@ fun PlantScreenForm(
                         TextField(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
+                                .weight(5f)
+                                .clearFocusOnKeyboardDismiss(),
                             value = waterAmount?.toString() ?: String.Empty,
                             onValueChange = { newWaterAmount ->
                                 onWaterAmountChange?.invoke(newWaterAmount)
                             },
                             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                            label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_water_amount)) },
-                            supportingText = if (waterAmount != null) {
+                            label = {
+                                Text(
+                                    text = stringResource(id = R.string.plant_screen_text_field_label_water_amount),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            supportingText = if (waterAmount.isNotNull()) {
                                 {
                                     Text("${waterAmount.length}/${PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH}")
                                 }
@@ -248,16 +264,28 @@ fun PlantScreenForm(
                             },
                             textFieldColors = PlantScreenFormStyle.textFieldColors(),
                             keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                }
                             ),
                             textFieldShape = PlantScreenFormStyle.textFieldShape
                         )
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
+                                .weight(5f)
+                                .height(TextFieldDefaults.MinHeight),
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_size))
+                                Text(
+                                    text = stringResource(id = R.string.plant_screen_text_field_label_plant_size),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             value = plantSize?.let { plantSize ->
                                 val stringResourceId = when (plantSize) {
@@ -272,27 +300,58 @@ fun PlantScreenForm(
                         )
                     }
                     // Description
-                    CustomTextField(
-                        modifier = modifier.fillMaxSize(),
-                        bodyTextStyle = typography.bodyLarge,
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clearFocusOnKeyboardDismiss()
+                            .bringIntoViewRequester(),
                         value = description ?: String.Empty,
-                        onValueChange = { newDescription ->
-                            onDescriptionChange?.invoke(newDescription)
-                        },
+                        onValueChange = onDescriptionChange ?: {},
+                        singleLine = false,
                         label = {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.plant_screen_text_field_label_description),
-                                color = colorScheme.onSurfaceVariant,
-                                style = if (description.isNullOrEmpty()) typography.bodyLarge else typography.bodySmall
+                                text = stringResource(id = R.string.plant_screen_text_field_label_description)
                             )
                         },
-                        supportingText = if (description?.isNotBlank() == true) {
+                        supportingText = if (description.isNotNull()) {
                             {
-                                Text("${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}")
+                                Text(
+                                    text = "${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}",
+                                )
                             }
-                        } else null
+                        } else null,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            }
+                        ),
+                        textFieldColors = PlantScreenFormStyle.textFieldColors(),
+                        textFieldShape = PlantScreenFormStyle.textFieldShape
                     )
+                    /*  CustomTextField(
+                          modifier = Modifier.fillMaxSize(),
+                          value = description ?: String.Empty,
+                          onValueChange = onDescriptionChange ?: {},
+                          singleLine = false,
+                          label = { textStyle ->
+                              Text(
+                                  modifier = Modifier.fillMaxWidth(),
+                                  text = stringResource(id = R.string.plant_screen_text_field_label_description),
+                                  style = textStyle
+                              )
+                          },
+                          supportingText = if (description.isNotNull()) {
+                              { textStyle ->
+                                  Text(
+                                      text = "${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}",
+                                      style = textStyle
+                                  )
+                              }
+                          } else null
+                      )*/
                 }
                 // Scroll indicator: TODO
                 // ScrollIndicator()

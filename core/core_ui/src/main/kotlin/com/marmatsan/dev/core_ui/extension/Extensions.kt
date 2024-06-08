@@ -3,9 +3,12 @@ package com.marmatsan.dev.core_ui.extension
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -13,12 +16,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
+import kotlinx.coroutines.launch
 
 fun Double.shortSegmentOfGoldenRatio(): Float {
     return this.toFloat() / 1.618f
@@ -80,4 +85,20 @@ fun Modifier.clearFocusOnKeyboardDismiss(): Modifier = composed {
             }
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.bringIntoViewRequester(): Modifier = composed {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+
+    this
+        .bringIntoViewRequester(bringIntoViewRequester)
+        .onFocusEvent { focusState ->
+            if (focusState.isFocused) {
+                coroutineScope.launch {
+                    bringIntoViewRequester.bringIntoView()
+                }
+            }
+        }
 }

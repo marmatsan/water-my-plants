@@ -1,9 +1,8 @@
 package com.marmatsan.dev.core_ui.components.textfield
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -19,9 +18,7 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +26,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import kotlinx.coroutines.launch
 
 enum class TextFieldStyle {
     Filled,
@@ -67,21 +64,11 @@ fun TextField(
     textFieldShape: Shape = when (textFieldStyle) {
         TextFieldStyle.Filled -> TextFieldDefaults.shape
         TextFieldStyle.Outlined -> OutlinedTextFieldDefaults.shape
-    }
+    },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
 
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
-
-    val textFieldModifier = modifier
-        .bringIntoViewRequester(bringIntoViewRequester)
-        .onFocusEvent { focusState ->
-            if (focusState.isFocused) {
-                coroutineScope.launch {
-                    bringIntoViewRequester.bringIntoView()
-                }
-            }
-        }
+    val textFieldModifier = modifier.bringIntoViewRequester()
 
     when (textFieldStyle) {
         TextFieldStyle.Filled -> TextField(
@@ -105,7 +92,8 @@ fun TextField(
             maxLines = maxLines,
             minLines = minLines,
             shape = textFieldShape,
-            colors = textFieldColors
+            colors = textFieldColors,
+            interactionSource = interactionSource
         )
 
         TextFieldStyle.Outlined -> OutlinedTextField(
@@ -129,7 +117,8 @@ fun TextField(
             maxLines = maxLines,
             minLines = minLines,
             shape = textFieldShape,
-            colors = textFieldColors
+            colors = textFieldColors,
+            interactionSource = interactionSource
         )
     }
 }
