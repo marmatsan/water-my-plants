@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.ButtonDefaults
@@ -119,16 +121,11 @@ fun PlantScreen(
             .padding(
                 all = spacing.default
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
     ) {
         Header(
-            modifier = modifier
-                .fillMaxSize()
-                .weight(5f)
-                .padding(
-                    all = spacing.default
-                ),
+            modifier = Modifier.weight(1f),
             removePhotoAvailable = state.plant.image != null,
             aiButtonAvailable = false,
             image = state.plant.image,
@@ -140,9 +137,9 @@ fun PlantScreen(
             }
         )
         PlantScreenForm(
-            modifier = modifier
-                .fillMaxSize()
-                .weight(5f),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             name = state.plant.name,
             wateringDays = state.plant.wateringDays,
             wateringTime = state.plant.wateringTime,
@@ -169,7 +166,8 @@ fun PlantScreen(
             }
         )
         ButtonContainer(
-            modifier = modifier
+            modifier = Modifier
+                .wrapContentHeight()
                 .background(
                     color = colorScheme.background
                 )
@@ -212,9 +210,11 @@ fun Header(
             illustrationDesign = IllustrationDesign.Four
         )
         HeaderContent(
-            modifier = modifier.padding(
-                all = spacing.medium
-            ),
+            modifier = Modifier
+                .padding(
+                    all = spacing.medium
+                )
+                .fillMaxSize(),
             removePhotoAvailable = removePhotoAvailable,
             aiButtonAvailable = aiButtonAvailable,
             image = image,

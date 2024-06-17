@@ -33,6 +33,10 @@ fun Int.shortSegmentOfGoldenRatio(): Float {
     return this.toFloat() / 1.618f
 }
 
+fun Float.shortSegmentOfGoldenRatio(): Float {
+    return this - this / 1.618f
+}
+
 context (ColumnScope) fun Modifier.fillAvailableSpace() = this
     .fillMaxWidth()
     .weight(1f)

@@ -102,16 +102,16 @@ val ColorScheme.onBackgroundVariant: Color
 
 @Composable
 fun WaterMyPlantsTheme(
-    isInDarkTheme: Boolean = isSystemInDarkTheme(),
+    isSystemInDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     // Dynamic color is available on Android 12+
     val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val colorScheme = when {
-        supportsDynamicColors && isInDarkTheme -> dynamicDarkColorScheme(LocalContext.current)
-        supportsDynamicColors && !isInDarkTheme -> dynamicLightColorScheme(LocalContext.current)
-        isInDarkTheme -> DarkColorScheme
+        supportsDynamicColors && isSystemInDarkTheme -> dynamicDarkColorScheme(LocalContext.current)
+        supportsDynamicColors && !isSystemInDarkTheme -> dynamicLightColorScheme(LocalContext.current)
+        isSystemInDarkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
@@ -123,7 +123,7 @@ fun WaterMyPlantsTheme(
             // TODO: feature-Change to edge-to-edge https://developer.android.com/develop/ui/views/layout/edge-to-edge
             window.statusBarColor = colorScheme.surface.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
-                !isInDarkTheme
+                !isSystemInDarkTheme
         }
     }
 

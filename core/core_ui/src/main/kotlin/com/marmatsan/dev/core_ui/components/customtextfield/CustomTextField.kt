@@ -6,16 +6,15 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -27,13 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
-import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 
@@ -42,54 +42,65 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    label: (@Composable (TextStyle) -> Unit)? = null,
-    supportingText: @Composable ((TextStyle) -> Unit)? = null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = typography.bodyLarge,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    cursorBrush: Brush = SolidColor(LocalTextSelectionColors.current.handleColor),
+    label: (@Composable (TextStyle) -> Unit)? = null,
+    supportingText: @Composable ((TextStyle) -> Unit)? = null
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     val isFocused by interactionSource.collectIsFocusedAsState()
+    val customTextFieldModifier = modifier.bringIntoViewRequester()
 
     Column(
-        modifier = modifier
-            .clearFocusOnKeyboardDismiss()
-            .bringIntoViewRequester(),
+        modifier = customTextFieldModifier,
         verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
         BasicTextField(
-            modifier = Modifier
+            modifier = modifier
                 .defaultMinSize(
-                    minWidth = TextFieldDefaults.MinWidth,
                     minHeight = TextFieldDefaults.MinHeight
                 )
-                .height(IntrinsicSize.Max)
                 .weight(1f),
             value = value,
             onValueChange = onValueChange,
-            textStyle = typography.bodyLarge,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController?.hide()
-                }
-            ),
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = textStyle,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             singleLine = singleLine,
+            maxLines = maxLines,
+            minLines = minLines,
+            visualTransformation = visualTransformation,
+            onTextLayout = onTextLayout,
+            interactionSource = interactionSource,
+            cursorBrush = cursorBrush,
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
-                        .height(IntrinsicSize.Min)
+                        .fillMaxSize()
                         .clip(shapes.extraSmall)
                         .background(colorScheme.secondaryContainer)
                         .padding(
                             horizontal = spacing.medium,
-                            vertical = spacing.extraSmall
+                            vertical = spacing.small
                         ),
-                    contentAlignment = if (value.isNotEmpty() || isFocused) Alignment.TopStart else Alignment.Center
+                    contentAlignment = if (value.isNotEmpty() || isFocused)
+                        Alignment.TopStart
+                    else
+                        Alignment.CenterStart
                 ) {
-                    if (isFocused || value.isNotEmpty()) {
+                    if (value.isNotEmpty() || isFocused) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(
                                 spacing.default,
@@ -104,8 +115,7 @@ fun CustomTextField(
                         label?.invoke(typography.bodyLarge)
                     }
                 }
-            },
-            interactionSource = interactionSource,
+            }
         )
         supportingText?.let {
             Box(
@@ -153,7 +163,6 @@ private fun CustomTextFieldPreview() {
 private fun CustomTextFieldPreviewWithValue() {
     WaterMyPlantsTheme {
         CustomTextField(
-            modifier = Modifier.fillMaxSize(),
             value = "Plant description",
             onValueChange = {},
             label = { textStyle ->

@@ -1,6 +1,5 @@
 package com.marmatsan.dev.core_ui.components.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,7 +33,6 @@ enum class TextFieldStyle {
     Outlined
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TextField(
     modifier: Modifier = Modifier,
