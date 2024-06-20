@@ -27,9 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.marmatsan.catalog_ui.R
-import com.marmatsan.dev.core_ui.extension.shortSegmentOfGoldenRatio
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.util.shortSegmentOfGoldenRatio
 
 enum class TabPage {
     UPCOMING,
@@ -112,7 +112,7 @@ fun HomeScreenTabs(
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 ),
                 end = Offset(
-                    x = selectedTabData.leftCorner.x + selectedTabData.textSize.width.shortSegmentOfGoldenRatio(),
+                    x = selectedTabData.leftCorner.x + shortSegmentOfGoldenRatio(selectedTabData.textSize.width),
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 )
             )

@@ -249,7 +249,7 @@ fun HeaderContent(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(all = spacing.default),
-            AIButtonAvailable = aiButtonAvailable,
+            aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
         )

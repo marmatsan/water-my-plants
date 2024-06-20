@@ -34,7 +34,7 @@ import com.marmatsan.dev.core_ui.theme.spacing
 @Composable
 fun PlantScreenActions(
     modifier: Modifier = Modifier,
-    AIButtonAvailable: Boolean = false,
+    aiButtonAvailable: Boolean = false,
     image: Uri? = null,
     onAddImage: ((Uri) -> Unit)? = null,
     onAIButtonClick: (() -> Unit)? = null // TODO
@@ -88,7 +88,7 @@ fun PlantScreenActions(
                 )
             }
         )
-        if (AIButtonAvailable) {
+        if (aiButtonAvailable) {
             IconButton(
                 modifier = Modifier.size(48.dp),
                 iconButtonStyle = IconButtonStyle.Filled,
@@ -113,7 +113,7 @@ fun PlantScreenActions(
 fun PlantScreenActionsPreview() {
     WaterMyPlantsTheme {
         PlantScreenActions(
-            AIButtonAvailable = true
+            aiButtonAvailable = true
         )
     }
 }

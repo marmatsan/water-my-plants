@@ -95,7 +95,7 @@ fun PlantScreenTest(
 ) {
 
     var description by remember {
-        mutableStateOf<String?>(LoremIpsum(words = 20).values.joinToString(separator = " "))
+        mutableStateOf<String?>(LoremIpsum(words = 100).values.joinToString(separator = " "))
     }
     Column(
         modifier = modifier.fillMaxSize()

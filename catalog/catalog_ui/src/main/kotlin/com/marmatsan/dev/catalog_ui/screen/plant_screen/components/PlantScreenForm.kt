@@ -34,8 +34,8 @@ import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
-import com.marmatsan.dev.core_ui.components.scrollindicator.ScrollIndicator
 import com.marmatsan.dev.core_ui.components.textfield.TextField
+import com.marmatsan.dev.core_ui.components.verticalscrollindicator.VerticalScrollIndicator
 import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.elevation
@@ -49,7 +49,6 @@ object PlantScreenFormStyle {
     fun textFieldColors(): TextFieldColors = TextFieldDefaults.colors().copy(
 
     )
-
 
     val textFieldShape: Shape
         @Composable
@@ -78,8 +77,8 @@ fun PlantScreenForm(
         shadowElevation = elevation.level3
     ) {
         val scrollState = rememberScrollState()
-
         val keyboardController = LocalSoftwareKeyboardController.current
+
         // Form
         Column(
             modifier = Modifier
@@ -243,7 +242,9 @@ fun PlantScreenForm(
                              .border(width = 4.dp, color = Color.Red)
                      )*/
                     CustomTextField(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clearFocusOnKeyboardDismiss(),
                         value = description ?: String.Empty,
                         onValueChange = {
                             onDescriptionChange?.invoke(it)
@@ -271,10 +272,13 @@ fun PlantScreenForm(
                             onDone = {
                                 keyboardController?.hide()
                             }
-                        )
+                        ),
+                        onTextLayout = {
+
+                        }
                     )
                 }
-                ScrollIndicator(
+                VerticalScrollIndicator(
                     modifier = Modifier.fillMaxHeight(),
                     scrollState = scrollState
                 )
