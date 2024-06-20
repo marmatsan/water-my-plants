@@ -1,6 +1,8 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.viewModelScope
+import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
@@ -17,7 +19,11 @@ class PlantScreenViewModel(
     private val plantScreenUseCases: PlantScreenUseCases
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
-    private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
+    private val plantScreenStateFlow = MutableStateFlow(
+        PlantScreenState(
+            plant = Plant().copy(description = LoremIpsum(words = 100).values.joinToString(separator = " "))
+        )
+    )
 
     val state = plantScreenStateFlow.map { plantScreenState ->
         val isCreatePlantButtonEnabled = plantScreenUseCases.validatePlantDataUseCase(

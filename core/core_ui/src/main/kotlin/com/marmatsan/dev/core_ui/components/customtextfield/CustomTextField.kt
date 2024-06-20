@@ -33,7 +33,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 
@@ -58,15 +57,14 @@ fun CustomTextField(
     supportingText: @Composable ((TextStyle) -> Unit)? = null
 ) {
     val isFocused by interactionSource.collectIsFocusedAsState()
-    val customTextFieldModifier = modifier.bringIntoViewRequester()
 
     Column(
-        modifier = customTextFieldModifier,
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
         BasicTextField(
-            modifier = modifier
+            modifier = Modifier
                 .defaultMinSize(
                     minHeight = TextFieldDefaults.MinHeight
                 )
