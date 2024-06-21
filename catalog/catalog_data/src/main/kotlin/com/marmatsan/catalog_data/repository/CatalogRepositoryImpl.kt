@@ -3,8 +3,6 @@ package com.marmatsan.catalog_data.repository
 import com.marmatsan.catalog_data.local.DatabaseManagerLocalSource
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
-import com.marmatsan.dev.core_domain.result.Error
-import com.marmatsan.dev.core_domain.result.Result
 import kotlinx.coroutines.flow.Flow
 import me.tatarka.inject.annotations.Inject
 
@@ -12,7 +10,7 @@ import me.tatarka.inject.annotations.Inject
 class CatalogRepositoryImpl(
     private val databaseManager: DatabaseManagerLocalSource
 ) : CatalogRepository {
-    override suspend fun createPlant(plant: Plant): Result<Unit, Error> =
+    override suspend fun createPlant(plant: Plant) =
         databaseManager.createPlant(plant)
 
     override fun readPlantById(plantId: String): Plant =

@@ -1,7 +1,6 @@
 package com.marmatsan.dev.watermyplants.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -13,17 +12,13 @@ import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.welcome_screen.WelcomeScreen
 import com.marmatsan.dev.watermyplants.MainActivityComponent
-import com.marmatsan.dev.watermyplants.create
-import com.marmatsan.dev.watermyplants.di.applicationComponent
 
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
-    startDestination: Screen = Screen.PlantScreen
+    startDestination: Screen = Screen.PlantScreen,
+    mainActivityComponent: MainActivityComponent
 ) {
-    val mainActivityComponent =
-        MainActivityComponent::class.create(LocalContext.current.applicationComponent)
-
     NavHost(
         navController = navController,
         startDestination = startDestination

@@ -4,8 +4,6 @@ import com.marmatsan.catalog_data.mapper.toPlant
 import com.marmatsan.catalog_data.mapper.toRealmPlant
 import com.marmatsan.catalog_data.model.RealmPlant
 import com.marmatsan.dev.catalog_domain.model.Plant
-import com.marmatsan.dev.core_domain.result.Error
-import com.marmatsan.dev.core_domain.result.Result
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
@@ -15,12 +13,10 @@ import org.mongodb.kbson.BsonObjectId
 class DatabaseManagerLocalSourceImpl(
     private val realm: Realm
 ) : DatabaseManagerLocalSource {
-    override suspend fun createPlant(plant: Plant): Result<Unit, Error> {
-        realm.write {
-            val realmPlantToCreate = plant.toRealmPlant()
-            copyToRealm(realmPlantToCreate)
-        }
-        return Result.Success()
+    override suspend fun createPlant(plant: Plant): Unit = realm.write {
+        val realmPlantToCreate = plant.toRealmPlant()
+        copyToRealm(realmPlantToCreate)
+        Unit
     }
 
     override fun readPlantById(plantId: String): Plant {

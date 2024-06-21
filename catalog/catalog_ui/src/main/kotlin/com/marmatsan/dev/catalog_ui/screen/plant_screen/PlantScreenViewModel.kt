@@ -3,7 +3,7 @@ package com.marmatsan.dev.catalog_ui.screen.plant_screen
 import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
-import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
+import com.marmatsan.dev.core_ui.viewmodel.MVIViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -15,7 +15,7 @@ import me.tatarka.inject.annotations.Inject
 @Inject
 class PlantScreenViewModel(
     private val plantScreenUseCases: PlantScreenUseCases
-) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
+) : MVIViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
 
@@ -55,6 +55,7 @@ class PlantScreenViewModel(
             is PlantScreenAction.OnCreatePlant -> {
                 viewModelScope.launch {
                     plantScreenUseCases.insertPlantUseCase(input = plantScreenStateFlow.value.plant)
+                    sendEvent(event = PlantScreenEvent.Navigate)
                 }
             }
 

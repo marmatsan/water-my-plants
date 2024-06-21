@@ -53,14 +53,15 @@ fun PlantScreenRoot(
     val uiEventFlow = viewModel.uiEventFlow
 
     ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
-        // TODO
+        when (event) {
+            PlantScreenEvent.Navigate -> navigate()
+        }
     }
 
     PlantScreen(
         modifier = modifier,
         state = state,
-        onAction = onAction,
-        navigate = navigate
+        onAction = onAction
     )
 }
 
@@ -68,8 +69,7 @@ fun PlantScreenRoot(
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit,
-    navigate: () -> Unit
+    onAction: (PlantScreenAction) -> Unit
 ) {
     if (state.isWateringDaysDialogVisible) {
         PlantWateringDaysDialog(
@@ -173,7 +173,6 @@ fun PlantScreen(
                 ),
             onCreatePlant = {
                 onAction(PlantScreenAction.OnCreatePlant)
-                navigate()
             },
             createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
         )
@@ -293,8 +292,7 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {},
-            navigate = {}
+            onAction = {}
         )
     }
 }

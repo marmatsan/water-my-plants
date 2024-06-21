@@ -3,7 +3,7 @@ package com.marmatsan.dev.catalog_ui.screen.detail_screen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
-import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
+import com.marmatsan.dev.core_ui.viewmodel.MVIViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -15,7 +15,7 @@ import me.tatarka.inject.annotations.Inject
 class DetailScreenViewModel(
     private val repository: CatalogRepository,
     @Assisted private val savedStateHandle: SavedStateHandle
-) : BaseViewModel<DetailScreenAction, DetailScreenEvent>() {
+) : MVIViewModel<DetailScreenAction, DetailScreenEvent>() {
 
     companion object {
         private const val PLANT_ID_KEY = "plantId"
