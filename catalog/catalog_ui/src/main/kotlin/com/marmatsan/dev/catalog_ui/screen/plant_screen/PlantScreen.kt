@@ -262,7 +262,10 @@ fun ButtonContainer(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(
+            space = spacing.default,
+            alignment = Alignment.CenterVertically
+        ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Button(

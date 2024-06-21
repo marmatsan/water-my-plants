@@ -1,8 +1,6 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
-import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.viewModelScope
-import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
 import com.marmatsan.dev.core_ui.viewmodel.BaseViewModel
@@ -19,11 +17,7 @@ class PlantScreenViewModel(
     private val plantScreenUseCases: PlantScreenUseCases
 ) : BaseViewModel<PlantScreenAction, PlantScreenEvent>() {
 
-    private val plantScreenStateFlow = MutableStateFlow(
-        PlantScreenState(
-            plant = Plant().copy(description = LoremIpsum(words = 100).values.joinToString(separator = " "))
-        )
-    )
+    private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
 
     val state = plantScreenStateFlow.map { plantScreenState ->
         val isCreatePlantButtonEnabled = plantScreenUseCases.validatePlantDataUseCase(
@@ -104,12 +98,13 @@ class PlantScreenViewModel(
                 }
             }
 
+            // Plant properties
             is PlantScreenAction.OnPlantNameChange -> {
                 val plantName = action.plantName
                 plantScreenUseCases.validatePlantNameUseCase(plantName).fold(
                     onSuccess = {
                         plantScreenStateFlow.update { plantScreenState ->
-                            plantScreenState.copy(plant = plantScreenState.plant.copy(name = plantName))
+                            plantScreenState.copy(plant = plantScreenState.plant.copy(name = plantName.ifEmpty { null }))
                         }
                     },
                     onError = {

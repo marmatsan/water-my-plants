@@ -1,8 +1,8 @@
 package com.marmatsan.dev.core_ui.components.verticalscrollindicator
 
-import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
@@ -40,9 +40,9 @@ fun VerticalScrollIndicator(
 
     val animatedTopLeftYCoordinate by animateFloatAsState(
         targetValue = topLeftYCoordinate,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessMediumLow
+        animationSpec = tween(
+            durationMillis = 50,
+            easing = LinearEasing
         ),
         label = "animatedTopLeftYCoordinate"
     )
