@@ -19,7 +19,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val JUNIT5_VERSION = "5.11.0-M2"
         const val JUNIT5_PLUGIN_VERSION = "1.10.0.0"
         const val KOTLIN_VERSION = "2.0.0"
-        const val KOTLIN_INJECT_VERSION = "0.6.3"
+        const val KOTLIN_INJECT_VERSION = "0.7.1"
         const val KSP_VERSION = "$KOTLIN_VERSION-1.0.21"
         const val LANDSCAPIST_VERSION = "2.3.3"
         const val LIFECYCLE_VERSION = "2.8.0"

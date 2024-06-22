@@ -1,15 +1,22 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -18,50 +25,54 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_domain.length
 import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
-import com.marmatsan.dev.core_ui.theme.LocalElevation
+import com.marmatsan.dev.core_ui.components.verticalscrollindicator.VerticalScrollIndicator
+import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
+import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.elevation
 import com.marmatsan.dev.core_ui.theme.spacing
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 object PlantScreenFormStyle {
+
     @Composable
     fun textFieldColors(): TextFieldColors = TextFieldDefaults.colors().copy(
         unfocusedTextColor = colorScheme.onSurface,
         unfocusedContainerColor = colorScheme.secondaryContainer,
-        unfocusedIndicatorColor = Color.Transparent,
         unfocusedLabelColor = colorScheme.onSurfaceVariant,
-        unfocusedSupportingTextColor = colorScheme.onSurfaceVariant,
+        unfocusedIndicatorColor = Color.Transparent,
+
         focusedTextColor = colorScheme.onSurface,
         focusedContainerColor = colorScheme.secondaryContainer,
-        focusedIndicatorColor = Color.Transparent,
         focusedLabelColor = colorScheme.onSurfaceVariant,
-        focusedSupportingTextColor = colorScheme.onSurfaceVariant,
-        cursorColor = colorScheme.onSecondaryContainer
+        focusedIndicatorColor = Color.Transparent
     )
 
-    val textFieldShape: Shape @Composable get() = shapes.extraSmall
+    val textFieldShape: Shape
+        @Composable
+        get() = shapes.extraSmall
 }
-
 
 @Composable
 fun PlantScreenForm(
@@ -80,31 +91,43 @@ fun PlantScreenForm(
     onWateringTimeClick: (() -> Unit)? = null
 ) {
     Surface(
-        modifier = modifier,
-        shadowElevation = LocalElevation.current.level3
+        modifier = modifier.fillMaxSize(),
+        shadowElevation = elevation.level3
     ) {
+        val scrollState = rememberScrollState()
         val keyboardController = LocalSoftwareKeyboardController.current
-        val focusManager = LocalFocusManager.current
+
+        var isVerticalScrollIndicatorVisible by remember {
+            mutableStateOf(false)
+        }
+
+        isVerticalScrollIndicatorVisible = scrollState.maxValue != 0 && scrollState.maxValue != Int.MAX_VALUE
 
         // Form
         Column(
-            modifier = Modifier.padding(
-                start = spacing.medium,
-                top = spacing.medium,
-                end = spacing.medium,
-                bottom = spacing.default
-            ),
-            verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
-            horizontalAlignment = Alignment.Start,
-        ) {
-            // Content
-            Row(
-                modifier = Modifier.padding(
-                    start = spacing.default,
-                    top = spacing.default,
-                    end = spacing.default,
+            modifier = Modifier
+                .padding(
+                    start = spacing.medium,
+                    top = spacing.medium,
+                    end = spacing.medium,
                     bottom = spacing.default
                 ),
+            verticalArrangement = Arrangement.spacedBy(
+                spacing.medium,
+                Alignment.Top
+            ),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            // Actions()
+            // Content
+            Row(
+                modifier = Modifier
+                    .padding(
+                        start = spacing.default,
+                        top = spacing.default,
+                        end = spacing.default,
+                        bottom = spacing.default
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(
                     spacing.medium,
                     Alignment.CenterHorizontally
@@ -113,35 +136,46 @@ fun PlantScreenForm(
             ) {
                 // Text fields
                 Column(
-                    modifier = Modifier.padding(
-                        start = spacing.default,
-                        top = spacing.default,
-                        end = spacing.default,
-                        bottom = spacing.default
+                    modifier = Modifier
+                        .padding(
+                            start = spacing.default,
+                            top = spacing.default,
+                            end = spacing.default,
+                            bottom = spacing.default
+                        )
+                        .weight(1f)
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .height(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(
+                        spacing.medium,
+                        Alignment.Top
                     ),
-                    verticalArrangement = Arrangement.spacedBy(spacing.medium, Alignment.Top),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     // Plant name
                     TextField(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clearFocusOnKeyboardDismiss(),
                         value = name ?: String.Empty,
-                        onValueChange = { newName ->
-                            onNameChange?.invoke(newName)
+                        onValueChange = {
+                            onNameChange?.invoke(it)
                         },
-                        label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_name)) },
-                        supportingText = if (name?.isNotBlank() == true) {
+                        label = {
+                            Text(
+                                text = "Plant name"
+                            )
+                        },
+                        supportingText = if (name.isNotNull()) {
                             {
-                                Text("${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}")
+                                Text(
+                                    text = "${name.length}/${PlantDataConstraints.PLANT_NAME_MAX_LENGTH}",
+                                    style = typography.bodySmall,
+                                    color = colorScheme.onSurfaceVariant
+                                )
                             }
                         } else null,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                keyboardController?.hide()
-                                focusManager.clearFocus()
-                            }
-                        ),
                         textFieldColors = PlantScreenFormStyle.textFieldColors(),
                         textFieldShape = PlantScreenFormStyle.textFieldShape
                     )
@@ -160,40 +194,44 @@ fun PlantScreenForm(
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
+                                .weight(5f)
+                                .height(TextFieldDefaults.MinHeight),
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_days))
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "Watering days*",
+                                    maxLines = 1,
+                                    color = colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
-                            value = wateringDays?.let { wateringDays ->
-                                val wateringDaysStringBuilder = StringBuilder()
-                                val sortedWateringDays = wateringDays.sorted()
-
-                                sortedWateringDays.forEachIndexed { position, wateringDay ->
-                                    val stringResourceId = when (wateringDay) {
-                                        DayOfWeek.MONDAY -> R.string.plant_screen_dialog_watering_days_day1
-                                        DayOfWeek.TUESDAY -> R.string.plant_screen_dialog_watering_days_day2
-                                        DayOfWeek.WEDNESDAY -> R.string.plant_screen_dialog_watering_days_day3
-                                        DayOfWeek.THURSDAY -> R.string.plant_screen_dialog_watering_days_day4
-                                        DayOfWeek.FRIDAY -> R.string.plant_screen_dialog_watering_days_day5
-                                        DayOfWeek.SATURDAY -> R.string.plant_screen_dialog_watering_days_day6
-                                        DayOfWeek.SUNDAY -> R.string.plant_screen_dialog_watering_days_day7
-                                    }
-                                    wateringDaysStringBuilder.append(stringResource(id = stringResourceId))
-                                    if (position != sortedWateringDays.lastIndex) {
-                                        wateringDaysStringBuilder.append(", ")
-                                    }
+                            value = wateringDays?.joinToString(separator = ", ") { item ->
+                                when (item) {
+                                    DayOfWeek.MONDAY -> "Monday"
+                                    DayOfWeek.TUESDAY -> "Tuesday"
+                                    DayOfWeek.WEDNESDAY -> "Wednesday"
+                                    DayOfWeek.THURSDAY -> "Thursday"
+                                    DayOfWeek.FRIDAY -> "Friday"
+                                    DayOfWeek.SATURDAY -> "Saturday"
+                                    DayOfWeek.SUNDAY -> "Sunday"
                                 }
-                                wateringDaysStringBuilder.toString()
-                            } ?: String.Empty,
+                            },
                             onClick = onWateringDaysClick
                         )
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
-                            value = wateringTime?.toString() ?: String.Empty,
+                                .weight(5f)
+                                .height(TextFieldDefaults.MinHeight),
+                            value = wateringTime?.toString(),
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_watering_time))
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "Watering time*",
+                                    maxLines = 1,
+                                    color = colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             onClick = onWateringTimeClick
                         )
@@ -213,78 +251,114 @@ fun PlantScreenForm(
                         TextField(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
-                            value = waterAmount?.toString() ?: String.Empty,
+                                .weight(5f)
+                                .clearFocusOnKeyboardDismiss(),
+                            value = String.Empty,
                             onValueChange = { newWaterAmount ->
                                 onWaterAmountChange?.invoke(newWaterAmount)
                             },
-                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                            label = { Text(text = stringResource(id = R.string.plant_screen_text_field_label_water_amount)) },
-                            supportingText = if (waterAmount != null) {
+                            label = {
+                                Text(
+                                    text = "Water amount",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            supportingText = if (waterAmount.isNotNull()) {
                                 {
-                                    Text("${waterAmount.length}/${PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH}")
+                                    Text(
+                                        text = "${waterAmount.length}/${PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH}",
+                                        style = typography.bodySmall,
+                                        color = colorScheme.onSurfaceVariant
+                                    )
                                 }
                             } else null,
                             suffix = {
                                 Text(
-                                    text = stringResource(id = R.string.plant_screen_text_field_prefix_water_amount),
-                                    color = colorScheme.onSurfaceVariant,
-                                    style = typography.bodyLarge
+                                    text = "ml",
+                                    style = typography.bodyLarge,
+                                    color = colorScheme.onSurfaceVariant
                                 )
                             },
                             textFieldColors = PlantScreenFormStyle.textFieldColors(),
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
-                            ),
                             textFieldShape = PlantScreenFormStyle.textFieldShape
                         )
                         Picker(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(5f),
+                                .weight(5f)
+                                .height(TextFieldDefaults.MinHeight),
                             label = {
-                                Text(text = stringResource(id = R.string.plant_screen_text_field_label_plant_size))
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "Plant size",
+                                    maxLines = 1,
+                                    color = colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             value = plantSize?.let { plantSize ->
-                                val stringResourceId = when (plantSize) {
-                                    PlantSize.SMALL -> R.string.plant_screen_dialog_plant_size_option_1
-                                    PlantSize.MEDIUM -> R.string.plant_screen_dialog_plant_size_option_2
-                                    PlantSize.LARGE -> R.string.plant_screen_dialog_plant_size_option_3
-                                    PlantSize.EXTRA_LARGE -> R.string.plant_screen_dialog_plant_size_option_4
+                                when (plantSize) {
+                                    PlantSize.EXTRA_LARGE -> "Extra large"
+                                    PlantSize.LARGE -> "Large"
+                                    PlantSize.MEDIUM -> "Medium"
+                                    PlantSize.SMALL -> "Small"
                                 }
-                                stringResource(id = stringResourceId)
-                            } ?: String.Empty,
+                            },
                             onClick = onPlantSizeClick
                         )
                     }
                     // Description
                     CustomTextField(
-                        modifier = modifier.fillMaxSize(),
-                        bodyTextStyle = typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clearFocusOnKeyboardDismiss()
+                            .bringIntoViewRequester(),
                         value = description ?: String.Empty,
-                        onValueChange = { newDescription ->
-                            onDescriptionChange?.invoke(newDescription)
+                        onValueChange = {
+                            onDescriptionChange?.invoke(it)
                         },
-                        label = {
+                        singleLine = false,
+                        label = { textStyle ->
                             Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(id = R.string.plant_screen_text_field_label_description),
-                                color = colorScheme.onSurfaceVariant,
-                                style = if (description.isNullOrEmpty()) typography.bodyLarge else typography.bodySmall
+                                text = "Description",
+                                style = textStyle,
+                                color = colorScheme.onSurfaceVariant
                             )
                         },
-                        supportingText = if (description?.isNotBlank() == true) {
-                            {
-                                Text("${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}")
+                        supportingText = if (description.isNotNull()) {
+                            { textStyle ->
+                                Text(
+                                    text = "${description.length}/${PlantDataConstraints.DESCRIPTION_MAX_LENGTH}",
+                                    style = textStyle,
+                                    color = colorScheme.onSurfaceVariant
+                                )
                             }
-                        } else null
+                        } else null,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                            }
+                        )
                     )
                 }
-                // Scroll indicator: TODO
-                // ScrollIndicator()
+                AnimatedVisibility(
+                    visible = isVerticalScrollIndicatorVisible,
+                    enter = slideInVertically(),
+                    exit = slideOutVertically()
+                ) {
+                    VerticalScrollIndicator(
+                        modifier = Modifier.fillMaxHeight(),
+                        scrollState = scrollState
+                    )
+                }
             }
         }
     }
+
 }
 
 @Preview(

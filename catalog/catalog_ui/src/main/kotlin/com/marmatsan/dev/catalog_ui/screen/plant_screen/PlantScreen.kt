@@ -53,14 +53,15 @@ fun PlantScreenRoot(
     val uiEventFlow = viewModel.uiEventFlow
 
     ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
-        // TODO
+        when (event) {
+            PlantScreenEvent.Navigate -> navigate()
+        }
     }
 
     PlantScreen(
         modifier = modifier,
         state = state,
-        onAction = onAction,
-        navigate = navigate
+        onAction = onAction
     )
 }
 
@@ -68,8 +69,7 @@ fun PlantScreenRoot(
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit,
-    navigate: () -> Unit
+    onAction: (PlantScreenAction) -> Unit
 ) {
     if (state.isWateringDaysDialogVisible) {
         PlantWateringDaysDialog(
@@ -119,16 +119,11 @@ fun PlantScreen(
             .padding(
                 all = spacing.default
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
     ) {
         Header(
-            modifier = modifier
-                .fillMaxSize()
-                .weight(5f)
-                .padding(
-                    all = spacing.default
-                ),
+            modifier = Modifier.weight(1f),
             removePhotoAvailable = state.plant.image != null,
             aiButtonAvailable = false,
             image = state.plant.image,
@@ -140,9 +135,7 @@ fun PlantScreen(
             }
         )
         PlantScreenForm(
-            modifier = modifier
-                .fillMaxSize()
-                .weight(5f),
+            modifier = Modifier.weight(1f),
             name = state.plant.name,
             wateringDays = state.plant.wateringDays,
             wateringTime = state.plant.wateringTime,
@@ -169,7 +162,8 @@ fun PlantScreen(
             }
         )
         ButtonContainer(
-            modifier = modifier
+            modifier = Modifier
+                .wrapContentHeight()
                 .background(
                     color = colorScheme.background
                 )
@@ -179,7 +173,6 @@ fun PlantScreen(
                 ),
             onCreatePlant = {
                 onAction(PlantScreenAction.OnCreatePlant)
-                navigate()
             },
             createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
         )
@@ -212,9 +205,11 @@ fun Header(
             illustrationDesign = IllustrationDesign.Four
         )
         HeaderContent(
-            modifier = modifier.padding(
-                all = spacing.medium
-            ),
+            modifier = Modifier
+                .padding(
+                    all = spacing.medium
+                )
+                .fillMaxSize(),
             removePhotoAvailable = removePhotoAvailable,
             aiButtonAvailable = aiButtonAvailable,
             image = image,
@@ -249,7 +244,7 @@ fun HeaderContent(
             modifier = Modifier
                 .wrapContentSize()
                 .padding(all = spacing.default),
-            AIButtonAvailable = aiButtonAvailable,
+            aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
         )
@@ -266,7 +261,10 @@ fun ButtonContainer(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(
+            space = spacing.default,
+            alignment = Alignment.CenterVertically
+        ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Button(
@@ -294,8 +292,7 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {},
-            navigate = {}
+            onAction = {}
         )
     }
 }
