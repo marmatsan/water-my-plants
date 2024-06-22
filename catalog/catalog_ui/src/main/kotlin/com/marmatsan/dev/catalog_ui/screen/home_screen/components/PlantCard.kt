@@ -2,15 +2,22 @@ package com.marmatsan.dev.catalog_ui.screen.home_screen.components
 
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.Card
@@ -21,10 +28,12 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,13 +42,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.marmatsan.core_ui.R
+import com.marmatsan.dev.catalog_domain.model.Plant
+import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
+import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
+import java.time.DayOfWeek
 
 object PlantCardDefaults {
     val minWidth: Dp = 168.dp
@@ -51,21 +65,15 @@ object PlantCardDefaults {
 @Composable
 fun PlantCard(
     modifier: Modifier = Modifier,
-    waterQuantity: String? = null,
-    wateringDay: String? = null,
-    image: Uri? = null,
-    name: String,
-    shortDescription: String,
+    plant: Plant,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier
+            .clip(shapes.medium)
             .defaultMinSize(
                 minWidth = PlantCardDefaults.minWidth,
                 minHeight = PlantCardDefaults.minHeight,
-            )
-            .clip(
-                shapes.medium
             )
             .clickable(
                 onClick = onClick
@@ -79,14 +87,16 @@ fun PlantCard(
     ) {
         PlantCardImage(
             modifier = Modifier.fillAvailableSpace(),
-            image = image
+            image = plant.image,
+            waterAmount = plant.waterAmount,
+            wateringDays = plant.wateringDays
         )
         Container(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            name = name,
-            shortDescription = shortDescription
+            name = plant.name,
+            shortDescription = plant.shortDescription
         )
     }
 }
@@ -94,33 +104,99 @@ fun PlantCard(
 @Composable
 private fun PlantCardImage(
     modifier: Modifier = Modifier,
-    image: Uri?
+    image: Uri?,
+    waterAmount: Int? = null,
+    wateringDays: List<DayOfWeek>? = null,
 ) {
-    if (image != null) {
-        CoilImage(
-            modifier = modifier,
-            imageOptions = ImageOptions(
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopStart
+    ) {
+        if (image.isNotNull())
+            CoilImage(
+                modifier = Modifier.fillMaxSize(),
+                imageOptions = ImageOptions(
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center
+                ),
+                imageModel = { image }
+            )
+        else
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                alignment = Alignment.Center,
+                painter = painterResource(id = R.drawable.plant_3_small),
+                contentScale = ContentScale.None,
+                contentDescription = null
+            )
+
+        // plant info
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(
+                    top = 12.dp,
+                    start = 12.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(
+                space = spacing.small,
+                alignment = Alignment.CenterVertically
             ),
-            imageModel = { image }
-        )
-    } else {
-        Image(
-            modifier = modifier,
-            alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.plant_3_small),
-            contentScale = ContentScale.None,
-            contentDescription = null
-        )
+            horizontalAlignment = Alignment.Start,
+        ) {
+            if (waterAmount.isNotNull())
+                Surface(
+                    modifier = Modifier
+                        .clip(shapes.extraSmall)
+                        .alpha(0.56f)
+                        .background(colorScheme.surface)
+                        .padding(
+                            horizontal = 6.dp,
+                            vertical = 2.dp
+                        )
+                ) {
+                    Text(
+                        text = "$waterAmount ml",
+                        style = typography.labelSmall,
+                        color = colorScheme.onSurface
+                    )
+                }
+
+            if (wateringDays.isNotNull())
+                Surface(
+                    modifier = Modifier
+                        .clip(shapes.extraSmall)
+                        .alpha(0.56f)
+                        .background(colorScheme.surface)
+                        .padding(
+                            horizontal = 6.dp,
+                            vertical = 2.dp
+                        )
+                        .wrapContentWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .widthIn(
+                                max = 80.dp
+                            )
+                            .basicMarquee(),
+                        text = wateringDays.toFormattedString(),
+                        style = typography.labelSmall,
+                        color = colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+        }
     }
 }
 
 @Composable
 private fun Container(
     modifier: Modifier = Modifier,
-    name: String,
-    shortDescription: String
+    name: String?,
+    shortDescription: String?
 ) {
     Row(
         modifier = modifier
@@ -150,18 +226,19 @@ private fun Container(
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = name,
+                text = name ?: String.Empty,
                 color = colorScheme.onSurface,
                 style = typography.titleSmall
             )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = shortDescription,
-                color = colorScheme.onSurfaceVariant,
-                style = typography.bodyMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (shortDescription.isNotNull())
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = shortDescription,
+                    color = colorScheme.onSurfaceVariant,
+                    style = typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
         }
         IconButton(
             modifier = Modifier.clip(shapes.small),
@@ -190,8 +267,11 @@ private fun Container(
 fun PlantCardWithoutPhotoPreview() {
     WaterMyPlantsTheme {
         PlantCard(
-            name = "Monstera",
-            shortDescription = "From Mexico",
+            plant = Plant(
+                name = "Monstera",
+                wateringDays = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                waterAmount = 50
+            ),
             onClick = {}
         )
     }

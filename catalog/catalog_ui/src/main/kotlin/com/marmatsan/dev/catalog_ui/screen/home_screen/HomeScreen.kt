@@ -28,7 +28,6 @@ import com.marmatsan.dev.catalog_ui.screen.home_screen.components.HomeScreenHead
 import com.marmatsan.dev.catalog_ui.screen.home_screen.components.HomeScreenTabs
 import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCard
 import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCardDefaults
-import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
@@ -125,8 +124,7 @@ fun HomeScreen(
                     ) {
                         items(state.plants) { plant ->
                             PlantCard(
-                                name = plant.name ?: String.Empty,
-                                shortDescription = plant.shortDescription ?: String.Empty,
+                                plant = plant,
                                 onClick = {
                                     navigate(plant)
                                 }

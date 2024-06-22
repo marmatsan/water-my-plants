@@ -24,6 +24,19 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+
+fun List<DayOfWeek>.toFormattedString(): String = this.joinToString(separator = ", ") { item ->
+    when (item) {
+        DayOfWeek.MONDAY -> "Monday"
+        DayOfWeek.TUESDAY -> "Tuesday"
+        DayOfWeek.WEDNESDAY -> "Wednesday"
+        DayOfWeek.THURSDAY -> "Thursday"
+        DayOfWeek.FRIDAY -> "Friday"
+        DayOfWeek.SATURDAY -> "Saturday"
+        DayOfWeek.SUNDAY -> "Sunday"
+    }
+}
 
 context (ColumnScope) fun Modifier.fillAvailableSpace() = this
     .fillMaxWidth()
