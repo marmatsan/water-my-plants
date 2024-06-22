@@ -1,6 +1,8 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
 import com.marmatsan.dev.core_ui.viewmodel.MVIViewModel
@@ -10,15 +12,23 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class PlantScreenViewModel(
-    private val plantScreenUseCases: PlantScreenUseCases
+    private val repository: CatalogRepository,
+    private val plantScreenUseCases: PlantScreenUseCases,
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : MVIViewModel<PlantScreenAction, PlantScreenEvent>() {
 
-    private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
+    private companion object {
+        private const val PLANT_ID_KEY = "plantId"
+    }
 
+    private val plantId: String? = savedStateHandle[PLANT_ID_KEY]
+
+    private val plantScreenStateFlow = MutableStateFlow(PlantScreenState())
     val state = plantScreenStateFlow.map { plantScreenState ->
         val isCreatePlantButtonEnabled = plantScreenUseCases.validatePlantDataUseCase(
             ValidatePlantDataParameters(
@@ -33,6 +43,16 @@ class PlantScreenViewModel(
         started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
         initialValue = PlantScreenState()
     )
+
+    init {
+        plantId?.let {
+            viewModelScope.launch {
+                plantScreenStateFlow.update { plantScreenState ->
+                    plantScreenState.copy(plant = repository.readPlantById(it))
+                }
+            }
+        }
+    }
 
     override fun handleAction(action: PlantScreenAction) {
         when (action) {
@@ -55,7 +75,7 @@ class PlantScreenViewModel(
             is PlantScreenAction.OnCreatePlant -> {
                 viewModelScope.launch {
                     plantScreenUseCases.insertPlantUseCase(input = plantScreenStateFlow.value.plant)
-                    sendEvent(event = PlantScreenEvent.Navigate)
+                    sendEvent(event = PlantScreenEvent.PlantCreated)
                 }
             }
 
@@ -157,5 +177,9 @@ class PlantScreenViewModel(
                 }
             }
         }
+    }
+
+    fun setPlantId(plantId: String?) {
+        savedStateHandle[PLANT_ID_KEY] = plantId
     }
 }

@@ -7,11 +7,11 @@ import org.gradle.api.initialization.Settings
 class DependenciesPlugin : Plugin<Settings> {
 
     object Versions {
-        const val APPLICATION_VERSION = "8.4.0"
+        const val APPLICATION_VERSION = "8.5.0"
         const val ACTIVITY_COMPOSE_VERSION = "1.9.0"
         const val ANDROID_COROUTINES_VERSION = "1.8.1"
         const val ASSERTK_VERSION = "0.28.1"
-        const val COMPOSE_BOM_VERSION = "2024.05.00"
+        const val COMPOSE_BOM_VERSION = "2024.06.00"
         const val COMPOSE_COMPILER_VERSION = "1.5.13"
         const val CORE_KTX_VERSION = "1.13.1"
         const val CORE_SPLASHSCREEN_VERSION = "1.1.0-rc01"
@@ -24,11 +24,11 @@ class DependenciesPlugin : Plugin<Settings> {
         const val LANDSCAPIST_VERSION = "2.3.3"
         const val LIFECYCLE_VERSION = "2.8.0"
         const val MOCKK_VERSION = "1.13.11"
-        const val NAVIGATION_COMPOSE_VERSION = "2.8.0-beta02"
+        const val NAVIGATION_COMPOSE_VERSION = "2.8.0-beta03"
         const val PROTOBUF_LIBRARY_VERSION = "4.26.1"
         const val PROTOBUF_PLUGIN_VERSION = "0.9.4"
-        const val REALM_VERSION = "2.0.0" // TODO: Waiting for release https://github.com/realm/realm-kotlin/blob/main/CHANGELOG.md
-        const val SERIALIZATION_VERSION = "1.6.3"
+        const val REALM_VERSION = "2.0.0"
+        const val SERIALIZATION_VERSION = "1.7.0"
     }
 
     override fun apply(settings: Settings) {

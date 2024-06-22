@@ -11,12 +11,13 @@ import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.welcome_screen.WelcomeScreen
+import com.marmatsan.dev.core_ui.screen.Screen
 import com.marmatsan.dev.watermyplants.MainActivityComponent
 
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
-    startDestination: Screen = Screen.PlantScreen,
+    startDestination: Screen = Screen.WelcomeScreen,
     mainActivityComponent: MainActivityComponent
 ) {
     NavHost(
@@ -25,12 +26,20 @@ fun SetupNavGraph(
     ) {
         composable<Screen.WelcomeScreen> {
             WelcomeScreen(
-                navigate = { navController.navigate(Screen.PlantScreen) }
+                navigate = {
+                    navController.navigate(Screen.PlantScreen())
+                }
             )
         }
         composable<Screen.PlantScreen> {
+            val args = it.toRoute<Screen.PlantScreen>()
+            val viewModel = viewModel {
+                mainActivityComponent.plantScreenViewModel(createSavedStateHandle())
+            }
+            viewModel.setPlantId(args.plantId)
+
             PlantScreenRoot(
-                viewModel = viewModel { mainActivityComponent.plantScreenViewModel },
+                viewModel = viewModel,
                 navigate = { navController.navigate(Screen.HomeScreen) }
             )
         }
@@ -44,17 +53,15 @@ fun SetupNavGraph(
         }
         composable<Screen.DetailScreen> {
             val args = it.toRoute<Screen.DetailScreen>()
-
             val viewModel = viewModel {
                 mainActivityComponent.detailScreenViewModel(createSavedStateHandle())
             }
-
             viewModel.setPlantId(args.plantId)
 
             DetailScreenRoot(
                 viewModel = viewModel,
-                navigate = {
-                    navController.navigate(Screen.HomeScreen)
+                navigate = { screen ->
+                    navController.navigate(screen)
                 }
             )
         }

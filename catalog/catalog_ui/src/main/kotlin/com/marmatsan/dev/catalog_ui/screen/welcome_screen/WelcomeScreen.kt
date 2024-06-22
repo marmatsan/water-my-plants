@@ -39,6 +39,7 @@ fun WelcomeScreen(
 ) {
     Column(
         modifier = modifier
+            .fillMaxSize()
             .background(
                 color = MaterialTheme.colorScheme.background
             )

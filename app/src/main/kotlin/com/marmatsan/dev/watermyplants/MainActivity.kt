@@ -25,7 +25,7 @@ import me.tatarka.inject.annotations.Component
 @Component
 abstract class MainActivityComponent(@Component val parent: ApplicationComponent) {
     abstract val splashScreenViewModel: SplashScreenViewModel
-    abstract val plantScreenViewModel: PlantScreenViewModel
+    abstract val plantScreenViewModel: (SavedStateHandle) -> PlantScreenViewModel
     abstract val homeScreenViewModel: HomeScreenViewModel
     abstract val detailScreenViewModel: (SavedStateHandle) -> DetailScreenViewModel
 }

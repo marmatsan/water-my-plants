@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.catalog_domain.model.Plant
-import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
@@ -57,7 +56,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Watering days",
-            text2 = plant?.wateringDays?.toFormattedString() ?: String.Empty
+            text2 = plant?.wateringDays?.toFormattedString() ?: "No watering days provided"
         )
         VerticalDivider(
             thickness = 1.dp,
@@ -68,7 +67,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Watering time",
-            text2 = plant?.wateringTime?.toString() ?: String.Empty
+            text2 = plant?.wateringTime?.toString() ?: "No watering time provided"
         )
         VerticalDivider(
             thickness = 1.dp,
@@ -79,7 +78,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Water amount",
-            text2 = if (plant?.waterAmount.isNotNull()) "${plant?.waterAmount} ml" else String.Empty
+            text2 = if (plant?.waterAmount.isNotNull()) "${plant?.waterAmount} ml" else "No water amount provided"
         )
     }
 }
@@ -104,10 +103,14 @@ private fun PlantDetailsLabel(
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .basicMarquee(),
+                .basicMarquee(
+                    iterations = Int.MAX_VALUE,
+                    repeatDelayMillis = 0,
+                    initialDelayMillis = 1000
+                ),
             text = text2,
             textAlign = TextAlign.Center,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             style = typography.bodyMedium
         )

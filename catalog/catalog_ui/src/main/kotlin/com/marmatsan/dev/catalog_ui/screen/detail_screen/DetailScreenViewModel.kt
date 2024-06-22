@@ -17,7 +17,7 @@ class DetailScreenViewModel(
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : MVIViewModel<DetailScreenAction, DetailScreenEvent>() {
 
-    companion object {
+    private companion object {
         private const val PLANT_ID_KEY = "plantId"
     }
 
@@ -34,10 +34,6 @@ class DetailScreenViewModel(
 
     override fun handleAction(action: DetailScreenAction) {
         when (action) {
-            DetailScreenAction.OnBackClick -> {
-                sendEvent(DetailScreenEvent.OnBack)
-            }
-
             DetailScreenAction.OnDropdownMenuClick -> {
                 detailScreenMutableStateFlow.update { detailScreenState ->
                     detailScreenState.copy(
@@ -54,15 +50,10 @@ class DetailScreenViewModel(
                     }
                 }
             }
-
-            DetailScreenAction.OnEditPlantClick -> {
-
-            }
         }
     }
 
     fun setPlantId(plantId: String) {
         savedStateHandle[PLANT_ID_KEY] = plantId
     }
-
 }

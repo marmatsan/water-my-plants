@@ -1,5 +1,6 @@
 plugins {
     alias(plugins.plugins.com.android.library)
+    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     id("com.marmatsan.android")
     id("com.marmatsan.compose")
 }
@@ -15,4 +16,5 @@ dependencies {
     /* Libraries */
     implementation(libs.com.github.skydoves)
     implementation(libs.com.google.protobuf)
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
 }

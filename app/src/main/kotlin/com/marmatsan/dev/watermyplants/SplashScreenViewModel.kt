@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
-import com.marmatsan.dev.watermyplants.navigation.Screen
+import com.marmatsan.dev.core_ui.screen.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest

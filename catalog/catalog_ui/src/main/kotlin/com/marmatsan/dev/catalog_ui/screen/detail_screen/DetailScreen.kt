@@ -46,6 +46,7 @@ import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
+import com.marmatsan.dev.core_ui.screen.Screen
 import com.marmatsan.dev.core_ui.theme.ShapeDefaults
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
@@ -59,15 +60,14 @@ import java.time.LocalTime
 fun DetailScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: DetailScreenViewModel,
-    navigate: () -> Unit
+    navigate: (Screen) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val onAction = viewModel::onAction
 
     ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { detailScreenEvent ->
         when (detailScreenEvent) {
-            DetailScreenEvent.PlantDeleted -> navigate()
-            DetailScreenEvent.OnBack -> navigate()
+            DetailScreenEvent.PlantDeleted -> navigate(Screen.HomeScreen)
         }
     }
 
@@ -82,7 +82,8 @@ fun DetailScreenRoot(
         DetailScreen(
             modifier = modifier,
             state = state,
-            onAction = onAction
+            onAction = onAction,
+            navigate = navigate
         )
     }
 }
@@ -91,10 +92,12 @@ fun DetailScreenRoot(
 fun DetailScreen(
     modifier: Modifier = Modifier,
     state: DetailScreenState = DetailScreenState(),
-    onAction: (DetailScreenAction) -> Unit
+    onAction: (DetailScreenAction) -> Unit,
+    navigate: (Screen) -> Unit
 ) {
     Column(
         modifier = modifier
+            .fillMaxSize()
             .background(
                 color = colorScheme.background
             )
@@ -113,13 +116,13 @@ fun DetailScreen(
                 plant = state.plant,
                 isDropdownMenuVisible = state.isDropdownMenuVisible,
                 onBackClick = {
-                    onAction(DetailScreenAction.OnBackClick)
+                    navigate(Screen.HomeScreen)
                 },
                 onDropdownMenuClick = {
                     onAction(DetailScreenAction.OnDropdownMenuClick)
                 },
                 onEditPlantClick = {
-                    onAction(DetailScreenAction.OnEditPlantClick)
+                    navigate(Screen.PlantScreen(state.plant.id))
                 },
                 onDeletePlantClick = {
                     onAction(DetailScreenAction.OnDeletePlantClick)
@@ -272,9 +275,7 @@ private fun Header(
                     }
                 }
             )
-            PlantDetails(
-                plant = plant
-            )
+            PlantDetails(plant = plant)
         }
     }
 }
@@ -361,10 +362,11 @@ private fun DetailScreenPreview() {
                     description = "The Monstera plant, scientifically known as Monstera deliciosa, is a popular tropical houseplant with distinctive, broad, glossy leaves that are often full of natural holes, giving it a unique and attractive appearance. Here are some key features and care tips for the Monstera plant:\u2028\u2028Foliage: Monstera plants are known for their large, fenestrated leaves. The fenestrations, or natural holes, in the leaves contribute to their iconic look. As the plant matures, these holes become more pronounced.\u2028\u2028Growth: Monstera plants are climbers by nature. In their natural habitat, they use aerial roots to climb up trees. Indoors, they can be trained to climb a support or left to cascade as a hanging plant.\u2028\u2028Light: They thrive in bright, indirect light. While they can tolerate lower light conditions, they may not grow as vigorously. Avoid direct sunlight, as it can scorch the leaves.\u2028\u2028Watering: Monstera plants prefer consistently moist soil but not waterlogged. Allow the top inch of soil to dry out between waterings. Overwatering can lead to root rot.  \u2028\u2028Temperature and Humidity: They prefer warm and humid conditions. Keep them in a room with temperatures between 65-80°F (18-27°C). Regular misting or placing a tray of water nearby can help maintain humidity.\u2028\u2028Soil: Use a well-draining potting mix with organic matter. Aroid or orchid mixes work well. Repot every couple of years or when the plant outgrows its container.\u2028\u2028Propagation: Monstera plants can be propagated through stem cuttings. Cut a healthy stem with a node and root it in water or directly in soil.  \u2028\u2028Pruning: Regular pruning can help control the size and shape of the plant. Cut back unwanted stems or leaves using clean, sharp scissors.  Monstera plants are not only appreciated for their aesthetic appeal but also for their relatively easy care compared to some other tropical plants. They make excellent additions to indoor spaces and are popular choices among plant enthusiasts.",
                     wateringDays = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
                     wateringTime = LocalTime.parse("18:00"),
-                    waterAmount = 500
+                    waterAmount = null
                 )
             ),
-            onAction = {}
+            onAction = {},
+            navigate = {}
         )
     }
 }

@@ -54,14 +54,15 @@ fun PlantScreenRoot(
 
     ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
         when (event) {
-            PlantScreenEvent.Navigate -> navigate()
+            PlantScreenEvent.PlantCreated -> navigate()
         }
     }
 
     PlantScreen(
         modifier = modifier,
         state = state,
-        onAction = onAction
+        onAction = onAction,
+        navigate = navigate
     )
 }
 
@@ -69,7 +70,8 @@ fun PlantScreenRoot(
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit
+    onAction: (PlantScreenAction) -> Unit,
+    navigate: () -> Unit
 ) {
     if (state.isWateringDaysDialogVisible) {
         PlantWateringDaysDialog(
@@ -132,7 +134,8 @@ fun PlantScreen(
             },
             onRemoveImage = {
                 onAction(PlantScreenAction.OnRemoveImage)
-            }
+            },
+            navigate = navigate
         )
         PlantScreenForm(
             modifier = Modifier.weight(1f),
@@ -186,7 +189,8 @@ fun Header(
     aiButtonAvailable: Boolean = false,
     image: Uri? = null,
     onAddImage: ((Uri) -> Unit)? = null,
-    onRemoveImage: (() -> Unit)? = null
+    onRemoveImage: (() -> Unit)? = null,
+    navigate: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -214,7 +218,8 @@ fun Header(
             aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
-            onRemoveImage = onRemoveImage
+            onRemoveImage = onRemoveImage,
+            navigate = navigate
         )
     }
 }
@@ -226,7 +231,8 @@ fun HeaderContent(
     aiButtonAvailable: Boolean = false,
     onAddImage: ((Uri) -> Unit)? = null,
     image: Uri? = null,
-    onRemoveImage: (() -> Unit)? = null
+    onRemoveImage: (() -> Unit)? = null,
+    navigate: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -238,6 +244,7 @@ fun HeaderContent(
                 .fillMaxWidth()
                 .padding(all = spacing.default),
             showSecondaryButton = removePhotoAvailable,
+            onPrimaryIconButtonClick = navigate,
             onSecondaryIconButtonClick = onRemoveImage
         )
         PlantScreenActions(
@@ -292,7 +299,8 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {}
+            onAction = {},
+            navigate = {}
         )
     }
 }
