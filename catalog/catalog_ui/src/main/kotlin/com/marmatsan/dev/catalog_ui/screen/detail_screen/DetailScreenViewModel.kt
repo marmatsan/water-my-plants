@@ -35,7 +35,7 @@ class DetailScreenViewModel(
     override fun handleAction(action: DetailScreenAction) {
         when (action) {
             DetailScreenAction.OnBackClick -> {
-
+                sendEvent(DetailScreenEvent.OnBack)
             }
 
             DetailScreenAction.OnDropdownMenuClick -> {

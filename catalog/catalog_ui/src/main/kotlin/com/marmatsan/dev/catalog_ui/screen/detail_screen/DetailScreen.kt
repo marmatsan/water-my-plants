@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.core_ui.R
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.components.PlantDetails
-import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
@@ -67,6 +67,7 @@ fun DetailScreenRoot(
     ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { detailScreenEvent ->
         when (detailScreenEvent) {
             DetailScreenEvent.PlantDeleted -> navigate()
+            DetailScreenEvent.OnBack -> navigate()
         }
     }
 
@@ -106,10 +107,10 @@ fun DetailScreen(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        state.plant?.let { plant ->
+        if (state.plant.isNotNull()) {
             PlantDetailsContainer(
                 modifier = Modifier.weight(1f),
-                plant = plant,
+                plant = state.plant,
                 isDropdownMenuVisible = state.isDropdownMenuVisible,
                 onBackClick = {
                     onAction(DetailScreenAction.OnBackClick)
@@ -124,17 +125,17 @@ fun DetailScreen(
                     onAction(DetailScreenAction.OnDeletePlantClick)
                 }
             )
-            Button(
-                modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
-                labelText = "Mark as watered",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Outlined.WaterDrop,
-                        contentDescription = null
-                    )
-                }
-            )
         }
+        Button(
+            modifier = Modifier.height(ButtonDefaults.MinHeight + density.positiveTwo),
+            labelText = "Mark as watered",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.WaterDrop,
+                    contentDescription = null
+                )
+            }
+        )
     }
 }
 
@@ -162,15 +163,12 @@ private fun PlantDetailsContainer(
             onDropdownMenuClick = onDropdownMenuClick,
             onEditPlantClick = onEditPlantClick,
             onDeletePlantClick = onDeletePlantClick,
-            wateringDays = plant.wateringDays.toString(),
-            wateringTime = plant.wateringTime.toString(),
-            waterAmount = plant.waterAmount.toString(),
+            plant = plant,
             isDropdownMenuVisible = isDropdownMenuVisible
         )
         PlantInfo(
             modifier = modifier,
-            plantName = plant.name ?: String.Empty,
-            plantDescription = plant.description ?: String.Empty
+            plant = plant
         )
     }
 }
@@ -178,13 +176,11 @@ private fun PlantDetailsContainer(
 @Composable
 private fun Header(
     modifier: Modifier = Modifier,
+    plant: Plant? = null,
     onBackClick: () -> Unit,
     onDropdownMenuClick: () -> Unit,
     onEditPlantClick: () -> Unit,
     onDeletePlantClick: () -> Unit,
-    wateringDays: String,
-    wateringTime: String,
-    waterAmount: String,
     isDropdownMenuVisible: Boolean
 ) {
     Box(
@@ -277,9 +273,7 @@ private fun Header(
                 }
             )
             PlantDetails(
-                wateringDays = wateringDays,
-                wateringTime = wateringTime,
-                waterAmount = waterAmount
+                plant = plant
             )
         }
     }
@@ -315,18 +309,8 @@ private fun HeaderBackground(
 @Composable
 private fun PlantInfo(
     modifier: Modifier = Modifier,
-    plantName: String,
-    plantDescription: String
+    plant: Plant? = null
 ) {
-
-    @Composable
-    fun PlantDescription() {
-        Text(
-            text = plantDescription,
-            style = typography.bodyLarge
-        )
-    }
-
     Column(
         modifier = modifier
             .background(
@@ -347,12 +331,22 @@ private fun PlantInfo(
         verticalArrangement = Arrangement.spacedBy(spacing.semiLarge, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // plant-name
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = plantName,
+            text = plant?.name ?: "Plant name not available",
             style = typography.headlineLarge
         )
-        PlantDescription()
+
+        // plant-description
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = if (plant?.description.isNotNull())
+                "${plant?.description}"
+            else
+                "Description not available",
+            style = typography.bodyLarge
+        )
     }
 }
 

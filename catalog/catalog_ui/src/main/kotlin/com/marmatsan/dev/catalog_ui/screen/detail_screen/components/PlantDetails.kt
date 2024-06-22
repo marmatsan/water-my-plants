@@ -24,15 +24,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.marmatsan.dev.catalog_domain.model.Plant
+import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNotNull
+import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.spacing
+import java.time.DayOfWeek
+import java.time.LocalTime
 
 @Composable
 fun PlantDetails(
     modifier: Modifier = Modifier,
-    wateringDays: String,
-    wateringTime: String,
-    waterAmount: String
+    plant: Plant? = null
 ) {
     Row(
         modifier = modifier
@@ -53,7 +57,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Watering days",
-            text2 = wateringDays
+            text2 = plant?.wateringDays?.toFormattedString() ?: String.Empty
         )
         VerticalDivider(
             thickness = 1.dp,
@@ -64,7 +68,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Watering time",
-            text2 = wateringTime
+            text2 = plant?.wateringTime?.toString() ?: String.Empty
         )
         VerticalDivider(
             thickness = 1.dp,
@@ -75,7 +79,7 @@ fun PlantDetails(
                 .wrapContentSize()
                 .weight(0.33f),
             text1 = "Water amount",
-            text2 = "$waterAmount ml"
+            text2 = if (plant?.waterAmount.isNotNull()) "${plant?.waterAmount} ml" else String.Empty
         )
     }
 }
@@ -117,9 +121,11 @@ private fun PlantDetailsLabel(
 private fun PlantDetailsPreview() {
     WaterMyPlantsTheme {
         PlantDetails(
-            wateringDays = "Monday, Tuesday",
-            wateringTime = "18:00",
-            waterAmount = "500"
+            plant = Plant(
+                wateringDays = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                wateringTime = LocalTime.of(18, 0),
+                waterAmount = 500
+            )
         )
     }
 }
