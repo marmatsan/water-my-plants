@@ -40,7 +40,7 @@ fun HomeScreenHeader(
             .wrapContentHeight()
             .padding(
                 PaddingValues(
-                    horizontal = spacing.default,
+                    horizontal = spacing.none,
                     vertical = if (isSearching != true) spacing.small else spacing.extraSmall,
                 )
             ),
@@ -110,7 +110,7 @@ private fun TrailingElements(
 ) {
     Row(
         modifier = Modifier
-            .padding(all = spacing.default)
+            .padding(all = spacing.none)
             .wrapContentSize(),
         horizontalArrangement = Arrangement.spacedBy(spacing.small, Alignment.Start),
         verticalAlignment = Alignment.Top,

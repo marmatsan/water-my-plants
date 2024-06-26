@@ -67,7 +67,7 @@ fun Button(
                 icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
-                        start = if (icon != null) spacing.small else spacing.default
+                        start = if (icon != null) spacing.small else spacing.none
                     ),
                     text = labelText,
                     style = typography.labelLarge
@@ -85,7 +85,7 @@ fun Button(
                 icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
-                        start = if (icon != null) spacing.small else spacing.default
+                        start = if (icon != null) spacing.small else spacing.none
                     ),
                     text = labelText,
                     style = typography.labelLarge
@@ -103,7 +103,7 @@ fun Button(
                 icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
-                        start = if (icon != null) spacing.small else spacing.default
+                        start = if (icon != null) spacing.small else spacing.none
                     ),
                     text = labelText,
                     style = typography.labelLarge
@@ -121,7 +121,7 @@ fun Button(
                 icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
-                        start = if (icon != null) spacing.small else spacing.default
+                        start = if (icon != null) spacing.small else spacing.none
                     ),
                     text = labelText,
                     style = typography.labelLarge
@@ -140,7 +140,7 @@ fun Button(
                 icon?.invoke()
                 Text(
                     modifier = Modifier.padding(
-                        start = if (icon != null) spacing.small else spacing.default
+                        start = if (icon != null) spacing.small else spacing.none
                     ),
                     text = labelText,
                     style = typography.labelLarge

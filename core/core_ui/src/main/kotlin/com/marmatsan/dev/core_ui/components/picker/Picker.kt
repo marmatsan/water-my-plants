@@ -56,11 +56,11 @@ fun Picker(
                 onClick = { onClick?.invoke() }
             )
             .padding(
-                horizontal = spacing.default,
+                horizontal = spacing.none,
                 vertical = spacing.extraSmall
             ),
         horizontalArrangement = Arrangement.spacedBy(
-            space = spacing.default,
+            space = spacing.none,
             alignment = Alignment.CenterHorizontally
         ),
         verticalAlignment = Alignment.CenterVertically,
@@ -71,12 +71,12 @@ fun Picker(
                 .weight(1f)
                 .padding(
                     start = spacing.medium,
-                    top = spacing.default,
-                    end = spacing.default,
-                    bottom = spacing.default
+                    top = spacing.none,
+                    end = spacing.none,
+                    bottom = spacing.none
                 ),
             verticalArrangement = Arrangement.spacedBy(
-                space = spacing.default,
+                space = spacing.none,
                 alignment = Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -49,7 +49,7 @@ fun Dialog(
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(
-                    spacing.default,
+                    spacing.none,
                     Alignment.CenterVertically
                 ),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -95,7 +95,7 @@ fun Content(
                 start = spacing.semiLarge,
                 end = spacing.semiLarge,
                 top = spacing.semiLarge,
-                bottom = if (content == null) spacing.default else spacing.semiLarge
+                bottom = if (content == null) spacing.none else spacing.semiLarge
             ),
         verticalArrangement = Arrangement.spacedBy(spacing.medium, Alignment.Top),
         horizontalAlignment = Alignment.Start
@@ -129,7 +129,7 @@ fun Actions(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.Top),
         horizontalAlignment = Alignment.End
     ) {
         Row(

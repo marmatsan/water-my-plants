@@ -102,9 +102,9 @@ fun DetailScreen(
                 color = colorScheme.background
             )
             .padding(
-                start = spacing.default,
-                top = spacing.default,
-                end = spacing.default,
+                start = spacing.none,
+                top = spacing.none,
+                end = spacing.none,
                 bottom = spacing.small
             ),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -155,7 +155,7 @@ private fun PlantDetailsContainer(
     Column(
         modifier = modifier
             .padding(
-                all = spacing.default
+                all = spacing.none
             ),
         verticalArrangement = Arrangement.spacedBy((-28).dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,

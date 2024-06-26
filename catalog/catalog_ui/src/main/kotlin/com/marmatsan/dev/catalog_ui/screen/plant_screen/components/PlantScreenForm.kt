@@ -110,7 +110,7 @@ fun PlantScreenForm(
                     start = spacing.medium,
                     top = spacing.medium,
                     end = spacing.medium,
-                    bottom = spacing.default
+                    bottom = spacing.none
                 ),
             verticalArrangement = Arrangement.spacedBy(
                 spacing.medium,
@@ -123,10 +123,10 @@ fun PlantScreenForm(
             Row(
                 modifier = Modifier
                     .padding(
-                        start = spacing.default,
-                        top = spacing.default,
-                        end = spacing.default,
-                        bottom = spacing.default
+                        start = spacing.none,
+                        top = spacing.none,
+                        end = spacing.none,
+                        bottom = spacing.none
                     ),
                 horizontalArrangement = Arrangement.spacedBy(
                     spacing.medium,
@@ -138,10 +138,10 @@ fun PlantScreenForm(
                 Column(
                     modifier = Modifier
                         .padding(
-                            start = spacing.default,
-                            top = spacing.default,
-                            end = spacing.default,
-                            bottom = spacing.default
+                            start = spacing.none,
+                            top = spacing.none,
+                            end = spacing.none,
+                            bottom = spacing.none
                         )
                         .weight(1f)
                         .fillMaxSize()
@@ -182,7 +182,7 @@ fun PlantScreenForm(
                     // Watering days, Watering time
                     Row(
                         modifier = Modifier
-                            .padding(all = spacing.default)
+                            .padding(all = spacing.none)
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         horizontalArrangement = Arrangement.spacedBy(
@@ -239,7 +239,7 @@ fun PlantScreenForm(
                     // Water amount, Plant size
                     Row(
                         modifier = Modifier
-                            .padding(all = spacing.default)
+                            .padding(all = spacing.none)
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         horizontalArrangement = Arrangement.spacedBy(

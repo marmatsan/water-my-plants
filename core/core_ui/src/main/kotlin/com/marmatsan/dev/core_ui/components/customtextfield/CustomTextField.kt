@@ -60,7 +60,7 @@ fun CustomTextField(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
         BasicTextField(
@@ -101,7 +101,7 @@ fun CustomTextField(
                     if (value.isNotEmpty() || isFocused) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(
-                                spacing.default,
+                                spacing.none,
                                 Alignment.Top
                             ),
                             horizontalAlignment = Alignment.Start,
@@ -122,7 +122,7 @@ fun CustomTextField(
                         start = spacing.medium,
                         top = spacing.extraSmall,
                         end = spacing.medium,
-                        bottom = spacing.default
+                        bottom = spacing.none
                     )
                     .wrapContentHeight()
             ) {

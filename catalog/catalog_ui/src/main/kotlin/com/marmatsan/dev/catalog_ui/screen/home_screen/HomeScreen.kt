@@ -83,10 +83,10 @@ fun HomeScreen(
             )
             Column(
                 modifier = Modifier.padding(
-                    horizontal = spacing.default,
+                    horizontal = spacing.none,
                     vertical = spacing.medium
                 ),
-                verticalArrangement = Arrangement.spacedBy(spacing.default, Alignment.Top),
+                verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 HomeScreenHeader(
@@ -117,7 +117,7 @@ fun HomeScreen(
                         modifier = Modifier,
                         contentPadding = PaddingValues(
                             horizontal = spacing.medium,
-                            vertical = spacing.default
+                            vertical = spacing.none
                         ),
                         columns = GridCells.Adaptive(minSize = PlantCardDefaults.minWidth),
                         horizontalArrangement = Arrangement.spacedBy(spacing.medium),

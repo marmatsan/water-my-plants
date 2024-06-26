@@ -103,7 +103,7 @@ fun Illustration(
             contentAlignment = Alignment.Center
         ) {
             Row(
-                modifier = Modifier.padding(all = spacing.default),
+                modifier = Modifier.padding(all = spacing.none),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

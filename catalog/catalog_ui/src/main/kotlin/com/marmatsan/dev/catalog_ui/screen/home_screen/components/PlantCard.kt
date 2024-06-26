@@ -217,9 +217,9 @@ private fun Container(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(all = spacing.default),
+                .padding(all = spacing.none),
             verticalArrangement = Arrangement.spacedBy(
-                spacing.default,
+                spacing.none,
                 Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.Start,

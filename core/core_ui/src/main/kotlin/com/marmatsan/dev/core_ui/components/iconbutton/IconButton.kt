@@ -33,7 +33,7 @@ enum class IconButtonStyle {
 @Composable
 fun IconButton(
     modifier: Modifier = Modifier,
-    padding: PaddingValues = PaddingValues(all = spacing.default),
+    padding: PaddingValues = PaddingValues(all = spacing.none),
     enabled: Boolean = true,
     iconButtonStyle: IconButtonStyle = IconButtonStyle.Standard,
     shape: Shape? = null,

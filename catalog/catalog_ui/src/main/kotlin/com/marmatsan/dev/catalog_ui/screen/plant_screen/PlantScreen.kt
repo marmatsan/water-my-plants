@@ -119,7 +119,7 @@ fun PlantScreen(
                 color = colorScheme.background
             )
             .padding(
-                all = spacing.default
+                all = spacing.none
             ),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
@@ -242,7 +242,7 @@ fun HeaderContent(
         TwoIconButtonsHeader(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = spacing.default),
+                .padding(all = spacing.none),
             showSecondaryButton = removePhotoAvailable,
             onPrimaryIconButtonClick = navigate,
             onSecondaryIconButtonClick = onRemoveImage
@@ -250,7 +250,7 @@ fun HeaderContent(
         PlantScreenActions(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(all = spacing.default),
+                .padding(all = spacing.none),
             aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
@@ -269,7 +269,7 @@ fun ButtonContainer(
             .wrapContentHeight()
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.default,
+            space = spacing.none,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally,

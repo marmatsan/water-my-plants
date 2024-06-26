@@ -44,10 +44,10 @@ fun WelcomeScreen(
                 color = MaterialTheme.colorScheme.background
             )
             .padding(
-                all = spacing.default
+                all = spacing.none
             ),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.default,
+            space = spacing.none,
             alignment = Alignment.Top
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,7 +56,7 @@ fun WelcomeScreen(
             modifier = modifier
                 .weight(0.33f)
                 .padding(
-                    all = spacing.default
+                    all = spacing.none
                 )
         )
         Body(
@@ -104,10 +104,10 @@ fun Body(
     Column(
         modifier = modifier
             .padding(
-                all = spacing.default
+                all = spacing.none
             ),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.default,
+            space = spacing.none,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -117,7 +117,7 @@ fun Body(
                 start = spacing.large,
                 top = spacing.extraLarge,
                 end = spacing.large,
-                bottom = spacing.default
+                bottom = spacing.none
             ),
             illustrationDesign = IllustrationDesign.One,
         )
@@ -126,7 +126,7 @@ fun Body(
                 .fillMaxSize()
                 .padding(
                     horizontal = spacing.large,
-                    vertical = spacing.default
+                    vertical = spacing.none
                 ),
             onCreatePlantClick = onCreatePlantClick
         )
@@ -148,7 +148,7 @@ fun Content(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(
-                    all = spacing.default
+                    all = spacing.none
                 )
         )
         Button(
