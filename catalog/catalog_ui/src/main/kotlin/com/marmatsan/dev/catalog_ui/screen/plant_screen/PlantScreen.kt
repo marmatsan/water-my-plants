@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ChangeCircle
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +33,7 @@ import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenFo
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantWateringDaysDialog
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantWateringTimeDialog
+import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
@@ -41,6 +45,8 @@ import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.spacing
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
+
+private val LocalPlantId = compositionLocalOf<String?> { null }
 
 @Composable
 fun PlantScreenRoot(
@@ -54,24 +60,24 @@ fun PlantScreenRoot(
 
     ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
         when (event) {
-            PlantScreenEvent.PlantCreated -> navigate()
+            PlantScreenEvent.PlantCreated, PlantScreenEvent.BackClicked -> navigate()
         }
     }
 
-    PlantScreen(
-        modifier = modifier,
-        state = state,
-        onAction = onAction,
-        navigate = navigate
-    )
+    CompositionLocalProvider(LocalPlantId provides viewModel.plantId) {
+        PlantScreen(
+            modifier = modifier,
+            state = state,
+            onAction = onAction
+        )
+    }
 }
 
 @Composable
 fun PlantScreen(
     modifier: Modifier = Modifier,
     state: PlantScreenState,
-    onAction: (PlantScreenAction) -> Unit,
-    navigate: () -> Unit
+    onAction: (PlantScreenAction) -> Unit
 ) {
     if (state.isWateringDaysDialogVisible) {
         PlantWateringDaysDialog(
@@ -132,10 +138,12 @@ fun PlantScreen(
             onAddImage = { imageUri ->
                 onAction(PlantScreenAction.OnAddImage(imageUri))
             },
+            onBackClick = {
+                onAction(PlantScreenAction.OnBackClick)
+            },
             onRemoveImage = {
                 onAction(PlantScreenAction.OnRemoveImage)
-            },
-            navigate = navigate
+            }
         )
         PlantScreenForm(
             modifier = Modifier.weight(1f),
@@ -189,8 +197,8 @@ fun Header(
     aiButtonAvailable: Boolean = false,
     image: Uri? = null,
     onAddImage: ((Uri) -> Unit)? = null,
-    onRemoveImage: (() -> Unit)? = null,
-    navigate: () -> Unit
+    onBackClick: (() -> Unit)? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -218,8 +226,8 @@ fun Header(
             aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
-            onRemoveImage = onRemoveImage,
-            navigate = navigate
+            onBackClick = onBackClick,
+            onRemoveImage = onRemoveImage
         )
     }
 }
@@ -231,8 +239,8 @@ fun HeaderContent(
     aiButtonAvailable: Boolean = false,
     onAddImage: ((Uri) -> Unit)? = null,
     image: Uri? = null,
-    onRemoveImage: (() -> Unit)? = null,
-    navigate: () -> Unit
+    onBackClick: (() -> Unit)? = null,
+    onRemoveImage: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier,
@@ -244,7 +252,7 @@ fun HeaderContent(
                 .fillMaxWidth()
                 .padding(all = spacing.none),
             showSecondaryButton = removePhotoAvailable,
-            onPrimaryIconButtonClick = navigate,
+            onPrimaryIconButtonClick = onBackClick,
             onSecondaryIconButtonClick = onRemoveImage
         )
         PlantScreenActions(
@@ -264,6 +272,8 @@ fun ButtonContainer(
     createPlantButtonIsEnabled: Boolean,
     onCreatePlant: () -> Unit
 ) {
+    val plantId = LocalPlantId.current
+
     Column(
         modifier = modifier
             .wrapContentHeight()
@@ -280,12 +290,13 @@ fun ButtonContainer(
                 .height(ButtonDefaults.MinHeight + density.positiveFour),
             enabled = createPlantButtonIsEnabled,
             buttonStyle = ButtonStyle.Outlined,
-            labelText = "Create plant",
+            labelText = if (plantId.isNull()) "Create plant" else "Update plant",
             icon = {
+                val icon = if (plantId.isNull()) Icons.Outlined.Add else Icons.Outlined.ChangeCircle
                 Icon(
                     modifier = Modifier.size(18.dp),
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = ""
+                    imageVector = icon,
+                    contentDescription = null
                 )
             },
             onClick = onCreatePlant
@@ -299,8 +310,7 @@ fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
-            onAction = {},
-            navigate = {}
+            onAction = {}
         )
     }
 }

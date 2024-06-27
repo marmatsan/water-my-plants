@@ -7,11 +7,11 @@ import java.time.LocalTime
 
 data class Plant(
     val id: String = String.Empty,
-    val image: Uri? = null,
     val name: String? = null,
     val wateringDays: List<DayOfWeek>? = null,
     val wateringTime: LocalTime? = null,
     val waterAmount: Int? = null,
+    val image: Uri? = null,
     val size: PlantSize? = null,
     val description: String? = null,
     val shortDescription: String? = null,

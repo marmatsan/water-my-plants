@@ -5,15 +5,11 @@ import com.marmatsan.dev.core_domain.result.Error
 import com.marmatsan.dev.core_domain.result.Result
 import com.marmatsan.dev.core_domain.usecase.NonSuspendingUseCase
 
-class ValidateWaterQuantityUseCase : NonSuspendingUseCase<String, Result<Int?, Error>>() {
+class ValidateWaterQuantityUseCase : NonSuspendingUseCase<String, Pair<Boolean, Int?>>() {
     override fun invoke(
         input: String
-    ): Result<Int?, Error> {
+    ): Pair<Boolean, Int?> {
         val intWaterAmount = input.toIntOrNull()
-        return if (input.length <= PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH) {
-            Result.Success(intWaterAmount)
-        } else {
-            Result.Error()
-        }
+        return Pair(input.length <= PlantDataConstraints.WATER_AMOUNT_MAX_LENGTH, intWaterAmount)
     }
 }

@@ -4,4 +4,5 @@ import com.marmatsan.dev.core_ui.event.Event
 
 sealed interface PlantScreenEvent : Event {
     data object PlantCreated : PlantScreenEvent
+    data object BackClicked : PlantScreenEvent
 }

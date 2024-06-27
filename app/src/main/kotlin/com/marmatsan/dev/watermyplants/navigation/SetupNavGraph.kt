@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
@@ -16,7 +17,7 @@ import com.marmatsan.dev.watermyplants.MainActivityComponent
 
 @Composable
 fun SetupNavGraph(
-    navController: NavHostController,
+    navController: NavHostController = rememberNavController(),
     startDestination: Screen = Screen.WelcomeScreen,
     mainActivityComponent: MainActivityComponent
 ) {
@@ -40,7 +41,9 @@ fun SetupNavGraph(
 
             PlantScreenRoot(
                 viewModel = viewModel,
-                navigate = { navController.navigate(Screen.HomeScreen) }
+                navigate = {
+                    navController.navigateUp()
+                }
             )
         }
         composable<Screen.HomeScreen> {

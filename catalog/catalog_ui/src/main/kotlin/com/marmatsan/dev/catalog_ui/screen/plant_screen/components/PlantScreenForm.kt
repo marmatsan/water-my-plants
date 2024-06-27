@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -34,9 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
@@ -94,14 +99,7 @@ fun PlantScreenForm(
         modifier = modifier.fillMaxSize(),
         shadowElevation = elevation.level3
     ) {
-        val scrollState = rememberScrollState()
         val keyboardController = LocalSoftwareKeyboardController.current
-
-        var isVerticalScrollIndicatorVisible by remember {
-            mutableStateOf(false)
-        }
-
-        isVerticalScrollIndicatorVisible = scrollState.maxValue != 0 && scrollState.maxValue != Int.MAX_VALUE
 
         // Form
         Column(
@@ -144,9 +142,7 @@ fun PlantScreenForm(
                             bottom = spacing.none
                         )
                         .weight(1f)
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .height(IntrinsicSize.Max),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(
                         spacing.medium,
                         Alignment.Top
@@ -164,7 +160,7 @@ fun PlantScreenForm(
                         },
                         label = {
                             Text(
-                                text = "Plant name"
+                                text = "Plant name*"
                             )
                         },
                         supportingText = if (name.isNotNull()) {
@@ -196,15 +192,6 @@ fun PlantScreenForm(
                                 .fillMaxWidth()
                                 .weight(5f)
                                 .height(TextFieldDefaults.MinHeight),
-                            label = {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = "Watering days*",
-                                    maxLines = 1,
-                                    color = colorScheme.onSurfaceVariant,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            },
                             value = wateringDays?.joinToString(separator = ", ") { item ->
                                 when (item) {
                                     DayOfWeek.MONDAY -> "Monday"
@@ -215,6 +202,15 @@ fun PlantScreenForm(
                                     DayOfWeek.SATURDAY -> "Saturday"
                                     DayOfWeek.SUNDAY -> "Sunday"
                                 }
+                            },
+                            label = {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "Watering days*",
+                                    maxLines = 1,
+                                    color = colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             },
                             onClick = onWateringDaysClick
                         )
@@ -253,10 +249,11 @@ fun PlantScreenForm(
                                 .fillMaxWidth()
                                 .weight(5f)
                                 .clearFocusOnKeyboardDismiss(),
-                            value = String.Empty,
+                            value = waterAmount?.toString() ?: String.Empty,
                             onValueChange = { newWaterAmount ->
                                 onWaterAmountChange?.invoke(newWaterAmount)
                             },
+                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                             label = {
                                 Text(
                                     text = "Water amount",
@@ -273,6 +270,15 @@ fun PlantScreenForm(
                                     )
                                 }
                             } else null,
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Number
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                }
+                            ),
                             suffix = {
                                 Text(
                                     text = "ml",
@@ -288,6 +294,14 @@ fun PlantScreenForm(
                                 .fillMaxWidth()
                                 .weight(5f)
                                 .height(TextFieldDefaults.MinHeight),
+                            value = plantSize?.let { plantSize ->
+                                when (plantSize) {
+                                    PlantSize.EXTRA_LARGE -> "Extra large"
+                                    PlantSize.LARGE -> "Large"
+                                    PlantSize.MEDIUM -> "Medium"
+                                    PlantSize.SMALL -> "Small"
+                                }
+                            },
                             label = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
@@ -296,14 +310,6 @@ fun PlantScreenForm(
                                     color = colorScheme.onSurfaceVariant,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                            },
-                            value = plantSize?.let { plantSize ->
-                                when (plantSize) {
-                                    PlantSize.EXTRA_LARGE -> "Extra large"
-                                    PlantSize.LARGE -> "Large"
-                                    PlantSize.MEDIUM -> "Medium"
-                                    PlantSize.SMALL -> "Small"
-                                }
                             },
                             onClick = onPlantSizeClick
                         )
@@ -343,16 +349,6 @@ fun PlantScreenForm(
                                 keyboardController?.hide()
                             }
                         )
-                    )
-                }
-                AnimatedVisibility(
-                    visible = isVerticalScrollIndicatorVisible,
-                    enter = slideInVertically(),
-                    exit = slideOutVertically()
-                ) {
-                    VerticalScrollIndicator(
-                        modifier = Modifier.fillMaxHeight(),
-                        scrollState = scrollState
                     )
                 }
             }

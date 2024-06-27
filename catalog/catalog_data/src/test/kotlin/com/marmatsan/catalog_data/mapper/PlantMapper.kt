@@ -1,102 +1,100 @@
 package com.marmatsan.catalog_data.mapper
 
 import assertk.assertThat
+import assertk.assertions.isDataClassEqualTo
 import assertk.assertions.isEqualTo
+import assertk.assertions.isEqualToWithGivenProperties
 import com.marmatsan.catalog_data.model.RealmPlant
 import com.marmatsan.dev.catalog_domain.model.Plant
-import com.marmatsan.dev.catalog_domain.model.PlantSize
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import org.junit.jupiter.params.provider.ArgumentsSource
 import java.time.DayOfWeek
 import java.time.LocalTime
+import java.util.stream.Stream
 
 class PlantMapperTest {
 
-    private lateinit var plantData: PlantData
-    private lateinit var realmPlantData: RealmPlantData
-
-    private data class PlantData(
-        val name: String = "Monstera",
-        val wateringDays: List<DayOfWeek> = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
-        val wateringTime: LocalTime = LocalTime.parse("18:00"),
-        val waterAmount: Int = 4000,
-        val size: PlantSize = PlantSize.LARGE,
-        val description: String = "Monstera plant",
-        val shortDescription: String = "Monstera plant short description",
-        val watered: Boolean = false
-    )
-
-    private data class RealmPlantData(
-        val name: String = "Monstera",
-        val wateringDays: String = "MONDAY,TUESDAY",
-        val wateringTime: String = "18:00",
-        val waterAmount: Int = 4000,
-        val size: String = "LARGE",
-        val description: String = "Monstera plant",
-        val shortDescription: String = "Monstera plant short description",
-        val watered: Boolean = false
-    )
-
-    @BeforeEach
-    fun setUp() {
-        plantData = PlantData()
-        realmPlantData = RealmPlantData()
-    }
-
-    @Test
-    fun `Given a Plant, toRealmPlant mapper outputs a correct RealmPlant`() {
-        // GIVEN
-        val plant = Plant(
-            name = plantData.name, // Uri to be mocked
-            wateringDays = plantData.wateringDays,
-            wateringTime = plantData.wateringTime,
-            waterAmount = plantData.waterAmount,
-            size = plantData.size,
-            description = plantData.description,
-            shortDescription = plantData.shortDescription,
-            watered = plantData.watered
-        )
-
-        // ACTION
-        val realmPlant = plant.toRealmPlant()
-
-        // ASSERTION
-        assertThat(realmPlant.name).isEqualTo(realmPlantData.name)
-        assertThat(realmPlant.wateringDays).isEqualTo(realmPlantData.wateringDays)
-        assertThat(realmPlant.wateringTime).isEqualTo(realmPlantData.wateringTime)
-        assertThat(realmPlant.waterAmount).isEqualTo(realmPlantData.waterAmount)
-        assertThat(realmPlant.size).isEqualTo(realmPlantData.size)
-        assertThat(realmPlant.description).isEqualTo(realmPlantData.description)
-        assertThat(realmPlant.shortDescription).isEqualTo(realmPlantData.shortDescription)
-        assertThat(realmPlant.watered).isEqualTo(realmPlantData.watered)
-    }
-
-    @Test
-    fun `Given a RealmPlant, toPlant mappers outputs a correct Plant`() {
-        // GIVEN
-        val realmPlant = RealmPlant().apply {
-            name = realmPlantData.name
-            wateringDays = realmPlantData.wateringDays
-            wateringTime = realmPlantData.wateringTime
-            waterAmount = realmPlantData.waterAmount
-            size = realmPlantData.size
-            description = realmPlantData.description
-            shortDescription = realmPlantData.shortDescription
-            watered = realmPlantData.watered
+    companion object {
+        class CustomArgumentProvider : ArgumentsProvider {
+            override fun provideArguments(context: ExtensionContext?): Stream<out Arguments> =
+                Stream.of(
+                    Arguments.of(
+                        Plant(),
+                        RealmPlant()
+                    ),
+                    Arguments.of(
+                        Plant(
+                            name = "Monstera"
+                        ),
+                        RealmPlant().apply {
+                            name = "Monstera"
+                        }
+                    ),
+                    Arguments.of(
+                        Plant(
+                            wateringDays = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)
+                        ),
+                        RealmPlant().apply {
+                            wateringDays = "MONDAY,TUESDAY"
+                        }
+                    ),
+                    Arguments.of(
+                        Plant(
+                            wateringTime = LocalTime.of(12, 0)
+                        ),
+                        RealmPlant().apply {
+                            wateringTime = "12:00"
+                        }
+                    )
+                )
         }
-
-        // ACTION
-        val plant = realmPlant.toPlant()
-
-        // ASSERTION
-        assertThat(plant.name).isEqualTo(plantData.name)
-        assertThat(plant.wateringDays).isEqualTo(plantData.wateringDays)
-        assertThat(plant.wateringTime).isEqualTo(plantData.wateringTime)
-        assertThat(plant.waterAmount).isEqualTo(plantData.waterAmount)
-        assertThat(plant.size).isEqualTo(plantData.size)
-        assertThat(plant.description).isEqualTo(plantData.description)
-        assertThat(plant.shortDescription).isEqualTo(plantData.shortDescription)
-        assertThat(plant.watered).isEqualTo(plantData.watered)
     }
 
+    @ParameterizedTest
+    @ArgumentsSource(CustomArgumentProvider::class)
+    fun `Given a Plant, toRealmPlant mapper outputs a correct RealmPlant`(
+        plantToMap: Plant,
+        expectedRealmPlant: RealmPlant
+    ) {
+        // GIVEN
+        // plantToMap and expectedRealmPlant
+
+        // ACTION
+        val realmPlant = plantToMap.toRealmPlant()
+
+        // ASSERTION
+        assertThat(realmPlant).isEqualToWithGivenProperties(
+            other = expectedRealmPlant,
+            properties = arrayOf(
+                RealmPlant::name,
+                RealmPlant::wateringDays,
+                RealmPlant::wateringTime,
+                RealmPlant::image,
+                RealmPlant::waterAmount,
+                RealmPlant::size,
+                RealmPlant::description,
+                RealmPlant::shortDescription,
+                RealmPlant::watered
+            )
+        )
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(CustomArgumentProvider::class)
+    fun `Given a RealmPlant, toPlant mappers outputs a correct Plant`(
+        expectedPlant: Plant,
+        realmPlantToMap: RealmPlant
+    ) {
+        // GIVEN
+        // plantToMap and expectedRealmPlant
+
+        // ACTION
+        val plant = realmPlantToMap.toPlant()
+
+        // ASSERTION
+        assertThat(plant).isDataClassEqualTo(expectedPlant)
+    }
 }

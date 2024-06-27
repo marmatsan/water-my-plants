@@ -84,7 +84,6 @@ class MainActivity : ComponentActivity() {
                 val startDestination = splashScreenViewModelState.startDestination
 
                 SetupNavGraph(
-                    navController = rememberNavController(),
                     startDestination = startDestination,
                     mainActivityComponent = mainActivityComponent
                 )

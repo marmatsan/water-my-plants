@@ -14,7 +14,7 @@ data class Density(
     val negativeThree: Dp = -(4 * baseDensity.value).dp,
     val negativeTwo: Dp = -(3 * baseDensity.value).dp,
     val negativeOne: Dp = -(2 * baseDensity.value).dp,
-    val zero: Dp = 0.dp,
+    val none: Dp = 0.dp,
     val positiveOne: Dp = baseDensity,
     val positiveTwo: Dp = (2 * baseDensity.value).dp,
     val positiveThree: Dp = (3 * baseDensity.value).dp,

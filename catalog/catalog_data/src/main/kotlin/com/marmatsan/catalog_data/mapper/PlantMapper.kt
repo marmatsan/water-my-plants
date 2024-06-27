@@ -5,13 +5,17 @@ import com.marmatsan.catalog_data.model.RealmPlant
 import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
+import com.marmatsan.dev.core_domain.isNull
+import org.mongodb.kbson.BsonObjectId
 import org.mongodb.kbson.ObjectId
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 fun Plant.toRealmPlant(): RealmPlant {
     return RealmPlant().apply {
-        id = if (this@toRealmPlant.id.isEmpty()) ObjectId() else ObjectId(this@toRealmPlant.id)
+        id = BsonObjectId(
+            this@toRealmPlant.id.ifEmpty { BsonObjectId().toHexString() }
+        )
         image = this@toRealmPlant.image?.toString()
         name = this@toRealmPlant.name
         wateringDays = this@toRealmPlant.wateringDays?.joinToString(",") { it.name }
@@ -26,22 +30,25 @@ fun Plant.toRealmPlant(): RealmPlant {
 
 fun RealmPlant.toPlant(): Plant {
     return Plant(
-        id = this@toPlant.id.toHexString(),
-        image = this@toPlant.image?.let { Uri.parse(it) },
-        name = this@toPlant.name ?: String.Empty,
+        id = this@toPlant.id?.toHexString() ?: String.Empty,
+        image = this@toPlant.image?.let {
+            Uri.parse(it)
+        },
+        name = this@toPlant.name,
         wateringDays = this@toPlant.wateringDays
             ?.split(",")
-            ?.filter {
-                it != "null"
-            }?.map {
+            ?.map {
                 DayOfWeek.valueOf(it)
             },
-        wateringTime = LocalTime.parse(if (this@toPlant.wateringTime == "null") "18:00" else this@toPlant.wateringTime),
+        wateringTime = this@toPlant.wateringTime?.let {
+            LocalTime.parse(it)
+        },
         waterAmount = this@toPlant.waterAmount,
-        size = if (this@toPlant.size == "null" || this@toPlant.size == null) PlantSize.SMALL else
-            PlantSize.valueOf(this@toPlant.size!!),
+        size = this@toPlant.size?.let {
+            PlantSize.valueOf(it)
+        },
         description = this@toPlant.description,
-        shortDescription = this@toPlant.shortDescription ?: String.Empty,
+        shortDescription = this@toPlant.shortDescription,
         watered = this@toPlant.watered
     )
 }

@@ -47,7 +47,10 @@ fun PlantSizeDialog(
             List(
                 plantSize = currentPlantSize,
                 onPlantSizeChange = { newSelectedPlantSize ->
-                    currentPlantSize = newSelectedPlantSize
+                    currentPlantSize = if (currentPlantSize == newSelectedPlantSize)
+                        null
+                    else
+                        newSelectedPlantSize
                 }
             )
         },
