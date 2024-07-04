@@ -119,9 +119,7 @@ fun WaterMyPlantsTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // TODO: bugfix-Only change if app theme is device theme is set to dark
-            // TODO: feature-Change to edge-to-edge https://developer.android.com/develop/ui/views/layout/edge-to-edge
-            window.statusBarColor = colorScheme.surface.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
                 !isSystemInDarkTheme
         }
