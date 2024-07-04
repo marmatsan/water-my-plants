@@ -12,7 +12,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenViewModel
 import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenViewModel
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenViewModel
@@ -20,10 +19,14 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.watermyplants.di.ApplicationComponent
 import com.marmatsan.dev.watermyplants.di.applicationComponent
 import com.marmatsan.dev.watermyplants.navigation.SetupNavGraph
+import com.marmatsan.dev.watermyplants.splashscreen.SplashScreenViewModel
+import com.marmatsan.dev.watermyplants.splashscreen.SplashScreenViewModelFactory
 import me.tatarka.inject.annotations.Component
 
 @Component
-abstract class MainActivityComponent(@Component val parent: ApplicationComponent) {
+abstract class MainActivityComponent(
+    @Component val parent: ApplicationComponent
+) {
     abstract val splashScreenViewModel: SplashScreenViewModel
     abstract val plantScreenViewModel: (SavedStateHandle) -> PlantScreenViewModel
     abstract val homeScreenViewModel: HomeScreenViewModel

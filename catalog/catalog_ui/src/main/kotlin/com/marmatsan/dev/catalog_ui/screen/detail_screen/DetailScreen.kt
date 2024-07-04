@@ -50,7 +50,7 @@ import com.marmatsan.dev.core_ui.screen.Screen
 import com.marmatsan.dev.core_ui.theme.ShapeDefaults
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import java.time.DayOfWeek
@@ -102,10 +102,10 @@ fun DetailScreen(
                 color = colorScheme.background
             )
             .padding(
-                start = spacing.none,
-                top = spacing.none,
-                end = spacing.none,
-                bottom = spacing.small
+                start = padding.none,
+                top = padding.none,
+                end = padding.none,
+                bottom = padding.small
             ),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -155,7 +155,7 @@ private fun PlantDetailsContainer(
     Column(
         modifier = modifier
             .padding(
-                all = spacing.none
+                all = padding.none
             ),
         verticalArrangement = Arrangement.spacedBy((-28).dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
@@ -192,9 +192,9 @@ private fun Header(
         HeaderBackground()
         Column(
             modifier = modifier.padding(
-                start = spacing.medium,
-                top = spacing.medium,
-                end = spacing.medium,
+                start = padding.medium,
+                top = padding.medium,
+                end = padding.medium,
                 bottom = 56.dp
             ),
             verticalArrangement = Arrangement.SpaceBetween,
@@ -324,12 +324,12 @@ private fun PlantInfo(
                 )
             )
             .padding(
-                start = spacing.large,
-                top = spacing.large,
-                end = spacing.large,
-                bottom = spacing.medium
+                start = padding.large,
+                top = padding.large,
+                end = padding.large,
+                bottom = padding.medium
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.semiLarge, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(padding.semiLarge, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // plant-name

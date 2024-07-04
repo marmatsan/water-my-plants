@@ -29,7 +29,7 @@ import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun PlantScreenActions(
@@ -51,7 +51,7 @@ fun PlantScreenActions(
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(
-            spacing.small,
+            padding.small,
             Alignment.CenterHorizontally
         ),
         verticalAlignment = Alignment.CenterVertically,

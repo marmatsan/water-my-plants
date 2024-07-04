@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun Picker(
@@ -56,11 +56,11 @@ fun Picker(
                 onClick = { onClick?.invoke() }
             )
             .padding(
-                horizontal = spacing.none,
-                vertical = spacing.extraSmall
+                horizontal = padding.none,
+                vertical = padding.extraSmall
             ),
         horizontalArrangement = Arrangement.spacedBy(
-            space = spacing.none,
+            space = padding.none,
             alignment = Alignment.CenterHorizontally
         ),
         verticalAlignment = Alignment.CenterVertically,
@@ -70,13 +70,13 @@ fun Picker(
             modifier = Modifier
                 .weight(1f)
                 .padding(
-                    start = spacing.medium,
-                    top = spacing.none,
-                    end = spacing.none,
-                    bottom = spacing.none
+                    start = padding.medium,
+                    top = padding.none,
+                    end = padding.none,
+                    bottom = padding.none
                 ),
             verticalArrangement = Arrangement.spacedBy(
-                space = spacing.none,
+                space = padding.none,
                 alignment = Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.CenterHorizontally,

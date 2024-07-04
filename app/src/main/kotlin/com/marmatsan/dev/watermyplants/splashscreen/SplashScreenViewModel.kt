@@ -1,4 +1,4 @@
-package com.marmatsan.dev.watermyplants
+package com.marmatsan.dev.watermyplants.splashscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

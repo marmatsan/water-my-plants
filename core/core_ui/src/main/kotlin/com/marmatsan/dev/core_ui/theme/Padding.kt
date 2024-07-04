@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Stable
-data class Spacing(
+data class Padding(
     val none: Dp = 0.dp,
     val extraSmall: Dp = 4.dp,
     val small: Dp = 8.dp,
@@ -18,10 +18,10 @@ data class Spacing(
     val extraLarge: Dp = 64.dp
 )
 
-val LocalSpacing = compositionLocalOf { Spacing() }
+val LocalPadding = compositionLocalOf { Padding() }
 
-/** Retrieves the current [Spacing] at the call site's position in the hierarchy. */
-val spacing: Spacing
+/** Retrieves the current [Padding] at the call site's position in the hierarchy. */
+val padding: Padding
     @Composable
     @ReadOnlyComposable
-    get() = LocalSpacing.current
+    get() = LocalPadding.current

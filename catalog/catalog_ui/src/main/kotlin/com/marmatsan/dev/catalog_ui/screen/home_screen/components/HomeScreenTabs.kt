@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import com.marmatsan.dev.core_ui.util.shortSegmentOfGoldenRatio
 
 enum class TabPage {
@@ -112,7 +112,7 @@ fun HomeScreenTabs(
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 ),
                 end = Offset(
-                    x = selectedTabData.leftCorner.x + shortSegmentOfGoldenRatio(selectedTabData.textSize.width),
+                    x = selectedTabData.leftCorner.x + (selectedTabData.textSize.width - shortSegmentOfGoldenRatio(selectedTabData.textSize.width)) ,
                     y = selectedTabData.leftCorner.y + selectedTabData.textSize.height
                 )
             )
@@ -173,7 +173,7 @@ private fun HomeTab(
         modifier = modifier
             .wrapContentSize()
             .clickable(onClick = onClick)
-            .padding(spacing.medium)
+            .padding(padding.medium)
             .onGloballyPositioned { layoutCoordinates ->
                 layoutData?.invoke(layoutCoordinates.positionInParent(), layoutCoordinates.size)
             },

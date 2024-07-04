@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
 
 enum class IconButtonStyle {
     Standard,
@@ -33,7 +32,7 @@ enum class IconButtonStyle {
 @Composable
 fun IconButton(
     modifier: Modifier = Modifier,
-    padding: PaddingValues = PaddingValues(all = spacing.none),
+    padding: PaddingValues = PaddingValues(all = com.marmatsan.dev.core_ui.theme.padding.none),
     enabled: Boolean = true,
     iconButtonStyle: IconButtonStyle = IconButtonStyle.Standard,
     shape: Shape? = null,

@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun SearchBar(
@@ -97,10 +97,10 @@ fun SearchBar(
                             color = if (isFocused) colorScheme.outline else colorScheme.primary,
                             shape = shapes.extraLarge
                         )
-                        .padding(all = spacing.extraSmall)
+                        .padding(all = padding.extraSmall)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
-                        spacing.extraSmall,
+                        padding.extraSmall,
                         Alignment.Start
                     ),
                     verticalAlignment = Alignment.CenterVertically,

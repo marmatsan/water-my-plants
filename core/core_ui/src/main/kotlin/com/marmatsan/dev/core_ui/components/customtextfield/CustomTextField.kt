@@ -34,7 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun CustomTextField(
@@ -60,7 +60,7 @@ fun CustomTextField(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(padding.none, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
     ) {
         BasicTextField(
@@ -90,8 +90,8 @@ fun CustomTextField(
                         .clip(shapes.extraSmall)
                         .background(colorScheme.secondaryContainer)
                         .padding(
-                            horizontal = spacing.medium,
-                            vertical = spacing.small
+                            horizontal = padding.medium,
+                            vertical = padding.small
                         ),
                     contentAlignment = if (value.isNotEmpty() || isFocused)
                         Alignment.TopStart
@@ -101,7 +101,7 @@ fun CustomTextField(
                     if (value.isNotEmpty() || isFocused) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(
-                                spacing.none,
+                                padding.none,
                                 Alignment.Top
                             ),
                             horizontalAlignment = Alignment.Start,
@@ -119,10 +119,10 @@ fun CustomTextField(
             Box(
                 modifier = Modifier
                     .padding(
-                        start = spacing.medium,
-                        top = spacing.extraSmall,
-                        end = spacing.medium,
-                        bottom = spacing.none
+                        start = padding.medium,
+                        top = padding.extraSmall,
+                        end = padding.medium,
+                        bottom = padding.none
                     )
                     .wrapContentHeight()
             ) {

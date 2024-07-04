@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_domain.Empty
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalPadding
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 enum class ButtonStyle {
@@ -51,7 +51,7 @@ fun Button(
     icon: @Composable (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
-    val spacing = LocalSpacing.current
+    val spacing = LocalPadding.current
 
     val buttonModifier = modifier.height(ButtonDefaults.MinHeight)
 

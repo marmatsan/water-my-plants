@@ -1,22 +1,15 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -26,22 +19,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
@@ -50,12 +37,11 @@ import com.marmatsan.dev.core_domain.length
 import com.marmatsan.dev.core_ui.components.customtextfield.CustomTextField
 import com.marmatsan.dev.core_ui.components.picker.Picker
 import com.marmatsan.dev.core_ui.components.textfield.TextField
-import com.marmatsan.dev.core_ui.components.verticalscrollindicator.VerticalScrollIndicator
 import com.marmatsan.dev.core_ui.extension.bringIntoViewRequester
 import com.marmatsan.dev.core_ui.extension.clearFocusOnKeyboardDismiss
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.elevation
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import java.time.DayOfWeek
 import java.time.LocalTime
 
@@ -105,13 +91,13 @@ fun PlantScreenForm(
         Column(
             modifier = Modifier
                 .padding(
-                    start = spacing.medium,
-                    top = spacing.medium,
-                    end = spacing.medium,
-                    bottom = spacing.none
+                    start = padding.medium,
+                    top = padding.medium,
+                    end = padding.medium,
+                    bottom = padding.none
                 ),
             verticalArrangement = Arrangement.spacedBy(
-                spacing.medium,
+                padding.medium,
                 Alignment.Top
             ),
             horizontalAlignment = Alignment.Start,
@@ -121,13 +107,13 @@ fun PlantScreenForm(
             Row(
                 modifier = Modifier
                     .padding(
-                        start = spacing.none,
-                        top = spacing.none,
-                        end = spacing.none,
-                        bottom = spacing.none
+                        start = padding.none,
+                        top = padding.none,
+                        end = padding.none,
+                        bottom = padding.none
                     ),
                 horizontalArrangement = Arrangement.spacedBy(
-                    spacing.medium,
+                    padding.medium,
                     Alignment.CenterHorizontally
                 ),
                 verticalAlignment = Alignment.Top,
@@ -136,15 +122,15 @@ fun PlantScreenForm(
                 Column(
                     modifier = Modifier
                         .padding(
-                            start = spacing.none,
-                            top = spacing.none,
-                            end = spacing.none,
-                            bottom = spacing.none
+                            start = padding.none,
+                            top = padding.none,
+                            end = padding.none,
+                            bottom = padding.none
                         )
                         .weight(1f)
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(
-                        spacing.medium,
+                        padding.medium,
                         Alignment.Top
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -178,11 +164,11 @@ fun PlantScreenForm(
                     // Watering days, Watering time
                     Row(
                         modifier = Modifier
-                            .padding(all = spacing.none)
+                            .padding(all = padding.none)
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         horizontalArrangement = Arrangement.spacedBy(
-                            spacing.medium,
+                            padding.medium,
                             Alignment.CenterHorizontally
                         ),
                         verticalAlignment = Alignment.CenterVertically,
@@ -235,11 +221,11 @@ fun PlantScreenForm(
                     // Water amount, Plant size
                     Row(
                         modifier = Modifier
-                            .padding(all = spacing.none)
+                            .padding(all = padding.none)
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         horizontalArrangement = Arrangement.spacedBy(
-                            spacing.medium,
+                            padding.medium,
                             Alignment.CenterHorizontally
                         ),
                         verticalAlignment = Alignment.Top,

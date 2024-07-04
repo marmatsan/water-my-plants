@@ -30,7 +30,7 @@ import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun WelcomeScreen(
@@ -44,10 +44,10 @@ fun WelcomeScreen(
                 color = MaterialTheme.colorScheme.background
             )
             .padding(
-                all = spacing.none
+                all = padding.none
             ),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.none,
+            space = padding.none,
             alignment = Alignment.Top
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,7 +56,7 @@ fun WelcomeScreen(
             modifier = modifier
                 .weight(0.33f)
                 .padding(
-                    all = spacing.none
+                    all = padding.none
                 )
         )
         Body(
@@ -84,7 +84,7 @@ fun Header(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = spacing.large
+                    horizontal = padding.large
                 ),
             text = stringResource(id = R.string.welcome_screen_header),
             color = MaterialTheme.colorScheme.onBackground,
@@ -104,20 +104,20 @@ fun Body(
     Column(
         modifier = modifier
             .padding(
-                all = spacing.none
+                all = padding.none
             ),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.none,
+            space = padding.none,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Illustration(
             modifier = Modifier.padding(
-                start = spacing.large,
-                top = spacing.extraLarge,
-                end = spacing.large,
-                bottom = spacing.none
+                start = padding.large,
+                top = padding.extraLarge,
+                end = padding.large,
+                bottom = padding.none
             ),
             illustrationDesign = IllustrationDesign.One,
         )
@@ -125,8 +125,8 @@ fun Body(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    horizontal = spacing.large,
-                    vertical = spacing.none
+                    horizontal = padding.large,
+                    vertical = padding.none
                 ),
             onCreatePlantClick = onCreatePlantClick
         )
@@ -140,7 +140,7 @@ fun Content(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.large, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(padding.large, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Texts(
@@ -148,7 +148,7 @@ fun Content(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(
-                    all = spacing.none
+                    all = padding.none
                 )
         )
         Button(
@@ -175,7 +175,7 @@ fun Texts(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(
-            spacing.small,
+            padding.small,
             Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally,

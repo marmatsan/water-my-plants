@@ -28,7 +28,7 @@ import com.marmatsan.dev.catalog_domain.model.Plant
 import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import java.time.DayOfWeek
 import java.time.LocalTime
 
@@ -43,10 +43,10 @@ fun PlantDetails(
             .alpha(0.9f)
             .background(colorScheme.surface)
             .padding(
-                all = spacing.medium
+                all = padding.medium
             )
             .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(spacing.medium, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(padding.medium, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.Top,
     ) {
         val colorScheme = colorScheme
@@ -91,7 +91,7 @@ private fun PlantDetailsLabel(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(spacing.small, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(padding.small, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(

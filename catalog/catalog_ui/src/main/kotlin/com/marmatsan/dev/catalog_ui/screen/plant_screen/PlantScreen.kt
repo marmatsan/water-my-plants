@@ -42,7 +42,7 @@ import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsH
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 
@@ -125,7 +125,7 @@ fun PlantScreen(
                 color = colorScheme.background
             )
             .padding(
-                all = spacing.none
+                all = padding.none
             ),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
@@ -179,8 +179,8 @@ fun PlantScreen(
                     color = colorScheme.background
                 )
                 .padding(
-                    horizontal = spacing.medium,
-                    vertical = spacing.small
+                    horizontal = padding.medium,
+                    vertical = padding.small
                 ),
             onCreatePlant = {
                 onAction(PlantScreenAction.OnCreatePlant)
@@ -219,7 +219,7 @@ fun Header(
         HeaderContent(
             modifier = Modifier
                 .padding(
-                    all = spacing.medium
+                    all = padding.medium
                 )
                 .fillMaxSize(),
             removePhotoAvailable = removePhotoAvailable,
@@ -250,7 +250,7 @@ fun HeaderContent(
         TwoIconButtonsHeader(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = spacing.none),
+                .padding(all = padding.none),
             showSecondaryButton = removePhotoAvailable,
             onPrimaryIconButtonClick = onBackClick,
             onSecondaryIconButtonClick = onRemoveImage
@@ -258,7 +258,7 @@ fun HeaderContent(
         PlantScreenActions(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(all = spacing.none),
+                .padding(all = padding.none),
             aiButtonAvailable = aiButtonAvailable,
             image = image,
             onAddImage = onAddImage,
@@ -279,7 +279,7 @@ fun ButtonContainer(
             .wrapContentHeight()
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(
-            space = spacing.none,
+            space = padding.none,
             alignment = Alignment.CenterVertically
         ),
         horizontalAlignment = Alignment.CenterHorizontally,

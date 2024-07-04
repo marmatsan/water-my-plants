@@ -34,7 +34,7 @@ import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun HomeScreenRoot(
@@ -83,15 +83,15 @@ fun HomeScreen(
             )
             Column(
                 modifier = Modifier.padding(
-                    horizontal = spacing.none,
-                    vertical = spacing.medium
+                    horizontal = padding.none,
+                    vertical = padding.medium
                 ),
-                verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.Top),
+                verticalArrangement = Arrangement.spacedBy(padding.none, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 HomeScreenHeader(
                     modifier = Modifier.padding(
-                        horizontal = spacing.medium
+                        horizontal = padding.medium
                     ),
                     query = "",
                     onQueryChange = {},
@@ -102,7 +102,7 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .padding(
-                            bottom = spacing.small
+                            bottom = padding.small
                         )
                 )
                 if (state.plants.isNull()) {
@@ -116,12 +116,12 @@ fun HomeScreen(
                     LazyVerticalGrid(
                         modifier = Modifier,
                         contentPadding = PaddingValues(
-                            horizontal = spacing.medium,
-                            vertical = spacing.none
+                            horizontal = padding.medium,
+                            vertical = padding.none
                         ),
                         columns = GridCells.Adaptive(minSize = PlantCardDefaults.minWidth),
-                        horizontalArrangement = Arrangement.spacedBy(spacing.medium),
-                        verticalArrangement = Arrangement.spacedBy(spacing.medium)
+                        horizontalArrangement = Arrangement.spacedBy(padding.medium),
+                        verticalArrangement = Arrangement.spacedBy(padding.medium)
                     ) {
                         items(state.plants) { plant ->
                             PlantCard(

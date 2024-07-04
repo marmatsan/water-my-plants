@@ -31,5 +31,7 @@ include(
     ":core:core_ui",
     ":catalog:catalog_data",
     ":catalog:catalog_domain",
-    ":catalog:catalog_ui"
+    ":catalog:catalog_ui",
+    ":notifications:notifications_data",
+    ":notifications:notifications_domain"
 )

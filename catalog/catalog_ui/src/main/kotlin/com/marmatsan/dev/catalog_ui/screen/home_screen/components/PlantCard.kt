@@ -50,7 +50,7 @@ import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import java.time.DayOfWeek
@@ -139,7 +139,7 @@ private fun PlantCardImage(
                     start = 12.dp
                 ),
             verticalArrangement = Arrangement.spacedBy(
-                space = spacing.small,
+                space = padding.small,
                 alignment = Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.Start,
@@ -201,13 +201,13 @@ private fun Container(
     Row(
         modifier = modifier
             .padding(
-                start = spacing.medium,
-                top = spacing.medium,
-                end = spacing.small,
-                bottom = spacing.medium
+                start = padding.medium,
+                top = padding.medium,
+                end = padding.small,
+                bottom = padding.medium
             ),
         horizontalArrangement = Arrangement.spacedBy(
-            spacing.small,
+            padding.small,
             Alignment.CenterHorizontally
         ),
         verticalAlignment = Alignment.CenterVertically,
@@ -217,9 +217,9 @@ private fun Container(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(all = spacing.none),
+                .padding(all = padding.none),
             verticalArrangement = Arrangement.spacedBy(
-                spacing.none,
+                padding.none,
                 Alignment.CenterVertically
             ),
             horizontalAlignment = Alignment.Start,

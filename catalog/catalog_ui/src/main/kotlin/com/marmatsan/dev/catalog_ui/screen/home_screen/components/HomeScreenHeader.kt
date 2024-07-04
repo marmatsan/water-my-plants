@@ -24,7 +24,7 @@ import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
 fun HomeScreenHeader(
@@ -40,15 +40,15 @@ fun HomeScreenHeader(
             .wrapContentHeight()
             .padding(
                 PaddingValues(
-                    horizontal = spacing.none,
-                    vertical = if (isSearching != true) spacing.small else spacing.extraSmall,
+                    horizontal = padding.none,
+                    vertical = if (isSearching != true) padding.small else padding.extraSmall,
                 )
             ),
         horizontalArrangement = if (isSearching != true)
             Arrangement.SpaceBetween
         else
             Arrangement.spacedBy(
-                spacing.medium, Alignment.Start
+                padding.medium, Alignment.Start
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -110,9 +110,9 @@ private fun TrailingElements(
 ) {
     Row(
         modifier = Modifier
-            .padding(all = spacing.none)
+            .padding(all = padding.none)
             .wrapContentSize(),
-        horizontalArrangement = Arrangement.spacedBy(spacing.small, Alignment.Start),
+        horizontalArrangement = Arrangement.spacedBy(padding.small, Alignment.Start),
         verticalAlignment = Alignment.Top,
     ) {
         if (isSearching != true) {

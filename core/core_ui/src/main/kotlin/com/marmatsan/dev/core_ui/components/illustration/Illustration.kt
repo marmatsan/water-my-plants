@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.marmatsan.dev.core_ui.preview.EnumParameterProvider
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
-import com.marmatsan.dev.core_ui.theme.spacing
+import com.marmatsan.dev.core_ui.theme.padding
 import kotlin.reflect.KClass
 
 enum class IllustrationDesign {
@@ -103,7 +103,7 @@ fun Illustration(
             contentAlignment = Alignment.Center
         ) {
             Row(
-                modifier = Modifier.padding(all = spacing.none),
+                modifier = Modifier.padding(all = padding.none),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.theme.LocalSpacing
+import com.marmatsan.dev.core_ui.theme.LocalPadding
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable
@@ -35,7 +35,7 @@ fun Dialog(
     supportingText: String? = null,
     content: @Composable() (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
+    val spacing = LocalPadding.current
 
     Dialog(
         onDismissRequest = { onDismissRequest?.invoke() }
@@ -85,7 +85,7 @@ fun Content(
     supportingText: String? = null,
     content: @Composable() (() -> Unit)? = null
 ) {
-    val spacing = LocalSpacing.current
+    val spacing = LocalPadding.current
 
     Column(
         modifier = modifier
@@ -123,7 +123,7 @@ fun Actions(
     dismissRequestActionLabel: String? = null,
     acceptRequestActionLabel: String? = null
 ) {
-    val spacing = LocalSpacing.current
+    val spacing = LocalPadding.current
 
     Column(
         modifier = modifier
