@@ -112,7 +112,7 @@ private fun PlantCardImage(
         modifier = modifier,
         contentAlignment = Alignment.TopStart
     ) {
-        if (image.isNotNull())
+        if (image.isNotNull()) // TODO: Grant permission to access gallery
             CoilImage(
                 modifier = Modifier.fillMaxSize(),
                 imageOptions = ImageOptions(
@@ -180,7 +180,11 @@ private fun PlantCardImage(
                             .widthIn(
                                 max = 80.dp
                             )
-                            .basicMarquee(),
+                            .basicMarquee(
+                                iterations = Int.MAX_VALUE,
+                                repeatDelayMillis = 0,
+                                initialDelayMillis = 1000
+                            ),
                         text = wateringDays.toFormattedString(),
                         style = typography.labelSmall,
                         color = colorScheme.onSurface,

@@ -21,7 +21,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val KOTLIN_VERSION = "2.0.0"
         const val KOTLIN_INJECT_VERSION = "0.7.1"
         const val KSP_VERSION = "$KOTLIN_VERSION-1.0.21"
-        const val LANDSCAPIST_VERSION = "2.3.3"
+        const val LANDSCAPIST_VERSION = "2.3.6"
         const val LIFECYCLE_VERSION = "2.8.0"
         const val MOCKK_VERSION = "1.13.11"
         const val NAVIGATION_COMPOSE_VERSION = "2.8.0-beta04"

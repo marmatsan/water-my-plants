@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenRoot
+import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenEvent
 import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenRoot
 import com.marmatsan.dev.catalog_ui.screen.welcome_screen.WelcomeScreen
@@ -49,8 +50,15 @@ fun SetupNavGraph(
         composable<Screen.HomeScreen> {
             HomeScreenRoot(
                 viewModel = viewModel { mainActivityComponent.homeScreenViewModel },
-                navigate = { plant ->
-                    navController.navigate(Screen.DetailScreen(plant.id))
+                onHomeScreenEvent = { event ->
+                    when (event) {
+                        is HomeScreenEvent.NavigateToPlantScreen ->
+                            navController.navigate(Screen.PlantScreen())
+
+                        is HomeScreenEvent.NavigateToDetailScreen -> {
+                            navController.navigate(Screen.DetailScreen(event.plantId))
+                        }
+                    }
                 }
             )
         }

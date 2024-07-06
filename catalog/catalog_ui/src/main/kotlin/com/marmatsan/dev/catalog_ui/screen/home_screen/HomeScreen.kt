@@ -13,11 +13,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +32,7 @@ import com.marmatsan.dev.catalog_ui.screen.home_screen.components.PlantCardDefau
 import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
+import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.padding
@@ -40,14 +41,25 @@ import com.marmatsan.dev.core_ui.theme.padding
 fun HomeScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel,
-    navigate: (Plant) -> Unit
+    onHomeScreenEvent: (HomeScreenEvent) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val onAction = viewModel::onAction
+
+    ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { event ->
+        when (event) {
+            is HomeScreenEvent.NavigateToPlantScreen ->
+                onHomeScreenEvent(HomeScreenEvent.NavigateToPlantScreen)
+
+            is HomeScreenEvent.NavigateToDetailScreen ->
+                onHomeScreenEvent(HomeScreenEvent.NavigateToDetailScreen(event.plantId))
+        }
+    }
 
     HomeScreen(
         modifier = modifier,
         state = state,
-        navigate = navigate
+        onAction = onAction
     )
 }
 
@@ -55,14 +67,14 @@ fun HomeScreenRoot(
 fun HomeScreen(
     modifier: Modifier = Modifier,
     state: HomeScreenState = HomeScreenState(),
-    navigate: (Plant) -> Unit
+    onAction: (HomeScreenAction) -> Unit
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                    onAction(HomeScreenAction.OnCreatePlant)
                 },
                 containerColor = colorScheme.primaryContainer,
                 contentColor = colorScheme.onPrimaryContainer
@@ -110,7 +122,7 @@ fun HomeScreen(
                         modifier = Modifier.fillAvailableSpace(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "There are no plants :(")
+                        CircularProgressIndicator()
                     }
                 } else {
                     LazyVerticalGrid(
@@ -119,7 +131,9 @@ fun HomeScreen(
                             horizontal = padding.medium,
                             vertical = padding.none
                         ),
-                        columns = GridCells.Adaptive(minSize = PlantCardDefaults.minWidth),
+                        columns = GridCells.Adaptive(
+                            minSize = PlantCardDefaults.minWidth
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(padding.medium),
                         verticalArrangement = Arrangement.spacedBy(padding.medium)
                     ) {
@@ -127,7 +141,11 @@ fun HomeScreen(
                             PlantCard(
                                 plant = plant,
                                 onClick = {
-                                    navigate(plant)
+                                    onAction(
+                                        HomeScreenAction.OnNavigateToDetailScreen(
+                                            plantId = plant.id
+                                        )
+                                    )
                                 }
                             )
                         }
@@ -175,7 +193,7 @@ private fun HomeScreenPreview() {
                     )
                 )
             ),
-            navigate = {}
+            onAction = {}
         )
     }
 }
