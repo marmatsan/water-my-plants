@@ -1,11 +1,11 @@
 package com.marmatsan.dev.notifications_data.repository
 
 import android.app.NotificationChannel
-import com.marmatsan.dev.notifications_domain.repository.NotificationsRepository
+import com.marmatsan.dev.notifications_domain.repository.NotificationsChannelRepository
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-class NotificationsRepositoryImpl : NotificationsRepository {
+class NotificationsChannelRepositoryImpl : NotificationsChannelRepository {
     override fun createNotificationsChannel(
         id: String,
         name: String,

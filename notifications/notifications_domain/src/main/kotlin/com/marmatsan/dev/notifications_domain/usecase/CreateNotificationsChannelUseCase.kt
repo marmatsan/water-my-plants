@@ -2,10 +2,10 @@ package com.marmatsan.dev.notifications_domain.usecase
 
 import android.app.NotificationChannel
 import com.marmatsan.dev.core_domain.usecase.NonSuspendingUseCase
-import com.marmatsan.dev.notifications_domain.repository.NotificationsRepository
+import com.marmatsan.dev.notifications_domain.repository.NotificationsChannelRepository
 
 class CreateNotificationsChannelUseCase(
-    private val repository: NotificationsRepository
+    private val repository: NotificationsChannelRepository
 ) : NonSuspendingUseCase<CreateNotificationsChannelUseCaseParameters, NotificationChannel>() {
     override fun invoke(
         input: CreateNotificationsChannelUseCaseParameters
