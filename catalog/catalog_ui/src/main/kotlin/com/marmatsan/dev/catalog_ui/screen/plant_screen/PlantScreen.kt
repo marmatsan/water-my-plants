@@ -49,7 +49,7 @@ import com.skydoves.landscapist.coil.CoilImage
 private val LocalPlantId = compositionLocalOf<String?> { null }
 
 @Composable
-fun PlantScreenRoot(
+fun PlantScreen(
     modifier: Modifier = Modifier,
     viewModel: PlantScreenViewModel,
     navigate: () -> Unit

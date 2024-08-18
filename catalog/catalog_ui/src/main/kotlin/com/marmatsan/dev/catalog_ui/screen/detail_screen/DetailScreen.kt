@@ -57,7 +57,7 @@ import java.time.DayOfWeek
 import java.time.LocalTime
 
 @Composable
-fun DetailScreenRoot(
+fun DetailScreen(
     modifier: Modifier = Modifier,
     viewModel: DetailScreenViewModel,
     navigate: (Screen) -> Unit

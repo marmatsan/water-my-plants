@@ -5,6 +5,10 @@
     <string name="welcome_screen_title_1">Start your journey</string>
     <string name="welcome_screen_title_2">There are no plants in the ist, please add your first plant</string>
     <string name="welcome_screen_button_create_plant">Add your first plant</string>
+    <string name="welcome_screen_dialog_rationale_headline">Wait! Are you sure?</string>
+    <string name="welcome_screen_dialog_rationale_supporting_text">Permission is required to access your plant photos in order to display them in your catalog. The app will only have access to the photos you select. If you don\'t grant permission now, you can update your preferences in the app\'s settings.</string>
+    <string name="welcome_screen_dialog_rationale_action_2">Don\'t grant</string>
+    <string name="welcome_screen_dialog_rationale_action_1">Grant</string>
     <!-- Plant screen -->
     <string name="plant_screen_button_add_image">Add image</string>
     <string name="plant_screen_button_change_image">Change image</string>

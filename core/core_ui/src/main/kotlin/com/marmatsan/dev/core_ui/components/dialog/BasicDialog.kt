@@ -21,9 +21,10 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.theme.LocalPadding
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
+import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
-fun Dialog(
+fun BasicDialog(
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     onAcceptRequest: (() -> Unit)? = null,
@@ -35,8 +36,6 @@ fun Dialog(
     supportingText: String? = null,
     content: @Composable() (() -> Unit)? = null
 ) {
-    val spacing = LocalPadding.current
-
     Dialog(
         onDismissRequest = { onDismissRequest?.invoke() }
     ) {
@@ -49,12 +48,12 @@ fun Dialog(
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(
-                    spacing.none,
+                    padding.none,
                     Alignment.CenterVertically
                 ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Content(
+                TitleAndDescription(
                     modifier = modifier,
                     headline = headline,
                     supportingText = supportingText,
@@ -79,67 +78,68 @@ fun Dialog(
 }
 
 @Composable
-fun Content(
+private fun TitleAndDescription(
     modifier: Modifier = Modifier,
     headline: String,
     supportingText: String? = null,
     content: @Composable() (() -> Unit)? = null
 ) {
-    val spacing = LocalPadding.current
+    val padding = LocalPadding.current
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(
-                start = spacing.semiLarge,
-                end = spacing.semiLarge,
-                top = spacing.semiLarge,
-                bottom = if (content == null) spacing.none else spacing.semiLarge
+                start = padding.semiLarge,
+                end = padding.semiLarge,
+                top = padding.semiLarge,
+                bottom = if (content == null) padding.none else padding.semiLarge
             ),
-        verticalArrangement = Arrangement.spacedBy(spacing.medium, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(padding.medium, Alignment.Top),
         horizontalAlignment = Alignment.Start
     ) {
         Text( // Headline
             modifier = Modifier.fillMaxWidth(),
             text = headline,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineSmall
         )
         supportingText?.let {
             Text( // Supporting text
                 modifier = Modifier.fillMaxWidth(),
                 text = supportingText,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
 @Composable
-fun Actions(
+private fun Actions(
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
     onAcceptRequest: (() -> Unit)? = null,
     dismissRequestActionLabel: String? = null,
     acceptRequestActionLabel: String? = null
 ) {
-    val spacing = LocalPadding.current
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        verticalArrangement = Arrangement.spacedBy(spacing.none, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(padding.none, Alignment.Top),
         horizontalAlignment = Alignment.End
     ) {
         Row(
             modifier = Modifier.padding(
-                start = spacing.small,
-                top = spacing.semiLarge,
-                end = spacing.semiLarge,
-                bottom = spacing.semiLarge
+                start = padding.small,
+                top = padding.semiLarge,
+                end = padding.semiLarge,
+                bottom = padding.semiLarge
             ),
-            horizontalArrangement = Arrangement.spacedBy(spacing.small, Alignment.Start),
+            horizontalArrangement = Arrangement.spacedBy(padding.small, Alignment.Start),
             verticalAlignment = Alignment.CenterVertically
         ) {
             dismissRequestActionLabel?.let {
@@ -162,13 +162,13 @@ fun Actions(
 
 @Preview
 @Composable
-fun PlantSizeDialogPreview() {
+private fun PlantSizeDialogPreview() {
     WaterMyPlantsTheme {
-        Dialog(
-            headline = "Dialog",
+        BasicDialog(
+            headline = "Basic dialog title",
             acceptRequestActionLabel = "Accept",
             dismissRequestActionLabel = "Cancel",
-            supportingText = "Custom dialog"
+            supportingText = "A dialog is a type of modal window that appears in front of app content to provide critical information, or prompt for a decision to be made."
         )
     }
 }
