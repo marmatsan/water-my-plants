@@ -19,7 +19,7 @@ Have you ever wondered when you last watered your plants? With **Water My Plants
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/1f604480-7ac8-43ef-a2c0-afea929511e1" alt="Description of image" width="200"/>
-    <img src="(https://github.com/user-attachments/assets/b260128a-a488-4d48-979f-c78d344cc51b" alt="Description of image" width="200"/>
+    <img src="https://github.com/user-attachments/assets/b260128a-a488-4d48-979f-c78d344cc51b" alt="Description of image" width="200"/>
     <img src="https://github.com/user-attachments/assets/3d45a01a-a28d-4687-93fe-6689b00bcace" alt="Description of image" width="200"/>
 </p>
 
