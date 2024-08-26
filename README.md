@@ -2,7 +2,7 @@
 
 Welcome to **Water My Plants** – Your Personalized Gardening Assistant! 
 
-![Water My Plants Hero Image](https://github.com/user-attachments/assets/89b960a1-3b89-4da0-8fbb-69b1d5f81bbe)
+![Water My Plants Icon](https://github.com/user-attachments/assets/bba784f3-fd2e-4c5e-a6ec-b5fb27a031f1)
 
 
 ### Never forget to water your plants again! 🌺💧
