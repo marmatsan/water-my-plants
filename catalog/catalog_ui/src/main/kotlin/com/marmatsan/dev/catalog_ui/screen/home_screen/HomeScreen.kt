@@ -38,7 +38,7 @@ import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.padding
 
 @Composable
-fun HomeScreenRoot(
+fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel,
     onHomeScreenEvent: (HomeScreenEvent) -> Unit

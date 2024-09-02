@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantSize
-import com.marmatsan.dev.core_ui.components.dialog.Dialog
+import com.marmatsan.dev.core_ui.components.dialog.BasicDialog
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 
 @Composable
@@ -34,7 +34,7 @@ fun PlantSizeDialog(
         mutableStateOf(plantSize)
     }
 
-    Dialog(
+    BasicDialog(
         modifier = modifier,
         headline = stringResource(
             id = R.string.plant_screen_dialog_plant_size_headline

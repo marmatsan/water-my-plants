@@ -1,5 +1,6 @@
 package com.marmatsan.dev.core_domain
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -41,4 +42,8 @@ fun <T> T?.isNotNull(): Boolean {
         returns(value = false) implies (this@isNotNull == null)
     }
     return this != null
+}
+
+inline fun <T> MutableStateFlow<T>.updateState(update: T.() -> T) {
+    this.value = this.value.update()
 }

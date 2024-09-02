@@ -27,6 +27,7 @@ import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
+import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.onBackgroundVariant
@@ -35,8 +36,29 @@ import com.marmatsan.dev.core_ui.theme.padding
 @Composable
 fun WelcomeScreen(
     modifier: Modifier = Modifier,
+    viewModel: WelcomeScreenViewModel,
     navigate: () -> Unit
 ) {
+    ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { event ->
+        when (event) {
+            WelcomeScreenEvent.Navigate -> {
+                navigate()
+            }
+        }
+    }
+
+    WelcomeScreen(
+        modifier = modifier,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+fun WelcomeScreen(
+    modifier: Modifier = Modifier,
+    onAction: (WelcomeScreenAction) -> Unit
+) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -54,15 +76,17 @@ fun WelcomeScreen(
     ) {
         Header(
             modifier = modifier
-                .weight(0.33f)
+                .weight(1 / 3f)
                 .padding(
                     all = padding.none
                 )
         )
         Body(
             modifier = modifier
-                .weight(0.66f),
-            onCreatePlantClick = navigate
+                .weight(2 / 3f),
+            onAddFirstPlant = {
+                onAction(WelcomeScreenAction.OnAddFirstPlant)
+            }
         )
     }
 }
@@ -99,7 +123,7 @@ fun Header(
 @Composable
 fun Body(
     modifier: Modifier = Modifier,
-    onCreatePlantClick: () -> Unit
+    onAddFirstPlant: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -128,7 +152,7 @@ fun Body(
                     horizontal = padding.large,
                     vertical = padding.none
                 ),
-            onCreatePlantClick = onCreatePlantClick
+            onAddFirstPlant = onAddFirstPlant
         )
     }
 }
@@ -136,7 +160,7 @@ fun Body(
 @Composable
 fun Content(
     modifier: Modifier = Modifier,
-    onCreatePlantClick: () -> Unit
+    onAddFirstPlant: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -163,7 +187,7 @@ fun Content(
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
-            onClick = onCreatePlantClick
+            onClick = onAddFirstPlant
         )
     }
 }
@@ -197,10 +221,10 @@ fun Texts(
 
 @Preview
 @Composable
-fun WelcomeScreenPreview() {
+private fun WelcomeScreenPreviewNoDialog() {
     WaterMyPlantsTheme {
         WelcomeScreen(
-            navigate = {}
+            onAction = {}
         )
     }
 }

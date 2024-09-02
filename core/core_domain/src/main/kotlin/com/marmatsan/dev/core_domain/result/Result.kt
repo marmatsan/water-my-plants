@@ -10,7 +10,7 @@ sealed class Result<out D, out E : RootError> {
         onError: (E?) -> Unit,
         onSuccess: (D?) -> Unit
     ) = when (this) {
-        is Success -> onSuccess(data)
         is Error -> onError(error)
+        is Success -> onSuccess(data)
     }
 }

@@ -7,7 +7,8 @@ import java.time.DayOfWeek
 import java.time.LocalTime
 
 sealed interface PlantScreenAction : Action {
-    data class OnAddImage(val imageUri: Uri?) : PlantScreenAction
+    data object OnAddOrChangeImage : PlantScreenAction // TODO: Divide into two separated actions
+    data class OnImageChange(val imageUri: Uri) : PlantScreenAction
     data object OnRemoveImage : PlantScreenAction
     data object OnBackClick : PlantScreenAction
     data object OnCreatePlant : PlantScreenAction
@@ -27,4 +28,7 @@ sealed interface PlantScreenAction : Action {
     data class OnSizeChange(val size: PlantSize?) : PlantScreenAction
     data class OnDescriptionChange(val description: String) : PlantScreenAction
     data class OnShortDescriptionChange(val shortDescription: String) : PlantScreenAction
+
+    // Rationale dialog
+    data class OnRetryRequestPermission(val permission: Permission) : PlantScreenAction
 }

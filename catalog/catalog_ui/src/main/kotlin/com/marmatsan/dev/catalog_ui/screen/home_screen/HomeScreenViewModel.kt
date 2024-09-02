@@ -2,7 +2,7 @@ package com.marmatsan.dev.catalog_ui.screen.home_screen
 
 import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
-import com.marmatsan.dev.core_ui.viewmodel.MVIViewModel
+import com.marmatsan.dev.core_ui.viewmodel.MviViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -13,7 +13,7 @@ import me.tatarka.inject.annotations.Inject
 @Inject
 class HomeScreenViewModel(
     private val repository: CatalogRepository
-) : MVIViewModel<HomeScreenAction, HomeScreenEvent>() {
+) : MviViewModel<HomeScreenAction, HomeScreenEvent>() {
 
     private val homeScreenStateFlow = MutableStateFlow(HomeScreenState())
 

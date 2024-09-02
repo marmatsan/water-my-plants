@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_domain.toggle
-import com.marmatsan.dev.core_ui.components.dialog.Dialog
+import com.marmatsan.dev.core_ui.components.dialog.BasicDialog
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import java.time.DayOfWeek
 
@@ -37,7 +37,7 @@ fun PlantWateringDaysDialog(
         tmpWateringDays.addAll(wateringDays)
     }
 
-    Dialog(
+    BasicDialog(
         modifier = modifier,
         headline = stringResource(id = R.string.plant_screen_dialog_watering_days_headline),
         dismissRequestActionLabel = stringResource(id = R.string.plant_screen_dialog_action2),

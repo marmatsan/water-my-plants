@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.marmatsan.dev.catalog_domain.repository.CatalogRepository
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.PlantScreenUseCases
 import com.marmatsan.dev.catalog_domain.usecase.plant_screen.ValidatePlantDataParameters
-import com.marmatsan.dev.core_ui.viewmodel.MVIViewModel
+import com.marmatsan.dev.core_domain.isNotNull
+import com.marmatsan.dev.core_domain.preferences.Preferences
+import com.marmatsan.dev.core_domain.updateState
+import com.marmatsan.dev.core_ui.viewmodel.MviViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Assisted
 import me.tatarka.inject.annotations.Inject
@@ -19,15 +21,18 @@ import me.tatarka.inject.annotations.Inject
 class PlantScreenViewModel(
     private val repository: CatalogRepository,
     private val plantScreenUseCases: PlantScreenUseCases,
+    private val preferences: Preferences,
     @Assisted private val savedStateHandle: SavedStateHandle
-) : MVIViewModel<PlantScreenAction, PlantScreenEvent>() {
+) : MviViewModel<PlantScreenAction, PlantScreenEvent>() {
 
     private companion object {
         private const val PLANT_ID_KEY = "plantId"
+        private const val MEDIA_PERMISSION_DECLINED_COUNT_KEY = "mediaPermissionDeclinedCount"
     }
 
     val plantId: String? = savedStateHandle[PLANT_ID_KEY]
 
+    // State
     private val plantScreenStateFlow = MutableStateFlow(value = PlantScreenState())
 
     val state = plantScreenStateFlow.map { plantScreenState ->
@@ -38,34 +43,50 @@ class PlantScreenViewModel(
                 wateringTime = plantScreenState.plant.wateringTime
             )
         )
-        plantScreenState.copy(isCreatePlantButtonEnabled = isCreatePlantButtonEnabled)
+        plantScreenState.copy(
+            isCreatePlantButtonEnabled = isCreatePlantButtonEnabled
+        )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        started = SharingStarted.WhileSubscribed(
+            stopTimeoutMillis = 5_000
+        ),
         initialValue = plantScreenStateFlow.value
     )
 
     init {
         plantId?.let {
             viewModelScope.launch {
-                plantScreenStateFlow.update {
-                    it.copy(plant = repository.readPlantById(plantId))
+                plantScreenStateFlow.updateState {
+                    copy(plant = repository.readPlantById(plantId))
                 }
             }
         }
+        savedStateHandle[MEDIA_PERMISSION_DECLINED_COUNT_KEY] = 0
     }
 
     override fun handleAction(action: PlantScreenAction) {
         when (action) {
-            is PlantScreenAction.OnAddImage -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(image = action.imageUri))
+            is PlantScreenAction.OnAddOrChangeImage -> {
+                viewModelScope.launch {
+                    val isMediaAccessPermanentlyDeclined =
+                        preferences.readIsMediaAccessPermanentlyDeclined()
+                    if (isMediaAccessPermanentlyDeclined)
+                        sendEvent(PlantScreenEvent.ShowExplanatorySnackbar)
+                    else
+                        sendEvent(PlantScreenEvent.RequestPermission(Permission.READ_MEDIA_IMAGES))
+                }
+            }
+
+            is PlantScreenAction.OnImageChange -> {
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(image = action.imageUri))
                 }
             }
 
             is PlantScreenAction.OnRemoveImage -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(image = null))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(image = null))
                 }
             }
 
@@ -85,38 +106,38 @@ class PlantScreenViewModel(
             }
 
             is PlantScreenAction.OnPlantSizeClick -> {
-                plantScreenStateFlow.update {
-                    it.copy(isPlantSizeDialogVisible = true)
+                plantScreenStateFlow.updateState {
+                    copy(isPlantSizeDialogVisible = true)
                 }
             }
 
             is PlantScreenAction.OnDismissPlantSizeDialog -> {
-                plantScreenStateFlow.update {
-                    it.copy(isPlantSizeDialogVisible = false)
+                plantScreenStateFlow.updateState {
+                    copy(isPlantSizeDialogVisible = false)
                 }
             }
 
             is PlantScreenAction.OnDismissWateringDaysDialog -> {
-                plantScreenStateFlow.update {
-                    it.copy(isWateringDaysDialogVisible = false)
+                plantScreenStateFlow.updateState {
+                    copy(isWateringDaysDialogVisible = false)
                 }
             }
 
             is PlantScreenAction.OnDismissWateringTimeDialog -> {
-                plantScreenStateFlow.update {
-                    it.copy(isWateringTimeDialogVisible = false)
+                plantScreenStateFlow.updateState {
+                    copy(isWateringTimeDialogVisible = false)
                 }
             }
 
             is PlantScreenAction.OnWateringDaysClick -> {
-                plantScreenStateFlow.update {
-                    it.copy(isWateringDaysDialogVisible = true)
+                plantScreenStateFlow.updateState {
+                    copy(isWateringDaysDialogVisible = true)
                 }
             }
 
             is PlantScreenAction.OnWateringTimeClick -> {
-                plantScreenStateFlow.update {
-                    it.copy(isWateringTimeDialogVisible = true)
+                plantScreenStateFlow.updateState {
+                    copy(isWateringTimeDialogVisible = true)
                 }
             }
 
@@ -124,47 +145,54 @@ class PlantScreenViewModel(
             is PlantScreenAction.OnPlantNameChange -> {
                 val plantName = action.plantName
                 if (plantScreenUseCases.validatePlantNameUseCase(plantName))
-                    plantScreenStateFlow.update {
-                        it.copy(plant = it.plant.copy(name = plantName.ifEmpty { null }))
+                    plantScreenStateFlow.updateState {
+                        copy(plant = plant.copy(name = plantName.ifEmpty { null }))
                     }
             }
 
             is PlantScreenAction.OnWateringDaysChange -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(wateringDays = action.wateringDays))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(wateringDays = action.wateringDays))
                 }
             }
 
             is PlantScreenAction.OnWaterAmountChange -> {
                 val (isValid, waterAmount) = plantScreenUseCases.validateWaterQuantityUseCase(action.waterAmount)
                 if (isValid)
-                    plantScreenStateFlow.update {
-                        it.copy(plant = it.plant.copy(waterAmount = waterAmount))
+                    plantScreenStateFlow.updateState {
+                        copy(plant = plant.copy(waterAmount = waterAmount))
                     }
             }
 
             is PlantScreenAction.OnWateringTimeChange -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(wateringTime = action.wateringTime))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(wateringTime = action.wateringTime))
                 }
             }
 
             is PlantScreenAction.OnSizeChange -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(size = action.size))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(size = action.size))
                 }
             }
 
             is PlantScreenAction.OnDescriptionChange -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(description = action.description.ifEmpty { null }))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(description = action.description.ifEmpty { null }))
                 }
             }
 
             is PlantScreenAction.OnShortDescriptionChange -> {
-                plantScreenStateFlow.update {
-                    it.copy(plant = it.plant.copy(shortDescription = action.shortDescription))
+                plantScreenStateFlow.updateState {
+                    copy(plant = plant.copy(shortDescription = action.shortDescription))
                 }
+            }
+
+            is PlantScreenAction.OnRetryRequestPermission -> {
+                plantScreenStateFlow.updateState {
+                    copy(isMediaPermissionRationaleVisible = false)
+                }
+                sendEvent(PlantScreenEvent.RequestPermission(action.permission))
             }
         }
     }
@@ -172,4 +200,37 @@ class PlantScreenViewModel(
     fun setPlantId(plantId: String?) {
         savedStateHandle[PLANT_ID_KEY] = plantId
     }
+
+    fun onPermissionResultChanged(
+        permission: Permission,
+        isPermissionGranted: Boolean
+    ) {
+        if (isPermissionGranted) {
+            when (permission) {
+                Permission.READ_MEDIA_IMAGES -> sendEvent(PlantScreenEvent.LaunchImagePicker)
+            }
+        } else {
+            val mediaPermissionDeclinedCount =
+                savedStateHandle.get<Int>(MEDIA_PERMISSION_DECLINED_COUNT_KEY)
+
+            if (mediaPermissionDeclinedCount.isNotNull()) {
+                val currentDeclinedCount = mediaPermissionDeclinedCount + 1
+                if (currentDeclinedCount == 1) {
+                    plantScreenStateFlow.updateState {
+                        copy(isMediaPermissionRationaleVisible = true)
+                    }
+                } else {
+                    viewModelScope.launch {
+                        preferences.saveIsMediaAccessPermanentlyDeclined(permanentlyDeclined = true)
+                        sendEvent(PlantScreenEvent.ShowExplanatorySnackbar)
+                    }
+                }
+                savedStateHandle[MEDIA_PERMISSION_DECLINED_COUNT_KEY] = currentDeclinedCount
+            }
+        }
+    }
+}
+
+enum class Permission {
+    READ_MEDIA_IMAGES
 }

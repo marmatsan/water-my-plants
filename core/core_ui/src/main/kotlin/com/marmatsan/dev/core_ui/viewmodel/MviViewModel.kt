@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class MVIViewModel<A : Action, E : Event> : ViewModel() {
+abstract class MviViewModel<A : Action, E : Event> : ViewModel() {
     private val _uiEventChannel = Channel<E>()
     val uiEventFlow = _uiEventChannel.receiveAsFlow()
 

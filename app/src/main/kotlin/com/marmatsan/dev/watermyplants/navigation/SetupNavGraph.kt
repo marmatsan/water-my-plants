@@ -8,10 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreenRoot
-import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenEvent
-import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreenRoot
-import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreenRoot
+import com.marmatsan.dev.catalog_ui.screen.detail_screen.DetailScreen
+import com.marmatsan.dev.catalog_ui.screen.home_screen.HomeScreen
+import com.marmatsan.dev.catalog_ui.screen.plant_screen.PlantScreen
 import com.marmatsan.dev.catalog_ui.screen.welcome_screen.WelcomeScreen
 import com.marmatsan.dev.core_ui.screen.Screen
 import com.marmatsan.dev.watermyplants.MainActivityComponent
@@ -27,7 +26,9 @@ fun SetupNavGraph(
         startDestination = startDestination
     ) {
         composable<Screen.WelcomeScreen> {
+            val viewModel = viewModel { mainActivityComponent.welcomeScreenViewModel }
             WelcomeScreen(
+                viewModel = viewModel,
                 navigate = {
                     navController.navigate(Screen.PlantScreen())
                 }
@@ -36,11 +37,13 @@ fun SetupNavGraph(
         composable<Screen.PlantScreen> {
             val args = it.toRoute<Screen.PlantScreen>()
             val viewModel = viewModel {
-                mainActivityComponent.plantScreenViewModel(createSavedStateHandle())
+                mainActivityComponent.plantScreenViewModel(
+                    createSavedStateHandle()
+                )
             }
             viewModel.setPlantId(args.plantId)
 
-            PlantScreenRoot(
+            PlantScreen(
                 viewModel = viewModel,
                 navigate = {
                     navController.navigateUp()
@@ -48,28 +51,23 @@ fun SetupNavGraph(
             )
         }
         composable<Screen.HomeScreen> {
-            HomeScreenRoot(
+            HomeScreen(
                 viewModel = viewModel { mainActivityComponent.homeScreenViewModel },
-                onHomeScreenEvent = { event ->
-                    when (event) {
-                        is HomeScreenEvent.NavigateToPlantScreen ->
-                            navController.navigate(Screen.PlantScreen())
-
-                        is HomeScreenEvent.NavigateToDetailScreen -> {
-                            navController.navigate(Screen.DetailScreen(event.plantId))
-                        }
-                    }
+                navigate = { plant ->
+                    navController.navigate(Screen.DetailScreen(plant.id))
                 }
             )
         }
         composable<Screen.DetailScreen> {
             val args = it.toRoute<Screen.DetailScreen>()
             val viewModel = viewModel {
-                mainActivityComponent.detailScreenViewModel(createSavedStateHandle())
+                mainActivityComponent.detailScreenViewModel(
+                    createSavedStateHandle()
+                )
             }
             viewModel.setPlantId(args.plantId)
 
-            DetailScreenRoot(
+            DetailScreen(
                 viewModel = viewModel,
                 navigate = { screen ->
                     navController.navigate(screen)
