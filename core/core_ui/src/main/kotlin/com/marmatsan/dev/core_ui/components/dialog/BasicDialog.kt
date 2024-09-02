@@ -33,7 +33,7 @@ import com.marmatsan.dev.core_ui.theme.padding
 @Composable
 fun BasicDialog(
     modifier: Modifier = Modifier,
-    icon: ImageVector? = Icons.Outlined.MobileFriendly,
+    icon: ImageVector? = null,
     onDismissRequest: (() -> Unit)? = null,
     onAcceptRequest: (() -> Unit)? = null,
     dismissRequestActionLabel: String? = null,
@@ -199,6 +199,7 @@ private fun BasicDialogNoHeroIconPreview() {
 private fun BasicDialogHeroIconPreview() {
     WaterMyPlantsTheme {
         BasicDialog(
+            icon = Icons.Outlined.MobileFriendly,
             headline = "Dialog with hero icon",
             acceptRequestActionLabel = "Accept",
             dismissRequestActionLabel = "Cancel",
