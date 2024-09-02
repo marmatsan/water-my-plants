@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.SavedStateHandle
@@ -38,6 +41,17 @@ abstract class MainActivityComponent(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                Color.Transparent.value.toInt(),
+                Color.Transparent.value.toInt()
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                Color.Transparent.value.toInt(),
+                Color.Transparent.value.toInt()
+            )
+        )
 
         val mainActivityComponent = MainActivityComponent::class.create(
             parent = applicationContext.applicationComponent
