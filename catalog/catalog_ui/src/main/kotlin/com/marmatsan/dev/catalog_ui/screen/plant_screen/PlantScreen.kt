@@ -195,9 +195,9 @@ fun PlantScreen(
     if (state.isMediaPermissionRationaleVisible) {
         BasicDialog(
             icon = Icons.Rounded.WarningAmber,
-            headline = stringResource(R.string.welcome_screen_dialog_rationale_headline),
-            supportingText = stringResource(R.string.welcome_screen_dialog_rationale_supporting_text),
-            dismissRequestActionLabel = stringResource(R.string.welcome_screen_dialog_rationale_action_2),
+            headline = stringResource(R.string.plant_screen_dialog_rationale_headline),
+            supportingText = stringResource(R.string.plant_screen_dialog_rationale_supporting_text),
+            dismissRequestActionLabel = stringResource(R.string.plant_screen_dialog_rationale_action_2),
             onDismissRequest = {
                 onAction(PlantScreenAction.OnRetryRequestPermission(Permission.READ_MEDIA_IMAGES))
             }
