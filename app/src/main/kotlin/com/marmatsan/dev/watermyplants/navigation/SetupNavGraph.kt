@@ -53,8 +53,11 @@ fun SetupNavGraph(
         composable<Screen.HomeScreen> {
             HomeScreen(
                 viewModel = viewModel { mainActivityComponent.homeScreenViewModel },
-                navigate = { plant ->
-                    navController.navigate(Screen.DetailScreen(plant.id))
+                navigateToPlantScreen = {
+                    navController.navigate(Screen.PlantScreen())
+                },
+                navigateToDetailScreen = { plantId ->
+                    navController.navigate(Screen.DetailScreen(plantId))
                 }
             )
         }

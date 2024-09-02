@@ -43,25 +43,22 @@ import com.marmatsan.dev.core_ui.theme.padding
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel,
-    onHomeScreenEvent: (HomeScreenEvent) -> Unit
+    navigateToPlantScreen: () -> Unit,
+    navigateToDetailScreen: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val onAction = viewModel::onAction
 
     ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { event ->
         when (event) {
-            is HomeScreenEvent.NavigateToPlantScreen ->
-                onHomeScreenEvent(HomeScreenEvent.NavigateToPlantScreen)
-
-            is HomeScreenEvent.NavigateToDetailScreen ->
-                onHomeScreenEvent(HomeScreenEvent.NavigateToDetailScreen(event.plantId))
+            is HomeScreenEvent.NavigateToPlantScreen -> navigateToPlantScreen()
+            is HomeScreenEvent.NavigateToDetailScreen -> navigateToDetailScreen(event.plantId)
         }
     }
 
     HomeScreen(
         modifier = modifier,
         state = state,
-        onAction = onAction
+        onAction = viewModel::onAction
     )
 }
 
@@ -156,7 +153,6 @@ fun HomeScreen(
                         }
                     }
                 }
-
             }
         }
     }
