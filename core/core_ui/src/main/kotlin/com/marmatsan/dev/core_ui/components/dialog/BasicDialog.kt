@@ -7,13 +7,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.MobileFriendly
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -26,6 +33,7 @@ import com.marmatsan.dev.core_ui.theme.padding
 @Composable
 fun BasicDialog(
     modifier: Modifier = Modifier,
+    icon: ImageVector? = Icons.Outlined.MobileFriendly,
     onDismissRequest: (() -> Unit)? = null,
     onAcceptRequest: (() -> Unit)? = null,
     dismissRequestActionLabel: String? = null,
@@ -34,7 +42,7 @@ fun BasicDialog(
     showBottomDivider: Boolean = false,
     headline: String,
     supportingText: String? = null,
-    content: @Composable() (() -> Unit)? = null
+    content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
         onDismissRequest = { onDismissRequest?.invoke() }
@@ -43,18 +51,29 @@ fun BasicDialog(
             modifier = modifier
                 .width(312.dp)
                 .wrapContentHeight(),
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
+            shape = shapes.extraLarge,
+            color = colorScheme.surfaceContainerHigh
         ) {
             Column(
+                modifier = Modifier.padding(
+                    top = if (icon == null) padding.none else padding.semiLarge
+                ),
                 verticalArrangement = Arrangement.spacedBy(
                     padding.none,
                     Alignment.CenterVertically
                 ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                icon?.let {
+                    Icon(
+                        imageVector = icon,
+                        tint = colorScheme.secondary,
+                        contentDescription = null
+                    )
+                }
                 TitleAndDescription(
                     modifier = modifier,
+                    icon = icon,
                     headline = headline,
                     supportingText = supportingText,
                     content = content
@@ -80,6 +99,7 @@ fun BasicDialog(
 @Composable
 private fun TitleAndDescription(
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
     headline: String,
     supportingText: String? = null,
     content: @Composable() (() -> Unit)? = null
@@ -102,15 +122,16 @@ private fun TitleAndDescription(
         Text( // Headline
             modifier = Modifier.fillMaxWidth(),
             text = headline,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.headlineSmall
+            color = colorScheme.onSurface,
+            style = typography.headlineSmall,
+            textAlign = if (icon == null) TextAlign.Start else TextAlign.Center
         )
         supportingText?.let {
             Text( // Supporting text
                 modifier = Modifier.fillMaxWidth(),
                 text = supportingText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -124,7 +145,6 @@ private fun Actions(
     dismissRequestActionLabel: String? = null,
     acceptRequestActionLabel: String? = null
 ) {
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -162,10 +182,24 @@ private fun Actions(
 
 @Preview
 @Composable
-private fun PlantSizeDialogPreview() {
+private fun BasicDialogNoHeroIconPreview() {
     WaterMyPlantsTheme {
         BasicDialog(
+            icon = null,
             headline = "Basic dialog title",
+            acceptRequestActionLabel = "Accept",
+            dismissRequestActionLabel = "Cancel",
+            supportingText = "A dialog is a type of modal window that appears in front of app content to provide critical information, or prompt for a decision to be made."
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun BasicDialogHeroIconPreview() {
+    WaterMyPlantsTheme {
+        BasicDialog(
+            headline = "Dialog with hero icon",
             acceptRequestActionLabel = "Accept",
             dismissRequestActionLabel = "Cancel",
             supportingText = "A dialog is a type of modal window that appears in front of app content to provide critical information, or prompt for a decision to be made."

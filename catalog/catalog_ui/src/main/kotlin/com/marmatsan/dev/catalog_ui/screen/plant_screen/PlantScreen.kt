@@ -1,6 +1,10 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
+import android.Manifest
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,19 +19,28 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ChangeCircle
+import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenForm
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantSizeDialog
@@ -36,6 +49,7 @@ import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantWatering
 import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
+import com.marmatsan.dev.core_ui.components.dialog.BasicDialog
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
@@ -45,6 +59,7 @@ import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.padding
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
+import kotlinx.coroutines.launch
 
 private val LocalPlantId = compositionLocalOf<String?> { null }
 
@@ -54,21 +69,79 @@ fun PlantScreen(
     viewModel: PlantScreenViewModel,
     navigate: () -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val onAction = viewModel::onAction
-    val uiEventFlow = viewModel.uiEventFlow
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    ObserveAsEvents(uiEventFlow = uiEventFlow) { event ->
+    val pickVisualMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let { imageUri ->
+                viewModel.onAction(PlantScreenAction.OnImageChange(imageUri))
+            }
+        }
+    )
+
+    val requestMediaPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isPermissionGranted ->
+            viewModel.sendEvent(
+                PlantScreenEvent.PermissionResultChanged(
+                    permission = Permission.READ_MEDIA_IMAGES,
+                    isPermissionGranted = isPermissionGranted
+                )
+            )
+        }
+    )
+
+    ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { event ->
         when (event) {
-            PlantScreenEvent.PlantCreated, PlantScreenEvent.BackClicked -> navigate()
+            is PlantScreenEvent.PlantCreated, PlantScreenEvent.BackClicked -> {
+                navigate()
+            }
+
+            is PlantScreenEvent.RequestPermission -> {
+                val permissionRequested = when (event.permission) {
+                    Permission.READ_MEDIA_IMAGES -> Manifest.permission.READ_MEDIA_IMAGES
+                }
+                requestMediaPermissionLauncher.launch(permissionRequested)
+            }
+
+            is PlantScreenEvent.ShowExplanatorySnackbar -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.plant_screen_snackbar_message)
+                    )
+                }
+            }
+
+            is PlantScreenEvent.LaunchImagePicker -> {
+                pickVisualMediaLauncher.launch(
+                    PickVisualMediaRequest(
+                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            }
+
+            is PlantScreenEvent.PermissionResultChanged -> {
+                viewModel.onPermissionResultChanged(
+                    permission = event.permission,
+                    isPermissionGranted = event.isPermissionGranted
+                )
+            }
         }
     }
 
-    CompositionLocalProvider(LocalPlantId provides viewModel.plantId) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    CompositionLocalProvider(
+        LocalPlantId provides viewModel.plantId
+    ) {
         PlantScreen(
             modifier = modifier,
+            snackbarHostState = snackbarHostState,
             state = state,
-            onAction = onAction
+            onAction = viewModel::onAction
         )
     }
 }
@@ -76,6 +149,7 @@ fun PlantScreen(
 @Composable
 fun PlantScreen(
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState,
     state: PlantScreenState,
     onAction: (PlantScreenAction) -> Unit
 ) {
@@ -86,7 +160,7 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnDismissWateringDaysDialog)
             },
             onConfirmWateringDaysDialog = { newWateringDays ->
-                onAction(PlantScreenAction.OnWateringDaysChange(newWateringDays))
+                onAction(PlantScreenAction.OnWateringDaysChange(newWateringDays)) // TODO: Simplify into single action
                 onAction(PlantScreenAction.OnDismissWateringDaysDialog)
             }
         )
@@ -99,7 +173,7 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnDismissWateringTimeDialog)
             },
             onConfirmWateringTimeDialog = { newWateringTime ->
-                onAction(PlantScreenAction.OnWateringTimeChange(newWateringTime))
+                onAction(PlantScreenAction.OnWateringTimeChange(newWateringTime)) // TODO: Simplify into single action
                 onAction(PlantScreenAction.OnDismissWateringTimeDialog)
             }
         )
@@ -112,81 +186,97 @@ fun PlantScreen(
                 onAction(PlantScreenAction.OnDismissPlantSizeDialog)
             },
             onConfirmPlantSizeDialog = { selectedPlantSize ->
-                onAction(PlantScreenAction.OnSizeChange(selectedPlantSize)) // TODO: Check
+                onAction(PlantScreenAction.OnSizeChange(selectedPlantSize)) // TODO: Simplify into single action
                 onAction(PlantScreenAction.OnDismissPlantSizeDialog)
             }
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = colorScheme.background
-            )
-            .padding(
-                all = padding.none
-            ),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.Start,
-    ) {
-        Header(
-            modifier = Modifier.weight(1f),
-            removePhotoAvailable = state.plant.image != null,
-            aiButtonAvailable = false,
-            image = state.plant.image,
-            onAddImage = { imageUri ->
-                onAction(PlantScreenAction.OnAddImage(imageUri))
-            },
-            onBackClick = {
-                onAction(PlantScreenAction.OnBackClick)
-            },
-            onRemoveImage = {
-                onAction(PlantScreenAction.OnRemoveImage)
+    if (state.isMediaPermissionRationaleVisible) {
+        BasicDialog(
+            icon = Icons.Rounded.WarningAmber,
+            headline = stringResource(R.string.welcome_screen_dialog_rationale_headline),
+            supportingText = stringResource(R.string.welcome_screen_dialog_rationale_supporting_text),
+            dismissRequestActionLabel = stringResource(R.string.welcome_screen_dialog_rationale_action_2),
+            onDismissRequest = {
+                onAction(PlantScreenAction.OnRetryRequestPermission(Permission.READ_MEDIA_IMAGES))
             }
         )
-        PlantScreenForm(
-            modifier = Modifier.weight(1f),
-            name = state.plant.name,
-            wateringDays = state.plant.wateringDays,
-            wateringTime = state.plant.wateringTime,
-            waterAmount = state.plant.waterAmount,
-            plantSize = state.plant.size,
-            description = state.plant.description,
-            onNameChange = { newName ->
-                onAction(PlantScreenAction.OnPlantNameChange(newName))
-            },
-            onWateringDaysClick = {
-                onAction(PlantScreenAction.OnWateringDaysClick)
-            },
-            onWateringTimeClick = {
-                onAction(PlantScreenAction.OnWateringTimeClick)
-            },
-            onWaterAmountChange = { newWaterAmount ->
-                onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount))
-            },
-            onPlantSizeClick = {
-                onAction(PlantScreenAction.OnPlantSizeClick)
-            },
-            onDescriptionChange = { newDescription ->
-                onAction(PlantScreenAction.OnDescriptionChange(newDescription))
-            }
-        )
-        ButtonContainer(
-            modifier = Modifier
-                .wrapContentHeight()
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
                 .background(
                     color = colorScheme.background
                 )
                 .padding(
-                    horizontal = padding.medium,
-                    vertical = padding.small
+                    paddingValues = paddingValues
                 ),
-            onCreatePlant = {
-                onAction(PlantScreenAction.OnCreatePlant)
-            },
-            createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
-        )
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Header(
+                modifier = Modifier.weight(1f),
+                removePhotoAvailable = state.plant.image != null,
+                aiButtonAvailable = false,
+                image = state.plant.image,
+                onAddImage = {
+                    onAction(PlantScreenAction.OnAddOrChangeImage)
+                },
+                onBackClick = {
+                    onAction(PlantScreenAction.OnBackClick)
+                },
+                onRemoveImage = {
+                    onAction(PlantScreenAction.OnRemoveImage)
+                }
+            )
+            PlantScreenForm(
+                modifier = Modifier.weight(1f),
+                name = state.plant.name,
+                wateringDays = state.plant.wateringDays,
+                wateringTime = state.plant.wateringTime,
+                waterAmount = state.plant.waterAmount,
+                plantSize = state.plant.size,
+                description = state.plant.description,
+                onNameChange = { newName ->
+                    onAction(PlantScreenAction.OnPlantNameChange(newName))
+                },
+                onWateringDaysClick = {
+                    onAction(PlantScreenAction.OnWateringDaysClick)
+                },
+                onWateringTimeClick = {
+                    onAction(PlantScreenAction.OnWateringTimeClick)
+                },
+                onWaterAmountChange = { newWaterAmount ->
+                    onAction(PlantScreenAction.OnWaterAmountChange(newWaterAmount))
+                },
+                onPlantSizeClick = {
+                    onAction(PlantScreenAction.OnPlantSizeClick)
+                },
+                onDescriptionChange = { newDescription ->
+                    onAction(PlantScreenAction.OnDescriptionChange(newDescription))
+                }
+            )
+            ButtonContainer(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .background(
+                        color = colorScheme.background
+                    )
+                    .padding(
+                        horizontal = padding.medium,
+                        vertical = padding.small
+                    ),
+                onCreatePlant = {
+                    onAction(PlantScreenAction.OnCreatePlant)
+                },
+                createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
+            )
+        }
     }
 }
 
@@ -196,7 +286,7 @@ fun Header(
     removePhotoAvailable: Boolean = false,
     aiButtonAvailable: Boolean = false,
     image: Uri? = null,
-    onAddImage: ((Uri) -> Unit)? = null,
+    onAddImage: (() -> Unit),
     onBackClick: (() -> Unit)? = null,
     onRemoveImage: (() -> Unit)? = null
 ) {
@@ -237,7 +327,7 @@ fun HeaderContent(
     modifier: Modifier = Modifier,
     removePhotoAvailable: Boolean = false,
     aiButtonAvailable: Boolean = false,
-    onAddImage: ((Uri) -> Unit)? = null,
+    onAddImage: (() -> Unit),
     image: Uri? = null,
     onBackClick: (() -> Unit)? = null,
     onRemoveImage: (() -> Unit)? = null
@@ -290,12 +380,19 @@ fun ButtonContainer(
                 .height(ButtonDefaults.MinHeight + density.positiveFour),
             enabled = createPlantButtonIsEnabled,
             buttonStyle = ButtonStyle.Outlined,
-            labelText = if (plantId.isNull()) "Create plant" else "Update plant",
+            labelText = stringResource(
+                id = if (plantId.isNull())
+                    R.string.plant_screen_button_create_plant
+                else
+                    R.string.plant_screen_button_update_plant
+            ),
             icon = {
-                val icon = if (plantId.isNull()) Icons.Outlined.Add else Icons.Outlined.ChangeCircle
                 Icon(
                     modifier = Modifier.size(18.dp),
-                    imageVector = icon,
+                    imageVector = if (plantId.isNull())
+                        Icons.Outlined.Add
+                    else
+                        Icons.Outlined.ChangeCircle,
                     contentDescription = null
                 )
             },
@@ -306,10 +403,11 @@ fun ButtonContainer(
 
 @Preview
 @Composable
-fun PlantScreenPreview() {
+private fun PlantScreenPreview() {
     WaterMyPlantsTheme {
         PlantScreen(
             state = PlantScreenState(),
+            snackbarHostState = SnackbarHostState(),
             onAction = {}
         )
     }

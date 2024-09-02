@@ -30,7 +30,7 @@ fun SetupNavGraph(
             WelcomeScreen(
                 viewModel = viewModel,
                 navigate = {
-                    navController.navigate(Screen.HomeScreen)
+                    navController.navigate(Screen.PlantScreen())
                 }
             )
         }

@@ -1,9 +1,6 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen.components
 
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -36,18 +33,9 @@ fun PlantScreenActions(
     modifier: Modifier = Modifier,
     aiButtonAvailable: Boolean = false,
     image: Uri? = null,
-    onAddImage: ((Uri) -> Unit)? = null,
+    onAddImage: (() -> Unit),
     onAIButtonClick: (() -> Unit)? = null // TODO
 ) {
-    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            uri?.let { imageUri ->
-                onAddImage?.invoke(imageUri)
-            }
-        }
-    )
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(
@@ -62,31 +50,23 @@ fun PlantScreenActions(
                 containerColor = colorScheme.secondary,
                 contentColor = colorScheme.onSecondary
             ),
-            labelText = if (image == null) {
-                stringResource(id = R.string.plant_screen_button_add_image)
-            } else {
-                stringResource(id = R.string.plant_screen_button_change_image)
-            },
+            labelText = stringResource(
+                id = if (image == null)
+                    R.string.plant_screen_button_add_image
+                else
+                    R.string.plant_screen_button_change_image
+            ),
             icon = {
-                if (image == null) {
-                    Icon(
-                        modifier = Modifier.size(18.dp),
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = null
-                    )
-                } else {
-                    Icon(
-                        modifier = Modifier.size(18.dp),
-                        imageVector = Icons.Outlined.ChangeCircle,
-                        contentDescription = null
-                    )
-                }
-            },
-            onClick = {
-                singlePhotoPickerLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = if (image == null)
+                        Icons.Outlined.Add
+                    else
+                        Icons.Outlined.ChangeCircle,
+                    contentDescription = null
                 )
-            }
+            },
+            onClick = onAddImage
         )
         if (aiButtonAvailable) {
             IconButton(
@@ -113,6 +93,7 @@ fun PlantScreenActions(
 fun PlantScreenActionsPreview() {
     WaterMyPlantsTheme {
         PlantScreenActions(
+            onAddImage = {},
             aiButtonAvailable = true
         )
     }

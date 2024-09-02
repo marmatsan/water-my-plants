@@ -7,5 +7,6 @@ data class PlantScreenState(
     val isPlantSizeDialogVisible: Boolean = false,
     val isWateringDaysDialogVisible: Boolean = false,
     val isWateringTimeDialogVisible: Boolean = false,
-    val isCreatePlantButtonEnabled: Boolean = false
+    val isCreatePlantButtonEnabled: Boolean = false,
+    val isMediaPermissionRationaleVisible: Boolean = false
 )

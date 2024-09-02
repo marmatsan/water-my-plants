@@ -6,13 +6,13 @@
     <string name="welcome_screen_title_2">There are no plants in the ist, please add your first plant</string>
     <string name="welcome_screen_button_create_plant">Add your first plant</string>
     <string name="welcome_screen_dialog_rationale_headline">Wait! Are you sure?</string>
-    <string name="welcome_screen_dialog_rationale_supporting_text">Permission is required to access your plant photos in order to display them in your catalog. The app will only have access to the photos you select. If you don\'t grant permission now, you can update your preferences in the app\'s settings.</string>
-    <string name="welcome_screen_dialog_rationale_action_2">Don\'t grant</string>
-    <string name="welcome_screen_dialog_rationale_action_1">Grant</string>
+    <string name="welcome_screen_dialog_rationale_supporting_text">Permission is required to access your plant photos in order to display them in your catalog. The app will only have access to the photos you select.\n\nIf you don\'t grant permission now, you can update your preferences in the app\'s settings.</string>
+    <string name="welcome_screen_dialog_rationale_action_2">Retry</string>
     <!-- Plant screen -->
     <string name="plant_screen_button_add_image">Add image</string>
     <string name="plant_screen_button_change_image">Change image</string>
-    <string name="plant_screen_buton_create_plant">Create plant</string>
+    <string name="plant_screen_button_create_plant">Create plant</string>
+    <string name="plant_screen_button_update_plant">Update plant</string>
     <string name="plant_screen_dialog_ai_assistant_headline">AI assistant</string>
     <string name="plant_screen_dialog_ai_assistant_body">Do you want the assistance of the integrated AI? It will identify the plant type from the photo you have added and automatically populate its associated information.\n\nYou can make manual changes afterward as needed.</string>
     <string name="plant_screen_dialog_action2">Cancel</string>
@@ -34,6 +34,7 @@
     <string name="plant_screen_dialog_plant_size_option_4">Extra large</string>
     <string name="plant_screen_dialog_watering_days_headline">Watering days</string>
     <string name="plant_screen_dialog_watering_time_headline">Watering time</string>
+    <string name="plant_screen_snackbar_message">You have permanently declined media permission. Photos cannot be added. Go to app settings to change this.</string>
     <string name="monday">Monday</string>
     <string name="tuesday">Tuesday</string>
     <string name="wednesday">Wednesday</string>

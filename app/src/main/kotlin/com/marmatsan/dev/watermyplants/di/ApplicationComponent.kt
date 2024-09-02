@@ -6,10 +6,10 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import com.marmatsan.catalog_data.di.CatalogDataComponent
 import com.marmatsan.catalog_data.model.RealmPlant
-import com.marmatsan.core_domain.UserPreferences
+import com.marmatsan.core_domain.ProtoPreferences
 import com.marmatsan.dev.catalog_domain.di.CatalogDomainComponent
-import com.marmatsan.dev.core_data.preferences.DefaultPreferences
 import com.marmatsan.dev.core_data.preferences.PreferencesDataSerializer
+import com.marmatsan.dev.core_data.preferences.PreferencesImpl
 import com.marmatsan.dev.core_domain.di.Singleton
 import com.marmatsan.dev.core_domain.preferences.Preferences
 import com.marmatsan.dev.notifications_data.di.NotificationsDataComponent
@@ -39,45 +39,32 @@ abstract class ApplicationComponent(
     @Provides
     fun provideProtoDataStore(
         appContext: Context = context
-    ): DataStore<UserPreferences> = DataStoreFactory.create(
+    ): DataStore<ProtoPreferences> = DataStoreFactory.create(
         serializer = PreferencesDataSerializer,
         produceFile = { appContext.dataStoreFile(DATA_STORE_FILE_NAME) }
     )
 
     @Singleton
     @Provides
-    fun providePreferences(dataStore: DataStore<UserPreferences>): Preferences =
-        DefaultPreferences(dataStore)
+    fun providePreferences(dataStore: DataStore<ProtoPreferences>): Preferences =
+        PreferencesImpl(dataStore)
 
 
     abstract val notificationsDomainUseCases: NotificationsDomainUseCases
 
     @Provides
     @Singleton
-    fun provideRealmDatabase(): Realm {
-
-        /*        val migration = AutomaticSchemaMigration { migrationContext ->
-                    migrationContext.enumerate("RealmPlant") { oldObject: DynamicRealmObject, newObject: DynamicMutableRealmObject? ->
-                        newObject?.run {
-                            // Rename property
-                            set("id", oldObject.getValue<ObjectId>("_id"))
-                        }
-                    }
-                }*/
-
-        return Realm.open(
-            configuration = RealmConfiguration
-                .Builder(
-                    schema = setOf(
-                        RealmPlant::class
-                    )
+    fun provideRealmDatabase(): Realm = Realm.open(
+        configuration = RealmConfiguration
+            .Builder(
+                schema = setOf(
+                    RealmPlant::class
                 )
-                .schemaVersion(4)
-                .deleteRealmIfMigrationNeeded()
-                //.migration(migration)
-                .build()
-        )
-    }
+            )
+            .schemaVersion(4)
+            .deleteRealmIfMigrationNeeded()
+            .build()
+    )
 }
 
 interface ApplicationComponentProvider {

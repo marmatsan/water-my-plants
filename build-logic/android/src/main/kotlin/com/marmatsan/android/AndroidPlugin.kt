@@ -38,7 +38,7 @@ class AndroidPlugin : Plugin<Project> {
             namespace = "com.marmatsan.${project.name}"
             compileSdk = 34
             defaultConfig {
-                minSdk = 26
+                minSdk = 33
 
                 when (androidExtension) {
                     is ApplicationExtension -> {

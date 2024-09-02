@@ -3,6 +3,6 @@ syntax = "proto3";
 option java_package = "com.marmatsan.core_domain";
 option java_multiple_files = true;
 
-message UserPreferences {
+message ProtoPreferences {
   bool isMediaAccessPermanentlyDeclined = 1;
 }

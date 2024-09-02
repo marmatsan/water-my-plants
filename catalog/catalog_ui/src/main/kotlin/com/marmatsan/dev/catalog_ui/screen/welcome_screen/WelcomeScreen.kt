@@ -1,9 +1,5 @@
 package com.marmatsan.dev.catalog_ui.screen.welcome_screen
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,24 +11,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
-import com.marmatsan.dev.core_ui.components.dialog.BasicDialogWithHeroIcon
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
@@ -47,66 +39,25 @@ fun WelcomeScreen(
     viewModel: WelcomeScreenViewModel,
     navigate: () -> Unit
 ) {
-    val requestMediaPermission = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                viewModel.sendEvent(WelcomeScreenEvent.Navigate)
-            } else {
-                viewModel.showRequestMediaPermissionDialog()
-            }
-        }
-    )
-
-    val onAction = viewModel::onAction
-
     ObserveAsEvents(uiEventFlow = viewModel.uiEventFlow) { event ->
         when (event) {
             WelcomeScreenEvent.Navigate -> {
                 navigate()
             }
-
-            is WelcomeScreenEvent.RequestMediaPermission -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    requestMediaPermission.launch(
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    )
-                // TODO: Other API levels
-            }
         }
     }
 
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
     WelcomeScreen(
         modifier = modifier,
-        state = state,
-        onAction = onAction
+        onAction = viewModel::onAction
     )
-
 }
 
 @Composable
 fun WelcomeScreen(
     modifier: Modifier = Modifier,
-    state: WelcomeScreenState,
     onAction: (WelcomeScreenAction) -> Unit
 ) {
-    if (state.isRequestMediaPermissionDialogVisible) {
-        BasicDialogWithHeroIcon(
-            headline = stringResource(id = R.string.welcome_screen_dialog_rationale_headline),
-            icon = Icons.Rounded.WarningAmber,
-            supportingText = stringResource(id = R.string.welcome_screen_dialog_rationale_supporting_text),
-            onDismissRequest = {
-                onAction(WelcomeScreenAction.PermanentlyDeclineMediaPermission)
-            },
-            onAcceptRequest = {
-                onAction(WelcomeScreenAction.GrantMediaPermission)
-            },
-            dismissRequestActionLabel = stringResource(id = R.string.welcome_screen_dialog_rationale_action_2),
-            acceptRequestActionLabel = stringResource(id = R.string.welcome_screen_dialog_rationale_action_1)
-        )
-    }
 
     Column(
         modifier = modifier
@@ -125,14 +76,14 @@ fun WelcomeScreen(
     ) {
         Header(
             modifier = modifier
-                .weight(0.33f)
+                .weight(1 / 3f)
                 .padding(
                     all = padding.none
                 )
         )
         Body(
             modifier = modifier
-                .weight(0.66f),
+                .weight(2 / 3f),
             onAddFirstPlant = {
                 onAction(WelcomeScreenAction.OnAddFirstPlant)
             }
@@ -273,18 +224,6 @@ fun Texts(
 private fun WelcomeScreenPreviewNoDialog() {
     WaterMyPlantsTheme {
         WelcomeScreen(
-            state = WelcomeScreenState(isRequestMediaPermissionDialogVisible = false),
-            onAction = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WelcomeScreenPreviewDialog() {
-    WaterMyPlantsTheme {
-        WelcomeScreen(
-            state = WelcomeScreenState(isRequestMediaPermissionDialogVisible = true),
             onAction = {}
         )
     }

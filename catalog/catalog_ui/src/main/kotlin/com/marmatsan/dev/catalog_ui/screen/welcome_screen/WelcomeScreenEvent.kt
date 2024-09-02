@@ -4,5 +4,4 @@ import com.marmatsan.dev.core_ui.event.Event
 
 sealed interface WelcomeScreenEvent : Event {
     data object Navigate : WelcomeScreenEvent
-    data object RequestMediaPermission : WelcomeScreenEvent
 }
