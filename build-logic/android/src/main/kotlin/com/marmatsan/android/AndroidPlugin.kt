@@ -45,8 +45,8 @@ class AndroidPlugin : Plugin<Project> {
                         androidExtension.apply {
                             defaultConfig {
 
-                                val majorVersion = 1
-                                val minorVersion = 0
+                                val majorVersion = 0
+                                val minorVersion = 1
                                 val bugfixVersion = 0
 
                                 targetSdk = 34
