@@ -313,6 +313,30 @@ fun ButtonContainer(
             },
             onClick = onCreatePlant
         )
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ButtonDefaults.MinHeight + density.positiveFour),
+            enabled = createPlantButtonIsEnabled,
+            buttonStyle = ButtonStyle.Outlined,
+            labelText = stringResource(
+                id = if (plantId.isNull())
+                    R.string.plant_screen_button_create_plant
+                else
+                    R.string.plant_screen_button_update_plant
+            ),
+            icon = {
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = if (plantId.isNull())
+                        Icons.Outlined.Add
+                    else
+                        Icons.Outlined.ChangeCircle,
+                    contentDescription = null
+                )
+            },
+            onClick = onCreatePlant
+        )
     }
 }
 
