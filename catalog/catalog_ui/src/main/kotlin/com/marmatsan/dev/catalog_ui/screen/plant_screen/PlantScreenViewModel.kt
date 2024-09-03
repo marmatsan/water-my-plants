@@ -32,7 +32,7 @@ class PlantScreenViewModel(
 
     val plantId: String? = savedStateHandle[PLANT_ID_KEY]
 
-    // State
+    // State flow
     private val plantScreenStateFlow = MutableStateFlow(value = PlantScreenState())
 
     val state = plantScreenStateFlow.map { plantScreenState ->
