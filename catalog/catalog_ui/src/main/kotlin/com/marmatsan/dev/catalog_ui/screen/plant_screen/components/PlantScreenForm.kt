@@ -24,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.marmatsan.catalog_ui.R
 import com.marmatsan.dev.catalog_domain.model.PlantDataConstraints
 import com.marmatsan.dev.catalog_domain.model.PlantSize
 import com.marmatsan.dev.core_domain.Empty
@@ -53,7 +55,6 @@ object PlantScreenFormStyle {
         unfocusedContainerColor = colorScheme.secondaryContainer,
         unfocusedLabelColor = colorScheme.onSurfaceVariant,
         unfocusedIndicatorColor = Color.Transparent,
-
         focusedTextColor = colorScheme.onSurface,
         focusedContainerColor = colorScheme.secondaryContainer,
         focusedLabelColor = colorScheme.onSurfaceVariant,
@@ -146,7 +147,7 @@ fun PlantScreenForm(
                         },
                         label = {
                             Text(
-                                text = "Plant name*"
+                                text = stringResource(R.string.plant_screen_text_field_label_plant_name)
                             )
                         },
                         supportingText = if (name.isNotNull()) {
@@ -192,7 +193,7 @@ fun PlantScreenForm(
                             label = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Watering days*",
+                                    text = stringResource(R.string.plant_screen_text_field_label_watering_days),
                                     maxLines = 1,
                                     color = colorScheme.onSurfaceVariant,
                                     overflow = TextOverflow.Ellipsis
@@ -209,7 +210,7 @@ fun PlantScreenForm(
                             label = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Watering time*",
+                                    text = stringResource(R.string.plant_screen_text_field_label_watering_time),
                                     maxLines = 1,
                                     color = colorScheme.onSurfaceVariant,
                                     overflow = TextOverflow.Ellipsis
@@ -242,7 +243,7 @@ fun PlantScreenForm(
                             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
                             label = {
                                 Text(
-                                    text = "Water amount",
+                                    text = stringResource(R.string.plant_screen_text_field_label_water_amount),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -291,7 +292,7 @@ fun PlantScreenForm(
                             label = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Plant size",
+                                    text = stringResource(R.string.plant_screen_text_field_label_plant_size),
                                     maxLines = 1,
                                     color = colorScheme.onSurfaceVariant,
                                     overflow = TextOverflow.Ellipsis

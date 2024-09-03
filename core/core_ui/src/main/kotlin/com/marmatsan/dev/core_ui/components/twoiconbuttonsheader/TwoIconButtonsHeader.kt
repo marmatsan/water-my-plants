@@ -65,68 +65,11 @@ fun TwoIconButtonsHeader(
     }
 }
 
-@Composable
-fun TwoIconButtonsHeader(
-    modifier: Modifier = Modifier,
-    showSecondaryButton: Boolean = false,
-    primaryIconButton: @Composable () -> Unit = {
-        IconButton(
-            iconButtonStyle = IconButtonStyle.Filled,
-            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            icon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = null
-                )
-            }
-        )
-    },
-    secondaryIconButton: @Composable () -> Unit = {
-        IconButton(
-            iconButtonStyle = IconButtonStyle.Filled,
-            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.HideImage,
-                    contentDescription = null
-                )
-            }
-        )
-    }
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        primaryIconButton()
-        if (showSecondaryButton) {
-            secondaryIconButton()
-        }
-    }
-}
-
 @Preview(
     widthDp = 484
 )
 @Composable
 private fun TwoIconButtonsHeaderPreview() {
-    WaterMyPlantsTheme {
-        TwoIconButtonsHeader(
-            showSecondaryButton = true
-        )
-    }
-}
-
-@Preview(
-    widthDp = 484
-)
-@Composable
-private fun TwoIconButtonsHeaderWithButtonsPreview() {
     WaterMyPlantsTheme {
         TwoIconButtonsHeader(
             showSecondaryButton = true

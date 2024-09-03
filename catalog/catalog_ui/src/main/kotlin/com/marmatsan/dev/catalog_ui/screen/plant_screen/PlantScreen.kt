@@ -1,13 +1,11 @@
 package com.marmatsan.dev.catalog_ui.screen.plant_screen
 
 import android.Manifest
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ChangeCircle
@@ -34,15 +31,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.marmatsan.catalog_ui.R
-import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenActions
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenForm
+import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantScreenHeader
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantSizeDialog
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantWateringDaysDialog
 import com.marmatsan.dev.catalog_ui.screen.plant_screen.components.PlantWateringTimeDialog
@@ -50,15 +46,10 @@ import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.button.ButtonStyle
 import com.marmatsan.dev.core_ui.components.dialog.BasicDialog
-import com.marmatsan.dev.core_ui.components.illustration.Illustration
-import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
-import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.density
 import com.marmatsan.dev.core_ui.theme.padding
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.coroutines.launch
 
 private val LocalPlantId = compositionLocalOf<String?> { null }
@@ -219,7 +210,7 @@ fun PlantScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start,
         ) {
-            Header(
+            PlantScreenHeader(
                 modifier = Modifier.weight(1f),
                 removePhotoAvailable = state.plant.image != null,
                 aiButtonAvailable = false,
@@ -277,82 +268,6 @@ fun PlantScreen(
                 createPlantButtonIsEnabled = state.isCreatePlantButtonEnabled
             )
         }
-    }
-}
-
-@Composable
-fun Header(
-    modifier: Modifier = Modifier,
-    removePhotoAvailable: Boolean = false,
-    aiButtonAvailable: Boolean = false,
-    image: Uri? = null,
-    onAddImage: (() -> Unit),
-    onBackClick: (() -> Unit)? = null,
-    onRemoveImage: (() -> Unit)? = null
-) {
-    Box(
-        modifier = modifier
-    ) {
-        image?.let {
-            CoilImage(
-                modifier = Modifier.fillMaxSize(),
-                imageModel = { image },
-                imageOptions = ImageOptions(
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center
-                )
-            )
-        } ?: Illustration(
-            modifier = Modifier.fillMaxSize(),
-            illustrationDesign = IllustrationDesign.Four
-        )
-        HeaderContent(
-            modifier = Modifier
-                .padding(
-                    all = padding.medium
-                )
-                .fillMaxSize(),
-            removePhotoAvailable = removePhotoAvailable,
-            aiButtonAvailable = aiButtonAvailable,
-            image = image,
-            onAddImage = onAddImage,
-            onBackClick = onBackClick,
-            onRemoveImage = onRemoveImage
-        )
-    }
-}
-
-@Composable
-fun HeaderContent(
-    modifier: Modifier = Modifier,
-    removePhotoAvailable: Boolean = false,
-    aiButtonAvailable: Boolean = false,
-    onAddImage: (() -> Unit),
-    image: Uri? = null,
-    onBackClick: (() -> Unit)? = null,
-    onRemoveImage: (() -> Unit)? = null
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        TwoIconButtonsHeader(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = padding.none),
-            showSecondaryButton = removePhotoAvailable,
-            onPrimaryIconButtonClick = onBackClick,
-            onSecondaryIconButtonClick = onRemoveImage
-        )
-        PlantScreenActions(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(all = padding.none),
-            aiButtonAvailable = aiButtonAvailable,
-            image = image,
-            onAddImage = onAddImage,
-        )
     }
 }
 

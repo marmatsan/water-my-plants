@@ -6,11 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -44,7 +44,6 @@ import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.button.Button
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
-import com.marmatsan.dev.core_ui.components.twoiconbuttonsheader.TwoIconButtonsHeader
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
 import com.marmatsan.dev.core_ui.screen.Screen
 import com.marmatsan.dev.core_ui.theme.ShapeDefaults
@@ -200,81 +199,74 @@ private fun Header(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TwoIconButtonsHeader(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                showSecondaryButton = true,
-                primaryIconButton = {
-                    IconButton(
-                        iconButtonStyle = IconButtonStyle.Filled,
-                        iconButtonColors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = colorScheme.secondary
-                        ),
-                        icon = {
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                IconButton(
+                    iconButtonStyle = IconButtonStyle.Filled,
+                    iconButtonColors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = colorScheme.secondary
+                    ),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = onBackClick
+                )
+                IconButton(
+                    iconButtonStyle = IconButtonStyle.Filled,
+                    iconButtonColors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = colorScheme.secondaryContainer
+                    ),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.MoreVert,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = onDropdownMenuClick
+                )
+                DropdownMenu(
+                    modifier = Modifier.background(colorScheme.surfaceContainer),
+                    expanded = isDropdownMenuVisible,
+                    onDismissRequest = onDropdownMenuClick
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Edit plant",
+                                style = typography.bodyLarge
+                            )
+                        },
+                        leadingIcon = {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                imageVector = Icons.Outlined.Edit,
                                 contentDescription = null
                             )
                         },
-                        onClick = onBackClick
+                        onClick = onEditPlantClick
                     )
-                },
-                secondaryIconButton = {
-                    Box(
-                        modifier = Modifier.wrapContentSize()
-                    ) {
-                        IconButton(
-                            iconButtonStyle = IconButtonStyle.Filled,
-                            iconButtonColors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = colorScheme.secondaryContainer
-                            ),
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.MoreVert,
-                                    contentDescription = null
-                                )
-                            },
-                            onClick = onDropdownMenuClick
-                        )
-                        DropdownMenu(
-                            modifier = Modifier.background(colorScheme.surfaceContainer),
-                            expanded = isDropdownMenuVisible,
-                            onDismissRequest = onDropdownMenuClick
-                        ) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = "Edit plant",
-                                        style = typography.bodyLarge
-                                    )
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Edit,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = onEditPlantClick
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Delete plant",
+                                style = typography.bodyLarge
                             )
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = "Delete plant",
-                                        style = typography.bodyLarge
-                                    )
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.DeleteOutline,
-                                        tint = colorScheme.error,
-                                        contentDescription = null
-                                    )
-                                },
-                                onClick = onDeletePlantClick
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.DeleteOutline,
+                                tint = colorScheme.error,
+                                contentDescription = null
                             )
-                        }
-                    }
+                        },
+                        onClick = onDeletePlantClick
+                    )
                 }
-            )
+            }
             PlantDetails(plant = plant)
         }
     }

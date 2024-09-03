@@ -10,31 +10,35 @@
     <string name="plant_screen_button_change_image">Change image</string>
     <string name="plant_screen_button_create_plant">Create plant</string>
     <string name="plant_screen_button_update_plant">Update plant</string>
-    <string name="plant_screen_dialog_ai_assistant_headline">AI assistant</string>
-    <string name="plant_screen_dialog_ai_assistant_body">Do you want the assistance of the integrated AI? It will identify the plant type from the photo you have added and automatically populate its associated information.\n\nYou can make manual changes afterward as needed.</string>
-    <string name="plant_screen_dialog_action2">Cancel</string>
-    <string name="plant_screen_dialog_action1">Confirm</string>
-    <string name="plant_screen_dialog_plant_size_headline">Plant size</string>
-    <string name="plant_screen_text_field_label_plant_name">Plant name*</string>
-    <string name="plant_screen_text_field_label_watering_days">Watering days*</string>
-    <string name="plant_screen_text_field_label_watering_time">Watering time*</string>
-    <string name="plant_screen_text_field_label_water_amount">Water amount</string>
-    <string name="plant_screen_text_field_label_plant_size">Plant size</string>
-    <string name="plant_screen_text_field_label_description">Description</string>
-    <string name="plant_screen_text_field_prefix_water_amount">ml</string>
-    <string name="plant_screen_assist_chip_keep_changes">Keep changes</string>
-    <string name="plant_screen_assist_chip_regenerate">Regenerate</string>
-    <string name="plant_screen_assist_chip_discard_changes">Discard</string>
     <string name="plant_screen_dialog_plant_size_option_1">Small</string>
     <string name="plant_screen_dialog_plant_size_option_2">Medium</string>
     <string name="plant_screen_dialog_plant_size_option_3">Large</string>
     <string name="plant_screen_dialog_plant_size_option_4">Extra large</string>
     <string name="plant_screen_dialog_watering_days_headline">Watering days</string>
     <string name="plant_screen_dialog_watering_time_headline">Watering time</string>
-    <string name="plant_screen_snackbar_message">You have permanently declined media permission. Photos cannot be added. Go to app settings to change this.</string>
     <string name="plant_screen_dialog_rationale_headline">Wait! Are you sure?</string>
     <string name="plant_screen_dialog_rationale_supporting_text">Permission is required to access your plant photos in order to display them in your catalog. The app will only have access to the photos you select.\n\nIf you don\'t grant permission now, you can update your preferences in the app\'s settings.</string>
     <string name="plant_screen_dialog_rationale_action_2">Retry</string>
+    <string name="plant_screen_dialog_ai_assistant_headline">AI assistant</string>
+    <string name="plant_screen_dialog_ai_assistant_body">Do you want the assistance of the integrated AI? It will identify the plant type from the photo you have added and automatically populate its associated information.\n\nYou can make manual changes afterward as needed.</string>
+    <string name="plant_screen_dialog_action2">Cancel</string>
+    <string name="plant_screen_dialog_action1">Confirm</string>
+    <string name="plant_screen_dialog_plant_size_headline">Plant size</string>
+
+    <string name="plant_screen_text_field_label_plant_name">*Plant name</string>
+    <string name="plant_screen_text_field_label_watering_days">*Watering days</string>
+    <string name="plant_screen_text_field_label_watering_time">*Watering time</string>
+    <string name="plant_screen_text_field_label_water_amount">Water amount</string>
+    <string name="plant_screen_text_field_label_plant_size">Plant size</string>
+    <string name="plant_screen_text_field_label_description">Description</string>
+    <string name="plant_screen_text_field_prefix_water_amount">ml</string>
+
+    <string name="plant_screen_assist_chip_keep_changes">Keep changes</string>
+    <string name="plant_screen_assist_chip_regenerate">Regenerate</string>
+    <string name="plant_screen_assist_chip_discard_changes">Discard</string>
+
+    <string name="plant_screen_snackbar_message">You have permanently declined media permission. Photos cannot be added. Go to app settings to change this.</string>
+
     <string name="monday">Monday</string>
     <string name="tuesday">Tuesday</string>
     <string name="wednesday">Wednesday</string>
