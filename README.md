@@ -1,3 +1,5 @@
+[![Build Status](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d/status.svg?token=QU9GsRJeahGrx8bePgHwfg&branch=master)](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d)
+
 # Water My Plants 🌿📱
 
 Welcome to **Water My Plants** – Your Personalized Gardening Assistant! 
