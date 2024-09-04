@@ -96,6 +96,14 @@ fun HeaderContent(
             image = image,
             onAddImage = onAddImage,
         )
+        PlantScreenActions(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(all = padding.none),
+            aiButtonAvailable = aiButtonAvailable,
+            image = image,
+            onAddImage = onAddImage,
+        )
     }
 }
 

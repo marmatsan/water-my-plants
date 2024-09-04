@@ -26,12 +26,15 @@ plugins {
 rootProject.name = "water-my-plants"
 include(
     ":app",
+
     ":core:core_data",
     ":core:core_domain",
     ":core:core_ui",
+
     ":catalog:catalog_data",
     ":catalog:catalog_domain",
     ":catalog:catalog_ui",
+
     ":notifications:notifications_data",
     ":notifications:notifications_domain"
 )
