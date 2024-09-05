@@ -50,8 +50,7 @@ class AndroidPlugin : Plugin<Project> {
                                 val bugfixVersion = 0
 
                                 targetSdk = 34
-                                versionCode =
-                                    majorVersion * 1000 + minorVersion * 100 + bugfixVersion
+                                versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
                                 versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
                             }
                         }
