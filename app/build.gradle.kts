@@ -37,9 +37,6 @@ dependencies {
     implementation(projects.catalog.catalogData)
     implementation(projects.catalog.catalogDomain)
     implementation(projects.catalog.catalogUi)
-    // Notifications
-    implementation(projects.notifications.notificationsData)
-    implementation(projects.notifications.notificationsDomain)
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)

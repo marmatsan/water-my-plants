@@ -4,9 +4,6 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
@@ -37,14 +34,6 @@ fun List<DayOfWeek>.toFormattedString(): String = this.joinToString(separator = 
         DayOfWeek.SUNDAY -> "Sunday"
     }
 }
-
-context (ColumnScope) fun Modifier.fillAvailableSpace() = this
-    .fillMaxWidth()
-    .weight(1f)
-
-context (RowScope) fun Modifier.fillAvailableSpace() = this
-    .fillMaxWidth()
-    .weight(1f)
 
 fun View.isKeyboardOpen(): Boolean {
     val rect = Rect()

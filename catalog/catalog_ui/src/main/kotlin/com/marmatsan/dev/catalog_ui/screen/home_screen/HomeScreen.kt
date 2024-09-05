@@ -35,7 +35,6 @@ import com.marmatsan.dev.core_domain.isNull
 import com.marmatsan.dev.core_ui.components.illustration.Illustration
 import com.marmatsan.dev.core_ui.components.illustration.IllustrationDesign
 import com.marmatsan.dev.core_ui.event.ObserveAsEvents
-import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.padding
 
@@ -121,7 +120,9 @@ fun HomeScreen(
                 )
                 if (state.plants.isNull()) {
                     Box(
-                        modifier = Modifier.fillAvailableSpace(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()

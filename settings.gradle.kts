@@ -33,8 +33,5 @@ include(
 
     ":catalog:catalog_data",
     ":catalog:catalog_domain",
-    ":catalog:catalog_ui",
-
-    ":notifications:notifications_data",
-    ":notifications:notifications_domain"
+    ":catalog:catalog_ui"
 )

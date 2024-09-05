@@ -12,9 +12,6 @@ import com.marmatsan.dev.core_data.preferences.PreferencesDataSerializer
 import com.marmatsan.dev.core_data.preferences.PreferencesImpl
 import com.marmatsan.dev.core_domain.di.Singleton
 import com.marmatsan.dev.core_domain.preferences.Preferences
-import com.marmatsan.dev.notifications_data.di.NotificationsDataComponent
-import com.marmatsan.dev.notifications_domain.di.NotificationsDomainComponent
-import com.marmatsan.dev.notifications_domain.usecase.NotificationsDomainUseCases
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import me.tatarka.inject.annotations.Component
@@ -25,9 +22,7 @@ import me.tatarka.inject.annotations.Provides
 abstract class ApplicationComponent(
     @get:Provides val context: Context,
 ) : CatalogDomainComponent,
-    CatalogDataComponent,
-    NotificationsDataComponent,
-    NotificationsDomainComponent {
+    CatalogDataComponent {
 
     // Proto datastore
     companion object {
@@ -48,9 +43,6 @@ abstract class ApplicationComponent(
     @Provides
     fun providePreferences(dataStore: DataStore<ProtoPreferences>): Preferences =
         PreferencesImpl(dataStore)
-
-
-    abstract val notificationsDomainUseCases: NotificationsDomainUseCases
 
     @Provides
     @Singleton
