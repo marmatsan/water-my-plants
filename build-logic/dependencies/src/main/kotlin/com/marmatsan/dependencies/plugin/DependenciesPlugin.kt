@@ -11,7 +11,7 @@ class DependenciesPlugin : Plugin<Settings> {
         const val ACTIVITY_COMPOSE_VERSION = "1.9.1"
         const val ANDROID_COROUTINES_VERSION = "1.8.1"
         const val ASSERTK_VERSION = "0.28.1"
-        const val COMPOSE_BOM_VERSION = "2024.06.00"
+        const val COMPOSE_BOM_VERSION = "2024.09.00"
         const val COMPOSE_COMPILER_VERSION = "1.5.15"
         const val CORE_KTX_VERSION = "1.13.1"
         const val CORE_SPLASHSCREEN_VERSION = "1.1.0-rc01"
