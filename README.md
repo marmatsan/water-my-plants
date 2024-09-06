@@ -5,7 +5,7 @@
 Welcome to **Water My Plants** – Your Personalized Gardening Assistant! 
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/8d2e5178-0216-4d48-b616-22af3f388cc0" alt="Description of image" width="300"/>
+  <img src="https://github.com/user-attachments/assets/15418099-75d2-4d79-aec4-55ac233f7f28" alt="Description of image" width="300"/>
 </p>
 
 ### Never forget to water your plants again! 🌺💧
