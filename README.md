@@ -1,4 +1,4 @@
-[![Build Status](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d/status.svg?token=QU9GsRJeahGrx8bePgHwfg&branch=develop)](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d)
+[![Build Status](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d/status.svg?token=QU9GsRJeahGrx8bePgHwfg&branch=0.1.0/release)](https://app.bitrise.io/app/78d394be-8310-47be-b9d7-e29d2379ce2d)
 
 # Water My Plants 🌿📱
 
