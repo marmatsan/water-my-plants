@@ -134,6 +134,32 @@ val comLibraryTree = tree(Library(group = "com")) {
             )
         )
     }
+    tree(Library(group = "google")) {
+        tree(
+            Library(
+                group = "protobuf", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "protobuf",
+                        artifacts = listOf("protobuf-java"),
+                        version = DependenciesPlugin.Versions.PROTOBUF_LIBRARY_VERSION
+                    )
+                )
+            )
+        )
+    }
+    tree(Library(group = "willowtreeapps")) {
+        tree(
+            Library(
+                group = "assertk", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "assertk",
+                        artifacts = listOf("assertk"),
+                        version = DependenciesPlugin.Versions.ASSERTK_VERSION
+                    )
+                )
+            )
+        )
+    }
 }
 
 val meLibraryTree = tree(Library(group = "me")) {
@@ -159,8 +185,21 @@ val orgLibraryTree = tree(Library(group = "org")) {
                 group = "kotlinx", artifactsGroups = listOf(
                     ArtifactsGroup(
                         name = "gradle-configuration",
-                        artifacts = listOf("kotlin-gradle-plugin", "kotlin-android-extensions"),
+                        artifacts = listOf(
+                            "kotlin-gradle-plugin",
+                            "kotlin-android-extensions"
+                        ),
                         version = DependenciesPlugin.Versions.KOTLIN_VERSION
+                    ),
+                    ArtifactsGroup(
+                        name = "coroutines",
+                        artifacts = listOf("kotlinx-coroutines-android"),
+                        version = DependenciesPlugin.Versions.ANDROID_COROUTINES_VERSION
+                    ),
+                    ArtifactsGroup(
+                        name = "serialization",
+                        artifacts = listOf("kotlinx-serialization-json"),
+                        version = DependenciesPlugin.Versions.SERIALIZATION_VERSION
                     )
                 )
             )
@@ -172,7 +211,11 @@ val orgLibraryTree = tree(Library(group = "org")) {
                 group = "jupiter", artifactsGroups = listOf(
                     ArtifactsGroup(
                         name = "jupiter",
-                        artifacts = listOf("junit-jupiter"),
+                        artifacts = listOf(
+                            "junit-jupiter-api",
+                            "junit-jupiter-engine",
+                            "junit-jupiter-params"
+                        ),
                         version = DependenciesPlugin.Versions.JUNIT5_VERSION
                     )
                 )
@@ -181,11 +224,41 @@ val orgLibraryTree = tree(Library(group = "org")) {
     }
 }
 
+val ioLibraryTree = tree(Library(group = "io")) {
+    tree(Library(group = "realm")) {
+        tree(
+            Library(
+                group = "kotlin", artifactsGroups = listOf(
+                    ArtifactsGroup(
+                        name = "realm",
+                        artifacts = listOf("library-base"),
+                        version = DependenciesPlugin.Versions.REALM_VERSION
+                    )
+                )
+            )
+        )
+    }
+    tree(
+        Library(
+            group = "mockk",
+            artifactsGroups = listOf(
+                ArtifactsGroup(
+                    name = "mockk",
+                    artifacts = listOf("mockk"),
+                    version = DependenciesPlugin.Versions.MOCKK_VERSION
+                )
+            )
+        )
+    )
+}
 
 val nonComposeLibraryTrees = listOf(
     androidXLibraryTree,
     comLibraryTree,
     meLibraryTree,
-    orgLibraryTree
+    orgLibraryTree,
+    ioLibraryTree
 )
-val composeLibraryTrees = listOf(androidXComposeLibraryTree)
+val composeLibraryTrees = listOf(
+    androidXComposeLibraryTree
+)

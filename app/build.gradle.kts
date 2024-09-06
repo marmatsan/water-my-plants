@@ -1,5 +1,7 @@
 plugins {
     alias(plugins.plugins.com.android.application)
+    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
+    alias(plugins.plugins.de.mannodermaus.android.junit5)
     id("com.marmatsan.android")
     id("com.marmatsan.compose")
 }
@@ -35,10 +37,11 @@ dependencies {
     implementation(projects.catalog.catalogData)
     implementation(projects.catalog.catalogDomain)
     implementation(projects.catalog.catalogUi)
-    // Onboarding
-    implementation(projects.onboarding.onboardingDomain)
-    implementation(projects.onboarding.onboardingUi)
 
     /* Libraries */
     implementation(libs.androidx.core.core.splashscreen)
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
+    implementation(libs.bundles.androidx.datastore.datastore)
+    implementation(libs.com.google.protobuf)
+    implementation(libs.androidx.lifecycle)
 }

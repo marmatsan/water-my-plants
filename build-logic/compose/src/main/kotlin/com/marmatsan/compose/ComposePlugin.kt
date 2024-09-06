@@ -38,12 +38,9 @@ class ComposePlugin : Plugin<Project> {
                 compose = true
             }
 
-            composeOptions {
-                kotlinCompilerExtensionVersion =
-                    DependenciesPlugin.Versions.COMPOSE_COMPILER_VERSION
-            }
-
         }
+
+        project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libsCompose")
 
@@ -54,16 +51,12 @@ class ComposePlugin : Plugin<Project> {
             implementation("androidx.compose.animation:animation-graphics")
             implementation("androidx.compose.foundation:foundation")
             implementation("androidx.compose.foundation:foundation-layout")
-            implementation("androidx.compose.material:material")
             implementation("androidx.compose.material:material-icons-core")
             implementation("androidx.compose.material:material-icons-extended")
             implementation("androidx.compose.material:material-ripple")
             implementation("androidx.compose.material3:material3")
             implementation("androidx.compose.material3:material3-window-size-class")
             implementation("androidx.compose.runtime:runtime")
-            implementation("androidx.compose.runtime:runtime-livedata")
-            implementation("androidx.compose.runtime:runtime-rxjava2")
-            implementation("androidx.compose.runtime:runtime-rxjava3")
             implementation("androidx.compose.runtime:runtime-saveable")
             implementation("androidx.compose.ui:ui")
             implementation("androidx.compose.ui:ui-geometry")
