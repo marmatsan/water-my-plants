@@ -50,8 +50,7 @@ class AndroidPlugin : Plugin<Project> {
                                 val bugfixVersion = 0
 
                                 targetSdk = 34
-                                versionCode =
-                                    majorVersion * 1000 + minorVersion * 100 + bugfixVersion
+                                versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
                                 versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
                             }
                         }
@@ -59,15 +58,14 @@ class AndroidPlugin : Plugin<Project> {
                 }
 
                 compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_17
-                    targetCompatibility = JavaVersion.VERSION_17
+                    sourceCompatibility = JavaVersion.VERSION_21
+                    targetCompatibility = JavaVersion.VERSION_21
                 }
 
                 project.tasks.withType<KotlinJvmCompile>().configureEach {
                     compilerOptions.apply {
-                        languageVersion.set(KotlinVersion.KOTLIN_1_9)
-                        jvmTarget.set(JvmTarget.JVM_17)
-                        freeCompilerArgs.set(listOf("-Xcontext-receivers"))
+                        languageVersion.set(KotlinVersion.KOTLIN_2_0)
+                        jvmTarget.set(JvmTarget.JVM_21)
                     }
                 }
 

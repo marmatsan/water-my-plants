@@ -47,7 +47,6 @@ import com.marmatsan.dev.core_domain.Empty
 import com.marmatsan.dev.core_domain.isNotNull
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButton
 import com.marmatsan.dev.core_ui.components.iconbutton.IconButtonStyle
-import com.marmatsan.dev.core_ui.extension.fillAvailableSpace
 import com.marmatsan.dev.core_ui.extension.toFormattedString
 import com.marmatsan.dev.core_ui.theme.WaterMyPlantsTheme
 import com.marmatsan.dev.core_ui.theme.padding
@@ -86,7 +85,9 @@ fun PlantCard(
         )
     ) {
         PlantCardImage(
-            modifier = Modifier.fillAvailableSpace(),
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
             image = plant.image,
             waterAmount = plant.waterAmount,
             wateringDays = plant.wateringDays
