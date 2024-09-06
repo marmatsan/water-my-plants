@@ -20,9 +20,9 @@ Have you ever wondered when you last watered your plants? With **Water My Plants
 - 🔔 **Watering Reminders**: Get notifications to remind you when it's time to water your plants, so you never miss a day.
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/1f604480-7ac8-43ef-a2c0-afea929511e1" alt="Description of image" width="200"/>
-    <img src="https://github.com/user-attachments/assets/b260128a-a488-4d48-979f-c78d344cc51b" alt="Description of image" width="200"/>
-    <img src="https://github.com/user-attachments/assets/3d45a01a-a28d-4687-93fe-6689b00bcace" alt="Description of image" width="200"/>
+    <img src="https://github.com/user-attachments/assets/9b560333-9ce6-416d-b415-578a3c448a3f" alt="Description of image" width="200"/>
+    <img src="https://github.com/user-attachments/assets/2c073be8-3ef7-47f4-8f0c-12b719a9bc39" alt="Description of image" width="200"/>
+    <img src="https://github.com/user-attachments/assets/4d09c067-ad2b-42e5-8ffe-64427a10abdf" alt="Description of image" width="200"/>
 </p>
 
 ## How It Works
@@ -30,8 +30,8 @@ Have you ever wondered when you last watered your plants? With **Water My Plants
 Simply take a picture of your plant, and let our AI handle the rest! **Water My Plants** identifies your plant and automatically fills in all the necessary information, from the plant type to its specific watering needs. (Feature coming soon!)
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6ed37d6b-de74-4972-8b39-21031cce0635" alt="Description of image" width="200"/>
-    <img src="https://github.com/user-attachments/assets/285b32c6-7e24-4f2f-97c8-5827bd4b7d46" alt="Description of image" width="200"/>
+  <img src="https://github.com/user-attachments/assets/aafd6128-7cd6-4914-8e33-c1539c940b31" alt="Description of image" width="200"/>
+  <img src="https://github.com/user-attachments/assets/da7ea70f-9951-425a-bc1c-e822a5c433d0" alt="Description of image" width="200"/>
 </p>
 
 ## Why Water My Plants?
