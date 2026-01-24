@@ -15,11 +15,7 @@ data class Density(
     val negativeThree: Dp = -(3 * baseDensity.value).dp,
     val negativeTwo: Dp = -(2 * baseDensity.value).dp,
     val negativeOne: Dp = -baseDensity,
-    val none: Dp = 0.dp,
-    val positiveOne: Dp = baseDensity,
-    val positiveTwo: Dp = (2 * baseDensity.value).dp,
-    val positiveThree: Dp = (3 * baseDensity.value).dp,
-    val positiveFour: Dp = (4 * baseDensity.value).dp
+    val none: Dp = 0.dp
 )
 
 val LocalDensity = compositionLocalOf { Density() }
