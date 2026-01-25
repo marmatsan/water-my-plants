@@ -35,8 +35,12 @@ val appModule = listOf(
 val coreModule = listOf(
     ":core:core_ui"
 )
+val onboardingModule = listOf(
+    ":onboarding:onboarding_ui"
+)
 
 include(
     *appModule.toTypedArray(),
-    *coreModule.toTypedArray()
+    *coreModule.toTypedArray(),
+    *onboardingModule.toTypedArray()
 )

@@ -68,7 +68,7 @@ val Typography = Typography(
     ),
     displaySmall = TextStyle(
         fontSize = 36.sp,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Medium,
         fontFamily = fontFamily,
         letterSpacing = 0.sp,
         lineHeight = 44.sp
@@ -95,11 +95,11 @@ val Typography = Typography(
         lineHeight = 32.sp
     ),
     titleLarge = TextStyle(
-        fontSize = 24.sp,
+        fontSize = 22.sp,
         fontWeight = FontWeight.Normal,
         fontFamily = fontFamily,
         letterSpacing = 0.sp,
-        lineHeight = 32.sp
+        lineHeight = 28.sp
     ),
     titleMedium = TextStyle(
         fontSize = 16.sp,
