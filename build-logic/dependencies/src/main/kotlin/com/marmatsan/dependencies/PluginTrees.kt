@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.plugin
+package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.plugin.pluginTree
 import com.marmatsan.dependencies.version.Versions
@@ -19,6 +19,14 @@ private fun comPluginTree(versions: Versions) = pluginTree("com") {
             id = "library",
             version = versions.applicationVersion
         )
+    }
+    plugin("figma") {
+        plugin("code") {
+            plugin(
+                id = "connect",
+                version = versions.figmaCodeConnectPluginVersion
+            )
+        }
     }
     plugin("google") {
         plugin("devtools") {

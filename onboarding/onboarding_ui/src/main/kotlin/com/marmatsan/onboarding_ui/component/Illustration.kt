@@ -16,11 +16,30 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.marmatsan.onboarding_ui.R
+import com.figma.code.connect.Figma
+import com.figma.code.connect.FigmaConnect
+import com.figma.code.connect.FigmaProperty
+import com.figma.code.connect.FigmaType
 
 enum class IllustrationVariant {
     Illustration1,
     Illustration2,
     Illustration3
+}
+
+@FigmaConnect(url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62815-331&m=dev")
+class IllustrationDoc {
+    @FigmaProperty(FigmaType.Enum, "Illustration")
+    val variant: IllustrationVariant = Figma.mapping(
+        "illustration1" to IllustrationVariant.Illustration1,
+        "illustration2" to IllustrationVariant.Illustration2,
+        "illustration3" to IllustrationVariant.Illustration3
+    )
+
+    @Composable
+    fun Component() {
+        Illustration(variant = variant)
+    }
 }
 
 @Composable

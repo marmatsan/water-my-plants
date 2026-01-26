@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.plugin
+package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.library.libraryTree
 import com.marmatsan.dependencies.version.Versions
@@ -67,6 +67,16 @@ private fun androidxLibrariesTree(versions: Versions) = libraryTree("androidx") 
 }
 
 private fun comLibrariesTree(versions: Versions) = libraryTree("com") {
+    library("figma") {
+        library("code") {
+            library("connect"){
+                artifact(
+                    "code-connect-lib",
+                    version = versions.figmaCodeConnectLibraryVersion
+                )
+            }
+        }
+    }
     library("google") {
         library("protobuf") {
             artifact(

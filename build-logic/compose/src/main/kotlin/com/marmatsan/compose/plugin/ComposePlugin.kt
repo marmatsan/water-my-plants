@@ -3,7 +3,7 @@ package com.marmatsan.compose.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
-import com.marmatsan.dependencies.gradle.getLibraryByAlias
+import com.marmatsan.dependencies.gradle.requireLibraryNotation
 import com.marmatsan.dependencies.gradle.implementation
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -38,13 +38,14 @@ class ComposePlugin : Plugin<Project> {
         }
 
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+        project.pluginManager.apply("com.figma.code.connect")
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
             /* Compose libraries managed by Compose BOM */
-            implementation(platform(libs.getLibraryByAlias("androidx.compose.compose.bom")))
+            implementation(platform(libs.requireLibraryNotation("androidx.compose.compose.bom")))
             implementation("androidx.compose.animation:animation")
             implementation("androidx.compose.animation:animation-core")
             implementation("androidx.compose.animation:animation-graphics")
@@ -73,10 +74,13 @@ class ComposePlugin : Plugin<Project> {
             implementation("androidx.compose.ui:ui-viewbinding")
 
             /* Other Compose libraries */
-            implementation(libs.getLibraryByAlias("androidx.activity.activity.compose"))
-            implementation(libs.getLibraryByAlias("androidx.lifecycle.lifecycle.viewmodel.compose"))
-            implementation(libs.getLibraryByAlias("androidx.lifecycle.lifecycle.runtime.compose"))
-            implementation(libs.getLibraryByAlias("androidx.navigation.navigation.compose"))
+            implementation(libs.requireLibraryNotation("androidx.activity.activity.compose"))
+            implementation(libs.requireLibraryNotation("androidx.lifecycle.lifecycle.viewmodel.compose"))
+            implementation(libs.requireLibraryNotation("androidx.lifecycle.lifecycle.runtime.compose"))
+            implementation(libs.requireLibraryNotation("androidx.navigation.navigation.compose"))
+
+            /* Figma Code Connect */
+            implementation(libs.requireLibraryNotation("com.figma.code.connect.code.connect.lib"))
         }
     }
 }
