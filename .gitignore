@@ -32,3 +32,11 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Figma Code Connect
+.env
+tmp
+figma.config.json
+
+# Codex
+AGENTS.md

@@ -127,3 +127,32 @@ val neutralVariant95 = Color(0xFFF0F1F3)
 val neutralVariant98 = Color(0xFFF8FAFA)
 val neutralVariant99 = Color(0xFFFBFCFE)
 val neutralVariant100 = Color(0xFFFFFFFF)
+
+object IllustrationRefColors {
+    // Neutrals
+    val neutral100 = Color(0xFFFFFFFF)
+    val neutral90 = Color(0xFFE1E2E4)
+    val neutral80 = Color(0xFFD9D9D9)
+    val neutral70 = Color(0xFFC4C4C4)
+    val neutral60 = Color(0xFFAFB3B7)
+
+    // Teal / Aqua
+    val teal70 = Color(0xFF8CB6B2)
+    val teal60 = Color(0xFF91B9B2)
+    val teal50 = Color(0xFFA9C8CB)
+    val teal40 = Color(0xFFB4D9D3)
+
+    // Mint
+    val mint90 = Color(0xFFDFF0DC)
+
+    // Greens
+    val green90 = Color(0xFF84BD75)
+    val green80 = Color(0xFF77AD74)
+    val green70 = Color(0xFF72A265)
+    val green60 = Color(0xFF64935D)
+    val green55 = Color(0xFF5C8A5C)
+    val green50 = Color(0xFF457158)
+    val green40 = Color(0xFF406B52)
+    val green30 = Color(0xFF396349)
+    val green20 = Color(0xFF21825C)
+}
