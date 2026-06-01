@@ -1,13 +1,13 @@
 package com.marmatsan.dependencies.tree.plugin
 
-import com.marmatsan.dependencies.tree.model.NodeData
-import com.marmatsan.dependencies.tree.tree.TreeNode
+import com.marmatsan.dependencies.tree.model.DependencyNode
+import com.marmatsan.dependencies.tree.node.Node
 
 fun pluginTree(
     rootId: String,
     content: PluginScope.() -> Unit
-): TreeNode<NodeData.Plugin> {
-    val root = TreeNode(NodeData.Plugin(rootId))
+): Node<DependencyNode.Plugin> {
+    val root = Node(DependencyNode.Plugin(rootId))
     val builder = PluginScope(root)
     builder.content()
     return root

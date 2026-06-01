@@ -2,9 +2,9 @@ package com.marmatsan.dependencies.gradle
 
 import com.marmatsan.dependencies.libraryTrees
 import com.marmatsan.dependencies.pluginTrees
-import com.marmatsan.dependencies.tree.tree.getLibraries
-import com.marmatsan.dependencies.tree.tree.getPlugins
-import com.marmatsan.dependencies.version.Versions
+import com.marmatsan.dependencies.tree.node.toDependencyLibraries
+import com.marmatsan.dependencies.tree.node.toDependencyPlugins
+import com.marmatsan.dependencies.Versions
 import org.gradle.api.initialization.resolve.DependencyResolutionManagement
 
 fun DependencyResolutionManagement.configureVersionCatalogs(
@@ -15,10 +15,10 @@ fun DependencyResolutionManagement.configureVersionCatalogs(
 
     versionCatalogs {
         create("libs") {
-            libraryTrees.forEach { registerLibraries(it.getLibraries()) }
+            libraryTrees.forEach { registerLibraries(it.toDependencyLibraries()) }
         }
         create("plugins") {
-            pluginTrees.forEach { registerPlugins(it.getPlugins()) }
+            pluginTrees.forEach { registerPlugins(it.toDependencyPlugins()) }
         }
     }
 }

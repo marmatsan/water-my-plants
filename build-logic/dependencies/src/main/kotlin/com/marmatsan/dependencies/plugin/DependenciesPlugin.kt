@@ -1,7 +1,7 @@
 package com.marmatsan.dependencies.plugin
 
 import com.marmatsan.dependencies.gradle.configureVersionCatalogs
-import com.marmatsan.dependencies.version.Versions
+import com.marmatsan.dependencies.Versions
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 

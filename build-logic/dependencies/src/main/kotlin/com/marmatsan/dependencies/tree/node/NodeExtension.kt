@@ -1,11 +1,11 @@
-package com.marmatsan.dependencies.tree.tree
+package com.marmatsan.dependencies.tree.node
 
 import com.marmatsan.dependencies.tree.mapper.toDependencyLibrary
 import com.marmatsan.dependencies.tree.mapper.toDependencyPlugin
 import com.marmatsan.dependencies.tree.model.Dependency
-import com.marmatsan.dependencies.tree.model.NodeData
+import com.marmatsan.dependencies.tree.model.DependencyNode
 
-fun TreeNode<NodeData.Library>.getLibraries(): List<Dependency.Library> =
+fun Node<DependencyNode.Library>.toDependencyLibraries(): List<Dependency.Library> =
     depthFirstPreOrderTraverse(
         pathSegment = { libraryNode ->
             libraryNode.libraryGroup
@@ -18,7 +18,7 @@ fun TreeNode<NodeData.Library>.getLibraries(): List<Dependency.Library> =
         }
     )
 
-fun TreeNode<NodeData.Plugin>.getPlugins(): List<Dependency.Plugin> =
+fun Node<DependencyNode.Plugin>.toDependencyPlugins(): List<Dependency.Plugin> =
     depthFirstPreOrderTraverse(
         pathSegment = { pluginNode ->
             pluginNode.pluginId

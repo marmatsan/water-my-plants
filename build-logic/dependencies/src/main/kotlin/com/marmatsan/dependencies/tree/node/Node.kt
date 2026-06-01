@@ -1,12 +1,14 @@
-package com.marmatsan.dependencies.tree.tree
+package com.marmatsan.dependencies.tree.node
 
-import com.marmatsan.dependencies.tree.model.NodeData
+import com.marmatsan.dependencies.tree.model.DependencyNode
 
-data class TreeNode<T : NodeData>(
+data class Node<T : DependencyNode>(
     val data: T,
-    var children: MutableList<TreeNode<T>> = mutableListOf()
+    var children: MutableList<Node<T>> = mutableListOf()
 ) {
-    fun add(child: TreeNode<T>) = children.add(child)
+    fun add(
+        child: Node<T>
+    ) = children.add(child)
 
     fun <R> depthFirstPreOrderTraverse(
         traversalPath: MutableList<String> = mutableListOf(),
@@ -22,7 +24,7 @@ data class TreeNode<T : NodeData>(
             results.add(mapNode(data, fullPath))
         }
 
-        children?.forEach { child ->
+        children.forEach { child ->
             child.depthFirstPreOrderTraverse(
                 traversalPath = traversalPath,
                 results = results,

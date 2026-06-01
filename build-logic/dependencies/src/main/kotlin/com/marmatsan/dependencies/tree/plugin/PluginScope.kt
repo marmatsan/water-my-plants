@@ -1,21 +1,21 @@
 package com.marmatsan.dependencies.tree.plugin
 
-import com.marmatsan.dependencies.tree.model.NodeData
-import com.marmatsan.dependencies.tree.tree.TreeBuilder
-import com.marmatsan.dependencies.tree.tree.TreeNode
+import com.marmatsan.dependencies.tree.model.DependencyNode
+import com.marmatsan.dependencies.tree.TreeBuilder
+import com.marmatsan.dependencies.tree.node.Node
 
-class PluginScope(root: TreeNode<NodeData.Plugin>) : TreeBuilder<NodeData.Plugin>(root) {
+class PluginScope(root: Node<DependencyNode.Plugin>) : TreeBuilder<DependencyNode.Plugin>(root) {
     fun plugin(
         id: String,
         version: String? = null,
         content: PluginScope.() -> Unit = {}
     ) {
-        val nodeData = NodeData.Plugin(id, version)
+        val dependencyNode = DependencyNode.Plugin(id, version)
         val parent = currentParent
-        val newNode = TreeNode(nodeData)
+        val newNode = Node(dependencyNode)
         currentParent.add(newNode)
         currentParent = newNode
-        content() // recursively build child plugins
+        content()
         currentParent = parent
     }
 }

@@ -1,13 +1,16 @@
-package com.marmatsan.dependencies.tree.tree
+package com.marmatsan.dependencies.tree.node
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.marmatsan.dependencies.tree.library.libraryTree
+import com.marmatsan.dependencies.tree.model.Artifact
+import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.Dependency
+import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.plugin.pluginTree
 import org.junit.jupiter.api.Test
 
-internal class TreeNodeExtensionTest {
+internal class NodeExtensionTest {
 
     @Test
     fun `getLibraries() transforms correctly the libraries tree to a dependencies list`() {
@@ -42,42 +45,42 @@ internal class TreeNodeExtensionTest {
         }
 
         // WHEN
-        val actualLibraries = actualLibrariesTree.getLibraries()
+        val actualLibraries = actualLibrariesTree.toDependencyLibraries()
 
         val expectedLibraries = listOf(
             Dependency.Library(
                 libraryGroup = "androidx.activity",
                 entries = listOf(
-                    Dependency.Library.Entry.Single(
-                        Dependency.Library.Artifact("activity-compose", "1.9.1")
+                    LibraryEntry.Single(
+                        Artifact("activity-compose", "1.9.1")
                     )
                 )
             ),
             Dependency.Library(
                 libraryGroup = "androidx.compose",
                 entries = listOf(
-                    Dependency.Library.Entry.Single(
-                        Dependency.Library.Artifact("compose-bom", "2025.06.01")
+                    LibraryEntry.Single(
+                        Artifact("compose-bom", "2025.06.01")
                     )
                 )
             ),
             Dependency.Library(
                 libraryGroup = "androidx.compose.ui",
                 entries = listOf(
-                    Dependency.Library.Entry.Bundle(
-                        artifactsBundle = Dependency.Library.ArtifactsBundle(
+                    LibraryEntry.Bundle(
+                        artifactsBundle = ArtifactsBundle(
                             alias = "composeBundle",
                             artifacts = listOf(
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-graphics"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-tooling"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-tooling-preview"
                                 )
                             )
@@ -88,8 +91,8 @@ internal class TreeNodeExtensionTest {
             Dependency.Library(
                 libraryGroup = "androidx.compose.material3",
                 entries = listOf(
-                    Dependency.Library.Entry.Single(
-                        Dependency.Library.Artifact("material3")
+                    LibraryEntry.Single(
+                        Artifact("material3")
                     )
                 )
             )
@@ -114,7 +117,7 @@ internal class TreeNodeExtensionTest {
         }
 
         // WHEN
-        val actualPlugins = pluginsTree.getPlugins()
+        val actualPlugins = pluginsTree.toDependencyPlugins()
 
         val expectedPlugins = listOf(
             Dependency.Plugin(

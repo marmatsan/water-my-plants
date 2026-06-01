@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.version
+package com.marmatsan.dependencies
 
 import java.io.File
 import java.util.Properties
@@ -30,15 +30,18 @@ data class Versions(
     val serializationVersion: String
 ) {
     companion object {
-        fun load(rootDir: File): Versions {
+        fun load(
+            rootDir: File
+        ): Versions {
             val versionsFile = resolveVersionsFile(rootDir)
             val properties = Properties().apply {
                 versionsFile.inputStream().use(::load)
             }
 
-            fun get(key: String): String =
-                properties.getProperty(key)
-                    ?: error("Missing version property '$key' in ${versionsFile.path}")
+            fun get(
+                key: String
+            ): String = properties.getProperty(key)
+                ?: error("Missing version property '$key' in ${versionsFile.path}")
 
             return Versions(
                 activityComposeVersion = get("activityComposeVersion"),
@@ -68,7 +71,9 @@ data class Versions(
             )
         }
 
-        private fun resolveVersionsFile(rootDir: File): File {
+        private fun resolveVersionsFile(
+            rootDir: File
+        ): File {
             val candidates = listOf(
                 rootDir.resolve("build-logic/versions.properties"),
                 rootDir.resolve("versions.properties")

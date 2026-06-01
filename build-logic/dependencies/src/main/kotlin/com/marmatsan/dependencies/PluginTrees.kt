@@ -1,15 +1,19 @@
 package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.plugin.pluginTree
-import com.marmatsan.dependencies.version.Versions
+import com.marmatsan.dependencies.Versions
 
-fun pluginTrees(versions: Versions) = listOf(
+fun pluginTrees(
+    versions: Versions
+) = listOf(
     comPluginTree(versions),
     dePluginTree(versions),
     orgPluginTree(versions)
 )
 
-private fun comPluginTree(versions: Versions) = pluginTree("com") {
+private fun comPluginTree(
+    versions: Versions
+) = pluginTree("com") {
     plugin("android") {
         plugin(
             id = "application",
@@ -42,7 +46,9 @@ private fun comPluginTree(versions: Versions) = pluginTree("com") {
     }
 }
 
-private fun dePluginTree(versions: Versions) = pluginTree("de") {
+private fun dePluginTree(
+    versions: Versions
+) = pluginTree("de") {
     plugin("mannodermaus") {
         plugin(
             id = "android-junit5",
@@ -51,7 +57,9 @@ private fun dePluginTree(versions: Versions) = pluginTree("de") {
     }
 }
 
-private fun orgPluginTree(versions: Versions) = pluginTree("org") {
+private fun orgPluginTree(
+    versions: Versions
+) = pluginTree("org") {
     plugin("jetbrains") {
         plugin("kotlin") {
             plugin(

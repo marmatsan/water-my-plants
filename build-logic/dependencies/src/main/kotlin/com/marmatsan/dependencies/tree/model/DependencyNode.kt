@@ -1,24 +1,24 @@
 package com.marmatsan.dependencies.tree.model
 
 /**
- * Represents a dependency declared or produced by the dependency tree system.
+ * Represents the payload stored in a dependency tree node.
  *
- * `Dependency` is a sealed hierarchy that models two major Gradle dependency categories:
+ * `DependencyNode` is a sealed hierarchy covering the two supported node kinds:
  *
- * - [Library]: A library dependency group (typically a Maven `groupId`) containing one or more
- *   artifacts (either single artifacts or bundles).
- * - [Plugin]: A Gradle plugin dependency identified by a plugin id.
+ * - [Library]: A library dependency group that contains one or more artifacts (either single artifacts
+ *   or bundles of artifacts).
+ * - [Plugin]: A Gradle plugin dependency.
  *
- * This type is intended to represent the “dependency itself” (i.e., a resolvable/consumable unit
- * in your domain), as opposed to a node payload or UI/graph representation.
+ * This type is intended to be used as the value of a tree node, while the tree structure models
+ * relationships such as grouping, nesting, or ordering between nodes.
  */
-sealed class Dependency {
+sealed class DependencyNode {
 
     /**
-     * Represents a library dependency group (typically a Maven `groupId`) and its artifact entries.
+     * Represents a library group (typically a Maven groupId) and its artifact entries.
      *
-     * A [Library] dependency groups one or more [LibraryEntry] items under the same [libraryGroup]. Each
-     * entry may be:
+     * A [Library] node groups one or more [LibraryEntry] items under the same [libraryGroup]. Each entry may
+     * define:
      * - a single artifact ([LibraryEntry.Single]), or
      * - a bundle of artifacts referenced by an alias ([LibraryEntry.Bundle]).
      *
@@ -32,7 +32,7 @@ sealed class Dependency {
     data class Library(
         val libraryGroup: String,
         val entries: List<LibraryEntry>? = null
-    ) : Dependency()
+    ) : DependencyNode()
 
     /**
      * Represents a Gradle plugin dependency.
@@ -44,5 +44,5 @@ sealed class Dependency {
     data class Plugin(
         val pluginId: String,
         val version: String? = null
-    ) : Dependency()
+    ) : DependencyNode()
 }

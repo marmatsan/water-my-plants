@@ -1,6 +1,8 @@
 package com.marmatsan.dependencies.gradle
 
+import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.Dependency
+import com.marmatsan.dependencies.tree.model.LibraryEntry
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 
 /**
@@ -12,7 +14,7 @@ fun VersionCatalogBuilder.registerLibraries(
     libraries.forEach { library ->
         library.entries?.forEach { entry ->
             when (entry) {
-                is Dependency.Library.Entry.Single -> {
+                is LibraryEntry.Single -> {
                     val artifact = entry.artifact
                     registerLibrary(
                         libraryGroup = library.libraryGroup,
@@ -20,7 +22,7 @@ fun VersionCatalogBuilder.registerLibraries(
                     )
                 }
 
-                is Dependency.Library.Entry.Bundle -> {
+                is LibraryEntry.Bundle -> {
                     val artifactsBundle = entry.artifactsBundle
                     val artifacts = artifactsBundle.artifacts
                     val artifactsBundleVersion = artifactsBundle.version
@@ -107,7 +109,7 @@ private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
  * ```
  * registerLibrary(
  *     libraryGroup = "androidx.core",
- *     artifact = Dependency.Artifact(name = "core-ktx", version = "1.13.1")
+ *     artifact = Artifact(artifact = "core-ktx", version = "1.13.1")
  * )
  * ```
  *
@@ -116,7 +118,7 @@ private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
  *  * **Usage**: `<version catalog name>.<normalized alias>`
  *
  * @param libraryGroup The group ID of the library (e.g., `androidx.core`)
- * @param artifact The [Dependency.Library.Artifact] to register
+ * @param artifact The [Artifact] to register
  * @param version The optional version for the artifact. If `null`, the version is expected to be managed elsewhere
  * (e.g., by a BOM)
  * @return The generated **unnormalized** alias for the registered library in form of a [String]
@@ -125,7 +127,7 @@ private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
  */
 private fun VersionCatalogBuilder.registerLibrary(
     libraryGroup: String,
-    artifact: Dependency.Library.Artifact,
+    artifact: Artifact,
     version: String? = artifact.version
 ): String {
     val libraryAlias = "$libraryGroup.${artifact.artifact}"

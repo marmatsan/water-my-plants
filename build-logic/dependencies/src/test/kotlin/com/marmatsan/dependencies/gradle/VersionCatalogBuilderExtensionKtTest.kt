@@ -1,6 +1,9 @@
 package com.marmatsan.dependencies.gradle
 
+import com.marmatsan.dependencies.tree.model.Artifact
+import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.Dependency
+import com.marmatsan.dependencies.tree.model.LibraryEntry
 import io.mockk.mockk
 import io.mockk.verify
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
@@ -23,8 +26,8 @@ internal class VersionCatalogBuilderExtensionKtTest {
             Dependency.Library(
                 libraryGroup = "androidx.activity",
                 entries = listOf(
-                    Dependency.Library.Entry.Single(
-                        artifact = Dependency.Library.Artifact(
+                    LibraryEntry.Single(
+                        artifact = Artifact(
                             artifact = "activity-compose",
                             version = "1.9.2"
                         )
@@ -53,26 +56,26 @@ internal class VersionCatalogBuilderExtensionKtTest {
             Dependency.Library(
                 libraryGroup = "androidx.compose",
                 entries = listOf(
-                    Dependency.Library.Entry.Single(
-                        artifact = Dependency.Library.Artifact(
+                    LibraryEntry.Single(
+                        artifact = Artifact(
                             artifact = "compose-bom",
                             version = "2025.06.01"
                         )
                     ),
-                    Dependency.Library.Entry.Bundle(
-                        artifactsBundle = Dependency.Library.ArtifactsBundle(
+                    LibraryEntry.Bundle(
+                        artifactsBundle = ArtifactsBundle(
                             alias = "composeBundle",
                             artifacts = listOf(
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-graphics"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-tooling"
                                 ),
-                                Dependency.Library.Artifact(
+                                Artifact(
                                     artifact = "ui-tooling-preview"
                                 )
                             )

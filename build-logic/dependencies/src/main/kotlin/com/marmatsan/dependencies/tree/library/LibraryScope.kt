@@ -1,14 +1,17 @@
 package com.marmatsan.dependencies.tree.library
 
-import com.marmatsan.dependencies.tree.model.NodeData
-import com.marmatsan.dependencies.tree.tree.TreeBuilder
-import com.marmatsan.dependencies.tree.tree.TreeNode
+import com.marmatsan.dependencies.tree.model.DependencyNode
+import com.marmatsan.dependencies.tree.TreeBuilder
+import com.marmatsan.dependencies.tree.node.Node
+import com.marmatsan.dependencies.tree.model.Artifact
+import com.marmatsan.dependencies.tree.model.ArtifactsBundle
+import com.marmatsan.dependencies.tree.model.LibraryEntry
 
 class LibraryScope(
-    root: TreeNode<NodeData.Library>
-) : TreeBuilder<NodeData.Library>(root) {
+    root: Node<DependencyNode.Library>
+) : TreeBuilder<DependencyNode.Library>(root) {
 
-    private var entries: MutableList<NodeData.Library.Entry>? = null
+    private var entries: MutableList<LibraryEntry>? = null
 
     /**
      * Adds a single artifact entry to the current library.
@@ -24,8 +27,8 @@ class LibraryScope(
         artifact: String,
         version: String? = null
     ) {
-        val newEntry = NodeData.Library.Entry.Single(
-            artifact = NodeData.Library.Artifact(artifact, version)
+        val newEntry = LibraryEntry.Single(
+            artifact = Artifact(artifact, version)
         )
         entries = (entries ?: mutableListOf()).apply { add(newEntry) }
     }
@@ -50,10 +53,10 @@ class LibraryScope(
         alias: String,
         version: String? = null
     ) {
-        val newEntry = NodeData.Library.Entry.Bundle(
-            artifactsBundle = NodeData.Library.ArtifactsBundle(
+        val newEntry = LibraryEntry.Bundle(
+            artifactsBundle = ArtifactsBundle(
                 alias = alias,
-                artifacts = artifacts.map { NodeData.Library.Artifact(it, version) },
+                artifacts = artifacts.map { Artifact(it, version) },
                 version = version
             )
         )
@@ -64,7 +67,7 @@ class LibraryScope(
      * Defines and registers a nested library group within the current [LibraryScope] tree structure.
      *
      * This function allows building a hierarchical DSL-style declaration of library dependencies.
-     * It creates a new [TreeNode] representing a [NodeData.Library] group, applies the provided
+     * It creates a new [Node] representing a [DependencyNode.Library] group, applies the provided
      * [content] block (which may define individual artifacts or nested groups), and then inserts
      * the result into the parent's children list.
      *
@@ -89,7 +92,7 @@ class LibraryScope(
         group: String,
         content: (LibraryScope.() -> Unit)? = null
     ) {
-        val node = TreeNode(NodeData.Library(group))
+        val node = Node(DependencyNode.Library(group))
         currentParent.add(node)
 
         val childScope = LibraryScope(node)
@@ -98,14 +101,12 @@ class LibraryScope(
         val updatedNodeData = node.data.copy(
             entries = childScope.entries?.toList()
         )
-        val updatedNode = TreeNode(
+        val updatedNode = Node(
             data = updatedNodeData,
             children = node.children
         )
 
-        val siblings = currentParent.children ?: mutableListOf<TreeNode<NodeData.Library>>().also { emptyList ->
-            currentParent.children = emptyList
-        }
+        val siblings = currentParent.children
 
         if (siblings.isNotEmpty()) {
             siblings[siblings.lastIndex] = updatedNode

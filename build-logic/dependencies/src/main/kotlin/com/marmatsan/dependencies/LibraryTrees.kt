@@ -1,9 +1,11 @@
 package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.library.libraryTree
-import com.marmatsan.dependencies.version.Versions
+import com.marmatsan.dependencies.Versions
 
-fun libraryTrees(versions: Versions) = listOf(
+fun libraryTrees(
+    versions: Versions
+) = listOf(
     androidxLibrariesTree(versions),
     comLibrariesTree(versions),
     ioLibrariesTree(versions),
@@ -11,7 +13,9 @@ fun libraryTrees(versions: Versions) = listOf(
     orgLibrariesTree(versions)
 )
 
-private fun androidxLibrariesTree(versions: Versions) = libraryTree("androidx") {
+private fun androidxLibrariesTree(
+    versions: Versions
+) = libraryTree("androidx") {
     library("activity") {
         artifact(
             "activity-compose",
@@ -66,10 +70,12 @@ private fun androidxLibrariesTree(versions: Versions) = libraryTree("androidx") 
     }
 }
 
-private fun comLibrariesTree(versions: Versions) = libraryTree("com") {
+private fun comLibrariesTree(
+    versions: Versions
+) = libraryTree("com") {
     library("figma") {
         library("code") {
-            library("connect"){
+            library("connect") {
                 artifact(
                     "code-connect-lib",
                     version = versions.figmaCodeConnectLibraryVersion
@@ -99,7 +105,9 @@ private fun comLibrariesTree(versions: Versions) = libraryTree("com") {
     }
 }
 
-private fun ioLibrariesTree(versions: Versions) = libraryTree("io") {
+private fun ioLibrariesTree(
+    versions: Versions
+) = libraryTree("io") {
     library("mockk") {
         artifact(
             "mockk",
@@ -108,7 +116,9 @@ private fun ioLibrariesTree(versions: Versions) = libraryTree("io") {
     }
 }
 
-private fun meLibrariesTree(versions: Versions) = libraryTree("me") {
+private fun meLibrariesTree(
+    versions: Versions
+) = libraryTree("me") {
     library("tatarka") {
         library("inject") {
             artifact(
@@ -123,7 +133,9 @@ private fun meLibrariesTree(versions: Versions) = libraryTree("me") {
     }
 }
 
-private fun orgLibrariesTree(versions: Versions) = libraryTree("org") {
+private fun orgLibrariesTree(
+    versions: Versions
+) = libraryTree("org") {
     library("jetbrains") {
         library("kotlinx") {
             artifact(
