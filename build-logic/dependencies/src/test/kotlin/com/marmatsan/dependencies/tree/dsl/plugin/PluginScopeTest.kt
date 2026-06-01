@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.tree.plugin
+package com.marmatsan.dependencies.tree.dsl.plugin
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

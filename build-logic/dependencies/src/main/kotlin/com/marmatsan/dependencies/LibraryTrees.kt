@@ -1,7 +1,6 @@
 package com.marmatsan.dependencies
 
-import com.marmatsan.dependencies.tree.library.libraryTree
-import com.marmatsan.dependencies.Versions
+import com.marmatsan.dependencies.tree.dsl.library.libraryTree
 
 fun libraryTrees(
     versions: Versions

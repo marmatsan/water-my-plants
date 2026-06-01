@@ -1,16 +1,15 @@
 package com.marmatsan.dependencies.tree.model
 
 /**
- * Represents a named collection of artifacts.
+ * Represents a Gradle version catalog bundle declaration.
  *
- * Bundles are addressed by an [alias] and contain multiple [artifacts]. A bundle can optionally
- * provide a [version] that can act as a common/default version for the artifacts it contains,
- * depending on your resolution rules.
+ * A bundle groups multiple [artifacts] under a single [alias], allowing consumers to reference the
+ * whole group from `libs.bundles.<alias>`. When [version] is provided, the DSL propagates that same
+ * version to the artifacts in the bundle.
  *
- * @property alias Logical name used to reference this bundle.
- * @property artifacts The artifacts that belong to this bundle.
- * @property version Optional version shared by the bundle. Interpretation (default vs enforced)
- * depends on the resolution strategy.
+ * @property alias Version catalog bundle alias.
+ * @property artifacts Artifacts that belong to this bundle.
+ * @property version Optional version shared by the bundle artifacts.
  */
 data class ArtifactsBundle(
     val alias: String,

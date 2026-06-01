@@ -1,11 +1,14 @@
 package com.marmatsan.dependencies.tree.model
 
 /**
- * Represents a single Maven artifact within a library group.
+ * Represents one artifact entry inside a library group.
+ *
+ * The group is not stored here. It is provided by the surrounding [Dependency.Library] or
+ * [DependencyNode.Library] path when the tree is mapped to catalog dependencies.
  *
  * @property artifact The artifact identifier, usually matching Maven `artifactId`.
- * @property version Optional version for the artifact. When absent, version may be provided
- * by a containing [ArtifactsBundle] or an external resolution mechanism.
+ * @property version Optional artifact version. When `null`, the version is expected to be provided
+ * by a bundle, a BOM, a version catalog constraint, or another external resolution mechanism.
  */
 data class Artifact(
     val artifact: String,

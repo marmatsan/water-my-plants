@@ -1,7 +1,6 @@
 package com.marmatsan.dependencies
 
-import com.marmatsan.dependencies.tree.plugin.pluginTree
-import com.marmatsan.dependencies.Versions
+import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 
 fun pluginTrees(
     versions: Versions

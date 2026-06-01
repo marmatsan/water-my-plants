@@ -130,7 +130,10 @@ private fun VersionCatalogBuilder.registerLibrary(
     artifact: Artifact,
     version: String? = artifact.version
 ): String {
-    val libraryAlias = "$libraryGroup.${artifact.artifact}"
+    val libraryAlias = libraryAlias(
+        libraryGroup = libraryGroup,
+        artifact = artifact.artifact
+    )
     val libraryAliasBuilder = registerLibraryAlias(
         libraryAlias = libraryAlias,
         libraryGroup = libraryGroup,
@@ -138,4 +141,16 @@ private fun VersionCatalogBuilder.registerLibrary(
     )
     libraryAliasBuilder.registerLibraryVersion(version)
     return libraryAlias
+}
+
+private fun libraryAlias(
+    libraryGroup: String,
+    artifact: String
+): String {
+    val lastGroupSegment = libraryGroup.substringAfterLast(".")
+    return if (artifact == lastGroupSegment || artifact.startsWith("$lastGroupSegment-")) {
+        "${libraryGroup.substringBeforeLast(".")}.$artifact"
+    } else {
+        "$libraryGroup.$artifact"
+    }
 }

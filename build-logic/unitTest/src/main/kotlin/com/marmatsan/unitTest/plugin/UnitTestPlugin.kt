@@ -19,6 +19,7 @@ class UnitTestPlugin : Plugin<Project> {
 
         project.tasks.withType<Test> {
             useJUnitPlatform()
+            jvmArgs("-XX:+EnableDynamicAgentLoading")
         }
 
         project.dependencies {

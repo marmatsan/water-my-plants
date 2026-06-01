@@ -7,10 +7,8 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
 
 fun Node<DependencyNode.Library>.toDependencyLibraries(): List<Dependency.Library> =
     depthFirstPreOrderTraverse(
-        pathSegment = { libraryNode ->
-            libraryNode.libraryGroup
-        },
-        nodeIsLeaf = { libraryNode ->
+        pathSegment = DependencyNode.Library::libraryGroup,
+        shouldIncludeNode = { libraryNode ->
             libraryNode.entries != null
         },
         mapNode = { libraryNode, libraryGroup ->
@@ -20,10 +18,8 @@ fun Node<DependencyNode.Library>.toDependencyLibraries(): List<Dependency.Librar
 
 fun Node<DependencyNode.Plugin>.toDependencyPlugins(): List<Dependency.Plugin> =
     depthFirstPreOrderTraverse(
-        pathSegment = { pluginNode ->
-            pluginNode.pluginId
-        },
-        nodeIsLeaf = { pluginNode ->
+        pathSegment = DependencyNode.Plugin::pluginId,
+        shouldIncludeNode = { pluginNode ->
             pluginNode.version != null
         },
         mapNode = { pluginNode, pluginId ->

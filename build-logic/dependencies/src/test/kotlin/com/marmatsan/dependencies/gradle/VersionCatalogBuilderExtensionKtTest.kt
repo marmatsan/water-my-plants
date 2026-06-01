@@ -42,7 +42,7 @@ internal class VersionCatalogBuilderExtensionKtTest {
         // THEN
         verify {
             builder.library(
-                "androidx.activity.activity-compose",
+                "androidx.activity-compose",
                 "androidx.activity",
                 "activity-compose"
             ).version("1.9.2")
@@ -91,7 +91,7 @@ internal class VersionCatalogBuilderExtensionKtTest {
         // THEN
         verify {
             builder.library(
-                "androidx.compose.compose-bom",
+                "androidx.compose-bom",
                 "androidx.compose",
                 "compose-bom"
             ).version("2025.06.01")

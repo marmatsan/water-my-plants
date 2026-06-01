@@ -3,31 +3,25 @@ package com.marmatsan.dependencies.tree.model
 /**
  * Represents the payload stored in a dependency tree node.
  *
- * `DependencyNode` is a sealed hierarchy covering the two supported node kinds:
+ * A `DependencyNode` may be an intermediate grouping node or a node that should be emitted as a
+ * final [Dependency]. The tree traversal decides whether a node is included based on the payload:
+ * library nodes are included when they have [Library.entries], and plugin nodes are included when
+ * they have [Plugin.version].
  *
- * - [Library]: A library dependency group that contains one or more artifacts (either single artifacts
- *   or bundles of artifacts).
- * - [Plugin]: A Gradle plugin dependency.
- *
- * This type is intended to be used as the value of a tree node, while the tree structure models
- * relationships such as grouping, nesting, or ordering between nodes.
+ * - [Library] contributes one segment to a Maven group path.
+ * - [Plugin] contributes one segment to a Gradle plugin id path.
  */
 sealed class DependencyNode {
 
     /**
-     * Represents a library group (typically a Maven groupId) and its artifact entries.
+     * Represents one segment in a library group tree.
      *
-     * A [Library] node groups one or more [LibraryEntry] items under the same [libraryGroup]. Each entry may
-     * define:
-     * - a single artifact ([LibraryEntry.Single]), or
-     * - a bundle of artifacts referenced by an alias ([LibraryEntry.Bundle]).
+     * For intermediate nodes, [entries] is `null` and the node only contributes [libraryGroup] to
+     * descendants' full paths. When [entries] is not `null`, the node is mapped to a
+     * [Dependency.Library] using the full dotted path built by traversal.
      *
-     * Versions may be specified at the [Artifact] level and/or at the [ArtifactsBundle] level.
-     *
-     * @property libraryGroup The group identifier for the library, usually matching Maven `groupId`.
-     * @property entries Optional list of entries (single artifacts or bundles) belonging to this group.
-     * If `null`, it can represent “no entries provided” or “entries not loaded”, depending on the
-     * calling context.
+     * @property libraryGroup Path segment for this node.
+     * @property entries Optional catalog entries declared at this node.
      */
     data class Library(
         val libraryGroup: String,
@@ -35,11 +29,14 @@ sealed class DependencyNode {
     ) : DependencyNode()
 
     /**
-     * Represents a Gradle plugin dependency.
+     * Represents one segment in a Gradle plugin id tree.
      *
-     * @property pluginId The plugin id (e.g., `"com.android.application"`).
-     * @property version Optional plugin version. When absent, version may be provided externally
-     * (e.g., plugin management, version catalogs, or conventions).
+     * For intermediate nodes, [version] is `null` and the node only contributes [pluginId] to
+     * descendants' full plugin ids. When [version] is not `null`, the node is mapped to a
+     * [Dependency.Plugin] using the full dotted path built by traversal.
+     *
+     * @property pluginId Path segment for this node.
+     * @property version Optional plugin version declared at this node.
      */
     data class Plugin(
         val pluginId: String,

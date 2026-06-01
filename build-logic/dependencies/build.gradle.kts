@@ -12,6 +12,7 @@ repositories {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 dependencies {

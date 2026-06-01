@@ -1,33 +1,26 @@
 package com.marmatsan.dependencies.tree.model
 
 /**
- * Represents a dependency declared or produced by the dependency tree system.
+ * Represents a final dependency emitted from a dependency tree.
  *
- * `Dependency` is a sealed hierarchy that models two major Gradle dependency categories:
+ * `Dependency` values are produced after traversing [DependencyNode] trees and resolving each
+ * included node to its full dotted path. They are the domain objects consumed by the version catalog
+ * registration layer.
  *
- * - [Library]: A library dependency group (typically a Maven `groupId`) containing one or more
- *   artifacts (either single artifacts or bundles).
- * - [Plugin]: A Gradle plugin dependency identified by a plugin id.
- *
- * This type is intended to represent the “dependency itself” (i.e., a resolvable/consumable unit
- * in your domain), as opposed to a node payload or UI/graph representation.
+ * - [Library] represents a Maven group plus one or more artifact entries.
+ * - [Plugin] represents a Gradle plugin id plus its version.
  */
 sealed class Dependency {
 
     /**
-     * Represents a library dependency group (typically a Maven `groupId`) and its artifact entries.
+     * Represents a library dependency group ready to be registered in a version catalog.
      *
-     * A [Library] dependency groups one or more [LibraryEntry] items under the same [libraryGroup]. Each
-     * entry may be:
-     * - a single artifact ([LibraryEntry.Single]), or
-     * - a bundle of artifacts referenced by an alias ([LibraryEntry.Bundle]).
+     * [libraryGroup] is usually the full group built from the tree path, such as
+     * `androidx.compose.ui`. [entries] contains the artifacts or bundles declared under that group.
      *
-     * Versions may be specified at the [Artifact] level and/or at the [ArtifactsBundle] level.
-     *
-     * @property libraryGroup The group identifier for the library, usually matching Maven `groupId`.
-     * @property entries Optional list of entries (single artifacts or bundles) belonging to this group.
-     * If `null`, it can represent “no entries provided” or “entries not loaded”, depending on the
-     * calling context.
+     * @property libraryGroup Full Maven group identifier.
+     * @property entries Entries to register for this group. A `null` value means the node did not
+     * declare any catalog entries and should normally not be emitted.
      */
     data class Library(
         val libraryGroup: String,
@@ -35,11 +28,10 @@ sealed class Dependency {
     ) : Dependency()
 
     /**
-     * Represents a Gradle plugin dependency.
+     * Represents a Gradle plugin ready to be registered in a version catalog.
      *
-     * @property pluginId The plugin id (e.g., `"com.android.application"`).
-     * @property version Optional plugin version. When absent, version may be provided externally
-     * (e.g., plugin management, version catalogs, or conventions).
+     * @property pluginId Full Gradle plugin id, such as `org.jetbrains.kotlin.android`.
+     * @property version Plugin version. A `null` value means the plugin should normally not be emitted.
      */
     data class Plugin(
         val pluginId: String,

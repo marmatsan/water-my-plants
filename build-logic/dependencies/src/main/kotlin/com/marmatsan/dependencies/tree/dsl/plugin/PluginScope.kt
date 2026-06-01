@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.tree.plugin
+package com.marmatsan.dependencies.tree.dsl.plugin
 
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.TreeBuilder
