@@ -17,11 +17,11 @@ private fun comPluginTree(
     plugin("android") {
         plugin(
             id = "application",
-            version = versions.applicationVersion
+            version = versions.androidGradlePlugin
         )
         plugin(
             id = "library",
-            version = versions.applicationVersion
+            version = versions.androidGradlePlugin
         )
     }
     plugin("figma") {
@@ -72,6 +72,12 @@ private fun orgPluginTree(
                     version = versions.kotlinVersion
                 )
             }
+        }
+        plugin("kotlinx") {
+            plugin(
+                id = "kover",
+                version = versions.kotlinxCoverVersion
+            )
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.marmatsan.compose.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryExtension
 import com.marmatsan.dependencies.gradle.requireLibraryNotation
 import com.marmatsan.dependencies.gradle.implementation
 import org.gradle.api.Plugin
@@ -15,30 +15,20 @@ import org.gradle.kotlin.dsl.hasPlugin
 class ComposePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val androidExtension = when {
+        when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
-                project.extensions.getByType<ApplicationExtension>()
+                configureApplicationExtension(project.extensions.getByType<ApplicationExtension>())
             }
 
             else -> {
-                project.extensions.getByType<LibraryExtension>()
-            }
-        }
-
-        androidExtension.apply {
-            defaultConfig {
-                vectorDrawables {
-                    useSupportLibrary = true
-                }
-            }
-
-            buildFeatures {
-                compose = true
+                configureLibraryExtension(project.extensions.getByType<LibraryExtension>())
             }
         }
 
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-        project.pluginManager.apply("com.figma.code.connect")
+        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(String::toBoolean).getOrElse(false)) {
+            project.pluginManager.apply("com.figma.code.connect")
+        }
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -81,6 +71,38 @@ class ComposePlugin : Plugin<Project> {
 
             /* Figma Code Connect */
             implementation(libs.requireLibraryNotation("com.figma.code.connect.code.connect.lib"))
+        }
+    }
+
+    private fun configureApplicationExtension(
+        extension: ApplicationExtension
+    ) {
+        extension.apply {
+            defaultConfig {
+                vectorDrawables {
+                    useSupportLibrary = true
+                }
+            }
+
+            buildFeatures {
+                compose = true
+            }
+        }
+    }
+
+    private fun configureLibraryExtension(
+        extension: LibraryExtension
+    ) {
+        extension.apply {
+            defaultConfig {
+                vectorDrawables {
+                    useSupportLibrary = true
+                }
+            }
+
+            buildFeatures {
+                compose = true
+            }
         }
     }
 }

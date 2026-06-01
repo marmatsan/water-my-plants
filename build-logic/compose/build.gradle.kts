@@ -19,7 +19,7 @@ dependencies {
 
     /* Build */
     compileOnly(libs.build.gradle)
-    implementation(libs.kotlin.gradle.plugin)
+    compileOnly(libs.kotlin.gradle.plugin)
 
     /* Testing */
     // JUnit5

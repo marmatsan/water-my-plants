@@ -6,7 +6,6 @@ plugins {
     alias(plugins.plugins.com.google.devtools.ksp) apply false
     alias(plugins.plugins.com.google.protobuf) apply false
     alias(plugins.plugins.de.mannodermaus.android.junit5) apply false
-    alias(plugins.plugins.org.jetbrains.kotlin.android) apply false
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.compose) apply false
     id("com.marmatsan.android") apply false
     id("com.marmatsan.compose") apply false

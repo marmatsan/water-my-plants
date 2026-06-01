@@ -6,7 +6,7 @@ import java.util.Properties
 data class Versions(
     val activityComposeVersion: String,
     val androidCoroutinesVersion: String,
-    val applicationVersion: String,
+    val androidGradlePlugin: String,
     val assertkVersion: String,
     val composeBomVersion: String,
     val composeCompilerVersion: String,
@@ -17,6 +17,7 @@ data class Versions(
     val figmaCodeConnectPluginVersion: String,
     val junit5BomVersion: String,
     val junit5PluginVersion: String,
+    val kotlinxCoverVersion: String,
     val kotlinInjectVersion: String,
     val kotlinVersion: String,
     val kspVersion: String,
@@ -46,7 +47,7 @@ data class Versions(
             return Versions(
                 activityComposeVersion = get("activityComposeVersion"),
                 androidCoroutinesVersion = get("androidCoroutinesVersion"),
-                applicationVersion = get("applicationVersion"),
+                androidGradlePlugin = get("androidGradlePlugin"),
                 assertkVersion = get("assertkVersion"),
                 composeBomVersion = get("composeBomVersion"),
                 composeCompilerVersion = get("composeCompilerVersion"),
@@ -57,6 +58,7 @@ data class Versions(
                 figmaCodeConnectPluginVersion = get("figmaCodeConnectPluginVersion"),
                 junit5BomVersion = get("junit5BomVersion"),
                 junit5PluginVersion = get("junit5PluginVersion"),
+                kotlinxCoverVersion = get("kotlinxCoverVersion"),
                 kotlinInjectVersion = get("kotlinInjectVersion"),
                 kotlinVersion = get("kotlinVersion"),
                 kspVersion = get("kspVersion"),

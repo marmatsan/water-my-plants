@@ -14,11 +14,11 @@ internal class NodeTest {
     @Test
     fun `add appends child when children list is initialized`() {
         val root = Node(
-            data = DependencyNode.Plugin(pluginId = "org.jetbrains.kotlin"),
+            value = DependencyNode.Plugin(pluginId = "org.jetbrains.kotlin"),
             children = mutableListOf()
         )
         val child = Node(
-            data = DependencyNode.Plugin(pluginId = "android", version = "2.3.0")
+            value = DependencyNode.Plugin(pluginId = "android", version = "2.3.0")
         )
 
         root.add(child)
@@ -34,13 +34,13 @@ internal class NodeTest {
 
         // root
         val root = Node(
-            data = DependencyNode.Library(libraryGroup = "androidx"),
+            value = DependencyNode.Library(libraryGroup = "androidx"),
             children = mutableListOf()
         )
 
         // root -> activity (leaf)
         val activityLeaf = Node(
-            data = DependencyNode.Library(
+            value = DependencyNode.Library(
                 libraryGroup = "activity",
                 entries = listOf(
                     LibraryEntry.Single(
@@ -53,7 +53,7 @@ internal class NodeTest {
 
         // root -> compose (non-leaf) -> ui (leaf)
         val composeBranch = Node(
-            data = DependencyNode.Library(
+            value = DependencyNode.Library(
                 libraryGroup = "compose",
                 entries = listOf(
                     LibraryEntry.Single(
@@ -65,7 +65,7 @@ internal class NodeTest {
         )
 
         val uiLeaf = Node(
-            data = DependencyNode.Library(
+            value = DependencyNode.Library(
                 libraryGroup = "ui",
                 entries = listOf(
                     LibraryEntry.Bundle(
@@ -93,7 +93,7 @@ internal class NodeTest {
 
         // root -> compose (non-leaf) -> material3 (leaf)
         val material3 = Node(
-            data = DependencyNode.Library(
+            value = DependencyNode.Library(
                 libraryGroup = "material3",
                 entries = listOf(
                     LibraryEntry.Single(
@@ -135,22 +135,22 @@ internal class NodeTest {
     @Test
     fun `depthFirstPreOrderTraverse visits matching nodes depth first and keeps sibling paths isolated`() {
         val root = Node(
-            data = DependencyNode.Plugin(pluginId = "root")
+            value = DependencyNode.Plugin(pluginId = "root")
         )
         val androidBranch = Node(
-            data = DependencyNode.Plugin(pluginId = "android")
+            value = DependencyNode.Plugin(pluginId = "android")
         )
         val applicationLeaf = Node(
-            data = DependencyNode.Plugin(pluginId = "application", version = "8.10.0")
+            value = DependencyNode.Plugin(pluginId = "application", version = "8.10.0")
         )
         val kotlinBranch = Node(
-            data = DependencyNode.Plugin(pluginId = "kotlin")
+            value = DependencyNode.Plugin(pluginId = "kotlin")
         )
         val androidLeaf = Node(
-            data = DependencyNode.Plugin(pluginId = "android", version = "2.1.21")
+            value = DependencyNode.Plugin(pluginId = "android", version = "2.1.21")
         )
         val composeLeaf = Node(
-            data = DependencyNode.Plugin(pluginId = "compose", version = "2.1.21")
+            value = DependencyNode.Plugin(pluginId = "compose", version = "2.1.21")
         )
 
         root.add(androidBranch)

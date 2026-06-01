@@ -98,11 +98,11 @@ class LibraryScope(
         val childScope = LibraryScope(node)
         content?.invoke(childScope)
 
-        val updatedNodeData = node.data.copy(
+        val updatedNodeValue = node.value.copy(
             entries = childScope.entries?.toList()
         )
         val updatedNode = Node(
-            data = updatedNodeData,
+            value = updatedNodeValue,
             children = node.children
         )
 

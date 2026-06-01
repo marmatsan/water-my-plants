@@ -1,8 +1,8 @@
 package com.marmatsan.android.plugin
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryExtension
 import com.marmatsan.dependencies.gradle.requireLibraryNotation
 import com.marmatsan.dependencies.gradle.implementation
 import com.marmatsan.dependencies.gradle.ksp
@@ -21,60 +21,23 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 class AndroidPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
-        val androidExtension = when {
+        when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
-                project.extensions.getByType<ApplicationExtension>()
+                configureApplicationExtension(
+                    project = project,
+                    extension = project.extensions.getByType<ApplicationExtension>()
+                )
             }
 
             else -> {
-                project.extensions.getByType<LibraryExtension>()
+                configureLibraryExtension(
+                    project = project,
+                    extension = project.extensions.getByType<LibraryExtension>()
+                )
             }
-        }
-
-        androidExtension.apply {
-            namespace = "com.marmatsan.${project.name}"
-            compileSdk = 36
-            defaultConfig {
-                minSdk = 33
-
-                when (androidExtension) {
-                    is ApplicationExtension -> {
-                        androidExtension.apply {
-                            defaultConfig {
-
-                                val majorVersion = 0
-                                val minorVersion = 1
-                                val bugfixVersion = 0
-
-                                targetSdk = 36
-                                versionCode =
-                                    majorVersion * 1000 + minorVersion * 100 + bugfixVersion
-                                versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
-                            }
-                        }
-                    }
-                }
-
-                compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_21
-                    targetCompatibility = JavaVersion.VERSION_21
-                }
-
-                project.tasks.withType<KotlinJvmCompile>().configureEach {
-                    compilerOptions.apply {
-                        languageVersion.set(KotlinVersion.KOTLIN_2_0)
-                        jvmTarget.set(JvmTarget.JVM_21)
-                    }
-                }
-
-                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-            }
-
         }
 
         // Applied plugins
-        project.pluginManager.apply("org.jetbrains.kotlin.android")
         project.pluginManager.apply("com.google.devtools.ksp")
         project.pluginManager.apply("de.mannodermaus.android-junit5")
 
@@ -92,6 +55,62 @@ class AndroidPlugin : Plugin<Project> {
 
             /* Coroutines */
             implementation(libs.requireLibraryNotation("org.jetbrains.kotlinx.kotlinx.coroutines.android"))
+        }
+    }
+
+    private fun configureApplicationExtension(
+        project: Project,
+        extension: ApplicationExtension
+    ) {
+        extension.apply {
+            namespace = "com.marmatsan.${project.name}"
+            compileSdk = 36
+            defaultConfig {
+                val majorVersion = 0
+                val minorVersion = 1
+                val bugfixVersion = 0
+
+                minSdk = 33
+                targetSdk = 36
+                versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
+                versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
+            }
+        }
+        configureKotlin(project)
+    }
+
+    private fun configureLibraryExtension(
+        project: Project,
+        extension: LibraryExtension
+    ) {
+        extension.apply {
+            namespace = "com.marmatsan.${project.name}"
+            compileSdk = 36
+            defaultConfig {
+                minSdk = 33
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_21
+                targetCompatibility = JavaVersion.VERSION_21
+            }
+        }
+        configureKotlin(project)
+    }
+
+    private fun configureKotlin(
+        project: Project
+    ) {
+        project.tasks.withType<KotlinJvmCompile>().configureEach {
+            compilerOptions.apply {
+                languageVersion.set(KotlinVersion.KOTLIN_2_3)
+                jvmTarget.set(JvmTarget.JVM_21)
+            }
         }
     }
 }

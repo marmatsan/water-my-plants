@@ -37,6 +37,3 @@ google-services.json
 .env
 tmp
 figma.config.json
-
-# Codex
-AGENTS.md

@@ -3,7 +3,7 @@ package com.marmatsan.dependencies.tree.node
 import com.marmatsan.dependencies.tree.model.DependencyNode
 
 data class Node<T : DependencyNode>(
-    val data: T,
+    val value: T,
     var children: MutableList<Node<T>> = mutableListOf()
 ) {
     fun add(
@@ -15,13 +15,13 @@ data class Node<T : DependencyNode>(
         results: MutableList<R> = mutableListOf(),
         pathSegment: (T) -> String,
         nodeIsLeaf: (T) -> Boolean,
-        mapNode: (data: T, fullPath: String) -> R
+        mapNode: (value: T, fullPath: String) -> R
     ): List<R> {
-        traversalPath.add(pathSegment(data))
+        traversalPath.add(pathSegment(value))
 
-        if (nodeIsLeaf(data)) {
+        if (nodeIsLeaf(value)) {
             val fullPath = traversalPath.joinToString(".")
-            results.add(mapNode(data, fullPath))
+            results.add(mapNode(value, fullPath))
         }
 
         children.forEach { child ->

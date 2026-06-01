@@ -44,7 +44,7 @@ dependencyResolutionManagement {
                 alias = "build.gradle",
                 group = "com.android.tools.build",
                 artifact = "gradle"
-            ).version(version("applicationVersion"))
+            ).version(version("androidGradlePlugin"))
 
             library(
                 alias = "kotlin.gradle.plugin",
@@ -97,6 +97,13 @@ dependencyResolutionManagement {
                 group = "io.mockk",
                 artifact = "mockk"
             ).version(version("mockkVersion"))
+        }
+
+        create("plugins") {
+            plugin(
+                alias = "org.jetbrains.kotlinx.kover",
+                id = "org.jetbrains.kotlinx.kover"
+            ).version(version("kotlinxCoverVersion"))
         }
     }
 }

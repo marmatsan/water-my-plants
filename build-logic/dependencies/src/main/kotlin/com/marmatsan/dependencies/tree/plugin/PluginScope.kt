@@ -4,7 +4,9 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.TreeBuilder
 import com.marmatsan.dependencies.tree.node.Node
 
-class PluginScope(root: Node<DependencyNode.Plugin>) : TreeBuilder<DependencyNode.Plugin>(root) {
+class PluginScope(
+    root: Node<DependencyNode.Plugin>
+) : TreeBuilder<DependencyNode.Plugin>(root) {
     fun plugin(
         id: String,
         version: String? = null,
