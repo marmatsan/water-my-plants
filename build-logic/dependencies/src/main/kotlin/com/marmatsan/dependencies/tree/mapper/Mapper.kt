@@ -23,15 +23,18 @@ fun DependencyNode.Library.toDependencyLibrary(
 /**
  * Maps a [DependencyNode.Plugin] node payload into a [Dependency.Plugin].
  *
- * The plugin version is copied as-is. The [pluginId] parameter is used as the output id,
- * even though [DependencyNode.Plugin] already contains a `pluginId` property.
+ * The [pluginId] parameter is used as the output id, even though [DependencyNode.Plugin] already contains a `pluginId`
+ * property. The source node must have a version because [Dependency.Plugin] represents a final registrable plugin.
  *
  * @param pluginId The plugin id to set on the resulting [Dependency.Plugin].
  * @return A [Dependency.Plugin] equivalent to this [DependencyNode.Plugin].
+ * @throws IllegalArgumentException When this node does not declare a plugin version.
  */
 fun DependencyNode.Plugin.toDependencyPlugin(
     pluginId: String
 ) = Dependency.Plugin(
     pluginId = pluginId,
-    version = version
+    version = requireNotNull(version) {
+        "Plugin node '$pluginId' must declare a version to be mapped to Dependency.Plugin"
+    }
 )

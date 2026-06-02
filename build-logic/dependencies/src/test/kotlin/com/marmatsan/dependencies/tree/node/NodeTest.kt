@@ -3,6 +3,7 @@ package com.marmatsan.dependencies.tree.node
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.marmatsan.dependencies.tree.mapper.toDependencyLibrary
+import com.marmatsan.dependencies.tree.mapper.toDependencyPlugin
 import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.Dependency
@@ -131,6 +132,67 @@ internal class NodeTest {
                             Artifact("material3")
                         )
                     )
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `depthFirstPreOrderTraverse maps a given plugin tree preserving full paths and pre order`() {
+        // GIVEN
+        val com = Node(DependencyNode.Plugin("com"))
+        val android = Node(DependencyNode.Plugin("android"))
+        val application = Node(
+            DependencyNode.Plugin(
+                pluginId = "application",
+                version = "9.2.1"
+            )
+        )
+        val library = Node(
+            DependencyNode.Plugin(
+                pluginId = "library",
+                version = "9.2.1"
+            )
+        )
+        val google = Node(DependencyNode.Plugin("google"))
+        val devtools = Node(DependencyNode.Plugin("devtools"))
+        val ksp = Node(
+            DependencyNode.Plugin(
+                pluginId = "ksp",
+                version = "2.3.9"
+            )
+        )
+
+        com.add(android)
+        android.add(application)
+        android.add(library)
+        com.add(google)
+        google.add(devtools)
+        devtools.add(ksp)
+
+        // WHEN
+        val actualPlugins = com.depthFirstPreOrderTraverse(
+            pathSegment = DependencyNode.Plugin::pluginId,
+            shouldIncludeNode = { it.version != null },
+            mapNode = { pluginNode, fullPath ->
+                pluginNode.toDependencyPlugin(pluginId = fullPath)
+            }
+        )
+
+        // THEN
+        assertThat(actualPlugins).isEqualTo(
+            listOf(
+                Dependency.Plugin(
+                    pluginId = "com.android.application",
+                    version = "9.2.1"
+                ),
+                Dependency.Plugin(
+                    pluginId = "com.android.library",
+                    version = "9.2.1"
+                ),
+                Dependency.Plugin(
+                    pluginId = "com.google.devtools.ksp",
+                    version = "2.3.9"
                 )
             )
         )

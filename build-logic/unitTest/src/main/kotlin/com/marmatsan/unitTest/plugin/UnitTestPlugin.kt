@@ -24,14 +24,14 @@ class UnitTestPlugin : Plugin<Project> {
 
         project.dependencies {
             // Junit5
-            testImplementation(platform(libs.requireLibraryNotation("org.junit.junit.bom")))
-            testImplementation(libs.requireLibraryNotation("org.junit.jupiter.junit.jupiter.api"))
-            testRuntimeOnly(libs.requireLibraryNotation("org.junit.jupiter.junit.jupiter.engine"))
-            testRuntimeOnly(libs.requireLibraryNotation("org.junit.platform.junit.platform.launcher"))
+            testImplementation(platform(libs.requireLibraryNotation("org.junit.bom")))
+            testImplementation(libs.requireLibraryNotation("org.junit.jupiter.api"))
+            testRuntimeOnly(libs.requireLibraryNotation("org.junit.jupiter.engine"))
+            testRuntimeOnly(libs.requireLibraryNotation("org.junit.platform.launcher"))
             // Assertk
-            testImplementation(libs.requireLibraryNotation("com.willowtreeapps.assertk.assertk"))
+            testImplementation(libs.requireLibraryNotation("com.willowtreeapps.assertk"))
             // Mockk
-            testImplementation(libs.requireLibraryNotation("io.mockk.mockk"))
+            testImplementation(libs.requireLibraryNotation("io.mockk"))
         }
     }
 }

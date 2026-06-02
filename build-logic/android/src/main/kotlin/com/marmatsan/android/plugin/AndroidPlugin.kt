@@ -46,15 +46,15 @@ class AndroidPlugin : Plugin<Project> {
 
         project.dependencies {
             /* Android core */
-            implementation(libs.requireLibraryNotation("androidx.core.core.ktx"))
-            implementation(libs.requireLibraryNotation("androidx.lifecycle.lifecycle.runtime.ktx"))
+            implementation(libs.requireLibraryNotation("androidx.core.ktx"))
+            implementation(libs.requireLibraryNotation("androidx.lifecycle.runtime.ktx"))
 
             /* Dependency injection */
             ksp(libs.requireLibraryNotation("me.tatarka.inject.kotlin.inject.compiler.ksp"))
             implementation(libs.requireLibraryNotation("me.tatarka.inject.kotlin.inject.runtime"))
 
             /* Coroutines */
-            implementation(libs.requireLibraryNotation("org.jetbrains.kotlinx.kotlinx.coroutines.android"))
+            implementation(libs.requireLibraryNotation("org.jetbrains.kotlinx.coroutines.android"))
         }
     }
 

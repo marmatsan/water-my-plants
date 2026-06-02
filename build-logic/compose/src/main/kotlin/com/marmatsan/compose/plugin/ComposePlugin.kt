@@ -35,7 +35,7 @@ class ComposePlugin : Plugin<Project> {
 
         project.dependencies {
             /* Compose libraries managed by Compose BOM */
-            implementation(platform(libs.requireLibraryNotation("androidx.compose.compose.bom")))
+            implementation(platform(libs.requireLibraryNotation("androidx.compose.bom")))
             implementation("androidx.compose.animation:animation")
             implementation("androidx.compose.animation:animation-core")
             implementation("androidx.compose.animation:animation-graphics")
@@ -64,13 +64,13 @@ class ComposePlugin : Plugin<Project> {
             implementation("androidx.compose.ui:ui-viewbinding")
 
             /* Other Compose libraries */
-            implementation(libs.requireLibraryNotation("androidx.activity.activity.compose"))
-            implementation(libs.requireLibraryNotation("androidx.lifecycle.lifecycle.viewmodel.compose"))
-            implementation(libs.requireLibraryNotation("androidx.lifecycle.lifecycle.runtime.compose"))
-            implementation(libs.requireLibraryNotation("androidx.navigation.navigation.compose"))
+            implementation(libs.requireLibraryNotation("androidx.activity.compose"))
+            implementation(libs.requireLibraryNotation("androidx.lifecycle.viewmodel.compose"))
+            implementation(libs.requireLibraryNotation("androidx.lifecycle.runtime.compose"))
+            implementation(libs.requireLibraryNotation("androidx.navigation.compose"))
 
             /* Figma Code Connect */
-            implementation(libs.requireLibraryNotation("com.figma.code.connect.code.connect.lib"))
+            implementation(libs.requireLibraryNotation("com.figma.code.connect.lib"))
         }
     }
 

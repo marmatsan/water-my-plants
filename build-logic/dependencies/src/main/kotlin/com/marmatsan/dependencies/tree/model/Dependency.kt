@@ -31,10 +31,10 @@ sealed class Dependency {
      * Represents a Gradle plugin ready to be registered in a version catalog.
      *
      * @property pluginId Full Gradle plugin id, such as `org.jetbrains.kotlin.android`.
-     * @property version Plugin version. A `null` value means the plugin should normally not be emitted.
+     * @property version Plugin version.
      */
     data class Plugin(
         val pluginId: String,
-        val version: String? = null
+        val version: String
     ) : Dependency()
 }

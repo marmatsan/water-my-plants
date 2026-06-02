@@ -37,7 +37,7 @@ class ProtobufPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            implementation(libs.requireLibraryNotation("com.google.protobuf.protobuf.kotlin"))
+            implementation(libs.requireLibraryNotation("com.google.protobuf.kotlin"))
         }
     }
 }
