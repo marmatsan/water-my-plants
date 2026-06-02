@@ -56,7 +56,7 @@ dependencyResolutionManagement {
                 alias = "protobuf.gradle.plugin",
                 group = "com.google.protobuf",
                 artifact = "protobuf-gradle-plugin"
-            ).version(version("protobufGradlePluginVersion"))
+            ).version(version("protobufPluginVersion"))
 
             /* Testing */
             // JUnit5

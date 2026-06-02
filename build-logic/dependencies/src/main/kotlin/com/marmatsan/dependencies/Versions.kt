@@ -25,7 +25,6 @@ data class Versions(
     val lifecycleVersion: String,
     val mockkVersion: String,
     val navigationComposeVersion: String,
-    val protobufGradlePluginVersion: String,
     val protobufLibraryVersion: String,
     val protobufPluginVersion: String,
     val serializationVersion: String
@@ -66,7 +65,6 @@ data class Versions(
                 lifecycleVersion = get("lifecycleVersion"),
                 mockkVersion = get("mockkVersion"),
                 navigationComposeVersion = get("navigationComposeVersion"),
-                protobufGradlePluginVersion = get("protobufGradlePluginVersion"),
                 protobufLibraryVersion = get("protobufLibraryVersion"),
                 protobufPluginVersion = get("protobufPluginVersion"),
                 serializationVersion = get("serializationVersion")
