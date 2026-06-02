@@ -75,7 +75,7 @@ private fun orgPluginTree(
         plugin("kotlinx") {
             plugin(
                 id = "kover",
-                version = versions.kotlinxCoverVersion
+                version = versions.kotlinxKoverVersion
             )
         }
     }

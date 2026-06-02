@@ -103,7 +103,7 @@ dependencyResolutionManagement {
             plugin(
                 alias = "org.jetbrains.kotlinx.kover",
                 id = "org.jetbrains.kotlinx.kover"
-            ).version(version("kotlinxCoverVersion"))
+            ).version(version("kotlinxKoverVersion"))
         }
     }
 }
