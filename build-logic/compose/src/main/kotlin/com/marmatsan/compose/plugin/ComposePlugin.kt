@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
 
+@Suppress("unused")
 class ComposePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {

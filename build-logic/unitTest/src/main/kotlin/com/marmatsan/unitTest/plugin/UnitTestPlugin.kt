@@ -12,6 +12,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
 
+@Suppress("unused")
 class UnitTestPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 

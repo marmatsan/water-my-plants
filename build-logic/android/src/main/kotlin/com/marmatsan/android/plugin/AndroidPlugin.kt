@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
+@Suppress("unused")
 class AndroidPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
@@ -72,6 +73,7 @@ class AndroidPlugin : Plugin<Project> {
 
                 minSdk = 33
                 targetSdk = 36
+                @Suppress("KotlinConstantConditions")
                 versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
                 versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
