@@ -1,6 +1,8 @@
 package com.marmatsan.dependencies.gradle
 
+import org.gradle.api.artifacts.ExternalModuleDependencyBundle
 import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.provider.Provider
 
 /**
  * Returns the dependency notation registered for a required library alias.
@@ -12,7 +14,7 @@ import org.gradle.api.artifacts.VersionCatalog
  * @return Dependency notation produced by Gradle for the alias, such as `androidx.compose:compose-bom:2025.06.01`.
  * @throws NoSuchElementException When [alias] is not present in this version catalog.
  */
-fun VersionCatalog.requireLibraryNotation(
+fun VersionCatalog.requireDependencyNotation(
     alias: String
 ): String = findLibrary(alias)
     .orElseThrow {
@@ -20,6 +22,22 @@ fun VersionCatalog.requireLibraryNotation(
     }
     .get()
     .toString()
+
+/**
+ * Returns the provider registered for a required library bundle alias.
+ *
+ * This is intended for build-logic plugins that need to add all dependencies declared in a catalog bundle.
+ *
+ * @param alias Version catalog bundle alias to resolve, such as `composeBundle`.
+ * @return Provider for the dependency bundle registered for [alias].
+ * @throws NoSuchElementException When [alias] is not present in this version catalog.
+ */
+fun VersionCatalog.requireBundle(
+    alias: String
+): Provider<ExternalModuleDependencyBundle> = findBundle(alias)
+    .orElseThrow {
+        NoSuchElementException("Bundle alias '$alias' not found in version catalog named ${this.name}")
+    }
 
 /**
  * Returns the dependency notation for a Maven coordinate registered in this version catalog.
@@ -30,7 +48,7 @@ fun VersionCatalog.requireLibraryNotation(
  * Example:
  *
  * ```
- * requireLibraryNotation(
+ * requireDependencyNotation(
  *     libraryGroup = "androidx.compose",
  *     artifact = "compose-bom"
  * )
@@ -44,10 +62,10 @@ fun VersionCatalog.requireLibraryNotation(
  * @throws NoSuchElementException When the generated alias is not present in this version catalog.
  * @see libraryAlias
  */
-fun VersionCatalog.requireLibraryNotation(
+fun VersionCatalog.requireDependencyNotation(
     libraryGroup: String,
     artifact: String
-): String = requireLibraryNotation(
+): String = requireDependencyNotation(
     alias = libraryAlias(
         libraryGroup = libraryGroup,
         artifact = artifact

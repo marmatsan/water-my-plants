@@ -18,7 +18,7 @@ dependencies {
     implementation(projects.dependencies)
 
     /* Protobuf */
-    implementation(libs.protobuf.gradle.plugin)
+    implementation(libs.com.google.protobuf.gradle.plugin)
 
     // JUnit5
     testImplementation(platform(libs.org.junit.bom))

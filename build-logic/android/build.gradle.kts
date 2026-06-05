@@ -14,8 +14,8 @@ dependencies {
     implementation(projects.dependencies)
 
     /* Libraries */
-    compileOnly(libs.build.gradle)
-    compileOnly(libs.kotlin.gradle.plugin)
+    compileOnly(libs.com.android.tools.build.gradle)
+    compileOnly(libs.org.jetbrains.kotlin.gradle.plugin)
 }
 
 gradlePlugin {

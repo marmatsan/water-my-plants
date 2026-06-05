@@ -13,7 +13,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Do not add product, UI, feature, or Android screen logic here.
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
 
-## Dependency And Version Rules
+## Dependency and Version Rules
 
 - Keep version values in `versions.properties`.
 - Library dependency trees are in `dependencies/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`.
@@ -22,7 +22,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Prefer adding dependencies through the existing dependency tree helpers instead of hardcoding aliases across product modules.
 - Keep build-logic's own catalog in `settings.gradle.kts` limited to dependencies needed to compile and test the convention plugins.
 
-## Dependency Tree And Catalog Model
+## Dependency Tree and Catalog Model
 
 - `DependencyNode.Library` and `DependencyNode.Plugin` are tree payloads. Their nullable catalog data marks structural nodes:
   - `DependencyNode.Library.entries == null` means the node only contributes a Maven group path segment.
@@ -46,7 +46,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Avoid `afterEvaluate` unless there is no stable lazy Gradle API for the behavior.
 - Keep convention plugins idempotent and safe to apply to their intended project types.
 
-## Android And Compose Conventions
+## Android and Compose Conventions
 
 - Shared Android defaults belong in `android/src/main/kotlin/com/marmatsan/android/plugin/AndroidPlugin.kt`.
 - Shared Jetpack Compose setup belongs in `compose/src/main/kotlin/com/marmatsan/compose/plugin/ComposePlugin.kt`.

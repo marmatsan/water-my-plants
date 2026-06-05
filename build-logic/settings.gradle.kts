@@ -41,23 +41,23 @@ dependencyResolutionManagement {
         create("libs") {
             /* Build */
             library(
-                alias = "build.gradle",
+                alias = "com.android.tools.build.gradle",
                 group = "com.android.tools.build",
                 artifact = "gradle"
             ).version(version("androidGradlePlugin"))
 
             library(
-                alias = "kotlin.gradle.plugin",
-                group = "org.jetbrains.kotlin",
-                artifact = "kotlin-gradle-plugin"
-            ).version(version("kotlinVersion"))
-
-            library(
-                alias = "protobuf.gradle.plugin",
+                alias = "com.google.protobuf.gradle.plugin",
                 group = "com.google.protobuf",
                 artifact = "protobuf-gradle-plugin"
             ).version(version("protobufPluginVersion"))
 
+            library(
+                alias = "org.jetbrains.kotlin.gradle.plugin",
+                group = "org.jetbrains.kotlin",
+                artifact = "kotlin-gradle-plugin"
+            ).version(version("kotlinVersion"))
+            
             /* Testing */
             // JUnit5
             library(

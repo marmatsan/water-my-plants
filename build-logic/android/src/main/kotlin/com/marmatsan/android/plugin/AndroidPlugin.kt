@@ -3,7 +3,7 @@ package com.marmatsan.android.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
-import com.marmatsan.dependencies.gradle.requireLibraryNotation
+import com.marmatsan.dependencies.gradle.requireDependencyNotation
 import com.marmatsan.dependencies.gradle.implementation
 import com.marmatsan.dependencies.gradle.ksp
 import org.gradle.api.JavaVersion
@@ -46,15 +46,15 @@ class AndroidPlugin : Plugin<Project> {
 
         project.dependencies {
             /* Android core */
-            implementation(libs.requireLibraryNotation("androidx.core.ktx"))
-            implementation(libs.requireLibraryNotation("androidx.lifecycle.runtime.ktx"))
+            implementation(libs.requireDependencyNotation("androidx.core.ktx"))
+            implementation(libs.requireDependencyNotation("androidx.lifecycle.runtime.ktx"))
 
             /* Dependency injection */
-            ksp(libs.requireLibraryNotation("me.tatarka.inject.kotlin.inject.compiler.ksp"))
-            implementation(libs.requireLibraryNotation("me.tatarka.inject.kotlin.inject.runtime"))
+            ksp(libs.requireDependencyNotation("me.tatarka.inject.kotlin.inject.compiler.ksp"))
+            implementation(libs.requireDependencyNotation("me.tatarka.inject.kotlin.inject.runtime"))
 
             /* Coroutines */
-            implementation(libs.requireLibraryNotation("org.jetbrains.kotlinx.coroutines.android"))
+            implementation(libs.requireDependencyNotation("org.jetbrains.kotlinx.coroutines.android"))
         }
     }
 

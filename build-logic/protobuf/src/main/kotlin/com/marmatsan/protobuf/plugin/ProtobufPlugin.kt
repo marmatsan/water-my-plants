@@ -1,7 +1,7 @@
 package com.marmatsan.protobuf.plugin
 
 import com.google.protobuf.gradle.ProtobufExtension
-import com.marmatsan.dependencies.gradle.requireLibraryNotation
+import com.marmatsan.dependencies.gradle.requireDependencyNotation
 import com.marmatsan.dependencies.gradle.implementation
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,7 +18,7 @@ class ProtobufPlugin : Plugin<Project> {
 
         project.extensions.configure<ProtobufExtension>("protobuf") {
             protoc {
-                artifact = libs.requireLibraryNotation("com.google.protobuf.protoc")
+                artifact = libs.requireDependencyNotation("com.google.protobuf.protoc")
             }
 
             generateProtoTasks {
@@ -37,7 +37,7 @@ class ProtobufPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            implementation(libs.requireLibraryNotation("com.google.protobuf.kotlin"))
+            implementation(libs.requireDependencyNotation("com.google.protobuf.kotlin"))
         }
     }
 }

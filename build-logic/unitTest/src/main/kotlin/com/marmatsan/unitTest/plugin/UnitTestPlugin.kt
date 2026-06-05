@@ -1,6 +1,7 @@
 package com.marmatsan.unitTest.plugin
 
-import com.marmatsan.dependencies.gradle.requireLibraryNotation
+import com.marmatsan.dependencies.gradle.requireDependencyNotation
+import com.marmatsan.dependencies.gradle.requireBundle
 import com.marmatsan.dependencies.gradle.testImplementation
 import com.marmatsan.dependencies.gradle.testRuntimeOnly
 import org.gradle.api.Plugin
@@ -24,14 +25,15 @@ class UnitTestPlugin : Plugin<Project> {
 
         project.dependencies {
             // Junit5
-            testImplementation(platform(libs.requireLibraryNotation("org.junit.bom")))
-            testImplementation(libs.requireLibraryNotation("org.junit.jupiter.api"))
-            testRuntimeOnly(libs.requireLibraryNotation("org.junit.jupiter.engine"))
-            testRuntimeOnly(libs.requireLibraryNotation("org.junit.platform.launcher"))
-            // Assertk
-            testImplementation(libs.requireLibraryNotation("com.willowtreeapps.assertk"))
+            testImplementation(platform(libs.requireDependencyNotation("org.junit.bom")))
+            libs.requireBundle("jupiterBundle").get().forEach { dependency ->
+                testImplementation(dependency)
+            }
+            testRuntimeOnly(libs.requireDependencyNotation("org.junit.platform.launcher"))
+            // AssertK
+            testImplementation(libs.requireDependencyNotation("com.willowtreeapps.assertk"))
             // Mockk
-            testImplementation(libs.requireLibraryNotation("io.mockk"))
+            testImplementation(libs.requireDependencyNotation("io.mockk"))
         }
     }
 }
