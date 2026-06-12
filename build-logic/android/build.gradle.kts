@@ -22,6 +22,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.android"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.AndroidPlugin"
+        implementationClass = "${pluginName}.plugin.AndroidGradleConventionPlugin"
     }
 }

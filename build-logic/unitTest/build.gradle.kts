@@ -32,6 +32,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.unitTest"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.UnitTestPlugin"
+        implementationClass = "${pluginName}.plugin.UnitTestGradleConventionPlugin"
     }
 }

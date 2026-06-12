@@ -35,6 +35,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.protobuf"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.ProtobufPlugin"
+        implementationClass = "${pluginName}.plugin.ProtobufGradleConventionPlugin"
     }
 }

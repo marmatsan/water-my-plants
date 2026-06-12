@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 @Suppress("unused")
-class AndroidPlugin : Plugin<Project> {
+class AndroidGradleConventionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
         when {

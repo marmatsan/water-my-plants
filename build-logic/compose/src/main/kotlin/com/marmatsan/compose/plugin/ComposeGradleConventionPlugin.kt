@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
 
 @Suppress("unused")
-class ComposePlugin : Plugin<Project> {
+class ComposeGradleConventionPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         when {
@@ -39,6 +39,7 @@ class ComposePlugin : Plugin<Project> {
             /* Compose libraries managed by Compose BOM */
             implementation(platform(libs.requireDependencyNotation("androidx.compose.bom")))
             implementation("androidx.compose.material3:material3")
+            implementation(libs.requireDependencyNotation("androidx.compose.material.icons.core"))
             libs.requireBundle("composeBundle").get().forEach { dependency ->
                 implementation(dependency)
             }

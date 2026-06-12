@@ -40,6 +40,11 @@ private fun androidxLibrariesTree(
                 "material3"
             )
         }
+        library("material") {
+            artifact(
+                "material-icons-core"
+            )
+        }
     }
     library("core") {
         artifact(

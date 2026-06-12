@@ -4,7 +4,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 
 ## Scope
 
-- Keep plugin behavior explicit and centralized in the existing plugin modules:
+- Keep plugin behavior explicit and centralized in the existing Gradle Convention plugin modules:
   - `android`: Android application/library defaults and shared Android dependencies.
   - `compose`: Jetpack Compose setup and shared Jetpack Compose dependencies.
   - `dependencies`: version catalog generation and dependency/plugin alias model.
@@ -12,6 +12,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
   - `unitTest`: JUnit 5 test configuration and shared test dependencies.
 - Do not add product, UI, feature, or Android screen logic here.
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
+- All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
 
 ## Dependency and Version Rules
 

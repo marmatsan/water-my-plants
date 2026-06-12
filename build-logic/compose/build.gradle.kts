@@ -37,6 +37,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.compose"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.ComposePlugin"
+        implementationClass = "${pluginName}.plugin.ComposeGradleConventionPlugin"
     }
 }
