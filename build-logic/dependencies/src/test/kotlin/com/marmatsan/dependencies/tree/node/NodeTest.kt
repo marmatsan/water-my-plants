@@ -1,7 +1,5 @@
 package com.marmatsan.dependencies.tree.node
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import com.marmatsan.dependencies.tree.mapper.toDependencyLibrary
 import com.marmatsan.dependencies.tree.mapper.toDependencyPlugin
 import com.marmatsan.dependencies.tree.model.Artifact
@@ -9,12 +7,12 @@ import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.Dependency
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-internal class NodeTest {
+internal class NodeTest : FunSpec({
 
-    @Test
-    fun `depthFirstPreOrderTraverse maps a given library tree preserving full paths and pre order`() {
+    test("depthFirstPreOrderTraverse maps a given library tree preserving full paths and pre order") {
         // GIVEN
         val androidx = Node(DependencyNode.Library("androidx"))
         val activity = Node(
@@ -86,8 +84,7 @@ internal class NodeTest {
         )
 
         // THEN
-        assertThat(actualLibraries).isEqualTo(
-            listOf(
+        actualLibraries shouldBe listOf(
                 Dependency.Library(
                     libraryGroup = "androidx.activity",
                     entries = listOf(
@@ -134,11 +131,9 @@ internal class NodeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `depthFirstPreOrderTraverse maps a given plugin tree preserving full paths and pre order`() {
+    test("depthFirstPreOrderTraverse maps a given plugin tree preserving full paths and pre order") {
         // GIVEN
         val com = Node(DependencyNode.Plugin("com"))
         val android = Node(DependencyNode.Plugin("android"))
@@ -180,8 +175,7 @@ internal class NodeTest {
         )
 
         // THEN
-        assertThat(actualPlugins).isEqualTo(
-            listOf(
+        actualPlugins shouldBe listOf(
                 Dependency.Plugin(
                     pluginId = "com.android.application",
                     version = "9.2.1"
@@ -195,6 +189,5 @@ internal class NodeTest {
                     version = "2.3.9"
                 )
             )
-        )
     }
-}
+})

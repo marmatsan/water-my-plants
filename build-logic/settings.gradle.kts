@@ -59,37 +59,25 @@ dependencyResolutionManagement {
             ).version(version("kotlinVersion"))
             
             /* Testing */
-            // JUnit5
-            library(
-                alias = "org.junit.bom",
-                group = "org.junit",
-                artifact = "junit-bom"
-            ).version(version("junit5BomVersion"))
-
-            library(
-                alias = "org.junit.jupiter.api",
-                group = "org.junit.jupiter",
-                artifact = "junit-jupiter-api"
-            ).withoutVersion()
-
-            library(
-                alias = "org.junit.jupiter.engine",
-                group = "org.junit.jupiter",
-                artifact = "junit-jupiter-engine"
-            ).withoutVersion()
-
+            // JUnit Platform
             library(
                 alias = "org.junit.jupiter.platform.launcher",
                 group = "org.junit.platform",
                 artifact = "junit-platform-launcher"
             ).withoutVersion()
 
-            //AssertK
+            // Kotest
             library(
-                alias = "com.willowtreeapps.assertk",
-                group = "com.willowtreeapps.assertk",
-                artifact = "assertk"
-            ).version(version("assertkVersion"))
+                alias = "io.kotest.runner.junit5",
+                group = "io.kotest",
+                artifact = "kotest-runner-junit5"
+            ).version(version("kotestVersion"))
+
+            library(
+                alias = "io.kotest.assertions.core",
+                group = "io.kotest",
+                artifact = "kotest-assertions-core"
+            ).version(version("kotestVersion"))
 
             // MockK
             library(

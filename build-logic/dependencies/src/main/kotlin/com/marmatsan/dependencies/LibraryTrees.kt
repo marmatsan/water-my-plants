@@ -99,19 +99,21 @@ private fun comLibrariesTree(
             )
         }
     }
-    library("willowtreeapps") {
-        library("assertk") {
-            artifact(
-                "assertk",
-                version = versions.assertkVersion
-            )
-        }
-    }
 }
 
 private fun ioLibrariesTree(
     versions: Versions
 ) = libraryTree("io") {
+    library("kotest") {
+        artifact(
+            "kotest-runner-junit5",
+            version = versions.kotestVersion
+        )
+        artifact(
+            "kotest-assertions-core",
+            version = versions.kotestVersion
+        )
+    }
     library("mockk") {
         artifact(
             "mockk",
@@ -149,18 +151,6 @@ private fun orgLibrariesTree(
         }
     }
     library("junit") {
-        artifact(
-            "junit-bom",
-            version = versions.junit5BomVersion
-        )
-        library("jupiter") {
-            artifactsBundle(
-                "junit-jupiter-api",
-                "junit-jupiter-params",
-                "junit-jupiter-engine",
-                alias = "jupiterBundle"
-            )
-        }
         library("platform") {
             artifact(
                 "junit-platform-launcher"

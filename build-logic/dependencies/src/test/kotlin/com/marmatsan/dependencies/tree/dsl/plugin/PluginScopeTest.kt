@@ -1,22 +1,19 @@
 package com.marmatsan.dependencies.tree.dsl.plugin
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.node.Node
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-internal class PluginScopeTest {
+internal class PluginScopeTest : FunSpec({
 
-    @Test
-    fun `plugin adds a child plugin node with version`() {
+    test("plugin adds a child plugin node with version") {
         val root = Node(DependencyNode.Plugin("root"))
         val scope = PluginScope(root)
 
         scope.plugin("com.android.application", version = "9.2.1")
 
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Plugin(
                         pluginId = "com.android.application",
@@ -24,29 +21,24 @@ internal class PluginScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `plugin adds a child plugin node without version`() {
+    test("plugin adds a child plugin node without version") {
         val root = Node(DependencyNode.Plugin("root"))
         val scope = PluginScope(root)
 
         scope.plugin("com.marmatsan.android")
 
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Plugin(
                         pluginId = "com.marmatsan.android"
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `plugin supports nested plugin groups`() {
+    test("plugin supports nested plugin groups") {
         val root = Node(DependencyNode.Plugin("root"))
         val scope = PluginScope(root)
 
@@ -57,8 +49,7 @@ internal class PluginScopeTest {
             }
         }
 
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     value = DependencyNode.Plugin(
                         pluginId = "org.jetbrains.kotlin"
@@ -86,11 +77,9 @@ internal class PluginScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `plugin restores parent after nested content and keeps sibling order`() {
+    test("plugin restores parent after nested content and keeps sibling order") {
         val root = Node(DependencyNode.Plugin("root"))
         val scope = PluginScope(root)
 
@@ -103,8 +92,7 @@ internal class PluginScopeTest {
             }
         }
 
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     value = DependencyNode.Plugin(
                         pluginId = "com.android"
@@ -139,6 +127,5 @@ internal class PluginScopeTest {
                     )
                 )
             )
-        )
     }
-}
+})

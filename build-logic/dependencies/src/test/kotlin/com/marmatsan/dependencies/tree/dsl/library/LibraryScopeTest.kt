@@ -1,18 +1,16 @@
 package com.marmatsan.dependencies.tree.dsl.library
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-internal class LibraryScopeTest {
+internal class LibraryScopeTest : FunSpec({
 
-    @Test
-    fun `artifact adds a single entry with version to the created library`() {
+    test("artifact adds a single entry with version to the created library") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -23,8 +21,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "activity",
@@ -36,11 +33,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `artifact adds multiple entries and keeps versionless artifacts and declaration order`() {
+    test("artifact adds multiple entries and keeps versionless artifacts and declaration order") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -52,8 +47,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "activity",
@@ -68,11 +62,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `artifactsBundle adds a bundle entry with alias and versionless artifacts`() {
+    test("artifactsBundle adds a bundle entry with alias and versionless artifacts") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -88,8 +80,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "compose",
@@ -108,11 +99,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `artifactsBundle propagates version to bundle and artifacts`() {
+    test("artifactsBundle propagates version to bundle and artifacts") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -128,8 +117,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "compose",
@@ -148,11 +136,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `artifactsBundle can be declared with artifact and keeps entry order`() {
+    test("artifactsBundle can be declared with artifact and keeps entry order") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -168,8 +154,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "compose",
@@ -190,11 +175,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `library adds a child library node without entries when content is null`() {
+    test("library adds a child library node without entries when content is null") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -203,15 +186,12 @@ internal class LibraryScopeTest {
         scope.library("compose")
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(DependencyNode.Library("compose"))
             )
-        )
     }
 
-    @Test
-    fun `library supports nested groups and preserves parent entries and children`() {
+    test("library supports nested groups and preserves parent entries and children") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -225,8 +205,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "compose",
@@ -250,11 +229,9 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
 
-    @Test
-    fun `library keeps entries isolated between siblings and preserves sibling order`() {
+    test("library keeps entries isolated between siblings and preserves sibling order") {
         // GIVEN
         val root = Node(DependencyNode.Library("androidx"))
         val scope = LibraryScope(root)
@@ -268,8 +245,7 @@ internal class LibraryScopeTest {
         }
 
         // THEN
-        assertThat(root.children).isEqualTo(
-            mutableListOf(
+        root.children shouldBe mutableListOf(
                 Node(
                     DependencyNode.Library(
                         libraryGroup = "activity",
@@ -291,6 +267,5 @@ internal class LibraryScopeTest {
                     )
                 )
             )
-        )
     }
-}
+})

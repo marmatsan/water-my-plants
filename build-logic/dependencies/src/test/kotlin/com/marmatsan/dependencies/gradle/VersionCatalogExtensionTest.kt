@@ -1,23 +1,21 @@
 package com.marmatsan.dependencies.gradle
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import assertk.assertions.isSameInstanceAs
-import assertk.assertions.messageContains
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.mockk.every
 import io.mockk.mockk
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.provider.Provider
-import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.Test
 import java.util.Optional
 
-internal class VersionCatalogExtensionTest {
+internal class VersionCatalogExtensionTest : FunSpec({
 
-    @Test
-    fun `requireDependencyNotation returns notation for an existing library alias`() {
+    test("requireDependencyNotation returns notation for an existing library alias") {
         // GIVEN
         val alias = "androidx.compose.bom"
         val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
@@ -33,11 +31,10 @@ internal class VersionCatalogExtensionTest {
         val actualNotation = versionCatalog.requireDependencyNotation(alias)
 
         // THEN
-        assertThat(actualNotation).isEqualTo(dependencyNotation)
+        actualNotation shouldBe dependencyNotation
     }
 
-    @Test
-    fun `requireBundle returns provider for an existing bundle alias`() {
+    test("requireBundle returns provider for an existing bundle alias") {
         // GIVEN
         val alias = "composeBundle"
         val provider = mockk<Provider<ExternalModuleDependencyBundle>>()
@@ -49,11 +46,10 @@ internal class VersionCatalogExtensionTest {
         val actualProvider = versionCatalog.requireBundle(alias)
 
         // THEN
-        assertThat(actualProvider).isSameInstanceAs(provider)
+        actualProvider shouldBeSameInstanceAs provider
     }
 
-    @Test
-    fun `requireDependencyNotation returns notation for an existing library group and artifact`() {
+    test("requireDependencyNotation returns notation for an existing library group and artifact") {
         // GIVEN
         val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
         val dependency = mockk<MinimalExternalModuleDependency>()
@@ -71,11 +67,10 @@ internal class VersionCatalogExtensionTest {
         )
 
         // THEN
-        assertThat(actualNotation).isEqualTo(dependencyNotation)
+        actualNotation shouldBe dependencyNotation
     }
 
-    @Test
-    fun `requireDependencyNotation uses the same multi segment alias rule as catalog registration`() {
+    test("requireDependencyNotation uses the same multi segment alias rule as catalog registration") {
         // GIVEN
         val dependencyNotation = "org.junit.jupiter:junit-jupiter-api"
         val dependency = mockk<MinimalExternalModuleDependency>()
@@ -93,11 +88,10 @@ internal class VersionCatalogExtensionTest {
         )
 
         // THEN
-        assertThat(actualNotation).isEqualTo(dependencyNotation)
+        actualNotation shouldBe dependencyNotation
     }
 
-    @Test
-    fun `requireDependencyNotation throws a catalog-specific message when alias does not exist`() {
+    test("requireDependencyNotation throws a catalog-specific message when alias does not exist") {
         // GIVEN
         val alias = "androidx.compose.compose.bom"
         val versionCatalog = mockk<VersionCatalog>()
@@ -106,16 +100,13 @@ internal class VersionCatalogExtensionTest {
         every { versionCatalog.findLibrary(alias) } returns Optional.empty()
 
         // WHEN / THEN
-        val exception = assertThrows<NoSuchElementException> {
+        val exception = shouldThrow<NoSuchElementException> {
             versionCatalog.requireDependencyNotation(alias)
         }
-        assertThat(exception).messageContains(
-            "Library alias 'androidx.compose.compose.bom' not found in version catalog named libs"
-        )
+        exception.message shouldContain "Library alias 'androidx.compose.compose.bom' not found in version catalog named libs"
     }
 
-    @Test
-    fun `requireBundle throws a catalog-specific message when alias does not exist`() {
+    test("requireBundle throws a catalog-specific message when alias does not exist") {
         // GIVEN
         val alias = "missingBundle"
         val versionCatalog = mockk<VersionCatalog>()
@@ -124,11 +115,9 @@ internal class VersionCatalogExtensionTest {
         every { versionCatalog.findBundle(alias) } returns Optional.empty()
 
         // WHEN / THEN
-        val exception = assertThrows<NoSuchElementException> {
+        val exception = shouldThrow<NoSuchElementException> {
             versionCatalog.requireBundle(alias)
         }
-        assertThat(exception).messageContains(
-            "Bundle alias 'missingBundle' not found in version catalog named libs"
-        )
+        exception.message shouldContain "Bundle alias 'missingBundle' not found in version catalog named libs"
     }
-}
+})

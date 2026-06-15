@@ -4,23 +4,20 @@ import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.Dependency
 import com.marmatsan.dependencies.tree.model.LibraryEntry
+import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verify
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-internal class VersionCatalogBuilderExtensionTest {
+internal class VersionCatalogBuilderExtensionTest : FunSpec({
 
-    private lateinit var builder: VersionCatalogBuilder
+    lateinit var builder: VersionCatalogBuilder
 
-    @BeforeEach
-    fun setup() {
+    beforeEach {
         builder = mockk<VersionCatalogBuilder>(relaxed = true)
     }
 
-    @Test
-    fun `registerLibraries registers a library alias without duplicating artifact prefix shared with group`() {
+    test("registerLibraries registers a library alias without duplicating artifact prefix shared with group") {
         // GIVEN
         val libraries = listOf(
             Dependency.Library(
@@ -49,8 +46,7 @@ internal class VersionCatalogBuilderExtensionTest {
         }
     }
 
-    @Test
-    fun `registerLibraries registers a BOM alias without duplicating artifact prefix shared with group`() {
+    test("registerLibraries registers a BOM alias without duplicating artifact prefix shared with group") {
         // GIVEN
         val libraries = listOf(
             Dependency.Library(
@@ -79,8 +75,7 @@ internal class VersionCatalogBuilderExtensionTest {
         }
     }
 
-    @Test
-    fun `registerLibraries registers an artifact alias preserving group when artifact does not share group prefix`() {
+    test("registerLibraries registers an artifact alias preserving group when artifact does not share group prefix") {
         // GIVEN
         val libraries = listOf(
             Dependency.Library(
@@ -108,8 +103,7 @@ internal class VersionCatalogBuilderExtensionTest {
         }
     }
 
-    @Test
-    fun `registerLibraries registers a library alias without duplicating multi segment artifact prefix shared with group`() {
+    test("registerLibraries registers a library alias without duplicating multi segment artifact prefix shared with group") {
         // GIVEN
         val libraries = listOf(
             Dependency.Library(
@@ -137,8 +131,7 @@ internal class VersionCatalogBuilderExtensionTest {
         }
     }
 
-    @Test
-    fun `registerLibraries registers bundle aliases using generated library aliases`() {
+    test("registerLibraries registers bundle aliases using generated library aliases") {
         // GIVEN
         val libraries = listOf(
             Dependency.Library(
@@ -174,8 +167,7 @@ internal class VersionCatalogBuilderExtensionTest {
         }
     }
 
-    @Test
-    fun `registerPlugins registers plugins`() {
+    test("registerPlugins registers plugins") {
         // GIVEN
         val plugins = listOf(
             Dependency.Plugin(
@@ -195,4 +187,4 @@ internal class VersionCatalogBuilderExtensionTest {
             ).version("8.13.2")
         }
     }
-}
+})

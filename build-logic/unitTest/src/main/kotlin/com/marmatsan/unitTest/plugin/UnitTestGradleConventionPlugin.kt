@@ -1,7 +1,6 @@
 package com.marmatsan.unitTest.plugin
 
 import com.marmatsan.dependencies.gradle.requireDependencyNotation
-import com.marmatsan.dependencies.gradle.requireBundle
 import com.marmatsan.dependencies.gradle.testImplementation
 import com.marmatsan.dependencies.gradle.testRuntimeOnly
 import org.gradle.api.Plugin
@@ -25,14 +24,20 @@ class UnitTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            // Junit5
-            testImplementation(platform(libs.requireDependencyNotation("org.junit.bom")))
-            libs.requireBundle("jupiterBundle").get().forEach { dependency ->
-                testImplementation(dependency)
-            }
+            // Kotest
+            testImplementation(
+                libs.requireDependencyNotation(
+                    libraryGroup = "io.kotest",
+                    artifact = "kotest-runner-junit5"
+                )
+            )
+            testImplementation(
+                libs.requireDependencyNotation(
+                    libraryGroup = "io.kotest",
+                    artifact = "kotest-assertions-core"
+                )
+            )
             testRuntimeOnly(libs.requireDependencyNotation("org.junit.platform.launcher"))
-            // AssertK
-            testImplementation(libs.requireDependencyNotation("com.willowtreeapps.assertk"))
             // Mockk
             testImplementation(libs.requireDependencyNotation("io.mockk"))
         }

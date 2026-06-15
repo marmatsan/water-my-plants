@@ -9,7 +9,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
   - `compose`: Jetpack Compose setup and shared Jetpack Compose dependencies.
   - `dependencies`: version catalog generation and dependency/plugin alias model.
   - `protobuf`: Protobuf Gradle plugin setup and lite runtime dependencies.
-  - `unitTest`: JUnit 5 test configuration and shared test dependencies.
+  - `unitTest`: Kotest test configuration and shared test dependencies.
 - Do not add product, UI, feature, or Android screen logic here.
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
 - All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
@@ -56,7 +56,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 
 ## Testing
 
-- Tests must always use JUnit 5, AssertK, and MockK.
+- Tests must always use Kotest and MockK.
 - These test dependencies are available through the build-logic version catalog declared in `settings.gradle.kts`.
 - Structure every test with explicit `GIVEN`, `WHEN`, and `THEN` sections. These words are wrapped in a single-line comment.
 - Do not execute the created tests.
