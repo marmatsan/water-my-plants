@@ -65,14 +65,14 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
     ) {
         extension.apply {
             namespace = "com.marmatsan.${project.name}"
-            compileSdk = 36
+            compileSdk = 37
             defaultConfig {
                 val majorVersion = 0
                 val minorVersion = 1
                 val bugfixVersion = 0
 
                 minSdk = 33
-                targetSdk = 36
+                targetSdk = 37
                 @Suppress("KotlinConstantConditions")
                 versionCode = majorVersion * 1000 + minorVersion * 100 + bugfixVersion
                 versionName = "${majorVersion}.${minorVersion}.$bugfixVersion"
@@ -92,7 +92,7 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
     ) {
         extension.apply {
             namespace = "com.marmatsan.${project.name}"
-            compileSdk = 36
+            compileSdk = 37
             defaultConfig {
                 minSdk = 33
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

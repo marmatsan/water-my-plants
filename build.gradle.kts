@@ -9,6 +9,7 @@ plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.android) apply false
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.compose) apply false
     id("com.marmatsan.android") apply false
+    id("com.marmatsan.bddTest") apply false
     id("com.marmatsan.compose") apply false
     id("com.marmatsan.protobuf") apply false
     id("com.marmatsan.unitTest") apply false

@@ -1,4 +1,4 @@
-package com.marmatsan.android_template
+package com.marmatsan.water_my_plants
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

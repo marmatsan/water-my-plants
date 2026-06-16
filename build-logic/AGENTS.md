@@ -14,6 +14,15 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
 - All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
 
+## Branching
+
+- Use Git Flow as the branching strategy.
+- Treat `main` as the stable release branch.
+- Treat `develop` as the integration branch for ongoing work.
+- Create feature work from `develop` using `feature/<short-description>`.
+- Merge completed feature branches back into `develop`.
+- Reserve `release/<version>` branches for release stabilization and `hotfix/<short-description>` branches for urgent fixes from `main`.
+
 ## Dependency and Version Rules
 
 - Keep version values in `versions.properties`.

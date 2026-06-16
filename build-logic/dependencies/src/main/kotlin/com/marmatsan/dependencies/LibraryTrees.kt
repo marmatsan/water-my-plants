@@ -104,6 +104,18 @@ private fun comLibrariesTree(
 private fun ioLibrariesTree(
     versions: Versions
 ) = libraryTree("io") {
+    library("cucumber") {
+        artifact(
+            "cucumber-bom",
+            version = versions.cucumberVersion
+        )
+        artifact(
+            "cucumber-java"
+        )
+        artifact(
+            "cucumber-junit-platform-engine"
+        )
+    }
     library("kotest") {
         artifact(
             "kotest-runner-junit5",
@@ -154,6 +166,9 @@ private fun orgLibrariesTree(
         library("platform") {
             artifact(
                 "junit-platform-launcher"
+            )
+            artifact(
+                "junit-platform-suite"
             )
         }
     }
