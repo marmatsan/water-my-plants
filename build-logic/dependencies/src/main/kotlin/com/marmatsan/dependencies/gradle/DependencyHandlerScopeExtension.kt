@@ -29,6 +29,15 @@ fun DependencyHandlerScope.implementation(
     )
 )
 
+fun DependencyHandlerScope.implementationBundle(
+    libs: VersionCatalog,
+    bundleAlias: String
+) {
+    libs.requireBundle(bundleAlias).get().forEach { dependency ->
+        implementation(dependency)
+    }
+}
+
 fun DependencyHandlerScope.implementationPlatform(
     libs: VersionCatalog,
     libraryGroup: String,

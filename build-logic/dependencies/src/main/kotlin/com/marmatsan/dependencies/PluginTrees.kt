@@ -70,6 +70,10 @@ private fun orgPluginTree(
                     id = "compose",
                     version = versions.kotlinVersion
                 )
+                plugin(
+                    id = "serialization",
+                    version = versions.kotlinVersion
+                )
             }
         }
         plugin("kotlinx") {

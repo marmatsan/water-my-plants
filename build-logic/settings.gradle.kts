@@ -57,6 +57,42 @@ dependencyResolutionManagement {
                 group = "org.jetbrains.kotlin",
                 artifact = "kotlin-gradle-plugin"
             ).version(version("kotlinVersion"))
+
+            library(
+                alias = "io.ktor.bom",
+                group = "io.ktor",
+                artifact = "ktor-bom"
+            ).version(version("ktorVersion"))
+
+            library(
+                alias = "io.ktor.client.core",
+                group = "io.ktor",
+                artifact = "ktor-client-core"
+            ).withoutVersion()
+
+            library(
+                alias = "io.ktor.client.cio",
+                group = "io.ktor",
+                artifact = "ktor-client-cio"
+            ).withoutVersion()
+
+            library(
+                alias = "io.ktor.client.content.negotiation",
+                group = "io.ktor",
+                artifact = "ktor-client-content-negotiation"
+            ).withoutVersion()
+
+            library(
+                alias = "io.ktor.serialization.kotlinx.json",
+                group = "io.ktor",
+                artifact = "ktor-serialization-kotlinx-json"
+            ).withoutVersion()
+
+            library(
+                alias = "org.jetbrains.kotlinx.serialization.json",
+                group = "org.jetbrains.kotlinx",
+                artifact = "kotlinx-serialization-json"
+            ).version(version("serializationVersion"))
             
             /* Testing */
             // JUnit Platform
@@ -92,6 +128,11 @@ dependencyResolutionManagement {
                 alias = "org.jetbrains.kotlinx.kover",
                 id = "org.jetbrains.kotlinx.kover"
             ).version(version("kotlinxKoverVersion"))
+
+            plugin(
+                alias = "org.jetbrains.kotlin.plugin.serialization",
+                id = "org.jetbrains.kotlin.plugin.serialization"
+            ).version(version("kotlinVersion"))
         }
     }
 }
@@ -101,6 +142,7 @@ include(
     ":bddTest",
     ":compose",
     ":dependencies",
+    ":figmaVersions",
     ":protobuf",
     ":unitTest"
 )

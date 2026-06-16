@@ -4,8 +4,8 @@ import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
 import com.marmatsan.dependencies.gradle.implementation
+import com.marmatsan.dependencies.gradle.implementationBundle
 import com.marmatsan.dependencies.gradle.implementationPlatform
-import com.marmatsan.dependencies.gradle.requireBundle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -52,9 +52,10 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
                 libraryGroup = "androidx.compose.material",
                 artifact = "material-icons-core"
             )
-            libs.requireBundle("composeBundle").get().forEach { dependency ->
-                implementation(dependency)
-            }
+            implementationBundle(
+                libs = libs,
+                bundleAlias = "composeBundle"
+            )
 
             /* Other Compose libraries */
             implementation(
