@@ -19,7 +19,10 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         project.extensions.configure<ProtobufExtension>("protobuf") {
             protoc {
-                artifact = libs.requireDependencyNotation("com.google.protobuf.protoc")
+                artifact = libs.requireDependencyNotation(
+                    libraryGroup = "com.google.protobuf",
+                    artifact = "protoc"
+                )
             }
 
             generateProtoTasks {
@@ -38,7 +41,11 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            implementation(libs.requireDependencyNotation("com.google.protobuf.kotlin"))
+            implementation(
+                libs = libs,
+                libraryGroup = "com.google.protobuf",
+                artifact = "protobuf-kotlin"
+            )
         }
     }
 }

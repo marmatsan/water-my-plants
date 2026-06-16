@@ -47,15 +47,35 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
 
         project.dependencies {
             /* Android core */
-            implementation(libs.requireDependencyNotation("androidx.core.ktx"))
-            implementation(libs.requireDependencyNotation("androidx.lifecycle.runtime.ktx"))
+            implementation(
+                libs = libs,
+                libraryGroup = "androidx.core",
+                artifact = "core-ktx"
+            )
+            implementation(
+                libs = libs,
+                libraryGroup = "androidx.lifecycle",
+                artifact = "lifecycle-runtime-ktx"
+            )
 
             /* Dependency injection */
-            ksp(libs.requireDependencyNotation("me.tatarka.inject.kotlin.inject.compiler.ksp"))
-            implementation(libs.requireDependencyNotation("me.tatarka.inject.kotlin.inject.runtime"))
+            ksp(
+                libs = libs,
+                libraryGroup = "me.tatarka.inject",
+                artifact = "kotlin-inject-compiler-ksp"
+            )
+            implementation(
+                libs = libs,
+                libraryGroup = "me.tatarka.inject",
+                artifact = "kotlin-inject-runtime"
+            )
 
             /* Coroutines */
-            implementation(libs.requireDependencyNotation("org.jetbrains.kotlinx.coroutines.android"))
+            implementation(
+                libs = libs,
+                libraryGroup = "org.jetbrains.kotlinx",
+                artifact = "kotlinx-coroutines-android"
+            )
         }
     }
 

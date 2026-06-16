@@ -2,6 +2,7 @@ package com.marmatsan.bddTest.plugin
 
 import com.marmatsan.dependencies.gradle.requireDependencyNotation
 import com.marmatsan.dependencies.gradle.testImplementation
+import com.marmatsan.dependencies.gradle.testImplementationPlatform
 import com.marmatsan.dependencies.gradle.testRuntimeOnly
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -34,11 +35,31 @@ class BddTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            testImplementation(platform(libs.requireDependencyNotation("io.cucumber.bom")))
-            testImplementation(libs.requireDependencyNotation("io.cucumber.java"))
-            testImplementation(libs.requireDependencyNotation("io.cucumber.junit.platform.engine"))
-            testImplementation(libs.requireDependencyNotation("org.junit.platform.suite"))
-            testRuntimeOnly(libs.requireDependencyNotation("org.junit.platform.launcher"))
+            testImplementationPlatform(
+                libs = libs,
+                libraryGroup = "io.cucumber",
+                artifact = "cucumber-bom"
+            )
+            testImplementation(
+                libs = libs,
+                libraryGroup = "io.cucumber",
+                artifact = "cucumber-java"
+            )
+            testImplementation(
+                libs = libs,
+                libraryGroup = "io.cucumber",
+                artifact = "cucumber-junit-platform-engine"
+            )
+            testImplementation(
+                libs = libs,
+                libraryGroup = "org.junit.platform",
+                artifact = "junit-platform-suite"
+            )
+            testRuntimeOnly(
+                libs = libs,
+                libraryGroup = "org.junit.platform",
+                artifact = "junit-platform-launcher"
+            )
         }
     }
 }

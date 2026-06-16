@@ -26,20 +26,26 @@ class UnitTestGradleConventionPlugin : Plugin<Project> {
         project.dependencies {
             // Kotest
             testImplementation(
-                libs.requireDependencyNotation(
-                    libraryGroup = "io.kotest",
-                    artifact = "kotest-runner-junit5"
-                )
+                libs = libs,
+                libraryGroup = "io.kotest",
+                artifact = "kotest-runner-junit5"
             )
             testImplementation(
-                libs.requireDependencyNotation(
-                    libraryGroup = "io.kotest",
-                    artifact = "kotest-assertions-core"
-                )
+                libs = libs,
+                libraryGroup = "io.kotest",
+                artifact = "kotest-assertions-core"
             )
-            testRuntimeOnly(libs.requireDependencyNotation("org.junit.platform.launcher"))
+            testRuntimeOnly(
+                libs = libs,
+                libraryGroup = "org.junit.platform",
+                artifact = "junit-platform-launcher"
+            )
             // Mockk
-            testImplementation(libs.requireDependencyNotation("io.mockk"))
+            testImplementation(
+                libs = libs,
+                libraryGroup = "io.mockk",
+                artifact = "mockk"
+            )
         }
     }
 }
