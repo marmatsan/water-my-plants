@@ -98,6 +98,7 @@ dependencyResolutionManagement {
 
 include(
     ":android",
+    ":bddTest",
     ":compose",
     ":dependencies",
     ":protobuf",

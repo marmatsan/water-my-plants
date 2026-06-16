@@ -1,4 +1,4 @@
-package com.marmatsan.android_template.data
+package com.marmatsan.water_my_plants.data
 
 import me.tatarka.inject.annotations.Inject
 

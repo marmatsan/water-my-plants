@@ -1,6 +1,6 @@
-package com.marmatsan.android_template.di
+package com.marmatsan.water_my_plants.di
 
-import com.marmatsan.android_template.domain.GreetingUseCase
+import com.marmatsan.water_my_plants.domain.GreetingUseCase
 import me.tatarka.inject.annotations.Component
 
 @Component
