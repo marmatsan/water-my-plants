@@ -11,7 +11,7 @@ plugins {
     id("com.marmatsan.android") apply false
     id("com.marmatsan.bddTest") apply false
     id("com.marmatsan.compose") apply false
-    id("com.marmatsan.figmaVersions") apply true
+    id("com.marmatsan.figmaCatalogChecks") apply true
     id("com.marmatsan.protobuf") apply false
     id("com.marmatsan.unitTest") apply false
 }

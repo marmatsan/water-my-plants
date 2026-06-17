@@ -165,7 +165,9 @@ include(
     ":bddTest",
     ":compose",
     ":dependencies",
-    ":figmaVersions",
+    ":figmaCatalogChecks:data",
+    ":figmaCatalogChecks:domain",
+    ":figmaCatalogChecks:plugin",
     ":protobuf",
     ":unitTest"
 )
