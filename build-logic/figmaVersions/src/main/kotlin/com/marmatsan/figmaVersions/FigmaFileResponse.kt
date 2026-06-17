@@ -24,6 +24,7 @@ internal data class FigmaNode(
     val name: String,
     val type: String,
     val characters: String? = null,
+    val componentId: String? = null,
     val componentProperties: Map<String, FigmaComponentProperty> = emptyMap(),
     val children: List<FigmaNode> = emptyList()
 )

@@ -6,18 +6,19 @@ Before merging into `main`, CI must verify that the stable Figma file content ma
 
 ## Sources
 
-- Figma file: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants`
-- Figma file key: `YBZXsd8oyGLbcI2KWxJvRK`
-- Figma page: `🐘 Gradle dependencies`
-- Figma section: `build-logic\versions.properties`
-- Figma component instances: `.project version`
+- Figma page URL: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908`
+- Figma section URL: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183&t=gxgxBWEWgZjRldAX-4`
+- Figma version component URL: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63075-591&t=gxgxBWEWgZjRldAX-4`
 - Repository file: `build-logic/versions.properties`
 
 ## Comparison Rules
 
 - `repositoryVersions` are the versions read from `build-logic/versions.properties`.
 - Compare properties by name and value.
-- Read each `.project version` instance using `Version alias` as the property name.
+- Parse the Figma file key and node ids from the configured page, section, and version component URLs.
+- Fetch the configured Figma section node directly by its node id.
+- Read each version component instance whose `componentId` matches the configured version component node id.
+- Use each matching instance's `Version alias` property as the property name.
 - Read the rendered internal text for the version value, because `Version number` is resolved through the `versions.properties` Figma variable collection mode named `Version number`.
 - Ignore comments and blank lines in `build-logic/versions.properties`.
 - Ignore declaration order.
@@ -25,9 +26,9 @@ Before merging into `main`, CI must verify that the stable Figma file content ma
 - Fail the gate when Figma contains an extra key.
 - Fail the gate when the repository contains a key missing from Figma.
 - Fail the gate when matching keys have different values.
-- Fail the gate when the `🐘 Gradle dependencies` page cannot be found in Figma.
-- Fail the gate when the `build-logic\versions.properties` section cannot be found in Figma.
-- Fail the gate when more than one `build-logic\versions.properties` section exists in the `Gradle dependencies` page.
+- Fail the gate when any configured Figma URL is invalid or points to a different Figma file.
+- Fail the gate when the configured Figma section node cannot be fetched.
+- Fail the gate when the configured section contains no instances of the configured version component.
 
 ## Secrets
 

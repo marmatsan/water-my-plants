@@ -5,68 +5,35 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 
 internal object FigmaFileVersionsReader {
-    private const val VERSION_COMPONENT_NAME = ".project version"
     private const val VERSION_ALIAS_PROPERTY = "Version alias"
-
-    fun read(
-        response: FigmaFileResponse,
-        pageName: String,
-        sectionName: String
-    ): Map<String, String> {
-        return readSection(
-            section = findSection(
-                response = response,
-                pageName = pageName,
-                sectionName = sectionName
-            ),
-            sectionName = sectionName
-        )
-    }
-
-    fun findSection(
-        response: FigmaFileResponse,
-        pageName: String,
-        sectionName: String
-    ): FigmaNode {
-        val page = response.document
-            .children
-            .singleOrNull { node -> node.type == "CANVAS" && node.name == pageName }
-            ?: error("Figma page '$pageName' was not found. Available pages: ${response.document.pageNames()}")
-
-        val matchingSections = page
-            .descendants()
-            .filter { node -> node.type == "SECTION" && node.name == sectionName }
-            .toList()
-
-        val section = when (matchingSections.size) {
-            0 -> error("Figma section '$sectionName' was not found in page '$pageName'")
-            1 -> matchingSections.single()
-            else -> error("Found ${matchingSections.size} Figma sections named '$sectionName' in page '$pageName'")
-        }
-
-        return section
-    }
 
     fun readSection(
         section: FigmaNode,
-        sectionName: String
+        sectionNodeId: String,
+        versionComponentNodeId: String
     ): Map<String, String> {
-        val componentVersions = section.readProjectVersionComponents(sectionName)
+        val componentVersions = section.readProjectVersionComponents(
+            sectionNodeId = sectionNodeId,
+            versionComponentNodeId = versionComponentNodeId
+        )
 
         return componentVersions
             .toSortedMap()
     }
 
     private fun FigmaNode.readProjectVersionComponents(
-        sectionName: String
+        sectionNodeId: String,
+        versionComponentNodeId: String
     ): Map<String, String> {
         val projectVersionComponents = descendants()
             .filter { node -> node.type == "INSTANCE" }
-            .filter { node -> node.name == VERSION_COMPONENT_NAME }
+            .filter { node -> node.componentId == versionComponentNodeId }
             .toList()
 
         if (projectVersionComponents.isEmpty()) {
-            error("Figma section '$sectionName' contains no '$VERSION_COMPONENT_NAME' instances")
+            error(
+                "Figma section '$sectionNodeId' contains no instances of component '$versionComponentNodeId'"
+            )
         }
 
         return projectVersionComponents
@@ -83,13 +50,6 @@ internal object FigmaFileVersionsReader {
         children.forEach { child ->
             yieldAll(child.descendants())
         }
-    }
-
-    private fun FigmaNode.pageNames(): String {
-        return children
-            .filter { node -> node.type == "CANVAS" }
-            .joinToString { node -> "'${node.name}'" }
-            .ifBlank { "<none>" }
     }
 
     private fun Map<String, FigmaComponentProperty>.findProperty(
@@ -119,7 +79,7 @@ internal object FigmaFileVersionsReader {
             ?.toPropertyValue()
             ?.trim()
             ?.takeIf(String::isNotBlank)
-            ?: error("Figma '$VERSION_COMPONENT_NAME' instance '${id}' is missing '$VERSION_ALIAS_PROPERTY'")
+            ?: error("Figma version instance '${id}' is missing '$VERSION_ALIAS_PROPERTY'")
     }
 
     private fun FigmaNode.renderedVersionNumber(
@@ -134,6 +94,6 @@ internal object FigmaFileVersionsReader {
                     text.any(Char::isDigit) &&
                     !text.contains("Version", ignoreCase = true)
             }
-            ?: error("Figma '$VERSION_COMPONENT_NAME' instance '${id}' has no rendered version number for '$versionAlias'")
+            ?: error("Figma version instance '${id}' has no rendered version number for '$versionAlias'")
     }
 }

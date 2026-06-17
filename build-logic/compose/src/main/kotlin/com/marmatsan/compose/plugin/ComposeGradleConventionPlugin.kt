@@ -54,7 +54,7 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
             )
             implementationBundle(
                 libs = libs,
-                bundleAlias = "composeBundle"
+                bundle = "composeBundle"
             )
 
             /* Other Compose libraries */

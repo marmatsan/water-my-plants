@@ -10,14 +10,12 @@ abstract class FigmaVersionsExtension @Inject constructor(
     objects: ObjectFactory,
     layout: ProjectLayout
 ) {
-    val fileKey: Property<String> = objects.property(String::class.java)
-    val pageName: Property<String> = objects.property(String::class.java)
-    val sectionName: Property<String> = objects.property(String::class.java)
+    val pageUrl: Property<String> = objects.property(String::class.java)
+    val sectionUrl: Property<String> = objects.property(String::class.java)
+    val versionComponentUrl: Property<String> = objects.property(String::class.java)
     val versionsFile: RegularFileProperty = objects.fileProperty()
 
     init {
-        pageName.convention("🐘 Gradle dependencies")
-        sectionName.convention("build-logic\\versions.properties")
         versionsFile.convention(layout.projectDirectory.file("build-logic/versions.properties"))
     }
 }

@@ -2,6 +2,7 @@ package com.marmatsan.figmaVersions.plugin
 
 import com.marmatsan.figmaVersions.FigmaFileContentClient
 import com.marmatsan.figmaVersions.FigmaFileVersionsReader
+import com.marmatsan.figmaVersions.FigmaNodeUrl
 import com.marmatsan.figmaVersions.VersionsComparison
 import com.marmatsan.figmaVersions.VersionsPropertiesReader
 import org.gradle.api.DefaultTask
@@ -17,13 +18,13 @@ import org.gradle.api.tasks.TaskAction
 
 abstract class CheckFigmaVersionsTask : DefaultTask() {
     @get:Input
-    abstract val fileKey: Property<String>
+    abstract val pageUrl: Property<String>
 
     @get:Input
-    abstract val pageName: Property<String>
+    abstract val sectionUrl: Property<String>
 
     @get:Input
-    abstract val sectionName: Property<String>
+    abstract val versionComponentUrl: Property<String>
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -38,25 +39,26 @@ abstract class CheckFigmaVersionsTask : DefaultTask() {
             ?: throw GradleException("Missing FIGMA_FILE_CONTENT_ACCESS_TOKEN environment variable")
 
         val repositoryVersions = VersionsPropertiesReader.read(versionsFile.get().asFile)
+        val page = FigmaNodeUrl.parse(pageUrl.get())
+        val section = FigmaNodeUrl.parse(sectionUrl.get())
+        val versionComponent = FigmaNodeUrl.parse(versionComponentUrl.get())
+
+        validateSameFile(
+            page = page,
+            section = section,
+            versionComponent = versionComponent
+        )
+
         val figmaClient = FigmaFileContentClient()
-        val figmaResponse = figmaClient.getFileContent(
-            fileKey = fileKey.get(),
-            token = token,
-            depth = 2
-        )
-        val section = FigmaFileVersionsReader.findSection(
-            response = figmaResponse,
-            pageName = pageName.get(),
-            sectionName = sectionName.get()
-        )
         val sectionContent = figmaClient.getNodeContent(
-            fileKey = fileKey.get(),
+            fileKey = section.fileKey,
             token = token,
-            nodeId = section.id
+            nodeId = section.nodeId
         )
         val figmaVersions = FigmaFileVersionsReader.readSection(
             section = sectionContent,
-            sectionName = sectionName.get()
+            sectionNodeId = section.nodeId,
+            versionComponentNodeId = versionComponent.nodeId
         )
         val result = VersionsComparison.compare(
             repositoryVersions = repositoryVersions,
@@ -67,6 +69,24 @@ abstract class CheckFigmaVersionsTask : DefaultTask() {
             throw GradleException(result.report())
         }
 
-        logger.lifecycle("Figma section '${sectionName.get()}' matches ${repositoryVersions.size} repository versions.")
+        logger.lifecycle("Figma section '${section.nodeId}' matches ${repositoryVersions.size} repository versions.")
+    }
+
+    private fun validateSameFile(
+        page: FigmaNodeUrl,
+        section: FigmaNodeUrl,
+        versionComponent: FigmaNodeUrl
+    ) {
+        val fileKeys = setOf(
+            page.fileKey,
+            section.fileKey,
+            versionComponent.fileKey
+        )
+
+        if (fileKeys.size != 1) {
+            throw GradleException(
+                "Figma URLs must point to the same file. Found file keys: ${fileKeys.sorted().joinToString()}"
+            )
+        }
     }
 }
