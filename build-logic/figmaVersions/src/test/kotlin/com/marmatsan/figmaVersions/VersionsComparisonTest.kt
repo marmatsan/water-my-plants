@@ -18,7 +18,7 @@ internal class VersionsComparisonTest : FunSpec({
         )
 
         // WHEN
-        val result = VersionsComparison.compare(
+        val result = VersionsComparison().compare(
             repositoryVersions = repositoryVersions,
             figmaVersions = figmaVersions
         )
@@ -33,7 +33,7 @@ internal class VersionsComparisonTest : FunSpec({
         val figmaVersions = emptyMap<String, String>()
 
         // WHEN
-        val result = VersionsComparison.compare(
+        val result = VersionsComparison().compare(
             repositoryVersions = repositoryVersions,
             figmaVersions = figmaVersions
         )
@@ -50,7 +50,7 @@ internal class VersionsComparisonTest : FunSpec({
         val figmaVersions = mapOf("kotlinVersion" to "2.4.0")
 
         // WHEN
-        val result = VersionsComparison.compare(
+        val result = VersionsComparison().compare(
             repositoryVersions = repositoryVersions,
             figmaVersions = figmaVersions
         )
@@ -67,7 +67,7 @@ internal class VersionsComparisonTest : FunSpec({
         val figmaVersions = mapOf("kotlinVersion" to "2.3.9")
 
         // WHEN
-        val result = VersionsComparison.compare(
+        val result = VersionsComparison().compare(
             repositoryVersions = repositoryVersions,
             figmaVersions = figmaVersions
         )

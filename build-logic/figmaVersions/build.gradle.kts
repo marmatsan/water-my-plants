@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
+    alias(plugins.plugins.com.google.devtools.ksp)
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
 }
 
@@ -15,6 +16,10 @@ tasks.withType<Test> {
 }
 
 dependencies {
+    ksp(libs.me.tatarka.inject.kotlin.inject.compiler.ksp)
+
+    implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
+
     // Ktor
     implementation(platform(libs.io.ktor.bom))
     implementation(libs.io.ktor.client.core)

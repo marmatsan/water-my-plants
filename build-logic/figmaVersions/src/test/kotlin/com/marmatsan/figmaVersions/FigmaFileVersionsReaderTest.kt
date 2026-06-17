@@ -91,7 +91,7 @@ internal class FigmaFileVersionsReaderTest : FunSpec({
         )
 
         // WHEN
-        val actualVersions = FigmaFileVersionsReader.readSection(
+        val actualVersions = FigmaFileVersionsReader().readSection(
             section = section,
             sectionNodeId = "62936:183",
             versionComponentNodeId = "63075:591"

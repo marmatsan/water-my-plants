@@ -3,9 +3,13 @@ package com.marmatsan.figmaVersions
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import me.tatarka.inject.annotations.Inject
 
-internal object FigmaFileVersionsReader {
-    private const val VERSION_ALIAS_PROPERTY = "Version alias"
+@Inject
+internal class FigmaFileVersionsReader {
+    private companion object {
+        const val VERSION_ALIAS_PROPERTY = "Version alias"
+    }
 
     fun readSection(
         section: FigmaNode,

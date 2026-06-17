@@ -1,9 +1,11 @@
 package com.marmatsan.figmaVersions
 
+import me.tatarka.inject.annotations.Inject
 import java.io.File
 import java.util.Properties
 
-object VersionsPropertiesReader {
+@Inject
+class VersionsPropertiesReader {
     fun read(file: File): Map<String, String> {
         val properties = Properties().apply {
             file.inputStream().use(::load)

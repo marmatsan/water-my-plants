@@ -53,6 +53,12 @@ dependencyResolutionManagement {
             ).version(version("protobufPluginVersion"))
 
             library(
+                alias = "com.google.devtools.ksp.gradle.plugin",
+                group = "com.google.devtools.ksp",
+                artifact = "com.google.devtools.ksp.gradle.plugin"
+            ).version(version("kspVersion"))
+
+            library(
                 alias = "org.jetbrains.kotlin.gradle.plugin",
                 group = "org.jetbrains.kotlin",
                 artifact = "kotlin-gradle-plugin"
@@ -93,6 +99,18 @@ dependencyResolutionManagement {
                 group = "org.jetbrains.kotlinx",
                 artifact = "kotlinx-serialization-json"
             ).version(version("serializationVersion"))
+
+            library(
+                alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
+                group = "me.tatarka.inject",
+                artifact = "kotlin-inject-compiler-ksp"
+            ).version(version("kotlinInjectVersion"))
+
+            library(
+                alias = "me.tatarka.inject.kotlin.inject.runtime",
+                group = "me.tatarka.inject",
+                artifact = "kotlin-inject-runtime"
+            ).version(version("kotlinInjectVersion"))
             
             /* Testing */
             // JUnit Platform
@@ -124,6 +142,11 @@ dependencyResolutionManagement {
         }
 
         create("plugins") {
+            plugin(
+                alias = "com.google.devtools.ksp",
+                id = "com.google.devtools.ksp"
+            ).version(version("kspVersion"))
+
             plugin(
                 alias = "org.jetbrains.kotlinx.kover",
                 id = "org.jetbrains.kotlinx.kover"

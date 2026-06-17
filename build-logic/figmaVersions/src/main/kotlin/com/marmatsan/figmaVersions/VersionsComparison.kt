@@ -1,5 +1,7 @@
 package com.marmatsan.figmaVersions
 
+import me.tatarka.inject.annotations.Inject
+
 data class VersionDifference(
     val repositoryValue: String,
     val figmaValue: String
@@ -42,7 +44,8 @@ data class VersionsComparisonResult(
     }.trimEnd()
 }
 
-object VersionsComparison {
+@Inject
+class VersionsComparison {
     fun compare(
         repositoryVersions: Map<String, String>,
         figmaVersions: Map<String, String>
