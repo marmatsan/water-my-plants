@@ -17,11 +17,14 @@ abstract class FigmaCatalogChecksExtension @Inject constructor(
     val buildLogicLibraryTreeSectionUrl: Property<String> = objects.property(String::class.java)
     val buildLogicPluginTreeSectionUrl: Property<String> = objects.property(String::class.java)
     val versionComponentUrl: Property<String> = objects.property(String::class.java)
+    val moduleComponentUrl: Property<String> = objects.property(String::class.java)
     val versionsFile: RegularFileProperty = objects.fileProperty()
+    val rootSettingsFile: RegularFileProperty = objects.fileProperty()
     val buildLogicSettingsFile: RegularFileProperty = objects.fileProperty()
 
     init {
         versionsFile.convention(layout.projectDirectory.file("build-logic/versions.properties"))
+        rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
         buildLogicSettingsFile.convention(layout.projectDirectory.file("build-logic/settings.gradle.kts"))
     }
 }

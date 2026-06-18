@@ -17,6 +17,7 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
         extension.buildLogicLibraryTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_LIBRARY_TREE_SECTION_URL)
         extension.buildLogicPluginTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_PLUGIN_TREE_SECTION_URL)
         extension.versionComponentUrl.convention(FIGMA_VERSION_COMPONENT_URL)
+        extension.moduleComponentUrl.convention(FIGMA_MODULE_COMPONENT_URL)
 
         project.tasks.register<CheckFigmaVersionsTask>("checkFigmaVersions") {
             group = "verification"
@@ -70,6 +71,17 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             settingsFile.set(extension.buildLogicSettingsFile)
             figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
         }
+
+        project.tasks.register<CheckFigmaModulesTask>("checkFigmaModules") {
+            group = "verification"
+            description = "Checks that the Figma .module component variants match the repository modules."
+
+            pageUrl.set(extension.pageUrl)
+            moduleComponentUrl.set(extension.moduleComponentUrl)
+            rootSettingsFile.set(extension.rootSettingsFile)
+            buildLogicSettingsFile.set(extension.buildLogicSettingsFile)
+            figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
+        }
     }
 
     private companion object {
@@ -87,5 +99,7 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_VERSION_COMPONENT_URL =
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63075-591&t=gxgxBWEWgZjRldAX-4"
+        const val FIGMA_MODULE_COMPONENT_URL =
+            "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63085-793&t=gxgxBWEWgZjRldAX-4"
     }
 }

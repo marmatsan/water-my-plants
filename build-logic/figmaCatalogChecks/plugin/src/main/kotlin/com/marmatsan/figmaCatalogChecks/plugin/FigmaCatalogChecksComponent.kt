@@ -8,6 +8,7 @@ import me.tatarka.inject.annotations.Provides
 internal abstract class FigmaCatalogChecksComponent {
     abstract val checker: FigmaVersionsChecker
     abstract val catalogTreeChecker: FigmaCatalogTreeChecker
+    abstract val modulesChecker: FigmaModulesChecker
 
     @Provides
     protected fun figmaFileContentClient(): FigmaFileContentClient {
