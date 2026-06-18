@@ -33,10 +33,10 @@ val appModule = listOf(
     ":app"
 )
 val coreModule = listOf(
-    ":core:core_ui"
+    ":core:ui"
 )
 val onboardingModule = listOf(
-    ":onboarding:onboarding_ui"
+    ":onboarding:ui"
 )
 
 include(

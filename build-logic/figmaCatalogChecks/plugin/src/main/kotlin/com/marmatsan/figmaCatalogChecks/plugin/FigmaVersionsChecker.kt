@@ -1,13 +1,10 @@
 package com.marmatsan.figmaCatalogChecks.plugin
 
-import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentClient
 import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentException
-import com.marmatsan.figmaCatalogChecks.data.FigmaFileVersionsReader
 import com.marmatsan.figmaCatalogChecks.data.FigmaNodeUrl
-import com.marmatsan.figmaCatalogChecks.data.VersionsPropertiesReader
-import com.marmatsan.figmaCatalogChecks.domain.FigmaVersionsCheck
-import com.marmatsan.figmaCatalogChecks.domain.FigmaVersionsCheckInput
 import com.marmatsan.figmaCatalogChecks.domain.FigmaVersionsCheckResult
+import com.marmatsan.figmaCatalogChecks.domain.CheckVersionsUseCase
+import com.marmatsan.figmaCatalogChecks.domain.CheckVersionsUseCaseRequest
 import me.tatarka.inject.annotations.Inject
 import org.gradle.api.GradleException
 import java.io.File
@@ -27,39 +24,24 @@ internal data class FigmaVersionsTaskResult(
 
 @Inject
 internal class FigmaVersionsChecker(
-    private val versionsPropertiesReader: VersionsPropertiesReader,
-    private val figmaFileContentClient: FigmaFileContentClient,
-    private val figmaFileVersionsReader: FigmaFileVersionsReader,
-    private val figmaVersionsCheck: FigmaVersionsCheck
+    private val checkVersionsUseCase: CheckVersionsUseCase
 ) {
     fun check(
         request: FigmaVersionsCheckRequest
     ): FigmaVersionsTaskResult {
         try {
-            val repositoryVersions = versionsPropertiesReader.read(request.versionsFile)
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val section = FigmaNodeUrl.parse(request.sectionUrl)
             val versionComponent = FigmaNodeUrl.parse(request.versionComponentUrl)
 
-            val sectionContent = figmaFileContentClient.getNodeContent(
-                fileKey = section.fileKey,
-                token = request.token,
-                nodeId = section.nodeId
-            )
-            val figmaVersions = figmaFileVersionsReader.readSection(
-                section = sectionContent,
-                sectionNodeId = section.nodeId,
-                versionComponentNodeId = versionComponent.nodeId
-            )
-
             return when (
-                val result = figmaVersionsCheck.check(
-                    FigmaVersionsCheckInput(
+                val result = checkVersionsUseCase.execute(
+                    CheckVersionsUseCaseRequest(
                         page = page,
                         section = section,
                         versionComponent = versionComponent,
-                        repositoryVersions = repositoryVersions,
-                        figmaVersions = figmaVersions
+                        versionsFilePath = request.versionsFile.absolutePath,
+                        token = request.token
                     )
                 )
             ) {

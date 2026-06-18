@@ -1,11 +1,10 @@
 package com.marmatsan.figmaCatalogChecks.plugin
 
-import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentClient
 import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentException
-import com.marmatsan.figmaCatalogChecks.data.FigmaModuleComponentReader
 import com.marmatsan.figmaCatalogChecks.data.FigmaNodeUrl
-import com.marmatsan.figmaCatalogChecks.data.GradleProjectModulesReader
-import com.marmatsan.figmaCatalogChecks.domain.ModuleNamesComparison
+import com.marmatsan.figmaCatalogChecks.domain.CheckModulesUseCase
+import com.marmatsan.figmaCatalogChecks.domain.CheckModulesUseCaseRequest
+import com.marmatsan.figmaCatalogChecks.domain.ModulesCheckResult
 import me.tatarka.inject.annotations.Inject
 import org.gradle.api.GradleException
 import java.io.File
@@ -25,10 +24,7 @@ internal data class FigmaModulesTaskResult(
 
 @Inject
 internal class FigmaModulesChecker(
-    private val gradleProjectModulesReader: GradleProjectModulesReader,
-    private val figmaFileContentClient: FigmaFileContentClient,
-    private val figmaModuleComponentReader: FigmaModuleComponentReader,
-    private val moduleNamesComparison: ModuleNamesComparison
+    private val checkModulesUseCase: CheckModulesUseCase
 ) {
     fun check(
         request: FigmaModulesCheckRequest
@@ -37,37 +33,28 @@ internal class FigmaModulesChecker(
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val moduleComponent = FigmaNodeUrl.parse(request.moduleComponentUrl)
 
-            if (page.fileKey != moduleComponent.fileKey) {
-                throw GradleException(
-                    "Figma URLs must point to the same file. Found file keys: ${page.fileKey}, ${moduleComponent.fileKey}"
+            return when (
+                val result = checkModulesUseCase.execute(
+                    CheckModulesUseCaseRequest(
+                        page = page,
+                        moduleComponent = moduleComponent,
+                        rootSettingsFilePath = request.rootSettingsFile.absolutePath,
+                        buildLogicSettingsFilePath = request.buildLogicSettingsFile.absolutePath,
+                        token = request.token
+                    )
                 )
+            ) {
+                is ModulesCheckResult.Match -> FigmaModulesTaskResult(
+                    moduleComponentNodeId = result.moduleComponentNodeId,
+                    repositoryModuleCount = result.repositoryModuleCount
+                )
+
+                is ModulesCheckResult.DifferentFiles -> throw GradleException(
+                    "Figma URLs must point to the same file. Found file keys: ${result.fileKeys.joinToString()}"
+                )
+
+                is ModulesCheckResult.Mismatch -> throw GradleException(result.comparison.report())
             }
-
-            val repositoryModules = gradleProjectModulesReader.readModules(
-                rootSettingsFile = request.rootSettingsFile,
-                buildLogicSettingsFile = request.buildLogicSettingsFile
-            )
-            val figmaModules = figmaModuleComponentReader.readComponent(
-                component = figmaFileContentClient.getNodeContent(
-                    fileKey = moduleComponent.fileKey,
-                    token = request.token,
-                    nodeId = moduleComponent.nodeId
-                ),
-                componentNodeId = moduleComponent.nodeId
-            )
-            val comparison = moduleNamesComparison.compare(
-                repositoryModules = repositoryModules,
-                figmaModules = figmaModules
-            )
-
-            if (!comparison.matches) {
-                throw GradleException(comparison.report())
-            }
-
-            return FigmaModulesTaskResult(
-                moduleComponentNodeId = moduleComponent.nodeId,
-                repositoryModuleCount = repositoryModules.size
-            )
         } catch (exception: FigmaFileContentException) {
             throw GradleException(
                 exception.message ?: "Figma file content request failed",

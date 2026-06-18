@@ -1,18 +1,14 @@
 package com.marmatsan.figmaCatalogChecks.plugin
 
-import com.marmatsan.figmaCatalogChecks.data.BuildLogicSettingsCatalogReader
-import com.marmatsan.figmaCatalogChecks.data.DependenciesCatalogTreesReader
-import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentClient
 import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentException
-import com.marmatsan.figmaCatalogChecks.data.FigmaFileLibraryCatalogTreeReader
-import com.marmatsan.figmaCatalogChecks.data.FigmaFilePluginCatalogTreeReader
 import com.marmatsan.figmaCatalogChecks.data.FigmaNodeUrl
-import com.marmatsan.figmaCatalogChecks.domain.LibraryCatalogNode
-import com.marmatsan.figmaCatalogChecks.domain.LibraryCatalogTree
-import com.marmatsan.figmaCatalogChecks.domain.LibraryCatalogTreeComparison
-import com.marmatsan.figmaCatalogChecks.domain.PluginCatalogNode
-import com.marmatsan.figmaCatalogChecks.domain.PluginCatalogTree
-import com.marmatsan.figmaCatalogChecks.domain.PluginCatalogTreeComparison
+import com.marmatsan.figmaCatalogChecks.domain.CheckLibraryCatalogTreeUseCase
+import com.marmatsan.figmaCatalogChecks.domain.CheckLibraryCatalogTreeUseCaseRequest
+import com.marmatsan.figmaCatalogChecks.domain.CheckPluginCatalogTreeUseCase
+import com.marmatsan.figmaCatalogChecks.domain.CheckPluginCatalogTreeUseCaseRequest
+import com.marmatsan.figmaCatalogChecks.domain.LibraryCatalogTreeCheckResult
+import com.marmatsan.figmaCatalogChecks.domain.PluginCatalogTreeCheckResult
+import com.marmatsan.figmaCatalogChecks.domain.ProjectCatalogTreeSource
 import me.tatarka.inject.annotations.Inject
 import org.gradle.api.GradleException
 import java.io.File
@@ -38,13 +34,8 @@ internal data class FigmaCatalogTreeTaskResult(
 
 @Inject
 internal class FigmaCatalogTreeChecker(
-    private val buildLogicSettingsCatalogReader: BuildLogicSettingsCatalogReader,
-    private val dependenciesCatalogTreesReader: DependenciesCatalogTreesReader,
-    private val figmaFileContentClient: FigmaFileContentClient,
-    private val figmaFileLibraryCatalogTreeReader: FigmaFileLibraryCatalogTreeReader,
-    private val figmaFilePluginCatalogTreeReader: FigmaFilePluginCatalogTreeReader,
-    private val libraryCatalogTreeComparison: LibraryCatalogTreeComparison,
-    private val pluginCatalogTreeComparison: PluginCatalogTreeComparison
+    private val checkLibraryCatalogTreeUseCase: CheckLibraryCatalogTreeUseCase,
+    private val checkPluginCatalogTreeUseCase: CheckPluginCatalogTreeUseCase
 ) {
     fun checkLibraryTree(
         request: FigmaCatalogTreeCheckRequest
@@ -52,30 +43,16 @@ internal class FigmaCatalogTreeChecker(
         try {
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val section = FigmaNodeUrl.parse(request.sectionUrl)
-            ensureSameFile(page.fileKey, section.fileKey)
 
-            val repositoryTree = dependenciesCatalogTreesReader.readLibraryTreeWithVersionAliases()
-            val figmaTree = figmaFileLibraryCatalogTreeReader.readSection(
-                section = figmaFileContentClient.getNodeContent(
-                    fileKey = section.fileKey,
-                    token = request.token,
-                    nodeId = section.nodeId
-                ),
-                sectionNodeId = section.nodeId
+            return checkLibraryCatalogTreeUseCase.execute(
+                CheckLibraryCatalogTreeUseCaseRequest(
+                    page = page,
+                    section = section,
+                    projectSource = ProjectCatalogTreeSource.DependenciesDslVersionAliases,
+                    token = request.token
+                )
             )
-            val comparison = libraryCatalogTreeComparison.compare(
-                repositoryTree = repositoryTree,
-                figmaTree = figmaTree
-            )
-
-            if (!comparison.matches) {
-                throw GradleException(comparison.report())
-            }
-
-            return FigmaCatalogTreeTaskResult(
-                sectionNodeId = section.nodeId,
-                repositoryNodeCount = repositoryTree.nodeCount()
-            )
+                .toTaskResult()
         } catch (exception: FigmaFileContentException) {
             throw GradleException(
                 exception.message ?: "Figma file content request failed",
@@ -90,30 +67,16 @@ internal class FigmaCatalogTreeChecker(
         try {
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val section = FigmaNodeUrl.parse(request.sectionUrl)
-            ensureSameFile(page.fileKey, section.fileKey)
 
-            val repositoryTree = dependenciesCatalogTreesReader.readPluginTreeWithVersionAliases()
-            val figmaTree = figmaFilePluginCatalogTreeReader.readSection(
-                section = figmaFileContentClient.getNodeContent(
-                    fileKey = section.fileKey,
-                    token = request.token,
-                    nodeId = section.nodeId
-                ),
-                sectionNodeId = section.nodeId
+            return checkPluginCatalogTreeUseCase.execute(
+                CheckPluginCatalogTreeUseCaseRequest(
+                    page = page,
+                    section = section,
+                    projectSource = ProjectCatalogTreeSource.DependenciesDslVersionAliases,
+                    token = request.token
+                )
             )
-            val comparison = pluginCatalogTreeComparison.compare(
-                repositoryTree = repositoryTree,
-                figmaTree = figmaTree
-            )
-
-            if (!comparison.matches) {
-                throw GradleException(comparison.report())
-            }
-
-            return FigmaCatalogTreeTaskResult(
-                sectionNodeId = section.nodeId,
-                repositoryNodeCount = repositoryTree.nodeCount()
-            )
+                .toTaskResult()
         } catch (exception: FigmaFileContentException) {
             throw GradleException(
                 exception.message ?: "Figma file content request failed",
@@ -128,30 +91,18 @@ internal class FigmaCatalogTreeChecker(
         try {
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val section = FigmaNodeUrl.parse(request.sectionUrl)
-            ensureSameFile(page.fileKey, section.fileKey)
 
-            val repositoryTree = buildLogicSettingsCatalogReader.readLibraryTree(request.settingsFile)
-            val figmaTree = figmaFileLibraryCatalogTreeReader.readSection(
-                section = figmaFileContentClient.getNodeContent(
-                    fileKey = section.fileKey,
-                    token = request.token,
-                    nodeId = section.nodeId
-                ),
-                sectionNodeId = section.nodeId
+            return checkLibraryCatalogTreeUseCase.execute(
+                CheckLibraryCatalogTreeUseCaseRequest(
+                    page = page,
+                    section = section,
+                    projectSource = ProjectCatalogTreeSource.BuildLogicSettings(
+                        settingsFilePath = request.settingsFile.absolutePath
+                    ),
+                    token = request.token
+                )
             )
-            val comparison = libraryCatalogTreeComparison.compare(
-                repositoryTree = repositoryTree,
-                figmaTree = figmaTree
-            )
-
-            if (!comparison.matches) {
-                throw GradleException(comparison.report())
-            }
-
-            return FigmaCatalogTreeTaskResult(
-                sectionNodeId = section.nodeId,
-                repositoryNodeCount = repositoryTree.nodeCount()
-            )
+                .toTaskResult()
         } catch (exception: FigmaFileContentException) {
             throw GradleException(
                 exception.message ?: "Figma file content request failed",
@@ -166,30 +117,18 @@ internal class FigmaCatalogTreeChecker(
         try {
             val page = FigmaNodeUrl.parse(request.pageUrl)
             val section = FigmaNodeUrl.parse(request.sectionUrl)
-            ensureSameFile(page.fileKey, section.fileKey)
 
-            val repositoryTree = buildLogicSettingsCatalogReader.readPluginTree(request.settingsFile)
-            val figmaTree = figmaFilePluginCatalogTreeReader.readSection(
-                section = figmaFileContentClient.getNodeContent(
-                    fileKey = section.fileKey,
-                    token = request.token,
-                    nodeId = section.nodeId
-                ),
-                sectionNodeId = section.nodeId
+            return checkPluginCatalogTreeUseCase.execute(
+                CheckPluginCatalogTreeUseCaseRequest(
+                    page = page,
+                    section = section,
+                    projectSource = ProjectCatalogTreeSource.BuildLogicSettings(
+                        settingsFilePath = request.settingsFile.absolutePath
+                    ),
+                    token = request.token
+                )
             )
-            val comparison = pluginCatalogTreeComparison.compare(
-                repositoryTree = repositoryTree,
-                figmaTree = figmaTree
-            )
-
-            if (!comparison.matches) {
-                throw GradleException(comparison.report())
-            }
-
-            return FigmaCatalogTreeTaskResult(
-                sectionNodeId = section.nodeId,
-                repositoryNodeCount = repositoryTree.nodeCount()
-            )
+                .toTaskResult()
         } catch (exception: FigmaFileContentException) {
             throw GradleException(
                 exception.message ?: "Figma file content request failed",
@@ -198,26 +137,31 @@ internal class FigmaCatalogTreeChecker(
         }
     }
 
-    private fun ensureSameFile(
-        pageFileKey: String,
-        sectionFileKey: String
-    ) {
-        if (pageFileKey != sectionFileKey) {
-            throw GradleException(
-                "Figma URLs must point to the same file. Found file keys: $pageFileKey, $sectionFileKey"
+    private fun LibraryCatalogTreeCheckResult.toTaskResult(): FigmaCatalogTreeTaskResult =
+        when (this) {
+            is LibraryCatalogTreeCheckResult.Match -> FigmaCatalogTreeTaskResult(
+                sectionNodeId = sectionNodeId,
+                repositoryNodeCount = repositoryNodeCount
             )
+
+            is LibraryCatalogTreeCheckResult.DifferentFiles -> throw GradleException(
+                "Figma URLs must point to the same file. Found file keys: ${fileKeys.joinToString()}"
+            )
+
+            is LibraryCatalogTreeCheckResult.Mismatch -> throw GradleException(comparison.report())
         }
-    }
 
-    private fun LibraryCatalogTree.nodeCount(): Int =
-        roots.sumOf { node -> node.nodeCount() }
+    private fun PluginCatalogTreeCheckResult.toTaskResult(): FigmaCatalogTreeTaskResult =
+        when (this) {
+            is PluginCatalogTreeCheckResult.Match -> FigmaCatalogTreeTaskResult(
+                sectionNodeId = sectionNodeId,
+                repositoryNodeCount = repositoryNodeCount
+            )
 
-    private fun LibraryCatalogNode.nodeCount(): Int =
-        1 + children.sumOf { node -> node.nodeCount() }
+            is PluginCatalogTreeCheckResult.DifferentFiles -> throw GradleException(
+                "Figma URLs must point to the same file. Found file keys: ${fileKeys.joinToString()}"
+            )
 
-    private fun PluginCatalogTree.nodeCount(): Int =
-        roots.sumOf { node -> node.nodeCount() }
-
-    private fun PluginCatalogNode.nodeCount(): Int =
-        1 + children.sumOf { node -> node.nodeCount() }
+            is PluginCatalogTreeCheckResult.Mismatch -> throw GradleException(comparison.report())
+        }
 }
