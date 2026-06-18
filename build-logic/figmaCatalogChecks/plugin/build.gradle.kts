@@ -27,6 +27,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.figmaCatalogChecks"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.FigmaCatalogChecksGradleConventionPlugin"
+        implementationClass = "${pluginName}.plugin.gradle.FigmaCatalogChecksGradleConventionPlugin"
     }
 }
