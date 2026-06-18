@@ -12,6 +12,8 @@ abstract class FigmaCatalogChecksExtension @Inject constructor(
 ) {
     val pageUrl: Property<String> = objects.property(String::class.java)
     val sectionUrl: Property<String> = objects.property(String::class.java)
+    val libraryTreeSectionUrl: Property<String> = objects.property(String::class.java)
+    val pluginTreeSectionUrl: Property<String> = objects.property(String::class.java)
     val versionComponentUrl: Property<String> = objects.property(String::class.java)
     val versionsFile: RegularFileProperty = objects.fileProperty()
 

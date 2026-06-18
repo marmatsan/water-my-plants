@@ -15,6 +15,7 @@ tasks.withType<Test> {
 
 dependencies {
     implementation(projects.figmaCatalogChecks.domain)
+    implementation(projects.dependencies)
 
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
