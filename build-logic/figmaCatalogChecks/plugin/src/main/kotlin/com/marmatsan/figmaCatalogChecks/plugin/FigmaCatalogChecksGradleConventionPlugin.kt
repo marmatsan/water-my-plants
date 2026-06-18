@@ -14,6 +14,8 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
         extension.sectionUrl.convention(FIGMA_SECTION_URL)
         extension.libraryTreeSectionUrl.convention(FIGMA_LIBRARY_TREE_SECTION_URL)
         extension.pluginTreeSectionUrl.convention(FIGMA_PLUGIN_TREE_SECTION_URL)
+        extension.buildLogicLibraryTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_LIBRARY_TREE_SECTION_URL)
+        extension.buildLogicPluginTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_PLUGIN_TREE_SECTION_URL)
         extension.versionComponentUrl.convention(FIGMA_VERSION_COMPONENT_URL)
 
         project.tasks.register<CheckFigmaVersionsTask>("checkFigmaVersions") {
@@ -48,6 +50,26 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             projectRootDirectory.set(project.layout.projectDirectory)
             figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
         }
+
+        project.tasks.register<CheckFigmaBuildLogicLibraryTreeTask>("checkFigmaBuildLogicLibraryTree") {
+            group = "verification"
+            description = "Checks that the Figma build-logic library catalog tree matches build-logic/settings.gradle.kts."
+
+            pageUrl.set(extension.pageUrl)
+            sectionUrl.set(extension.buildLogicLibraryTreeSectionUrl)
+            settingsFile.set(extension.buildLogicSettingsFile)
+            figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
+        }
+
+        project.tasks.register<CheckFigmaBuildLogicPluginTreeTask>("checkFigmaBuildLogicPluginTree") {
+            group = "verification"
+            description = "Checks that the Figma build-logic plugin catalog tree matches build-logic/settings.gradle.kts."
+
+            pageUrl.set(extension.pageUrl)
+            sectionUrl.set(extension.buildLogicPluginTreeSectionUrl)
+            settingsFile.set(extension.buildLogicSettingsFile)
+            figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
+        }
     }
 
     private companion object {
@@ -59,6 +81,10 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-629&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_PLUGIN_TREE_SECTION_URL =
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594&t=gxgxBWEWgZjRldAX-4"
+        const val FIGMA_BUILD_LOGIC_LIBRARY_TREE_SECTION_URL =
+            "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951&t=gxgxBWEWgZjRldAX-4"
+        const val FIGMA_BUILD_LOGIC_PLUGIN_TREE_SECTION_URL =
+            "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_VERSION_COMPONENT_URL =
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63075-591&t=gxgxBWEWgZjRldAX-4"
     }

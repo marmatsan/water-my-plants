@@ -1,5 +1,6 @@
 package com.marmatsan.figmaCatalogChecks.plugin
 
+import com.marmatsan.figmaCatalogChecks.data.BuildLogicSettingsCatalogReader
 import com.marmatsan.figmaCatalogChecks.data.DependenciesCatalogTreesReader
 import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentClient
 import com.marmatsan.figmaCatalogChecks.data.FigmaFileContentException
@@ -23,6 +24,13 @@ internal data class FigmaCatalogTreeCheckRequest(
     val token: String
 )
 
+internal data class FigmaBuildLogicCatalogTreeCheckRequest(
+    val pageUrl: String,
+    val sectionUrl: String,
+    val settingsFile: File,
+    val token: String
+)
+
 internal data class FigmaCatalogTreeTaskResult(
     val sectionNodeId: String,
     val repositoryNodeCount: Int
@@ -30,6 +38,7 @@ internal data class FigmaCatalogTreeTaskResult(
 
 @Inject
 internal class FigmaCatalogTreeChecker(
+    private val buildLogicSettingsCatalogReader: BuildLogicSettingsCatalogReader,
     private val dependenciesCatalogTreesReader: DependenciesCatalogTreesReader,
     private val figmaFileContentClient: FigmaFileContentClient,
     private val figmaFileLibraryCatalogTreeReader: FigmaFileLibraryCatalogTreeReader,
@@ -84,6 +93,82 @@ internal class FigmaCatalogTreeChecker(
             ensureSameFile(page.fileKey, section.fileKey)
 
             val repositoryTree = dependenciesCatalogTreesReader.readPluginTreeWithVersionAliases()
+            val figmaTree = figmaFilePluginCatalogTreeReader.readSection(
+                section = figmaFileContentClient.getNodeContent(
+                    fileKey = section.fileKey,
+                    token = request.token,
+                    nodeId = section.nodeId
+                ),
+                sectionNodeId = section.nodeId
+            )
+            val comparison = pluginCatalogTreeComparison.compare(
+                repositoryTree = repositoryTree,
+                figmaTree = figmaTree
+            )
+
+            if (!comparison.matches) {
+                throw GradleException(comparison.report())
+            }
+
+            return FigmaCatalogTreeTaskResult(
+                sectionNodeId = section.nodeId,
+                repositoryNodeCount = repositoryTree.nodeCount()
+            )
+        } catch (exception: FigmaFileContentException) {
+            throw GradleException(
+                exception.message ?: "Figma file content request failed",
+                exception
+            )
+        }
+    }
+
+    fun checkBuildLogicLibraryTree(
+        request: FigmaBuildLogicCatalogTreeCheckRequest
+    ): FigmaCatalogTreeTaskResult {
+        try {
+            val page = FigmaNodeUrl.parse(request.pageUrl)
+            val section = FigmaNodeUrl.parse(request.sectionUrl)
+            ensureSameFile(page.fileKey, section.fileKey)
+
+            val repositoryTree = buildLogicSettingsCatalogReader.readLibraryTree(request.settingsFile)
+            val figmaTree = figmaFileLibraryCatalogTreeReader.readSection(
+                section = figmaFileContentClient.getNodeContent(
+                    fileKey = section.fileKey,
+                    token = request.token,
+                    nodeId = section.nodeId
+                ),
+                sectionNodeId = section.nodeId
+            )
+            val comparison = libraryCatalogTreeComparison.compare(
+                repositoryTree = repositoryTree,
+                figmaTree = figmaTree
+            )
+
+            if (!comparison.matches) {
+                throw GradleException(comparison.report())
+            }
+
+            return FigmaCatalogTreeTaskResult(
+                sectionNodeId = section.nodeId,
+                repositoryNodeCount = repositoryTree.nodeCount()
+            )
+        } catch (exception: FigmaFileContentException) {
+            throw GradleException(
+                exception.message ?: "Figma file content request failed",
+                exception
+            )
+        }
+    }
+
+    fun checkBuildLogicPluginTree(
+        request: FigmaBuildLogicCatalogTreeCheckRequest
+    ): FigmaCatalogTreeTaskResult {
+        try {
+            val page = FigmaNodeUrl.parse(request.pageUrl)
+            val section = FigmaNodeUrl.parse(request.sectionUrl)
+            ensureSameFile(page.fileKey, section.fileKey)
+
+            val repositoryTree = buildLogicSettingsCatalogReader.readPluginTree(request.settingsFile)
             val figmaTree = figmaFilePluginCatalogTreeReader.readSection(
                 section = figmaFileContentClient.getNodeContent(
                     fileKey = section.fileKey,
