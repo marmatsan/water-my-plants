@@ -1,7 +1,11 @@
 package com.marmatsan.figmaCatalogChecks.plugin.gradle
 
-import com.marmatsan.figmaCatalogChecks.plugin.task.*
-
+import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaBuildLogicLibraryTreeTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaBuildLogicPluginTreeTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaLibraryTreeTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaPluginTreeTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.modules.CheckFigmaModulesTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.versions.CheckFigmaVersionsTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create

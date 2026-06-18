@@ -1,6 +1,5 @@
 package com.marmatsan.figmaCatalogChecks.plugin.gradle
 
-import com.marmatsan.figmaCatalogChecks.plugin.task.*
 
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
