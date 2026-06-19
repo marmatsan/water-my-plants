@@ -2,7 +2,9 @@ package com.marmatsan.figmaCatalogChecks.plugin.di
 
 import com.marmatsan.figmaCatalogChecks.data.datasource.catalog.FigmaCatalogTreesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.catalog.ProjectCatalogTreesDataSource
+import com.marmatsan.figmaCatalogChecks.data.datasource.modules.FigmaModuleDependenciesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.modules.FigmaModulesDataSource
+import com.marmatsan.figmaCatalogChecks.data.datasource.modules.ProjectModuleDependenciesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.modules.ProjectModulesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.usage.ProjectCatalogUsageDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.versions.FigmaVersionsDataSource
@@ -10,12 +12,15 @@ import com.marmatsan.figmaCatalogChecks.data.datasource.versions.RepositoryVersi
 import com.marmatsan.figmaCatalogChecks.data.figma.client.FigmaFileContentClient
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaCatalogChecks.domain.port.modules.FigmaModuleDependenciesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.modules.FigmaModulesPort
+import com.marmatsan.figmaCatalogChecks.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsagePort
 import com.marmatsan.figmaCatalogChecks.domain.port.versions.FigmaVersionsPort
 import com.marmatsan.figmaCatalogChecks.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaCatalogChecks.plugin.checker.catalog.FigmaCatalogTreeChecker
+import com.marmatsan.figmaCatalogChecks.plugin.checker.modules.FigmaModuleDependenciesChecker
 import com.marmatsan.figmaCatalogChecks.plugin.checker.modules.FigmaModulesChecker
 import com.marmatsan.figmaCatalogChecks.plugin.checker.versions.FigmaVersionsChecker
 import me.tatarka.inject.annotations.Component
@@ -26,6 +31,7 @@ internal abstract class FigmaCatalogChecksComponent {
     abstract val checker: FigmaVersionsChecker
     abstract val catalogTreeChecker: FigmaCatalogTreeChecker
     abstract val modulesChecker: FigmaModulesChecker
+    abstract val moduleDependenciesChecker: FigmaModuleDependenciesChecker
 
     @Provides
     protected fun figmaFileContentClient(): FigmaFileContentClient {
@@ -54,6 +60,18 @@ internal abstract class FigmaCatalogChecksComponent {
 
     @Provides
     protected fun figmaModulesPort(dataSource: FigmaModulesDataSource): FigmaModulesPort =
+        dataSource
+
+    @Provides
+    protected fun projectModuleDependenciesPort(
+        dataSource: ProjectModuleDependenciesDataSource
+    ): ProjectModuleDependenciesPort =
+        dataSource
+
+    @Provides
+    protected fun figmaModuleDependenciesPort(
+        dataSource: FigmaModuleDependenciesDataSource
+    ): FigmaModuleDependenciesPort =
         dataSource
 
     @Provides
