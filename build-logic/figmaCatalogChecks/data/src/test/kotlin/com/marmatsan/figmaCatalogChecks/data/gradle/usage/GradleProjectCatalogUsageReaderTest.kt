@@ -76,4 +76,104 @@ internal class GradleProjectCatalogUsageReaderTest : FunSpec({
             LibraryCatalogUsageKey.Bundle(alias = "composeBundle")
         )
     }
+
+    test("readBuildLogic maps build-logic Gradle scripts to catalog usages") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("figma-build-logic-catalog-usage").toFile()
+        rootDir
+            .resolve("settings.gradle.kts")
+            .writeText(
+                """
+                dependencyResolutionManagement {
+                    versionCatalogs {
+                        create("libs") {
+                            library(
+                                alias = "io.kotest.runner.junit5",
+                                group = "io.kotest",
+                                artifact = "kotest-runner-junit5"
+                            ).version("6.2.0")
+                            library(
+                                alias = "io.mockk",
+                                group = "io.mockk",
+                                artifact = "mockk"
+                            ).version("1.14.11")
+                            library(
+                                alias = "org.junit.jupiter.platform.launcher",
+                                group = "org.junit.platform",
+                                artifact = "junit-platform-launcher"
+                            ).withoutVersion()
+                            plugin(
+                                alias = "org.jetbrains.kotlin.plugin.serialization",
+                                id = "org.jetbrains.kotlin.plugin.serialization"
+                            ).version("2.4.0")
+                        }
+                    }
+                }
+                """.trimIndent()
+            )
+        rootDir
+            .resolve("dependencies")
+            .also { directory -> directory.mkdirs() }
+            .resolve("build.gradle.kts")
+            .writeText(
+                """
+                plugins {
+                    `kotlin-dsl`
+                }
+
+                dependencies {
+                    testImplementation(libs.io.kotest.runner.junit5)
+                    testImplementation(libs.io.mockk)
+                    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+                }
+                """.trimIndent()
+            )
+        rootDir
+            .resolve("figmaCatalogChecks/data")
+            .also { directory -> directory.mkdirs() }
+            .resolve("build.gradle.kts")
+            .writeText(
+                """
+                plugins {
+                    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
+                }
+
+                dependencies {
+                    implementation(platform(libs.io.ktor.bom))
+                    implementation(libs.io.ktor.client.core)
+                }
+                """.trimIndent()
+            )
+
+        // WHEN
+        val usage = GradleProjectCatalogUsageReader().readBuildLogic(rootDir)
+
+        // THEN
+        usage.libraryAccessorsByModule[":build-logic:dependencies"] shouldBe setOf(
+            "io.kotest.runner.junit5",
+            "io.mockk",
+            "org.junit.jupiter.platform.launcher"
+        )
+        usage.libraryKeysByModule[":build-logic:dependencies"] shouldBe setOf(
+            LibraryCatalogUsageKey.Artifact(
+                group = "io.kotest",
+                artifact = "kotest-runner-junit5"
+            ),
+            LibraryCatalogUsageKey.Artifact(
+                group = "io.mockk",
+                artifact = "mockk"
+            ),
+            LibraryCatalogUsageKey.Artifact(
+                group = "org.junit.platform",
+                artifact = "junit-platform-launcher"
+            )
+        )
+        usage.libraryAccessorsByModule[":build-logic:figmaCatalogChecks:data"] shouldBe setOf(
+            "io.ktor.bom",
+            "io.ktor.client.core"
+        )
+        usage.pluginIdsByModule[":build-logic:figmaCatalogChecks:data"] shouldBe setOf(
+            "org.jetbrains.kotlin.plugin.serialization"
+        )
+    }
 })

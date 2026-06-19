@@ -3,6 +3,7 @@ package com.marmatsan.figmaCatalogChecks.plugin.checker.catalog
 import com.marmatsan.figmaCatalogChecks.data.figma.client.FigmaFileContentException
 import com.marmatsan.figmaCatalogChecks.data.figma.common.FigmaNodeUrl
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.ProjectCatalogTreeSource
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsageScope
 import com.marmatsan.figmaCatalogChecks.domain.usecase.catalog.CheckLibraryCatalogTreeUseCase
 import com.marmatsan.figmaCatalogChecks.domain.usecase.catalog.CheckLibraryCatalogTreeUseCaseRequest
 import com.marmatsan.figmaCatalogChecks.domain.usecase.catalog.CheckPluginCatalogTreeUseCase
@@ -108,7 +109,9 @@ internal class FigmaCatalogTreeChecker(
                     projectSource = ProjectCatalogTreeSource.BuildLogicSettings(
                         settingsFilePath = request.settingsFile.absolutePath
                     ),
-                    token = request.token
+                    token = request.token,
+                    projectRootPath = request.settingsFile.parentFile.absolutePath,
+                    projectUsageScope = ProjectCatalogUsageScope.BuildLogic
                 )
             )
                 .toTaskResult()
@@ -134,7 +137,9 @@ internal class FigmaCatalogTreeChecker(
                     projectSource = ProjectCatalogTreeSource.BuildLogicSettings(
                         settingsFilePath = request.settingsFile.absolutePath
                     ),
-                    token = request.token
+                    token = request.token,
+                    projectRootPath = request.settingsFile.parentFile.absolutePath,
+                    projectUsageScope = ProjectCatalogUsageScope.BuildLogic
                 )
             )
                 .toTaskResult()

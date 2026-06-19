@@ -4,6 +4,7 @@ package com.marmatsan.figmaCatalogChecks.data.gradle.modules
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import java.io.File
 import java.nio.file.Files
 
 internal class GradleProjectModulesReaderTest : FunSpec({
@@ -26,6 +27,9 @@ internal class GradleProjectModulesReaderTest : FunSpec({
             )
             """.trimIndent()
         )
+        buildLogicSettingsFile.parentFile
+            .resolve("figmaCatalogChecks")
+            .mkdirs()
 
         // WHEN
         val modules = GradleProjectModulesReader().readModules(
@@ -37,13 +41,17 @@ internal class GradleProjectModulesReaderTest : FunSpec({
         modules shouldBe setOf(
             ":app",
             ":build-logic:android",
+            ":build-logic:figmaCatalogChecks",
             ":build-logic:figmaCatalogChecks:data",
             ":core:core_ui"
         )
     }
 })
 
-private fun settingsFile(content: String) =
-    Files.createTempFile("settings", ".gradle.kts").toFile().apply {
+private fun settingsFile(content: String): File =
+    Files.createTempDirectory("gradle-project-modules-reader")
+        .resolve("settings.gradle.kts")
+        .toFile()
+        .apply {
         writeText(content)
     }

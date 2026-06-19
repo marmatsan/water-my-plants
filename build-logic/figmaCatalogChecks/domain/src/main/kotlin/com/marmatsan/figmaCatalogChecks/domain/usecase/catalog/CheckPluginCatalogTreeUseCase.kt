@@ -50,7 +50,10 @@ class CheckPluginCatalogTreeUseCase(
             val usageComparison = pluginCatalogUsageComparison.compare(
                 figmaTree = figmaTree,
                 projectUsage = projectCatalogUsagePort.readProjectUsage(
-                    ProjectCatalogUsageSource(rootDirPath = projectRootPath)
+                    ProjectCatalogUsageSource(
+                        rootDirPath = projectRootPath,
+                        scope = request.projectUsageScope
+                    )
                 )
             )
 

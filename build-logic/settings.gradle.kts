@@ -53,12 +53,6 @@ dependencyResolutionManagement {
             ).version(version("protobufPluginVersion"))
 
             library(
-                alias = "com.google.devtools.ksp.gradle.plugin",
-                group = "com.google.devtools.ksp",
-                artifact = "com.google.devtools.ksp.gradle.plugin"
-            ).version(version("kspVersion"))
-
-            library(
                 alias = "org.jetbrains.kotlin.gradle.plugin",
                 group = "org.jetbrains.kotlin",
                 artifact = "kotlin-gradle-plugin"
