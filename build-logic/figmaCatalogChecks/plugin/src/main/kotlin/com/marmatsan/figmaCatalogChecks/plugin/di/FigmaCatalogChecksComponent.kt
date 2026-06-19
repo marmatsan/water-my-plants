@@ -4,6 +4,7 @@ import com.marmatsan.figmaCatalogChecks.data.datasource.catalog.FigmaCatalogTree
 import com.marmatsan.figmaCatalogChecks.data.datasource.catalog.ProjectCatalogTreesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.modules.FigmaModulesDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.modules.ProjectModulesDataSource
+import com.marmatsan.figmaCatalogChecks.data.datasource.usage.ProjectCatalogUsageDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.versions.FigmaVersionsDataSource
 import com.marmatsan.figmaCatalogChecks.data.datasource.versions.RepositoryVersionsDataSource
 import com.marmatsan.figmaCatalogChecks.data.figma.client.FigmaFileContentClient
@@ -11,6 +12,7 @@ import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreesPor
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.modules.FigmaModulesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.modules.ProjectModulesPort
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsagePort
 import com.marmatsan.figmaCatalogChecks.domain.port.versions.FigmaVersionsPort
 import com.marmatsan.figmaCatalogChecks.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaCatalogChecks.plugin.checker.catalog.FigmaCatalogTreeChecker
@@ -52,5 +54,9 @@ internal abstract class FigmaCatalogChecksComponent {
 
     @Provides
     protected fun figmaModulesPort(dataSource: FigmaModulesDataSource): FigmaModulesPort =
+        dataSource
+
+    @Provides
+    protected fun projectCatalogUsagePort(dataSource: ProjectCatalogUsageDataSource): ProjectCatalogUsagePort =
         dataSource
 }

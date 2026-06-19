@@ -148,11 +148,6 @@ dependencyResolutionManagement {
             ).version(version("kspVersion"))
 
             plugin(
-                alias = "org.jetbrains.kotlinx.kover",
-                id = "org.jetbrains.kotlinx.kover"
-            ).version(version("kotlinxKoverVersion"))
-
-            plugin(
                 alias = "org.jetbrains.kotlin.plugin.serialization",
                 id = "org.jetbrains.kotlin.plugin.serialization"
             ).version(version("kotlinVersion"))

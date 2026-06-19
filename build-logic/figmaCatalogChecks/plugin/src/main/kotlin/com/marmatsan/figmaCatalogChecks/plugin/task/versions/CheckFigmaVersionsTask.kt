@@ -47,7 +47,8 @@ abstract class CheckFigmaVersionsTask : DefaultTask() {
         )
 
         logger.lifecycle(
-            "Figma section '${result.sectionNodeId}' matches ${result.repositoryVersionCount} repository versions."
+            "Figma section 'Water My Plants version catalog versions' matches " +
+                "${result.repositoryVersionCount} repository versions."
         )
     }
 }

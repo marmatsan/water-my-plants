@@ -43,7 +43,8 @@ abstract class CheckFigmaBuildLogicLibraryTreeTask : DefaultTask() {
         )
 
         logger.lifecycle(
-            "Figma section '${result.sectionNodeId}' matches ${result.repositoryNodeCount} build-logic library nodes."
+            "Figma section 'Build Logic library catalog trees' matches " +
+                "${result.repositoryNodeCount} build-logic library nodes."
         )
     }
 }

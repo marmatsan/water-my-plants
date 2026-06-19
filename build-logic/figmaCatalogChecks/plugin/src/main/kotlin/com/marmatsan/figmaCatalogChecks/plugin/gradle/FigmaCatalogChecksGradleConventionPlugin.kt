@@ -2,6 +2,7 @@ package com.marmatsan.figmaCatalogChecks.plugin.gradle
 
 import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaBuildLogicLibraryTreeTask
 import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaBuildLogicPluginTreeTask
+import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaCustomGradleConventionPluginTreeTask
 import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaLibraryTreeTask
 import com.marmatsan.figmaCatalogChecks.plugin.task.catalog.CheckFigmaPluginTreeTask
 import com.marmatsan.figmaCatalogChecks.plugin.task.modules.CheckFigmaModulesTask
@@ -20,6 +21,9 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
         extension.sectionUrl.convention(FIGMA_SECTION_URL)
         extension.libraryTreeSectionUrl.convention(FIGMA_LIBRARY_TREE_SECTION_URL)
         extension.pluginTreeSectionUrl.convention(FIGMA_PLUGIN_TREE_SECTION_URL)
+        extension.customGradleConventionPluginTreeSectionUrl.convention(
+            FIGMA_CUSTOM_GRADLE_CONVENTION_PLUGIN_TREE_SECTION_URL
+        )
         extension.buildLogicLibraryTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_LIBRARY_TREE_SECTION_URL)
         extension.buildLogicPluginTreeSectionUrl.convention(FIGMA_BUILD_LOGIC_PLUGIN_TREE_SECTION_URL)
         extension.versionComponentUrl.convention(FIGMA_VERSION_COMPONENT_URL)
@@ -54,6 +58,18 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             pageUrl.set(extension.pageUrl)
             sectionUrl.set(extension.pluginTreeSectionUrl)
             versionsFile.set(extension.versionsFile)
+            projectRootDirectory.set(project.layout.projectDirectory)
+            figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
+        }
+
+        project.tasks.register<CheckFigmaCustomGradleConventionPluginTreeTask>(
+            "checkFigmaCustomGradleConventionPluginTree"
+        ) {
+            group = "verification"
+            description = "Checks that the Figma custom Gradle convention plugin tree matches build-logic plugins."
+
+            pageUrl.set(extension.pageUrl)
+            sectionUrl.set(extension.customGradleConventionPluginTreeSectionUrl)
             projectRootDirectory.set(project.layout.projectDirectory)
             figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
         }
@@ -99,6 +115,8 @@ class FigmaCatalogChecksGradleConventionPlugin : Plugin<Project> {
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-629&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_PLUGIN_TREE_SECTION_URL =
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594&t=gxgxBWEWgZjRldAX-4"
+        const val FIGMA_CUSTOM_GRADLE_CONVENTION_PLUGIN_TREE_SECTION_URL =
+            "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_BUILD_LOGIC_LIBRARY_TREE_SECTION_URL =
             "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951&t=gxgxBWEWgZjRldAX-4"
         const val FIGMA_BUILD_LOGIC_PLUGIN_TREE_SECTION_URL =

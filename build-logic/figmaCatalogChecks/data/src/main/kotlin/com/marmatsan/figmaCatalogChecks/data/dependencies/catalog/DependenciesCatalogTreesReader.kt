@@ -92,7 +92,6 @@ private val CatalogVersionAliases = Versions(
     figmaCodeConnectPluginVersion = "figmaCodeConnectPluginVersion",
     junit5PluginVersion = "junit5PluginVersion",
     kotestVersion = "kotestVersion",
-    kotlinxKoverVersion = "kotlinxKoverVersion",
     kotlinInjectVersion = "kotlinInjectVersion",
     kotlinVersion = "kotlinVersion",
     ktorVersion = "ktorVersion",

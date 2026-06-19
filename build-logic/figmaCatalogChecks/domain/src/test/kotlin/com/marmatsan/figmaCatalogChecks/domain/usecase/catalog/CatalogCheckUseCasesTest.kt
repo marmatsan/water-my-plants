@@ -1,6 +1,7 @@
 package com.marmatsan.figmaCatalogChecks.domain.usecase.catalog
 
 import com.marmatsan.figmaCatalogChecks.domain.comparison.catalog.LibraryCatalogTreeComparison
+import com.marmatsan.figmaCatalogChecks.domain.comparison.usage.LibraryCatalogUsageComparison
 import com.marmatsan.figmaCatalogChecks.domain.comparison.modules.ModuleNamesComparison
 import com.marmatsan.figmaCatalogChecks.domain.comparison.modules.ModuleNamesComparisonResult
 import com.marmatsan.figmaCatalogChecks.domain.model.catalog.LibraryCatalogNode
@@ -65,7 +66,9 @@ internal class CatalogCheckUseCasesTest : FunSpec({
         val useCase = CheckLibraryCatalogTreeUseCase(
             projectCatalogTreesPort = FakeProjectCatalogTreesPort(libraryTree = tree),
             figmaCatalogTreesPort = FakeFigmaCatalogTreesPort(libraryTree = tree),
-            libraryCatalogTreeComparison = LibraryCatalogTreeComparison()
+            projectCatalogUsagePort = FakeProjectCatalogUsagePort(),
+            libraryCatalogTreeComparison = LibraryCatalogTreeComparison(),
+            libraryCatalogUsageComparison = LibraryCatalogUsageComparison()
         )
 
         // WHEN

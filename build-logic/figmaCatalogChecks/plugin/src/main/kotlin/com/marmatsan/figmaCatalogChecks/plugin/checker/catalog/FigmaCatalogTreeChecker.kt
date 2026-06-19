@@ -29,7 +29,8 @@ internal class FigmaCatalogTreeChecker(
                     page = page,
                     section = section,
                     projectSource = ProjectCatalogTreeSource.DependenciesDslVersionAliases,
-                    token = request.token
+                    token = request.token,
+                    projectRootPath = request.projectRootDir.absolutePath
                 )
             )
                 .toTaskResult()
@@ -53,7 +54,35 @@ internal class FigmaCatalogTreeChecker(
                     page = page,
                     section = section,
                     projectSource = ProjectCatalogTreeSource.DependenciesDslVersionAliases,
-                    token = request.token
+                    token = request.token,
+                    projectRootPath = request.projectRootDir.absolutePath
+                )
+            )
+                .toTaskResult()
+        } catch (exception: FigmaFileContentException) {
+            throw GradleException(
+                exception.message ?: "Figma file content request failed",
+                exception
+            )
+        }
+    }
+
+    fun checkCustomGradleConventionPluginTree(
+        request: FigmaCatalogTreeCheckRequest
+    ): FigmaCatalogTreeTaskResult {
+        try {
+            val page = FigmaNodeUrl.parse(request.pageUrl)
+            val section = FigmaNodeUrl.parse(request.sectionUrl)
+
+            return checkPluginCatalogTreeUseCase.execute(
+                CheckPluginCatalogTreeUseCaseRequest(
+                    page = page,
+                    section = section,
+                    projectSource = ProjectCatalogTreeSource.CustomGradleConventionPlugins(
+                        rootDirPath = request.projectRootDir.absolutePath
+                    ),
+                    token = request.token,
+                    projectRootPath = request.projectRootDir.absolutePath
                 )
             )
                 .toTaskResult()
@@ -129,6 +158,8 @@ internal class FigmaCatalogTreeChecker(
             )
 
             is LibraryCatalogTreeCheckResult.Mismatch -> throw GradleException(comparison.report())
+
+            is LibraryCatalogTreeCheckResult.UsageMismatch -> throw GradleException(comparison.report())
         }
 
     private fun PluginCatalogTreeCheckResult.toTaskResult(): FigmaCatalogTreeTaskResult =
@@ -143,5 +174,7 @@ internal class FigmaCatalogTreeChecker(
             )
 
             is PluginCatalogTreeCheckResult.Mismatch -> throw GradleException(comparison.report())
+
+            is PluginCatalogTreeCheckResult.UsageMismatch -> throw GradleException(comparison.report())
         }
 }

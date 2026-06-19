@@ -12,7 +12,9 @@ class FigmaFilePluginCatalogTreeReader(
         section: FigmaNode,
         sectionNodeId: String
     ): PluginCatalogTree {
-        val rootSections = section.children.filter { node -> node.type == "SECTION" }
+        val rootSections = section.children
+            .filter { node -> node.type == "SECTION" }
+            .ifEmpty { listOf(section) }
 
         if (rootSections.isEmpty()) {
             error("Figma plugin tree section '$sectionNodeId' contains no root sections")

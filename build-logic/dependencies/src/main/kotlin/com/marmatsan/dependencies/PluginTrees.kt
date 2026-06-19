@@ -61,10 +61,6 @@ private fun orgPluginTree(
 ) = pluginTree("org") {
     plugin("jetbrains") {
         plugin("kotlin") {
-            plugin(
-                id = "android",
-                version = versions.kotlinVersion
-            )
             plugin("plugin") {
                 plugin(
                     id = "compose",
@@ -75,12 +71,6 @@ private fun orgPluginTree(
                     version = versions.kotlinVersion
                 )
             }
-        }
-        plugin("kotlinx") {
-            plugin(
-                id = "kover",
-                version = versions.kotlinxKoverVersion
-            )
         }
     }
 }

@@ -1,7 +1,6 @@
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
-    alias(plugins.plugins.org.jetbrains.kotlinx.kover)
 }
 
 repositories {

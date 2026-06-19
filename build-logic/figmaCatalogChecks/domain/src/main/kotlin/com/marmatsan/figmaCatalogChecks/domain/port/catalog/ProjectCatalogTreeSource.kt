@@ -6,4 +6,8 @@ sealed interface ProjectCatalogTreeSource {
     data class BuildLogicSettings(
         val settingsFilePath: String
     ) : ProjectCatalogTreeSource
+
+    data class CustomGradleConventionPlugins(
+        val rootDirPath: String
+    ) : ProjectCatalogTreeSource
 }

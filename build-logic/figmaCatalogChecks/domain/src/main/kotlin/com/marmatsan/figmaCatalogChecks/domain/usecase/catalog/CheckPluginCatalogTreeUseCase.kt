@@ -1,18 +1,23 @@
 package com.marmatsan.figmaCatalogChecks.domain.usecase.catalog
 
 import com.marmatsan.figmaCatalogChecks.domain.comparison.catalog.PluginCatalogTreeComparison
+import com.marmatsan.figmaCatalogChecks.domain.comparison.usage.PluginCatalogUsageComparison
 import com.marmatsan.figmaCatalogChecks.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaCatalogChecks.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreeSource
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsagePort
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsageSource
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class CheckPluginCatalogTreeUseCase(
     private val projectCatalogTreesPort: ProjectCatalogTreesPort,
     private val figmaCatalogTreesPort: FigmaCatalogTreesPort,
-    private val pluginCatalogTreeComparison: PluginCatalogTreeComparison
+    private val projectCatalogUsagePort: ProjectCatalogUsagePort,
+    private val pluginCatalogTreeComparison: PluginCatalogTreeComparison,
+    private val pluginCatalogUsageComparison: PluginCatalogUsageComparison
 ) {
     fun execute(request: CheckPluginCatalogTreeUseCaseRequest): PluginCatalogTreeCheckResult {
         val fileKeys = listOf(
@@ -38,6 +43,20 @@ class CheckPluginCatalogTreeUseCase(
 
         if (!comparison.matches) {
             return PluginCatalogTreeCheckResult.Mismatch(comparison)
+        }
+
+        val projectRootPath = request.projectRootPath
+        if (projectRootPath != null) {
+            val usageComparison = pluginCatalogUsageComparison.compare(
+                figmaTree = figmaTree,
+                projectUsage = projectCatalogUsagePort.readProjectUsage(
+                    ProjectCatalogUsageSource(rootDirPath = projectRootPath)
+                )
+            )
+
+            if (!usageComparison.matches) {
+                return PluginCatalogTreeCheckResult.UsageMismatch(usageComparison)
+            }
         }
 
         return PluginCatalogTreeCheckResult.Match(

@@ -1,18 +1,23 @@
 package com.marmatsan.figmaCatalogChecks.domain.usecase.catalog
 
 import com.marmatsan.figmaCatalogChecks.domain.comparison.catalog.LibraryCatalogTreeComparison
+import com.marmatsan.figmaCatalogChecks.domain.comparison.usage.LibraryCatalogUsageComparison
 import com.marmatsan.figmaCatalogChecks.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaCatalogChecks.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreeSource
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.FigmaCatalogTreesPort
 import com.marmatsan.figmaCatalogChecks.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsagePort
+import com.marmatsan.figmaCatalogChecks.domain.port.usage.ProjectCatalogUsageSource
 import me.tatarka.inject.annotations.Inject
 
 @Inject
 class CheckLibraryCatalogTreeUseCase(
     private val projectCatalogTreesPort: ProjectCatalogTreesPort,
     private val figmaCatalogTreesPort: FigmaCatalogTreesPort,
-    private val libraryCatalogTreeComparison: LibraryCatalogTreeComparison
+    private val projectCatalogUsagePort: ProjectCatalogUsagePort,
+    private val libraryCatalogTreeComparison: LibraryCatalogTreeComparison,
+    private val libraryCatalogUsageComparison: LibraryCatalogUsageComparison
 ) {
     fun execute(request: CheckLibraryCatalogTreeUseCaseRequest): LibraryCatalogTreeCheckResult {
         val fileKeys = listOf(
@@ -38,6 +43,20 @@ class CheckLibraryCatalogTreeUseCase(
 
         if (!comparison.matches) {
             return LibraryCatalogTreeCheckResult.Mismatch(comparison)
+        }
+
+        val projectRootPath = request.projectRootPath
+        if (projectRootPath != null) {
+            val usageComparison = libraryCatalogUsageComparison.compare(
+                figmaTree = figmaTree,
+                projectUsage = projectCatalogUsagePort.readProjectUsage(
+                    ProjectCatalogUsageSource(rootDirPath = projectRootPath)
+                )
+            )
+
+            if (!usageComparison.matches) {
+                return LibraryCatalogTreeCheckResult.UsageMismatch(usageComparison)
+            }
         }
 
         return LibraryCatalogTreeCheckResult.Match(

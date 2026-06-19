@@ -47,7 +47,8 @@ abstract class CheckFigmaPluginTreeTask : DefaultTask() {
         )
 
         logger.lifecycle(
-            "Figma section '${result.sectionNodeId}' matches ${result.repositoryNodeCount} repository plugin nodes."
+            "Figma section 'Water My Plants plugin catalog trees' matches " +
+                "${result.repositoryNodeCount} repository plugin nodes."
         )
     }
 }

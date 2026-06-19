@@ -7,5 +7,6 @@ data class CheckLibraryCatalogTreeUseCaseRequest(
     val page: FigmaNodeReference,
     val section: FigmaNodeReference,
     val projectSource: ProjectCatalogTreeSource,
-    val token: String
+    val token: String,
+    val projectRootPath: String? = null
 )
