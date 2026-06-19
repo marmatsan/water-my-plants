@@ -76,16 +76,18 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Keep `figmaCatalogChecks` packages organized by responsibility:
   - `domain/model/catalog`: catalog tree, node, entry, and version models.
   - `domain/model/figma`: Figma references used by domain requests.
-  - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`: use-case ports and source models grouped by capability.
-  - `domain/comparison/catalog`, `domain/comparison/modules`, and `domain/comparison/versions`: pure comparison logic and report models grouped by capability.
+  - `domain/model/modules`: module dependency models used by diagram checks.
+  - `domain/model/usage`: catalog usage models used to compare `Required by` and `Applied by`.
+  - `domain/port/catalog`, `domain/port/modules`, `domain/port/usage`, and `domain/port/versions`: use-case ports and source models grouped by capability.
+  - `domain/comparison/catalog`, `domain/comparison/modules`, `domain/comparison/usage`, and `domain/comparison/versions`: pure comparison logic and report models grouped by capability.
   - `domain/usecase/catalog`, `domain/usecase/modules`, and `domain/usecase/versions`: application use cases, requests, inputs, and result types grouped by capability.
-  - `data/datasource/catalog`, `data/datasource/modules`, and `data/datasource/versions`: implementations of domain ports grouped by capability.
+  - `data/datasource/catalog`, `data/datasource/modules`, `data/datasource/usage`, and `data/datasource/versions`: implementations of domain ports grouped by capability.
   - `data/figma/client`: Figma API client and client exceptions.
   - `data/figma/dto`: serializable Figma API response and node DTOs.
   - `data/figma/common`: shared Figma node traversal, property, connector, and URL helpers.
   - `data/figma/catalog/library` and `data/figma/catalog/plugin`: Figma catalog tree readers.
-  - `data/figma/modules` and `data/figma/versions`: Figma readers for module variants and versions.
-  - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings catalog declarations and included modules.
+  - `data/figma/modules` and `data/figma/versions`: Figma readers for module variants, module dependency diagrams, and versions.
+  - `data/gradle/catalog`, `data/gradle/modules`, and `data/gradle/usage`: readers for Gradle settings catalog declarations, included modules, module dependencies, and catalog usages.
   - `data/dependencies/catalog`: readers for the dependency-tree DSL from `:dependencies`.
   - `data/properties/versions`: readers for version properties files.
   - `plugin/task/catalog`, `plugin/task/modules`, and `plugin/task/versions`: Gradle task classes grouped by capability.
@@ -98,18 +100,25 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - `FigmaCatalogChecksComponent` is the composition root. Bind domain ports to `data/datasource` implementations there.
 - Current verification tasks:
   - `checkFigmaVersions`: compares the Figma versions section with `build-logic/versions.properties`.
-  - `checkFigmaLibraryTree`: compares the Water My Plants library tree in Figma with `dependencies/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`.
-  - `checkFigmaPluginTree`: compares the Water My Plants plugin tree in Figma with `dependencies/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`.
-  - `checkFigmaBuildLogicLibraryTree`: compares the build-logic library tree in Figma with the `libs` catalog declared in `build-logic/settings.gradle.kts`.
-  - `checkFigmaBuildLogicPluginTree`: compares the build-logic plugin tree in Figma with the `plugins` catalog declared in `build-logic/settings.gradle.kts`.
+  - `checkFigmaLibraryTree`: compares the Water My Plants library tree in Figma with `dependencies/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` and validates `.artifact` / `.artifacts bundle` `Required by` modules against Gradle dependency usage.
+  - `checkFigmaPluginTree`: compares the Water My Plants plugin tree in Figma with `dependencies/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` and validates plugin `Applied by` modules against Gradle plugin usage.
+  - `checkFigmaCustomGradleConventionPluginTree`: compares the custom Gradle convention plugin section in Figma with convention plugins declared by `build-logic`.
+  - `checkFigmaBuildLogicLibraryTree`: compares the build-logic library tree in Figma with the `libs` catalog declared in `build-logic/settings.gradle.kts` and validates `Required by` modules against `build-logic/*/build.gradle.kts`.
+  - `checkFigmaBuildLogicPluginTree`: compares the build-logic plugin tree in Figma with the `plugins` catalog declared in `build-logic/settings.gradle.kts` and validates `Applied by` modules against `build-logic/*/build.gradle.kts`.
   - `checkFigmaModules`: compares `.module` component variants with modules declared in `settings.gradle.kts` and `build-logic/settings.gradle.kts`.
+  - `checkFigmaModuleDependencies`: compares the Figma module dependency diagrams for the main project and `build-logic` with Gradle project dependencies.
 - Figma catalog tree assumptions:
   - Tree connectors must be connected from parent to child: `connectorStart` is the parent node and `connectorEnd` is the child node.
   - `.module` variants are read from the `name=...` variant property and deduplicated across `size=small` and `size=big`.
   - Module names in Figma must use full Gradle paths, such as `:core:ui`, `:onboarding:ui`, or `:build-logic:android`.
-  - Do not represent intermediate Gradle paths unless they are explicitly included modules. For example, `:build-logic:figmaCatalogChecks` is not a module when only `:build-logic:figmaCatalogChecks:data`, `:build-logic:figmaCatalogChecks:domain`, and `:build-logic:figmaCatalogChecks:plugin` are included.
-- Catalog tree comparisons currently validate structure, versions, artifacts, bundles, and plugin nodes. `requiredByModules` and `appliedToModules` exist in the domain model but are not compared by the current tree comparators.
-- If consumer-module comparison is added, read consumers from explicit catalog declarations or Gradle model data. Do not infer consumers by searching arbitrary text matches across the whole repository.
+  - Physical `build-logic` aggregate directories are allowed as module variants when they group included child modules. For example, `:build-logic:figmaCatalogChecks` is valid because `build-logic/figmaCatalogChecks` exists and contains `:data`, `:domain`, and `:plugin`.
+  - Module dependency diagram connectors must be connected from dependent module to dependency module: `connectorStart` is the module that declares the dependency and `connectorEnd` is the required module. For example, `:app -> :core:ui`.
+- Catalog tree comparisons validate structure, versions, artifacts, bundles, plugin nodes, and consumer/application metadata:
+  - Main project catalog library usage is read from `dependencies {}` blocks and convention plugin source for modules such as `:build-logic:android`, `:build-logic:compose`, and `:build-logic:protobuf`.
+  - Main project catalog plugin usage is read from `plugins {}` blocks and `pluginManager.apply(...)`.
+  - Build-logic catalog library and plugin usage is read from `build-logic/*/build.gradle.kts` and resolves `libs.*` / `plugins.plugins.*` aliases against `build-logic/settings.gradle.kts`.
+  - Do not infer catalog consumers by searching arbitrary text matches across the whole repository. Keep readers scoped to the catalog source being checked.
+- Module dependency comparisons read Gradle dependencies from `project(":...")` and type-safe project accessors such as `projects.core.ui` or `projects.figmaCatalogChecks.domain`.
 
 ## Testing
 
@@ -121,4 +130,4 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Useful verification commands:
   - `.\gradlew.bat -p build-logic :figmaCatalogChecks:domain:check :figmaCatalogChecks:data:check :figmaCatalogChecks:plugin:check`
   - `.\gradlew.bat check`
-  - `.\gradlew.bat checkFigmaVersions checkFigmaLibraryTree checkFigmaPluginTree checkFigmaBuildLogicLibraryTree checkFigmaBuildLogicPluginTree checkFigmaModules`
+  - `.\gradlew.bat checkFigmaVersions checkFigmaLibraryTree checkFigmaPluginTree checkFigmaCustomGradleConventionPluginTree checkFigmaBuildLogicLibraryTree checkFigmaBuildLogicPluginTree checkFigmaModules checkFigmaModuleDependencies`
