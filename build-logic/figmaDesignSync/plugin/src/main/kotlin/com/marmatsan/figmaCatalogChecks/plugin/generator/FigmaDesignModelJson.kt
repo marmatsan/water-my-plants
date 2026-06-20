@@ -7,6 +7,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
+import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -20,6 +21,15 @@ internal fun Map<String, String>.toVersionsJson(): JsonObject =
             put(name, version)
         }
     }
+
+internal fun List<RepositoryVersionSection>.toVersionSectionsJson(): JsonArray =
+    map { section ->
+        buildJsonObject {
+            put("name", section.name)
+            put("versions", section.versions.toVersionsJson())
+        }
+    }
+        .let(::JsonArray)
 
 internal fun LibraryCatalogTree.toDesignJson(): JsonArray =
     roots

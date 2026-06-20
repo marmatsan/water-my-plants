@@ -6,6 +6,7 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
 import com.marmatsan.dependencies.Versions
+import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
@@ -16,18 +17,26 @@ import java.io.File
 import me.tatarka.inject.annotations.Inject
 
 @Inject
-class DependenciesCatalogTreesReader {
+class DependenciesCatalogTreesReader(
+    private val gradleCatalogUsageReader: GradleCatalogUsageReader
+) {
     fun readLibraryTree(rootDir: File): LibraryCatalogTree =
         readLibraryTree(versions = Versions.load(rootDir))
 
     fun readPluginTree(rootDir: File): PluginCatalogTree =
         readPluginTree(versions = Versions.load(rootDir))
 
-    fun readLibraryTreeWithVersionAliases(): LibraryCatalogTree =
+    fun readLibraryTreeWithVersionAliases(rootDir: File): LibraryCatalogTree =
         readLibraryTree(versions = CatalogVersionAliases)
+            .withLibraryUsages(gradleCatalogUsageReader.readConventionLibraryUsages(rootDir))
 
-    fun readPluginTreeWithVersionAliases(): PluginCatalogTree =
+    fun readPluginTreeWithVersionAliases(rootDir: File): PluginCatalogTree =
         readPluginTree(versions = CatalogVersionAliases)
+            .withPluginUsages(
+                gradleCatalogUsageReader
+                    .readConventionPluginUsages(rootDir)
+                    .merge(gradleCatalogUsageReader.readMainPluginUsages(rootDir))
+            )
 
     fun readLibraryTree(versions: Versions): LibraryCatalogTree =
         readLibraryTree(libraryTrees(versions))
@@ -78,6 +87,67 @@ private fun Node<DependencyNode.Plugin>.toPluginCatalogNode(): PluginCatalogNode
         version = value.version?.let(::CatalogVersion),
         children = children.map { child -> child.toPluginCatalogNode() }
     )
+
+private fun LibraryCatalogTree.withLibraryUsages(
+    usages: GradleCatalogUsageReader.LibraryUsages
+): LibraryCatalogTree =
+    copy(
+        roots = roots.map { node -> node.withLibraryUsages(usages) }
+    )
+
+private fun LibraryCatalogNode.withLibraryUsages(
+    usages: GradleCatalogUsageReader.LibraryUsages,
+    parentGroup: String = ""
+): LibraryCatalogNode {
+    val groupPath = listOf(parentGroup, group)
+        .filter(String::isNotBlank)
+        .joinToString(".")
+
+    return copy(
+        entries = entries.map { entry -> entry.withLibraryUsages(groupPath, usages) },
+        children = children.map { child -> child.withLibraryUsages(usages, groupPath) }
+    )
+}
+
+private fun LibraryCatalogEntry.withLibraryUsages(
+    group: String,
+    usages: GradleCatalogUsageReader.LibraryUsages
+): LibraryCatalogEntry =
+    when (this) {
+        is LibraryCatalogEntry.Artifact -> copy(
+            requiredByModules = usages.coordinates["$group:$artifact"].orEmpty().sorted()
+        )
+
+        is LibraryCatalogEntry.ArtifactsBundle -> copy(
+            requiredByModules = usages.bundles[alias].orEmpty().sorted()
+        )
+    }
+
+private fun PluginCatalogTree.withPluginUsages(
+    usages: Map<String, Set<String>>
+): PluginCatalogTree =
+    copy(
+        roots = roots.map { node -> node.withPluginUsages(usages) }
+    )
+
+private fun PluginCatalogNode.withPluginUsages(
+    usages: Map<String, Set<String>>,
+    parentId: String = ""
+): PluginCatalogNode {
+    val pluginId = listOf(parentId, id)
+        .filter(String::isNotBlank)
+        .joinToString(".")
+
+    return copy(
+        appliedToModules = usages[pluginId].orEmpty().sorted(),
+        children = children.map { child -> child.withPluginUsages(usages, pluginId) }
+    )
+}
+
+private fun Map<String, Set<String>>.merge(other: Map<String, Set<String>>): Map<String, Set<String>> =
+    (keys + other.keys).associateWith { key ->
+        (this[key].orEmpty() + other[key].orEmpty()).toSortedSet()
+    }
 
 private val CatalogVersionAliases = Versions(
     activityComposeVersion = "activityComposeVersion",

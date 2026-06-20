@@ -11,22 +11,28 @@ import me.tatarka.inject.annotations.Inject
 
 @Inject
 class BuildLogicSettingsCatalogReader {
-    fun readLibraryTree(settingsFile: File): LibraryCatalogTree {
+    fun readLibraryTree(
+        settingsFile: File,
+        usageByAlias: Map<String, Set<String>> = emptyMap()
+    ): LibraryCatalogTree {
         val content = settingsFile.readText()
         val libsBlock = content.extractCreateBlock("libs")
 
         return libsBlock
             .readLibraryDeclarations()
-            .toLibraryCatalogTree()
+            .toLibraryCatalogTree(usageByAlias)
     }
 
-    fun readPluginTree(settingsFile: File): PluginCatalogTree {
+    fun readPluginTree(
+        settingsFile: File,
+        usageByAlias: Map<String, Set<String>> = emptyMap()
+    ): PluginCatalogTree {
         val content = settingsFile.readText()
         val pluginsBlock = content.extractCreateBlock("plugins")
 
         return pluginsBlock
             .readPluginDeclarations()
-            .toPluginCatalogTree()
+            .toPluginCatalogTree(usageByAlias)
     }
 
     private fun String.readLibraryDeclarations(): List<LibraryDeclaration> =
@@ -34,9 +40,10 @@ class BuildLogicSettingsCatalogReader {
             .findAll(this)
             .map { match ->
                 LibraryDeclaration(
-                    group = match.groupValues[1],
-                    artifact = match.groupValues[2],
-                    version = match.groupValues[3].takeIf(String::isNotBlank)
+                    alias = match.groupValues[1],
+                    group = match.groupValues[2],
+                    artifact = match.groupValues[3],
+                    version = match.groupValues[4].takeIf(String::isNotBlank)
                 )
             }
             .toList()
@@ -46,13 +53,16 @@ class BuildLogicSettingsCatalogReader {
             .findAll(this)
             .map { match ->
                 PluginDeclaration(
-                    id = match.groupValues[1],
-                    version = match.groupValues[2]
+                    alias = match.groupValues[1],
+                    id = match.groupValues[2],
+                    version = match.groupValues[3]
                 )
             }
             .toList()
 
-    private fun List<LibraryDeclaration>.toLibraryCatalogTree(): LibraryCatalogTree {
+    private fun List<LibraryDeclaration>.toLibraryCatalogTree(
+        usageByAlias: Map<String, Set<String>>
+    ): LibraryCatalogTree {
         val roots = mutableMapOf<String, MutableLibraryCatalogNode>()
 
         forEach { declaration ->
@@ -70,7 +80,8 @@ class BuildLogicSettingsCatalogReader {
 
             leaf.entries += LibraryCatalogEntry.Artifact(
                 artifact = declaration.artifact,
-                version = CatalogVersion(declaration.version)
+                version = CatalogVersion(declaration.version),
+                requiredByModules = usageByAlias[declaration.alias].orEmpty().sorted()
             )
         }
 
@@ -81,7 +92,9 @@ class BuildLogicSettingsCatalogReader {
         )
     }
 
-    private fun List<PluginDeclaration>.toPluginCatalogTree(): PluginCatalogTree {
+    private fun List<PluginDeclaration>.toPluginCatalogTree(
+        usageByAlias: Map<String, Set<String>>
+    ): PluginCatalogTree {
         val roots = mutableMapOf<String, MutablePluginCatalogNode>()
 
         forEach { declaration ->
@@ -98,6 +111,7 @@ class BuildLogicSettingsCatalogReader {
                 }
 
             leaf.version = CatalogVersion(declaration.version)
+            leaf.appliedToModules += usageByAlias[declaration.alias].orEmpty()
         }
 
         return PluginCatalogTree(
@@ -139,12 +153,14 @@ class BuildLogicSettingsCatalogReader {
     }
 
     private data class LibraryDeclaration(
+        val alias: String,
         val group: String,
         val artifact: String,
         val version: String?
     )
 
     private data class PluginDeclaration(
+        val alias: String,
         val id: String,
         val version: String
     )
@@ -169,12 +185,14 @@ class BuildLogicSettingsCatalogReader {
         val id: String
     ) {
         var version: CatalogVersion? = null
+        val appliedToModules: MutableSet<String> = mutableSetOf()
         val children: MutableMap<String, MutablePluginCatalogNode> = mutableMapOf()
 
         fun toCatalogNode(): PluginCatalogNode =
             PluginCatalogNode(
                 id = id,
                 version = version,
+                appliedToModules = appliedToModules.sorted(),
                 children = children.values
                     .map(MutablePluginCatalogNode::toCatalogNode)
                     .sortedBy(PluginCatalogNode::id)
@@ -183,12 +201,12 @@ class BuildLogicSettingsCatalogReader {
 
     private companion object {
         val libraryDeclarationRegex = Regex(
-            """library\s*\(\s*alias\s*=\s*"[^"]+"\s*,\s*group\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"\s*\)\s*\.\s*(?:version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)|withoutVersion\s*\(\s*\))""",
+            """library\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*group\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"\s*\)\s*\.\s*(?:version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)|withoutVersion\s*\(\s*\))""",
             RegexOption.DOT_MATCHES_ALL
         )
 
         val pluginDeclarationRegex = Regex(
-            """plugin\s*\(\s*alias\s*=\s*"[^"]+"\s*,\s*id\s*=\s*"([^"]+)"\s*\)\s*\.\s*version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)""",
+            """plugin\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*id\s*=\s*"([^"]+)"\s*\)\s*\.\s*version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)""",
             RegexOption.DOT_MATCHES_ALL
         )
     }

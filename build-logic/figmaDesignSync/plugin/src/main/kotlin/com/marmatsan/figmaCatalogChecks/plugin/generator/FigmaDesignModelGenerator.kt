@@ -46,12 +46,16 @@ internal class FigmaDesignModelGenerator(
 
     private fun buildContent(request: FigmaDesignModelGenerationRequest) =
         buildJsonObject {
+            val versionSections = repositoryVersionsPort
+                .readVersionSections(VersionsFileSource(request.versionsFile.absolutePath))
             put(
                 "versions",
-                repositoryVersionsPort
-                    .readVersions(VersionsFileSource(request.versionsFile.absolutePath))
+                versionSections
+                    .flatMap { section -> section.versions.entries }
+                    .associate { entry -> entry.key to entry.value }
                     .toVersionsJson()
             )
+            put("versionSections", versionSections.toVersionSectionsJson())
             put("catalogs", buildCatalogs(request))
             put(
                 "modules",
@@ -75,13 +79,21 @@ internal class FigmaDesignModelGenerator(
                     put(
                         "libraries",
                         projectCatalogTreesPort
-                            .readLibraryTree(ProjectCatalogTreeSource.DependenciesDslVersionAliases)
+                            .readLibraryTree(
+                                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                                    rootDirPath = request.projectRootDirectory.absolutePath
+                                )
+                            )
                             .toDesignJson()
                     )
                     put(
                         "plugins",
                         projectCatalogTreesPort
-                            .readPluginTree(ProjectCatalogTreeSource.DependenciesDslVersionAliases)
+                            .readPluginTree(
+                                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                                    rootDirPath = request.projectRootDirectory.absolutePath
+                                )
+                            )
                             .toDesignJson()
                     )
                     put(

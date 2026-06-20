@@ -7,6 +7,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
+import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
@@ -19,6 +20,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.time.Instant
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -66,6 +68,24 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             ?.keys
             ?.toList() shouldBe listOf("androidGradlePlugin", "kotlinVersion")
     }
+
+    test("generate writes version sections in repository order") {
+        // GIVEN
+        val generator = generator()
+
+        // WHEN
+        val result = generator.generate(request())
+
+        // THEN
+        val sections = result.model["content"]
+            ?.jsonObject
+            ?.get("versionSections")
+            ?.jsonArray
+
+        sections?.map { section ->
+            section.jsonObject["name"]?.jsonPrimitive?.content
+        } shouldBe listOf("Main project dependencies", "Libraries")
+    }
 })
 
 private fun generator(): FigmaDesignModelGenerator =
@@ -96,6 +116,18 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
         mapOf(
             "kotlinVersion" to "2.4.0",
             "androidGradlePlugin" to "9.2.1"
+        )
+
+    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+        listOf(
+            RepositoryVersionSection(
+                name = "Main project dependencies",
+                versions = mapOf("androidGradlePlugin" to "9.2.1")
+            ),
+            RepositoryVersionSection(
+                name = "Libraries",
+                versions = mapOf("kotlinVersion" to "2.4.0")
+            )
         )
 }
 

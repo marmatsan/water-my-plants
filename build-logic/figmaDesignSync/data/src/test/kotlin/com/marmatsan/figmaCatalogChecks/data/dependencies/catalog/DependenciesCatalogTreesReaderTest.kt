@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.data.dependencies.catalog
 
 import com.marmatsan.dependencies.tree.dsl.library.libraryTree
 import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
+import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
@@ -32,7 +33,7 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         }
 
         // WHEN
-        val actualTree = DependenciesCatalogTreesReader().readLibraryTree(listOf(dependencyTree))
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTree(listOf(dependencyTree))
 
         // THEN
         actualTree shouldBe LibraryCatalogTree(
@@ -84,7 +85,7 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         }
 
         // WHEN
-        val actualTree = DependenciesCatalogTreesReader().readPluginTree(listOf(dependencyTree))
+        val actualTree = dependenciesCatalogTreesReader().readPluginTree(listOf(dependencyTree))
 
         // THEN
         actualTree shouldBe PluginCatalogTree(
@@ -114,7 +115,7 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
     test("readLibraryTreeWithVersionAliases maps versions as property aliases") {
         // WHEN
-        val actualTree = DependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases()
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(rootDir = java.io.File("."))
 
         // THEN
         val activity = actualTree.roots
@@ -127,3 +128,8 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         activity.version shouldBe CatalogVersion("activityComposeVersion")
     }
 })
+
+private fun dependenciesCatalogTreesReader() =
+    DependenciesCatalogTreesReader(
+        gradleCatalogUsageReader = GradleCatalogUsageReader()
+    )
