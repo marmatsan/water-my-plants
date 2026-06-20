@@ -44,7 +44,21 @@ The generated JSON contains:
 
 Use the Figma MCP `use_figma` tool to update the visual Figma model and then write the generated metadata to the configured page node.
 
-The version visual sync is implemented in:
+The version visual sync is implemented in TypeScript modules under:
+
+- `build-logic/figmaDesignSync/tools/src/`
+
+The tool source follows the same dependency direction as the Gradle sync code: `domain` contains generated-model types and pure catalog rules, `ports` contains gateway contracts, `usecases` coordinates sync behavior through those contracts, `figma` contains the Figma MCP API adapters, and `app` wires the concrete gateways for the generated MCP entrypoint.
+
+Generate the Figma MCP JavaScript script after editing the TypeScript source:
+
+```powershell
+cd build-logic\figmaDesignSync\tools
+npm ci
+npm run build
+```
+
+The generated script is:
 
 - `build-logic/figmaDesignSync/tools/sync-develop-design-model.mcp.js`
 
