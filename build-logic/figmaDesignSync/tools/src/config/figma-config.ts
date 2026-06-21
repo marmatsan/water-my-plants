@@ -1,4 +1,4 @@
-import type { CatalogTreeTarget } from "../domain/design-model";
+import type { CatalogTreeTarget, ModuleDependencyTarget } from "../domain/design-model";
 
 export const METADATA_PAGE_ID = "62934:908";
 export const METADATA_NAMESPACE = "water_my_plants_sync";
@@ -54,6 +54,7 @@ export const MODULE_PROPS = {
   size: "size",
 };
 export const SMALL_MODULE_SIZE = "small";
+export const BIG_MODULE_SIZE = "big";
 
 export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
   {
@@ -69,6 +70,12 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.plugins,
   },
   {
+    name: "waterMyPlants.customGradleConventionPlugins",
+    sectionNodeId: "63216:6907",
+    type: "Plugin",
+    nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins,
+  },
+  {
     name: "buildLogic.libraries",
     sectionNodeId: "63099:951",
     type: "Library",
@@ -79,5 +86,18 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     sectionNodeId: "63100:2952",
     type: "Plugin",
     nodes: (designModel) => designModel.content?.catalogs?.buildLogic?.plugins,
+  },
+];
+
+export const MODULE_DEPENDENCY_TARGETS: ModuleDependencyTarget[] = [
+  {
+    name: "waterMyPlants.moduleDependencies",
+    sectionNodeId: "63112:2622",
+    dependencies: (designModel) => designModel.content?.moduleDependencies?.main,
+  },
+  {
+    name: "buildLogic.moduleDependencies",
+    sectionNodeId: "63111:2516",
+    dependencies: (designModel) => designModel.content?.moduleDependencies?.buildLogic,
   },
 ];

@@ -9,6 +9,17 @@ export type CatalogTreeTarget = {
   nodes: (designModel: DesignModel) => any[] | undefined;
 };
 
+export type ModuleDependencyTarget = {
+  name: string;
+  sectionNodeId: string;
+  dependencies: (designModel: DesignModel) => ModuleDependency[] | undefined;
+};
+
+export type ModuleDependency = {
+  dependentModule: string;
+  dependencyModule: string;
+};
+
 export type FlattenedCatalogNode = Record<string, any> & {
   type: CatalogTreeType;
   label: string;

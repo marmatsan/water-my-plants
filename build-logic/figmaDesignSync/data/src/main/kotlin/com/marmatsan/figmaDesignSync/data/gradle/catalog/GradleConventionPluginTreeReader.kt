@@ -12,8 +12,9 @@ class GradleConventionPluginTreeReader {
             .resolve(BUILD_LOGIC_DIR)
             .walkTopDown()
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
-            .filter { file -> file.parentFile.name in ConventionPluginModuleNames }
-            .map { file -> file.readText().pluginIds() }
+            .map { file -> file.readText() }
+            .filter { content -> content.hasGradleConventionPluginImplementation() }
+            .map { content -> content.pluginIds() }
             .flatten()
             .toSet()
 
@@ -23,9 +24,12 @@ class GradleConventionPluginTreeReader {
     }
 
     private fun String.pluginIds(): Sequence<String> =
-        PluginNameRegex
-            .findAll(this)
+        sequenceOf(PluginNameRegex, PluginIdRegex)
+            .flatMap { regex -> regex.findAll(this) }
             .map { match -> match.groupValues[1] }
+
+    private fun String.hasGradleConventionPluginImplementation(): Boolean =
+        GradleConventionPluginImplementationRegex.containsMatchIn(this)
 
     private fun Set<String>.toPluginCatalogNodes(): List<PluginCatalogNode> =
         map { pluginId -> pluginId.split(".") }
@@ -58,14 +62,10 @@ class GradleConventionPluginTreeReader {
         const val BUILD_LOGIC_DIR = "build-logic"
         const val BUILD_FILE_NAME = "build.gradle.kts"
 
-        val ConventionPluginModuleNames = setOf(
-            "android",
-            "bddTest",
-            "compose",
-            "protobuf",
-            "unitTest"
-        )
-
         val PluginNameRegex = Regex("val\\s+pluginName\\s*=\\s*\"([^\"]+)\"")
+        val PluginIdRegex = Regex("id\\s*=\\s*\"([^\"]+)\"")
+        val GradleConventionPluginImplementationRegex = Regex(
+            "implementationClass\\s*=\\s*\"[^\"]*GradleConventionPlugin\""
+        )
     }
 }

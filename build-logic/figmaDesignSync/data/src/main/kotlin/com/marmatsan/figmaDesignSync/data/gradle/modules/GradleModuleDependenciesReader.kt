@@ -45,7 +45,8 @@ class GradleModuleDependenciesReader {
         }
 
         return readText()
-            .dependencyModulePaths(modulePathPrefix)
+            .dependenciesBlocks()
+            .flatMap { dependenciesBlock -> dependenciesBlock.dependencyModulePaths(modulePathPrefix) }
             .map { dependencyModule ->
                 ModuleDependency(
                     dependentModule = dependentModule,
@@ -53,6 +54,39 @@ class GradleModuleDependenciesReader {
                 )
             }
             .toSet()
+    }
+
+    private fun String.dependenciesBlocks(): Sequence<String> =
+        sequence {
+            var searchIndex = 0
+            while (searchIndex < length) {
+                val match = DependenciesBlockStartRegex.find(this@dependenciesBlocks, searchIndex) ?: break
+                val openBraceIndex = match.range.last
+                val closeBraceIndex = findMatchingBrace(openBraceIndex)
+                if (closeBraceIndex == -1) {
+                    break
+                }
+
+                yield(substring(openBraceIndex + 1, closeBraceIndex))
+                searchIndex = closeBraceIndex + 1
+            }
+        }
+
+    private fun String.findMatchingBrace(openBraceIndex: Int): Int {
+        var depth = 0
+        for (index in openBraceIndex until length) {
+            when (this[index]) {
+                '{' -> depth += 1
+                '}' -> {
+                    depth -= 1
+                    if (depth == 0) {
+                        return index
+                    }
+                }
+            }
+        }
+
+        return -1
     }
 
     private fun String.dependencyModulePaths(modulePathPrefix: String): Set<String> {
@@ -101,5 +135,6 @@ class GradleModuleDependenciesReader {
 
         val ProjectCallRegex = Regex("project\\s*\\(\\s*(?:path\\s*=\\s*)?\"(:[^\"]+)\"")
         val ProjectAccessorRegex = Regex("""\bprojects\.([A-Za-z0-9_.]+)\b""")
+        val DependenciesBlockStartRegex = Regex("""\bdependencies\s*\{""")
     }
 }

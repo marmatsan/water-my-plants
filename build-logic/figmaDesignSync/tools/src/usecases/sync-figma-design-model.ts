@@ -1,9 +1,15 @@
 import type { DesignModel } from "../domain/design-model";
-import type { CatalogTreeSyncGateway, MetadataSyncGateway, VersionSyncGateway } from "../ports/sync-gateways";
+import type {
+  CatalogTreeSyncGateway,
+  MetadataSyncGateway,
+  ModuleDependencySyncGateway,
+  VersionSyncGateway,
+} from "../ports/sync-gateways";
 
 export type SyncFigmaDesignModelDependencies = {
   versionSyncGateway: VersionSyncGateway;
   catalogTreeSyncGateway: CatalogTreeSyncGateway;
+  moduleDependencySyncGateway: ModuleDependencySyncGateway;
   metadataSyncGateway: MetadataSyncGateway;
 };
 
@@ -17,6 +23,7 @@ export async function syncFigmaDesignModel(
 
   const versionSyncResult = await dependencies.versionSyncGateway.syncVersions(designModel);
   const catalogSyncResult = await dependencies.catalogTreeSyncGateway.syncCatalogTrees(designModel);
+  const moduleDependencySyncResult = await dependencies.moduleDependencySyncGateway.syncModuleDependencies(designModel);
   const metadataSyncResult = await dependencies.metadataSyncGateway.writeMetadata(designModel);
 
   return {
@@ -26,11 +33,16 @@ export async function syncFigmaDesignModel(
     updatedCatalogNodes: catalogSyncResult.updatedCatalogNodes,
     createdCatalogNodes: catalogSyncResult.createdCatalogNodes,
     createdCatalogConnectors: catalogSyncResult.createdCatalogConnectors,
+    updatedModules: moduleDependencySyncResult.updatedModules,
+    hiddenModules: moduleDependencySyncResult.hiddenModules,
+    updatedModuleConnectors: moduleDependencySyncResult.updatedModuleConnectors,
+    removedModuleConnectors: moduleDependencySyncResult.removedModuleConnectors,
     metadata: metadataSyncResult.metadata,
     mutatedNodeIds: [
       ...new Set([
         ...versionSyncResult.mutatedNodeIds,
         ...catalogSyncResult.mutatedNodeIds,
+        ...moduleDependencySyncResult.mutatedNodeIds,
         ...metadataSyncResult.mutatedNodeIds,
       ]),
     ],

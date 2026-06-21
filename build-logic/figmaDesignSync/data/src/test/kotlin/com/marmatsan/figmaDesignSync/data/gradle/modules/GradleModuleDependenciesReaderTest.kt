@@ -49,6 +49,35 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
         )
     }
 
+    test("readMain ignores project accessors outside dependencies blocks") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("main-module-dependencies-outside-block").toFile()
+        rootDir
+            .resolve("app")
+            .also { directory -> directory.mkdirs() }
+            .resolve("build.gradle.kts")
+            .writeText(
+                """
+                val ignored = projects.feature.debug
+
+                dependencies {
+                    implementation(projects.core.ui)
+                }
+                """.trimIndent()
+            )
+
+        // WHEN
+        val dependencies = GradleModuleDependenciesReader().readMain(rootDir)
+
+        // THEN
+        dependencies shouldBe setOf(
+            ModuleDependency(
+                dependentModule = ":app",
+                dependencyModule = ":core:ui"
+            )
+        )
+    }
+
     test("readBuildLogic maps type-safe project accessors to build-logic module dependencies") {
         // GIVEN
         val rootDir = Files.createTempDirectory("build-logic-module-dependencies").toFile()

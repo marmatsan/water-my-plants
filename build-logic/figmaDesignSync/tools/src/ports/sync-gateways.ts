@@ -14,6 +14,14 @@ export type CatalogTreeSyncResult = {
   mutatedNodeIds: string[];
 };
 
+export type ModuleDependencySyncResult = {
+  updatedModules: string[];
+  hiddenModules: string[];
+  updatedModuleConnectors: string[];
+  removedModuleConnectors: string[];
+  mutatedNodeIds: string[];
+};
+
 export type MetadataSyncResult = {
   metadata: {
     pageId: string;
@@ -30,6 +38,10 @@ export type VersionSyncGateway = {
 
 export type CatalogTreeSyncGateway = {
   syncCatalogTrees(designModel: DesignModel): Promise<CatalogTreeSyncResult>;
+};
+
+export type ModuleDependencySyncGateway = {
+  syncModuleDependencies(designModel: DesignModel): Promise<ModuleDependencySyncResult>;
 };
 
 export type MetadataSyncGateway = {
