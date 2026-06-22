@@ -38,17 +38,17 @@ The token must have read access to the Figma file and the `file_content:read` sc
 
 ## TeamCity Integration
 
-Use a dedicated TeamCity build configuration, or add a dedicated build step to the existing merge-validation configuration, for the `develop` to `main` flow.
+Use a dedicated TeamCity build configuration, or add a dedicated build step to the existing merge-validation configuration for pull requests targeting `main`.
 
 The recommended flow is:
 
-- Open a pull request from `develop` into `main`.
+- Open a pull request from a short-lived branch into `main`.
 - Configure TeamCity's Pull Requests build feature to run for pull requests whose target branch is `main`.
 - Add a branch filter so the gate runs only for `main` merge validation, not for every feature branch build.
 - Store the Figma token as a TeamCity secure parameter.
 - Expose that secure parameter to the Gradle process as `env.FIGMA_FILE_CONTENT_ACCESS_TOKEN`.
 - Add a Gradle runner step that executes `checkFigmaVersions`.
-- Mark the TeamCity build as a required successful check before allowing the `develop` to `main` merge.
+- Mark the TeamCity build as a required successful check before allowing the pull request to merge into `main`.
 
 The TeamCity parameter setup should be:
 
@@ -63,7 +63,7 @@ The Gradle runner setup should be:
 
 ## CI Behavior
 
-TeamCity must run this check for `develop` to `main` merge validation.
+TeamCity must run this check for pull requests targeting `main`.
 
 The merge into `main` is allowed only when:
 
