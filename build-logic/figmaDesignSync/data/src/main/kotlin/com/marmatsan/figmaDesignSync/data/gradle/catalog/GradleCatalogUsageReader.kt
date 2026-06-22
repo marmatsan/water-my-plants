@@ -41,6 +41,14 @@ class GradleCatalogUsageReader {
                 usages.merge(buildFile.readMainPluginAliases(rootDir))
             }
 
+    fun readMainLiteralPluginUsages(rootDir: File): Map<String, Set<String>> =
+        rootDir
+            .buildFiles()
+            .filterNot { file -> file.toRelativeString(rootDir).startsWith("$BUILD_LOGIC_DIR${File.separator}") }
+            .fold(emptyMap()) { usages, buildFile ->
+                usages.merge(buildFile.readMainLiteralPluginIds(rootDir))
+            }
+
     private fun File.conventionModuleFiles(): Sequence<File> =
         walkTopDown()
             .filter { file -> file.isFile && file.extension == KOTLIN_FILE_EXTENSION }
@@ -101,6 +109,15 @@ class GradleCatalogUsageReader {
         if (modulePath == ROOT_MODULE) return emptyMap()
 
         return mainPluginAliasRegex
+            .findAll(readText())
+            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+    }
+
+    private fun File.readMainLiteralPluginIds(rootDir: File): Map<String, Set<String>> {
+        val modulePath = parentFile.toModulePath(rootDir)
+        if (modulePath == ROOT_MODULE) return emptyMap()
+
+        return literalPluginIdRegex
             .findAll(readText())
             .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
     }
@@ -197,5 +214,6 @@ class GradleCatalogUsageReader {
         val buildLogicLibraryAliasRegex = Regex("""\blibs\.([A-Za-z0-9_.]+)\b""")
         val buildLogicPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
         val mainPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
+        val literalPluginIdRegex = Regex("""\bid\s*\(\s*"([^"]+)"\s*\)""")
     }
 }

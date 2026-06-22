@@ -7,6 +7,7 @@ export type CatalogTreeTarget = {
   sectionNodeId: string;
   type: CatalogTreeType;
   nodes: (designModel: DesignModel) => any[] | undefined;
+  gradleConventionPluginNodes?: boolean;
 };
 
 export type ModuleDependencyTarget = {

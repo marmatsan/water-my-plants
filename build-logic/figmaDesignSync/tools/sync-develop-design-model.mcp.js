@@ -93,6 +93,7 @@ var FigmaDevelopSync = (() => {
       name: "waterMyPlants.customGradleConventionPlugins",
       sectionNodeId: "63216:6907",
       type: "Plugin",
+      gradleConventionPluginNodes: true,
       nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins
     },
     {
@@ -474,7 +475,7 @@ var FigmaDevelopSync = (() => {
     if (node.type === "Library") {
       await updateLibraryTreeNode(instance, node, mutatedNodeIds);
     } else {
-      await updatePluginTreeNode(instance, node, mutatedNodeIds);
+      await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
     }
     mutatedNodeIds.push(instance.id);
     return instance;
@@ -501,14 +502,16 @@ var FigmaDevelopSync = (() => {
     await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
     await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
   }
-  async function updatePluginTreeNode(instance, node, mutatedNodeIds) {
+  async function updatePluginTreeNode(instance, node, mutatedNodeIds, target) {
     const versionValue = node.version?.visible && node.version?.value ? node.version.value : "Plugin version";
     const appliedToModules = sortedUnique(node.appliedToModules || []);
+    const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
     instance.setProperties({
       [TREE_NODE_PROPS.pluginId]: node.label,
       [TREE_NODE_PROPS.pluginVersion]: versionValue,
       [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
       [TREE_NODE_PROPS.showConsumerModule]: appliedToModules.length > 0,
+      [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
       [TREE_NODE_PROPS.type]: "Plugin"
     });
     mutatedNodeIds.push(instance.id);
@@ -565,11 +568,12 @@ var FigmaDevelopSync = (() => {
       const parentInstance = instancesByLabel.get(parentLabel);
       if (parentInstance) {
         const siblingInstances = container.children.filter((child) => child.type === "INSTANCE" && child.id !== parentInstance.id).sort((first, second) => first.y - second.y || first.x - second.x);
+        const existingSiblingRowY = siblingInstances[0]?.y;
         const lastSibling = siblingInstances[siblingInstances.length - 1];
         const x = lastSibling ? lastSibling.x + lastSibling.width + 120 : parentInstance.x;
         return {
           x,
-          y: parentInstance.y + parentInstance.height + 180
+          y: existingSiblingRowY ?? parentInstance.y + parentInstance.height + TREE_NODE_PARENT_CHILD_GAP
         };
       }
     }
@@ -583,6 +587,7 @@ var FigmaDevelopSync = (() => {
       y: last.y
     };
   }
+  var TREE_NODE_PARENT_CHILD_GAP = 128;
 
   // src/figma/figma-catalog-tree-sync-gateway.ts
   var FigmaCatalogTreeSyncGateway = class {
@@ -590,6 +595,8 @@ var FigmaDevelopSync = (() => {
       const updatedCatalogNodes = [];
       const createdCatalogNodes = [];
       const createdCatalogConnectors = [];
+      const removedCatalogNodes = [];
+      const removedCatalogConnectors = [];
       const mutatedNodeIds = [];
       const componentCache = /* @__PURE__ */ new Map();
       for (const target of CATALOG_TREE_TARGETS) {
@@ -601,7 +608,15 @@ var FigmaDevelopSync = (() => {
         requireUniqueLabels(target, expectedNodes);
         const section = await requireSection(target.sectionNodeId);
         const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
-        const connectors = collectTreeConnectors(section);
+        let connectors = collectTreeConnectors(section);
+        const disconnectedConnectors = connectors.filter(
+          (connector) => !connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId
+        );
+        for (const connector of disconnectedConnectors) {
+          removedCatalogConnectors.push(`${target.name}/${connector.id}`);
+          connector.remove();
+        }
+        connectors = connectors.filter((connector) => !disconnectedConnectors.includes(connector));
         for (const node of expectedNodes) {
           if (instancesByLabel.has(node.label)) continue;
           const instance = await createMissingTreeNode(
@@ -620,7 +635,7 @@ var FigmaDevelopSync = (() => {
           if (node.type === "Library") {
             await updateLibraryTreeNode(instance, node, mutatedNodeIds);
           } else {
-            await updatePluginTreeNode(instance, node, mutatedNodeIds);
+            await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
           }
           updatedCatalogNodes.push(`${target.name}/${node.path.join("/")}`);
         }
@@ -639,15 +654,186 @@ var FigmaDevelopSync = (() => {
           mutatedNodeIds.push(connector.id);
           createdCatalogConnectors.push(`${target.name}/${node.parentPath.join("/")} -> ${node.path.join("/")}`);
         }
+        const staleResult = removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors);
+        removedCatalogNodes.push(...staleResult.removedCatalogNodes);
+        removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
+        connectors = staleResult.connectors;
+        layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
+        resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
       }
       return {
         updatedCatalogNodes,
         createdCatalogNodes,
         createdCatalogConnectors,
+        removedCatalogNodes,
+        removedCatalogConnectors,
         mutatedNodeIds
       };
     }
   };
+  function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors) {
+    const expectedLabels = new Set(expectedNodes.map((node) => node.label));
+    const staleInstances = [...instancesByLabel.entries()].filter(([label]) => !expectedLabels.has(label));
+    const staleInstanceIds = new Set(staleInstances.map(([, instance]) => instance.id));
+    const removedCatalogNodes = [];
+    const removedCatalogConnectors = [];
+    for (const connector of connectors) {
+      if (staleInstanceIds.has(connector.connectorStart?.endpointNodeId) || staleInstanceIds.has(connector.connectorEnd?.endpointNodeId)) {
+        removedCatalogConnectors.push(`${target.name}/${connector.id}`);
+        connector.remove();
+      }
+    }
+    for (const [label, instance] of staleInstances) {
+      removedCatalogNodes.push(`${target.name}/${label}`);
+      instance.remove();
+      instancesByLabel.delete(label);
+    }
+    return {
+      removedCatalogNodes,
+      removedCatalogConnectors,
+      connectors: connectors.filter(
+        (connector) => !staleInstanceIds.has(connector.connectorStart?.endpointNodeId) && !staleInstanceIds.has(connector.connectorEnd?.endpointNodeId)
+      )
+    };
+  }
+  function layoutCatalogTreeNodes(section, nodes, instancesByLabel, mutatedNodeIds) {
+    const nodesByPath = new Map(nodes.map((node) => [pathKey(node.path), node]));
+    const childrenByParentPath = /* @__PURE__ */ new Map();
+    for (const node of nodes) {
+      const parentKey = pathKey(node.parentPath);
+      childrenByParentPath.set(
+        parentKey,
+        [...childrenByParentPath.get(parentKey) || [], node]
+      );
+    }
+    const roots = childrenByParentPath.get(pathKey([])) || [];
+    const containers = /* @__PURE__ */ new Map();
+    for (const root of roots) {
+      const rootInstance = instancesByLabel.get(root.label);
+      const container = rootInstance?.parent?.type === "SECTION" ? rootInstance.parent : section;
+      containers.set(
+        container.id,
+        [...containers.get(container.id) || [], root]
+      );
+    }
+    for (const containerRoots of containers.values()) {
+      let nextX = CATALOG_TREE_LAYOUT_PADDING;
+      for (const root of containerRoots) {
+        const layout = layoutCatalogSubtree(
+          root,
+          nodesByPath,
+          childrenByParentPath,
+          instancesByLabel,
+          nextX,
+          CATALOG_TREE_LAYOUT_PADDING
+        );
+        applyCatalogPlacements(layout.placements, mutatedNodeIds);
+        nextX = layout.maxX + CATALOG_TREE_SIBLING_GAP;
+      }
+    }
+  }
+  function layoutCatalogSubtree(node, nodesByPath, childrenByParentPath, instancesByLabel, x, y) {
+    const instance = instancesByLabel.get(node.label);
+    if (!instance) {
+      throw new Error(`Cannot layout catalog node '${node.path.join("/")}' because its Figma instance is missing.`);
+    }
+    const children = (childrenByParentPath.get(pathKey(node.path)) || []).map((child) => nodesByPath.get(pathKey(child.path))).filter(Boolean);
+    const placements = /* @__PURE__ */ new Map();
+    if (children.length === 0) {
+      placements.set(instance.id, { instance, x, y });
+      return {
+        placements,
+        minX: x,
+        maxX: x + instance.width,
+        nextX: x + instance.width + CATALOG_TREE_SIBLING_GAP
+      };
+    }
+    let childX = x;
+    const childY = y + instance.height + CATALOG_TREE_PARENT_CHILD_GAP;
+    let minX = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let firstChildCenter;
+    let lastChildCenter;
+    for (const child of children) {
+      const childLayout = layoutCatalogSubtree(
+        child,
+        nodesByPath,
+        childrenByParentPath,
+        instancesByLabel,
+        childX,
+        childY
+      );
+      for (const [id, placement] of childLayout.placements) {
+        placements.set(id, placement);
+      }
+      minX = Math.min(minX, childLayout.minX);
+      maxX = Math.max(maxX, childLayout.maxX);
+      const childInstance = instancesByLabel.get(child.label);
+      const childPlacement = childLayout.placements.get(childInstance.id);
+      const childCenter = childPlacement.x + childInstance.width / 2;
+      firstChildCenter = firstChildCenter ?? childCenter;
+      lastChildCenter = childCenter;
+      childX = childLayout.nextX;
+    }
+    let parentX = (firstChildCenter + lastChildCenter) / 2 - instance.width / 2;
+    placements.set(instance.id, { instance, x: parentX, y });
+    minX = Math.min(minX, parentX);
+    maxX = Math.max(maxX, parentX + instance.width);
+    if (minX < x) {
+      const offset = x - minX;
+      for (const placement of placements.values()) {
+        placement.x += offset;
+      }
+      minX += offset;
+      maxX += offset;
+    }
+    return {
+      placements,
+      minX,
+      maxX,
+      nextX: maxX + CATALOG_TREE_SIBLING_GAP
+    };
+  }
+  function applyCatalogPlacements(placements, mutatedNodeIds) {
+    for (const placement of placements.values()) {
+      placement.instance.x = placement.x;
+      placement.instance.y = placement.y;
+      mutatedNodeIds.push(placement.instance.id);
+    }
+  }
+  function resizeSectionsToFit(section, nodes, mutatedNodeIds) {
+    const nodesBySection = /* @__PURE__ */ new Map();
+    for (const node of nodes) {
+      const parentSection = node.parent?.type === "SECTION" ? node.parent : section;
+      nodesBySection.set(
+        parentSection.id,
+        {
+          section: parentSection,
+          nodes: [...nodesBySection.get(parentSection.id)?.nodes || [], node]
+        }
+      );
+    }
+    for (const { section: targetSection, nodes: sectionNodes } of nodesBySection.values()) {
+      resizeSectionToFit(targetSection, sectionNodes, mutatedNodeIds);
+    }
+    resizeSectionToFit(section, section.children.filter((child) => child.visible !== false), mutatedNodeIds);
+  }
+  function resizeSectionToFit(section, nodes, mutatedNodeIds) {
+    if (nodes.length === 0) return;
+    const maxRight = Math.max(...nodes.map((node) => node.x + node.width));
+    const maxBottom = Math.max(...nodes.map((node) => node.y + node.height));
+    section.resizeWithoutConstraints(
+      Math.max(section.width, maxRight + 100),
+      Math.max(section.height, maxBottom + 100)
+    );
+    mutatedNodeIds.push(section.id);
+  }
+  function pathKey(path) {
+    return path.join("\0");
+  }
+  var CATALOG_TREE_LAYOUT_PADDING = 100;
+  var CATALOG_TREE_SIBLING_GAP = 120;
+  var CATALOG_TREE_PARENT_CHILD_GAP = 128;
 
   // src/figma/figma-metadata-gateway.ts
   var FigmaMetadataGateway = class {
@@ -685,45 +871,31 @@ var FigmaDevelopSync = (() => {
           throw new Error(`designModel.content.moduleDependencies.${target.name} is required for module dependency sync.`);
         }
         const section = await requireSection(target.sectionNodeId);
-        const modules = sortedModules(dependencies);
-        const moduleInstances = collectModuleInstances(section);
-        const moduleInstancesByName = collectCanonicalModuleInstancesByName(moduleInstances);
-        const template = moduleInstances[0];
-        if (!template && modules.length > 0) {
+        const existingInstances = collectModuleInstances(section);
+        const existingConnectors = collectModuleConnectors(section);
+        const template = existingInstances[0];
+        if (!template && dependencies.length > 0) {
           throw new Error(`No '${MODULE_INSTANCE_NAME}' module template was found in section '${section.name}'.`);
         }
-        for (const moduleName of modules) {
-          if (moduleInstancesByName.has(moduleName)) continue;
-          const instance = template.clone();
-          section.appendChild(instance);
-          instance.name = MODULE_INSTANCE_NAME;
-          moduleInstancesByName.set(moduleName, instance);
-          moduleInstances.push(instance);
-          mutatedNodeIds.push(instance.id);
+        const slots = layoutDependencySlots(section, dependencies, existingInstances);
+        const assignedInstances = assignModuleInstances(section, slots, existingInstances, existingConnectors, template, mutatedNodeIds);
+        for (const slot of slots) {
+          const instance = assignedInstances.get(slot.key);
+          await updateModuleInstance(instance, slot, mutatedNodeIds);
+          updatedModules.push(`${target.name}/${slot.key}`);
         }
-        const positionsByModule = layoutModules(target, section, dependencies, modules, moduleInstancesByName);
-        for (const moduleName of modules) {
-          const instance = moduleInstancesByName.get(moduleName);
-          await updateModuleInstance(instance, moduleName, positionsByModule.get(moduleName), mutatedNodeIds);
-          updatedModules.push(`${target.name}/${moduleName}`);
-        }
-        const visibleModuleIds = new Set([...moduleInstancesByName.values()].map((instance) => instance.id));
-        for (const instance of moduleInstances) {
-          if (visibleModuleIds.has(instance.id) && modules.includes(moduleNameOf(instance))) continue;
-          if (instance.visible === false) continue;
-          instance.visible = false;
-          hiddenModules.push(`${target.name}/${moduleNameOf(instance) || instance.id}`);
-          mutatedNodeIds.push(instance.id);
-        }
+        hideUnusedModuleInstances(target, existingInstances, assignedInstances, hiddenModules, mutatedNodeIds);
         const connectorResult = syncModuleConnectors(
           target,
           section,
           dependencies,
-          moduleInstancesByName,
+          assignedInstances,
+          existingConnectors,
           mutatedNodeIds
         );
         updatedModuleConnectors.push(...connectorResult.updatedModuleConnectors);
         removedModuleConnectors.push(...connectorResult.removedModuleConnectors);
+        resizeSectionToFit2(section, [...assignedInstances.values()]);
       }
       return {
         updatedModules,
@@ -734,25 +906,11 @@ var FigmaDevelopSync = (() => {
       };
     }
   };
-  function sortedModules(dependencies) {
-    return [
-      ...new Set(dependencies.flatMap((dependency) => [
-        dependency.dependentModule,
-        dependency.dependencyModule
-      ]))
-    ].sort();
-  }
   function collectModuleInstances(section) {
     return section.findAllWithCriteria({ types: ["INSTANCE"] }).filter((instance) => instance.name === MODULE_INSTANCE_NAME).sort((first, second) => first.y - second.y || first.x - second.x);
   }
-  function collectCanonicalModuleInstancesByName(moduleInstances) {
-    const instancesByName = /* @__PURE__ */ new Map();
-    for (const instance of moduleInstances) {
-      const moduleName = moduleNameOf(instance);
-      if (!moduleName || instancesByName.has(moduleName)) continue;
-      instancesByName.set(moduleName, instance);
-    }
-    return instancesByName;
+  function collectModuleConnectors(section) {
+    return section.findAllWithCriteria({ types: ["CONNECTOR"] }).filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME).sort((first, second) => first.y - second.y || first.x - second.x);
   }
   function moduleNameOf(instance) {
     const propertyValue = getComponentPropertyValue(instance, MODULE_PROPS.name);
@@ -761,80 +919,129 @@ var FigmaDevelopSync = (() => {
     }
     return instance.findAllWithCriteria({ types: ["TEXT"] }).find((textNode) => textNode.name === "label")?.characters;
   }
-  function layoutModules(target, section, dependencies, modules, moduleInstancesByName) {
-    const levelsByModule = moduleLevels(dependencies, modules);
-    const modulesByLevel = /* @__PURE__ */ new Map();
-    for (const moduleName of modules) {
-      const level = levelsByModule.get(moduleName) || 0;
-      modulesByLevel.set(level, [...modulesByLevel.get(level) || [], moduleName]);
-    }
-    const positionsByModule = /* @__PURE__ */ new Map();
-    const levels = [...modulesByLevel.keys()].sort((first, second) => first - second);
-    let currentY = MODULE_LAYOUT_PADDING;
-    for (const level of levels) {
-      const levelModules = modulesByLevel.get(level).sort();
-      let currentX = MODULE_LAYOUT_PADDING;
+  function layoutDependencySlots(section, dependencies, existingInstances) {
+    const dependenciesByDependencyModule = groupDependenciesByDependencyModule(dependencies);
+    const groupModules = [...dependenciesByDependencyModule.keys()].sort(
+      (first, second) => groupLevel(first, dependencies).localeCompare(groupLevel(second, dependencies)) || first.localeCompare(second)
+    );
+    const slots = [];
+    let nextY = MODULE_LAYOUT_PADDING;
+    for (const groupModule of groupModules) {
+      const groupDependencies = dependenciesByDependencyModule.get(groupModule).sort((first, second) => first.dependentModule.localeCompare(second.dependentModule));
+      const parentWidth = widthForModule(groupModule, existingInstances);
+      let childX = MODULE_LAYOUT_PADDING;
+      let childY = nextY + MODULE_LAYOUT_DEFAULT_HEIGHT + MODULE_PARENT_CHILD_GAP;
       let rowHeight = 0;
-      for (const moduleName of levelModules) {
-        const instance = moduleInstancesByName.get(moduleName);
-        const instanceWidth = Math.max(instance?.width || MODULE_LAYOUT_DEFAULT_WIDTH, MODULE_LAYOUT_DEFAULT_WIDTH);
-        const instanceHeight = instance?.height || MODULE_LAYOUT_DEFAULT_HEIGHT;
-        if (currentX > MODULE_LAYOUT_PADDING && currentX + instanceWidth > section.width - MODULE_LAYOUT_PADDING) {
-          currentX = MODULE_LAYOUT_PADDING;
-          currentY += rowHeight + MODULE_LAYOUT_ROW_WRAP_GAP;
+      const childSlots = [];
+      for (const dependency of groupDependencies) {
+        const childWidth = widthForModule(dependency.dependentModule, existingInstances);
+        if (childX > MODULE_LAYOUT_PADDING && childX + childWidth > section.width - MODULE_LAYOUT_PADDING) {
+          childX = MODULE_LAYOUT_PADDING;
+          childY += rowHeight + MODULE_CHILD_ROW_GAP;
           rowHeight = 0;
         }
-        positionsByModule.set(moduleName, {
-          x: currentX,
-          y: currentY
-        });
-        currentX += instanceWidth + MODULE_LAYOUT_COLUMN_GAP;
-        rowHeight = Math.max(rowHeight, instanceHeight);
+        const childSlot = {
+          key: childSlotKey(dependency),
+          moduleName: dependency.dependentModule,
+          role: "child",
+          groupModule,
+          dependency,
+          x: childX,
+          y: childY
+        };
+        childSlots.push(childSlot);
+        childX += childWidth + MODULE_LAYOUT_COLUMN_GAP;
+        rowHeight = Math.max(rowHeight, MODULE_LAYOUT_DEFAULT_HEIGHT);
       }
-      currentY += rowHeight + MODULE_LAYOUT_LEVEL_GAP;
+      const firstChild = childSlots[0];
+      const lastChild = childSlots[childSlots.length - 1];
+      const firstChildWidth = firstChild ? widthForModule(firstChild.moduleName, existingInstances) : parentWidth;
+      const lastChildWidth = lastChild ? widthForModule(lastChild.moduleName, existingInstances) : parentWidth;
+      let parentX = firstChild && lastChild ? (firstChild.x + firstChildWidth / 2 + (lastChild.x + lastChildWidth / 2)) / 2 - parentWidth / 2 : MODULE_LAYOUT_PADDING;
+      if (parentX < MODULE_LAYOUT_PADDING) {
+        const offset = MODULE_LAYOUT_PADDING - parentX;
+        parentX += offset;
+        for (const childSlot of childSlots) {
+          childSlot.x += offset;
+        }
+      }
+      slots.push({
+        key: parentSlotKey(groupModule),
+        moduleName: groupModule,
+        role: "parent",
+        groupModule,
+        x: parentX,
+        y: nextY
+      });
+      slots.push(...childSlots);
+      nextY = childY + Math.max(rowHeight, MODULE_LAYOUT_DEFAULT_HEIGHT) + MODULE_GROUP_GAP;
+      if (parentWidth > section.width - MODULE_LAYOUT_PADDING * 2) {
+        throw new Error(`Module '${groupModule}' is wider than dependency section '${section.name}'.`);
+      }
     }
-    if (positionsByModule.size !== modules.length) {
-      throw new Error(`${target.name} module dependency layout did not assign every module.`);
-    }
-    return positionsByModule;
+    return slots;
   }
-  function moduleLevels(dependencies, modules) {
-    const dependenciesByModule = /* @__PURE__ */ new Map();
-    for (const dependency of dependencies) {
-      dependenciesByModule.set(
-        dependency.dependentModule,
-        [...dependenciesByModule.get(dependency.dependentModule) || [], dependency.dependencyModule]
+  function groupDependenciesByDependencyModule(dependencies) {
+    return dependencies.reduce((groups, dependency) => {
+      groups.set(
+        dependency.dependencyModule,
+        [...groups.get(dependency.dependencyModule) || [], dependency]
       );
-    }
-    const levelsByModule = /* @__PURE__ */ new Map();
-    const visiting = /* @__PURE__ */ new Set();
-    const levelOf = (moduleName) => {
-      if (levelsByModule.has(moduleName)) return levelsByModule.get(moduleName);
-      if (visiting.has(moduleName)) return 0;
-      visiting.add(moduleName);
-      const dependencyLevels = (dependenciesByModule.get(moduleName) || []).map((dependencyModule) => levelOf(dependencyModule));
-      visiting.delete(moduleName);
-      const level = dependencyLevels.length === 0 ? 0 : Math.max(...dependencyLevels) + 1;
-      levelsByModule.set(moduleName, level);
-      return level;
-    };
-    for (const moduleName of modules) {
-      levelOf(moduleName);
-    }
-    return levelsByModule;
+      return groups;
+    }, /* @__PURE__ */ new Map());
   }
-  async function updateModuleInstance(instance, moduleName, position, mutatedNodeIds) {
+  function groupLevel(moduleName, dependencies) {
+    const outgoingDependencyCount = dependencies.filter((dependency) => dependency.dependentModule === moduleName).length;
+    return String(outgoingDependencyCount).padStart(4, "0");
+  }
+  function widthForModule(moduleName, existingInstances) {
+    const existingInstance = existingInstances.find((instance) => moduleNameOf(instance) === moduleName);
+    return Math.max(existingInstance?.width || MODULE_LAYOUT_DEFAULT_WIDTH, MODULE_LAYOUT_DEFAULT_WIDTH);
+  }
+  function assignModuleInstances(section, slots, existingInstances, existingConnectors, template, mutatedNodeIds) {
+    const assignedInstances = /* @__PURE__ */ new Map();
+    const usedInstanceIds = /* @__PURE__ */ new Set();
+    for (const slot of slots) {
+      const preferred = findPreferredInstance(slot, existingInstances, existingConnectors, usedInstanceIds);
+      const instance = preferred || template.clone();
+      if (!preferred) {
+        section.appendChild(instance);
+        instance.name = MODULE_INSTANCE_NAME;
+        mutatedNodeIds.push(instance.id);
+      }
+      assignedInstances.set(slot.key, instance);
+      usedInstanceIds.add(instance.id);
+    }
+    return assignedInstances;
+  }
+  function findPreferredInstance(slot, existingInstances, existingConnectors, usedInstanceIds) {
+    if (slot.role === "child") {
+      const connectedInstance = existingConnectors.map((connector) => ({
+        start: existingInstances.find((instance) => instance.id === connector.connectorStart?.endpointNodeId),
+        end: existingInstances.find((instance) => instance.id === connector.connectorEnd?.endpointNodeId)
+      })).find(
+        (pair) => pair.start && pair.end && moduleNameOf(pair.start) === slot.moduleName && moduleNameOf(pair.end) === slot.groupModule && !usedInstanceIds.has(pair.start.id)
+      )?.start;
+      if (connectedInstance) {
+        return connectedInstance;
+      }
+    }
+    return existingInstances.find(
+      (instance) => moduleNameOf(instance) === slot.moduleName && !usedInstanceIds.has(instance.id)
+    );
+  }
+  async function updateModuleInstance(instance, slot, mutatedNodeIds) {
     requireModuleVariantProperty2(instance, MODULE_PROPS.name);
     requireModuleVariantProperty2(instance, MODULE_PROPS.size);
     instance.visible = true;
-    instance.x = position.x;
-    instance.y = position.y;
+    instance.x = slot.x;
+    instance.y = slot.y;
     instance.setProperties({
-      [MODULE_PROPS.name]: moduleName,
+      [MODULE_PROPS.name]: slot.moduleName,
       [MODULE_PROPS.size]: BIG_MODULE_SIZE
     });
     mutatedNodeIds.push(instance.id);
-    await updateNamedTextNodes(instance, "label", [moduleName], mutatedNodeIds);
+    await updateNamedTextNodes(instance, "label", [slot.moduleName], mutatedNodeIds);
   }
   function requireModuleVariantProperty2(moduleInstance, propertyName) {
     const property = moduleInstance.componentProperties?.[propertyName];
@@ -844,28 +1051,37 @@ var FigmaDevelopSync = (() => {
       );
     }
   }
-  function syncModuleConnectors(target, section, dependencies, moduleInstancesByName, mutatedNodeIds) {
-    const connectors = section.findAllWithCriteria({ types: ["CONNECTOR"] }).filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME).sort((first, second) => first.y - second.y || first.x - second.x);
-    const template = connectors[0];
-    if (!template && dependencies.length > 0) {
+  function hideUnusedModuleInstances(target, existingInstances, assignedInstances, hiddenModules, mutatedNodeIds) {
+    const visibleModuleIds = new Set([...assignedInstances.values()].map((instance) => instance.id));
+    for (const instance of existingInstances) {
+      if (visibleModuleIds.has(instance.id)) continue;
+      if (instance.visible === false) continue;
+      instance.visible = false;
+      hiddenModules.push(`${target.name}/${moduleNameOf(instance) || instance.id}`);
+      mutatedNodeIds.push(instance.id);
+    }
+  }
+  function syncModuleConnectors(target, section, dependencies, assignedInstances, existingConnectors, mutatedNodeIds) {
+    const sortedDependencies = [...dependencies].sort(
+      (first, second) => first.dependencyModule.localeCompare(second.dependencyModule) || first.dependentModule.localeCompare(second.dependentModule)
+    );
+    const template = existingConnectors[0];
+    if (!template && sortedDependencies.length > 0) {
       throw new Error(`No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${section.name}'.`);
     }
-    const sortedDependencies = [...dependencies].sort(
-      (first, second) => first.dependentModule.localeCompare(second.dependentModule) || first.dependencyModule.localeCompare(second.dependencyModule)
-    );
     const updatedModuleConnectors = [];
     const removedModuleConnectors = [];
     for (let index = 0; index < sortedDependencies.length; index += 1) {
       const dependency = sortedDependencies[index];
-      const dependentModuleInstance = moduleInstancesByName.get(dependency.dependentModule);
-      const dependencyModuleInstance = moduleInstancesByName.get(dependency.dependencyModule);
+      const dependentModuleInstance = assignedInstances.get(childSlotKey(dependency));
+      const dependencyModuleInstance = assignedInstances.get(parentSlotKey(dependency.dependencyModule));
       if (!dependentModuleInstance || !dependencyModuleInstance) {
         throw new Error(
           `Cannot create connector for ${target.name}/${dependency.dependentModule} -> ${dependency.dependencyModule}: dependent or dependency module is missing.`
         );
       }
-      const connector = connectors[index] || template.clone();
-      if (!connectors[index]) {
+      const connector = existingConnectors[index] || template.clone();
+      if (!existingConnectors[index]) {
         section.appendChild(connector);
         connector.name = CONNECTOR_TEMPLATE_NAME;
       }
@@ -881,7 +1097,7 @@ var FigmaDevelopSync = (() => {
       updatedModuleConnectors.push(`${target.name}/${dependency.dependentModule} -> ${dependency.dependencyModule}`);
       mutatedNodeIds.push(connector.id);
     }
-    for (const connector of connectors.slice(sortedDependencies.length)) {
+    for (const connector of existingConnectors.slice(sortedDependencies.length)) {
       removedModuleConnectors.push(`${target.name}/${connector.id}`);
       connector.remove();
     }
@@ -890,10 +1106,26 @@ var FigmaDevelopSync = (() => {
       removedModuleConnectors
     };
   }
+  function parentSlotKey(moduleName) {
+    return `parent:${moduleName}`;
+  }
+  function childSlotKey(dependency) {
+    return `child:${dependency.dependencyModule}->${dependency.dependentModule}`;
+  }
+  function resizeSectionToFit2(section, nodes) {
+    if (nodes.length === 0) return;
+    const maxRight = Math.max(...nodes.map((node) => node.x + node.width));
+    const maxBottom = Math.max(...nodes.map((node) => node.y + node.height));
+    section.resizeWithoutConstraints(
+      Math.max(section.width, maxRight + MODULE_LAYOUT_PADDING),
+      Math.max(section.height, maxBottom + MODULE_LAYOUT_PADDING)
+    );
+  }
   var MODULE_LAYOUT_PADDING = 100;
   var MODULE_LAYOUT_COLUMN_GAP = 80;
-  var MODULE_LAYOUT_LEVEL_GAP = 170;
-  var MODULE_LAYOUT_ROW_WRAP_GAP = 100;
+  var MODULE_PARENT_CHILD_GAP = 128;
+  var MODULE_CHILD_ROW_GAP = 128;
+  var MODULE_GROUP_GAP = 96;
   var MODULE_LAYOUT_DEFAULT_WIDTH = 340;
   var MODULE_LAYOUT_DEFAULT_HEIGHT = 182;
 

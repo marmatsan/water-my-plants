@@ -16,6 +16,14 @@ This replaces field-by-field Figma checks. The repository generates a single JSO
 - Repository versions file: `build-logic/versions.properties`
 - Figma versions section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183`
 - Figma versions variable collection: `build-logic\versions.properties`
+- Figma Water My Plants libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-629`
+- Figma Water My Plants plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594`
+- Figma custom Gradle convention plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907`
+- Figma build-logic libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
+- Figma build-logic plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
+- Figma module dependencies section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63107-11577`
+- Figma Water My Plants module dependencies subsection: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63112-2622`
+- Figma build-logic module dependencies subsection: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63111-2516`
 - Root settings file: `settings.gradle.kts`
 - Build-logic settings file: `build-logic/settings.gradle.kts`
 
@@ -37,6 +45,17 @@ The generated JSON contains:
 - `modelHash`
 
 `content.versions` is the sorted flat map used for deterministic comparison. `content.versionSections` preserves the section grouping from `build-logic/versions.properties` so the Figma MCP sync can place new visual version nodes in the correct frame.
+
+`content.catalogs` contains Water My Plants libraries/plugins, build-logic libraries/plugins, and custom Gradle convention plugins. Custom Gradle convention plugins are detected from `build-logic` build files that declare an implementation class ending in `GradleConventionPlugin`.
+
+`com.marmatsan.figmaDesignSync` is a regular Gradle plugin, not a Gradle convention plugin. It is intentionally excluded from `content.catalogs.waterMyPlants.customGradleConventionPlugins` because it registers sync tasks and extension configuration instead of applying build conventions to consumer modules.
+
+`content.moduleDependencies` contains two module dependency graphs:
+
+- `main`: modules outside `build-logic`, read from `dependencies {}` blocks in root project module `build.gradle.kts` files.
+- `buildLogic`: modules inside `build-logic`, read from `dependencies {}` blocks in build-logic module `build.gradle.kts` files.
+
+Module dependency extraction reads explicit `project(":...")` calls and type-safe project accessors such as `projects.core.ui` and `projects.figmaDesignSync.domain`.
 
 `modelHash` is calculated from the stable model content and excludes `generatedAt` and `modelHash` itself.
 
@@ -81,6 +100,7 @@ Current catalog tree sync behavior:
 
 - Read `content.catalogs` from `build/reports/figma-sync/design-model.json`.
 - Update existing `.tree node` instances in the Water My Plants library/plugin sections.
+- Update existing `.tree node` instances in the custom Gradle convention plugins section.
 - Update existing `.tree node` instances in the build-logic library/plugin sections.
 - Match existing tree nodes by label inside each visual section. Labels must be unique per section until stable Figma path metadata is introduced.
 - Update exposed component properties for library groups, plugin ids, plugin versions, and artifact visibility.
@@ -92,8 +112,23 @@ Current catalog tree sync behavior:
 - Create missing `.tree node` instances by cloning a compatible existing node from the same visual section, then applying the generated model values.
 - Create missing top-level tree sections when a new top-level library group or plugin id appears.
 - Create missing `simple-solid_arrow` connectors by cloning an existing connector and rebinding its endpoints to the parent/child tree nodes.
-- Do not delete, move, or reconcile existing stale tree nodes yet.
+- Re-layout synced tree nodes so each parent is horizontally centered over its children, with 128 px between a parent bottom edge and its child top edge.
+- Resize touched tree sections and their parent sections to fit after visual updates.
+- Remove stale catalog tree nodes and their connectors when they no longer exist in the generated model.
 - Fail without writing metadata if an existing or cloned instance cannot represent the artifact text or `.module size=small` consumer structure from the generated model.
+
+Current module dependency sync behavior:
+
+- Read `content.moduleDependencies.main` and update the `water-my-plants` module dependency subsection.
+- Read `content.moduleDependencies.buildLogic` and update the `build-logic` module dependency subsection.
+- Ensure there is one visible `.module` instance for every module referenced by the dependency graph.
+- Update `.module` instances through the `name` and `size=big` variant properties, then update the visible label text.
+- Place modules with a deterministic grouped layout where each dependency module appears above the modules that depend on it, centered over its child row with 128 px between parent and children.
+- Create or update one `simple-solid_arrow` connector for each dependency, with the connector start bound to the dependent module and the connector end bound to the dependency module.
+- Hide stale duplicate `.module` instances that are no longer part of the canonical generated graph.
+- Remove stale extra dependency connectors when there are more connectors than generated dependency edges.
+- Resize touched module dependency sections to fit after visual updates.
+- Fail without writing metadata if the section is missing required `.module` or `simple-solid_arrow` templates.
 
 After the visual sync succeeds, write the sync metadata.
 
@@ -135,12 +170,12 @@ Figma shared plugin data namespaces accept only alphanumeric characters, `_`, an
 
 The next visual sync phases are:
 
-- Reconcile stale visual nodes after the create/update flows are stable.
+- Reconcile stale catalog tree nodes after the create/update flows are stable.
 - Introduce stable Figma path metadata so duplicate labels and stale tree nodes can be reconciled safely.
 
-### Catalog tree visual sync backlog
+### Visual Sync Targets
 
-Use `content.catalogs` from `design-model.json` as the source for the next MCP phases.
+Use `content.catalogs` and `content.moduleDependencies` from `design-model.json` as the source for the MCP visual sync.
 
 Water My Plants catalog targets:
 
@@ -148,20 +183,30 @@ Water My Plants catalog targets:
 - Libraries visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-629`
 - Plugins source: `build-logic/dependencies/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`
 - Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594`
+- Custom Gradle convention plugin source: `build-logic/**/build.gradle.kts`
+- Custom Gradle convention plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907`
+- Main module dependency source: root project module `build.gradle.kts` files, excluding `build-logic`
+- Main module dependency visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63112-2622`
 
 Build-logic catalog targets:
 
 - Source: `build-logic/settings.gradle.kts`
 - Libraries visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
+- Module dependency source: build-logic module `build.gradle.kts` files
+- Module dependency visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63111-2516`
 
-Catalog tree rendering rules:
+Visual rendering rules:
 
 - Use `.tree node` component `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-678`.
 - Use the `Library` variant for libraries.
 - Use the `Plugin` variant for plugins.
 - Connect parent/child tree nodes with `simple-solid_arrow` connectors.
-- Write metadata only after all visual catalog updates complete successfully.
+- Use `.module` instances with `size=big` for module dependency graphs.
+- Connect module dependency edges with `simple-solid_arrow` connectors from dependent module to dependency module.
+- Keep synced parent nodes centered over their children and use 128 px vertical parent-child spacing.
+- Apply Resize to fit to every section touched by node movement or creation, including child sections and their parent sections.
+- Write metadata only after all visual updates complete successfully.
 
 ## Verification
 
@@ -180,7 +225,9 @@ The check fails when:
 - Figma does not expose shared plugin data for `water_my_plants_sync`.
 - Figma is missing `modelHash` or `gitSha`.
 - Figma's `modelHash` differs from the model generated from the current branch.
-- The visual MCP sync step refused to write metadata because Figma was missing required visual variables.
+- The visual MCP sync step refused to write metadata because Figma was missing required visual variables, sections, instances, or connector templates.
+
+`checkFigmaDevelopSync` verifies the sync metadata hash, not every visual node. Manual edits in Figma can go undetected if they do not update or remove the shared plugin metadata. The visual MCP sync step is responsible for updating or recreating supported visual elements before writing the hash.
 
 ## TeamCity Integration
 

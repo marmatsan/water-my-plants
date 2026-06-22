@@ -23,7 +23,7 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
             path = "build-logic/figmaDesignSync/plugin",
             content = conventionPluginBuildFile(
                 pluginName = "com.marmatsan.figmaDesignSync",
-                implementationClass = "\${pluginName}.plugin.gradle.figmaDesignSyncGradleConventionPlugin"
+                implementationClass = "\${pluginName}.plugin.gradle.FigmaDesignSyncGradlePlugin"
             )
         )
         rootDir.writeBuildFile(
@@ -41,7 +41,13 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
         )
 
         // WHEN
-        val actualTree = GradleConventionPluginTreeReader().readPluginTree(rootDir)
+        val actualTree = GradleConventionPluginTreeReader().readPluginTree(
+            rootDir = rootDir,
+            usageByPluginId = mapOf(
+                "com.marmatsan.analytics" to setOf(":app", ":core:ui"),
+                "com.marmatsan.reporting" to setOf(":app")
+            )
+        )
 
         // THEN
         actualTree shouldBe PluginCatalogTree(
@@ -52,9 +58,14 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
                         PluginCatalogNode(
                             id = "marmatsan",
                             children = listOf(
-                                PluginCatalogNode(id = "analytics"),
-                                PluginCatalogNode(id = "figmaDesignSync"),
-                                PluginCatalogNode(id = "reporting")
+                                PluginCatalogNode(
+                                    id = "analytics",
+                                    appliedToModules = listOf(":app", ":core:ui")
+                                ),
+                                PluginCatalogNode(
+                                    id = "reporting",
+                                    appliedToModules = listOf(":app")
+                                )
                             )
                         )
                     )

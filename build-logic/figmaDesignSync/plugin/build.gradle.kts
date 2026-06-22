@@ -33,6 +33,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.figmaDesignSync"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.gradle.figmaDesignSyncGradleConventionPlugin"
+        implementationClass = "${pluginName}.plugin.gradle.FigmaDesignSyncGradlePlugin"
     }
 }

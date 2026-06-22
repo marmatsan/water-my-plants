@@ -7,7 +7,10 @@ import me.tatarka.inject.annotations.Inject
 
 @Inject
 class GradleConventionPluginTreeReader {
-    fun readPluginTree(rootDir: File): PluginCatalogTree {
+    fun readPluginTree(
+        rootDir: File,
+        usageByPluginId: Map<String, Set<String>> = emptyMap()
+    ): PluginCatalogTree {
         val pluginIds = rootDir
             .resolve(BUILD_LOGIC_DIR)
             .walkTopDown()
@@ -19,7 +22,7 @@ class GradleConventionPluginTreeReader {
             .toSet()
 
         return PluginCatalogTree(
-            roots = pluginIds.toPluginCatalogNodes()
+            roots = pluginIds.toPluginCatalogNodes(usageByPluginId)
         )
     }
 
@@ -31,13 +34,17 @@ class GradleConventionPluginTreeReader {
     private fun String.hasGradleConventionPluginImplementation(): Boolean =
         GradleConventionPluginImplementationRegex.containsMatchIn(this)
 
-    private fun Set<String>.toPluginCatalogNodes(): List<PluginCatalogNode> =
+    private fun Set<String>.toPluginCatalogNodes(
+        usageByPluginId: Map<String, Set<String>>
+    ): List<PluginCatalogNode> =
         map { pluginId -> pluginId.split(".") }
-            .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(segments) }
+            .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(segments, usageByPluginId) }
             .sortedBy(PluginCatalogNode::id)
 
     private fun List<PluginCatalogNode>.withPath(
-        segments: List<String>
+        segments: List<String>,
+        usageByPluginId: Map<String, Set<String>>,
+        parentId: String = ""
     ): List<PluginCatalogNode> {
         if (segments.isEmpty()) {
             return this
@@ -45,12 +52,19 @@ class GradleConventionPluginTreeReader {
 
         val head = segments.first()
         val tail = segments.drop(1)
+        val pluginId = listOf(parentId, head)
+            .filter(String::isNotBlank)
+            .joinToString(".")
         val existingNode = firstOrNull { node -> node.id == head }
         val updatedNode = existingNode
-            ?.copy(children = existingNode.children.withPath(tail))
+            ?.copy(
+                appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
+                children = existingNode.children.withPath(tail, usageByPluginId, pluginId)
+            )
             ?: PluginCatalogNode(
                 id = head,
-                children = emptyList<PluginCatalogNode>().withPath(tail)
+                appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
+                children = emptyList<PluginCatalogNode>().withPath(tail, usageByPluginId, pluginId)
             )
 
         return filterNot { node -> node.id == head }

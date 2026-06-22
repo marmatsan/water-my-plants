@@ -53,6 +53,11 @@ class ProjectCatalogTreesDataSource(
                 )
 
             is ProjectCatalogTreeSource.CustomGradleConventionPlugins ->
-                gradleConventionPluginTreeReader.readPluginTree(File(source.rootDirPath))
+                gradleConventionPluginTreeReader.readPluginTree(
+                    rootDir = File(source.rootDirPath),
+                    usageByPluginId = gradleCatalogUsageReader.readMainLiteralPluginUsages(
+                        rootDir = File(source.rootDirPath)
+                    )
+                )
         }
 }

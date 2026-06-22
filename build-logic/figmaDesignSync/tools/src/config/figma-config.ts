@@ -73,6 +73,7 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     name: "waterMyPlants.customGradleConventionPlugins",
     sectionNodeId: "63216:6907",
     type: "Plugin",
+    gradleConventionPluginNodes: true,
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins,
   },
   {

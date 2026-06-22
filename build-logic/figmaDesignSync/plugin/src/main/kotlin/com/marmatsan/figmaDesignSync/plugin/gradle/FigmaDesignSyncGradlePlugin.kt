@@ -8,7 +8,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 
 @Suppress("unused")
-class figmaDesignSyncGradleConventionPlugin : Plugin<Project> {
+class FigmaDesignSyncGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create<figmaDesignSyncExtension>("figmaDesignSync")
 

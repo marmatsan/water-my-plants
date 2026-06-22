@@ -58,7 +58,7 @@ export async function createMissingTreeNode(
   if (node.type === "Library") {
     await updateLibraryTreeNode(instance, node, mutatedNodeIds);
   } else {
-    await updatePluginTreeNode(instance, node, mutatedNodeIds);
+    await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
   }
 
   mutatedNodeIds.push(instance.id);
@@ -90,17 +90,19 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
 }
 
-export async function updatePluginTreeNode(instance, node, mutatedNodeIds) {
+export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
   const versionValue = node.version?.visible && node.version?.value
     ? node.version.value
     : "Plugin version";
   const appliedToModules = sortedUnique(node.appliedToModules || []);
+  const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
 
   instance.setProperties({
     [TREE_NODE_PROPS.pluginId]: node.label,
     [TREE_NODE_PROPS.pluginVersion]: versionValue,
     [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
     [TREE_NODE_PROPS.showConsumerModule]: appliedToModules.length > 0,
+    [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
     [TREE_NODE_PROPS.type]: "Plugin",
   });
   mutatedNodeIds.push(instance.id);
@@ -177,13 +179,14 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
       const siblingInstances = container.children
         .filter((child) => child.type === "INSTANCE" && child.id !== parentInstance.id)
         .sort((first, second) => first.y - second.y || first.x - second.x);
+      const existingSiblingRowY = siblingInstances[0]?.y;
       const lastSibling = siblingInstances[siblingInstances.length - 1];
       const x = lastSibling
         ? lastSibling.x + lastSibling.width + 120
         : parentInstance.x;
       return {
         x,
-        y: parentInstance.y + parentInstance.height + 180,
+        y: existingSiblingRowY ?? parentInstance.y + parentInstance.height + TREE_NODE_PARENT_CHILD_GAP,
       };
     }
   }
@@ -202,3 +205,5 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
     y: last.y,
   };
 }
+
+const TREE_NODE_PARENT_CHILD_GAP = 128;
