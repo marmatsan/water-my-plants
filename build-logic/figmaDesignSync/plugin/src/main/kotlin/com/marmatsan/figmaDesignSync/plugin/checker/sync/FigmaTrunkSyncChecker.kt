@@ -8,11 +8,11 @@ import me.tatarka.inject.annotations.Inject
 import org.gradle.api.GradleException
 
 @Inject
-internal class FigmaDevelopSyncChecker(
+internal class FigmaTrunkSyncChecker(
     private val figmaFileContentClient: FigmaFileContentClient,
     private val figmaDesignModelGenerator: FigmaDesignModelGenerator
 ) {
-    fun check(request: FigmaDevelopSyncCheckRequest): FigmaDevelopSyncCheckResult {
+    fun check(request: FigmaTrunkSyncCheckRequest): FigmaTrunkSyncCheckResult {
         val expected = figmaDesignModelGenerator.generate(
             FigmaDesignModelGenerationRequest(
                 branch = request.branch,
@@ -49,7 +49,7 @@ internal class FigmaDevelopSyncChecker(
             )
         }
 
-        return FigmaDevelopSyncCheckResult(
+        return FigmaTrunkSyncCheckResult(
             modelHash = figmaModelHash,
             gitSha = figmaGitSha
         )

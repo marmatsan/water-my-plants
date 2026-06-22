@@ -101,7 +101,7 @@ private fun request(
     generatedAt: Instant = Instant.parse("2026-06-19T10:15:30Z")
 ): FigmaDesignModelGenerationRequest =
     FigmaDesignModelGenerationRequest(
-        branch = "develop",
+        branch = "main",
         gitSha = gitSha,
         generatedAt = generatedAt,
         versionsFile = File("versions.properties"),

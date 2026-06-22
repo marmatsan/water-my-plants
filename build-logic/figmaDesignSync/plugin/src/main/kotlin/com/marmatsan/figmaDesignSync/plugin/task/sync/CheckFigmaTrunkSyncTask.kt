@@ -1,6 +1,6 @@
 package com.marmatsan.figmaDesignSync.plugin.task.sync
 
-import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaDevelopSyncCheckRequest
+import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaTrunkSyncCheckRequest
 import com.marmatsan.figmaDesignSync.plugin.di.figmaDesignSyncComponent
 import com.marmatsan.figmaDesignSync.plugin.di.create
 import java.io.ByteArrayOutputStream
@@ -17,7 +17,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-abstract class CheckFigmaDevelopSyncTask : DefaultTask() {
+abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val metadataNodeUrl: Property<String>
 
@@ -46,8 +46,8 @@ abstract class CheckFigmaDevelopSyncTask : DefaultTask() {
     fun checkSync() {
         val token = figmaToken.orNull
             ?: throw GradleException("Missing FIGMA_FILE_CONTENT_ACCESS_TOKEN environment variable")
-        val result = figmaDesignSyncComponent::class.create().developSyncChecker.check(
-            FigmaDevelopSyncCheckRequest(
+        val result = figmaDesignSyncComponent::class.create().trunkSyncChecker.check(
+            FigmaTrunkSyncCheckRequest(
                 metadataNodeUrl = metadataNodeUrl.get(),
                 token = token,
                 branch = git("rev-parse", "--abbrev-ref", "HEAD"),

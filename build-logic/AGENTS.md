@@ -96,9 +96,9 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - `figmaDesignSyncComponent` is the composition root. Bind domain ports to `data/datasource` implementations there.
 - Current verification tasks:
   - `generateFigmaDesignModel`: generates `build/reports/figma-sync/design-model.json`.
-  - `checkFigmaDevelopSync`: compares the generated model hash with Figma shared plugin data.
+  - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared plugin data.
 - The Figma sync namespace is `water_my_plants_sync`. Figma shared plugin data namespaces must not contain hyphens.
-- The Figma write step is MCP-operated. See `figmaDesignSync/docs/figma-develop-sync.md` for the exact workflow.
+- The Figma write step is MCP-operated. See `figmaDesignSync/docs/figma-trunk-sync.md` for the exact workflow.
 - Module dependency extraction reads Gradle dependencies from `project(":...")` and type-safe project accessors such as `projects.core.ui` or `projects.figmaDesignSync.domain`.
 
 ## Testing
@@ -111,4 +111,4 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Useful verification commands:
   - `.\gradlew.bat -p build-logic :figmaDesignSync:domain:check :figmaDesignSync:data:check :figmaDesignSync:plugin:check`
   - `.\gradlew.bat check`
-  - `.\gradlew.bat generateFigmaDesignModel checkFigmaDevelopSync`
+  - `.\gradlew.bat generateFigmaDesignModel checkFigmaTrunkSync`

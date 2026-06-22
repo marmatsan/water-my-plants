@@ -1,8 +1,8 @@
-# Figma Develop Sync
+# Figma Trunk Sync
 
 ## Purpose
 
-`develop` is the source of truth for the dependency design model. Figma is considered synchronized only when the configured Figma page stores the same `modelHash` generated from the current branch.
+`main` is the source of truth for the dependency design model. Figma is considered synchronized only when the configured Figma page stores the same `modelHash` generated from the current branch.
 
 This replaces field-by-field Figma checks. The repository generates a single JSON model, the Figma MCP sync step updates the Figma visualization, then writes sync metadata, and Gradle verifies that Figma points to the same model.
 
@@ -80,7 +80,7 @@ npm run build
 
 The generated script is:
 
-- `build-logic/figmaDesignSync/tools/sync-develop-design-model.mcp.js`
+- `build-logic/figmaDesignSync/tools/sync-trunk-design-model.mcp.js`
 
 The script expects the generated `design-model.json` to be injected as `DESIGN_MODEL` before execution. It must run in the Figma MCP runtime because it uses the Figma plugin API.
 
@@ -222,7 +222,7 @@ The verification task reads Figma shared plugin data through the Figma REST API 
 ```powershell
 $line = Get-Content -Path .env | Where-Object { $_ -like 'FIGMA_FILE_CONTENT_ACCESS_TOKEN=*' } | Select-Object -First 1
 $env:FIGMA_FILE_CONTENT_ACCESS_TOKEN = ($line -split '=', 2)[1].Trim('"')
-.\gradlew.bat checkFigmaDevelopSync
+.\gradlew.bat checkFigmaTrunkSync
 ```
 
 The token must have read access to the Figma file and the `file_content:read` scope.
@@ -234,13 +234,13 @@ The check fails when:
 - Figma's `modelHash` differs from the model generated from the current branch.
 - The visual MCP sync step refused to write metadata because Figma was missing required visual variables, sections, instances, or connector templates.
 
-`checkFigmaDevelopSync` verifies the sync metadata hash, not every visual node. Manual edits in Figma can go undetected if they do not update or remove the shared plugin metadata. The visual MCP sync step is responsible for updating or recreating supported visual elements before writing the hash.
+`checkFigmaTrunkSync` verifies the sync metadata hash, not every visual node. Manual edits in Figma can go undetected if they do not update or remove the shared plugin metadata. The visual MCP sync step is responsible for updating or recreating supported visual elements before writing the hash.
 
 ## TeamCity Integration
 
-TeamCity should generate `design-model.json` after a feature is merged into `develop` and publish it as a build artifact.
+TeamCity should generate `design-model.json` after a feature is merged into `main` and publish it as a build artifact.
 
-Recommended build steps for `develop`:
+Recommended build steps for `main`:
 
 - Run normal verification: unit, integration, and end-to-end tests where available.
 - Run `generateFigmaDesignModel`.
@@ -249,7 +249,7 @@ Recommended build steps for `develop`:
 The Figma write step is currently MCP-operated. After the MCP sync step writes the metadata into Figma, run:
 
 ```powershell
-.\gradlew.bat checkFigmaDevelopSync
+.\gradlew.bat checkFigmaTrunkSync
 ```
 
 TeamCity parameter setup for verification:
@@ -261,10 +261,10 @@ TeamCity parameter setup for verification:
 
 Before creating `release/<version>`:
 
-- `develop` must pass the normal build and test suite.
+- `main` must pass the normal build and test suite.
 - `generateFigmaDesignModel` must produce the current model.
 - Figma must be synced through the MCP step.
-- `checkFigmaDevelopSync` must pass.
+- `checkFigmaTrunkSync` must pass.
 
 Only after that barrier is green:
 

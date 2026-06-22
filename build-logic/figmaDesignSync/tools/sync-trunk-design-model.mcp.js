@@ -1,6 +1,6 @@
-// Generated from sync-develop-design-model.mcp.ts. Do not edit directly.
+// Generated from sync-trunk-design-model.mcp.ts. Do not edit directly.
 const DESIGN_MODEL = undefined;
-var FigmaDevelopSync = (() => {
+var FigmaTrunkSync = (() => {
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -19,9 +19,9 @@ var FigmaDevelopSync = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // src/app/sync-develop-design-model.mcp.ts
-  var sync_develop_design_model_mcp_exports = {};
-  __export(sync_develop_design_model_mcp_exports, {
+  // src/app/sync-trunk-design-model.mcp.ts
+  var sync_trunk_design_model_mcp_exports = {};
+  __export(sync_trunk_design_model_mcp_exports, {
     main: () => main
   });
 
@@ -1356,11 +1356,11 @@ var FigmaDevelopSync = (() => {
     );
   }
 
-  // src/app/sync-develop-design-model.mcp.ts
+  // src/app/sync-trunk-design-model.mcp.ts
   async function main(designModel) {
     return createFigmaDesignModelSync()(designModel);
   }
-  return __toCommonJS(sync_develop_design_model_mcp_exports);
+  return __toCommonJS(sync_trunk_design_model_mcp_exports);
 })();
 
-return await FigmaDevelopSync.main(DESIGN_MODEL);
+return await FigmaTrunkSync.main(DESIGN_MODEL);

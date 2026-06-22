@@ -9,7 +9,7 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDesignSync.domain.port.versions.RepositoryVersionsPort
-import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaDevelopSyncChecker
+import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaTrunkSyncChecker
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
@@ -17,7 +17,7 @@ import me.tatarka.inject.annotations.Provides
 @Component
 internal abstract class figmaDesignSyncComponent {
     abstract val designModelGenerator: FigmaDesignModelGenerator
-    abstract val developSyncChecker: FigmaDevelopSyncChecker
+    abstract val trunkSyncChecker: FigmaTrunkSyncChecker
 
     @Provides
     protected fun figmaFileContentClient(): FigmaFileContentClient {

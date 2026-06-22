@@ -3,7 +3,7 @@ package com.marmatsan.figmaDesignSync.plugin.checker.sync
 import java.io.File
 import java.time.Instant
 
-internal data class FigmaDevelopSyncCheckRequest(
+internal data class FigmaTrunkSyncCheckRequest(
     val metadataNodeUrl: String,
     val token: String,
     val branch: String,

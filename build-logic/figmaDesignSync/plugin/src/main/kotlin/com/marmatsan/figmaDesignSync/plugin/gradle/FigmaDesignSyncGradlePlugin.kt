@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDesignSync.plugin.gradle
 
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
-import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaDevelopSyncTask
+import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -26,7 +26,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             outputFile.set(extension.designModelFile)
         }
 
-        project.tasks.register<CheckFigmaDevelopSyncTask>("checkFigmaDevelopSync") {
+        project.tasks.register<CheckFigmaTrunkSyncTask>("checkFigmaTrunkSync") {
             group = "verification"
             description = "Checks that Figma sync metadata matches the design model generated from the current branch."
 
