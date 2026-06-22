@@ -126,10 +126,16 @@ async function setModuleInstance(moduleInstance, moduleName, mutatedNodeIds) {
   requireModuleVariantProperty(moduleInstance, MODULE_PROPS.size);
 
   moduleInstance.visible = true;
-  moduleInstance.setProperties({
-    [MODULE_PROPS.name]: moduleName,
-    [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
-  });
+  try {
+    moduleInstance.setProperties({
+      [MODULE_PROPS.name]: moduleName,
+      [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
+    });
+  } catch (error) {
+    moduleInstance.setProperties({
+      [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
+    });
+  }
   mutatedNodeIds.push(moduleInstance.id);
   await updateNamedTextNodes(moduleInstance, "label", [moduleName], mutatedNodeIds);
 }

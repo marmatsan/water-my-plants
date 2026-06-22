@@ -67,6 +67,38 @@ export function getComponentPropertyValue(instance, propertyName) {
   return instance.componentProperties?.[propertyName]?.value;
 }
 
+export function removeSectionFill(section, mutatedNodeIds) {
+  section.fills = [];
+  mutatedNodeIds.push(section.id);
+}
+
+export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
+  const visibleChildren = children.filter((child) => child && child.visible !== false);
+  if (visibleChildren.length === 0) return;
+
+  const maxRight = Math.max(...visibleChildren.map((child) => child.x + child.width));
+  const maxBottom = Math.max(...visibleChildren.map((child) => child.y + child.height));
+  node.resizeWithoutConstraints(
+    Math.max(1, maxRight + padding),
+    Math.max(1, maxBottom + padding)
+  );
+  mutatedNodeIds.push(node.id);
+}
+
+export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
+  let current = node.parent;
+
+  while (current && current.type === "SECTION") {
+    resizeNodeToFit(
+      current,
+      current.children.filter((child) => child.visible !== false),
+      mutatedNodeIds,
+      padding
+    );
+    current = current.parent;
+  }
+}
+
 export async function requireTreeNodeComponent(type: CatalogTreeType, componentIds, componentCache) {
   if (componentCache.has(type)) {
     return componentCache.get(type);

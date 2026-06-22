@@ -97,6 +97,12 @@ var FigmaDevelopSync = (() => {
       nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins
     },
     {
+      name: "waterMyPlants.customGradlePlugins",
+      sectionNodeId: "63330:551",
+      type: "Plugin",
+      nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradlePlugins
+    },
+    {
       name: "buildLogic.libraries",
       sectionNodeId: "63099:951",
       type: "Library",
@@ -257,6 +263,33 @@ var FigmaDevelopSync = (() => {
   function getComponentPropertyValue(instance, propertyName) {
     return instance.componentProperties?.[propertyName]?.value;
   }
+  function removeSectionFill(section, mutatedNodeIds) {
+    section.fills = [];
+    mutatedNodeIds.push(section.id);
+  }
+  function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
+    const visibleChildren = children.filter((child) => child && child.visible !== false);
+    if (visibleChildren.length === 0) return;
+    const maxRight = Math.max(...visibleChildren.map((child) => child.x + child.width));
+    const maxBottom = Math.max(...visibleChildren.map((child) => child.y + child.height));
+    node.resizeWithoutConstraints(
+      Math.max(1, maxRight + padding),
+      Math.max(1, maxBottom + padding)
+    );
+    mutatedNodeIds.push(node.id);
+  }
+  function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
+    let current = node.parent;
+    while (current && current.type === "SECTION") {
+      resizeNodeToFit(
+        current,
+        current.children.filter((child) => child.visible !== false),
+        mutatedNodeIds,
+        padding
+      );
+      current = current.parent;
+    }
+  }
   async function requireTreeNodeComponent(type, componentIds, componentCache) {
     if (componentCache.has(type)) {
       return componentCache.get(type);
@@ -398,10 +431,16 @@ var FigmaDevelopSync = (() => {
     requireModuleVariantProperty(moduleInstance, MODULE_PROPS.name);
     requireModuleVariantProperty(moduleInstance, MODULE_PROPS.size);
     moduleInstance.visible = true;
-    moduleInstance.setProperties({
-      [MODULE_PROPS.name]: moduleName,
-      [MODULE_PROPS.size]: SMALL_MODULE_SIZE
-    });
+    try {
+      moduleInstance.setProperties({
+        [MODULE_PROPS.name]: moduleName,
+        [MODULE_PROPS.size]: SMALL_MODULE_SIZE
+      });
+    } catch (error) {
+      moduleInstance.setProperties({
+        [MODULE_PROPS.size]: SMALL_MODULE_SIZE
+      });
+    }
     mutatedNodeIds.push(moduleInstance.id);
     await updateNamedTextNodes(moduleInstance, "label", [moduleName], mutatedNodeIds);
   }
@@ -660,6 +699,7 @@ var FigmaDevelopSync = (() => {
         connectors = staleResult.connectors;
         layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
         resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+        resizeAncestorSectionsToFit(section, mutatedNodeIds);
       }
       return {
         updatedCatalogNodes,
@@ -819,14 +859,7 @@ var FigmaDevelopSync = (() => {
     resizeSectionToFit(section, section.children.filter((child) => child.visible !== false), mutatedNodeIds);
   }
   function resizeSectionToFit(section, nodes, mutatedNodeIds) {
-    if (nodes.length === 0) return;
-    const maxRight = Math.max(...nodes.map((node) => node.x + node.width));
-    const maxBottom = Math.max(...nodes.map((node) => node.y + node.height));
-    section.resizeWithoutConstraints(
-      Math.max(section.width, maxRight + 100),
-      Math.max(section.height, maxBottom + 100)
-    );
-    mutatedNodeIds.push(section.id);
+    resizeNodeToFit(section, nodes, mutatedNodeIds);
   }
   function pathKey(path) {
     return path.join("\0");
@@ -877,7 +910,8 @@ var FigmaDevelopSync = (() => {
         if (!template && dependencies.length > 0) {
           throw new Error(`No '${MODULE_INSTANCE_NAME}' module template was found in section '${section.name}'.`);
         }
-        const slots = layoutDependencySlots(section, dependencies, existingInstances);
+        const groups = moduleDependencyGroups(target, section, dependencies, existingInstances, mutatedNodeIds);
+        const slots = groups.flatMap((group) => group.slots);
         const assignedInstances = assignModuleInstances(section, slots, existingInstances, existingConnectors, template, mutatedNodeIds);
         for (const slot of slots) {
           const instance = assignedInstances.get(slot.key);
@@ -887,15 +921,19 @@ var FigmaDevelopSync = (() => {
         hideUnusedModuleInstances(target, existingInstances, assignedInstances, hiddenModules, mutatedNodeIds);
         const connectorResult = syncModuleConnectors(
           target,
-          section,
-          dependencies,
+          groups,
           assignedInstances,
           existingConnectors,
           mutatedNodeIds
         );
         updatedModuleConnectors.push(...connectorResult.updatedModuleConnectors);
         removedModuleConnectors.push(...connectorResult.removedModuleConnectors);
-        resizeSectionToFit2(section, [...assignedInstances.values()]);
+        for (const group of groups) {
+          resizeSectionToFit2(group.section, group.slots.map((slot) => assignedInstances.get(slot.key)), mutatedNodeIds);
+        }
+        stackGroupSections(section, groups, mutatedNodeIds);
+        resizeSectionToFit2(section, groups.map((group) => group.section), mutatedNodeIds);
+        resizeAncestorSectionsToFit(section, mutatedNodeIds);
       }
       return {
         updatedModules,
@@ -919,18 +957,18 @@ var FigmaDevelopSync = (() => {
     }
     return instance.findAllWithCriteria({ types: ["TEXT"] }).find((textNode) => textNode.name === "label")?.characters;
   }
-  function layoutDependencySlots(section, dependencies, existingInstances) {
+  function moduleDependencyGroups(target, section, dependencies, existingInstances, mutatedNodeIds) {
     const dependenciesByDependencyModule = groupDependenciesByDependencyModule(dependencies);
     const groupModules = [...dependenciesByDependencyModule.keys()].sort(
       (first, second) => groupLevel(first, dependencies).localeCompare(groupLevel(second, dependencies)) || first.localeCompare(second)
     );
-    const slots = [];
-    let nextY = MODULE_LAYOUT_PADDING;
-    for (const groupModule of groupModules) {
+    return groupModules.map((groupModule) => {
+      const groupSection = requireModuleDependencyGroupSection(target, section, groupModule, mutatedNodeIds);
       const groupDependencies = dependenciesByDependencyModule.get(groupModule).sort((first, second) => first.dependentModule.localeCompare(second.dependentModule));
       const parentWidth = widthForModule(groupModule, existingInstances);
+      const slots = [];
       let childX = MODULE_LAYOUT_PADDING;
-      let childY = nextY + MODULE_LAYOUT_DEFAULT_HEIGHT + MODULE_PARENT_CHILD_GAP;
+      let childY = MODULE_LAYOUT_PADDING + MODULE_LAYOUT_DEFAULT_HEIGHT + MODULE_PARENT_CHILD_GAP;
       let rowHeight = 0;
       const childSlots = [];
       for (const dependency of groupDependencies) {
@@ -946,6 +984,7 @@ var FigmaDevelopSync = (() => {
           role: "child",
           groupModule,
           dependency,
+          section: groupSection,
           x: childX,
           y: childY
         };
@@ -970,16 +1009,47 @@ var FigmaDevelopSync = (() => {
         moduleName: groupModule,
         role: "parent",
         groupModule,
+        section: groupSection,
         x: parentX,
-        y: nextY
+        y: MODULE_LAYOUT_PADDING
       });
       slots.push(...childSlots);
-      nextY = childY + Math.max(rowHeight, MODULE_LAYOUT_DEFAULT_HEIGHT) + MODULE_GROUP_GAP;
-      if (parentWidth > section.width - MODULE_LAYOUT_PADDING * 2) {
+      if (parentWidth > groupSection.width - MODULE_LAYOUT_PADDING * 2) {
         throw new Error(`Module '${groupModule}' is wider than dependency section '${section.name}'.`);
       }
+      return {
+        groupModule,
+        section: groupSection,
+        dependencies: groupDependencies,
+        slots
+      };
+    });
+  }
+  function requireModuleDependencyGroupSection(target, section, groupModule, mutatedNodeIds) {
+    const sectionName = groupModule;
+    const legacySectionName = `dependency of modules.${dependencySectionName(target)}.${groupModule}`;
+    const existingSection = section.children.find(
+      (child) => child.type === "SECTION" && (child.name === sectionName || child.name === legacySectionName)
+    );
+    if (existingSection) {
+      existingSection.name = sectionName;
+      removeSectionFill(existingSection, mutatedNodeIds);
+      return existingSection;
     }
-    return slots;
+    const groupSection = figma.createSection();
+    groupSection.name = sectionName;
+    section.appendChild(groupSection);
+    groupSection.x = MODULE_LAYOUT_PADDING;
+    groupSection.y = MODULE_LAYOUT_PADDING;
+    groupSection.resizeWithoutConstraints(MODULE_GROUP_SECTION_DEFAULT_WIDTH, MODULE_GROUP_SECTION_DEFAULT_HEIGHT);
+    removeSectionFill(groupSection, mutatedNodeIds);
+    mutatedNodeIds.push(groupSection.id);
+    return groupSection;
+  }
+  function dependencySectionName(target) {
+    if (target.name === "waterMyPlants.moduleDependencies") return "water-my-plants";
+    if (target.name === "buildLogic.moduleDependencies") return "build-logic";
+    return target.name;
   }
   function groupDependenciesByDependencyModule(dependencies) {
     return dependencies.reduce((groups, dependency) => {
@@ -1005,9 +1075,11 @@ var FigmaDevelopSync = (() => {
       const preferred = findPreferredInstance(slot, existingInstances, existingConnectors, usedInstanceIds);
       const instance = preferred || template.clone();
       if (!preferred) {
-        section.appendChild(instance);
         instance.name = MODULE_INSTANCE_NAME;
         mutatedNodeIds.push(instance.id);
+      }
+      if (instance.parent?.id !== slot.section.id) {
+        slot.section.appendChild(instance);
       }
       assignedInstances.set(slot.key, instance);
       usedInstanceIds.add(instance.id);
@@ -1061,13 +1133,11 @@ var FigmaDevelopSync = (() => {
       mutatedNodeIds.push(instance.id);
     }
   }
-  function syncModuleConnectors(target, section, dependencies, assignedInstances, existingConnectors, mutatedNodeIds) {
-    const sortedDependencies = [...dependencies].sort(
-      (first, second) => first.dependencyModule.localeCompare(second.dependencyModule) || first.dependentModule.localeCompare(second.dependentModule)
-    );
+  function syncModuleConnectors(target, groups, assignedInstances, existingConnectors, mutatedNodeIds) {
+    const sortedDependencies = groups.flatMap((group) => group.dependencies);
     const template = existingConnectors[0];
     if (!template && sortedDependencies.length > 0) {
-      throw new Error(`No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${section.name}'.`);
+      throw new Error(`No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${target.name}'.`);
     }
     const updatedModuleConnectors = [];
     const removedModuleConnectors = [];
@@ -1075,6 +1145,7 @@ var FigmaDevelopSync = (() => {
       const dependency = sortedDependencies[index];
       const dependentModuleInstance = assignedInstances.get(childSlotKey(dependency));
       const dependencyModuleInstance = assignedInstances.get(parentSlotKey(dependency.dependencyModule));
+      const group = groups.find((candidate) => candidate.groupModule === dependency.dependencyModule);
       if (!dependentModuleInstance || !dependencyModuleInstance) {
         throw new Error(
           `Cannot create connector for ${target.name}/${dependency.dependentModule} -> ${dependency.dependencyModule}: dependent or dependency module is missing.`
@@ -1082,8 +1153,10 @@ var FigmaDevelopSync = (() => {
       }
       const connector = existingConnectors[index] || template.clone();
       if (!existingConnectors[index]) {
-        section.appendChild(connector);
         connector.name = CONNECTOR_TEMPLATE_NAME;
+      }
+      if (connector.parent?.id !== group.section.id) {
+        group.section.appendChild(connector);
       }
       connector.visible = true;
       connector.connectorStart = {
@@ -1106,20 +1179,29 @@ var FigmaDevelopSync = (() => {
       removedModuleConnectors
     };
   }
+  function stackGroupSections(section, groups, mutatedNodeIds) {
+    let nextY = MODULE_LAYOUT_PADDING;
+    for (const group of groups) {
+      group.section.x = MODULE_LAYOUT_PADDING;
+      group.section.y = nextY;
+      nextY += group.section.height + MODULE_GROUP_GAP;
+      mutatedNodeIds.push(group.section.id);
+    }
+    for (const child of section.children) {
+      if (child.type !== "SECTION") continue;
+      if (groups.some((group) => group.section.id === child.id)) continue;
+      child.visible = false;
+      mutatedNodeIds.push(child.id);
+    }
+  }
   function parentSlotKey(moduleName) {
     return `parent:${moduleName}`;
   }
   function childSlotKey(dependency) {
     return `child:${dependency.dependencyModule}->${dependency.dependentModule}`;
   }
-  function resizeSectionToFit2(section, nodes) {
-    if (nodes.length === 0) return;
-    const maxRight = Math.max(...nodes.map((node) => node.x + node.width));
-    const maxBottom = Math.max(...nodes.map((node) => node.y + node.height));
-    section.resizeWithoutConstraints(
-      Math.max(section.width, maxRight + MODULE_LAYOUT_PADDING),
-      Math.max(section.height, maxBottom + MODULE_LAYOUT_PADDING)
-    );
+  function resizeSectionToFit2(section, nodes, mutatedNodeIds) {
+    resizeNodeToFit(section, nodes, mutatedNodeIds, MODULE_LAYOUT_PADDING);
   }
   var MODULE_LAYOUT_PADDING = 100;
   var MODULE_LAYOUT_COLUMN_GAP = 80;
@@ -1128,6 +1210,8 @@ var FigmaDevelopSync = (() => {
   var MODULE_GROUP_GAP = 96;
   var MODULE_LAYOUT_DEFAULT_WIDTH = 340;
   var MODULE_LAYOUT_DEFAULT_HEIGHT = 182;
+  var MODULE_GROUP_SECTION_DEFAULT_WIDTH = 1200;
+  var MODULE_GROUP_SECTION_DEFAULT_HEIGHT = 600;
 
   // src/figma/figma-version-sync-gateway.ts
   var FigmaVersionSyncGateway = class {
@@ -1177,6 +1261,8 @@ var FigmaDevelopSync = (() => {
           }
           mutatedNodeIds.push(variable.id);
         }
+        resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+        resizeAncestorSectionsToFit(parent, mutatedNodeIds);
       }
       return {
         updatedVersions,

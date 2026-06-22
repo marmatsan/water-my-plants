@@ -13,6 +13,8 @@ import {
   requireFrame,
   requireModeId,
   requireVariableCollection,
+  resizeAncestorSectionsToFit,
+  resizeNodeToFit,
 } from "./figma-node-gateway";
 import { collectText } from "./figma-text-gateway";
 
@@ -73,6 +75,9 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
 
       mutatedNodeIds.push(variable.id);
     }
+
+    resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+    resizeAncestorSectionsToFit(parent, mutatedNodeIds);
   }
 
   return {

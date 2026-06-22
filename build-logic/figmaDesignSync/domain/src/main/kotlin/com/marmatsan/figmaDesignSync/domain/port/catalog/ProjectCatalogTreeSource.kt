@@ -12,4 +12,8 @@ sealed interface ProjectCatalogTreeSource {
     data class CustomGradleConventionPlugins(
         val rootDirPath: String
     ) : ProjectCatalogTreeSource
+
+    data class CustomGradlePlugins(
+        val rootDirPath: String
+    ) : ProjectCatalogTreeSource
 }

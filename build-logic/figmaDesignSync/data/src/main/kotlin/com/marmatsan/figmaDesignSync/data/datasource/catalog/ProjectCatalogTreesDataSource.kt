@@ -4,6 +4,7 @@ import com.marmatsan.figmaDesignSync.data.dependencies.catalog.DependenciesCatal
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.BuildLogicSettingsCatalogReader
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleConventionPluginTreeReader
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
+import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradlePluginTreeReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSource
@@ -16,7 +17,8 @@ class ProjectCatalogTreesDataSource(
     private val buildLogicSettingsCatalogReader: BuildLogicSettingsCatalogReader,
     private val dependenciesCatalogTreesReader: DependenciesCatalogTreesReader,
     private val gradleCatalogUsageReader: GradleCatalogUsageReader,
-    private val gradleConventionPluginTreeReader: GradleConventionPluginTreeReader
+    private val gradleConventionPluginTreeReader: GradleConventionPluginTreeReader,
+    private val gradlePluginTreeReader: GradlePluginTreeReader
 ) : ProjectCatalogTreesPort {
     override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
         when (source) {
@@ -35,6 +37,9 @@ class ProjectCatalogTreesDataSource(
 
             is ProjectCatalogTreeSource.CustomGradleConventionPlugins ->
                 error("Custom Gradle convention plugins do not define a library catalog tree")
+
+            is ProjectCatalogTreeSource.CustomGradlePlugins ->
+                error("Custom Gradle plugins do not define a library catalog tree")
         }
 
     override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
@@ -56,6 +61,17 @@ class ProjectCatalogTreesDataSource(
                 gradleConventionPluginTreeReader.readPluginTree(
                     rootDir = File(source.rootDirPath),
                     usageByPluginId = gradleCatalogUsageReader.readMainLiteralPluginUsages(
+                        rootDir = File(source.rootDirPath)
+                    )
+                )
+
+            is ProjectCatalogTreeSource.CustomGradlePlugins ->
+                gradlePluginTreeReader.readPluginTree(
+                    rootDir = File(source.rootDirPath),
+                    includedPluginIds = gradleCatalogUsageReader.readMainAppliedLiteralPluginIds(
+                        rootDir = File(source.rootDirPath)
+                    ),
+                    usageByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(
                         rootDir = File(source.rootDirPath)
                     )
                 )

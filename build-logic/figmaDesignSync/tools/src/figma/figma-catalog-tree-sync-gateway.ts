@@ -3,7 +3,7 @@ import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flat
 import type { DesignModel } from "../domain/design-model";
 import type { CatalogTreeSyncGateway } from "../ports/sync-gateways";
 import { collectTreeConnectors, createTreeConnector, hasConnector } from "./figma-connector-gateway";
-import { requireSection } from "./figma-node-gateway";
+import { requireSection, resizeAncestorSectionsToFit, resizeNodeToFit } from "./figma-node-gateway";
 import {
   collectTreeNodeInstancesByLabel,
   createMissingTreeNode,
@@ -93,6 +93,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
 
     layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
     resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+    resizeAncestorSectionsToFit(section, mutatedNodeIds);
   }
 
   return {
@@ -291,15 +292,7 @@ function resizeSectionsToFit(section, nodes, mutatedNodeIds) {
 }
 
 function resizeSectionToFit(section, nodes, mutatedNodeIds) {
-  if (nodes.length === 0) return;
-
-  const maxRight = Math.max(...nodes.map((node) => node.x + node.width));
-  const maxBottom = Math.max(...nodes.map((node) => node.y + node.height));
-  section.resizeWithoutConstraints(
-    Math.max(section.width, maxRight + 100),
-    Math.max(section.height, maxBottom + 100)
-  );
-  mutatedNodeIds.push(section.id);
+  resizeNodeToFit(section, nodes, mutatedNodeIds);
 }
 
 function pathKey(path) {

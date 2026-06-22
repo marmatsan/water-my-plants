@@ -19,6 +19,7 @@ This replaces field-by-field Figma checks. The repository generates a single JSO
 - Figma Water My Plants libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-629`
 - Figma Water My Plants plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594`
 - Figma custom Gradle convention plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907`
+- Figma custom Gradle plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
 - Figma build-logic libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Figma build-logic plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
 - Figma module dependencies section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63107-11577`
@@ -46,9 +47,9 @@ The generated JSON contains:
 
 `content.versions` is the sorted flat map used for deterministic comparison. `content.versionSections` preserves the section grouping from `build-logic/versions.properties` so the Figma MCP sync can place new visual version nodes in the correct frame.
 
-`content.catalogs` contains Water My Plants libraries/plugins, build-logic libraries/plugins, and custom Gradle convention plugins. Custom Gradle convention plugins are detected from `build-logic` build files that declare an implementation class ending in `GradleConventionPlugin`.
+`content.catalogs` contains Water My Plants libraries/plugins, build-logic libraries/plugins, custom Gradle convention plugins, and regular custom Gradle plugins. Custom Gradle convention plugins are detected from `build-logic` build files that declare an implementation class ending in `GradleConventionPlugin`. Regular custom Gradle plugins are detected from `build-logic` build files that declare a Gradle plugin implementation class that does not end in `GradleConventionPlugin` and whose plugin id is applied from the main build.
 
-`com.marmatsan.figmaDesignSync` is a regular Gradle plugin, not a Gradle convention plugin. It is intentionally excluded from `content.catalogs.waterMyPlants.customGradleConventionPlugins` because it registers sync tasks and extension configuration instead of applying build conventions to consumer modules.
+`com.marmatsan.figmaDesignSync` is a regular Gradle plugin, not a Gradle convention plugin. It is intentionally excluded from `content.catalogs.waterMyPlants.customGradleConventionPlugins` and included in `content.catalogs.waterMyPlants.customGradlePlugins` because it registers sync tasks and extension configuration instead of applying build conventions to consumer modules. Applying it in the root build does not create a consumer module entry because `:` is not treated as an application module.
 
 `content.moduleDependencies` contains two module dependency graphs:
 
@@ -101,6 +102,7 @@ Current catalog tree sync behavior:
 - Read `content.catalogs` from `build/reports/figma-sync/design-model.json`.
 - Update existing `.tree node` instances in the Water My Plants library/plugin sections.
 - Update existing `.tree node` instances in the custom Gradle convention plugins section.
+- Update existing `.tree node` instances in the custom Gradle plugins section.
 - Update existing `.tree node` instances in the build-logic library/plugin sections.
 - Match existing tree nodes by label inside each visual section. Labels must be unique per section until stable Figma path metadata is introduced.
 - Update exposed component properties for library groups, plugin ids, plugin versions, and artifact visibility.
@@ -121,6 +123,8 @@ Current module dependency sync behavior:
 
 - Read `content.moduleDependencies.main` and update the `water-my-plants` module dependency subsection.
 - Read `content.moduleDependencies.buildLogic` and update the `build-logic` module dependency subsection.
+- Create or reuse a child section for each represented dependency module. The child section name is only the represented module, for example `:core:ui` or `:build-logic:dependencies`.
+- Stack module dependency child sections vertically inside their parent subsection.
 - Ensure there is one visible `.module` instance for every module referenced by the dependency graph.
 - Update `.module` instances through the `name` and `size=big` variant properties, then update the visible label text.
 - Place modules with a deterministic grouped layout where each dependency module appears above the modules that depend on it, centered over its child row with 128 px between parent and children.
@@ -185,6 +189,8 @@ Water My Plants catalog targets:
 - Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-594`
 - Custom Gradle convention plugin source: `build-logic/**/build.gradle.kts`
 - Custom Gradle convention plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907`
+- Custom Gradle plugin source: `build-logic/**/build.gradle.kts`
+- Custom Gradle plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
 - Main module dependency source: root project module `build.gradle.kts` files, excluding `build-logic`
 - Main module dependency visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63112-2622`
 
@@ -204,6 +210,7 @@ Visual rendering rules:
 - Connect parent/child tree nodes with `simple-solid_arrow` connectors.
 - Use `.module` instances with `size=big` for module dependency graphs.
 - Connect module dependency edges with `simple-solid_arrow` connectors from dependent module to dependency module.
+- Render module dependency graphs inside child sections named after their dependency module, stacked one below another inside the `water-my-plants` and `build-logic` subsections.
 - Keep synced parent nodes centered over their children and use 128 px vertical parent-child spacing.
 - Apply Resize to fit to every section touched by node movement or creation, including child sections and their parent sections.
 - Write metadata only after all visual updates complete successfully.

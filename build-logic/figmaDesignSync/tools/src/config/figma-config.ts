@@ -77,6 +77,12 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins,
   },
   {
+    name: "waterMyPlants.customGradlePlugins",
+    sectionNodeId: "63330:551",
+    type: "Plugin",
+    nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradlePlugins,
+  },
+  {
     name: "buildLogic.libraries",
     sectionNodeId: "63099:951",
     type: "Library",
