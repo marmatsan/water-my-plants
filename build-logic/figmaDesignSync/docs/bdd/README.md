@@ -2,6 +2,10 @@
 
 `figma-design-sync.feature` is a behavior index for `figmaDesignSync`.
 Executable Cucumber scenarios live with the module they exercise.
+Feature files are allowed to start as living documentation. Tag non-automated
+documentation scenarios with `@manual`; Cucumber excludes `@manual` by default.
+When a scenario gets real step definitions, remove `@manual` from that scenario
+or move it into the executable feature under `src/test/resources/features/`.
 
 Current executable suite:
 

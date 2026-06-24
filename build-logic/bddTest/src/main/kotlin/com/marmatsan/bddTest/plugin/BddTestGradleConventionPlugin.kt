@@ -23,9 +23,10 @@ class BddTestGradleConventionPlugin : Plugin<Project> {
                 "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
             )
 
-            System.getProperty("cucumber.filter.tags")?.let { tags ->
-                systemProperty("cucumber.filter.tags", tags)
-            }
+            systemProperty(
+                "cucumber.filter.tags",
+                System.getProperty("cucumber.filter.tags") ?: "not @manual"
+            )
             System.getProperty("cucumber.features")?.let { features ->
                 systemProperty("cucumber.features", features)
             }

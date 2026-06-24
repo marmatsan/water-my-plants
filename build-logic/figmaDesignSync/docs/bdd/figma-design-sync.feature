@@ -1,3 +1,4 @@
+@documentation @manual
 Feature: Figma design sync
 
   figmaDesignSync keeps the generated dependency design model and the Figma
