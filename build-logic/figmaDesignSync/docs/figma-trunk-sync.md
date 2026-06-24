@@ -6,6 +6,12 @@
 
 This replaces field-by-field Figma checks. The repository generates a single JSON model, the Figma MCP sync step updates the Figma visualization, then writes sync metadata, and Gradle verifies that Figma points to the same model.
 
+## CI Ownership
+
+`figmaDesignSync` is a CI-owned verification step. Developers may run it locally for diagnosis, but CI is the source of truth before changes are merged into `main`.
+
+In trunk-based development, pull requests target `main` and CI must verify that Figma reflects the model generated from the branch being validated. Local execution is useful when diagnosing a failed gate or checking credentials, but it is not a required manual step before every commit because it depends on external Figma state, access tokens, and the MCP-operated write flow.
+
 ## Sources
 
 - Figma page URL: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908`
@@ -22,9 +28,7 @@ This replaces field-by-field Figma checks. The repository generates a single JSO
 - Figma custom Gradle plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
 - Figma build-logic libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Figma build-logic plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
-- Figma module dependencies section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63107-11577`
-- Figma Water My Plants module dependencies subsection: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63112-2622`
-- Figma build-logic module dependencies subsection: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63111-2516`
+- Figma UML documentation page: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`
 - Root settings file: `settings.gradle.kts`
 - Build-logic settings file: `build-logic/settings.gradle.kts`
 
@@ -57,6 +61,8 @@ The generated JSON contains:
 - `buildLogic`: modules inside `build-logic`, read from `dependencies {}` blocks in build-logic module `build.gradle.kts` files.
 
 Module dependency extraction reads explicit `project(":...")` calls and type-safe project accessors such as `projects.core.ui` and `projects.figmaDesignSync.domain`.
+
+Module dependency graphs are no longer rendered into Figma's deleted `dependency of modules` section. They are architecture documentation and must be represented in PlantUML diagrams under the repository UML convention, then published to the Figma UML documentation page.
 
 `modelHash` is calculated from the stable model content and excludes `generatedAt` and `modelHash` itself.
 
@@ -110,29 +116,14 @@ Current catalog tree sync behavior:
 - Update `Required by` module instances for library artifacts from `requiredByModules`.
 - Update `Required by` module instances for `.artifacts bundle` entries from the bundle `requiredByModules`; child `.artifact` instances inside a bundle must not show their own `Required by` section.
 - Update `Applied by` module instances for plugin tree nodes from `appliedToModules`.
-- Consumer module entries must be `.module` instances using the `size=small` variant. The sync updates the `.module` `name` variant instead of editing inner text overrides directly.
+- Consumer module entries must be `.module` instances. If the component exposes a `size` variant, the sync sets it to `small`; the deleted `big` variant is no longer used. The sync updates the `.module` `name` variant instead of editing inner text overrides directly.
 - Create missing `.tree node` instances by cloning a compatible existing node from the same visual section, then applying the generated model values.
 - Create missing top-level tree sections when a new top-level library group or plugin id appears.
 - Create missing `simple-solid_arrow` connectors by cloning an existing connector and rebinding its endpoints to the parent/child tree nodes.
 - Re-layout synced tree nodes so each parent is horizontally centered over its children, with 128 px between a parent bottom edge and its child top edge.
 - Resize touched tree sections and their parent sections to fit after visual updates.
 - Remove stale catalog tree nodes and their connectors when they no longer exist in the generated model.
-- Fail without writing metadata if an existing or cloned instance cannot represent the artifact text or `.module size=small` consumer structure from the generated model.
-
-Current module dependency sync behavior:
-
-- Read `content.moduleDependencies.main` and update the `water-my-plants` module dependency subsection.
-- Read `content.moduleDependencies.buildLogic` and update the `build-logic` module dependency subsection.
-- Create or reuse a child section for each represented dependency module. The child section name is only the represented module, for example `:core:ui` or `:build-logic:dependencies`.
-- Stack module dependency child sections vertically inside their parent subsection.
-- Ensure there is one visible `.module` instance for every module referenced by the dependency graph.
-- Update `.module` instances through the `name` and `size=big` variant properties, then update the visible label text.
-- Place modules with a deterministic grouped layout where each dependency module appears above the modules that depend on it, centered over its child row with 128 px between parent and children.
-- Create or update one `simple-solid_arrow` connector for each dependency, with the connector start bound to the dependent module and the connector end bound to the dependency module.
-- Hide stale duplicate `.module` instances that are no longer part of the canonical generated graph.
-- Remove stale extra dependency connectors when there are more connectors than generated dependency edges.
-- Resize touched module dependency sections to fit after visual updates.
-- Fail without writing metadata if the section is missing required `.module` or `simple-solid_arrow` templates.
+- Fail without writing metadata if an existing or cloned instance cannot represent the artifact text or `.module` consumer structure from the generated model.
 
 After the visual sync succeeds, write the sync metadata.
 
@@ -179,7 +170,7 @@ The next visual sync phases are:
 
 ### Visual Sync Targets
 
-Use `content.catalogs` and `content.moduleDependencies` from `design-model.json` as the source for the MCP visual sync.
+Use `content.catalogs` from `design-model.json` as the source for the MCP visual sync. Module dependency graphs are documented through PlantUML architecture diagrams instead of the previous Figma module dependency sections.
 
 Water My Plants catalog targets:
 
@@ -191,16 +182,20 @@ Water My Plants catalog targets:
 - Custom Gradle convention plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63216-6907`
 - Custom Gradle plugin source: `build-logic/**/build.gradle.kts`
 - Custom Gradle plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
-- Main module dependency source: root project module `build.gradle.kts` files, excluding `build-logic`
-- Main module dependency visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63112-2622`
 
 Build-logic catalog targets:
 
 - Source: `build-logic/settings.gradle.kts`
 - Libraries visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
-- Module dependency source: build-logic module `build.gradle.kts` files
-- Module dependency visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63111-2516`
+
+UML documentation target:
+
+- Page: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`
+- Source: PlantUML files such as `build-logic/figmaDesignSync/docs/uml/architecture.puml`
+- Rendered upload artifact: the generated `.svg` for each `.puml`
+- Figma section name: the `.puml` file stem, for example `architecture`
+- Visual structure: the generated SVG is placed directly in the Figma section and the section is locked after publication
 
 Visual rendering rules:
 
@@ -208,9 +203,6 @@ Visual rendering rules:
 - Use the `Library` variant for libraries.
 - Use the `Plugin` variant for plugins.
 - Connect parent/child tree nodes with `simple-solid_arrow` connectors.
-- Use `.module` instances with `size=big` for module dependency graphs.
-- Connect module dependency edges with `simple-solid_arrow` connectors from dependent module to dependency module.
-- Render module dependency graphs inside child sections named after their dependency module, stacked one below another inside the `water-my-plants` and `build-logic` subsections.
 - Keep synced parent nodes centered over their children and use 128 px vertical parent-child spacing.
 - Apply Resize to fit to every section touched by node movement or creation, including child sections and their parent sections.
 - Write metadata only after all visual updates complete successfully.

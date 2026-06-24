@@ -123,19 +123,18 @@ function requireConsumerModuleHeading(root, heading) {
 
 async function setModuleInstance(moduleInstance, moduleName, mutatedNodeIds) {
   requireModuleVariantProperty(moduleInstance, MODULE_PROPS.name);
-  requireModuleVariantProperty(moduleInstance, MODULE_PROPS.size);
 
   moduleInstance.visible = true;
-  try {
-    moduleInstance.setProperties({
-      [MODULE_PROPS.name]: moduleName,
-      [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
-    });
-  } catch (error) {
-    moduleInstance.setProperties({
-      [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
-    });
-  }
+  const properties = moduleInstance.componentProperties?.[MODULE_PROPS.size]
+    ? {
+        [MODULE_PROPS.name]: moduleName,
+        [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
+      }
+    : {
+        [MODULE_PROPS.name]: moduleName,
+      };
+
+  moduleInstance.setProperties(properties);
   mutatedNodeIds.push(moduleInstance.id);
   await updateNamedTextNodes(moduleInstance, "label", [moduleName], mutatedNodeIds);
 }

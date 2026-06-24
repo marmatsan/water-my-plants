@@ -114,6 +114,31 @@ dependencyResolutionManagement {
                 artifact = "junit-platform-launcher"
             ).withoutVersion()
 
+            library(
+                alias = "org.junit.platform.suite",
+                group = "org.junit.platform",
+                artifact = "junit-platform-suite"
+            ).withoutVersion()
+
+            // Cucumber
+            library(
+                alias = "io.cucumber.bom",
+                group = "io.cucumber",
+                artifact = "cucumber-bom"
+            ).version(version("cucumberVersion"))
+
+            library(
+                alias = "io.cucumber.java",
+                group = "io.cucumber",
+                artifact = "cucumber-java"
+            ).withoutVersion()
+
+            library(
+                alias = "io.cucumber.junit.platform.engine",
+                group = "io.cucumber",
+                artifact = "cucumber-junit-platform-engine"
+            ).withoutVersion()
+
             // Kotest
             library(
                 alias = "io.kotest.runner.junit5",

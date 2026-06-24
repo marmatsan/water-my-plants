@@ -1,0 +1,23 @@
+' Shared PlantUML theme for Water My Plants UML documentation.
+
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName "Inter"
+skinparam defaultTextAlignment center
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.2
+skinparam PackageBorderColor #94A3B8
+skinparam PackageBackgroundColor #F8FAFC
+skinparam ClassBorderColor #475569
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassFontColor #0F172A
+skinparam ComponentBorderColor #475569
+skinparam ComponentBackgroundColor #FFFFFF
+skinparam NoteBorderColor #CBD5E1
+skinparam NoteBackgroundColor #FEF9C3
+skinparam NoteFontColor #422006
+skinparam SequenceLifeLineBorderColor #64748B
+skinparam SequenceLifeLineBackgroundColor #F8FAFC
+skinparam ParticipantBorderColor #475569
+skinparam ParticipantBackgroundColor #FFFFFF

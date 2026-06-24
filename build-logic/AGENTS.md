@@ -97,13 +97,16 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Current verification tasks:
   - `generateFigmaDesignModel`: generates `build/reports/figma-sync/design-model.json`.
   - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared plugin data.
+- Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it locally for diagnosis, but CI is the source of truth before merging into `main`.
 - The Figma sync namespace is `water_my_plants_sync`. Figma shared plugin data namespaces must not contain hyphens.
 - The Figma write step is MCP-operated. See `figmaDesignSync/docs/figma-trunk-sync.md` for the exact workflow.
 - Module dependency extraction reads Gradle dependencies from `project(":...")` and type-safe project accessors such as `projects.core.ui` or `projects.figmaDesignSync.domain`.
 
 ## Testing
 
-- Tests must always use Kotest and MockK.
+- Unit and integration tests must use Kotest and MockK.
+- Executable BDD scenarios may use Cucumber through the `com.marmatsan.bddTest` convention plugin.
+- When executable BDD scenarios live inside `build-logic` itself, mirror the `bddTest` convention configuration explicitly because a plugin produced by the same Gradle build cannot be resolved by id from sibling build-logic modules.
 - These test dependencies are available through the build-logic version catalog declared in `settings.gradle.kts`.
 - Structure every test with explicit `GIVEN`, `WHEN`, and `THEN` sections. These words are wrapped in a single-line comment.
 - Do not execute tests for documentation-only changes. For build-logic behavior changes, prefer focused verification commands for the modules that changed.

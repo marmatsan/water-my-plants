@@ -1,0 +1,31 @@
+' Shared stereotypes for Water My Plants UML documentation.
+
+skinparam class {
+  BackgroundColor<<domain>> #ECFDF5
+  BorderColor<<domain>> #059669
+  BackgroundColor<<port>> #EFF6FF
+  BorderColor<<port>> #2563EB
+  BackgroundColor<<adapter>> #FFF7ED
+  BorderColor<<adapter>> #EA580C
+  BackgroundColor<<gradle>> #F5F3FF
+  BorderColor<<gradle>> #7C3AED
+  BackgroundColor<<figma>> #FDF2F8
+  BorderColor<<figma>> #DB2777
+  BackgroundColor<<artifact>> #F8FAFC
+  BorderColor<<artifact>> #64748B
+}
+
+skinparam component {
+  BackgroundColor<<domain>> #ECFDF5
+  BorderColor<<domain>> #059669
+  BackgroundColor<<port>> #EFF6FF
+  BorderColor<<port>> #2563EB
+  BackgroundColor<<adapter>> #FFF7ED
+  BorderColor<<adapter>> #EA580C
+  BackgroundColor<<gradle>> #F5F3FF
+  BorderColor<<gradle>> #7C3AED
+  BackgroundColor<<figma>> #FDF2F8
+  BorderColor<<figma>> #DB2777
+  BackgroundColor<<artifact>> #F8FAFC
+  BorderColor<<artifact>> #64748B
+}
