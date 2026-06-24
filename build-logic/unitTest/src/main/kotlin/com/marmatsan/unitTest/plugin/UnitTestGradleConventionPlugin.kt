@@ -1,8 +1,6 @@
 package com.marmatsan.unitTest.plugin
 
-import com.marmatsan.dependencies.gradle.requireDependencyNotation
-import com.marmatsan.dependencies.gradle.testImplementation
-import com.marmatsan.dependencies.gradle.testRuntimeOnly
+import com.marmatsan.dependencies.gradle.withVersionCatalog
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -24,25 +22,23 @@ class UnitTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
+            val libs = withVersionCatalog(libs)
+
             // Kotest
-            testImplementation(
-                libs = libs,
+            libs.testImplementation(
                 libraryGroup = "io.kotest",
                 artifact = "kotest-runner-junit5"
             )
-            testImplementation(
-                libs = libs,
+            libs.testImplementation(
                 libraryGroup = "io.kotest",
                 artifact = "kotest-assertions-core"
             )
-            testRuntimeOnly(
-                libs = libs,
+            libs.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",
                 artifact = "junit-platform-launcher"
             )
             // Mockk
-            testImplementation(
-                libs = libs,
+            libs.testImplementation(
                 libraryGroup = "io.mockk",
                 artifact = "mockk"
             )

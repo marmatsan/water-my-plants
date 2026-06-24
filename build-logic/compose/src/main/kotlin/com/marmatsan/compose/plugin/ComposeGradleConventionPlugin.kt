@@ -3,9 +3,7 @@ package com.marmatsan.compose.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
-import com.marmatsan.dependencies.gradle.implementation
-import com.marmatsan.dependencies.gradle.implementationBundle
-import com.marmatsan.dependencies.gradle.implementationPlatform
+import com.marmatsan.dependencies.gradle.withVersionCatalog
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -36,52 +34,45 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
+            val libs = withVersionCatalog(libs)
+
             /* Compose libraries managed by Compose BOM */
-            implementationPlatform(
-                libs = libs,
+            libs.implementationPlatform(
                 libraryGroup = "androidx.compose",
                 artifact = "compose-bom"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.compose.material3",
                 artifact = "material3"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.compose.material",
                 artifact = "material-icons-core"
             )
-            implementationBundle(
-                libs = libs,
+            libs.implementationBundle(
                 bundle = "composeBundle"
             )
 
             /* Other Compose libraries */
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.activity",
                 artifact = "activity-compose"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.lifecycle",
                 artifact = "lifecycle-viewmodel-compose"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.lifecycle",
                 artifact = "lifecycle-runtime-compose"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.navigation",
                 artifact = "navigation-compose"
             )
 
             /* Figma Code Connect */
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "com.figma.code.connect",
                 artifact = "code-connect-lib"
             )

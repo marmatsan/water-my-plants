@@ -4,51 +4,103 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 
-fun DependencyHandlerScope.implementation(
-    dependencyNotation: String
-): Dependency? = add(
-    "implementation",
-    dependencyNotation
-)
-
-fun DependencyHandlerScope.implementation(
-    dependency: Dependency
-): Dependency? = add(
-    "implementation",
-    dependency
-)
-
-fun DependencyHandlerScope.implementation(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = implementation(
-    dependencyNotation = libs.requireDependencyNotation(
-        libraryGroup = libraryGroup,
-        artifact = artifact
-    )
-)
-
-fun DependencyHandlerScope.implementationBundle(
-    libs: VersionCatalog,
-    bundle: String
+class VersionCatalogDependencyHandler internal constructor(
+    private val dependencies: DependencyHandlerScope,
+    private val libs: VersionCatalog
 ) {
-    libs.requireBundle(bundle).get().forEach { dependency ->
-        implementation(dependency)
+    fun implementation(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.implementation(
+        dependencyNotation = libs.requireDependencyNotation(
+            libraryGroup = libraryGroup,
+            artifact = artifact
+        )
+    )
+
+    fun implementationBundle(
+        bundle: String
+    ) {
+        libs.requireBundle(bundle).get().forEach { dependency ->
+            dependencies.implementation(dependency)
+        }
     }
+
+    fun implementationPlatform(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.implementation(
+        dependency = dependencies.platform(
+            libs.requireDependencyNotation(
+                libraryGroup = libraryGroup,
+                artifact = artifact
+            )
+        )
+    )
+
+    fun testImplementation(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.testImplementation(
+        dependencyNotation = libs.requireDependencyNotation(
+            libraryGroup = libraryGroup,
+            artifact = artifact
+        )
+    )
+
+    fun testImplementationPlatform(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.testImplementation(
+        dependency = dependencies.platform(
+            libs.requireDependencyNotation(
+                libraryGroup = libraryGroup,
+                artifact = artifact
+            )
+        )
+    )
+
+    fun testRuntimeOnly(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.testRuntimeOnly(
+        dependencyNotation = libs.requireDependencyNotation(
+            libraryGroup = libraryGroup,
+            artifact = artifact
+        )
+    )
+
+    fun ksp(
+        libraryGroup: String,
+        artifact: String
+    ): Dependency? = dependencies.ksp(
+        dependencyNotation = libs.requireDependencyNotation(
+            libraryGroup = libraryGroup,
+            artifact = artifact
+        )
+    )
 }
 
-fun DependencyHandlerScope.implementationPlatform(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = implementation(
-    dependency = platform(
-        libs.requireDependencyNotation(
-            libraryGroup = libraryGroup,
-            artifact = artifact
-        )
+fun DependencyHandlerScope.withVersionCatalog(
+    libs: VersionCatalog
+): VersionCatalogDependencyHandler =
+    VersionCatalogDependencyHandler(
+        dependencies = this,
+        libs = libs
     )
+
+fun DependencyHandlerScope.implementation(
+    dependencyNotation: String
+): Dependency? = add(
+    "implementation",
+    dependencyNotation
+)
+
+fun DependencyHandlerScope.implementation(
+    dependency: Dependency
+): Dependency? = add(
+    "implementation",
+    dependency
 )
 
 fun DependencyHandlerScope.testImplementation(
@@ -63,30 +115,6 @@ fun DependencyHandlerScope.testImplementation(
 ): Dependency? = add(
     "testImplementation",
     dependency
-)
-
-fun DependencyHandlerScope.testImplementation(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = testImplementation(
-    dependencyNotation = libs.requireDependencyNotation(
-        libraryGroup = libraryGroup,
-        artifact = artifact
-    )
-)
-
-fun DependencyHandlerScope.testImplementationPlatform(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = testImplementation(
-    dependency = platform(
-        libs.requireDependencyNotation(
-            libraryGroup = libraryGroup,
-            artifact = artifact
-        )
-    )
 )
 
 fun DependencyHandlerScope.testRuntimeOnly(
@@ -96,31 +124,9 @@ fun DependencyHandlerScope.testRuntimeOnly(
     dependencyNotation
 )
 
-fun DependencyHandlerScope.testRuntimeOnly(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = testRuntimeOnly(
-    dependencyNotation = libs.requireDependencyNotation(
-        libraryGroup = libraryGroup,
-        artifact = artifact
-    )
-)
-
 fun DependencyHandlerScope.ksp(
     dependencyNotation: String
 ): Dependency? = add(
     "ksp",
     dependencyNotation
-)
-
-fun DependencyHandlerScope.ksp(
-    libs: VersionCatalog,
-    libraryGroup: String,
-    artifact: String
-): Dependency? = ksp(
-    dependencyNotation = libs.requireDependencyNotation(
-        libraryGroup = libraryGroup,
-        artifact = artifact
-    )
 )

@@ -246,11 +246,11 @@ class GradleCatalogUsageReader {
         )
 
         val libraryCoordinateUsageRegex = Regex(
-            """(?:implementation|implementationPlatform|testImplementation|testImplementationPlatform|testRuntimeOnly|ksp)\s*\(\s*libs\s*=\s*libs\s*,\s*libraryGroup\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"""",
+            """(?:\blibs\.)?(?:implementation|implementationPlatform|testImplementation|testImplementationPlatform|testRuntimeOnly|ksp)\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?libraryGroup\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"""",
             RegexOption.DOT_MATCHES_ALL
         )
         val libraryBundleUsageRegex = Regex(
-            """implementationBundle\s*\(\s*libs\s*=\s*libs\s*,\s*bundle\s*=\s*"([^"]+)"""",
+            """(?:\blibs\.)?implementationBundle\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
             RegexOption.DOT_MATCHES_ALL
         )
         val appliedPluginRegex = Regex("""pluginManager\.apply\s*\(\s*"([^"]+)"""")

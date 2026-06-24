@@ -3,9 +3,7 @@ package com.marmatsan.android.plugin
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.AppPlugin
-import com.marmatsan.dependencies.gradle.requireDependencyNotation
-import com.marmatsan.dependencies.gradle.implementation
-import com.marmatsan.dependencies.gradle.ksp
+import com.marmatsan.dependencies.gradle.withVersionCatalog
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -46,33 +44,30 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
+            val libs = withVersionCatalog(libs)
+
             /* Android core */
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.core",
                 artifact = "core-ktx"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "androidx.lifecycle",
                 artifact = "lifecycle-runtime-ktx"
             )
 
             /* Dependency injection */
-            ksp(
-                libs = libs,
+            libs.ksp(
                 libraryGroup = "me.tatarka.inject",
                 artifact = "kotlin-inject-compiler-ksp"
             )
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "me.tatarka.inject",
                 artifact = "kotlin-inject-runtime"
             )
 
             /* Coroutines */
-            implementation(
-                libs = libs,
+            libs.implementation(
                 libraryGroup = "org.jetbrains.kotlinx",
                 artifact = "kotlinx-coroutines-android"
             )

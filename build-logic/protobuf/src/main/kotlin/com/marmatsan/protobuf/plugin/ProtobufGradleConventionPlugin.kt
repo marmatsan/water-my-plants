@@ -2,7 +2,7 @@ package com.marmatsan.protobuf.plugin
 
 import com.google.protobuf.gradle.ProtobufExtension
 import com.marmatsan.dependencies.gradle.requireDependencyNotation
-import com.marmatsan.dependencies.gradle.implementation
+import com.marmatsan.dependencies.gradle.withVersionCatalog
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -41,8 +41,9 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            implementation(
-                libs = libs,
+            val libs = withVersionCatalog(libs)
+
+            libs.implementation(
                 libraryGroup = "com.google.protobuf",
                 artifact = "protobuf-kotlin"
             )
