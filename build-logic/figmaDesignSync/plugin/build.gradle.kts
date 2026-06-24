@@ -18,12 +18,17 @@ tasks.withType<Test> {
         "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
     )
 
-    systemProperty(
-        "cucumber.filter.tags",
-        System.getProperty("cucumber.filter.tags") ?: "not @manual"
-    )
+    System.getProperty("cucumber.filter.tags")?.let { tags ->
+        systemProperty("cucumber.filter.tags", tags)
+    }
     System.getProperty("cucumber.features")?.let { features ->
         systemProperty("cucumber.features", features)
+    }
+}
+
+sourceSets {
+    test {
+        resources.srcDir("../docs/bdd")
     }
 }
 
