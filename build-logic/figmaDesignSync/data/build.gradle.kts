@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 plugins {
     id("org.jetbrains.kotlin.jvm")
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
