@@ -134,6 +134,12 @@ dependencyResolutionManagement {
             ).withoutVersion()
 
             library(
+                alias = "io.cucumber.java8",
+                group = "io.cucumber",
+                artifact = "cucumber-java8"
+            ).withoutVersion()
+
+            library(
                 alias = "io.cucumber.junit.platform.engine",
                 group = "io.cucumber",
                 artifact = "cucumber-junit-platform-engine"

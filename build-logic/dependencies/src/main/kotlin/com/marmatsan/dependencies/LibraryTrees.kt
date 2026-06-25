@@ -113,6 +113,9 @@ private fun ioLibrariesTree(
             "cucumber-java"
         )
         artifact(
+            "cucumber-java8"
+        )
+        artifact(
             "cucumber-junit-platform-engine"
         )
     }

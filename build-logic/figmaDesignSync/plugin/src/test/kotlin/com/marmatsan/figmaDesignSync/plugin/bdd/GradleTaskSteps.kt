@@ -1,8 +1,7 @@
 package com.marmatsan.figmaDesignSync.plugin.bdd
 
-import io.cucumber.java.en.Given
-import io.cucumber.java.en.Then
-import io.cucumber.java.en.When
+import io.cucumber.java8.En
+import io.cucumber.java8.HookNoArgsBody
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
@@ -15,78 +14,79 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-class GradleTaskSteps {
+class GradleTaskSteps : En {
 
     private lateinit var projectDir: File
     private lateinit var designModelFile: File
 
-    @Given("a temporary Gradle project exists")
-    fun aTemporaryGradleProjectExists() {
-        projectDir = Files.createTempDirectory("figma-design-sync-bdd").toFile()
-        designModelFile = projectDir.resolve("build/reports/figma-sync/design-model.json")
-    }
+    init {
+        Given("a temporary Gradle project exists") {
+            projectDir = Files.createTempDirectory("figma-design-sync-bdd").toFile()
+            designModelFile = projectDir.resolve("build/reports/figma-sync/design-model.json")
+        }
 
-    @Given("the temporary Gradle project has repository model files")
-    fun theTemporaryGradleProjectHasRepositoryModelFiles() {
-        projectDir.writeRepositoryModelFiles()
-    }
+        Given("the temporary Gradle project has repository model files") {
+            projectDir.writeRepositoryModelFiles()
+        }
 
-    @Given("the temporary Gradle project applies the figmaDesignSync plugin")
-    fun theTemporaryGradleProjectAppliesTheFigmaDesignSyncPlugin() {
-        projectDir.resolve("build.gradle.kts").writeText(
-            """
-            plugins {
-                id("com.marmatsan.figmaDesignSync")
+        Given("the temporary Gradle project applies the figmaDesignSync plugin") {
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
+                plugins {
+                    id("com.marmatsan.figmaDesignSync")
+                }
+                """.trimIndent()
+            )
+        }
+
+        Given("the temporary Gradle project is a git repository") {
+            projectDir.initializeGitRepository()
+        }
+
+        When("generateFigmaDesignModel runs in the temporary project") {
+            val result = GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateFigmaDesignModel", "--stacktrace")
+                .build()
+
+            result.task(":generateFigmaDesignModel")?.outcome shouldBe TaskOutcome.SUCCESS
+        }
+
+        Then("the design model report is written in the temporary project") {
+            designModelFile.shouldExist()
+        }
+
+        Then("the written design model contains the current branch") {
+            writtenDesignModel()["branch"]?.jsonPrimitive?.content shouldBe "main"
+        }
+
+        Then("the written design model contains the current git sha") {
+            writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe projectDir.git("rev-parse", "HEAD")
+        }
+
+        Then("the written design model contains content") {
+            writtenDesignModel()["content"]!!.jsonObject.keys shouldContainAll listOf(
+                "versions",
+                "versionSections",
+                "catalogs",
+                "modules",
+                "moduleDependencies"
+            )
+        }
+
+        Then("the written design model contains a model hash") {
+            writtenDesignModel().keys shouldContainAll listOf("modelHash")
+        }
+
+        After(
+            "@gradle",
+            HookNoArgsBody {
+                if (::projectDir.isInitialized) {
+                    projectDir.deleteRecursively()
+                }
             }
-            """.trimIndent()
         )
-    }
-
-    @Given("the temporary Gradle project is a git repository")
-    fun theTemporaryGradleProjectIsAGitRepository() {
-        projectDir.initializeGitRepository()
-    }
-
-    @When("generateFigmaDesignModel runs in the temporary project")
-    fun generateFigmaDesignModelRunsInTheTemporaryProject() {
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generateFigmaDesignModel", "--stacktrace")
-            .build()
-
-        result.task(":generateFigmaDesignModel")?.outcome shouldBe TaskOutcome.SUCCESS
-    }
-
-    @Then("the design model report is written in the temporary project")
-    fun theDesignModelReportIsWrittenInTheTemporaryProject() {
-        designModelFile.shouldExist()
-    }
-
-    @Then("the written design model contains the current branch")
-    fun theWrittenDesignModelContainsTheCurrentBranch() {
-        writtenDesignModel()["branch"]?.jsonPrimitive?.content shouldBe "main"
-    }
-
-    @Then("the written design model contains the current git sha")
-    fun theWrittenDesignModelContainsTheCurrentGitSha() {
-        writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe projectDir.git("rev-parse", "HEAD")
-    }
-
-    @Then("the written design model contains content")
-    fun theWrittenDesignModelContainsContent() {
-        writtenDesignModel()["content"]!!.jsonObject.keys shouldContainAll listOf(
-            "versions",
-            "versionSections",
-            "catalogs",
-            "modules",
-            "moduleDependencies"
-        )
-    }
-
-    @Then("the written design model contains a model hash")
-    fun theWrittenDesignModelContainsAModelHash() {
-        writtenDesignModel().keys shouldContainAll listOf("modelHash")
     }
 
     private fun writtenDesignModel() =

@@ -19,9 +19,9 @@ import com.marmatsan.figmaDesignSync.domain.port.versions.VersionsFileSource
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerationRequest
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerationResult
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
-import io.cucumber.java.en.Given
-import io.cucumber.java.en.Then
-import io.cucumber.java.en.When
+import io.cucumber.datatable.DataTable
+import io.cucumber.java8.En
+import io.cucumber.java8.StepDefinitionBody.A1
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -31,7 +31,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-class DesignModelSteps {
+@Suppress("ObjectLiteralToLambda")
+class DesignModelSteps : En {
 
     private var repositoryVersionsAvailable = false
     private var repositoryCatalogTreesAvailable = false
@@ -41,133 +42,140 @@ class DesignModelSteps {
     private lateinit var firstResult: FigmaDesignModelGenerationResult
     private lateinit var secondResult: FigmaDesignModelGenerationResult
 
-    @Given("repository versions are available")
-    fun repositoryVersionsAreAvailable() {
-        repositoryVersionsAvailable = true
-        configureGenerator()
-    }
+    init {
+        Given("repository versions are available") {
+            repositoryVersionsAvailable = true
+            configureGenerator()
+        }
 
-    @Given("repository catalog trees are available")
-    fun repositoryCatalogTreesAreAvailable() {
-        repositoryCatalogTreesAvailable = true
-        configureGenerator()
-    }
+        Given("repository catalog trees are available") {
+            repositoryCatalogTreesAvailable = true
+            configureGenerator()
+        }
 
-    @Given("repository project modules are available")
-    fun repositoryProjectModulesAreAvailable() {
-        repositoryProjectModulesAvailable = true
-        configureGenerator()
-    }
+        Given("repository project modules are available") {
+            repositoryProjectModulesAvailable = true
+            configureGenerator()
+        }
 
-    @Given("repository module dependencies are available")
-    fun repositoryModuleDependenciesAreAvailable() {
-        repositoryModuleDependenciesAvailable = true
-        configureGenerator()
-    }
+        Given("repository module dependencies are available") {
+            repositoryModuleDependenciesAvailable = true
+            configureGenerator()
+        }
 
-    @When("the design model is generated at {string}")
-    fun theDesignModelIsGeneratedAt(generatedAt: String) {
-        requireRepositorySources()
-        firstResult = generator.generate(
-            request(generatedAt = Instant.parse(generatedAt))
+        When(
+            "the design model is generated at {instant}",
+            object : A1<Instant> {
+                override fun accept(generatedAt: Instant) {
+                    generateFirstModel(generatedAt = generatedAt)
+                }
+            }
         )
-    }
 
-    @When("the design model is generated again at {string}")
-    fun theDesignModelIsGeneratedAgainAt(generatedAt: String) {
-        requireRepositorySources()
-        secondResult = generator.generate(
-            request(generatedAt = Instant.parse(generatedAt))
+        When(
+            "the design model is generated again at {instant}",
+            object : A1<Instant> {
+                override fun accept(generatedAt: Instant) {
+                    generateSecondModel(generatedAt = generatedAt)
+                }
+            }
         )
-    }
 
-    @When("the design model is generated for git sha {string}")
-    fun theDesignModelIsGeneratedForGitSha(gitSha: String) {
-        requireRepositorySources()
-        firstResult = generator.generate(
-            request(gitSha = gitSha)
+        When(
+            "the design model is generated for git sha {word}",
+            object : A1<String> {
+                override fun accept(gitSha: String) {
+                    generateFirstModel(gitSha = gitSha)
+                }
+            }
         )
-    }
 
-    @When("the design model is generated again for git sha {string}")
-    fun theDesignModelIsGeneratedAgainForGitSha(gitSha: String) {
-        requireRepositorySources()
-        secondResult = generator.generate(
-            request(gitSha = gitSha)
+        When(
+            "the design model is generated again for git sha {word}",
+            object : A1<String> {
+                override fun accept(gitSha: String) {
+                    generateSecondModel(gitSha = gitSha)
+                }
+            }
         )
-    }
 
-    @Then("the generated model contains repository metadata")
-    fun theGeneratedModelContainsRepositoryMetadata() {
-        firstResult.model.keys shouldContainAll listOf(
-            "schemaVersion",
-            "branch",
-            "gitSha",
-            "generatedAt",
-            "content",
-            "modelHash"
+        Then("the generated model contains repository metadata") {
+            firstResult.model.keys shouldContainAll listOf(
+                "schemaVersion",
+                "branch",
+                "gitSha",
+                "generatedAt",
+                "content",
+                "modelHash"
+            )
+        }
+
+        Then(
+            "the generated model content contains:",
+            object : A1<DataTable> {
+                override fun accept(contentKeys: DataTable) {
+                    firstResult.content.keys shouldContainAll contentKeys.asList()
+                }
+            }
         )
-    }
 
-    @Then("the generated model contains repository versions")
-    fun theGeneratedModelContainsRepositoryVersions() {
-        firstResult.content.keys shouldContainAll listOf("versions")
-    }
+        Then("the version keys are sorted") {
+            firstResult.content["versions"]
+                ?.jsonObject
+                ?.keys
+                ?.toList() shouldBe listOf("androidGradlePlugin", "kotlinVersion")
+        }
 
-    @Then("the generated model contains version sections")
-    fun theGeneratedModelContainsVersionSections() {
-        firstResult.content.keys shouldContainAll listOf("versionSections")
-    }
+        Then("the version sections keep repository order") {
+            firstResult.content["versionSections"]
+                ?.jsonArray
+                ?.map { section ->
+                    section.jsonObject["name"]?.jsonPrimitive?.content
+                } shouldBe listOf("Main project dependencies", "Libraries")
+        }
 
-    @Then("the generated model contains catalog trees")
-    fun theGeneratedModelContainsCatalogTrees() {
-        firstResult.content.keys shouldContainAll listOf("catalogs")
-    }
+        Then("the model hash is stored in the generated model") {
+            firstResult.modelHash shouldBe firstResult.model["modelHash"]?.jsonPrimitive?.content
+        }
 
-    @Then("the generated model contains project modules")
-    fun theGeneratedModelContainsProjectModules() {
-        firstResult.content.keys shouldContainAll listOf("modules")
-    }
+        Then("both generated model hashes are equal") {
+            firstResult.modelHash shouldBe secondResult.modelHash
+        }
 
-    @Then("the generated model contains module dependencies")
-    fun theGeneratedModelContainsModuleDependencies() {
-        firstResult.content.keys shouldContainAll listOf("moduleDependencies")
-    }
-
-    @Then("the version keys are sorted")
-    fun theVersionKeysAreSorted() {
-        firstResult.content["versions"]
-            ?.jsonObject
-            ?.keys
-            ?.toList() shouldBe listOf("androidGradlePlugin", "kotlinVersion")
-    }
-
-    @Then("the version sections keep repository order")
-    fun theVersionSectionsKeepRepositoryOrder() {
-        firstResult.content["versionSections"]
-            ?.jsonArray
-            ?.map { section ->
-                section.jsonObject["name"]?.jsonPrimitive?.content
-            } shouldBe listOf("Main project dependencies", "Libraries")
-    }
-
-    @Then("the model hash is stored in the generated model")
-    fun theModelHashIsStoredInTheGeneratedModel() {
-        firstResult.modelHash shouldBe firstResult.model["modelHash"]?.jsonPrimitive?.content
-    }
-
-    @Then("both generated model hashes are equal")
-    fun bothGeneratedModelHashesAreEqual() {
-        firstResult.modelHash shouldBe secondResult.modelHash
-    }
-
-    @Then("both generated model hashes are different")
-    fun bothGeneratedModelHashesAreDifferent() {
-        (firstResult.modelHash == secondResult.modelHash) shouldBe false
+        Then("both generated model hashes are different") {
+            (firstResult.modelHash == secondResult.modelHash) shouldBe false
+        }
     }
 
     private val FigmaDesignModelGenerationResult.content: JsonObject
         get() = model["content"]!!.jsonObject
+
+    private fun generateFirstModel(
+        gitSha: String = "abc123",
+        generatedAt: Instant = DEFAULT_GENERATED_AT
+    ) {
+        firstResult = generateModel(gitSha = gitSha, generatedAt = generatedAt)
+    }
+
+    private fun generateSecondModel(
+        gitSha: String = "abc123",
+        generatedAt: Instant = DEFAULT_GENERATED_AT
+    ) {
+        secondResult = generateModel(gitSha = gitSha, generatedAt = generatedAt)
+    }
+
+    private fun generateModel(
+        gitSha: String,
+        generatedAt: Instant
+    ): FigmaDesignModelGenerationResult {
+        requireRepositorySources()
+        return generator.generate(
+            request(
+                gitSha = gitSha,
+                generatedAt = generatedAt
+            )
+        )
+    }
 
     private fun configureGenerator() {
         generator = FigmaDesignModelGenerator(
@@ -187,7 +195,7 @@ class DesignModelSteps {
 
     private fun request(
         gitSha: String = "abc123",
-        generatedAt: Instant = Instant.parse("2026-06-19T10:15:30Z")
+        generatedAt: Instant = DEFAULT_GENERATED_AT
     ): FigmaDesignModelGenerationRequest =
         FigmaDesignModelGenerationRequest(
             branch = "main",
@@ -199,6 +207,10 @@ class DesignModelSteps {
             projectRootDirectory = File("."),
             buildLogicRootDirectory = File("build-logic")
         )
+
+    private companion object {
+        val DEFAULT_GENERATED_AT: Instant = Instant.parse("2026-06-19T10:15:30Z")
+    }
 }
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {

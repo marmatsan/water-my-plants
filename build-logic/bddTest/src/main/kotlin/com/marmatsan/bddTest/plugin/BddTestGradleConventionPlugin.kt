@@ -44,6 +44,10 @@ class BddTestGradleConventionPlugin : Plugin<Project> {
             )
             libs.testImplementation(
                 libraryGroup = "io.cucumber",
+                artifact = "cucumber-java8"
+            )
+            libs.testImplementation(
+                libraryGroup = "io.cucumber",
                 artifact = "cucumber-junit-platform-engine"
             )
             libs.testImplementation(
