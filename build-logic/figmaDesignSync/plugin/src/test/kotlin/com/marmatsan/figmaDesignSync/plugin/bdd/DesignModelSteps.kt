@@ -64,19 +64,19 @@ class DesignModelSteps : En {
         }
 
         When(
-            "the design model is generated at {string}",
-            object : A1<String> {
-                override fun accept(generatedAt: String) {
-                    generateFirstModel(generatedAt = Instant.parse(generatedAt))
+            "the design model is generated at {instant}",
+            object : A1<Instant> {
+                override fun accept(generatedAt: Instant) {
+                    generateFirstModel(generatedAt = generatedAt)
                 }
             }
         )
 
         When(
-            "the design model is generated again at {string}",
-            object : A1<String> {
-                override fun accept(generatedAt: String) {
-                    generateSecondModel(generatedAt = Instant.parse(generatedAt))
+            "the design model is generated again at {instant}",
+            object : A1<Instant> {
+                override fun accept(generatedAt: Instant) {
+                    generateSecondModel(generatedAt = generatedAt)
                 }
             }
         )

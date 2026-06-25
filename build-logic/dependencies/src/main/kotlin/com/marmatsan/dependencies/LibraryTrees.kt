@@ -110,9 +110,6 @@ private fun ioLibrariesTree(
             version = versions.cucumberVersion
         )
         artifact(
-            "cucumber-java"
-        )
-        artifact(
             "cucumber-java8"
         )
         artifact(

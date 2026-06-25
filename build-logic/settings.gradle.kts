@@ -128,12 +128,6 @@ dependencyResolutionManagement {
             ).version(version("cucumberVersion"))
 
             library(
-                alias = "io.cucumber.java",
-                group = "io.cucumber",
-                artifact = "cucumber-java"
-            ).withoutVersion()
-
-            library(
                 alias = "io.cucumber.java8",
                 group = "io.cucumber",
                 artifact = "cucumber-java8"
