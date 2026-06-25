@@ -40,7 +40,6 @@ dependencies {
     testImplementation(libs.io.kotest.assertions.core)
     // Cucumber
     testImplementation(platform(libs.io.cucumber.bom))
-    testImplementation(libs.io.cucumber.java)
     testImplementation(libs.io.cucumber.java8)
     testImplementation(libs.io.cucumber.junit.platform.engine)
     testImplementation(libs.org.junit.platform.suite)

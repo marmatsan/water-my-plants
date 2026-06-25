@@ -12,7 +12,7 @@ Feature: Figma design model generation
 
   @domain
   Scenario: Generate the dependency design model
-    When the design model is generated at 2026-06-19T10:15:30Z
+    When the design model is generated at "2026-06-19T10:15:30Z"
     Then the generated model contains repository metadata
     And the generated model content contains:
       | versions           |
@@ -26,8 +26,8 @@ Feature: Figma design model generation
 
   @domain
   Scenario: generatedAt does not affect the model hash
-    When the design model is generated at 2026-06-19T10:15:30Z
-    And the design model is generated again at 2026-06-19T10:16:30Z
+    When the design model is generated at "2026-06-19T10:15:30Z"
+    And the design model is generated again at "2026-06-19T10:16:30Z"
     Then both generated model hashes are equal
 
   @domain
