@@ -1,4 +1,4 @@
-package com.marmatsan.figmaDesignSync.plugin.bdd.steps
+package com.marmatsan.figmaDesignSync.plugin.bdd
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
@@ -31,24 +31,43 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-class FigmaDesignModelGenerationSteps {
+class DesignModelSteps {
 
+    private var repositoryVersionsAvailable = false
+    private var repositoryCatalogTreesAvailable = false
+    private var repositoryProjectModulesAvailable = false
+    private var repositoryModuleDependenciesAvailable = false
     private lateinit var generator: FigmaDesignModelGenerator
     private lateinit var firstResult: FigmaDesignModelGenerationResult
     private lateinit var secondResult: FigmaDesignModelGenerationResult
 
-    @Given("repository model sources contain versions, catalogs, modules, and module dependencies")
-    fun repositoryModelSourcesContainVersionsCatalogsModulesAndModuleDependencies() {
-        generator = FigmaDesignModelGenerator(
-            repositoryVersionsPort = FakeRepositoryVersionsPort,
-            projectCatalogTreesPort = FakeProjectCatalogTreesPort,
-            projectModulesPort = FakeProjectModulesPort,
-            projectModuleDependenciesPort = FakeProjectModuleDependenciesPort
-        )
+    @Given("repository versions are available")
+    fun repositoryVersionsAreAvailable() {
+        repositoryVersionsAvailable = true
+        configureGenerator()
+    }
+
+    @Given("repository catalog trees are available")
+    fun repositoryCatalogTreesAreAvailable() {
+        repositoryCatalogTreesAvailable = true
+        configureGenerator()
+    }
+
+    @Given("repository project modules are available")
+    fun repositoryProjectModulesAreAvailable() {
+        repositoryProjectModulesAvailable = true
+        configureGenerator()
+    }
+
+    @Given("repository module dependencies are available")
+    fun repositoryModuleDependenciesAreAvailable() {
+        repositoryModuleDependenciesAvailable = true
+        configureGenerator()
     }
 
     @When("the design model is generated at {string}")
     fun theDesignModelIsGeneratedAt(generatedAt: String) {
+        requireRepositorySources()
         firstResult = generator.generate(
             request(generatedAt = Instant.parse(generatedAt))
         )
@@ -56,6 +75,7 @@ class FigmaDesignModelGenerationSteps {
 
     @When("the design model is generated again at {string}")
     fun theDesignModelIsGeneratedAgainAt(generatedAt: String) {
+        requireRepositorySources()
         secondResult = generator.generate(
             request(generatedAt = Instant.parse(generatedAt))
         )
@@ -63,6 +83,7 @@ class FigmaDesignModelGenerationSteps {
 
     @When("the design model is generated for git sha {string}")
     fun theDesignModelIsGeneratedForGitSha(gitSha: String) {
+        requireRepositorySources()
         firstResult = generator.generate(
             request(gitSha = gitSha)
         )
@@ -70,13 +91,14 @@ class FigmaDesignModelGenerationSteps {
 
     @When("the design model is generated again for git sha {string}")
     fun theDesignModelIsGeneratedAgainForGitSha(gitSha: String) {
+        requireRepositorySources()
         secondResult = generator.generate(
             request(gitSha = gitSha)
         )
     }
 
-    @Then("the generated model contains versions, version sections, catalogs, modules, and module dependencies")
-    fun theGeneratedModelContainsVersionsVersionSectionsCatalogsModulesAndModuleDependencies() {
+    @Then("the generated model contains repository metadata")
+    fun theGeneratedModelContainsRepositoryMetadata() {
         firstResult.model.keys shouldContainAll listOf(
             "schemaVersion",
             "branch",
@@ -85,14 +107,31 @@ class FigmaDesignModelGenerationSteps {
             "content",
             "modelHash"
         )
+    }
 
-        firstResult.content.keys shouldContainAll listOf(
-            "versions",
-            "versionSections",
-            "catalogs",
-            "modules",
-            "moduleDependencies"
-        )
+    @Then("the generated model contains repository versions")
+    fun theGeneratedModelContainsRepositoryVersions() {
+        firstResult.content.keys shouldContainAll listOf("versions")
+    }
+
+    @Then("the generated model contains version sections")
+    fun theGeneratedModelContainsVersionSections() {
+        firstResult.content.keys shouldContainAll listOf("versionSections")
+    }
+
+    @Then("the generated model contains catalog trees")
+    fun theGeneratedModelContainsCatalogTrees() {
+        firstResult.content.keys shouldContainAll listOf("catalogs")
+    }
+
+    @Then("the generated model contains project modules")
+    fun theGeneratedModelContainsProjectModules() {
+        firstResult.content.keys shouldContainAll listOf("modules")
+    }
+
+    @Then("the generated model contains module dependencies")
+    fun theGeneratedModelContainsModuleDependencies() {
+        firstResult.content.keys shouldContainAll listOf("moduleDependencies")
     }
 
     @Then("the version keys are sorted")
@@ -129,6 +168,22 @@ class FigmaDesignModelGenerationSteps {
 
     private val FigmaDesignModelGenerationResult.content: JsonObject
         get() = model["content"]!!.jsonObject
+
+    private fun configureGenerator() {
+        generator = FigmaDesignModelGenerator(
+            repositoryVersionsPort = FakeRepositoryVersionsPort,
+            projectCatalogTreesPort = FakeProjectCatalogTreesPort,
+            projectModulesPort = FakeProjectModulesPort,
+            projectModuleDependenciesPort = FakeProjectModuleDependenciesPort
+        )
+    }
+
+    private fun requireRepositorySources() {
+        check(repositoryVersionsAvailable) { "Repository versions are not available." }
+        check(repositoryCatalogTreesAvailable) { "Repository catalog trees are not available." }
+        check(repositoryProjectModulesAvailable) { "Repository project modules are not available." }
+        check(repositoryModuleDependenciesAvailable) { "Repository module dependencies are not available." }
+    }
 
     private fun request(
         gitSha: String = "abc123",

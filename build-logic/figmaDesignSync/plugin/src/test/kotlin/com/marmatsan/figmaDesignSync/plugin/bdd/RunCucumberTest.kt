@@ -8,7 +8,7 @@ import org.junit.platform.suite.api.Suite
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("features")
+@SelectClasspathResource("com/marmatsan/figmaDesignSync/plugin/bdd")
 @ConfigurationParameter(
     key = GLUE_PROPERTY_NAME,
     value = "com.marmatsan.figmaDesignSync.plugin.bdd"

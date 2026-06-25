@@ -26,12 +26,6 @@ tasks.withType<Test> {
     }
 }
 
-sourceSets {
-    test {
-        resources.srcDir("../docs/bdd")
-    }
-}
-
 dependencies {
     implementation(projects.figmaDesignSync.domain)
     implementation(projects.figmaDesignSync.data)
