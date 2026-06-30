@@ -12,6 +12,35 @@
 - Create temporary `release/<version>` stabilization branches only when a release needs focused QA or last-mile fixes.
 - Create `hotfix/<short-description>` branches from `main` only for urgent production fixes, then merge the fix back into `main` and tag the patch release.
 
+## Commits
+
+- Use Conventional Commits for commit messages: `<type>(<scope>): <summary>`.
+- Keep commits clean and focused on one coherent change.
+- Write the summary as the concrete change made, not as a vague activity such as "update files".
+- Add a commit body when the reason for the change is not obvious from the diff.
+- Use the commit body to explain why the change was made, what decision or tradeoff it captures, and what future maintainers should avoid undoing accidentally.
+- Use this commit message structure:
+
+```text
+<type>(<scope>): <what changed>
+
+<why it changed>
+
+<extra context / tradeoffs / verification if useful>
+```
+
+- Prefer commit messages shaped like:
+
+```text
+test(figma-design-sync): add executable BDD coverage for design model generation
+
+Add Cucumber scenarios for the figma design model so the expected repository
+snapshot is documented as executable behavior.
+
+The feature covers the domain generation flow and the Gradle task integration
+because both are part of the contract used by the Figma sync pipeline.
+```
+
 ## UML Documentation
 
 - Use PlantUML for UML diagrams.
