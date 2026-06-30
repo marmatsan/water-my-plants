@@ -28,6 +28,26 @@ Then pass the sanitized SVG string to:
 const node = figma.createNodeFromSvg(svg)
 ```
 
+Place the imported SVG in a Figma diagram section named after the full `.puml`
+file name, for example `figma-design-model-feature.puml`. Module diagrams may
+be grouped under a parent module section such as `figmaDesignSync`, but each UML
+diagram should keep its own section.
+
+After `createNodeFromSvg()` imports the SVG, flatten the Figma wrapper structure
+used for the import:
+
+- Move the imported `Group` node directly into the diagram section.
+- Remove intermediate wrapper frames such as `*.svg reference` or `*.svg`.
+- Center the `Group` horizontally inside the diagram section.
+
+Use this style for diagram sections:
+
+- No fill.
+- Stroke bound to `md/sys/color/outline`.
+- Stroke align `INSIDE`.
+- Stroke weight `2`.
+- Locked after publication.
+
 ## Text Fidelity
 
 Figma may import PlantUML `<text>` elements as native text nodes and recalculate their width with Figma font metrics. This can make labels appear slightly wider than PlantUML's preview, even when the SVG keeps `textLength` and `lengthAdjust`.
@@ -49,4 +69,4 @@ inkscape tmp\diagram.sanitized.svg `
 - `createNodeFromSvg()` failures are atomic in `use_figma`; failed imports do not leave partial nodes behind.
 - Avoid relying on `fetch` inside `use_figma`; the plugin runtime may not expose it.
 - For large SVGs, prefer a controlled string or a generated import helper over hand-written base64.
-- Lock the Figma section after placing the generated SVG.
+- Lock the Figma diagram section after placing the generated SVG.

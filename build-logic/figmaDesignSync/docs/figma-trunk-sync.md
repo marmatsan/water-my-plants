@@ -194,8 +194,10 @@ UML documentation target:
 - Page: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`
 - Source: PlantUML files such as `build-logic/figmaDesignSync/docs/uml/diagrams/architecture.puml`
 - Rendered upload artifact: the generated `.svg` for each `.puml`
-- Figma section name: the `.puml` file stem, for example `architecture`
-- Visual structure: the generated SVG is placed directly in the Figma section and the section is locked after publication
+- Module grouping section: `figmaDesignSync`
+- Diagram section name: the full `.puml` file name, for example `architecture.puml`
+- Diagram section style: no fill, `md/sys/color/outline` stroke, stroke align `INSIDE`, stroke weight `2`
+- Visual structure: each generated SVG is imported into its own diagram section, then flattened so only the imported `Group` remains inside the section. Center that `Group` horizontally and lock the section after publication.
 
 Visual rendering rules:
 
