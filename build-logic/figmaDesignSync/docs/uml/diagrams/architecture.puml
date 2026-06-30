@@ -1,6 +1,6 @@
 @startuml figma-design-sync-architecture
-!include ../../../../docs/uml/includes/theme.puml
-!include ../../../../docs/uml/includes/stereotypes.puml
+!include ../../../../../docs/uml/includes/theme.puml
+!include ../../../../../docs/uml/includes/stereotypes.puml
 
 title figmaDesignSync architecture
 

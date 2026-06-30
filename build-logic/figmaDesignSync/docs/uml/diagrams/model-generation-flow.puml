@@ -1,6 +1,6 @@
 @startuml figma-design-sync-model-generation-flow
-!include ../../../../docs/uml/includes/theme.puml
-!include ../../../../docs/uml/includes/stereotypes.puml
+!include ../../../../../docs/uml/includes/theme.puml
+!include ../../../../../docs/uml/includes/stereotypes.puml
 
 title figmaDesignSync model generation flow
 

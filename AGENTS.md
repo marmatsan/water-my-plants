@@ -45,15 +45,22 @@ because both are part of the contract used by the Figma sync pipeline.
 
 - Use PlantUML for UML diagrams.
 - Keep UML diagrams next to the code they document:
-  - Module diagrams belong in `<module>/docs/uml/`.
-  - Cross-module or project-wide diagrams belong in `docs/uml/`.
-- Keep shared PlantUML includes in `docs/uml/includes/`.
+  - Module diagrams belong in `<module>/docs/uml/diagrams/`.
+  - Cross-module or project-wide diagrams belong in `docs/uml/diagrams/`.
+- Keep shared PlantUML includes, such as themes and stereotypes, in `docs/uml/includes/`.
+- Inside a module, keep a single top-level `docs/` directory and group documentation below it by scope, for example `docs/bdd/`, `docs/uml/diagrams/`, and `docs/uml/tools/`. Do not create nested `docs/` directories inside those scope folders.
+- Keep module-specific UML publication notes and helper scripts next to that module's diagrams unless they are intentionally shared across modules.
 - Every module diagram must include the shared theme and stereotypes unless the diagram has a documented reason not to.
 - Name diagram files in kebab-case using the diagram purpose, for example `architecture.puml`, `ports-and-adapters.puml`, or `model-generation-flow.puml`.
 - When a diagram is published to Figma, render the `.puml` to `.svg` and place the generated SVG in a Figma section named after the diagram file stem, for example `architecture` for `architecture.puml`.
 - The generated SVG is an upload artifact for Figma sync, not the source of truth. Keep the `.puml` as the reviewed source in the repository.
 - UML diagrams published to Figma must use the generated SVG directly. Do not recreate the diagram manually with native Figma UML components unless a task explicitly asks for an exploratory mockup.
+- Before importing PlantUML-generated SVGs into Figma with `createNodeFromSvg()`, sanitize them for Figma compatibility. Use the module-local `docs/uml/tools/sanitize-svg-for-figma.ps1` script when present and keep the sanitized SVG as a temporary import artifact unless a task explicitly asks to commit it.
+- After importing PlantUML SVGs into Figma, verify text alignment visually. Figma can recalculate SVG text widths differently from PlantUML, so recentre imported text nodes inside their rectangular blocks or convert text to paths before import when exact preview fidelity matters.
+- Once a generated SVG has been successfully published to Figma, delete the generated SVG from the repository workspace. Do not keep rendered SVG artifacts locally after they already live in the locked Figma section.
+- UML diagrams that represent BDD features are derived documentation. Keep the `.feature` file as the executable source of truth, update the `.puml` when the feature changes, and create feature diagrams only when the visual representation adds communication value.
 - Lock every Figma section created or modified during UML publication after the SVG has been placed, so generated documentation cannot be edited accidentally in Figma.
+- Figma sections created for UML documentation must use no stroke, `28` corner radius, and the `md/sys/color/surface` fill variable.
 - The UML documentation page is `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`.
 - Prefer one focused diagram per file. Do not create large catch-all diagrams that mix unrelated concerns.
 - Use package names and class names from the source code when documenting implementation structure.

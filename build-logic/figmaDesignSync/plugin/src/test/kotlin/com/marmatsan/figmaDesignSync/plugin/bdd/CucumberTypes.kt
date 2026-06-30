@@ -4,6 +4,7 @@ import io.cucumber.java8.En
 import io.cucumber.java8.ParameterDefinitionBody.A1
 import java.time.Instant
 
+@Suppress("ObjectLiteralToLambda")
 class CucumberTypes : En {
 
     init {

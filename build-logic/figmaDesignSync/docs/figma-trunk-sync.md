@@ -192,7 +192,7 @@ Build-logic catalog targets:
 UML documentation target:
 
 - Page: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`
-- Source: PlantUML files such as `build-logic/figmaDesignSync/docs/uml/architecture.puml`
+- Source: PlantUML files such as `build-logic/figmaDesignSync/docs/uml/diagrams/architecture.puml`
 - Rendered upload artifact: the generated `.svg` for each `.puml`
 - Figma section name: the `.puml` file stem, for example `architecture`
 - Visual structure: the generated SVG is placed directly in the Figma section and the section is locked after publication
