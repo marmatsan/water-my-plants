@@ -14,6 +14,13 @@ participant "ProjectModuleDependenciesPort" as moduleDependenciesPort <<port>>
 participant "FigmaDesignModelHash" as hash <<gradle>>
 database "design-model.json" as designModel <<artifact>>
 
+note over gradle, designModel
+This task does not update Figma directly.
+It turns repository sources into a deterministic
+design-model.json snapshot that later sync steps
+can publish to Figma and verify against main.
+end note
+
 gradle -> task : run generateFigmaDesignModel
 activate task
 

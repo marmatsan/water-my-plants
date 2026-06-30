@@ -24,6 +24,30 @@ $svg = $svg -replace '\s+data-diagram-type="[^"]*"', ''
 $svg = $svg -replace '\s+zoomAndPan="[^"]*"', ''
 $svg = $svg -replace '\s+version="[^"]*"', ''
 $svg = $svg -replace '\s+style="width:[^"]+"', ''
-$svg = $svg -replace ' style="stroke:([^;]+);stroke-width:([^;]+);"', ' stroke="$1" stroke-width="$2"'
+$svg = [regex]::Replace($svg, '\s+style="([^"]*)"', {
+    param($match)
+
+    $attributes = @()
+
+    foreach ($declaration in $match.Groups[1].Value.Split(';')) {
+        if ([string]::IsNullOrWhiteSpace($declaration)) {
+            continue
+        }
+
+        $parts = $declaration.Split(':', 2)
+        if ($parts.Count -ne 2) {
+            continue
+        }
+
+        $name = $parts[0].Trim()
+        $value = $parts[1].Trim()
+
+        if ($name -match '^[a-zA-Z-]+$' -and $value -notmatch '"') {
+            $attributes += " $name=`"$value`""
+        }
+    }
+
+    return $attributes -join ''
+})
 
 Set-Content -LiteralPath $OutputPath -Value $svg -Encoding UTF8

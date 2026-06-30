@@ -198,6 +198,7 @@ UML documentation target:
 - Diagram section name: the full `.puml` file name, for example `architecture.puml`
 - Diagram section style: no fill, `md/sys/color/outline` stroke, stroke align `INSIDE`, stroke weight `2`
 - Visual structure: each generated SVG is imported into its own diagram section, then flattened so only the imported `Group` remains inside the section. Center that `Group` horizontally and lock the section after publication.
+- `.Header` links: the visible `Link` property must list the relevant repository files, and each filename must hyperlink to its GitHub `main` branch URL. When multiple files are listed, apply the URL to each filename range and keep separators unlinked.
 
 Visual rendering rules:
 
