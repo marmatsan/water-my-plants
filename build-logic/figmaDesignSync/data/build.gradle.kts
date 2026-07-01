@@ -3,6 +3,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
+    alias(plugins.plugins.org.jetbrains.dokka)
 }
 
 repositories {

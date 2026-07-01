@@ -158,6 +158,7 @@ private val CatalogVersionAliases = Versions(
     coreSplashscreenVersion = "coreSplashscreenVersion",
     cucumberVersion = "cucumberVersion",
     datastoreVersion = "datastoreVersion",
+    dokkaVersion = "dokkaVersion",
     figmaCodeConnectLibraryVersion = "figmaCodeConnectLibraryVersion",
     figmaCodeConnectPluginVersion = "figmaCodeConnectPluginVersion",
     junit5PluginVersion = "junit5PluginVersion",

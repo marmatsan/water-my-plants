@@ -170,6 +170,11 @@ dependencyResolutionManagement {
                 alias = "org.jetbrains.kotlin.plugin.serialization",
                 id = "org.jetbrains.kotlin.plugin.serialization"
             ).version(version("kotlinVersion"))
+
+            plugin(
+                alias = "org.jetbrains.dokka",
+                id = "org.jetbrains.dokka"
+            ).version(version("dokkaVersion"))
         }
     }
 }

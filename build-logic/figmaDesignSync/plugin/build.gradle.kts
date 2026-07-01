@@ -4,6 +4,7 @@ plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
     alias(plugins.plugins.com.google.devtools.ksp)
+    alias(plugins.plugins.org.jetbrains.dokka)
 }
 
 repositories {

@@ -60,6 +60,10 @@ private fun orgPluginTree(
     versions: Versions
 ) = pluginTree("org") {
     plugin("jetbrains") {
+        plugin(
+            id = "dokka",
+            version = versions.dokkaVersion
+        )
         plugin("kotlin") {
             plugin("plugin") {
                 plugin(
