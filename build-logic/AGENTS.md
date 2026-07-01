@@ -67,40 +67,9 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - If a dependency is required by every module applying a convention plugin, add it in that plugin. If only one feature needs it, keep it in that feature module.
 - Be careful with SDK, Kotlin, JVM, and plugin version changes; they affect all consumers.
 
-## Figma Catalog Checks
+## Module-Specific Instructions
 
-- `figmaDesignSync` follows Clean Architecture. Preserve the dependency direction:
-  - `domain` must not depend on `data`, `plugin`, Gradle APIs, or `java.io.File`.
-  - `data` depends on `domain` and implements domain ports.
-  - `plugin` is the Gradle adapter and composition root; it may know about `data` only for dependency injection bindings.
-- Keep `figmaDesignSync` packages organized by responsibility:
-  - `domain/model/catalog`: catalog tree, node, entry, and version models.
-  - `domain/model/figma`: Figma references used by domain requests.
-  - `domain/model/modules`: module dependency models included in the generated design model.
-  - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`: source ports used to build the generated design model.
-  - `data/datasource/catalog`, `data/datasource/modules`, and `data/datasource/versions`: implementations of domain ports grouped by capability.
-  - `data/figma/client`: Figma API client and client exceptions.
-  - `data/figma/dto`: serializable Figma API response and node DTOs.
-  - `data/figma/common`: shared Figma URL helpers.
-  - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings catalog declarations, included modules, and module dependencies.
-  - `data/dependencies/catalog`: readers for the dependency-tree DSL from `:dependencies`.
-  - `data/properties/versions`: readers for version properties files.
-  - `plugin/generator`: design model JSON generation and hash calculation.
-  - `plugin/checker/sync`: Gradle-facing adapter that compares generated model metadata with Figma shared plugin data.
-  - `plugin/task/generate` and `plugin/task/sync`: Gradle task classes for model generation and sync verification.
-  - `plugin/di`: kotlin-inject component and bindings.
-  - `plugin/gradle`: Gradle plugin and extension classes.
-- Keep one top-level class, interface, object, or data class per Kotlin file in `figmaDesignSync`. Nested types are allowed only when they are owned by and used only by the parent type, such as sealed result variants or private implementation helpers.
-- Use `kotlin-inject` for classes created by `figmaDesignSyncComponent`.
-- Keep Gradle-created types compatible with Gradle injection. Do not replace Gradle constructor injection annotations with `me.tatarka.inject.annotations.Inject` on extension/task/plugin types.
-- `figmaDesignSyncComponent` is the composition root. Bind domain ports to `data/datasource` implementations there.
-- Current verification tasks:
-  - `generateFigmaDesignModel`: generates `build/reports/figma-sync/design-model.json`.
-  - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared plugin data.
-- Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it locally for diagnosis, but CI is the source of truth before merging into `main`.
-- The Figma sync namespace is `water_my_plants_sync`. Figma shared plugin data namespaces must not contain hyphens.
-- The Figma write step is MCP-operated. See `figmaDesignSync/docs/figma-trunk-sync.md` for the exact workflow.
-- Module dependency extraction reads Gradle dependencies from `project(":...")` and type-safe project accessors such as `projects.core.ui` or `projects.figmaDesignSync.domain`.
+- `figmaDesignSync` has additional module-local instructions in `figmaDesignSync/AGENTS.md`. Follow them when editing its source, tests, documentation, generated design model, or Figma automation workflow.
 
 ## Testing
 
@@ -110,8 +79,5 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - These test dependencies are available through the build-logic version catalog declared in `settings.gradle.kts`.
 - Structure every test with explicit `GIVEN`, `WHEN`, and `THEN` sections. These words are wrapped in a single-line comment.
 - Do not execute tests for documentation-only changes. For build-logic behavior changes, prefer focused verification commands for the modules that changed.
-- For `figmaDesignSync`, keep focused tests around model generation, hashing, and sync verification. Keep Figma/API/file-system details in `data` or task/checker tests.
 - Useful verification commands:
-  - `.\gradlew.bat -p build-logic :figmaDesignSync:domain:check :figmaDesignSync:data:check :figmaDesignSync:plugin:check`
   - `.\gradlew.bat check`
-  - `.\gradlew.bat generateFigmaDesignModel checkFigmaTrunkSync`

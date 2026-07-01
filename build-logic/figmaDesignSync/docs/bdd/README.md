@@ -92,6 +92,52 @@ Gherkin steps.
 | `the design model is generated`                | `FigmaDesignModelGenerator` producing the in-memory design model                                             | Direct generator call from `DesignModelSteps.kt`             |
 | `generateFigmaDesignModel runs`                | Gradle task writing `build/reports/figma-sync/design-model.json`                                             | Temporary Gradle project assembled by `GradleTaskSteps.kt`   |
 
+## Generated Design Model Contract
+
+`figma-design-model.feature` describes the executable contract for creating the
+`design-model.json` artifact. The feature should stay focused on observable
+behavior: what repository information is available, what generation action is
+performed, and what guarantees the resulting model provides.
+
+The generated design model is the boundary between repository analysis and the
+Figma publication pipeline. It does not update Figma by itself. It captures a
+reviewable repository snapshot that later sync steps can publish to Figma and
+verify against `main`.
+
+The contract has these inputs:
+
+| Input concept            | Runtime source                                                                                           |
+|--------------------------|----------------------------------------------------------------------------------------------------------|
+| Repository metadata      | Current branch, current git SHA, and generation timestamp                                                |
+| Versions                 | `build-logic/versions.properties`                                                                        |
+| Version sections         | Ordered sections from `build-logic/versions.properties`                                                  |
+| Catalog trees            | Water My Plants and `build-logic` catalog declarations, including `LibraryTrees.kt` and `PluginTrees.kt` |
+| Project modules          | Root and `build-logic` Gradle settings                                                                   |
+| Module dependency graphs | Resolved dependency trees for root modules and `build-logic` modules                                     |
+
+The contract has one main output:
+
+| Output artifact     | Runtime location                             | Purpose                                                              |
+|---------------------|----------------------------------------------|----------------------------------------------------------------------|
+| `design-model.json` | `build/reports/figma-sync/design-model.json` | Deterministic repository snapshot consumed by later Figma sync tasks |
+
+The current executable scenarios assert these guarantees:
+
+- The model contains repository metadata.
+- The model contains `versions`, `versionSections`, `catalogs`, `modules`, and
+  `moduleDependencies`.
+- Version keys are sorted.
+- Version sections keep repository order.
+- The model stores a reproducible `modelHash`.
+- `generatedAt` is written to the model but does not affect `modelHash`.
+- `gitSha` affects `modelHash`, because it identifies the reviewed repository
+  snapshot.
+- The Gradle task writes the report file in a temporary plugin-applied project.
+
+When this contract changes, update the `.feature` first if the behavior changes.
+Update this README when only the technical explanation or resource mapping needs
+more clarity.
+
 ## Step Organization
 
 Step definitions live in the same package as the Cucumber glue:
