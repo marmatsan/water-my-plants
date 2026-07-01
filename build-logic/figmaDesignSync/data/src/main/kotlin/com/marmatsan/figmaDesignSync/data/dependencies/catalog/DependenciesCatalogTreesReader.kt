@@ -16,20 +16,44 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Reads the repository dependency DSL and converts it into domain catalog
+ * trees.
+ *
+ * The dependency DSL already knows the logical library and plugin hierarchy.
+ * This reader adapts that hierarchy to [LibraryCatalogTree] and
+ * [PluginCatalogTree], then enriches entries with Gradle usage information
+ * from [GradleCatalogUsageReader].
+ */
 @Inject
 class DependenciesCatalogTreesReader(
     private val gradleCatalogUsageReader: GradleCatalogUsageReader
 ) {
+    /**
+     * Reads concrete library versions from `versions.properties`.
+     */
     fun readLibraryTree(rootDir: File): LibraryCatalogTree =
         readLibraryTree(versions = Versions.load(rootDir))
 
+    /**
+     * Reads concrete plugin versions from `versions.properties`.
+     */
     fun readPluginTree(rootDir: File): PluginCatalogTree =
         readPluginTree(versions = Versions.load(rootDir))
 
+    /**
+     * Reads a library tree using version aliases instead of resolved versions.
+     *
+     * This is the variant used by Figma documentation because it shows the
+     * repository-owned version key that should be edited.
+     */
     fun readLibraryTreeWithVersionAliases(rootDir: File): LibraryCatalogTree =
         readLibraryTree(versions = CatalogVersionAliases)
             .withLibraryUsages(gradleCatalogUsageReader.readConventionLibraryUsages(rootDir))
 
+    /**
+     * Reads a plugin tree using version aliases instead of resolved versions.
+     */
     fun readPluginTreeWithVersionAliases(rootDir: File): PluginCatalogTree =
         readPluginTree(versions = CatalogVersionAliases)
             .withPluginUsages(
@@ -38,9 +62,15 @@ class DependenciesCatalogTreesReader(
                     .merge(gradleCatalogUsageReader.readMainPluginUsages(rootDir))
             )
 
+    /**
+     * Converts dependency DSL library nodes to the domain tree.
+     */
     fun readLibraryTree(versions: Versions): LibraryCatalogTree =
         readLibraryTree(libraryTrees(versions))
 
+    /**
+     * Converts dependency DSL plugin nodes to the domain tree.
+     */
     fun readPluginTree(versions: Versions): PluginCatalogTree =
         readPluginTree(pluginTrees(versions))
 

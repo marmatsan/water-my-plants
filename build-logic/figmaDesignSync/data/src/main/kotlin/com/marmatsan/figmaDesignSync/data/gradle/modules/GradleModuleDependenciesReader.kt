@@ -4,8 +4,19 @@ import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Parses Gradle `dependencies` blocks into directed [ModuleDependency] edges.
+ *
+ * The reader intentionally works from source files instead of Gradle's runtime
+ * dependency model because the design documentation needs a lightweight,
+ * repeatable snapshot of project-to-project dependencies.
+ */
 @Inject
 class GradleModuleDependenciesReader {
+    /**
+     * Reads dependencies between modules in the root project, excluding the
+     * `build-logic` included build.
+     */
     fun readMain(rootDir: File): Set<ModuleDependency> =
         rootDir
             .walkTopDown()
@@ -19,6 +30,10 @@ class GradleModuleDependenciesReader {
             }
             .toSortedSet()
 
+    /**
+     * Reads dependencies between modules inside the `build-logic` included
+     * build and prefixes every module path with `:build-logic`.
+     */
     fun readBuildLogic(rootDir: File): Set<ModuleDependency> =
         rootDir
             .walkTopDown()

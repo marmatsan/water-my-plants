@@ -10,7 +10,16 @@ import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
  * documentation.
  *
  * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.projectModuleDependenciesPortSample
+ *
+ * @see ProjectModuleDependenciesSource
+ * @see ModuleDependency
  */
 interface ProjectModuleDependenciesPort {
+    /**
+     * Reads dependency edges for the repository area described by [source].
+     *
+     * Implementations should return a set because duplicate declarations in
+     * Gradle files do not represent distinct documentation edges.
+     */
     fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency>
 }

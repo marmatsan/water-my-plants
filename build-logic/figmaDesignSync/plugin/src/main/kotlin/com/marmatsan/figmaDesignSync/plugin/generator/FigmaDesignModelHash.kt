@@ -6,12 +6,23 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
+/**
+ * Computes the stable SHA-256 hash used as the Figma sync contract.
+ *
+ * JSON object keys are sorted before hashing so equivalent model content
+ * produces the same hash regardless of insertion order. The generator hashes
+ * content plus Git identity, but intentionally excludes volatile metadata such
+ * as `generatedAt`.
+ */
 internal object FigmaDesignModelHash {
     private val canonicalJson = Json {
         prettyPrint = false
         explicitNulls = true
     }
 
+    /**
+     * Returns a `sha256:<hex>` digest for the canonicalized [model].
+     */
     fun compute(model: JsonElement): String {
         val bytes = canonicalJson
             .encodeToString(JsonElement.serializer(), model.canonicalized())

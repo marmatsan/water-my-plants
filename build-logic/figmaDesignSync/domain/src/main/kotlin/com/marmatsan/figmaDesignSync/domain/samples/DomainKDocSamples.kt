@@ -18,6 +18,13 @@ import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesSource
 import com.marmatsan.figmaDesignSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDesignSync.domain.port.versions.VersionsFileSource
 
+/**
+ * Compile-checked examples referenced by KDoc `@sample` tags.
+ *
+ * These samples live in `src/main` so Kotlin and Dokka can resolve them from
+ * production KDoc while keeping the sample object internal to the domain
+ * module.
+ */
 internal object DomainKDocSamples {
     fun catalogVersionSample() {
         val visibleVersion = CatalogVersion(value = "2.2.0")

@@ -16,9 +16,27 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
+/**
+ * Small Figma API client used by the sync checker to read node content and
+ * shared plugin metadata.
+ *
+ * This client is intentionally narrow: the pipeline only needs the `/nodes`
+ * endpoint for a single node id. Write operations and SVG imports are handled
+ * by the Figma MCP workflow, not by this Gradle plugin.
+ */
 class FigmaFileContentClient(
     private val httpClient: HttpClient = defaultHttpClient()
 ) {
+    /**
+     * Reads a Figma node by [fileKey] and [nodeId].
+     *
+     * Set [pluginData] to `shared` when the caller needs shared plugin data,
+     * such as the `modelHash` written after publishing `design-model.json` to
+     * Figma.
+     *
+     * @throws FigmaFileContentException when Figma returns an error response or
+     * the request times out.
+     */
     fun getNodeContent(
         fileKey: String,
         token: String,

@@ -3,7 +3,17 @@ package com.marmatsan.figmaDesignSync.data.figma.common
 import com.marmatsan.figmaDesignSync.domain.model.figma.FigmaNodeReference
 import java.net.URI
 
+/**
+ * Parser for Figma design URLs used by Gradle configuration.
+ *
+ * It extracts the file key and converts Figma's URL-safe `node-id` query value
+ * into the colon-separated node id expected by the Figma API.
+ */
 object FigmaNodeUrl {
+    /**
+     * Parses URLs shaped like
+     * `https://www.figma.com/design/<file-key>/<name>?node-id=123-456`.
+     */
     fun parse(url: String): FigmaNodeReference {
         val uri = URI(url)
         val pathSegments = uri.path

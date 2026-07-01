@@ -3,8 +3,18 @@ package com.marmatsan.figmaDesignSync.data.gradle.catalog
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Reads where catalog aliases and plugin ids are used across Gradle files.
+ *
+ * Usage data enriches catalog trees with the modules that require each
+ * dependency or apply each plugin. This makes the generated Figma documentation
+ * navigable from catalog entry to repository module.
+ */
 @Inject
 class GradleCatalogUsageReader {
+    /**
+     * Reads dependency DSL library usages from convention plugin modules.
+     */
     fun readConventionLibraryUsages(rootDir: File): LibraryUsages =
         rootDir.resolve(BUILD_LOGIC_DIR)
             .conventionModuleFiles()
@@ -225,6 +235,11 @@ class GradleCatalogUsageReader {
             .replace('/', ':')
             .replace('\\', ':')
 
+    /**
+     * Usage index for libraries declared as direct coordinates or bundles.
+     *
+     * Values are Gradle module paths that reference each key.
+     */
     data class LibraryUsages(
         val coordinates: Map<String, Set<String>> = emptyMap(),
         val bundles: Map<String, Set<String>> = emptyMap()

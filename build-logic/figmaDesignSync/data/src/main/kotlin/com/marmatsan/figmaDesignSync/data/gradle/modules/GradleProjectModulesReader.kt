@@ -5,6 +5,13 @@ package com.marmatsan.figmaDesignSync.data.gradle.modules
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Reads Gradle module paths from the root build and the `build-logic` included
+ * build.
+ *
+ * Build-logic modules are prefixed with `:build-logic` in the generated model
+ * so they can coexist with root project modules without path collisions.
+ */
 @Inject
 class GradleProjectModulesReader {
     fun readModules(

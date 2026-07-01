@@ -16,12 +16,20 @@ data class ModuleDependency(
     val dependentModule: String,
     val dependencyModule: String
 ) : Comparable<ModuleDependency> {
+    /**
+     * Orders dependency edges deterministically for stable JSON output and
+     * stable Figma diffs.
+     */
     override fun compareTo(other: ModuleDependency): Int =
         compareBy<ModuleDependency>(
             ModuleDependency::dependentModule,
             ModuleDependency::dependencyModule
         ).compare(this, other)
 
+    /**
+     * Renders the edge as a compact human-readable label used in diagnostics
+     * and documentation examples.
+     */
     fun render(): String =
         "$dependentModule -> $dependencyModule"
 }

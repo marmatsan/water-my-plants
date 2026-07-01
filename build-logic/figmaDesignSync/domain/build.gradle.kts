@@ -27,6 +27,12 @@ dependencies {
 }
 
 dokka {
+    moduleName.set("figmaDesignSync-domain")
+
+    dokkaPublications.html {
+        includes.from("docs/dokka/README.md")
+    }
+
     dokkaSourceSets.main {
         samples.from(file("src/main/kotlin/com/marmatsan/figmaDesignSync/domain/samples/DomainKDocSamples.kt"))
 

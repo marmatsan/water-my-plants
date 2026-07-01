@@ -6,8 +6,18 @@ import me.tatarka.inject.annotations.Inject
 import java.io.File
 import java.util.Properties
 
+/**
+ * Reads the repository version properties file used by build logic and Figma
+ * documentation.
+ *
+ * Java [Properties] is used for the flat view, while [readSections] parses the
+ * source file line by line to preserve headings declared with `##`.
+ */
 @Inject
 class VersionsPropertiesReader {
+    /**
+     * Reads a sorted flat key/value map.
+     */
     fun read(file: File): Map<String, String> {
         val properties = Properties().apply {
             file.inputStream().use(::load)
@@ -19,6 +29,12 @@ class VersionsPropertiesReader {
             .toSortedMap()
     }
 
+    /**
+     * Reads the version file as ordered documentation sections.
+     *
+     * Lines starting with `## ` open a new section. Regular comments and blank
+     * lines are ignored.
+     */
     fun readSections(file: File): List<RepositoryVersionSection> {
         val sections = linkedMapOf<String, MutableMap<String, String>>()
         var currentSection = DEFAULT_SECTION

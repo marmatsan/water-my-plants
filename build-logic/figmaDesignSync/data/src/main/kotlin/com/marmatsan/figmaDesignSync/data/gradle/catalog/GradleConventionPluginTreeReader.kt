@@ -5,6 +5,13 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Discovers Gradle convention plugin ids implemented by `build-logic` modules.
+ *
+ * Convention plugins are repository-owned build APIs. Including them in
+ * `design-model.json` lets Figma document which project modules use those
+ * conventions.
+ */
 @Inject
 class GradleConventionPluginTreeReader {
     fun readPluginTree(

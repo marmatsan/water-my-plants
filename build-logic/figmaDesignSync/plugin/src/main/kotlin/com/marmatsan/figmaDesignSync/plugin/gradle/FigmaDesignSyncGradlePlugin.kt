@@ -7,6 +7,15 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 
+/**
+ * Registers Gradle tasks that generate and verify the Figma design model.
+ *
+ * Apply plugin id `com.marmatsan.figmaDesignSync` on the repository root. The
+ * plugin exposes the `figmaDesignSync` extension and creates:
+ *
+ * - `generateFigmaDesignModel`
+ * - `checkFigmaTrunkSync`
+ */
 @Suppress("unused")
 class FigmaDesignSyncGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {

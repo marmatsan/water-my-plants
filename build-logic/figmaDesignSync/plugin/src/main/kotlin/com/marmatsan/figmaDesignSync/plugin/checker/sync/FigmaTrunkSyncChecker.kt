@@ -7,11 +7,26 @@ import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
 import me.tatarka.inject.annotations.Inject
 import org.gradle.api.GradleException
 
+/**
+ * Compares the locally generated design model hash with the hash stored in the
+ * Figma document.
+ *
+ * This checker is the CI guard for the Figma documentation workflow: if the
+ * repository can generate a different `design-model.json` than the one Figma
+ * records in shared plugin data, the build fails and the Figma MCP sync step
+ * must be run again.
+ */
 @Inject
 internal class FigmaTrunkSyncChecker(
     private val figmaFileContentClient: FigmaFileContentClient,
     private val figmaDesignModelGenerator: FigmaDesignModelGenerator
 ) {
+    /**
+     * Generates the expected model and compares it with Figma metadata.
+     *
+     * @throws GradleException when metadata is missing or the model hash is out
+     * of sync.
+     */
     fun check(request: FigmaTrunkSyncCheckRequest): FigmaTrunkSyncCheckResult {
         val expected = figmaDesignModelGenerator.generate(
             FigmaDesignModelGenerationRequest(

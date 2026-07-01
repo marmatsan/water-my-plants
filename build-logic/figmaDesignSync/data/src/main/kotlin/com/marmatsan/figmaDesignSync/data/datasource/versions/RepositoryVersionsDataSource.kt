@@ -8,6 +8,13 @@ import com.marmatsan.figmaDesignSync.domain.port.versions.VersionsFileSource
 import me.tatarka.inject.annotations.Inject
 import java.io.File
 
+/**
+ * Adapter that reads repository version declarations from
+ * `build-logic/versions.properties`.
+ *
+ * It preserves both the flat key/value view and the sectioned view so the
+ * generator can keep the Figma artifact aligned with the source file.
+ */
 @Inject
 class RepositoryVersionsDataSource(
     private val versionsPropertiesReader: VersionsPropertiesReader

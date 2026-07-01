@@ -18,6 +18,13 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
+/**
+ * Gradle task that writes the local `design-model.json` artifact.
+ *
+ * The artifact is the source consumed by the Figma MCP sync step. Git branch
+ * and SHA are captured at execution time so the generated metadata identifies
+ * the exact repository snapshot.
+ */
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -40,6 +47,9 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /**
+     * Generates the model and writes pretty-printed JSON to [outputFile].
+     */
     @TaskAction
     fun generate() {
         val result = figmaDesignSyncComponent::class.create().designModelGenerator.generate(

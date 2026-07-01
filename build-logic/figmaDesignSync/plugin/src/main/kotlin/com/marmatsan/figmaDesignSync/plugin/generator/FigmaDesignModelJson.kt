@@ -15,6 +15,10 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
+/**
+ * Converts repository versions to the stable JSON object used by
+ * `content.versions`.
+ */
 internal fun Map<String, String>.toVersionsJson(): JsonObject =
     buildJsonObject {
         toSortedMap().forEach { (name, version) ->
@@ -22,6 +26,10 @@ internal fun Map<String, String>.toVersionsJson(): JsonObject =
         }
     }
 
+/**
+ * Converts ordered version sections to the JSON array used by
+ * `content.versionSections`.
+ */
 internal fun List<RepositoryVersionSection>.toVersionSectionsJson(): JsonArray =
     map { section ->
         buildJsonObject {
@@ -31,6 +39,10 @@ internal fun List<RepositoryVersionSection>.toVersionSectionsJson(): JsonArray =
     }
         .let(::JsonArray)
 
+/**
+ * Converts a library catalog tree to the array consumed by Figma dependency
+ * tree rendering.
+ */
 internal fun LibraryCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(LibraryCatalogNode::group))
@@ -91,6 +103,10 @@ private fun LibraryCatalogEntry.toDesignJson(): JsonObject =
         }
     }
 
+/**
+ * Converts a plugin catalog tree to the array consumed by Figma plugin tree
+ * rendering.
+ */
 internal fun PluginCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(PluginCatalogNode::id))
@@ -117,12 +133,18 @@ private fun CatalogVersion.toDesignJson(): JsonObject =
         put("visible", visible)
     }
 
+/**
+ * Converts module names to a sorted JSON array for deterministic output.
+ */
 internal fun Collection<String>.toSortedJsonArray(): JsonArray =
     sorted().toJsonArray()
 
 private fun Collection<String>.toJsonArray(): JsonArray =
     map(::JsonPrimitive).let(::JsonArray)
 
+/**
+ * Converts module dependency edges to stable JSON objects.
+ */
 internal fun Collection<ModuleDependency>.toModuleDependenciesJson(): JsonArray =
     sorted()
         .map { dependency ->

@@ -13,6 +13,18 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Builds the executable `design-model.json` contract consumed by Figma sync.
+ *
+ * The generator is the orchestration point between domain ports and the JSON
+ * artifact. It asks ports for versions, catalogs, modules, and module
+ * dependency edges, then serializes those values into a deterministic model
+ * shape.
+ *
+ * @see FigmaDesignModelGenerationRequest
+ * @see FigmaDesignModelGenerationResult
+ * @see FigmaDesignModelHash
+ */
 @Inject
 internal class FigmaDesignModelGenerator(
     private val repositoryVersionsPort: RepositoryVersionsPort,
@@ -20,6 +32,13 @@ internal class FigmaDesignModelGenerator(
     private val projectModulesPort: ProjectModulesPort,
     private val projectModuleDependenciesPort: ProjectModuleDependenciesPort
 ) {
+    /**
+     * Generates the complete model and stable model hash for [request].
+     *
+     * The hash input contains schema version, branch, git SHA, and content.
+     * `generatedAt` is written to the model but excluded from the hash so the
+     * same repository snapshot remains comparable across runs.
+     */
     fun generate(request: FigmaDesignModelGenerationRequest): FigmaDesignModelGenerationResult {
         val content = buildContent(request)
         val hashInput = buildJsonObject {

@@ -5,6 +5,12 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Discovers regular Gradle plugin ids implemented by `build-logic`.
+ *
+ * Unlike [GradleConventionPluginTreeReader], this reader excludes implementation
+ * classes whose name marks them as convention plugins.
+ */
 @Inject
 class GradlePluginTreeReader {
     fun readPluginTree(

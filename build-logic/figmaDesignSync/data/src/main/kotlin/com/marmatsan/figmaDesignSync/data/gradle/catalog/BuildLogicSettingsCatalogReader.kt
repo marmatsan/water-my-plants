@@ -9,8 +9,18 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Parses catalogs declared inside `build-logic/settings.gradle.kts`.
+ *
+ * This reader handles the `versionCatalogs.create("libs")` and
+ * `versionCatalogs.create("plugins")` blocks used by the included build, then
+ * adapts their declarations into domain catalog trees.
+ */
 @Inject
 class BuildLogicSettingsCatalogReader {
+    /**
+     * Reads the `libs` catalog and attaches module usage by catalog alias.
+     */
     fun readLibraryTree(
         settingsFile: File,
         usageByAlias: Map<String, Set<String>> = emptyMap()
@@ -23,6 +33,9 @@ class BuildLogicSettingsCatalogReader {
             .toLibraryCatalogTree(usageByAlias)
     }
 
+    /**
+     * Reads the `plugins` catalog and attaches module usage by plugin alias.
+     */
     fun readPluginTree(
         settingsFile: File,
         usageByAlias: Map<String, Set<String>> = emptyMap()

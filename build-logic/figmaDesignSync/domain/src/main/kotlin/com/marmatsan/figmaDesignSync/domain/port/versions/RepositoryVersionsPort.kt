@@ -10,9 +10,20 @@ import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSect
  * documentation.
  *
  * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.repositoryVersionsPortSample
+ *
+ * @see VersionsFileSource
+ * @see RepositoryVersionSection
  */
 interface RepositoryVersionsPort {
+    /**
+     * Reads the flat key/value view used by consumers that do not need section
+     * grouping.
+     */
     fun readVersions(source: VersionsFileSource): Map<String, String>
 
+    /**
+     * Reads the ordered section view used by `design-model.json` so Figma can
+     * preserve the same version grouping seen in the source file.
+     */
     fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection>
 }

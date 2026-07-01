@@ -17,6 +17,13 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
+/**
+ * Gradle verification task that fails when Figma does not contain the current
+ * repository design model hash.
+ *
+ * The task reads `FIGMA_FILE_CONTENT_ACCESS_TOKEN` at execution time and does
+ * not model it as a cacheable input because the token is secret runtime state.
+ */
 abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val metadataNodeUrl: Property<String>
@@ -42,6 +49,10 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Internal
     abstract val figmaToken: Property<String>
 
+    /**
+     * Generates the expected model and compares it with the metadata stored in
+     * Figma shared plugin data.
+     */
     @TaskAction
     fun checkSync() {
         val token = figmaToken.orNull

@@ -12,6 +12,20 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Adapter that implements [ProjectCatalogTreesPort] by delegating each
+ * [ProjectCatalogTreeSource] variant to the reader that understands that
+ * repository source.
+ *
+ * This class is where file paths from the domain source objects are converted
+ * back into [File] instances. Keeping that conversion here preserves the
+ * domain module's IO-free boundary.
+ *
+ * @see DependenciesCatalogTreesReader
+ * @see BuildLogicSettingsCatalogReader
+ * @see GradleConventionPluginTreeReader
+ * @see GradlePluginTreeReader
+ */
 @Inject
 class ProjectCatalogTreesDataSource(
     private val buildLogicSettingsCatalogReader: BuildLogicSettingsCatalogReader,
@@ -20,6 +34,9 @@ class ProjectCatalogTreesDataSource(
     private val gradleConventionPluginTreeReader: GradleConventionPluginTreeReader,
     private val gradlePluginTreeReader: GradlePluginTreeReader
 ) : ProjectCatalogTreesPort {
+    /**
+     * Reads library trees only from source variants that define libraries.
+     */
     override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
@@ -42,6 +59,10 @@ class ProjectCatalogTreesDataSource(
                 error("Custom Gradle plugins do not define a library catalog tree")
         }
 
+    /**
+     * Reads plugin trees from dependency catalogs, build-logic settings, and
+     * repository-owned Gradle plugin declarations.
+     */
     override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->

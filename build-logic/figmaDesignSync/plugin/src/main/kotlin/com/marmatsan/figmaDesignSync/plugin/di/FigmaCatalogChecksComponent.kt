@@ -14,11 +14,28 @@ import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
+/**
+ * kotlin-inject composition root for the Figma design sync Gradle tasks.
+ *
+ * The component wires data-layer adapters into domain ports and exposes the two
+ * application services used by Gradle tasks: [designModelGenerator] and
+ * [trunkSyncChecker].
+ */
 @Component
 internal abstract class figmaDesignSyncComponent {
+    /**
+     * Service used by `generateFigmaDesignModel`.
+     */
     abstract val designModelGenerator: FigmaDesignModelGenerator
+
+    /**
+     * Service used by `checkFigmaTrunkSync`.
+     */
     abstract val trunkSyncChecker: FigmaTrunkSyncChecker
 
+    /**
+     * Provides the narrow Figma API client used only by the sync checker.
+     */
     @Provides
     protected fun figmaFileContentClient(): FigmaFileContentClient {
         return FigmaFileContentClient()

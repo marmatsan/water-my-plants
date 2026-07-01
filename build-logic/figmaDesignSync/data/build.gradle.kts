@@ -39,6 +39,12 @@ dependencies {
 }
 
 dokka {
+    moduleName.set("figmaDesignSync-data")
+
+    dokkaPublications.html {
+        includes.from("docs/dokka/README.md")
+    }
+
     dokkaSourceSets.main {
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))

@@ -3,6 +3,12 @@ package com.marmatsan.figmaDesignSync.data.figma.dto
 
 import kotlinx.serialization.Serializable
 
+/**
+ * Minimal Figma node DTO needed by the sync checker.
+ *
+ * The API exposes many more fields; unknown fields are ignored by
+ * [com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient].
+ */
 @Serializable
 data class FigmaNode(
     val id: String,

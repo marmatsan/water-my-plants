@@ -8,6 +8,13 @@ import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenci
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
+/**
+ * Adapter that exposes Gradle module dependency parsing through
+ * [ProjectModuleDependenciesPort].
+ *
+ * The domain only asks for dependencies by [ProjectModuleDependenciesSource].
+ * This adapter maps the source scope to the correct Gradle reader entry point.
+ */
 @Inject
 class ProjectModuleDependenciesDataSource(
     private val gradleModuleDependenciesReader: GradleModuleDependenciesReader

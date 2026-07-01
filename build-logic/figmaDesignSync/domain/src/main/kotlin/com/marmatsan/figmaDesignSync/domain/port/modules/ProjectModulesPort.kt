@@ -7,7 +7,15 @@ package com.marmatsan.figmaDesignSync.domain.port.modules
  * repository structure alongside dependency graphs.
  *
  * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.projectModulesPortSample
+ *
+ * @see ProjectModulesSource
  */
 interface ProjectModulesPort {
+    /**
+     * Reads all module paths that should appear in the generated design model.
+     *
+     * Returned values use Gradle path notation such as `:app` or
+     * `:build-logic:figmaDesignSync:domain`.
+     */
     fun readModules(source: ProjectModulesSource): Set<String>
 }
