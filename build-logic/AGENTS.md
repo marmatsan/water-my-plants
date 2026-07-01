@@ -8,6 +8,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
   - `android`: Android application/library defaults and shared Android dependencies.
   - `compose`: Jetpack Compose setup and shared Jetpack Compose dependencies.
   - `dependencies`: version catalog generation and dependency/plugin alias model.
+  - `dokkaDocumentation`: shared Dokka API documentation setup.
   - `figmaDesignSync`: tasks that generate the Figma dependency design model and verify Figma sync metadata.
   - `protobuf`: Protobuf Gradle plugin setup and lite runtime dependencies.
   - `unitTest`: Kotest test configuration and shared test dependencies.
@@ -69,6 +70,8 @@ This directory contains Gradle convention plugins used by the rest of the projec
 
 ## Module-Specific Instructions
 
+- Shared Dokka documentation setup is described in `dokkaDocumentation/docs/README.md`.
+- Each Gradle convention plugin module keeps its own `docs/README.md` describing its plugin ID, purpose, behavior, requirements, and focused verification command.
 - `figmaDesignSync` has additional module-local instructions in `figmaDesignSync/AGENTS.md`. Follow them when editing its source, tests, documentation, generated design model, or Figma automation workflow.
 
 ## Testing

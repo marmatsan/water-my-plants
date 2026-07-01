@@ -7,13 +7,7 @@ package com.marmatsan.figmaDesignSync.domain.model.modules
  * [dependencyModule] is the module it points to. These edges are serialized
  * into `design-model.json` so Figma can render module dependency diagrams.
  *
- * Example:
- * ```
- * ModuleDependency(
- *     dependentModule = ":app",
- *     dependencyModule = ":core:ui"
- * )
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.moduleDependencySample
  *
  * @property dependentModule Gradle module path declaring the dependency.
  * @property dependencyModule Gradle module path being depended on.

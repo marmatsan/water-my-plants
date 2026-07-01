@@ -59,6 +59,12 @@ dependencyResolutionManagement {
             ).version(version("kotlinVersion"))
 
             library(
+                alias = "org.jetbrains.dokka.gradle.plugin",
+                group = "org.jetbrains.dokka",
+                artifact = "dokka-gradle-plugin"
+            ).version(version("dokkaVersion"))
+
+            library(
                 alias = "io.ktor.bom",
                 group = "io.ktor",
                 artifact = "ktor-bom"
@@ -184,6 +190,7 @@ include(
     ":bddTest",
     ":compose",
     ":dependencies",
+    ":dokkaDocumentation",
     ":figmaDesignSync:data",
     ":figmaDesignSync:domain",
     ":figmaDesignSync:plugin",

@@ -6,15 +6,7 @@ package com.marmatsan.figmaDesignSync.domain.port.modules
  * The module list is written into `design-model.json` so Figma can document the
  * repository structure alongside dependency graphs.
  *
- * Example:
- * ```
- * port.readModules(
- *     ProjectModulesSource(
- *         rootSettingsFilePath = "settings.gradle.kts",
- *         buildLogicSettingsFilePath = "build-logic/settings.gradle.kts"
- *     )
- * )
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.projectModulesPortSample
  */
 interface ProjectModulesPort {
     fun readModules(source: ProjectModulesSource): Set<String>

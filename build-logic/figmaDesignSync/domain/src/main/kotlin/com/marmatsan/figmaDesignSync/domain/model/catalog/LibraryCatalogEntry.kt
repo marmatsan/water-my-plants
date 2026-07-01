@@ -8,14 +8,7 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
  * and `build-logic/settings.gradle.kts`, then serialized into
  * `design-model.json`.
  *
- * Example:
- * ```
- * LibraryCatalogEntry.Artifact(
- *     artifact = "kotlin-stdlib",
- *     version = CatalogVersion("2.2.0"),
- *     requiredByModules = listOf(":app")
- * )
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.libraryCatalogEntrySample
  */
 sealed interface LibraryCatalogEntry {
     /**

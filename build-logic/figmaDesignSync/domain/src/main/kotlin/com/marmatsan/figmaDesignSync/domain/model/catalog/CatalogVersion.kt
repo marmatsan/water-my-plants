@@ -10,11 +10,7 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
  * A null [value] represents a versionless dependency. Versionless entries must
  * stay hidden because there is no concrete version text to render.
  *
- * Example:
- * ```
- * CatalogVersion(value = "1.9.25")
- * CatalogVersion(value = null, visible = false)
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.catalogVersionSample
  *
  * @property value Concrete version text, or null when the catalog entry is
  * versionless.

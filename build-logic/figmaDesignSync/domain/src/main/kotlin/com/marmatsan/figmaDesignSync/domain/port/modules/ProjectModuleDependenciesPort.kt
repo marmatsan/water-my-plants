@@ -9,15 +9,7 @@ import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
  * `design-model.json`, which is the source used by Figma module dependency
  * documentation.
  *
- * Example:
- * ```
- * port.readModuleDependencies(
- *     ProjectModuleDependenciesSource(
- *         rootDirPath = ".",
- *         scope = ProjectModuleDependenciesScope.Main
- *     )
- * )
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.projectModuleDependenciesPortSample
  */
 interface ProjectModuleDependenciesPort {
     fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency>

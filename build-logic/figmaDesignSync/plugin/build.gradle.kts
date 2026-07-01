@@ -1,5 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import java.net.URI
+
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
@@ -54,5 +56,20 @@ gradlePlugin {
     plugins.register(pluginName) {
         id = pluginName
         implementationClass = "${pluginName}.plugin.gradle.FigmaDesignSyncGradlePlugin"
+    }
+}
+
+dokka {
+    dokkaSourceSets.main {
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl.set(
+                URI(
+                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
+                        "build-logic/figmaDesignSync/plugin/src/main/kotlin"
+                )
+            )
+            remoteLineSuffix.set("#L")
+        }
     }
 }

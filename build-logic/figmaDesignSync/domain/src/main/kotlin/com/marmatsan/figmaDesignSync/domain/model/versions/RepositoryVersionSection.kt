@@ -7,13 +7,7 @@ package com.marmatsan.figmaDesignSync.domain.model.versions
  * documentation while [versions] contains the key/value pairs inside that
  * section.
  *
- * Example:
- * ```
- * RepositoryVersionSection(
- *     name = "Android",
- *     versions = mapOf("agp" to "9.2.1")
- * )
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.repositoryVersionSectionSample
  *
  * @property name Section heading from `build-logic/versions.properties`.
  * @property versions Version keys and values declared inside the section.

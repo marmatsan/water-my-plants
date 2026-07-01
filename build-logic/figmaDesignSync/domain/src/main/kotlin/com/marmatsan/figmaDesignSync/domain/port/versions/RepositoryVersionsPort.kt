@@ -9,12 +9,7 @@ import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSect
  * key/value map and ordered [RepositoryVersionSection] values for Figma
  * documentation.
  *
- * Example:
- * ```
- * val source = VersionsFileSource("build-logic/versions.properties")
- * val versions = port.readVersions(source)
- * val sections = port.readVersionSections(source)
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.repositoryVersionsPortSample
  */
 interface RepositoryVersionsPort {
     fun readVersions(source: VersionsFileSource): Map<String, String>

@@ -10,14 +10,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
  * [LibraryCatalogTree] and [PluginCatalogTree], which are later serialized into
  * `design-model.json` for Figma.
  *
- * Example:
- * ```
- * val source = ProjectCatalogTreeSource.BuildLogicSettings(
- *     settingsFilePath = "build-logic/settings.gradle.kts"
- * )
- * val libraryTree = port.readLibraryTree(source)
- * val pluginTree = port.readPluginTree(source)
- * ```
+ * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.projectCatalogTreesPortSample
  */
 interface ProjectCatalogTreesPort {
     fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree
