@@ -100,16 +100,46 @@ editing them by hand. Manual chunk editing can corrupt the payload and produce
 import failures that look like SVG compatibility problems.
 
 Place the imported SVG in a Figma diagram section named after the full `.puml`
-file name, for example `figma-design-model-feature.puml`. Module diagrams may
-be grouped under a parent module section such as `figmaDesignSync`, but each UML
-diagram should keep its own section.
+file name, for example `figma-design-model-feature.puml`. The diagram section
+must be nested inside a parent documentation section with a relevant scope name,
+for example `figmaDesignSync` for module diagrams or `projectModuleDependencies`
+for project-wide dependency diagrams.
+
+The parent documentation section owns the `.Header` component and groups related
+diagram sections. It uses:
+
+- Fill bound to `md/sys/color/surface`.
+- Corner radius `28`.
+- A `.Header` component with `Header`, `Link`, and `Definition` filled for that
+  parent section.
+
+Treat Figma publication as part of the `main` CI contract. After a branch with
+added or changed `.puml` diagrams is merged, each affected diagram must be
+rendered, imported into Figma, verified, and left in its own locked child
+diagram section on the UML documentation page.
+
+When a parent documentation section uses a `.Header` component, the header must
+carry useful context for that exact section:
+
+- `Header`: the section/module/diagram name.
+- `Link`: the relevant repository source files, each linked to its GitHub
+  `main` branch URL.
+- `Definition`: a short explanation of what the section documents and why it is
+  useful to the reader.
 
 After `createNodeFromSvg()` imports the SVG, flatten the Figma wrapper structure
 used for the import:
 
 - Move the imported `Group` node directly into the diagram section.
 - Remove intermediate wrapper frames such as `*.svg reference` or `*.svg`.
-- Center the `Group` horizontally inside the diagram section.
+- Keep only that imported `Group` inside the diagram section.
+- The final node named `Group` must be a Figma `GROUP`, not a `FRAME`. If
+  `createNodeFromSvg()` leaves the diagram as `FRAME:Group`, group its children
+  into a real `GROUP:Group` and remove the wrapper frame.
+- Do not leave redundant nested layers also named `Group`. The diagram section
+  should expose exactly one layer named `Group`; rename imported internal groups
+  to meaningful names such as `Title`, `Legend`, or the PlantUML entity/link id.
+- Center the `Group` inside the diagram section.
 
 Verify the imported section structurally after publication:
 
@@ -150,6 +180,19 @@ For sequence diagrams, also inspect dashed semantics after import:
 - Participant lifelines should remain dashed.
 - Return messages should remain dashed.
 - Normal call messages should remain solid.
+
+If a legend overflows after import, widen and recenter the imported legend
+container before changing the `.puml` source. This preserves the reviewed
+diagram wording while compensating for Figma's wider native text metrics.
+
+For text inside UML node boxes, prefer the smallest correction that preserves the
+PlantUML layout:
+
+- Recenter the text in its containing rectangle.
+- Widen non-semantic containers such as legends when the surrounding diagram
+  still has room.
+- Reduce font size only when widening the container would change the diagram
+  meaning or collide with nearby nodes.
 
 If a compatibility import flattened dash styling, restore `dashPattern` on the imported Figma line/vector nodes instead of changing the `.puml` source.
 

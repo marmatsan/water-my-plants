@@ -52,16 +52,19 @@ because both are part of the contract used by the Figma sync pipeline.
 - Keep module-specific UML publication notes and helper scripts next to that module's diagrams unless they are intentionally shared across modules.
 - Every module diagram must include the shared theme and stereotypes unless the diagram has a documented reason not to.
 - Name diagram files in kebab-case using the diagram purpose, for example `architecture.puml`, `ports-and-adapters.puml`, or `model-generation-flow.puml`.
-- When a diagram is published to Figma, render the `.puml` to `.svg` and place the generated SVG in its own Figma section named after the full diagram file name, for example `architecture.puml`.
+- When a diagram is published to Figma, render the `.puml` to `.svg` and place the generated SVG in a Figma diagram section named after the full diagram file name, for example `architecture.puml`.
 - Render temporary PlantUML SVGs under `tmp/uml/<module>/` and keep sanitized Figma import SVGs in the same temporary tree. Do not render generated SVGs next to the `.puml` source unless a task explicitly requires it.
-- Group module diagrams inside a parent section named after the module, for example `figmaDesignSync`. The parent section is for module organization; the diagram-level sections are the publication targets.
+- Group diagrams inside a parent Figma section with a relevant scope name. Module diagrams use the module name, for example `figmaDesignSync`; project-wide diagrams use the project-wide concern, for example `projectModuleDependencies`.
+- Each parent Figma section for UML diagrams must contain a `.Header` component that describes that parent section. Fill `Header`, `Link`, and `Definition` with relevant information, and make `Link` point to the GitHub `main` branch URL for the documented source file when possible.
+- The parent Figma section is the visual/documentation container: bind its fill to `md/sys/color/surface`, set corner radius `28`, and keep only related diagram sections and its `.Header` inside it.
 - The generated SVG is an upload artifact for Figma sync, not the source of truth. Keep the `.puml` as the reviewed source in the repository.
 - UML diagrams published to Figma must use the generated SVG directly. Do not recreate the diagram manually with native Figma UML components unless a task explicitly asks for an exploratory mockup.
+- CI for `main` must treat published UML as part of the releaseable documentation state. Every added or changed `.puml` file that reaches `main` must have its rendered SVG published in the Figma UML documentation page before the merge is considered complete.
 - Follow the module-specific Figma import runbook when one exists. Keep detailed SVG sanitization, import, and troubleshooting rules in module docs unless they are intentionally shared across modules.
 - Once a generated SVG has been successfully published to Figma, delete the generated SVG from `tmp/` if it is no longer needed. Do not keep rendered SVG artifacts locally after they already live in the locked Figma section.
 - UML diagrams that represent BDD features are derived documentation. Keep the `.feature` file as the executable source of truth, update the `.puml` when the feature changes, and create feature diagrams only when the visual representation adds communication value.
 - Lock every Figma section created or modified during UML publication after the SVG has been placed, so generated documentation cannot be edited accidentally in Figma.
-- Figma diagram sections created for UML documentation must have no fill, a stroke bound to `md/sys/color/outline`, stroke align `INSIDE`, and stroke weight `2`.
+- Figma diagram sections created for UML documentation must be children of the parent documentation section. They are named after the `.puml` file, contain only the imported SVG `Group`, and use a stroke bound to `md/sys/color/outline`, stroke align `INSIDE`, and stroke weight `2`.
 - The UML documentation page is `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`.
 - Prefer one focused diagram per file. Do not create large catch-all diagrams that mix unrelated concerns.
 - Use package names and class names from the source code when documenting implementation structure.

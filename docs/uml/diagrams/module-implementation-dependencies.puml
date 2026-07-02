@@ -1,0 +1,79 @@
+@startuml module-implementation-dependencies
+!include ../includes/theme.puml
+!include ../includes/stereotypes.puml
+
+title Module implementation(projects...) consumers
+
+top to bottom direction
+
+skinparam nodesep 70
+skinparam ranksep 100
+skinparam packageStyle rectangle
+
+legend top
+  Sections are ordered alphabetically by target module path in source.
+  Each section contains one target module and the modules that declare
+  implementation(projects...) against it.
+  Arrows represent implementation(projects...) dependencies.
+endlegend
+
+package "module :core:ui" as ModuleCoreUi {
+  component ":app" as AppConsumesCore
+  component ":onboarding:ui" as OnboardingConsumesCore
+  component ":core:ui" as CoreUiTarget
+
+  AppConsumesCore --> CoreUiTarget
+  OnboardingConsumesCore --> CoreUiTarget
+}
+
+package "module :dependencies" as ModuleDependencies {
+  component ":android" as AndroidConsumesDependencies <<gradle>>
+  component ":bddTest" as BddTestConsumesDependencies <<gradle>>
+  component ":compose" as ComposeConsumesDependencies <<gradle>>
+  component ":figmaDesignSync:data" as FigmaDataConsumesDependencies <<adapter>>
+  component ":protobuf" as ProtobufConsumesDependencies <<gradle>>
+  component ":unitTest" as UnitTestConsumesDependencies <<gradle>>
+  component ":dependencies" as DependenciesTarget <<gradle>>
+
+  AndroidConsumesDependencies --> DependenciesTarget
+  BddTestConsumesDependencies --> DependenciesTarget
+  ComposeConsumesDependencies --> DependenciesTarget
+  FigmaDataConsumesDependencies --> DependenciesTarget
+  ProtobufConsumesDependencies --> DependenciesTarget
+  UnitTestConsumesDependencies --> DependenciesTarget
+}
+
+package "module :figmaDesignSync:data" as ModuleFigmaDesignSyncData {
+  component ":figmaDesignSync:plugin" as FigmaPluginConsumesData <<gradle>>
+  component ":figmaDesignSync:data" as FigmaDataTarget <<adapter>>
+
+  FigmaPluginConsumesData --> FigmaDataTarget
+}
+
+package "module :figmaDesignSync:domain" as ModuleFigmaDesignSyncDomain {
+  component ":figmaDesignSync:data" as FigmaDataConsumesDomain <<adapter>>
+  component ":figmaDesignSync:plugin" as FigmaPluginConsumesDomain <<gradle>>
+  component ":figmaDesignSync:domain" as FigmaDomainTarget <<domain>>
+
+  FigmaDataConsumesDomain --> FigmaDomainTarget
+  FigmaPluginConsumesDomain --> FigmaDomainTarget
+}
+
+package "modules without incoming implementation(projects...) consumers" as ModuleNoIncomingConsumers {
+  component ":android" as AndroidTarget <<gradle>>
+  component ":app" as AppTarget
+  component ":bddTest" as BddTestTarget <<gradle>>
+  component ":compose" as ComposeTarget <<gradle>>
+  component ":dokkaDocumentation" as DokkaDocumentationTarget <<gradle>>
+  component ":figmaDesignSync:plugin" as FigmaPluginTarget <<gradle>>
+  component ":onboarding:ui" as OnboardingTarget
+  component ":protobuf" as ProtobufTarget <<gradle>>
+  component ":unitTest" as UnitTestTarget <<gradle>>
+}
+
+ModuleCoreUi -[hidden]down-> ModuleDependencies
+ModuleDependencies -[hidden]down-> ModuleFigmaDesignSyncData
+ModuleFigmaDesignSyncData -[hidden]down-> ModuleFigmaDesignSyncDomain
+ModuleFigmaDesignSyncDomain -[hidden]down-> ModuleNoIncomingConsumers
+
+@enduml

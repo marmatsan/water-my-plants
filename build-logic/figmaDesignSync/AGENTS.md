@@ -74,11 +74,16 @@ used by CI.
   - `docs/uml/figma-import.md` when publishing PlantUML-generated UML diagrams
     to Figma.
 - When adding or updating a `.Header` component for a Figma documentation
-  section, set the `Link` field to the relevant repository files and apply each
-  file hyperlink to its GitHub `main` branch URL, for example
-  `https://github.com/marmatsan/water-my-plants/blob/main/<path>`. If the
-  `Link` field lists multiple files, apply hyperlinks to the individual
-  filename ranges and leave separators unlinked.
+  section, make the header describe the section it belongs to. Fill the header
+  content with:
+  - `Header`: the section/module/diagram name the reader is looking at.
+  - `Link`: relevant repository files that live in GitHub, with each file
+    hyperlink applied to its GitHub `main` branch URL, for example
+    `https://github.com/marmatsan/water-my-plants/blob/main/<path>`. If the
+    `Link` field lists multiple files, apply hyperlinks to the individual
+    filename ranges and leave separators unlinked.
+  - `Definition`: a concise explanation of what this section documents and why
+    it matters.
 
 ## UML Publication
 
@@ -89,11 +94,27 @@ used by CI.
 - Do not publish UML diagrams to Figma as PNG/image fills. PNG exports may be
   used only for diagnosis; final UML publication must use
   `figma.createNodeFromSvg(svg)`.
+- Publish diagrams inside a parent documentation section, not as loose top-level
+  sections. The parent section owns the `.Header`, uses
+  `md/sys/color/surface` as fill, has corner radius `28`, and is named after the
+  scope that groups the included `.puml` diagrams.
+- The individual diagram section is nested inside that parent section and is
+  named after the `.puml` file, for example `model-generation-flow.puml`.
 - Flatten the Figma wrapper structure so only the imported `Group` node remains
-  inside the diagram section, then center that `Group` horizontally.
+  inside the diagram section, then center that `Group`.
+- The final imported `Group` must be a Figma `GROUP`, not a `FRAME`. If
+  `createNodeFromSvg()` leaves `FRAME:Group`, group its children into
+  `GROUP:Group` and remove the wrapper frame.
+- Do not leave nested imported layers also named `Group`. A diagram section
+  should have exactly one layer named `Group`; rename internal groups to
+  meaningful names such as `Title`, `Legend`, or the PlantUML entity/link id.
 - Before importing PlantUML SVGs into Figma with `createNodeFromSvg()`, sanitize
   them with `docs/uml/tools/sanitize-svg-for-figma.ps1`.
 - Keep sanitized SVGs as temporary `tmp/uml/figmaDesignSync/` artifacts.
+- Treat UML publication as a `main` CI requirement. Any `.puml` diagram added
+  or changed in this module must live in the Figma UML documentation page after
+  the branch is merged to `main`; do not consider the merge complete while the
+  corresponding Figma section is missing or stale.
 - Do not remove PlantUML SVG `lengthAdjust`, `textLength`, or
   `stroke-dasharray` attributes during normal sanitization. They preserve text
   fit and dashed sequence-diagram semantics in Figma.

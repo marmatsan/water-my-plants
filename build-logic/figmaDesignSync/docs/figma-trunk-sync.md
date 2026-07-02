@@ -240,6 +240,8 @@ Recommended build steps for `main`:
 - Run normal verification: unit, integration, and end-to-end tests where available.
 - Run `generateFigmaDesignModel`.
 - Publish `build/reports/figma-sync/design-model.json`.
+- Verify every added or changed `.puml` diagram has been rendered and published
+  to the Figma UML documentation page in its own locked section.
 
 The Figma write step is currently MCP-operated. After the MCP sync step writes the metadata into Figma, run:
 
@@ -259,6 +261,8 @@ Before creating `release/<version>`:
 - `main` must pass the normal build and test suite.
 - `generateFigmaDesignModel` must produce the current model.
 - Figma must be synced through the MCP step.
+- Every `.puml` diagram added or changed on `main` must already live in the
+  Figma UML documentation page.
 - `checkFigmaTrunkSync` must pass.
 
 Only after that barrier is green:
