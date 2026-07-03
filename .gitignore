@@ -35,11 +35,16 @@ google-services.json
 
 # Figma Code Connect
 .env
-tmp
 figma.config.json
+
+# Tmp files
+tmp
 
 # Kotlin local cache
 .kotlin/
+
+# TeamCity DSL local generation output
+.teamcity/target/
 
 # Cucumber+ IDE plugin generated files
 **/.cucumber+/
