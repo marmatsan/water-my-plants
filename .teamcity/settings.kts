@@ -86,7 +86,7 @@ open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildS
     }
 
     private companion object {
-        const val SCRIPT_CONTENT_PARAM = "script.content"
+        const val SCRIPT_CONTENT_PARAM = "script-content"
     }
 }
 
