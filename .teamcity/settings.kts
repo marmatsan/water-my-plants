@@ -48,6 +48,7 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("verify")
         name = "Verify"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {
@@ -60,6 +61,7 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("generate_design_model")
         name = "Generate design model"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {
@@ -79,6 +81,7 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("check_figma_trunk_sync")
         name = "Check Figma trunk sync"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {

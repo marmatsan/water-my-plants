@@ -64,6 +64,16 @@ repositories {
 
 This makes the generated pipeline settings point to the project repository VCS root, which is required before repository status publication can work correctly.
 
+## Pipeline Job Reuse
+
+Pipeline jobs must keep reuse disabled:
+
+```kotlin
+allowReuse = false
+```
+
+This prevents TeamCity from satisfying a branch or pull request pipeline with a previously successful job from `main`. The Figma gate depends on the exact `design-model.json` generated for the same branch revision, so `verify`, `generate_design_model`, and `check_figma_trunk_sync` must all run in the same pipeline chain for the selected branch.
+
 ## Secure Parameters
 
 Secrets are declared in DSL only by TeamCity credential references, never by raw secret values.
