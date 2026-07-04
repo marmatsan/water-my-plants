@@ -5,6 +5,8 @@ import jetbrains.buildServer.configs.kotlin.pipelines.PipelineCompatible
 version = "2026.1"
 
 project {
+    vcsRoot(GitHub)
+
     params {
         param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
         param("teamcity.activeBuildBranch.age.hours", "0")
@@ -28,7 +30,7 @@ object WaterMyPlantsCi : Pipeline({
     name = "CI"
 
     repositories {
-        repository(AbsoluteId("WaterMyPlants_GitHub"))
+        repository(GitHub)
     }
 
     triggers {
@@ -49,7 +51,7 @@ object WaterMyPlantsCi : Pipeline({
         allowReuse = false
 
         repositories {
-            repository(AbsoluteId("WaterMyPlants_GitHub"))
+            repository(GitHub)
         }
 
         steps {
@@ -66,7 +68,7 @@ object WaterMyPlantsCi : Pipeline({
         allowReuse = false
 
         repositories {
-            repository(AbsoluteId("WaterMyPlants_GitHub"))
+            repository(GitHub)
         }
 
         steps {
@@ -90,7 +92,7 @@ object WaterMyPlantsCi : Pipeline({
         allowReuse = false
 
         repositories {
-            repository(AbsoluteId("WaterMyPlants_GitHub"))
+            repository(GitHub)
         }
 
         steps {
@@ -102,6 +104,23 @@ object WaterMyPlantsCi : Pipeline({
 
         dependency("generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
     }
+})
+
+object GitHub : VcsRoot({
+    id("GitHub")
+    name = "water-my-plants"
+    type = "jetbrains.git"
+
+    param("url", "https://github.com/marmatsan/water-my-plants.git")
+    param("branch", "refs/heads/main")
+    param(
+        "branchSpec",
+        """
+        #! fallbackToDefault: false
+        +:refs/heads/(*)
+        +:refs/pull/(*/head)
+        """.trimIndent()
+    )
 })
 
 open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildStep(), PipelineCompatible {

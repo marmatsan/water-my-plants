@@ -42,25 +42,53 @@ the fix belongs in `.teamcity/settings.kts`, not in the pipeline editor.
 
 ## Pipeline Repository
 
-Use the existing project VCS root as the pipeline repository by absolute id:
+Declare the project VCS root in `.teamcity/settings.kts` with the local id
+`GitHub`:
+
+```kotlin
+object GitHub : VcsRoot({
+    id("GitHub")
+    name = "water-my-plants"
+    type = "jetbrains.git"
+
+    param("url", "https://github.com/marmatsan/water-my-plants.git")
+    param("branch", "refs/heads/main")
+    param(
+        "branchSpec",
+        """
+        #! fallbackToDefault: false
+        +:refs/heads/(*)
+        +:refs/pull/(*/head)
+        """.trimIndent()
+    )
+})
+```
+
+Then reference that same object from the pipeline and every job:
 
 ```kotlin
 repositories {
-    repository(AbsoluteId("WaterMyPlants_GitHub"))
+    repository(GitHub)
 }
 ```
 
-The project settings and source code live in the same GitHub repository. The repository configured in TeamCity as `water-my-plants` is the root that the Pipeline UI resolves to the selected branch.
+The project settings and source code live in the same GitHub repository. In
+TeamCity, the local DSL id `GitHub` is materialized under the project id as
+`WaterMyPlants_GitHub`, which is the root that the Pipeline UI resolves to the
+selected branch.
 
-Declare the same repository explicitly in every job:
+Without a job-level repository, the top-level Pipeline Head can resolve the
+branch correctly while virtual jobs start with an empty checkout directory and
+fail because `gradlew.bat` is missing.
 
-```kotlin
-repositories {
-    repository(AbsoluteId("WaterMyPlants_GitHub"))
-}
+Do not reference `AbsoluteId("WaterMyPlants_GitHub")` directly from job
+repository blocks. TeamCity can generate pipeline YAML that references
+`WaterMyPlants_GitHub` without registering that repository in the pipeline
+model, which fails at runtime with:
+
+```text
+Repository referenced by WaterMyPlants_GitHub not found
 ```
-
-Without this, the top-level Pipeline Head can resolve the branch correctly while virtual jobs start with an empty checkout directory and fail because `gradlew.bat` is missing.
 
 Do not create a second Git VCS root with the same URL. A duplicate root can make the pipeline show a feature/chore branch while individual jobs still checkout `main`.
 
