@@ -48,6 +48,10 @@ object WaterMyPlantsCi : Pipeline({
         name = "Verify"
         allowReuse = false
 
+        repositories {
+            repository(AbsoluteId("WaterMyPlants_GitHub"))
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
@@ -60,6 +64,10 @@ object WaterMyPlantsCi : Pipeline({
         id("generate_design_model")
         name = "Generate design model"
         allowReuse = false
+
+        repositories {
+            repository(AbsoluteId("WaterMyPlants_GitHub"))
+        }
 
         steps {
             step(PipelineScriptStep {
@@ -80,6 +88,10 @@ object WaterMyPlantsCi : Pipeline({
         id("check_figma_trunk_sync")
         name = "Check Figma trunk sync"
         allowReuse = false
+
+        repositories {
+            repository(AbsoluteId("WaterMyPlants_GitHub"))
+        }
 
         steps {
             step(PipelineScriptStep {

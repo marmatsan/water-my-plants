@@ -52,6 +52,16 @@ repositories {
 
 The project settings and source code live in the same GitHub repository. The repository configured in TeamCity as `water-my-plants` is the root that the Pipeline UI resolves to the selected branch.
 
+Declare the same repository explicitly in every job:
+
+```kotlin
+repositories {
+    repository(AbsoluteId("WaterMyPlants_GitHub"))
+}
+```
+
+Without this, the top-level Pipeline Head can resolve the branch correctly while virtual jobs start with an empty checkout directory and fail because `gradlew.bat` is missing.
+
 Do not create a second Git VCS root with the same URL. A duplicate root can make the pipeline show a feature/chore branch while individual jobs still checkout `main`.
 
 Do not use `DslContext.settingsRoot` as the job checkout repository. It is the settings root, and TeamCity can apply settings-path checkout rules such as `.teamcity`; jobs need the full repository to run `gradlew.bat`.
