@@ -85,16 +85,19 @@ In TeamCity 2026.1.2, the virtual jobs generated from this Kotlin DSL pipeline
 did not materialize that default checkout in our setup: job logs showed a fresh
 checkout directory followed immediately by the script step, and `gradlew.bat`
 was missing. Until the native checkout behavior is reliable, each Gradle step
-uses a shared script helper that fetches the exact TeamCity-selected revision:
+uses a shared script helper that fetches the selected TeamCity branch:
 
 ```kotlin
-set "WMP_REVISION=%build.vcs.number.WaterMyPlants_GitHub%"
+set "WMP_BRANCH=%teamcity.build.branch%"
+if "%WMP_BRANCH%"=="<default>" set "WMP_BRANCH=main"
 git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*"
-git checkout --force "%WMP_REVISION%"
+git checkout --force "origin/%WMP_BRANCH%" || git checkout --force "origin/pull/%WMP_BRANCH%"
 ```
 
-This keeps the job on the same commit that TeamCity selected for the pipeline
-branch while avoiding a manual branch-name reconstruction in the script.
+Do not use `%build.vcs.number.WaterMyPlants_GitHub%` inside job script content.
+The virtual jobs do not have that VCS root attached, so TeamCity treats the
+parameter as unresolved during agent compatibility checks and reports `No
+compatible agent`.
 
 Avoid job-level repository blocks unless a job needs a different checkout
 layout. TeamCity can generate pipeline YAML that references `WaterMyPlants_GitHub`
