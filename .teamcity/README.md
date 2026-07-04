@@ -42,17 +42,19 @@ the fix belongs in `.teamcity/settings.kts`, not in the pipeline editor.
 
 ## Pipeline Repository
 
-Use the versioned settings root as the pipeline repository:
+Use the existing project VCS root as the pipeline repository by absolute id:
 
 ```kotlin
 repositories {
-    repository(DslContext.settingsRoot)
+    repository(AbsoluteId("WaterMyPlants_GitHub"))
 }
 ```
 
-The project settings and source code live in the same GitHub repository, and TeamCity binds the Pipeline UI branch selector to the settings root. A duplicate Git VCS root with the same URL can make the pipeline show a feature/chore branch while individual jobs still checkout that duplicate root from `main`.
+The project settings and source code live in the same GitHub repository. The repository configured in TeamCity as `water-my-plants` is the root that the Pipeline UI resolves to the selected branch.
 
-Do not add a second VCS root for this repository unless the build intentionally needs a separate checkout.
+Do not create a second Git VCS root with the same URL. A duplicate root can make the pipeline show a feature/chore branch while individual jobs still checkout `main`.
+
+Do not use `DslContext.settingsRoot` as the job checkout repository. It is the settings root, and TeamCity can apply settings-path checkout rules such as `.teamcity`; jobs need the full repository to run `gradlew.bat`.
 
 ## Pipeline Job Reuse
 
@@ -94,7 +96,7 @@ Generated files are written to:
 .teamcity/target/generated-configs
 ```
 
-The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For this project, the pipeline should point to `SettingsRootId` so branch builds checkout the same repository branch selected in the Pipeline UI.
+The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For this project, the pipeline head should reference `WaterMyPlants_GitHub` and should not emit a duplicate VCS root for `https://github.com/marmatsan/water-my-plants.git`.
 
 ## Clean-up Rules
 

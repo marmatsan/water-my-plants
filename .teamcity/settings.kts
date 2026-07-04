@@ -28,7 +28,7 @@ object WaterMyPlantsCi : Pipeline({
     name = "CI"
 
     repositories {
-        repository(DslContext.settingsRoot)
+        repository(AbsoluteId("WaterMyPlants_GitHub"))
     }
 
     triggers {
