@@ -6,6 +6,7 @@ version = "2026.1"
 
 project {
     params {
+        param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
         password("figma.file.content.access.token", "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a")
     }
 
@@ -27,6 +28,8 @@ object WaterMyPlantsCi : Pipeline({
     }
 
     params {
+        param("env.ANDROID_HOME", "%android.sdk.path%")
+        param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
         param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
     }
 
