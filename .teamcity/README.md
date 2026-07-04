@@ -64,6 +64,21 @@ repositories {
 
 This makes the generated pipeline settings point to the project repository VCS root, which is required before repository status publication can work correctly.
 
+The repository branch specification must not silently fall back to `main` for branch builds:
+
+```kotlin
+param(
+    "branchSpec",
+    """
+    #! fallbackToDefault: false
+    +:refs/heads/(*)
+    +:refs/pull/(*/head)
+    """.trimIndent()
+)
+```
+
+The explicit logical branch name keeps this VCS root aligned with the branch selected in the Pipeline UI. The fallback guard turns a branch-resolution mistake into an obvious configuration failure instead of running the Figma gate against `main`.
+
 ## Pipeline Job Reuse
 
 Pipeline jobs must keep reuse disabled:

@@ -104,8 +104,9 @@ object WaterMyPlantsRepository : VcsRoot({
     param(
         "branchSpec",
         """
-        +:refs/heads/*
-        +:refs/pull/*/head
+        #! fallbackToDefault: false
+        +:refs/heads/(*)
+        +:refs/pull/(*/head)
         """.trimIndent()
     )
 })
