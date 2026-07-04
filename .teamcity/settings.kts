@@ -5,6 +5,10 @@ import jetbrains.buildServer.configs.kotlin.pipelines.PipelineCompatible
 version = "2026.1"
 
 project {
+    params {
+        password("figma.file.content.access.token", "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a")
+    }
+
     pipeline(WaterMyPlantsCi)
 }
 
