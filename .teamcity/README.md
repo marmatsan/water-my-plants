@@ -64,11 +64,12 @@ object GitHub : VcsRoot({
 })
 ```
 
-Then reference that same object from the pipeline and every job:
+Then reference that same object once from the pipeline and keep it enabled by
+default:
 
 ```kotlin
 repositories {
-    repository(GitHub)
+    repository(GitHub, enabledByDefault = true)
 }
 ```
 
@@ -77,14 +78,13 @@ TeamCity, the local DSL id `GitHub` is materialized under the project id as
 `WaterMyPlants_GitHub`, which is the root that the Pipeline UI resolves to the
 selected branch.
 
-Without a job-level repository, the top-level Pipeline Head can resolve the
-branch correctly while virtual jobs start with an empty checkout directory and
-fail because `gradlew.bat` is missing.
+This is the repository that TeamCity should automatically checkout for every
+job.
 
-Do not reference `AbsoluteId("WaterMyPlants_GitHub")` directly from job
-repository blocks. TeamCity can generate pipeline YAML that references
-`WaterMyPlants_GitHub` without registering that repository in the pipeline
-model, which fails at runtime with:
+Avoid job-level repository blocks unless a job needs a different checkout
+layout. TeamCity can generate pipeline YAML that references `WaterMyPlants_GitHub`
+from a job without making that repository available to the pipeline generator,
+which fails at runtime with:
 
 ```text
 Repository referenced by WaterMyPlants_GitHub not found
