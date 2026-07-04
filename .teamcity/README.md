@@ -56,6 +56,44 @@ Do not create a second Git VCS root with the same URL. A duplicate root can make
 
 Do not use `DslContext.settingsRoot` as the job checkout repository. It is the settings root, and TeamCity can apply settings-path checkout rules such as `.teamcity`; jobs need the full repository to run `gradlew.bat`.
 
+When this is working, the generated Pipeline Head contains:
+
+```xml
+<vcs-entry-ref root-id="WaterMyPlants_GitHub" />
+```
+
+and the pipeline run log for a branch build reports:
+
+```text
+VCS revisions: 'WaterMyPlants_GitHub' ... refs/heads/chore/teamcity-settings
+```
+
+If the log reports `WaterMyPlants_WaterMyPlantsRepository` or a revision from `refs/heads/main` while the Pipeline UI shows a chore/feature branch, TeamCity is using the wrong checkout root.
+
+## Pipeline Runs and Job Logs
+
+The top-level Pipeline build is composite. It aggregates job results and may fail with:
+
+```text
+Build chain finished (failed: 3)
+```
+
+That log does not show the actual Gradle failure. Debug the child jobs instead:
+
+```text
+Verify
+Generate design model
+Check Figma trunk sync
+```
+
+The expected Figma gate failure for an unsynchronized branch mentions that branch name:
+
+```text
+Figma is out of sync with chore/teamcity-settings
+```
+
+If it says `Figma is out of sync with main`, the job checked out `main` and the pipeline checkout configuration is wrong.
+
 ## Pipeline Job Reuse
 
 Pipeline jobs must keep reuse disabled:
