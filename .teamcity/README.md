@@ -88,16 +88,21 @@ was missing. Until the native checkout behavior is reliable, each Gradle step
 uses a shared script helper that fetches the selected TeamCity branch:
 
 ```kotlin
+setlocal EnableExtensions EnableDelayedExpansion
 set "WMP_BRANCH=%teamcity.build.branch%"
-if "%WMP_BRANCH%"=="<default>" set "WMP_BRANCH=main"
+if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
 git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*"
-git checkout --force "origin/%WMP_BRANCH%" || git checkout --force "origin/pull/%WMP_BRANCH%"
+git checkout --force "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!"
 ```
 
 Do not use `%build.vcs.number.WaterMyPlants_GitHub%` inside job script content.
 The virtual jobs do not have that VCS root attached, so TeamCity treats the
 parameter as unresolved during agent compatibility checks and reports `No
 compatible agent`.
+
+For local Windows batch variables, use delayed expansion (`!WMP_BRANCH!`) rather
+than `%WMP_BRANCH%`. TeamCity treats `%...%` as a TeamCity parameter reference
+before the job starts, so `%WMP_BRANCH%` also makes the job incompatible.
 
 Avoid job-level repository blocks unless a job needs a different checkout
 layout. TeamCity can generate pipeline YAML that references `WaterMyPlants_GitHub`
