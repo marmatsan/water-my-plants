@@ -5,8 +5,6 @@ import jetbrains.buildServer.configs.kotlin.pipelines.PipelineCompatible
 version = "2026.1"
 
 project {
-    vcsRoot(WaterMyPlantsRepository)
-
     params {
         param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
         param("teamcity.activeBuildBranch.age.hours", "0")
@@ -30,7 +28,7 @@ object WaterMyPlantsCi : Pipeline({
     name = "CI"
 
     repositories {
-        repository(WaterMyPlantsRepository)
+        repository(DslContext.settingsRoot)
     }
 
     triggers {
@@ -92,23 +90,6 @@ object WaterMyPlantsCi : Pipeline({
 
         dependency("generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
     }
-})
-
-object WaterMyPlantsRepository : VcsRoot({
-    id("WaterMyPlantsRepository")
-    name = "water-my-plants GitHub repository"
-    type = "jetbrains.git"
-
-    param("url", "https://github.com/marmatsan/water-my-plants.git")
-    param("branch", "refs/heads/main")
-    param(
-        "branchSpec",
-        """
-        #! fallbackToDefault: false
-        +:refs/heads/(*)
-        +:refs/pull/(*/head)
-        """.trimIndent()
-    )
 })
 
 open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildStep(), PipelineCompatible {

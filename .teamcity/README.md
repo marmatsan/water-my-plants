@@ -42,7 +42,7 @@ the fix belongs in `.teamcity/settings.kts`, not in the pipeline editor.
 
 ## Pipeline Repository
 
-Do not use the versioned settings root as the pipeline repository:
+Use the versioned settings root as the pipeline repository:
 
 ```kotlin
 repositories {
@@ -50,34 +50,9 @@ repositories {
 }
 ```
 
-That makes TeamCity generate the pipeline against `SettingsRootId`.
+The project settings and source code live in the same GitHub repository, and TeamCity binds the Pipeline UI branch selector to the settings root. A duplicate Git VCS root with the same URL can make the pipeline show a feature/chore branch while individual jobs still checkout that duplicate root from `main`.
 
-Use an explicit Git VCS root for the project repository instead:
-
-```kotlin
-vcsRoot(WaterMyPlantsRepository)
-
-repositories {
-    repository(WaterMyPlantsRepository)
-}
-```
-
-This makes the generated pipeline settings point to the project repository VCS root, which is required before repository status publication can work correctly.
-
-The repository branch specification must not silently fall back to `main` for branch builds:
-
-```kotlin
-param(
-    "branchSpec",
-    """
-    #! fallbackToDefault: false
-    +:refs/heads/(*)
-    +:refs/pull/(*/head)
-    """.trimIndent()
-)
-```
-
-The explicit logical branch name keeps this VCS root aligned with the branch selected in the Pipeline UI. The fallback guard turns a branch-resolution mistake into an obvious configuration failure instead of running the Figma gate against `main`.
+Do not add a second VCS root for this repository unless the build intentionally needs a separate checkout.
 
 ## Pipeline Job Reuse
 
@@ -119,7 +94,7 @@ Generated files are written to:
 .teamcity/target/generated-configs
 ```
 
-The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For example, it can confirm whether the pipeline still points to `SettingsRootId` or to the intended repository VCS root.
+The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For this project, the pipeline should point to `SettingsRootId` so branch builds checkout the same repository branch selected in the Pipeline UI.
 
 ## Clean-up Rules
 
