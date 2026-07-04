@@ -9,7 +9,17 @@ project {
 
     params {
         param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
+        param("teamcity.activeBuildBranch.age.hours", "0")
         password("figma.file.content.access.token", "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a")
+    }
+
+    cleanup {
+        baseRule {
+            artifacts(days = 7)
+            history(days = 14)
+            all(days = 30)
+            preventDependencyCleanup = false
+        }
     }
 
     pipeline(WaterMyPlantsCi)
