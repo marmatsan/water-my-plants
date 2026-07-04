@@ -81,6 +81,21 @@ selected branch.
 This is the repository that TeamCity should automatically checkout for every
 job.
 
+In TeamCity 2026.1.2, the virtual jobs generated from this Kotlin DSL pipeline
+did not materialize that default checkout in our setup: job logs showed a fresh
+checkout directory followed immediately by the script step, and `gradlew.bat`
+was missing. Until the native checkout behavior is reliable, each Gradle step
+uses a shared script helper that fetches the exact TeamCity-selected revision:
+
+```kotlin
+set "WMP_REVISION=%build.vcs.number.WaterMyPlants_GitHub%"
+git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*"
+git checkout --force "%WMP_REVISION%"
+```
+
+This keeps the job on the same commit that TeamCity selected for the pipeline
+branch while avoiding a manual branch-name reconstruction in the script.
+
 Avoid job-level repository blocks unless a job needs a different checkout
 layout. TeamCity can generate pipeline YAML that references `WaterMyPlants_GitHub`
 from a job without making that repository available to the pipeline generator,

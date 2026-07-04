@@ -53,7 +53,7 @@ object WaterMyPlantsCi : Pipeline({
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
-                scriptContent = ".\\gradlew.bat check"
+                scriptContent = GradleScripts.gradle("check")
             })
         }
     }
@@ -66,7 +66,7 @@ object WaterMyPlantsCi : Pipeline({
         steps {
             step(PipelineScriptStep {
                 name = "Generate Figma design model"
-                scriptContent = ".\\gradlew.bat generateFigmaDesignModel"
+                scriptContent = GradleScripts.gradle("generateFigmaDesignModel")
             })
         }
 
@@ -86,13 +86,28 @@ object WaterMyPlantsCi : Pipeline({
         steps {
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = ".\\gradlew.bat checkFigmaTrunkSync"
+                scriptContent = GradleScripts.gradle("checkFigmaTrunkSync")
             })
         }
 
         dependency("generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
     }
 })
+
+object GradleScripts {
+    fun gradle(tasks: String): String =
+        """
+        set "WMP_REVISION=%build.vcs.number.WaterMyPlants_GitHub%"
+
+        if not exist ".git" git init || exit /b 1
+        git remote remove origin 2>NUL
+        git remote add origin https://github.com/marmatsan/water-my-plants.git || exit /b 1
+        git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*" || exit /b 1
+        git checkout --force "%WMP_REVISION%" || exit /b 1
+
+        .\gradlew.bat $tasks
+        """.trimIndent()
+}
 
 object GitHub : VcsRoot({
     id("GitHub")
