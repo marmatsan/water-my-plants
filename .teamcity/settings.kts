@@ -5,7 +5,7 @@ import jetbrains.buildServer.configs.kotlin.pipelines.PipelineCompatible
 version = "2026.1"
 
 project {
-    vcsRoot(WaterMyPlantsRepository)
+    vcsRoot(GitHub)
 
     params {
         param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
@@ -22,21 +22,44 @@ project {
         }
     }
 
+    buildType(WaterMyPlantsCiGithubStatus)
     pipeline(WaterMyPlantsCi)
 }
 
-object WaterMyPlantsCi : Pipeline({
-    id("WaterMyPlantsCi")
-    name = "CI"
+object WaterMyPlantsCiGithubStatus : BuildType({
+    id("WaterMyPlantsCiGithubStatus")
+    name = "CI GitHub status"
+    type = BuildTypeSettings.Type.COMPOSITE
 
-    repositories {
-        repository(WaterMyPlantsRepository)
+    vcs {
+        root(GitHub)
     }
 
     triggers {
         trigger(PipelineVcsTrigger {
             branchFilter = "+:*"
         })
+    }
+
+    features {
+        feature(GitHubStatusPublisher("TeamCity CI"))
+    }
+
+    dependencies {
+        snapshot(WaterMyPlantsCi) {
+            reuseBuilds = ReuseBuilds.NO
+            onDependencyFailure = FailureAction.ADD_PROBLEM
+            onDependencyCancel = FailureAction.FAIL_TO_START
+        }
+    }
+})
+
+object WaterMyPlantsCi : Pipeline({
+    id("WaterMyPlantsCi")
+    name = "CI"
+
+    repositories {
+        repository(GitHub, enabledByDefault = true)
     }
 
     params {
@@ -48,11 +71,12 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("verify")
         name = "Verify"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
-                scriptContent = ".\\gradlew.bat check"
+                scriptContent = GradleScripts.gradle("check")
             })
         }
     }
@@ -60,11 +84,12 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("generate_design_model")
         name = "Generate design model"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {
                 name = "Generate Figma design model"
-                scriptContent = ".\\gradlew.bat generateFigmaDesignModel"
+                scriptContent = GradleScripts.gradle("generateFigmaDesignModel")
             })
         }
 
@@ -79,11 +104,12 @@ object WaterMyPlantsCi : Pipeline({
     job {
         id("check_figma_trunk_sync")
         name = "Check Figma trunk sync"
+        allowReuse = false
 
         steps {
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = ".\\gradlew.bat checkFigmaTrunkSync"
+                scriptContent = GradleScripts.gradle("checkFigmaTrunkSync")
             })
         }
 
@@ -91,9 +117,39 @@ object WaterMyPlantsCi : Pipeline({
     }
 })
 
-object WaterMyPlantsRepository : VcsRoot({
-    id("WaterMyPlantsRepository")
-    name = "water-my-plants GitHub repository"
+class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineCompatible {
+    init {
+        type = "commit-status-publisher"
+        yamlType = "commit-status-publisher"
+
+        param("publisherId", "githubStatusPublisher")
+        param("github_host", "https://api.github.com")
+        param("github_authentication_type", "vcsRoot")
+        param("build_custom_name", statusCheckName)
+    }
+}
+
+object GradleScripts {
+    fun gradle(tasks: String): String =
+        """
+        setlocal EnableExtensions EnableDelayedExpansion
+        set "WMP_BRANCH=%teamcity.build.branch%"
+        if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
+        if "!WMP_BRANCH!"=="" set "WMP_BRANCH=main"
+
+        if not exist ".git" git init || exit /b 1
+        git remote remove origin 2>NUL
+        git remote add origin https://github.com/marmatsan/water-my-plants.git || exit /b 1
+        git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*" || exit /b 1
+        git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!" || exit /b 1
+
+        .\gradlew.bat $tasks
+        """.trimIndent()
+}
+
+object GitHub : VcsRoot({
+    id("GitHub")
+    name = "water-my-plants"
     type = "jetbrains.git"
 
     param("url", "https://github.com/marmatsan/water-my-plants.git")
@@ -101,8 +157,9 @@ object WaterMyPlantsRepository : VcsRoot({
     param(
         "branchSpec",
         """
-        +:refs/heads/*
-        +:refs/pull/*/head
+        #! fallbackToDefault: false
+        +:refs/heads/(*)
+        +:refs/pull/(*/head)
         """.trimIndent()
     )
 })

@@ -45,6 +45,7 @@ tmp
 
 # TeamCity DSL local generation output
 .teamcity/target/
+teamcity.toml
 
 # Cucumber+ IDE plugin generated files
 **/.cucumber+/
