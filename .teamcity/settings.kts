@@ -50,6 +50,10 @@ object WaterMyPlantsCi : Pipeline({
         name = "Verify"
         allowReuse = false
 
+        features {
+            feature(GitHubStatusPublisher("TeamCity CI / Verify"))
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
@@ -62,6 +66,10 @@ object WaterMyPlantsCi : Pipeline({
         id("generate_design_model")
         name = "Generate design model"
         allowReuse = false
+
+        features {
+            feature(GitHubStatusPublisher("TeamCity CI / Generate design model"))
+        }
 
         steps {
             step(PipelineScriptStep {
@@ -83,6 +91,10 @@ object WaterMyPlantsCi : Pipeline({
         name = "Check Figma trunk sync"
         allowReuse = false
 
+        features {
+            feature(GitHubStatusPublisher("TeamCity CI / Check Figma trunk sync"))
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
@@ -93,6 +105,18 @@ object WaterMyPlantsCi : Pipeline({
         dependency("generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
     }
 })
+
+class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineCompatible {
+    init {
+        type = "commit-status-publisher"
+        yamlType = "commit-status-publisher"
+
+        param("publisherId", "githubStatusPublisher")
+        param("github_host", "https://api.github.com")
+        param("github_authentication_type", "vcsRoot")
+        param("build_custom_name", statusCheckName)
+    }
+}
 
 object GradleScripts {
     fun gradle(tasks: String): String =

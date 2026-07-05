@@ -165,6 +165,38 @@ allowReuse = false
 
 This prevents TeamCity from satisfying a branch or pull request pipeline with a previously successful job from `main`. The Figma gate depends on the exact `design-model.json` generated for the same branch revision, so `verify`, `generate_design_model`, and `check_figma_trunk_sync` must all run in the same pipeline chain for the selected branch.
 
+## GitHub Status Publishing
+
+GitHub status publishing is configured in DSL because Pipeline editing is
+read-only when versioned settings are enabled.
+
+Each job adds the generic TeamCity build feature:
+
+```kotlin
+features {
+    feature(GitHubStatusPublisher("TeamCity CI / Verify"))
+}
+```
+
+The feature emits `commit-status-publisher` into the generated Pipeline YAML
+and uses GitHub with VCS root credentials:
+
+```kotlin
+param("publisherId", "githubStatusPublisher")
+param("github_host", "https://api.github.com")
+param("github_authentication_type", "vcsRoot")
+param("build_custom_name", statusCheckName)
+```
+
+Do not add a raw GitHub token to the repository. The VCS root credentials or a
+TeamCity-managed GitHub App token must provide permission to write commit
+statuses.
+
+The feature intentionally omits `vcsRootId`. TeamCity's Commit Status Publisher
+then publishes for the Git VCS roots attached to the generated job. If GitHub
+still receives no statuses, inspect `teamcity-commit-status.log` and switch the
+feature to a TeamCity-managed GitHub App token instead of `vcsRoot`.
+
 ## Secure Parameters
 
 Secrets are declared in DSL only by TeamCity credential references, never by raw secret values.
