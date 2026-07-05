@@ -232,6 +232,32 @@ documentation describes that native toggle as available for pipelines created
 from provider connections; this project is configured from versioned Kotlin DSL
 and a VCS root.
 
+## GitHub Required Check Validation
+
+Use a small documentation-only branch to validate the GitHub ruleset after
+changing TeamCity status publishing.
+
+Expected setup:
+
+- The `main` ruleset requires a pull request before merging.
+- The `main` ruleset requires the `TeamCity CI` status check.
+- The required check source is the TeamCity GitHub integration, not Figma.
+
+Expected validation flow:
+
+1. Create a short-lived `chore/*` branch from `main`.
+2. Commit a harmless documentation change.
+3. Open a pull request to `main`.
+4. Confirm GitHub shows `TeamCity CI` as a required check.
+5. Confirm the merge button is blocked while `TeamCity CI` is pending or failed.
+6. Merge only after TeamCity publishes `TeamCity CI` as successful for the pull
+   request head commit.
+
+If GitHub offers `CI GitHub status` as a required check, do not select it. That
+name came from an older reporting-only job and is not the current pipeline
+gate. The current gate is the `TeamCity CI` commit status published by the
+final pipeline job, `check_figma_trunk_sync`.
+
 ## Secure Parameters
 
 Secrets are declared in DSL only by TeamCity credential references, never by raw secret values.
