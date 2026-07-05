@@ -50,10 +50,14 @@ object WaterMyPlantsCi : Pipeline({
         name = "Verify"
         allowReuse = false
 
+        repositories {
+            repository(GitHub)
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
-                scriptContent = GradleScripts.gradle("check")
+                scriptContent = """.\gradlew.bat check"""
             })
         }
     }
@@ -63,10 +67,14 @@ object WaterMyPlantsCi : Pipeline({
         name = "Generate design model"
         allowReuse = false
 
+        repositories {
+            repository(GitHub)
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Generate Figma design model"
-                scriptContent = GradleScripts.gradle("generateFigmaDesignModel")
+                scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
             })
         }
 
@@ -83,6 +91,10 @@ object WaterMyPlantsCi : Pipeline({
         name = "Check Figma trunk sync"
         allowReuse = false
 
+        repositories {
+            repository(GitHub)
+        }
+
         features {
             feature(GitHubStatusPublisher("TeamCity CI"))
         }
@@ -90,7 +102,7 @@ object WaterMyPlantsCi : Pipeline({
         steps {
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = GradleScripts.gradle("checkFigmaTrunkSync")
+                scriptContent = """.\gradlew.bat checkFigmaTrunkSync"""
             })
         }
 
@@ -108,24 +120,6 @@ class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineC
         param("github_authentication_type", "vcsRoot")
         param("build_custom_name", statusCheckName)
     }
-}
-
-object GradleScripts {
-    fun gradle(tasks: String): String =
-        """
-        setlocal EnableExtensions EnableDelayedExpansion
-        set "WMP_BRANCH=%teamcity.build.branch%"
-        if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
-        if "!WMP_BRANCH!"=="" set "WMP_BRANCH=main"
-
-        if not exist ".git" git init || exit /b 1
-        git remote remove origin 2>NUL
-        git remote add origin https://github.com/marmatsan/water-my-plants.git || exit /b 1
-        git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*" || exit /b 1
-        git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!" || exit /b 1
-
-        .\gradlew.bat $tasks
-        """.trimIndent()
 }
 
 object GitHub : VcsRoot({

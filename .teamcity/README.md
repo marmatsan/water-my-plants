@@ -81,18 +81,27 @@ selected branch.
 This is the repository that TeamCity should automatically checkout for every
 job.
 
-In TeamCity 2026.1.2, the virtual jobs generated from this Kotlin DSL pipeline
-did not materialize that default checkout in our setup: job logs showed a fresh
-checkout directory followed immediately by the script step, and `gradlew.bat`
-was missing. Until the native checkout behavior is reliable, each Gradle step
-uses a shared script helper that fetches the selected TeamCity branch:
+In TeamCity 2026.1.2, pipeline-level `enabledByDefault = true` did not
+materialize the repository checkout inside our virtual jobs. Job logs showed a
+fresh checkout directory followed immediately by the script step, and
+`gradlew.bat` was missing.
+
+Declare the repository explicitly in each job instead of performing a manual
+`git fetch` from the build script:
 
 ```kotlin
-setlocal EnableExtensions EnableDelayedExpansion
-set "WMP_BRANCH=%teamcity.build.branch%"
-if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
-git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*"
-git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!"
+repositories {
+    repository(GitHub)
+}
+```
+
+The generated Pipeline YAML then contains a native job repository entry:
+
+```yaml
+repositories:
+- RootProjectId_GitHub:
+    enabled: true
+    path: ""
 ```
 
 Do not use `%build.vcs.number.WaterMyPlants_GitHub%` inside job script content.
@@ -102,12 +111,15 @@ compatible agent`.
 
 For local Windows batch variables, use delayed expansion (`!WMP_BRANCH!`) rather
 than `%WMP_BRANCH%`. TeamCity treats `%...%` as a TeamCity parameter reference
-before the job starts, so `%WMP_BRANCH%` also makes the job incompatible.
+before the job starts, so `%WMP_BRANCH%` also makes the job incompatible. The
+current pipeline does not need local batch variables because repository checkout
+is configured through the Pipeline DSL.
 
-Avoid job-level repository blocks unless a job needs a different checkout
-layout. TeamCity can generate pipeline YAML that references `WaterMyPlants_GitHub`
-from a job without making that repository available to the pipeline generator,
-which fails at runtime with:
+Do not reference generated project-prefixed ids such as `WaterMyPlants_GitHub`
+directly from job repository blocks. Use the local DSL object `GitHub`. TeamCity
+can generate pipeline YAML that references a generated id from a job without
+making that repository available to the pipeline generator, which fails at
+runtime with:
 
 ```text
 Repository referenced by WaterMyPlants_GitHub not found
