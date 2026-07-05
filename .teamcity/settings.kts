@@ -106,7 +106,7 @@ object GradleScripts {
         git remote remove origin 2>NUL
         git remote add origin https://github.com/marmatsan/water-my-plants.git || exit /b 1
         git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*" || exit /b 1
-        git checkout --force "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!" || exit /b 1
+        git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!" || exit /b 1
 
         .\gradlew.bat $tasks
         """.trimIndent()

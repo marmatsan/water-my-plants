@@ -92,7 +92,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 set "WMP_BRANCH=%teamcity.build.branch%"
 if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
 git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*"
-git checkout --force "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!"
+git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!"
 ```
 
 Do not use `%build.vcs.number.WaterMyPlants_GitHub%` inside job script content.
@@ -196,6 +196,94 @@ Generated files are written to:
 ```
 
 The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For this project, the pipeline head should reference `WaterMyPlants_GitHub` and should not emit a duplicate VCS root for `https://github.com/marmatsan/water-my-plants.git`.
+
+## TeamCity CLI
+
+Use the TeamCity CLI for local diagnostics and repeatable pipeline runs. It does
+not replace `.teamcity/settings.kts`; it is a client for validating settings,
+querying TeamCity, and starting builds.
+
+The CLI is configured locally through `teamcity.toml` at the repository root:
+
+```toml
+[[server]]
+url = 'http://localhost:8111'
+project = 'WaterMyPlants'
+job = 'WaterMyPlants_WaterMyPlantsCi'
+```
+
+Keep `teamcity.toml` out of Git. It points to a developer-local TeamCity server
+and is ignored by `.gitignore`.
+
+Authenticate the CLI with a TeamCity access token:
+
+```powershell
+teamcity auth login --server http://localhost:8111 --token <token>
+teamcity auth status
+```
+
+The local TeamCity server currently uses HTTP, so the CLI prints an insecure
+connection warning. That is expected for the localhost setup. Do not paste the
+token into source files, shell scripts, or docs.
+
+Bind the current checkout to the TeamCity project and default pipeline if the
+local `teamcity.toml` is missing:
+
+```powershell
+teamcity link --server http://localhost:8111 --project WaterMyPlants --job WaterMyPlants_WaterMyPlantsCi --scope=
+```
+
+Validate versioned settings from the CLI when `mvn` is available on `PATH`:
+
+```powershell
+teamcity project settings validate .teamcity --verbose
+```
+
+On Windows with TeamCity CLI 1.2.1, the CLI does not use the Maven Wrapper from
+the repository root for a `.teamcity` DSL directory. Keep a single Maven Wrapper
+at the repository root and expose its downloaded Maven 3.9.16 distribution for
+CLI validation:
+
+```powershell
+$mavenBin = Get-ChildItem "$env:USERPROFILE\.m2\wrapper\dists\apache-maven-3.9.16-bin" -Recurse -Filter mvn.cmd | Select-Object -First 1 -ExpandProperty DirectoryName
+$env:PATH = "$mavenBin;$env:PATH"
+teamcity project settings validate .teamcity --verbose
+```
+
+Check versioned settings synchronization:
+
+```powershell
+teamcity project settings status WaterMyPlants
+```
+
+Run the linked CI pipeline for the current Git branch:
+
+```powershell
+teamcity run start --branch '@this' --revision '@head' --watch
+```
+
+Quote `@this` and `@head` in PowerShell. Without quotes, PowerShell can treat
+`@...` as syntax instead of passing the literal value to the CLI.
+
+Useful diagnostics after a run:
+
+```powershell
+teamcity run tree <run-id>
+teamcity run view <run-id>
+teamcity run changes <run-id>
+teamcity run log <job-run-id> --tail 120 --raw
+teamcity run log <job-run-id> --failed --raw
+teamcity run artifacts <job-run-id>
+```
+
+The top-level pipeline run is composite. Use `teamcity run tree <run-id>` to get
+the child job run ids for `Verify`, `Generate design model`, and `Check Figma
+trunk sync`, then inspect the failing child job log.
+
+Do not rely on `--local-changes` unless the access token has the TeamCity
+permission `Change build source code with a custom patch`. The normal workflow
+is to commit and push the branch, then run the pipeline against that branch
+revision.
 
 ## Clean-up Rules
 
