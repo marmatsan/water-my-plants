@@ -10,7 +10,7 @@ This replaces field-by-field Figma checks. The repository generates a single JSO
 
 `figmaDesignSync` is split between pull request validation and post-merge Figma verification. Developers may run it locally for diagnosis, but TeamCity is the source of truth for the repository workflow.
 
-In trunk-based development, pull requests target `main` and CI must verify that the design model can be generated from the branch being validated. CI does not require Figma to already reflect a temporary branch. After the pull request is merged, the post-merge Figma pipeline generates the model from `main`, the MCP-operated sync updates Figma, and `checkFigmaTrunkSync` verifies the metadata.
+In trunk-based development, pull requests target `main` and CI must verify that the design model can be generated from the branch being validated. CI does not require Figma to already reflect a temporary branch. After the pull request is merged, CI runs on `main`; once that `main` CI run succeeds, the post-merge Figma pipeline generates the model from `main`, the MCP-operated sync updates Figma, and `checkFigmaTrunkSync` verifies the metadata.
 
 Local execution is useful when diagnosing a failed gate or checking credentials, but it is not a required manual step before every commit because Figma sync depends on external Figma state, access tokens, and the MCP-operated write flow.
 
@@ -247,6 +247,7 @@ TeamCity uses two separate pipelines for this workflow.
 
 `Figma Sync` is the post-merge pipeline for `main`:
 
+- Trigger after the `CI` pipeline succeeds on `<default>`.
 - Run `generateFigmaDesignModel` from `main`.
 - Publish `build/reports/figma-sync/design-model.json`.
 - Run `checkFigmaTrunkSync` against the metadata currently stored in Figma.
