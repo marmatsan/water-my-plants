@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-const sourcePath = new URL("../dist/sync-trunk-design-model.mcp.js", import.meta.url);
+const sourcePath = new URL("./sync-trunk-design-model.mcp.js", import.meta.url);
 const targetPath = new URL("../sync-trunk-design-model.mcp.js", import.meta.url);
 const generatedHeader = "// Generated from sync-trunk-design-model.mcp.ts. Do not edit directly.\n";
 const designModelPlaceholder = "const DESIGN_MODEL = undefined;\n";

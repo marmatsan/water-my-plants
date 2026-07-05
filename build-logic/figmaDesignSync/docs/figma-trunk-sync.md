@@ -78,7 +78,9 @@ The version visual sync is implemented in TypeScript modules under:
 
 The tool source follows the same dependency direction as the Gradle sync code: `domain` contains generated-model types and pure catalog rules, `ports` contains gateway contracts, `usecases` coordinates sync behavior through those contracts, `figma` contains the Figma MCP API adapters, and `app` wires the concrete gateways for the generated MCP entrypoint.
 
-Generate the Figma MCP JavaScript script after editing the TypeScript source:
+The TypeScript files under `tools/src/` are the source of truth. The Figma MCP
+runtime executes JavaScript, so build a temporary JavaScript artifact after
+editing the TypeScript source:
 
 ```powershell
 cd build-logic\figmaDesignSync\tools
@@ -90,7 +92,10 @@ The generated script is:
 
 - `build-logic/figmaDesignSync/tools/sync-trunk-design-model.mcp.js`
 
-The script expects the generated `design-model.json` to be injected as `DESIGN_MODEL` before execution. It must run in the Figma MCP runtime because it uses the Figma plugin API.
+This JavaScript file is generated output and must not be committed. The script
+expects the generated `design-model.json` to be injected as `DESIGN_MODEL`
+before execution. It must run in the Figma MCP runtime because it uses the Figma
+plugin API.
 
 Current version sync behavior:
 
