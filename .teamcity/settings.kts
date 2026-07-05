@@ -120,7 +120,9 @@ object WaterMyPlantsFigmaSync : Pipeline({
     }
 
     triggers {
-        trigger(PipelineVcsTrigger {
+        trigger(PipelineFinishBuildTrigger {
+            buildType = "${WaterMyPlantsCi.id}"
+            successfulOnly = true
             branchFilter = "+:<default>"
         })
     }
@@ -270,6 +272,55 @@ open class PipelineVcsTrigger(init: PipelineVcsTrigger.() -> Unit = {}) : Trigge
     }
 
     private companion object {
+        const val BRANCH_FILTER_PARAM = "branchFilter"
+    }
+}
+
+/**
+ * Pipeline-compatible finish build trigger.
+ *
+ * TeamCity's Finish Build Trigger uses the `buildDependencyTrigger` type. The
+ * Figma Sync pipeline uses it to run only after the CI pipeline has completed
+ * successfully on the default branch.
+ */
+open class PipelineFinishBuildTrigger(
+    init: PipelineFinishBuildTrigger.() -> Unit = {}
+) : Trigger(), PipelineCompatible {
+    /**
+     * External id of the build configuration or pipeline head to watch.
+     */
+    var buildType: String
+        get() = params.find { it.name == BUILD_TYPE_PARAM }?.value.orEmpty()
+        set(value) {
+            param(BUILD_TYPE_PARAM, value)
+        }
+
+    /**
+     * Whether this trigger should react only to successful watched builds.
+     */
+    var successfulOnly: Boolean
+        get() = params.find { it.name == SUCCESSFUL_ONLY_PARAM }?.value == "true"
+        set(value) {
+            param(SUCCESSFUL_ONLY_PARAM, if (value) "true" else "")
+        }
+
+    /**
+     * TeamCity branch filter used to limit watched CI builds.
+     */
+    var branchFilter: String
+        get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
+        set(value) {
+            param(BRANCH_FILTER_PARAM, value)
+        }
+
+    init {
+        type = "buildDependencyTrigger"
+        init()
+    }
+
+    private companion object {
+        const val BUILD_TYPE_PARAM = "dependsOn"
+        const val SUCCESSFUL_ONLY_PARAM = "afterSuccessfulBuildOnly"
         const val BRANCH_FILTER_PARAM = "branchFilter"
     }
 }
