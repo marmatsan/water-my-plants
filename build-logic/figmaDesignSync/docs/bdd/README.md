@@ -121,6 +121,17 @@ The contract has one main output:
 |---------------------|----------------------------------------------|----------------------------------------------------------------------|
 | `design-model.json` | `build/reports/figma-sync/design-model.json` | Deterministic repository snapshot consumed by later Figma sync tasks |
 
+`content` is the stable body of that artifact and participates in
+`modelHash`. It contains these sections:
+
+| Content key          | Meaning                                                                                                      |
+|----------------------|--------------------------------------------------------------------------------------------------------------|
+| `versions`           | Sorted flat map of version keys to repository values, used for deterministic comparison.                     |
+| `versionSections`    | Ordered version groups from `build-logic/versions.properties`, used to preserve the source section layout.   |
+| `catalogs`           | Dependency and plugin trees for Water My Plants, build-logic, custom Gradle convention plugins, and plugins. |
+| `modules`            | Sorted Gradle module paths discovered from root and `build-logic` settings files.                            |
+| `moduleDependencies` | Main and build-logic module dependency edges, grouped by graph scope.                                        |
+
 The current executable scenarios assert these guarantees:
 
 - The model contains repository metadata.
@@ -130,8 +141,7 @@ The current executable scenarios assert these guarantees:
 - Version sections keep repository order.
 - The model stores a reproducible `modelHash`.
 - `generatedAt` is written to the model but does not affect `modelHash`.
-- `gitSha` affects `modelHash`, because it identifies the reviewed repository
-  snapshot.
+- `gitSha` is written to the model but does not affect `modelHash`.
 - The Gradle task writes the report file in a temporary plugin-applied project.
 
 When this contract changes, update the `.feature` first if the behavior changes.
