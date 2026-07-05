@@ -170,34 +170,16 @@ This prevents TeamCity from satisfying a branch or pull request pipeline with a 
 GitHub status publishing is configured in DSL because Pipeline editing is
 read-only when versioned settings are enabled.
 
-TeamCity Pipeline virtual jobs do not expose VCS revisions to Commit Status
-Publisher in this setup. Adding the publisher directly to jobs makes
-`teamcity-commit-status.log` report:
+TeamCity 2026.1.2 does not expose a typed `commitStatusPublisher` helper for
+Pipelines. The generated DSL documentation shows the official
+`CommitStatusPublisher` class as a `BuildFeature`, but not as
+`PipelineCompatible`, so it cannot be added to a Pipeline job through the typed
+helper.
 
-```text
-publisher github: no compatible revisions found
-```
-
-Do not attach `repositories { repository(GitHub) }` at job level to fix this.
-TeamCity 2026.1.2 can generate valid local YAML but reject it at runtime with:
-
-```text
-Repository referenced by WaterMyPlants_GitHub not found to be used in Generate design model
-```
-
-Instead, `WaterMyPlantsCiGithubStatus` is a composite build configuration that:
-
-- has the GitHub VCS root attached, so Commit Status Publisher can resolve the
-  commit SHA;
-- publishes the single GitHub status check named `TeamCity CI`;
-- has a snapshot dependency on the real `CI` Pipeline, so the status fails when
-  any pipeline job fails.
-
-GitHub branch protection should require the `TeamCity CI` status check. The
-individual pipeline jobs remain visible in TeamCity, but they are not the status
-checks GitHub should require.
-
-The composite build adds the generic TeamCity build feature:
+The Pipeline DSL does expose `Job.features`, and accepts build features that
+implement `PipelineCompatible`. This project therefore declares a small generic
+feature wrapper and attaches it to the final pipeline job,
+`check_figma_trunk_sync`:
 
 ```kotlin
 features {
@@ -205,8 +187,16 @@ features {
 }
 ```
 
-The feature emits `commit-status-publisher` into the generated Pipeline YAML
-and uses GitHub with VCS root credentials:
+That emits `commit-status-publisher` into the generated Pipeline YAML:
+
+```yaml
+check_figma_trunk_sync:
+  features:
+  - type: commit-status-publisher
+    build_custom_name: TeamCity CI
+```
+
+The feature uses GitHub with VCS root credentials:
 
 ```kotlin
 param("publisherId", "githubStatusPublisher")
@@ -215,14 +205,32 @@ param("github_authentication_type", "vcsRoot")
 param("build_custom_name", statusCheckName)
 ```
 
+GitHub branch protection should require the `TeamCity CI` status check. The
+status is published by the final pipeline job, which depends on `verify` and
+`generate_design_model`, so it represents the full pipeline chain.
+
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
 statuses.
 
 The feature intentionally omits `vcsRootId`. TeamCity's Commit Status Publisher
-then publishes for the Git VCS roots attached to the composite build. If GitHub
-still receives no statuses, inspect `teamcity-commit-status.log` and switch the
-feature to a TeamCity-managed GitHub App token instead of `vcsRoot`.
+then publishes for the Git VCS roots attached to the virtual job. If GitHub
+receives no statuses, inspect `teamcity-commit-status.log`.
+
+Important validation history:
+
+- With the duplicated repository root, TeamCity ran jobs against `main` while
+  the Pipeline UI showed the selected branch.
+- Before the pipeline root was corrected, job-level status publishing reported
+  `publisher github: no compatible revisions found`.
+- After the pipeline root was corrected, the final job exposed the selected
+  branch revision and published `TeamCity CI` successfully.
+
+The native Pipeline UI toggle `Publish status to repository` is not represented
+by a typed Kotlin DSL property for `PipelineRepositories` in 2026.1.2. JetBrains
+documentation describes that native toggle as available for pipelines created
+from provider connections; this project is configured from versioned Kotlin DSL
+and a VCS root.
 
 ## Secure Parameters
 
