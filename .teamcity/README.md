@@ -4,19 +4,22 @@ This directory is the source of truth for TeamCity project settings.
 
 ## Branching Workflow
 
-Every change to `.teamcity/settings.kts` must be made on the short-lived branch:
+Change `.teamcity/settings.kts` on the short-lived branch:
 
 ```text
 chore/teamcity-settings
 ```
 
-Create or recreate the branch from the latest `main`, keep the change focused on TeamCity settings, open a pull request back to `main`, and delete the branch after the merge.
+Create or recreate the branch from the latest `main`, keep the change focused on
+TeamCity settings, open a pull request back to `main`, and delete the branch
+after the merge.
 
 Do not push TeamCity settings changes directly to `main`.
 
-## How TeamCity Processes These Settings
+## Versioned Settings
 
-TeamCity loads the current project configuration from the default branch of the versioned settings VCS root. For this repository, that branch is `main`.
+TeamCity loads the stable project configuration from the default branch of the
+versioned settings VCS root. For this repository, that branch is `main`.
 
 Branch builds can use branch-local settings when the project is configured with:
 
@@ -24,15 +27,23 @@ Branch builds can use branch-local settings when the project is configured with:
 When build starts: use settings from VCS
 ```
 
-That setting allows a build in a feature or chore branch to run with the `.teamcity/settings.kts` from that branch. It does not mean the TeamCity project UI immediately switches to that branch configuration. The stable project configuration shown in the UI is updated after the settings are merged to `main` and TeamCity reloads versioned settings.
+That option allows a build in a feature or chore branch to run with the
+`.teamcity/settings.kts` from that branch. It does not mean the TeamCity project
+UI immediately switches to that branch configuration. The stable project
+configuration shown in the UI is updated after the settings are merged to
+`main` and TeamCity reloads versioned settings.
 
-`Load project settings from VCS` is a manual resync tool. It should not be required for every change once polling or webhooks detect new commits, but it is useful while bootstrapping the setup or recovering from a stopped synchronization.
+`Load project settings from VCS` is a manual resync tool. It should not be
+required for every change once polling or webhooks detect new commits, but it is
+useful while bootstrapping the setup or recovering from stopped synchronization.
 
 ## UI Editing
 
-Project editing through the TeamCity UI is disabled because settings are stored in VCS.
+Project editing through the TeamCity UI is disabled because settings are stored
+in VCS.
 
-TeamCity Pipelines defined in Kotlin DSL are also read-only in the UI. If TeamCity reports:
+TeamCity Pipelines defined in Kotlin DSL are also read-only in the UI. If
+TeamCity reports:
 
 ```text
 pipelines cannot be edited in UI, edit Kotlin DSL files instead
@@ -40,10 +51,35 @@ pipelines cannot be edited in UI, edit Kotlin DSL files instead
 
 the fix belongs in `.teamcity/settings.kts`, not in the pipeline editor.
 
-## Pipeline Repository
+## Pipeline Definition
 
-Declare the project VCS root in `.teamcity/settings.kts` with the local id
-`GitHub`:
+The CI pipeline is defined with TeamCity Pipelines Kotlin DSL.
+
+The pipeline:
+
+- monitors all branches;
+- maps secure TeamCity parameters to build environment variables;
+- runs `Verify`;
+- runs `Generate design model` after `Verify`;
+- publishes `build/reports/figma-sync/design-model.json`;
+- runs `Check Figma trunk sync` after the design model is generated;
+- publishes the final GitHub status check from the final job.
+
+Keep job reuse disabled:
+
+```kotlin
+allowReuse = false
+```
+
+This prevents TeamCity from satisfying a branch or pull request pipeline with a
+previously successful job from another branch. The Figma gate depends on the
+exact `design-model.json` generated for the same branch revision, so all jobs
+must run in the same pipeline chain for the selected branch.
+
+## Repository Checkout
+
+Declare the project VCS root in `.teamcity/settings.kts` with a local DSL object
+and use that object everywhere inside the DSL:
 
 ```kotlin
 object GitHub : VcsRoot({
@@ -64,8 +100,7 @@ object GitHub : VcsRoot({
 })
 ```
 
-Then reference that same object once from the pipeline and keep it enabled by
-default:
+Reference the same object from the pipeline:
 
 ```kotlin
 repositories {
@@ -73,21 +108,7 @@ repositories {
 }
 ```
 
-The project settings and source code live in the same GitHub repository. In
-TeamCity, the local DSL id `GitHub` is materialized under the project id as
-`WaterMyPlants_GitHub`, which is the root that the Pipeline UI resolves to the
-selected branch.
-
-This is the repository that TeamCity should automatically checkout for every
-job.
-
-In TeamCity 2026.1.2, pipeline-level `enabledByDefault = true` did not
-materialize the repository checkout inside our virtual jobs. Job logs showed a
-fresh checkout directory followed immediately by the script step, and
-`gradlew.bat` was missing.
-
-Declare the repository explicitly in each job instead of performing a manual
-`git fetch` from the build script:
+Also declare the repository explicitly in each job:
 
 ```kotlin
 repositories {
@@ -95,103 +116,48 @@ repositories {
 }
 ```
 
-The generated Pipeline YAML then contains a native job repository entry:
+The job-level repository block is intentional. It makes TeamCity perform a
+native checkout for every virtual pipeline job before the Gradle command runs.
+
+The generated Pipeline YAML should contain a native job repository entry:
 
 ```yaml
 repositories:
-- RootProjectId_GitHub:
+- <generated-github-vcs-root-id>:
     enabled: true
     path: ""
 ```
 
-Do not use `%build.vcs.number.WaterMyPlants_GitHub%` inside job script content.
-The virtual jobs do not have that VCS root attached, so TeamCity treats the
-parameter as unresolved during agent compatibility checks and reports `No
-compatible agent`.
+The generated script content should remain a direct Gradle call:
 
-For local Windows batch variables, use delayed expansion (`!WMP_BRANCH!`) rather
-than `%WMP_BRANCH%`. TeamCity treats `%...%` as a TeamCity parameter reference
-before the job starts, so `%WMP_BRANCH%` also makes the job incompatible. The
-current pipeline does not need local batch variables because repository checkout
-is configured through the Pipeline DSL.
-
-Do not reference generated project-prefixed ids such as `WaterMyPlants_GitHub`
-directly from job repository blocks. Use the local DSL object `GitHub`. TeamCity
-can generate pipeline YAML that references a generated id from a job without
-making that repository available to the pipeline generator, which fails at
-runtime with:
-
-```text
-Repository referenced by WaterMyPlants_GitHub not found
+```yaml
+script-content: .\gradlew.bat check
 ```
 
-Do not create a second Git VCS root with the same URL. A duplicate root can make the pipeline show a feature/chore branch while individual jobs still checkout `main`.
+Do not perform `git init`, `git fetch`, or `git checkout` from build script
+content. Repository checkout belongs in the Pipeline DSL through job
+repositories.
 
-Do not use `DslContext.settingsRoot` as the job checkout repository. It is the settings root, and TeamCity can apply settings-path checkout rules such as `.teamcity`; jobs need the full repository to run `gradlew.bat`.
+Do not reference TeamCity-generated project-prefixed VCS root ids directly from
+job repository blocks. Use the local DSL object, such as `GitHub`. Generated ids
+are implementation details and can make pipeline generation fail if they are not
+available in the current generation context.
 
-When this is working, the generated Pipeline Head contains:
+Do not create a second Git VCS root with the same URL. Duplicate roots can make
+the pipeline UI show one branch while individual jobs checkout another.
 
-```xml
-<vcs-entry-ref root-id="WaterMyPlants_GitHub" />
-```
-
-and the pipeline run log for a branch build reports:
-
-```text
-VCS revisions: 'WaterMyPlants_GitHub' ... refs/heads/chore/teamcity-settings
-```
-
-If the log reports `WaterMyPlants_WaterMyPlantsRepository` or a revision from `refs/heads/main` while the Pipeline UI shows a chore/feature branch, TeamCity is using the wrong checkout root.
-
-## Pipeline Runs and Job Logs
-
-The top-level Pipeline build is composite. It aggregates job results and may fail with:
-
-```text
-Build chain finished (failed: 3)
-```
-
-That log does not show the actual Gradle failure. Debug the child jobs instead:
-
-```text
-Verify
-Generate design model
-Check Figma trunk sync
-```
-
-The expected Figma gate failure for an unsynchronized branch mentions that branch name:
-
-```text
-Figma is out of sync with chore/teamcity-settings
-```
-
-If it says `Figma is out of sync with main`, the job checked out `main` and the pipeline checkout configuration is wrong.
-
-## Pipeline Job Reuse
-
-Pipeline jobs must keep reuse disabled:
-
-```kotlin
-allowReuse = false
-```
-
-This prevents TeamCity from satisfying a branch or pull request pipeline with a previously successful job from `main`. The Figma gate depends on the exact `design-model.json` generated for the same branch revision, so `verify`, `generate_design_model`, and `check_figma_trunk_sync` must all run in the same pipeline chain for the selected branch.
+Do not use `DslContext.settingsRoot` as the job checkout repository. It is the
+settings root, and TeamCity can apply settings-path checkout rules such as
+`.teamcity`. Jobs need the full repository to run `gradlew.bat`.
 
 ## GitHub Status Publishing
 
 GitHub status publishing is configured in DSL because Pipeline editing is
 read-only when versioned settings are enabled.
 
-TeamCity 2026.1.2 does not expose a typed `commitStatusPublisher` helper for
-Pipelines. The generated DSL documentation shows the official
-`CommitStatusPublisher` class as a `BuildFeature`, but not as
-`PipelineCompatible`, so it cannot be added to a Pipeline job through the typed
-helper.
-
-The Pipeline DSL does expose `Job.features`, and accepts build features that
-implement `PipelineCompatible`. This project therefore declares a small generic
-feature wrapper and attaches it to the final pipeline job,
-`check_figma_trunk_sync`:
+The Pipeline DSL exposes `Job.features` and accepts build features that
+implement `PipelineCompatible`. This project declares a small generic feature
+wrapper and attaches it to the final pipeline job:
 
 ```kotlin
 features {
@@ -202,10 +168,9 @@ features {
 That emits `commit-status-publisher` into the generated Pipeline YAML:
 
 ```yaml
-check_figma_trunk_sync:
-  features:
-  - type: commit-status-publisher
-    build_custom_name: TeamCity CI
+features:
+- type: commit-status-publisher
+  build_custom_name: TeamCity CI
 ```
 
 The feature uses GitHub with VCS root credentials:
@@ -218,8 +183,8 @@ param("build_custom_name", statusCheckName)
 ```
 
 GitHub branch protection should require the `TeamCity CI` status check. The
-status is published by the final pipeline job, which depends on `verify` and
-`generate_design_model`, so it represents the full pipeline chain.
+status is published by the final pipeline job, which depends on the earlier
+jobs, so it represents the full pipeline chain.
 
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
@@ -229,32 +194,18 @@ The feature intentionally omits `vcsRootId`. TeamCity's Commit Status Publisher
 then publishes for the Git VCS roots attached to the virtual job. If GitHub
 receives no statuses, inspect `teamcity-commit-status.log`.
 
-Important validation history:
-
-- With the duplicated repository root, TeamCity ran jobs against `main` while
-  the Pipeline UI showed the selected branch.
-- Before the pipeline root was corrected, job-level status publishing reported
-  `publisher github: no compatible revisions found`.
-- After the pipeline root was corrected, the final job exposed the selected
-  branch revision and published `TeamCity CI` successfully.
-
-The native Pipeline UI toggle `Publish status to repository` is not represented
-by a typed Kotlin DSL property for `PipelineRepositories` in 2026.1.2. JetBrains
-documentation describes that native toggle as available for pipelines created
-from provider connections; this project is configured from versioned Kotlin DSL
-and a VCS root.
-
 ## Secure Parameters
 
-Secrets are declared in DSL only by TeamCity credential references, never by raw secret values.
+Secrets are declared in DSL only by TeamCity credential references, never by raw
+secret values.
 
-Example:
+Use a TeamCity-generated secure value:
 
 ```kotlin
-password("figma.file.content.access.token", "credentialsJSON:...")
+password("figma.file.content.access.token", "<teamcity-secure-token-reference>")
 ```
 
-The pipeline maps the secure project parameter to the build environment:
+Map the secure project parameter to the build environment:
 
 ```kotlin
 param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
@@ -274,7 +225,15 @@ Generated files are written to:
 .teamcity/target/generated-configs
 ```
 
-The generated directory is ignored by Git, but it is useful for checking what XML/YAML TeamCity will receive. For this project, the pipeline head should reference `WaterMyPlants_GitHub` and should not emit a duplicate VCS root for `https://github.com/marmatsan/water-my-plants.git`.
+The generated directory is ignored by Git, but it is useful for checking what
+XML and YAML TeamCity will receive.
+
+For this project, the generated pipeline should:
+
+- reference only one Git VCS root for the GitHub repository;
+- emit job-level `repositories` entries;
+- emit direct Gradle script content;
+- emit `commit-status-publisher` on the final job.
 
 ## TeamCity CLI
 
@@ -282,34 +241,21 @@ Use the TeamCity CLI for local diagnostics and repeatable pipeline runs. It does
 not replace `.teamcity/settings.kts`; it is a client for validating settings,
 querying TeamCity, and starting builds.
 
-The CLI is configured locally through `teamcity.toml` at the repository root:
-
-```toml
-[[server]]
-url = 'http://localhost:8111'
-project = 'WaterMyPlants'
-job = 'WaterMyPlants_WaterMyPlantsCi'
-```
-
 Keep `teamcity.toml` out of Git. It points to a developer-local TeamCity server
 and is ignored by `.gitignore`.
 
 Authenticate the CLI with a TeamCity access token:
 
 ```powershell
-teamcity auth login --server http://localhost:8111 --token <token>
+teamcity auth login --server <teamcity-url> --token <token>
 teamcity auth status
 ```
-
-The local TeamCity server currently uses HTTP, so the CLI prints an insecure
-connection warning. That is expected for the localhost setup. Do not paste the
-token into source files, shell scripts, or docs.
 
 Bind the current checkout to the TeamCity project and default pipeline if the
 local `teamcity.toml` is missing:
 
 ```powershell
-teamcity link --server http://localhost:8111 --project WaterMyPlants --job WaterMyPlants_WaterMyPlantsCi --scope=
+teamcity link --server <teamcity-url> --project <project-id> --job <pipeline-id> --scope=
 ```
 
 Validate versioned settings from the CLI when `mvn` is available on `PATH`:
@@ -318,13 +264,13 @@ Validate versioned settings from the CLI when `mvn` is available on `PATH`:
 teamcity project settings validate .teamcity --verbose
 ```
 
-On Windows with TeamCity CLI 1.2.1, the CLI does not use the Maven Wrapper from
-the repository root for a `.teamcity` DSL directory. Keep a single Maven Wrapper
-at the repository root and expose its downloaded Maven 3.9.16 distribution for
-CLI validation:
+On Windows with TeamCity CLI, the CLI may not use the Maven Wrapper from the
+repository root for a `.teamcity` DSL directory. Keep a single Maven Wrapper at
+the repository root and expose the downloaded Maven distribution on `PATH` if
+CLI validation requires `mvn`:
 
 ```powershell
-$mavenBin = Get-ChildItem "$env:USERPROFILE\.m2\wrapper\dists\apache-maven-3.9.16-bin" -Recurse -Filter mvn.cmd | Select-Object -First 1 -ExpandProperty DirectoryName
+$mavenBin = Get-ChildItem "$env:USERPROFILE\.m2\wrapper\dists" -Recurse -Filter mvn.cmd | Select-Object -First 1 -ExpandProperty DirectoryName
 $env:PATH = "$mavenBin;$env:PATH"
 teamcity project settings validate .teamcity --verbose
 ```
@@ -332,17 +278,17 @@ teamcity project settings validate .teamcity --verbose
 Check versioned settings synchronization:
 
 ```powershell
-teamcity project settings status WaterMyPlants
+teamcity project settings status <project-id>
 ```
 
 Run the linked CI pipeline for the current Git branch:
 
 ```powershell
-teamcity run start --branch '@this' --revision '@head' --watch
+teamcity run start --branch '@this' --watch
 ```
 
-Quote `@this` and `@head` in PowerShell. Without quotes, PowerShell can treat
-`@...` as syntax instead of passing the literal value to the CLI.
+Quote `@this` in PowerShell. Without quotes, PowerShell can treat `@...` as
+syntax instead of passing the literal value to the CLI.
 
 Useful diagnostics after a run:
 
@@ -356,19 +302,45 @@ teamcity run artifacts <job-run-id>
 ```
 
 The top-level pipeline run is composite. Use `teamcity run tree <run-id>` to get
-the child job run ids for `Verify`, `Generate design model`, and `Check Figma
-trunk sync`, then inspect the failing child job log.
+the child job run ids, then inspect the failing child job log.
 
 Do not rely on `--local-changes` unless the access token has the TeamCity
 permission `Change build source code with a custom patch`. The normal workflow
-is to commit and push the branch, then run the pipeline against that branch
-revision.
+is to commit and push the branch, then run the pipeline against that branch.
+
+## Troubleshooting
+
+If a job cannot find `gradlew.bat`, check that the job declares the GitHub
+repository in its `repositories` block and that generated YAML contains a native
+repository entry for that job.
+
+If a branch build appears to run against `main`, check the child job log. The
+checkout log should mention the selected branch and revision. If it shows
+`refs/heads/main` for a non-main branch build, TeamCity is using the wrong VCS
+root or checkout configuration.
+
+If TeamCity reports `No compatible agent` with unresolved parameters, inspect
+the job script content for `%...%` references that are not TeamCity parameters.
+For Windows batch variables, use delayed expansion (`!VARIABLE!`) or avoid local
+batch variables in the TeamCity step.
+
+If pipeline generation reports that a repository is not found, check for direct
+references to generated VCS root ids in job repository blocks. Use the local DSL
+object instead.
+
+If GitHub receives no status check, inspect `teamcity-commit-status.log` and
+confirm that the status publisher feature is attached to the final job.
+
+If the Figma gate fails on an unsynchronized branch, the failure message should
+mention the selected branch. If it mentions `main` while running another branch,
+fix repository checkout before investigating Figma sync.
 
 ## Clean-up Rules
 
-Clean-up rules are also project settings and must be changed in `.teamcity/settings.kts`.
+Clean-up rules are also project settings and must be changed in
+`.teamcity/settings.kts`.
 
-The current project cleanup policy is:
+The project cleanup policy is:
 
 ```kotlin
 cleanup {
@@ -387,4 +359,5 @@ The project also sets:
 param("teamcity.activeBuildBranch.age.hours", "0")
 ```
 
-This prevents closed branches with old builds from staying visible as active branches for the default 24-hour window.
+This prevents closed branches with old builds from staying visible as active
+branches for the default 24-hour window.

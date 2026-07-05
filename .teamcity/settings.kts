@@ -25,6 +25,14 @@ project {
     pipeline(WaterMyPlantsCi)
 }
 
+/**
+ * CI pipeline for the repository.
+ *
+ * The pipeline runs the Gradle verification tasks, generates the Figma design
+ * model, and finishes with the Figma trunk sync gate. Each job declares the
+ * [GitHub] repository explicitly so TeamCity performs a native checkout before
+ * executing Gradle.
+ */
 object WaterMyPlantsCi : Pipeline({
     id("WaterMyPlantsCi")
     name = "CI"
@@ -110,6 +118,16 @@ object WaterMyPlantsCi : Pipeline({
     }
 })
 
+/**
+ * Pipeline-compatible Commit Status Publisher feature for GitHub.
+ *
+ * TeamCity Pipelines Kotlin DSL accepts build features that implement
+ * [PipelineCompatible]. This wrapper emits the `commit-status-publisher`
+ * feature into the generated Pipeline YAML and publishes the final pipeline
+ * status with [statusCheckName].
+ *
+ * @param statusCheckName GitHub status check name required by branch protection.
+ */
 class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineCompatible {
     init {
         type = "commit-status-publisher"
@@ -122,6 +140,13 @@ class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineC
     }
 }
 
+/**
+ * GitHub repository VCS root used by both versioned settings and pipeline jobs.
+ *
+ * The branch specification includes regular branches and pull request heads, and
+ * disables fallback to the default branch so branch resolution mistakes fail
+ * visibly instead of running jobs against `main`.
+ */
 object GitHub : VcsRoot({
     id("GitHub")
     name = "water-my-plants"
@@ -139,7 +164,17 @@ object GitHub : VcsRoot({
     )
 })
 
+/**
+ * Pipeline-compatible command line script step.
+ *
+ * The TeamCity Pipelines DSL serializes script steps with the `script-content`
+ * YAML property. This wrapper keeps the Kotlin DSL explicit while avoiding raw
+ * untyped build step declarations at call sites.
+ */
 open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildStep(), PipelineCompatible {
+    /**
+     * Command content emitted as `script-content` in generated Pipeline YAML.
+     */
     var scriptContent: String
         get() = params.find { it.name == SCRIPT_CONTENT_PARAM }?.value.orEmpty()
         set(value) {
@@ -157,7 +192,17 @@ open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildS
     }
 }
 
+/**
+ * Pipeline-compatible VCS trigger.
+ *
+ * The typed trigger helper used by classic build configurations is not accepted
+ * directly by Pipeline DSL blocks, so this wrapper emits the VCS trigger with
+ * the branch filter parameter expected by TeamCity Pipelines.
+ */
 open class PipelineVcsTrigger(init: PipelineVcsTrigger.() -> Unit = {}) : Trigger(), PipelineCompatible {
+    /**
+     * TeamCity branch filter used by the generated VCS trigger.
+     */
     var branchFilter: String
         get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
         set(value) {
