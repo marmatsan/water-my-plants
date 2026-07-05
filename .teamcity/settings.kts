@@ -54,6 +54,10 @@ object WaterMyPlantsCi : Pipeline({
             feature(GitHubStatusPublisher("TeamCity CI / Verify"))
         }
 
+        repositories {
+            repository(GitHub)
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
@@ -69,6 +73,10 @@ object WaterMyPlantsCi : Pipeline({
 
         features {
             feature(GitHubStatusPublisher("TeamCity CI / Generate design model"))
+        }
+
+        repositories {
+            repository(GitHub)
         }
 
         steps {
@@ -93,6 +101,10 @@ object WaterMyPlantsCi : Pipeline({
 
         features {
             feature(GitHubStatusPublisher("TeamCity CI / Check Figma trunk sync"))
+        }
+
+        repositories {
+            repository(GitHub)
         }
 
         steps {
