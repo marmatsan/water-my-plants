@@ -60,6 +60,9 @@ The TeamCity pipelines are defined with TeamCity Pipelines Kotlin DSL.
 `CI` is the pull request and branch validation pipeline. It is the only TeamCity
 status required by GitHub branch protection.
 
+The GitHub ruleset for `main` is documented in
+[`docs/ci/main-branch-protection.md`](../docs/ci/main-branch-protection.md).
+
 The pipeline:
 
 - monitors all branches;
