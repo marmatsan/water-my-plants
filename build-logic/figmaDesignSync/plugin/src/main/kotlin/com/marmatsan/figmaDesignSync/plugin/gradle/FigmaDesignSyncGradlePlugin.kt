@@ -37,7 +37,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
 
         project.tasks.register<CheckFigmaTrunkSyncTask>("checkFigmaTrunkSync") {
             group = "verification"
-            description = "Checks that Figma sync metadata matches the design model generated from the current branch."
+            description = "Checks that Figma sync metadata matches the design model generated from the current checkout."
 
             metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
             versionsFile.set(extension.versionsFile)

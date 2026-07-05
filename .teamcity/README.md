@@ -51,19 +51,45 @@ pipelines cannot be edited in UI, edit Kotlin DSL files instead
 
 the fix belongs in `.teamcity/settings.kts`, not in the pipeline editor.
 
-## Pipeline Definition
+## Pipeline Definitions
 
-The CI pipeline is defined with TeamCity Pipelines Kotlin DSL.
+The TeamCity pipelines are defined with TeamCity Pipelines Kotlin DSL.
+
+### CI
+
+`CI` is the pull request and branch validation pipeline. It is the only TeamCity
+status required by GitHub branch protection.
 
 The pipeline:
 
 - monitors all branches;
-- maps secure TeamCity parameters to build environment variables;
 - runs `Verify`;
 - runs `Generate design model` after `Verify`;
 - publishes `build/reports/figma-sync/design-model.json`;
-- runs `Check Figma trunk sync` after the design model is generated;
 - publishes the final GitHub status check from the final job.
+
+`CI` does not run `checkFigmaTrunkSync`. Figma represents the stable `main`
+state, so short-lived branch builds should prove that the model can be generated
+without requiring Figma to already match that temporary branch.
+
+### Figma Sync
+
+`Figma Sync` is the post-merge Figma verification pipeline. It is scoped to the
+default branch and should not be required by GitHub before merging pull
+requests.
+
+The pipeline:
+
+- triggers only for `<default>`;
+- generates `build/reports/figma-sync/design-model.json` from `main`;
+- publishes the generated model as an artifact;
+- runs `Check Figma trunk sync` against the metadata currently stored in Figma.
+
+The visual write step is still MCP-operated outside TeamCity. Until that write
+step is automated, `Figma Sync` is expected to fail after a model-affecting
+merge if Figma has not been synchronized yet. That failure is a post-merge
+documentation signal, not a pull request merge gate. After the MCP sync writes
+the latest metadata, rerun `Figma Sync` on `main` to verify the result.
 
 Keep job reuse disabled:
 
@@ -72,9 +98,8 @@ allowReuse = false
 ```
 
 This prevents TeamCity from satisfying a branch or pull request pipeline with a
-previously successful job from another branch. The Figma gate depends on the
-exact `design-model.json` generated for the same branch revision, so all jobs
-must run in the same pipeline chain for the selected branch.
+previously successful job from another branch. The generated design model must
+belong to the same branch revision as the pipeline chain being validated.
 
 ## Repository Checkout
 
@@ -182,9 +207,12 @@ param("github_authentication_type", "vcsRoot")
 param("build_custom_name", statusCheckName)
 ```
 
-GitHub branch protection should require the `TeamCity CI` status check. The
-status is published by the final pipeline job, which depends on the earlier
-jobs, so it represents the full pipeline chain.
+GitHub branch protection should require only the `TeamCity CI` status check.
+The status is published by the final `CI` pipeline job, which depends on the
+earlier job, so it represents the pull request validation chain.
+
+Do not require the `Figma Sync` pipeline in GitHub branch protection. That
+pipeline runs after changes reach `main`.
 
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
@@ -233,7 +261,8 @@ For this project, the generated pipeline should:
 - reference only one Git VCS root for the GitHub repository;
 - emit job-level `repositories` entries;
 - emit direct Gradle script content;
-- emit `commit-status-publisher` on the final job.
+- emit `commit-status-publisher` only on the final `CI` job;
+- keep `Figma Sync` as a separate default-branch pipeline.
 
 ## TeamCity CLI
 
@@ -331,9 +360,10 @@ object instead.
 If GitHub receives no status check, inspect `teamcity-commit-status.log` and
 confirm that the status publisher feature is attached to the final job.
 
-If the Figma gate fails on an unsynchronized branch, the failure message should
-mention the selected branch. If it mentions `main` while running another branch,
-fix repository checkout before investigating Figma sync.
+If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
+been run with the latest `design-model.json`. If the failure mentions a branch
+other than the selected branch, fix repository checkout before investigating
+Figma sync.
 
 ## Clean-up Rules
 

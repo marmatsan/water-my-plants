@@ -35,16 +35,15 @@ internal class FigmaDesignModelGenerator(
     /**
      * Generates the complete model and stable model hash for [request].
      *
-     * The hash input contains schema version, branch, git SHA, and content.
-     * `generatedAt` is written to the model but excluded from the hash so the
-     * same repository snapshot remains comparable across runs.
+     * The hash input contains schema version and content. Git identity fields
+     * are written to the model as traceability metadata, but they are excluded
+     * from the hash so commits that do not affect the visual model do not force
+     * a Figma sync.
      */
     fun generate(request: FigmaDesignModelGenerationRequest): FigmaDesignModelGenerationResult {
         val content = buildContent(request)
         val hashInput = buildJsonObject {
             put("schemaVersion", SCHEMA_VERSION)
-            put("branch", request.branch)
-            put("gitSha", request.gitSha)
             put("content", content)
         }
         val modelHash = FigmaDesignModelHash.compute(hashInput)
