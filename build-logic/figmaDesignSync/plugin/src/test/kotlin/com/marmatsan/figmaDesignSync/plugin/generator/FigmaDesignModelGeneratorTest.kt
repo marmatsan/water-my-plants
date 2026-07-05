@@ -40,7 +40,7 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         second.model["generatedAt"]?.jsonPrimitive?.content shouldBe "2026-06-19T10:16:30Z"
     }
 
-    test("generate changes the model hash when gitSha changes") {
+    test("generate keeps the same model hash when only gitSha changes") {
         // GIVEN
         val generator = generator()
 
@@ -51,7 +51,7 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         // THEN
         first.modelHash shouldBe first.model["modelHash"]?.jsonPrimitive?.content
         second.modelHash shouldBe second.model["modelHash"]?.jsonPrimitive?.content
-        (first.modelHash == second.modelHash) shouldBe false
+        first.modelHash shouldBe second.modelHash
     }
 
     test("generate writes sorted top-level content") {

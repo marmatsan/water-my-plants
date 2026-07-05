@@ -11,8 +11,8 @@ import kotlinx.serialization.json.JsonObject
  *
  * JSON object keys are sorted before hashing so equivalent model content
  * produces the same hash regardless of insertion order. The generator hashes
- * content plus Git identity, but intentionally excludes volatile metadata such
- * as `generatedAt`.
+ * visual model content and intentionally excludes traceability metadata such as
+ * `branch`, `gitSha`, and `generatedAt`.
  */
 internal object FigmaDesignModelHash {
     private val canonicalJson = Json {

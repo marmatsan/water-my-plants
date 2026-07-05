@@ -23,8 +23,20 @@ project {
     }
 
     pipeline(WaterMyPlantsCi)
+    pipeline(WaterMyPlantsFigmaSync)
 }
 
+/**
+ * Pull request and branch CI pipeline for the repository.
+ *
+ * The pipeline runs Gradle verification tasks and checks that the Figma design
+ * model can be generated. It does not require Figma to already be synchronized
+ * with a temporary branch because Figma represents the stable `main` state.
+ *
+ * The final job publishes the `TeamCity CI` GitHub status required by branch
+ * protection. Each job declares the [GitHub] repository explicitly so TeamCity
+ * performs a native checkout before executing Gradle.
+ */
 object WaterMyPlantsCi : Pipeline({
     id("WaterMyPlantsCi")
     name = "CI"
@@ -42,7 +54,6 @@ object WaterMyPlantsCi : Pipeline({
     params {
         param("env.ANDROID_HOME", "%android.sdk.path%")
         param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
-        param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
     }
 
     job {
@@ -50,10 +61,14 @@ object WaterMyPlantsCi : Pipeline({
         name = "Verify"
         allowReuse = false
 
+        repositories {
+            repository(GitHub)
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
-                scriptContent = GradleScripts.gradle("check")
+                scriptContent = """.\gradlew.bat check"""
             })
         }
     }
@@ -63,10 +78,14 @@ object WaterMyPlantsCi : Pipeline({
         name = "Generate design model"
         allowReuse = false
 
+        repositories {
+            repository(GitHub)
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Generate Figma design model"
-                scriptContent = GradleScripts.gradle("generateFigmaDesignModel")
+                scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
             })
         }
 
@@ -75,29 +94,95 @@ object WaterMyPlantsCi : Pipeline({
             sharedWithJobs("build/reports/figma-sync/design-model.json")
         }
 
+        features {
+            feature(GitHubStatusPublisher("TeamCity CI"))
+        }
+
         dependency("verify")
+    }
+})
+
+/**
+ * Post-merge Figma synchronization verification pipeline.
+ *
+ * This pipeline is scoped to `main` because Figma is derived documentation for
+ * the trunk state, not for every short-lived branch. The MCP-operated visual
+ * sync still runs outside TeamCity; this pipeline generates the trunk model and
+ * either verifies the metadata after Figma has been updated or fails visibly
+ * until the MCP sync is run and the pipeline is rerun.
+ */
+object WaterMyPlantsFigmaSync : Pipeline({
+    id("WaterMyPlantsFigmaSync")
+    name = "Figma Sync"
+
+    repositories {
+        repository(GitHub, enabledByDefault = true)
+    }
+
+    triggers {
+        trigger(PipelineVcsTrigger {
+            branchFilter = "+:<default>"
+        })
+    }
+
+    params {
+        param("env.ANDROID_HOME", "%android.sdk.path%")
+        param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
+        param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
     }
 
     job {
-        id("check_figma_trunk_sync")
+        id("figma_sync_generate_design_model")
+        name = "Generate main design model"
+        allowReuse = false
+
+        repositories {
+            repository(GitHub)
+        }
+
+        steps {
+            step(PipelineScriptStep {
+                name = "Generate Figma design model"
+                scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
+            })
+        }
+
+        outputFiles {
+            pipelineArtifacts("build/reports/figma-sync/design-model.json")
+            sharedWithJobs("build/reports/figma-sync/design-model.json")
+        }
+    }
+
+    job {
+        id("figma_sync_check_trunk_sync")
         name = "Check Figma trunk sync"
         allowReuse = false
 
-        features {
-            feature(GitHubStatusPublisher("TeamCity CI"))
+        repositories {
+            repository(GitHub)
         }
 
         steps {
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = GradleScripts.gradle("checkFigmaTrunkSync")
+                scriptContent = """.\gradlew.bat checkFigmaTrunkSync"""
             })
         }
 
-        dependency("generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
+        dependency("figma_sync_generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
     }
 })
 
+/**
+ * Pipeline-compatible Commit Status Publisher feature for GitHub.
+ *
+ * TeamCity Pipelines Kotlin DSL accepts build features that implement
+ * [PipelineCompatible]. This wrapper emits the `commit-status-publisher`
+ * feature into the generated Pipeline YAML and publishes the final pipeline
+ * status with [statusCheckName].
+ *
+ * @param statusCheckName GitHub status check name required by branch protection.
+ */
 class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineCompatible {
     init {
         type = "commit-status-publisher"
@@ -110,24 +195,13 @@ class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineC
     }
 }
 
-object GradleScripts {
-    fun gradle(tasks: String): String =
-        """
-        setlocal EnableExtensions EnableDelayedExpansion
-        set "WMP_BRANCH=%teamcity.build.branch%"
-        if "!WMP_BRANCH!"=="<default>" set "WMP_BRANCH=main"
-        if "!WMP_BRANCH!"=="" set "WMP_BRANCH=main"
-
-        if not exist ".git" git init || exit /b 1
-        git remote remove origin 2>NUL
-        git remote add origin https://github.com/marmatsan/water-my-plants.git || exit /b 1
-        git fetch --depth=1 origin "+refs/heads/*:refs/remotes/origin/*" "+refs/pull/*/head:refs/remotes/origin/pull/*" || exit /b 1
-        git checkout --force -B "!WMP_BRANCH!" "origin/!WMP_BRANCH!" || git checkout --force "origin/pull/!WMP_BRANCH!" || exit /b 1
-
-        .\gradlew.bat $tasks
-        """.trimIndent()
-}
-
+/**
+ * GitHub repository VCS root used by both versioned settings and pipeline jobs.
+ *
+ * The branch specification includes regular branches and pull request heads, and
+ * disables fallback to the default branch so branch resolution mistakes fail
+ * visibly instead of running jobs against `main`.
+ */
 object GitHub : VcsRoot({
     id("GitHub")
     name = "water-my-plants"
@@ -145,7 +219,17 @@ object GitHub : VcsRoot({
     )
 })
 
+/**
+ * Pipeline-compatible command line script step.
+ *
+ * The TeamCity Pipelines DSL serializes script steps with the `script-content`
+ * YAML property. This wrapper keeps the Kotlin DSL explicit while avoiding raw
+ * untyped build step declarations at call sites.
+ */
 open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildStep(), PipelineCompatible {
+    /**
+     * Command content emitted as `script-content` in generated Pipeline YAML.
+     */
     var scriptContent: String
         get() = params.find { it.name == SCRIPT_CONTENT_PARAM }?.value.orEmpty()
         set(value) {
@@ -163,7 +247,17 @@ open class PipelineScriptStep(init: PipelineScriptStep.() -> Unit = {}) : BuildS
     }
 }
 
+/**
+ * Pipeline-compatible VCS trigger.
+ *
+ * The typed trigger helper used by classic build configurations is not accepted
+ * directly by Pipeline DSL blocks, so this wrapper emits the VCS trigger with
+ * the branch filter parameter expected by TeamCity Pipelines.
+ */
 open class PipelineVcsTrigger(init: PipelineVcsTrigger.() -> Unit = {}) : Trigger(), PipelineCompatible {
+    /**
+     * TeamCity branch filter used by the generated VCS trigger.
+     */
     var branchFilter: String
         get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
         set(value) {

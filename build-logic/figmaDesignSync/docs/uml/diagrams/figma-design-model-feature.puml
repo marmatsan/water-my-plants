@@ -45,10 +45,10 @@ fork again
   }
 fork again
   partition "@domain" {
-    :<b>Scenario</b>\ngitSha affects the model hash; <<scenario>>
+    :<b>Scenario</b>\ngitSha does not affect the model hash; <<scenario>>
     :When the design model is generated\nfor git sha abc123;
     :And the design model is generated again\nfor git sha def456;
-    :Then both generated model hashes\nare different;
+    :Then both generated model hashes\nare equal;
   }
 fork again
   partition "@gradle @integration" {

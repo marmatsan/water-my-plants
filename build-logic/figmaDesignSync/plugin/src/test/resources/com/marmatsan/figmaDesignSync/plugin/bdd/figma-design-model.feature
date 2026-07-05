@@ -31,10 +31,10 @@ Feature: Figma design model generation
     Then both generated model hashes are equal
 
   @domain
-  Scenario: gitSha affects the model hash
+  Scenario: gitSha does not affect the model hash
     When the design model is generated for git sha abc123
     And the design model is generated again for git sha def456
-    Then both generated model hashes are different
+    Then both generated model hashes are equal
 
   @gradle @integration
   Scenario: generateFigmaDesignModel writes the design model report

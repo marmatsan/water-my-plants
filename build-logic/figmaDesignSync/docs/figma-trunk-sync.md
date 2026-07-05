@@ -2,15 +2,17 @@
 
 ## Purpose
 
-`main` is the source of truth for the dependency design model. Figma is considered synchronized only when the configured Figma page stores the same `modelHash` generated from the current branch.
+`main` is the source of truth for the dependency design model. Figma is considered synchronized only when the configured Figma page stores the same `modelHash` generated from `main`.
 
 This replaces field-by-field Figma checks. The repository generates a single JSON model, the Figma MCP sync step updates the Figma visualization, then writes sync metadata, and Gradle verifies that Figma points to the same model.
 
 ## CI Ownership
 
-`figmaDesignSync` is a CI-owned verification step. Developers may run it locally for diagnosis, but CI is the source of truth before changes are merged into `main`.
+`figmaDesignSync` is split between pull request validation and post-merge Figma verification. Developers may run it locally for diagnosis, but TeamCity is the source of truth for the repository workflow.
 
-In trunk-based development, pull requests target `main` and CI must verify that Figma reflects the model generated from the branch being validated. Local execution is useful when diagnosing a failed gate or checking credentials, but it is not a required manual step before every commit because it depends on external Figma state, access tokens, and the MCP-operated write flow.
+In trunk-based development, pull requests target `main` and CI must verify that the design model can be generated from the branch being validated. CI does not require Figma to already reflect a temporary branch. After the pull request is merged, the post-merge Figma pipeline generates the model from `main`, the MCP-operated sync updates Figma, and `checkFigmaTrunkSync` verifies the metadata.
+
+Local execution is useful when diagnosing a failed gate or checking credentials, but it is not a required manual step before every commit because Figma sync depends on external Figma state, access tokens, and the MCP-operated write flow.
 
 ## Sources
 
@@ -64,7 +66,7 @@ Module dependency extraction reads explicit `project(":...")` calls and type-saf
 
 Module dependency graphs are no longer rendered into Figma's deleted `dependency of modules` section. They are architecture documentation and must be represented in PlantUML diagrams under the repository UML convention, then published to the Figma UML documentation page.
 
-`modelHash` is calculated from the stable model content and excludes `generatedAt` and `modelHash` itself.
+`modelHash` is calculated from the stable model content and excludes `branch`, `gitSha`, `generatedAt`, and `modelHash` itself. `branch` and `gitSha` remain in the JSON as traceability metadata, but they do not force a Figma sync when the visual model content has not changed.
 
 ## Figma MCP Sync
 
@@ -212,7 +214,7 @@ Visual rendering rules:
 
 ## Verification
 
-The verification task reads Figma shared plugin data through the Figma REST API and compares it with a freshly generated model from the current branch:
+The verification task reads Figma shared plugin data through the Figma REST API and compares it with a freshly generated model from the current checkout. In TeamCity, this check belongs to the post-merge `main` workflow:
 
 ```powershell
 $line = Get-Content -Path .env | Where-Object { $_ -like 'FIGMA_FILE_CONTENT_ACCESS_TOKEN=*' } | Select-Object -First 1
@@ -226,24 +228,32 @@ The check fails when:
 
 - Figma does not expose shared plugin data for `water_my_plants_sync`.
 - Figma is missing `modelHash` or `gitSha`.
-- Figma's `modelHash` differs from the model generated from the current branch.
+- Figma's `modelHash` differs from the model generated from the current checkout.
 - The visual MCP sync step refused to write metadata because Figma was missing required visual variables, sections, instances, or connector templates.
 
 `checkFigmaTrunkSync` verifies the sync metadata hash, not every visual node. Manual edits in Figma can go undetected if they do not update or remove the shared plugin metadata. The visual MCP sync step is responsible for updating or recreating supported visual elements before writing the hash.
 
 ## TeamCity Integration
 
-TeamCity should generate `design-model.json` after a feature is merged into `main` and publish it as a build artifact.
+TeamCity uses two separate pipelines for this workflow.
 
-Recommended build steps for `main`:
+`CI` is the pull request gate required by GitHub branch protection:
 
 - Run normal verification: unit, integration, and end-to-end tests where available.
 - Run `generateFigmaDesignModel`.
 - Publish `build/reports/figma-sync/design-model.json`.
+
+`CI` does not run `checkFigmaTrunkSync`. Figma represents `main`, not every short-lived branch.
+
+`Figma Sync` is the post-merge pipeline for `main`:
+
+- Run `generateFigmaDesignModel` from `main`.
+- Publish `build/reports/figma-sync/design-model.json`.
+- Run `checkFigmaTrunkSync` against the metadata currently stored in Figma.
 - Verify every added or changed `.puml` diagram has been rendered and published
   to the Figma UML documentation page in its own locked section.
 
-The Figma write step is currently MCP-operated. After the MCP sync step writes the metadata into Figma, run:
+The Figma write step is currently MCP-operated. Until it is automated inside TeamCity, the first `Figma Sync` run after a model-affecting merge can identify that `main` is not yet reflected in Figma, but the actual write still happens through the MCP step. Use the published `design-model.json` artifact to run the Figma MCP visual sync. After the MCP sync step writes the metadata into Figma, rerun `Figma Sync` or run:
 
 ```powershell
 .\gradlew.bat checkFigmaTrunkSync
@@ -272,4 +282,4 @@ Only after that barrier is green:
 - Merge `release/<version>` into `main`.
 - Publish the stable version.
 
-After committing changes to this flow, regenerate the model and sync Figma again because `gitSha` changes with the commit.
+After merging changes that affect the generated model content, regenerate the model from `main` and sync Figma again. Commits that only change traceability metadata, CI settings, or unrelated files do not require a Figma sync if `modelHash` stays unchanged.
