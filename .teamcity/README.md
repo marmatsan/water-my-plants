@@ -170,11 +170,38 @@ This prevents TeamCity from satisfying a branch or pull request pipeline with a 
 GitHub status publishing is configured in DSL because Pipeline editing is
 read-only when versioned settings are enabled.
 
-Each job adds the generic TeamCity build feature:
+TeamCity Pipeline virtual jobs do not expose VCS revisions to Commit Status
+Publisher in this setup. Adding the publisher directly to jobs makes
+`teamcity-commit-status.log` report:
+
+```text
+publisher github: no compatible revisions found
+```
+
+Do not attach `repositories { repository(GitHub) }` at job level to fix this.
+TeamCity 2026.1.2 can generate valid local YAML but reject it at runtime with:
+
+```text
+Repository referenced by WaterMyPlants_GitHub not found to be used in Generate design model
+```
+
+Instead, `WaterMyPlantsCiGithubStatus` is a composite build configuration that:
+
+- has the GitHub VCS root attached, so Commit Status Publisher can resolve the
+  commit SHA;
+- publishes the single GitHub status check named `TeamCity CI`;
+- has a snapshot dependency on the real `CI` Pipeline, so the status fails when
+  any pipeline job fails.
+
+GitHub branch protection should require the `TeamCity CI` status check. The
+individual pipeline jobs remain visible in TeamCity, but they are not the status
+checks GitHub should require.
+
+The composite build adds the generic TeamCity build feature:
 
 ```kotlin
 features {
-    feature(GitHubStatusPublisher("TeamCity CI / Verify"))
+    feature(GitHubStatusPublisher("TeamCity CI"))
 }
 ```
 
@@ -193,7 +220,7 @@ TeamCity-managed GitHub App token must provide permission to write commit
 statuses.
 
 The feature intentionally omits `vcsRootId`. TeamCity's Commit Status Publisher
-then publishes for the Git VCS roots attached to the generated job. If GitHub
+then publishes for the Git VCS roots attached to the composite build. If GitHub
 still receives no statuses, inspect `teamcity-commit-status.log` and switch the
 feature to a TeamCity-managed GitHub App token instead of `vcsRoot`.
 

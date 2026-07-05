@@ -22,8 +22,37 @@ project {
         }
     }
 
+    buildType(WaterMyPlantsCiGithubStatus)
     pipeline(WaterMyPlantsCi)
 }
+
+object WaterMyPlantsCiGithubStatus : BuildType({
+    id("WaterMyPlantsCiGithubStatus")
+    name = "CI GitHub status"
+    type = BuildTypeSettings.Type.COMPOSITE
+
+    vcs {
+        root(GitHub)
+    }
+
+    triggers {
+        trigger(PipelineVcsTrigger {
+            branchFilter = "+:*"
+        })
+    }
+
+    features {
+        feature(GitHubStatusPublisher("TeamCity CI"))
+    }
+
+    dependencies {
+        snapshot(WaterMyPlantsCi) {
+            reuseBuilds = ReuseBuilds.NO
+            onDependencyFailure = FailureAction.ADD_PROBLEM
+            onDependencyCancel = FailureAction.FAIL_TO_START
+        }
+    }
+})
 
 object WaterMyPlantsCi : Pipeline({
     id("WaterMyPlantsCi")
@@ -31,12 +60,6 @@ object WaterMyPlantsCi : Pipeline({
 
     repositories {
         repository(GitHub, enabledByDefault = true)
-    }
-
-    triggers {
-        trigger(PipelineVcsTrigger {
-            branchFilter = "+:*"
-        })
     }
 
     params {
@@ -50,14 +73,6 @@ object WaterMyPlantsCi : Pipeline({
         name = "Verify"
         allowReuse = false
 
-        features {
-            feature(GitHubStatusPublisher("TeamCity CI / Verify"))
-        }
-
-        repositories {
-            repository(GitHub)
-        }
-
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
@@ -70,14 +85,6 @@ object WaterMyPlantsCi : Pipeline({
         id("generate_design_model")
         name = "Generate design model"
         allowReuse = false
-
-        features {
-            feature(GitHubStatusPublisher("TeamCity CI / Generate design model"))
-        }
-
-        repositories {
-            repository(GitHub)
-        }
 
         steps {
             step(PipelineScriptStep {
@@ -98,14 +105,6 @@ object WaterMyPlantsCi : Pipeline({
         id("check_figma_trunk_sync")
         name = "Check Figma trunk sync"
         allowReuse = false
-
-        features {
-            feature(GitHubStatusPublisher("TeamCity CI / Check Figma trunk sync"))
-        }
-
-        repositories {
-            repository(GitHub)
-        }
 
         steps {
             step(PipelineScriptStep {
