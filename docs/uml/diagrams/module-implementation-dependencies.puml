@@ -28,32 +28,30 @@ package "module :core:ui" as ModuleCoreUi {
 
 package "module :dependencies" as ModuleDependencies {
   component ":android" as AndroidConsumesDependencies <<gradle>>
-  component ":bddTest" as BddTestConsumesDependencies <<gradle>>
+  component ":bdd-test" as BddTestConsumesDependencies <<gradle>>
   component ":compose" as ComposeConsumesDependencies <<gradle>>
-  component ":figmaDesignSync:data" as FigmaDataConsumesDependencies <<adapter>>
   component ":protobuf" as ProtobufConsumesDependencies <<gradle>>
-  component ":unitTest" as UnitTestConsumesDependencies <<gradle>>
+  component ":unit-test" as UnitTestConsumesDependencies <<gradle>>
   component ":dependencies" as DependenciesTarget <<gradle>>
 
   AndroidConsumesDependencies --> DependenciesTarget
   BddTestConsumesDependencies --> DependenciesTarget
   ComposeConsumesDependencies --> DependenciesTarget
-  FigmaDataConsumesDependencies --> DependenciesTarget
   ProtobufConsumesDependencies --> DependenciesTarget
   UnitTestConsumesDependencies --> DependenciesTarget
 }
 
-package "module :figmaDesignSync:data" as ModuleFigmaDesignSyncData {
-  component ":figmaDesignSync:plugin" as FigmaPluginConsumesData <<gradle>>
-  component ":figmaDesignSync:data" as FigmaDataTarget <<adapter>>
+package "included build figma-design-sync module :data" as ModuleFigmaDesignSyncData {
+  component ":figma-design-sync:plugin" as FigmaPluginConsumesData <<gradle>>
+  component ":figma-design-sync:data" as FigmaDataTarget <<adapter>>
 
   FigmaPluginConsumesData --> FigmaDataTarget
 }
 
-package "module :figmaDesignSync:domain" as ModuleFigmaDesignSyncDomain {
-  component ":figmaDesignSync:data" as FigmaDataConsumesDomain <<adapter>>
-  component ":figmaDesignSync:plugin" as FigmaPluginConsumesDomain <<gradle>>
-  component ":figmaDesignSync:domain" as FigmaDomainTarget <<domain>>
+package "included build figma-design-sync module :domain" as ModuleFigmaDesignSyncDomain {
+  component ":figma-design-sync:data" as FigmaDataConsumesDomain <<adapter>>
+  component ":figma-design-sync:plugin" as FigmaPluginConsumesDomain <<gradle>>
+  component ":figma-design-sync:domain" as FigmaDomainTarget <<domain>>
 
   FigmaDataConsumesDomain --> FigmaDomainTarget
   FigmaPluginConsumesDomain --> FigmaDomainTarget
@@ -62,13 +60,13 @@ package "module :figmaDesignSync:domain" as ModuleFigmaDesignSyncDomain {
 package "modules without incoming implementation(projects...) consumers" as ModuleNoIncomingConsumers {
   component ":android" as AndroidTarget <<gradle>>
   component ":app" as AppTarget
-  component ":bddTest" as BddTestTarget <<gradle>>
+  component ":bdd-test" as BddTestTarget <<gradle>>
   component ":compose" as ComposeTarget <<gradle>>
-  component ":dokkaDocumentation" as DokkaDocumentationTarget <<gradle>>
-  component ":figmaDesignSync:plugin" as FigmaPluginTarget <<gradle>>
+  component ":dokka-documentation" as DokkaDocumentationTarget <<gradle>>
+  component ":figma-design-sync:plugin" as FigmaPluginTarget <<gradle>>
   component ":onboarding:ui" as OnboardingTarget
   component ":protobuf" as ProtobufTarget <<gradle>>
-  component ":unitTest" as UnitTestTarget <<gradle>>
+  component ":unit-test" as UnitTestTarget <<gradle>>
 }
 
 ModuleCoreUi -[hidden]down-> ModuleDependencies
