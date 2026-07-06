@@ -86,7 +86,8 @@ The pipeline:
 - triggers after `CI` finishes successfully on `<default>`;
 - generates `build/reports/figma-sync/design-model.json` from `main`;
 - publishes the generated model as an artifact;
-- runs `Check Figma trunk sync` against the metadata currently stored in Figma.
+- runs `Check Figma trunk sync` against the metadata currently stored in Figma;
+- publishes the optional `TeamCity Figma Sync` GitHub status on `main`.
 
 The visual write step is still MCP-operated outside TeamCity. Until that write
 step is automated, `Figma Sync` is expected to fail after a model-affecting
@@ -216,11 +217,13 @@ param("build_custom_name", statusCheckName)
 ```
 
 GitHub branch protection should require only the `TeamCity CI` status check.
-The status is published by the final `CI` pipeline job, which depends on the
-earlier job, so it represents the pull request validation chain.
+The `TeamCity CI` status is published by the final `CI` pipeline job, which
+depends on the earlier job, so it represents the pull request validation chain.
 
-Do not require the `Figma Sync` pipeline in GitHub branch protection. That
-pipeline runs after changes reach `main`.
+`Figma Sync` publishes `TeamCity Figma Sync` from its final job so `main`
+commits show whether post-merge Figma documentation verification passed. Do not
+require that status in GitHub branch protection because the pipeline runs after
+changes reach `main`.
 
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
@@ -269,7 +272,8 @@ For this project, the generated pipeline should:
 - reference only one Git VCS root for the GitHub repository;
 - emit job-level `repositories` entries;
 - emit direct Gradle script content;
-- emit `commit-status-publisher` only on the final `CI` job;
+- emit `commit-status-publisher` on the final `CI` job and the final
+  `Figma Sync` job;
 - keep `Figma Sync` as a separate default-branch pipeline;
 - emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI`, with
   `afterSuccessfulBuildOnly=true`.
