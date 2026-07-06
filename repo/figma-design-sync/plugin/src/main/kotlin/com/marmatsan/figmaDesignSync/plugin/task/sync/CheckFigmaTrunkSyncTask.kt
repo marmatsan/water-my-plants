@@ -89,8 +89,10 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     }
 
     private fun git(vararg arguments: String): String {
-        val process = ProcessBuilder(listOf("git") + arguments)
-            .directory(projectRootDirectory.get().asFile)
+        val rootDirectory = projectRootDirectory.get().asFile
+        val safeDirectory = rootDirectory.absolutePath.replace('\\', '/')
+        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+            .directory(rootDirectory)
             .start()
         val output = ByteArrayOutputStream()
         val error = ByteArrayOutputStream()
