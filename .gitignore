@@ -49,3 +49,6 @@ teamcity.toml
 
 # Cucumber+ IDE plugin generated files
 **/.cucumber+/
+
+# Codex local project configuration
+.codex/config.toml
