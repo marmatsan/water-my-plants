@@ -1,5 +1,11 @@
 # Water My Plants
 
+## Project documentation
+
+- [Documentation guide](docs/documentation.md)
+- [Project structure](docs/project-structure.md)
+- [Main branch protection](docs/ci/main-branch-protection.md)
+
 ## BDD with Cucumber
 
 This project uses Cucumber JVM for executable BDD scenarios in local JVM tests.

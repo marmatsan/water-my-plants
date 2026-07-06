@@ -13,7 +13,8 @@ pluginManagement {
         gradlePluginPortal()
     }
     // Custom Gradle plugins
-    includeBuild("./build-logic")
+    includeBuild("./repo/gradle-plugins")
+    includeBuild("./repo/figma-design-sync")
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
