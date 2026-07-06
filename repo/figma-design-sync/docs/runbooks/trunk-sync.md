@@ -30,12 +30,12 @@ Local execution is useful when diagnosing a failed gate or checking credentials,
 - Figma custom Gradle plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
 - Figma gradle-plugins libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Figma gradle-plugins plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
+- Figma figma-design-sync libraries section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63573-260`
+- Figma figma-design-sync plugins section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63573-346`
 - Figma UML documentation page: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386`
 - Root settings file: `settings.gradle.kts`
-- Default included build name: `gradle-plugins`
-- Default included build model name: `gradlePlugins`
-- Default included build root: `repo/gradle-plugins`
-- Default included build settings file: `repo/gradle-plugins/settings.gradle.kts`
+- Default included build names: `dependency-catalog`, `figma-design-sync`, `gradle-plugins`
+- Default included build model names: `dependencyCatalog`, `figmaDesignSync`, `gradlePlugins`
 
 ## Model Generation
 
@@ -56,19 +56,37 @@ The generated JSON contains:
 
 `content.versions` is the sorted flat map used for deterministic comparison. `content.versionSections` preserves the section grouping from `repo/dependency-catalog/versions.properties` so the Figma MCP sync can place new visual version nodes in the correct frame.
 
-`content.catalogs` contains Water My Plants libraries/plugins, gradle-plugins libraries/plugins, custom Gradle convention plugins, and regular custom Gradle plugins. Custom Gradle convention plugins are detected from `gradle-plugins` build files that declare an implementation class ending in `GradleConventionPlugin`. Regular custom Gradle plugins are detected from repository included builds that declare a Gradle plugin implementation class that does not end in `GradleConventionPlugin` and whose plugin id is applied from the main build.
+`content.catalogs` contains Water My Plants libraries/plugins, catalogs from included builds that publish settings catalogs, custom Gradle convention plugins, and regular custom Gradle plugins. The default settings-catalog contributors are `gradlePlugins` and `figmaDesignSync`. `dependencyCatalog` contributes modules and module dependencies but not a `content.catalogs.dependencyCatalog` entry because `repo/dependency-catalog/settings.gradle.kts` does not declare `versionCatalogs.create("libs")` or `versionCatalogs.create("plugins")`.
+
+Custom Gradle convention plugins are detected from `repo/gradle-plugins` build files that declare an implementation class ending in `GradleConventionPlugin`. Regular custom Gradle plugins are detected from repository included builds that declare a Gradle plugin implementation class that does not end in `GradleConventionPlugin` and whose plugin id is applied from the main build.
 
 `com.marmatsan.figmaDesignSync` is a regular Gradle plugin, not a Gradle convention plugin. It is intentionally excluded from `content.catalogs.waterMyPlants.customGradleConventionPlugins` and included in `content.catalogs.waterMyPlants.customGradlePlugins` because it registers sync tasks and extension configuration instead of applying build conventions to consumer modules. Applying it in the root build does not create a consumer module entry because `:` is not treated as an application module.
 
-Included builds are configured through `figmaDesignSync.includedBuilds`. The default `gradle-plugins` source points to `repo/gradle-plugins`, keeps `gradlePlugins` as the Figma model name, uses `:gradle-plugins` as the generated module prefix, and is marked as publishing convention plugins:
+Included builds are configured through `figmaDesignSync.includedBuilds`. The defaults model all repository tooling under `repo/`:
 
 ```kotlin
 figmaDesignSync {
+    includedBuilds.named("dependency-catalog") {
+        modelName.set("dependencyCatalog")
+        rootDirectory.set(layout.projectDirectory.dir("repo/dependency-catalog"))
+        settingsFile.set(layout.projectDirectory.file("repo/dependency-catalog/settings.gradle.kts"))
+        modulePathPrefix.set(":dependency-catalog")
+        publishesCatalogs.set(false)
+    }
+
+    includedBuilds.named("figma-design-sync") {
+        modelName.set("figmaDesignSync")
+        rootDirectory.set(layout.projectDirectory.dir("repo/figma-design-sync"))
+        settingsFile.set(layout.projectDirectory.file("repo/figma-design-sync/settings.gradle.kts"))
+        modulePathPrefix.set(":figma-design-sync")
+    }
+
     includedBuilds.named("gradle-plugins") {
         modelName.set("gradlePlugins")
         rootDirectory.set(layout.projectDirectory.dir("repo/gradle-plugins"))
         settingsFile.set(layout.projectDirectory.file("repo/gradle-plugins/settings.gradle.kts"))
         modulePathPrefix.set(":gradle-plugins")
+        publishesCatalogs.set(true)
         publishesConventionPlugins.set(true)
     }
 }
@@ -77,7 +95,9 @@ figmaDesignSync {
 `content.moduleDependencies` contains one graph for the root build and one graph per configured included build:
 
 - `main`: root project modules outside nested Gradle builds, read from `dependencies {}` blocks in root project module `build.gradle.kts` files.
-- `gradlePlugins`: default included-build modules inside `repo/gradle-plugins`, read from `dependencies {}` blocks in that included build.
+- `dependencyCatalog`: the standalone root module at `repo/dependency-catalog`; this graph is usually empty because the build has no project-to-project dependencies.
+- `figmaDesignSync`: included-build modules inside `repo/figma-design-sync`, read from `dependencies {}` blocks in that included build.
+- `gradlePlugins`: included-build modules inside `repo/gradle-plugins`, read from `dependencies {}` blocks in that included build.
 
 Module dependency extraction reads explicit `project(":...")` calls and type-safe project accessors such as `projects.core.ui` and `projects.domain`.
 
@@ -170,6 +190,7 @@ Current catalog tree sync behavior:
 - Update existing `.tree node` instances in the custom Gradle convention plugins section.
 - Update existing `.tree node` instances in the custom Gradle plugins section.
 - Update existing `.tree node` instances in the gradle-plugins library/plugin sections.
+- Update existing `.tree node` instances in the figma-design-sync library/plugin sections.
 - Match existing tree nodes by label inside each visual section. Labels must be unique per section until stable Figma path metadata is introduced.
 - Update exposed component properties for library groups, plugin ids, plugin versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the existing instance structure can represent the model.
@@ -179,9 +200,10 @@ Current catalog tree sync behavior:
 - Consumer module entries must be `.module` instances. If the component exposes a `size` variant, the sync sets it to `small`; the deleted `big` variant is no longer used. The sync updates the `.module` `name` variant instead of editing inner text overrides directly.
 - Create missing `.tree node` instances by cloning a compatible existing node from the same visual section, then applying the generated model values.
 - Create missing top-level tree sections when a new top-level library group or plugin id appears.
-- Create missing `simple-solid_arrow` connectors by cloning an existing connector and rebinding its endpoints to the parent/child tree nodes.
+- Create missing `simple-solid_arrow` connectors by cloning an existing connector and binding its endpoints to the parent/child tree nodes.
+- Rebind existing synced connector endpoints after layout so connectors follow moved tree nodes.
 - Re-layout synced tree nodes so each parent is horizontally centered over its children, with 128 px between a parent bottom edge and its child top edge.
-- Resize touched tree sections and their parent sections to fit after visual updates.
+- Resize touched tree sections and their parent sections to fit after visual updates, including direct `.Header` instances that must span the section width.
 - Remove stale catalog tree nodes and their connectors when they no longer exist in the generated model.
 - Fail without writing metadata if an existing or cloned instance cannot represent the artifact text or `.module` consumer structure from the generated model.
 
@@ -223,10 +245,7 @@ return {
 
 Figma shared plugin data namespaces accept only alphanumeric characters, `_`, and `.`. Do not use hyphens in the namespace.
 
-The next visual sync phases are:
-
-- Reconcile stale catalog tree nodes after the create/update flows are stable.
-- Introduce stable Figma path metadata so duplicate labels and stale tree nodes can be reconciled safely.
+The next visual sync phase is to introduce stable Figma path metadata so duplicate labels can be reconciled safely.
 
 ### Visual Sync Targets
 
@@ -243,11 +262,15 @@ Water My Plants catalog targets:
 - Custom Gradle plugin source: repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins
 - Custom Gradle plugin visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63330-551`
 
-Default included-build catalog targets:
+Included-build catalog targets:
 
 - Source: `repo/gradle-plugins/settings.gradle.kts`
 - Libraries visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63099-951`
 - Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63100-2952`
+- Source: `repo/figma-design-sync/settings.gradle.kts`
+- Libraries visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63573-260`
+- Plugins visual section: `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63573-346`
+- `repo/dependency-catalog` has no settings-catalog visual target; it contributes the versions file and the standalone `:dependency-catalog` module.
 
 UML documentation target:
 

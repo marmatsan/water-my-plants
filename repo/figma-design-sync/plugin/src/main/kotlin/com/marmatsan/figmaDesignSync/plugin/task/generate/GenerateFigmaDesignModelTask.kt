@@ -51,6 +51,9 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     abstract val includedBuildModulePathPrefixes: ListProperty<String>
 
     @get:Input
+    abstract val includedBuildPublishesCatalogs: ListProperty<Boolean>
+
+    @get:Input
     abstract val includedBuildPublishesConventionPlugins: ListProperty<Boolean>
 
     @get:Internal

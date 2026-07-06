@@ -126,6 +126,8 @@ const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
   "waterMyPlants.customGradlePlugins",
   "gradlePlugins.libraries",
   "gradlePlugins.plugins",
+  "figmaDesignSync.libraries",
+  "figmaDesignSync.plugins",
 ];
 
 const ALL_SYNC_TARGETS: SyncTargetName[] = [

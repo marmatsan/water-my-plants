@@ -40,6 +40,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             includedBuildModulePathPrefixes.set(
                 includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
             )
+            includedBuildPublishesCatalogs.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+            )
             includedBuildPublishesConventionPlugins.set(
                 includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
             )
@@ -63,6 +66,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             )
             includedBuildModulePathPrefixes.set(
                 includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+            )
+            includedBuildPublishesCatalogs.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
             )
             includedBuildPublishesConventionPlugins.set(
                 includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
@@ -90,6 +96,7 @@ private fun figmaDesignSyncExtension.includedBuildSources(project: Project) =
                     settingsFile = includedBuild.settingsFile.get().asFile,
                     rootDirectory = includedBuild.rootDirectory.get().asFile,
                     modulePathPrefix = includedBuild.modulePathPrefix.get(),
+                    publishesCatalogs = includedBuild.publishesCatalogs.get(),
                     publishesConventionPlugins = includedBuild.publishesConventionPlugins.get()
                 )
             }

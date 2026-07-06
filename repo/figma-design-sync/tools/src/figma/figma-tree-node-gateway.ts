@@ -89,6 +89,10 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   await updateNamedTextNodes(instance, "artifact version", artifactVersions, mutatedNodeIds, { allowExtra: true });
   await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
   await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
+
+  if (artifactNames.length === 0 && requiredByModules.length === 0) {
+    resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
+  }
 }
 
 export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
@@ -109,6 +113,40 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
   mutatedNodeIds.push(instance.id);
 
   await updateConsumerModuleInstances(instance, "Applied by", appliedToModules, mutatedNodeIds);
+
+  if (appliedToModules.length === 0 && !isGradleConventionPlugin && !hasVisiblePluginVersion(node)) {
+    resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);
+  }
+}
+
+function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
+  return node.version?.visible === true && Boolean(node.version?.value);
+}
+
+function resizeBareTreeNodeToFitLabel(instance, labelName, mutatedNodeIds) {
+  const label = findVisibleTextNode(instance, labelName);
+  if (!label) return;
+
+  const targetWidth = Math.ceil(label.width + TREE_NODE_LABEL_HORIZONTAL_PADDING);
+  const targetHeight = Math.ceil(Math.max(instance.height, label.height + TREE_NODE_LABEL_VERTICAL_PADDING));
+  if (Math.ceil(instance.width) === targetWidth && Math.ceil(instance.height) === targetHeight) return;
+
+  instance.resizeWithoutConstraints(targetWidth, targetHeight);
+  mutatedNodeIds.push(instance.id);
+}
+
+function findVisibleTextNode(root, name) {
+  return root.findAllWithCriteria({ types: ["TEXT"] })
+    .find((textNode) => textNode.name === name && isVisibleInside(textNode, root));
+}
+
+function isVisibleInside(node, boundary) {
+  let current = node;
+  while (current && current.id !== boundary.id) {
+    if (current.visible === false) return false;
+    current = current.parent;
+  }
+  return boundary.visible !== false;
 }
 
 function requireTreeNodeContainer(section, node: FlattenedCatalogNode) {
@@ -213,3 +251,5 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
 }
 
 const TREE_NODE_PARENT_CHILD_GAP = 128;
+const TREE_NODE_LABEL_HORIZONTAL_PADDING = 64;
+const TREE_NODE_LABEL_VERTICAL_PADDING = 64;

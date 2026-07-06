@@ -77,13 +77,21 @@ export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
   const visibleChildren = children.filter((child) => child && child.visible !== false);
   if (visibleChildren.length === 0) return;
 
-  const maxRight = Math.max(...visibleChildren.map((child) => child.x + child.width));
-  const maxBottom = Math.max(...visibleChildren.map((child) => child.y + child.height));
+  const contentChildren = node.type === "SECTION"
+    ? visibleChildren.filter((child) => !(child.type === "INSTANCE" && child.name === ".Header"))
+    : visibleChildren;
+  const boundsChildren = contentChildren.length > 0 ? contentChildren : visibleChildren;
+  const maxRight = Math.max(...boundsChildren.map((child) => child.x + child.width));
+  const maxBottom = Math.max(...boundsChildren.map((child) => child.y + child.height));
   node.resizeWithoutConstraints(
     Math.max(1, maxRight + padding),
     Math.max(1, maxBottom + padding)
   );
   mutatedNodeIds.push(node.id);
+
+  if (node.type === "SECTION") {
+    resizeDirectHeadersToSectionWidth(node, mutatedNodeIds);
+  }
 }
 
 export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
@@ -109,4 +117,15 @@ export async function requireTreeNodeComponent(type: CatalogTreeType, componentI
   const component = await requireComponent(componentId);
   componentCache.set(type, component);
   return component;
+}
+
+function resizeDirectHeadersToSectionWidth(section, mutatedNodeIds) {
+  const headers = section.children
+    .filter((child) => child.type === "INSTANCE" && child.name === ".Header");
+
+  for (const header of headers) {
+    header.x = 0;
+    header.resizeWithoutConstraints(section.width, header.height);
+    mutatedNodeIds.push(header.id);
+  }
 }

@@ -1,4 +1,4 @@
-import { CATALOG_TREE_TARGETS } from "../config/figma-config";
+import { CATALOG_TREE_TARGETS, METADATA_NAMESPACE } from "../config/figma-config";
 import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
 import type { DesignModel } from "../domain/design-model";
 import type { CatalogTreeSyncGateway, CatalogTreeSyncOptions } from "../ports/sync-gateways";
@@ -6,7 +6,11 @@ import {
   collectTreeConnectors,
   connectorReferencesAnyNode,
   createTreeConnector,
+  ensureTreeConnectorContainer,
+  findTreeConnector,
   hasConnector,
+  syncTreeConnector,
+  TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY,
 } from "./figma-connector-gateway";
 import { requireSection, resizeAncestorSectionsToFit, resizeNodeToFit } from "./figma-node-gateway";
 import {
@@ -53,7 +57,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
     let connectors = collectTreeConnectors(section);
     const disconnectedConnectors = connectors.filter((connector) =>
-      !connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId
+      !connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) &&
+        (!connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId)
     );
     for (const connector of disconnectedConnectors) {
       removedCatalogConnectors.push(`${target.name}/${connector.id}`);
@@ -86,39 +91,23 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       updatedCatalogNodes.push(`${target.name}/${node.path.join("/")}`);
     }
 
-    for (const node of expectedNodes.filter((candidate) => candidate.parentPath.length > 0)) {
-      const parentLabel = node.parentPath[node.parentPath.length - 1];
-      const parentInstance = instancesByLabel.get(parentLabel);
-      const childInstance = instancesByLabel.get(node.label);
-
-      if (!parentInstance || !childInstance) {
-        throw new Error(`Cannot create connector for ${target.name}/${node.path.join("/")}: parent or child is missing.`);
-      }
-
-      if (hasConnector(connectors, parentInstance.id, childInstance.id)) {
-        continue;
-      }
-
-      let connector;
-      try {
-        connector = createTreeConnector(section, parentInstance, childInstance);
-      } catch (error) {
-        throw new Error(
-          `Cannot create connector for ${target.name}/${node.parentPath.join("/")} -> ${node.path.join("/")}: ` +
-            `parent=${parentInstance.id} child=${childInstance.id}. ${errorMessage(error)}`
-        );
-      }
-      connectors.push(connector);
-      mutatedNodeIds.push(connector.id);
-      createdCatalogConnectors.push(`${target.name}/${node.parentPath.join("/")} -> ${node.path.join("/")}`);
-    }
-
     const staleResult = removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors);
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
     connectors = staleResult.connectors;
 
+    connectors = createMissingCatalogConnectors(
+      target,
+      section,
+      expectedNodes,
+      instancesByLabel,
+      connectors,
+      createdCatalogConnectors,
+      mutatedNodeIds
+    );
+
     layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
+    syncCatalogConnectors(section, expectedNodes, instancesByLabel, connectors, mutatedNodeIds);
     resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
   }
@@ -136,6 +125,47 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
 
 function errorMessage(error) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function createMissingCatalogConnectors(
+  target,
+  section,
+  expectedNodes,
+  instancesByLabel,
+  connectors,
+  createdCatalogConnectors,
+  mutatedNodeIds
+) {
+  const syncedConnectors = [...connectors];
+
+  for (const node of expectedNodes.filter((candidate) => candidate.parentPath.length > 0)) {
+    const parentLabel = node.parentPath[node.parentPath.length - 1];
+    const parentInstance = instancesByLabel.get(parentLabel);
+    const childInstance = instancesByLabel.get(node.label);
+
+    if (!parentInstance || !childInstance) {
+      throw new Error(`Cannot create connector for ${target.name}/${node.path.join("/")}: parent or child is missing.`);
+    }
+
+    if (hasConnector(syncedConnectors, parentInstance.id, childInstance.id)) {
+      continue;
+    }
+
+    let connector;
+    try {
+      connector = createTreeConnector(section, parentInstance, childInstance);
+    } catch (error) {
+      throw new Error(
+        `Cannot create connector for ${target.name}/${node.parentPath.join("/")} -> ${node.path.join("/")}: ` +
+          `parent=${parentInstance.id} child=${childInstance.id}. ${errorMessage(error)}`
+      );
+    }
+    syncedConnectors.push(connector);
+    mutatedNodeIds.push(connector.id);
+    createdCatalogConnectors.push(`${target.name}/${node.parentPath.join("/")} -> ${node.path.join("/")}`);
+  }
+
+  return syncedConnectors;
 }
 
 function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors) {
@@ -295,6 +325,27 @@ function applyCatalogPlacements(placements, mutatedNodeIds) {
     placement.instance.x = placement.x;
     placement.instance.y = placement.y;
     mutatedNodeIds.push(placement.instance.id);
+  }
+}
+
+function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mutatedNodeIds) {
+  for (const node of nodes.filter((candidate) => candidate.parentPath.length > 0)) {
+    const parentLabel = node.parentPath[node.parentPath.length - 1];
+    const parentInstance = instancesByLabel.get(parentLabel);
+    const childInstance = instancesByLabel.get(node.label);
+
+    if (!parentInstance || !childInstance) {
+      continue;
+    }
+
+    const connector = findTreeConnector(connectors, parentInstance.id, childInstance.id);
+    if (!connector) {
+      continue;
+    }
+
+    syncTreeConnector(connector, parentInstance, childInstance);
+    ensureTreeConnectorContainer(section, connector, childInstance);
+    mutatedNodeIds.push(connector.id);
   }
 }
 

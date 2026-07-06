@@ -1,13 +1,28 @@
 import { CONNECTOR_TEMPLATE_NAME, METADATA_NAMESPACE } from "../config/figma-config";
 
 export function collectTreeConnectors(section) {
-  return section.findAllWithCriteria({ types: ["CONNECTOR"] })
+  const sectionNodeIds = new Set([
+    section.id,
+    ...section.findAll().map((node) => node.id),
+  ]);
+  const sectionConnectors = section.findAllWithCriteria({ types: ["CONNECTOR"] })
     .filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME);
+  const pageConnectors = section.parent?.type === "PAGE"
+    ? section.parent.findAllWithCriteria({ types: ["CONNECTOR"] })
+      .filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME)
+      .filter((connector) => connectorReferencesAnyNode(connector, sectionNodeIds))
+    : [];
+
+  return [...new Set([...sectionConnectors, ...pageConnectors])];
 }
 
 export function hasConnector(connectors, parentNodeId, childNodeId) {
+  return Boolean(findTreeConnector(connectors, parentNodeId, childNodeId));
+}
+
+export function findTreeConnector(connectors, parentNodeId, childNodeId) {
   const edgeKey = treeConnectorEdgeKey(parentNodeId, childNodeId);
-  return connectors.some((connector) =>
+  return connectors.find((connector) =>
     connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) === edgeKey ||
       (
         connector.connectorStart?.endpointNodeId === parentNodeId &&
@@ -39,19 +54,68 @@ export function createTreeConnector(section, parentInstance, childInstance) {
   container.appendChild(connector);
   connector.visible = true;
   connector.name = CONNECTOR_TEMPLATE_NAME;
+  syncTreeConnector(connector, parentInstance, childInstance);
+  ensureTreeConnectorContainer(section, connector, childInstance);
+
+  return connector;
+}
+
+export function ensureTreeConnectorContainer(section, connector, childInstance) {
+  const container = childInstance.parent && childInstance.parent.type === "SECTION"
+    ? childInstance.parent
+    : section;
+  if (connector.parent?.id !== container.id) {
+    container.appendChild(connector);
+  }
+}
+
+export function syncTreeConnector(connector, parentInstance, childInstance) {
   connector.setSharedPluginData(
     METADATA_NAMESPACE,
     TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY,
     treeConnectorEdgeKey(parentInstance.id, childInstance.id)
   );
+
+  try {
+    syncTreeConnectorEndpoints(connector, parentInstance, childInstance);
+  } catch (_) {
+    syncTreeConnectorPositions(connector, parentInstance, childInstance);
+  }
+}
+
+function syncTreeConnectorEndpoints(connector, parentInstance, childInstance) {
+  const nextStart = {
+    endpointNodeId: parentInstance.id,
+    magnet: "BOTTOM",
+  };
+  const nextEnd = {
+    endpointNodeId: childInstance.id,
+    magnet: "TOP",
+  };
+
+  if (connector.connectorEnd?.endpointNodeId === parentInstance.id) {
+    connector.connectorEnd = nextEnd;
+    connector.connectorStart = nextStart;
+    return;
+  }
+
+  if (connector.connectorStart?.endpointNodeId === childInstance.id) {
+    connector.connectorStart = nextStart;
+    connector.connectorEnd = nextEnd;
+    return;
+  }
+
+  connector.connectorStart = nextStart;
+  connector.connectorEnd = nextEnd;
+}
+
+function syncTreeConnectorPositions(connector, parentInstance, childInstance) {
   connector.connectorStart = {
     position: connectorPosition(parentInstance, "BOTTOM"),
   };
   connector.connectorEnd = {
     position: connectorPosition(childInstance, "TOP"),
   };
-
-  return connector;
 }
 
 function connectorPosition(node, magnet) {
@@ -106,4 +170,4 @@ function findConnectorTemplate(container, section) {
   throw new Error(`No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${section.name}'.`);
 }
 
-const TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY = "treeConnectorEdge";
+export const TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY = "treeConnectorEdge";

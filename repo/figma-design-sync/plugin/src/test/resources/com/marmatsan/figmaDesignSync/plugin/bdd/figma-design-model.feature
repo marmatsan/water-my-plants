@@ -47,4 +47,5 @@ Feature: Figma design model generation
     And the written design model contains the current branch
     And the written design model contains the current git sha
     And the written design model contains content
+    And the written design model contains repository infrastructure modules
     And the written design model contains a model hash

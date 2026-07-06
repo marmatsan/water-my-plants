@@ -29,6 +29,8 @@ export type SyncTargetName =
   | "waterMyPlants.customGradlePlugins"
   | "gradlePlugins.libraries"
   | "gradlePlugins.plugins"
+  | "figmaDesignSync.libraries"
+  | "figmaDesignSync.plugins"
   | "metadata";
 
 export type SyncFigmaDesignModelOptions = {

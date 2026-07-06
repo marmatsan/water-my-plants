@@ -94,4 +94,16 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     type: "Plugin",
     nodes: (designModel) => designModel.content?.catalogs?.gradlePlugins?.plugins,
   },
+  {
+    name: "figmaDesignSync.libraries",
+    sectionNodeId: "63573:260",
+    type: "Library",
+    nodes: (designModel) => designModel.content?.catalogs?.figmaDesignSync?.libraries,
+  },
+  {
+    name: "figmaDesignSync.plugins",
+    sectionNodeId: "63573:346",
+    type: "Plugin",
+    nodes: (designModel) => designModel.content?.catalogs?.figmaDesignSync?.plugins,
+  },
 ];
