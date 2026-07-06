@@ -105,8 +105,8 @@ function syncTreeConnectorEndpoints(connector, parentInstance, childInstance) {
     return;
   }
 
-  connector.connectorStart = nextStart;
   connector.connectorEnd = nextEnd;
+  connector.connectorStart = nextStart;
 }
 
 function syncTreeConnectorPositions(connector, parentInstance, childInstance) {
