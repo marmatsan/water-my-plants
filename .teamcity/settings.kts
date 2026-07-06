@@ -109,7 +109,9 @@ object WaterMyPlantsCi : Pipeline({
  * the trunk state, not for every short-lived branch. The MCP-operated visual
  * sync still runs outside TeamCity; this pipeline generates the trunk model and
  * either verifies the metadata after Figma has been updated or fails visibly
- * until the MCP sync is run and the pipeline is rerun.
+ * until the MCP sync is run and the pipeline is rerun. The final job publishes
+ * an optional GitHub status so the post-merge documentation state is visible on
+ * `main` commits without becoming a pull request merge gate.
  */
 object WaterMyPlantsFigmaSync : Pipeline({
     id("WaterMyPlantsFigmaSync")
@@ -169,6 +171,10 @@ object WaterMyPlantsFigmaSync : Pipeline({
                 name = "Verify Figma sync metadata"
                 scriptContent = """.\gradlew.bat checkFigmaTrunkSync"""
             })
+        }
+
+        features {
+            feature(GitHubStatusPublisher("TeamCity Figma Sync"))
         }
 
         dependency("figma_sync_generate_design_model", listOf("build/reports/figma-sync/design-model.json"))

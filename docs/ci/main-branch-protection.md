@@ -52,7 +52,8 @@ a GitHub Checks API run. The PR can therefore show `Checks (0)` while still
 showing `All checks have passed` for `TeamCity CI`.
 
 Do not require `Figma Sync` in the GitHub ruleset. `Figma Sync` runs after
-changes reach `main`.
+changes reach `main`. It may still appear on `main` commits as the optional
+`TeamCity Figma Sync` status.
 
 ## TeamCity CI
 
@@ -83,6 +84,10 @@ Finish Build Trigger.
 The Figma write step is currently MCP-operated. If `Figma Sync` fails because
 Figma is out of sync, run the MCP visual sync with the generated
 `design-model.json`, then rerun `Figma Sync`.
+
+The final `Figma Sync` job publishes the optional `TeamCity Figma Sync` commit
+status to GitHub so the post-merge documentation state is visible from the
+commit page.
 
 ## If CI Fails On Main
 
