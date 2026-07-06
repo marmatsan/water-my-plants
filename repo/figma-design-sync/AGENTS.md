@@ -68,9 +68,11 @@ used by CI.
 - The Figma sync namespace is `water_my_plants_sync`. Figma shared plugin data
   namespaces must not contain hyphens.
 - The Figma write step is MCP-operated.
-- Detailed Figma automation runbooks live in `docs/`. Agents must follow:
-  - `docs/figma-trunk-sync.md` when validating or publishing the Figma trunk sync
-    state.
+- Detailed Figma automation runbooks live in `docs/runbooks/`, except UML
+  publication runbooks, which live under `docs/uml/` next to the diagrams and
+  helper tools. Agents must follow:
+  - `docs/runbooks/trunk-sync.md` when validating or publishing the Figma trunk
+    sync state.
   - `docs/uml/figma-import.md` when publishing PlantUML-generated UML diagrams
     to Figma.
 - When adding or updating a `.Header` component for a Figma documentation

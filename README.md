@@ -2,6 +2,7 @@
 
 ## Project documentation
 
+- [Documentation guide](docs/documentation.md)
 - [Project structure](docs/project-structure.md)
 - [Main branch protection](docs/ci/main-branch-protection.md)
 

@@ -62,9 +62,12 @@ through `pluginManagement.includeBuild(...)`. Both included builds consume
 | Path | Purpose |
 |------|---------|
 | `README.md` | Repository entry point and links to deeper documentation. |
+| `docs/documentation.md` | Rules for README files, guides, references, and runbooks. |
 | `docs/ci/` | CI and branch protection documentation. |
 | `docs/uml/` | Project-wide PlantUML diagrams and shared UML includes. |
-| `<module>/docs/` | Module-owned documentation, such as BDD notes, Dokka notes, UML diagrams, and tool runbooks. |
+| `<module>/docs/README.md` | Module documentation index and orientation. |
+| `<module>/docs/runbooks/` | Module-owned operational runbooks. |
+| `<module>/docs/uml/` | Module-owned PlantUML diagrams, UML publication notes, and UML helper scripts. |
 
 Project-wide architecture or workflow documentation belongs under `docs/`.
 Module-specific documentation belongs under that module's top-level `docs/`

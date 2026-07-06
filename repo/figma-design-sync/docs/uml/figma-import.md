@@ -1,4 +1,4 @@
-# Importing PlantUML SVGs Into Figma
+# PlantUML SVG Figma Import Runbook
 
 PlantUML `.puml` files are the source of truth. Rendered SVGs are publication artifacts used to place the reviewed diagram in Figma.
 

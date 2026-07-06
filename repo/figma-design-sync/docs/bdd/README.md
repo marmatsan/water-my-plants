@@ -185,7 +185,7 @@ communication.
 Rendered SVGs are temporary publication artifacts. After the SVG is published to
 the locked Figma UML section, delete the generated SVG locally.
 
-Figma import notes and helper scripts for this module live in:
+The Figma import runbook and helper scripts for this module live in:
 
 - `../uml/figma-import.md`
 - `../uml/tools/sanitize-svg-for-figma.ps1`

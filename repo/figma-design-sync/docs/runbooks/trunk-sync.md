@@ -1,4 +1,4 @@
-# Figma Trunk Sync
+# Figma Trunk Sync Runbook
 
 ## Purpose
 
