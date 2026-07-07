@@ -67,13 +67,12 @@ The pipeline:
 
 - monitors all branches;
 - runs `Verify`;
-- runs `Generate design model` after `Verify`;
-- publishes `build/reports/figma-sync/design-model.json`;
-- publishes the final GitHub status check from the final job.
+- publishes the `TeamCity CI` GitHub status from `Verify`.
 
-`CI` does not run `checkFigmaTrunkSync`. Figma represents the stable `main`
-state, so short-lived branch builds should prove that the model can be generated
-without requiring Figma to already match that temporary branch.
+`CI` does not run `generateFigmaDesignModel` and does not publish
+`build/reports/figma-sync/design-model.json`. Figma represents the stable
+`main` state, so short-lived branch builds must not produce an artifact that can
+be mistaken for the official Figma sync input.
 
 ### Figma Sync
 
@@ -85,6 +84,8 @@ The pipeline:
 
 - triggers after `CI` finishes successfully on `<default>`;
 - generates `build/reports/figma-sync/design-model.json` from `main`;
+- sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the
+  Gradle task can verify it is running under the official Figma Sync pipeline;
 - publishes the generated model as an artifact;
 - runs `Check Figma trunk sync` against the metadata currently stored in Figma;
 - publishes the optional `TeamCity Figma Sync` GitHub status on `main`.
@@ -92,8 +93,11 @@ The pipeline:
 The visual write step is still MCP-operated outside TeamCity. Until that write
 step is automated, `Figma Sync` is expected to fail after a model-affecting
 merge if Figma has not been synchronized yet. That failure is a post-merge
-documentation signal, not a pull request merge gate. After the MCP sync writes
-the latest metadata, rerun `Figma Sync` on `main` to verify the result.
+documentation signal, not a pull request merge gate. Run the MCP sync only with
+the `design-model.json` artifact from `Figma Sync > Generate main design model`;
+branch-local models and locally regenerated models are not authorized
+publication inputs. After the MCP sync writes the latest metadata, rerun
+`Figma Sync` on `main` to verify the result.
 
 Use a Finish Build Trigger for this chain, not a direct VCS trigger on
 `Figma Sync`. The trigger watches `CI`, requires a successful watched build, and
@@ -272,9 +276,11 @@ For this project, the generated pipeline should:
 - reference only one Git VCS root for the GitHub repository;
 - emit job-level `repositories` entries;
 - emit direct Gradle script content;
-- emit `commit-status-publisher` on the final `CI` job and the final
+- emit `commit-status-publisher` on the `CI` verify job and the final
   `Figma Sync` job;
+- avoid generating or publishing `design-model.json` from `CI`;
 - keep `Figma Sync` as a separate default-branch pipeline;
+- set the official Figma design model environment guard only on `Figma Sync`;
 - emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI`, with
   `afterSuccessfulBuildOnly=true`.
 
@@ -375,9 +381,9 @@ If GitHub receives no status check, inspect `teamcity-commit-status.log` and
 confirm that the status publisher feature is attached to the final job.
 
 If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
-been run with the latest `design-model.json`. If the failure mentions a branch
-other than the selected branch, fix repository checkout before investigating
-Figma sync.
+been run with the latest `design-model.json` artifact from
+`Figma Sync > Generate main design model`. If the failure mentions a branch
+other than `main`, fix repository checkout before investigating Figma sync.
 
 ## Clean-up Rules
 

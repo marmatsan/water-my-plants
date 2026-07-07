@@ -7,7 +7,9 @@ Use this directory as the module documentation index:
 
 | Path | Role | Purpose |
 |------|------|---------|
-| `runbooks/trunk-sync.md` | Runbook | Generate, publish, and verify the Figma trunk design model. |
+| `runbooks/trunk-sync.md` | Runbook | Execute the Figma trunk sync flow: generate the model, run MCP, write metadata, and verify TeamCity state. |
+| `runbooks/visual-sync-contract.md` | Reference | Define the Figma visual contract used by the MCP sync, including catalog trees, connectors, layout, and locking. |
+| `runbooks/troubleshooting.md` | Runbook | Diagnose failed or visually incorrect Figma sync runs without weakening the metadata contract. |
 | `bdd/README.md` | Reference | Explain executable BDD scenarios and their technical resource map. |
 | `uml/figma-import.md` | Runbook | Render PlantUML SVGs and import them into Figma. Kept under `uml/` so it stays next to diagrams and helper scripts. |
 | `uml/diagrams/` | Source | PlantUML diagrams for this module. |

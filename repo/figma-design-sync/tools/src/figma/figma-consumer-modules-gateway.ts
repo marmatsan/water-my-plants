@@ -7,7 +7,7 @@ import {
   MODULE_PROPS,
   SMALL_MODULE_SIZE,
 } from "../config/figma-config";
-import { updateNamedTextNodes } from "./figma-text-gateway";
+import { loadTextNodeFonts, updateNamedTextNodes } from "./figma-text-gateway";
 
 type ConsumerModuleOptions = {
   excludeArtifactDescendants?: boolean;
@@ -140,6 +140,57 @@ async function setModuleInstance(moduleInstance, moduleName, mutatedNodeIds) {
   moduleInstance.setProperties(properties);
   mutatedNodeIds.push(moduleInstance.id);
   await updateNamedTextNodes(moduleInstance, "label", [moduleName], mutatedNodeIds);
+  await resizeModuleInstanceToFitLabel(moduleInstance, mutatedNodeIds);
+  resizeAncestorContainersToFit(moduleInstance, mutatedNodeIds);
+}
+
+async function resizeModuleInstanceToFitLabel(moduleInstance, mutatedNodeIds) {
+  const label = moduleInstance.findAllWithCriteria({ types: ["TEXT"] })
+    .find((textNode) => textNode.name === "label");
+  if (!label) return;
+
+  await loadTextNodeFonts(label);
+  label.textAutoResize = "WIDTH_AND_HEIGHT";
+
+  const targetWidth = Math.ceil(label.x + label.width + MODULE_HORIZONTAL_PADDING);
+  const targetHeight = Math.ceil(Math.max(moduleInstance.height, label.y + label.height + MODULE_VERTICAL_PADDING));
+  if (moduleInstance.width < targetWidth || moduleInstance.height < targetHeight) {
+    moduleInstance.resizeWithoutConstraints(
+      Math.max(moduleInstance.width, targetWidth),
+      Math.max(moduleInstance.height, targetHeight)
+    );
+    mutatedNodeIds.push(moduleInstance.id);
+  }
+}
+
+function resizeAncestorContainersToFit(node, mutatedNodeIds) {
+  let child = node;
+  let parent = child.parent;
+  let requiredWidth = child.width;
+  let requiredHeight = child.height;
+
+  while (parent && parent.type !== "SECTION" && parent.type !== "PAGE") {
+    if (typeof parent.resizeWithoutConstraints !== "function") return;
+
+    const horizontalInset = Math.max(0, child.x);
+    const verticalInset = Math.max(0, child.y);
+    const targetWidth = Math.ceil(child.x + requiredWidth + horizontalInset);
+    const targetHeight = Math.ceil(child.y + requiredHeight + verticalInset);
+    const nextWidth = Math.max(parent.width, targetWidth);
+    const nextHeight = Math.max(parent.height, targetHeight);
+
+    if (nextWidth > parent.width || nextHeight > parent.height) {
+      parent.resizeWithoutConstraints(nextWidth, nextHeight);
+      mutatedNodeIds.push(parent.id);
+    }
+
+    if (parent.type === "INSTANCE" && parent.name === ".tree node") return;
+
+    requiredWidth = nextWidth;
+    requiredHeight = nextHeight;
+    child = parent;
+    parent = parent.parent;
+  }
 }
 
 function hideUnusedInstances(instances, mutatedNodeIds) {
@@ -163,3 +214,6 @@ function requireModuleVariantProperty(moduleInstance, propertyName) {
     );
   }
 }
+
+const MODULE_HORIZONTAL_PADDING = 26;
+const MODULE_VERTICAL_PADDING = 6;

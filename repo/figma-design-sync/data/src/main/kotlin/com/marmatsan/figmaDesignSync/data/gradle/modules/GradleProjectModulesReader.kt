@@ -30,7 +30,13 @@ class GradleProjectModulesReader {
 
     private fun IncludedBuild.readIncludedBuildModules(): Set<String> {
         val includedModules = settingsFile.readIncludedModules()
-        return (includedModules + includedModules.existingAggregateModules(rootDir = settingsFile.parentFile))
+        val standaloneRootModule = if (includedModules.isEmpty() && settingsFile.parentFile.resolve(BUILD_FILE_NAME).isFile) {
+            setOf(STANDALONE_ROOT_MODULE)
+        } else {
+            emptySet()
+        }
+
+        return (standaloneRootModule + includedModules + includedModules.existingAggregateModules(rootDir = settingsFile.parentFile))
             .map { module -> "$modulePathPrefix$module" }
             .toSet()
     }
@@ -61,6 +67,9 @@ class GradleProjectModulesReader {
         removePrefix(":").replace(":", File.separator)
 
     private companion object {
+        const val BUILD_FILE_NAME = "build.gradle.kts"
+        const val STANDALONE_ROOT_MODULE = ""
+
         val stringLiteralRegex = Regex(""""([^"]+)"""")
     }
 }

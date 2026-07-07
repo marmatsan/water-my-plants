@@ -14,6 +14,7 @@ package com.marmatsan.figmaDesignSync.domain.port.gradle
  *     settingsFilePath = "repo/gradle-plugins/settings.gradle.kts",
  *     rootDirPath = "repo/gradle-plugins",
  *     modulePathPrefix = ":gradle-plugins",
+ *     publishesCatalogs = true,
  *     publishesConventionPlugins = true
  * )
  * ```
@@ -22,5 +23,6 @@ data class IncludedBuildSource(
     val settingsFilePath: String,
     val rootDirPath: String,
     val modulePathPrefix: String,
+    val publishesCatalogs: Boolean = true,
     val publishesConventionPlugins: Boolean = false
 )

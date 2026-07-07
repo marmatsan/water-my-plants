@@ -29,9 +29,10 @@ project {
 /**
  * Pull request and branch CI pipeline for the repository.
  *
- * The pipeline runs Gradle verification tasks and checks that the Figma design
- * model can be generated. It does not require Figma to already be synchronized
- * with a temporary branch because Figma represents the stable `main` state.
+ * The pipeline runs Gradle verification tasks for pull requests and branches.
+ * It intentionally does not generate or publish the Figma design model because
+ * the only authoritative `design-model.json` must come from the post-merge
+ * `Figma Sync` pipeline on `main`.
  *
  * The final job publishes the `TeamCity CI` GitHub status required by branch
  * protection. Each job declares the [GitHub] repository explicitly so TeamCity
@@ -71,34 +72,10 @@ object WaterMyPlantsCi : Pipeline({
                 scriptContent = """.\gradlew.bat check"""
             })
         }
-    }
-
-    job {
-        id("generate_design_model")
-        name = "Generate design model"
-        allowReuse = false
-
-        repositories {
-            repository(GitHub)
-        }
-
-        steps {
-            step(PipelineScriptStep {
-                name = "Generate Figma design model"
-                scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
-            })
-        }
-
-        outputFiles {
-            pipelineArtifacts("build/reports/figma-sync/design-model.json")
-            sharedWithJobs("build/reports/figma-sync/design-model.json")
-        }
 
         features {
             feature(GitHubStatusPublisher("TeamCity CI"))
         }
-
-        dependency("verify")
     }
 })
 
@@ -106,12 +83,14 @@ object WaterMyPlantsCi : Pipeline({
  * Post-merge Figma synchronization verification pipeline.
  *
  * This pipeline is scoped to `main` because Figma is derived documentation for
- * the trunk state, not for every short-lived branch. The MCP-operated visual
- * sync still runs outside TeamCity; this pipeline generates the trunk model and
+ * the trunk state, not for every short-lived branch. This is the only pipeline
+ * allowed to generate and publish the authoritative `design-model.json`.
+ * The MCP-operated visual sync still runs outside TeamCity; this pipeline
  * either verifies the metadata after Figma has been updated or fails visibly
- * until the MCP sync is run and the pipeline is rerun. The final job publishes
- * an optional GitHub status so the post-merge documentation state is visible on
- * `main` commits without becoming a pull request merge gate.
+ * until the MCP sync is run with the `Generate main design model` artifact and
+ * the pipeline is rerun. The final job publishes an optional GitHub status so
+ * the post-merge documentation state is visible on `main` commits without
+ * becoming a pull request merge gate.
  */
 object WaterMyPlantsFigmaSync : Pipeline({
     id("WaterMyPlantsFigmaSync")
@@ -133,6 +112,8 @@ object WaterMyPlantsFigmaSync : Pipeline({
         param("env.ANDROID_HOME", "%android.sdk.path%")
         param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
         param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
+        param("env.FIGMA_DESIGN_SYNC_OFFICIAL", "true")
+        param("env.FIGMA_DESIGN_SYNC_BRANCH", "%teamcity.build.branch%")
     }
 
     job {

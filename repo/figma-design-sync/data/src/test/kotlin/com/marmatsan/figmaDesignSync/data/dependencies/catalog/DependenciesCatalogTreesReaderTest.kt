@@ -11,6 +11,8 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import java.io.File
+import java.nio.file.Files
 
 internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
@@ -127,9 +129,146 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
         activity.version shouldBe CatalogVersion("activityComposeVersion")
     }
+
+    test("readLibraryTreeWithVersionAliases scopes required modules to the main build catalog") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("water-my-plants-library-usages").toFile()
+        rootDir.writeBuildFile(
+            path = "app",
+            content = """
+            dependencies {
+                implementation(libs.androidx.core.ktx)
+                implementation(platform(libs.androidx.compose.bom))
+                implementation(libs.bundles.composeBundle)
+            }
+            """.trimIndent()
+        )
+        rootDir.writeSettingsFile(
+            path = "repo/gradle-plugins",
+            content = """
+            rootProject.name = "gradle-plugins"
+            include(":unit-test")
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "repo/gradle-plugins/unit-test",
+            content = """
+            dependencies {
+                testImplementation(libs.io.mockk)
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(rootDir = rootDir)
+
+        // THEN
+        actualTree.findArtifact("androidx.core", "core-ktx").requiredByModules shouldBe listOf(":app")
+        actualTree.findArtifact("androidx.compose", "compose-bom").requiredByModules shouldBe listOf(":app")
+        actualTree.findBundle("androidx.compose.ui", "composeBundle").requiredByModules shouldBe listOf(":app")
+        actualTree.findArtifact("io.mockk", "mockk").requiredByModules shouldBe emptyList()
+    }
+
+    test("readPluginTreeWithVersionAliases scopes applied modules to the main build catalog") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("water-my-plants-plugin-usages").toFile()
+        rootDir.writeBuildFile(
+            path = "app",
+            content = """
+            plugins {
+                alias(plugins.plugins.com.android.application)
+            }
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "core/ui",
+            content = """
+            plugins {
+                alias(plugins.plugins.com.android.library)
+            }
+            """.trimIndent()
+        )
+        rootDir.writeSettingsFile(
+            path = "repo/gradle-plugins",
+            content = """
+            rootProject.name = "gradle-plugins"
+            include(":dokka-documentation")
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "repo/gradle-plugins/dokka-documentation",
+            content = """
+            plugins {
+                alias(plugins.plugins.org.jetbrains.dokka)
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(rootDir = rootDir)
+
+        // THEN
+        actualTree.findPlugin("com.android.application").appliedToModules shouldBe listOf(":app")
+        actualTree.findPlugin("com.android.library").appliedToModules shouldBe listOf(":core:ui")
+        actualTree.findPlugin("org.jetbrains.dokka").appliedToModules shouldBe emptyList()
+    }
 })
 
 private fun dependenciesCatalogTreesReader() =
     DependenciesCatalogTreesReader(
         gradleCatalogUsageReader = GradleCatalogUsageReader()
     )
+
+private fun LibraryCatalogTree.findArtifact(
+    groupPath: String,
+    artifact: String
+): LibraryCatalogEntry.Artifact =
+    findLibraryNode(groupPath)
+        .entries
+        .filterIsInstance<LibraryCatalogEntry.Artifact>()
+        .first { entry -> entry.artifact == artifact }
+
+private fun LibraryCatalogTree.findBundle(
+    groupPath: String,
+    alias: String
+): LibraryCatalogEntry.ArtifactsBundle =
+    findLibraryNode(groupPath)
+        .entries
+        .filterIsInstance<LibraryCatalogEntry.ArtifactsBundle>()
+        .first { entry -> entry.alias == alias }
+
+private fun LibraryCatalogTree.findLibraryNode(groupPath: String): LibraryCatalogNode {
+    val segments = groupPath.split(".")
+
+    return segments.foldIndexed(null as LibraryCatalogNode?) { index, node, segment ->
+        val candidates = if (index == 0) roots else node?.children.orEmpty()
+        candidates.first { candidate -> candidate.group == segment }
+    } ?: error("Library group '$groupPath' was not found")
+}
+
+private fun PluginCatalogTree.findPlugin(pluginId: String): PluginCatalogNode {
+    val segments = pluginId.split(".")
+
+    return segments.foldIndexed(null as PluginCatalogNode?) { index, node, segment ->
+        val candidates = if (index == 0) roots else node?.children.orEmpty()
+        candidates.first { candidate -> candidate.id == segment }
+    } ?: error("Plugin '$pluginId' was not found")
+}
+
+private fun File.writeSettingsFile(
+    path: String,
+    content: String
+) {
+    val directory = resolve(path)
+    directory.mkdirs()
+    directory.resolve("settings.gradle.kts").writeText(content)
+}
+
+private fun File.writeBuildFile(
+    path: String,
+    content: String
+) {
+    val directory = resolve(path)
+    directory.mkdirs()
+    directory.resolve("build.gradle.kts").writeText(content)
+}

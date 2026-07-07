@@ -77,13 +77,21 @@ export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
   const visibleChildren = children.filter((child) => child && child.visible !== false);
   if (visibleChildren.length === 0) return;
 
-  const maxRight = Math.max(...visibleChildren.map((child) => child.x + child.width));
-  const maxBottom = Math.max(...visibleChildren.map((child) => child.y + child.height));
+  const contentChildren = node.type === "SECTION"
+    ? visibleChildren.filter((child) => !(child.type === "INSTANCE" && child.name === ".Header"))
+    : visibleChildren;
+  const boundsChildren = contentChildren.length > 0 ? contentChildren : visibleChildren;
+  const maxRight = Math.max(...boundsChildren.map((child) => child.x + child.width));
+  const maxBottom = Math.max(...boundsChildren.map((child) => child.y + child.height));
   node.resizeWithoutConstraints(
     Math.max(1, maxRight + padding),
     Math.max(1, maxBottom + padding)
   );
   mutatedNodeIds.push(node.id);
+
+  if (node.type === "SECTION") {
+    resizeDirectHeadersToSectionWidth(node, mutatedNodeIds);
+  }
 }
 
 export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
@@ -100,6 +108,18 @@ export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100)
   }
 }
 
+export function unlockSectionTreeForMutation(section, mutatedNodeIds) {
+  const root = rootSection(section);
+  setNodeLocked(root, false, mutatedNodeIds);
+  setDescendantsLocked(root, false, mutatedNodeIds);
+}
+
+export function lockOnlyRootSection(section, mutatedNodeIds) {
+  const root = rootSection(section);
+  setDescendantsLocked(root, false, mutatedNodeIds);
+  setNodeLocked(root, true, mutatedNodeIds);
+}
+
 export async function requireTreeNodeComponent(type: CatalogTreeType, componentIds, componentCache) {
   if (componentCache.has(type)) {
     return componentCache.get(type);
@@ -109,4 +129,38 @@ export async function requireTreeNodeComponent(type: CatalogTreeType, componentI
   const component = await requireComponent(componentId);
   componentCache.set(type, component);
   return component;
+}
+
+function resizeDirectHeadersToSectionWidth(section, mutatedNodeIds) {
+  const headers = section.children
+    .filter((child) => child.type === "INSTANCE" && child.name === ".Header");
+
+  for (const header of headers) {
+    header.x = 0;
+    header.resizeWithoutConstraints(section.width, header.height);
+    mutatedNodeIds.push(header.id);
+  }
+}
+
+function rootSection(section) {
+  let current = section;
+  while (current.parent?.type === "SECTION") {
+    current = current.parent;
+  }
+  return current;
+}
+
+function setDescendantsLocked(node, locked, mutatedNodeIds) {
+  if (!("findAll" in node)) return;
+
+  for (const descendant of node.findAll(() => true)) {
+    setNodeLocked(descendant, locked, mutatedNodeIds);
+  }
+}
+
+function setNodeLocked(node, locked, mutatedNodeIds) {
+  if (!("locked" in node) || node.locked === locked) return;
+
+  node.locked = locked;
+  mutatedNodeIds.push(node.id);
 }

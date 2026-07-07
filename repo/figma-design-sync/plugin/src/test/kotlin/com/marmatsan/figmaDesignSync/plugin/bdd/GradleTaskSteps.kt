@@ -5,12 +5,15 @@ import io.cucumber.java8.HookNoArgsBody
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Files
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
@@ -18,11 +21,14 @@ class GradleTaskSteps : En {
 
     private lateinit var projectDir: File
     private lateinit var designModelFile: File
+    private lateinit var result: BuildResult
+    private var officialFigmaSyncGenerationAuthorized = false
 
     init {
         Given("a temporary Gradle project exists") {
             projectDir = Files.createTempDirectory("figma-design-sync-bdd").toFile()
             designModelFile = projectDir.resolve("build/reports/figma-sync/design-model.json")
+            officialFigmaSyncGenerationAuthorized = false
         }
 
         Given("the temporary Gradle project has repository model files") {
@@ -43,18 +49,26 @@ class GradleTaskSteps : En {
             projectDir.initializeGitRepository()
         }
 
+        Given("official Figma Sync model generation is authorized") {
+            officialFigmaSyncGenerationAuthorized = true
+        }
+
         When("generateFigmaDesignModel runs in the temporary project") {
-            val result = GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateFigmaDesignModel", "--stacktrace")
-                .build()
+            result = gradleRunner().build()
 
             result.task(":generateFigmaDesignModel")?.outcome shouldBe TaskOutcome.SUCCESS
         }
 
+        When("generateFigmaDesignModel runs without official Figma Sync authorization") {
+            result = gradleRunner().buildAndFail()
+        }
+
         Then("the design model report is written in the temporary project") {
             designModelFile.shouldExist()
+        }
+
+        Then("generateFigmaDesignModel fails because official Figma Sync generation is required") {
+            result.output shouldContain "Missing FIGMA_DESIGN_SYNC_OFFICIAL=true"
         }
 
         Then("the written design model contains the current branch") {
@@ -75,6 +89,21 @@ class GradleTaskSteps : En {
             )
         }
 
+        Then("the written design model contains repository infrastructure modules") {
+            val modules = writtenDesignModel()["content"]!!
+                .jsonObject["modules"]!!
+                .jsonArray
+                .map { module -> module.jsonPrimitive.content }
+
+            modules shouldContainAll listOf(
+                ":dependency-catalog",
+                ":figma-design-sync:data",
+                ":figma-design-sync:domain",
+                ":figma-design-sync:plugin",
+                ":gradle-plugins:android"
+            )
+        }
+
         Then("the written design model contains a model hash") {
             writtenDesignModel().keys shouldContainAll listOf("modelHash")
         }
@@ -91,6 +120,24 @@ class GradleTaskSteps : En {
 
     private fun writtenDesignModel() =
         Json.parseToJsonElement(designModelFile.readText()).jsonObject
+
+    private fun gradleRunner(): GradleRunner =
+        GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateFigmaDesignModel", "--stacktrace")
+            .withEnvironment(gradleEnvironment())
+
+    private fun gradleEnvironment(): Map<String, String> =
+        System.getenv().toMutableMap().apply {
+            if (officialFigmaSyncGenerationAuthorized) {
+                put("FIGMA_DESIGN_SYNC_OFFICIAL", "true")
+                put("FIGMA_DESIGN_SYNC_BRANCH", "main")
+            } else {
+                remove("FIGMA_DESIGN_SYNC_OFFICIAL")
+                remove("FIGMA_DESIGN_SYNC_BRANCH")
+            }
+        }
 
     private fun File.writeRepositoryModelFiles() {
         resolve("settings.gradle.kts").writeText(
@@ -122,6 +169,7 @@ class GradleTaskSteps : En {
         resolve("core/ui/build.gradle.kts").writeText("")
         resolve("repo/gradle-plugins").mkdirs()
         resolve("repo/dependency-catalog").mkdirs()
+        resolve("repo/figma-design-sync").mkdirs()
         resolve("repo/gradle-plugins/settings.gradle.kts").writeText(
             """
             dependencyResolutionManagement {
@@ -132,14 +180,46 @@ class GradleTaskSteps : En {
                     }
                 }
             }
+
+            include(":android")
             """.trimIndent()
         )
+        resolve("repo/gradle-plugins/android").mkdirs()
+        resolve("repo/gradle-plugins/android/build.gradle.kts").writeText("")
+        resolve("repo/dependency-catalog/settings.gradle.kts").writeText(
+            """
+            rootProject.name = "dependency-catalog"
+            """.trimIndent()
+        )
+        resolve("repo/dependency-catalog/build.gradle.kts").writeText("")
         resolve("repo/dependency-catalog/versions.properties").writeText(
             """
             ## Main project dependencies
             kotlinVersion=2.4.0
             """.trimIndent()
         )
+        resolve("repo/figma-design-sync/settings.gradle.kts").writeText(
+            """
+            rootProject.name = "figma-design-sync"
+
+            dependencyResolutionManagement {
+                versionCatalogs {
+                    create("libs") {
+                    }
+                    create("plugins") {
+                    }
+                }
+            }
+
+            include(":data", ":domain", ":plugin")
+            """.trimIndent()
+        )
+        resolve("repo/figma-design-sync/data").mkdirs()
+        resolve("repo/figma-design-sync/data/build.gradle.kts").writeText("")
+        resolve("repo/figma-design-sync/domain").mkdirs()
+        resolve("repo/figma-design-sync/domain/build.gradle.kts").writeText("")
+        resolve("repo/figma-design-sync/plugin").mkdirs()
+        resolve("repo/figma-design-sync/plugin/build.gradle.kts").writeText("")
     }
 
     private fun File.initializeGitRepository() {

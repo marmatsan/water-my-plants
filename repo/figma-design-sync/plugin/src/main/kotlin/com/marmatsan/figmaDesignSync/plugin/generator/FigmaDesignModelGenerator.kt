@@ -104,8 +104,7 @@ internal class FigmaDesignModelGenerator(
                         projectCatalogTreesPort
                             .readLibraryTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+                                    rootDirPath = request.projectRootDirectory.absolutePath
                                 )
                             )
                             .toDesignJson()
@@ -115,8 +114,7 @@ internal class FigmaDesignModelGenerator(
                         projectCatalogTreesPort
                             .readPluginTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+                                    rootDirPath = request.projectRootDirectory.absolutePath
                                 )
                             )
                             .toDesignJson()
@@ -144,28 +142,30 @@ internal class FigmaDesignModelGenerator(
                     )
                 }
             )
-            request.includedBuilds.forEach { includedBuild ->
-                put(
-                    includedBuild.modelName,
-                    buildJsonObject {
-                        val source = ProjectCatalogTreeSource.IncludedBuildSettings(
-                            includedBuild = includedBuild.toDomainSource()
-                        )
-                        put(
-                            "libraries",
-                            projectCatalogTreesPort
-                                .readLibraryTree(source)
-                                .toDesignJson()
-                        )
-                        put(
-                            "plugins",
-                            projectCatalogTreesPort
-                                .readPluginTree(source)
-                                .toDesignJson()
-                        )
-                    }
-                )
-            }
+            request.includedBuilds
+                .filter(FigmaDesignModelIncludedBuildSource::publishesCatalogs)
+                .forEach { includedBuild ->
+                    put(
+                        includedBuild.modelName,
+                        buildJsonObject {
+                            val source = ProjectCatalogTreeSource.IncludedBuildSettings(
+                                includedBuild = includedBuild.toDomainSource()
+                            )
+                            put(
+                                "libraries",
+                                projectCatalogTreesPort
+                                    .readLibraryTree(source)
+                                    .toDesignJson()
+                            )
+                            put(
+                                "plugins",
+                                projectCatalogTreesPort
+                                    .readPluginTree(source)
+                                    .toDesignJson()
+                            )
+                        }
+                    )
+                }
         }
 
     private fun buildModuleDependencies(request: FigmaDesignModelGenerationRequest) =

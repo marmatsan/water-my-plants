@@ -55,7 +55,7 @@ export async function updateNamedTextNodes(
   }
 }
 
-async function loadTextNodeFonts(textNode) {
+export async function loadTextNodeFonts(textNode) {
   const segments = textNode.getStyledTextSegments(["fontName"]);
   const fontKeys = new Set<string>();
 

@@ -39,6 +39,14 @@ abstract class FigmaDesignSyncIncludedBuild @Inject constructor(
     val modulePathPrefix: Property<String> = objects.property(String::class.java).convention(":$buildName")
 
     /**
+     * Whether this included build declares `libs` and `plugins` catalogs in
+     * its settings file.
+     */
+    val publishesCatalogs: Property<Boolean> = objects
+        .property(Boolean::class.javaObjectType)
+        .convention(true)
+
+    /**
      * Whether this included build publishes repository convention plugins.
      */
     val publishesConventionPlugins: Property<Boolean> = objects
@@ -92,6 +100,21 @@ abstract class figmaDesignSyncExtension @Inject constructor(
         versionsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
         rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
         designModelFile.convention(layout.buildDirectory.file("reports/figma-sync/design-model.json"))
+
+        includedBuilds.register("dependency-catalog") {
+            modelName.convention("dependencyCatalog")
+            settingsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/settings.gradle.kts"))
+            rootDirectory.convention(layout.projectDirectory.dir("repo/dependency-catalog"))
+            modulePathPrefix.convention(":dependency-catalog")
+            publishesCatalogs.convention(false)
+        }
+
+        includedBuilds.register("figma-design-sync") {
+            modelName.convention("figmaDesignSync")
+            settingsFile.convention(layout.projectDirectory.file("repo/figma-design-sync/settings.gradle.kts"))
+            rootDirectory.convention(layout.projectDirectory.dir("repo/figma-design-sync"))
+            modulePathPrefix.convention(":figma-design-sync")
+        }
 
         includedBuilds.register("gradle-plugins") {
             modelName.convention("gradlePlugins")

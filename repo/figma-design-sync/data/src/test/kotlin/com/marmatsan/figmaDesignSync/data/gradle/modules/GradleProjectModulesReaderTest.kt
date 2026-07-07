@@ -1,7 +1,5 @@
 package com.marmatsan.figmaDesignSync.data.gradle.modules
 
-
-
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -51,6 +49,29 @@ internal class GradleProjectModulesReaderTest : FunSpec({
             ":core:core_ui"
         )
     }
+
+    test("readModules returns standalone included build root module") {
+        // GIVEN
+        val rootSettingsFile = settingsFile("")
+        val includedBuildSettingsFile = settingsFile("")
+        includedBuildSettingsFile.parentFile
+            .resolve("build.gradle.kts")
+            .writeText("")
+
+        // WHEN
+        val modules = GradleProjectModulesReader().readModules(
+            rootSettingsFile = rootSettingsFile,
+            includedBuilds = listOf(
+                GradleProjectModulesReader.IncludedBuild(
+                    settingsFile = includedBuildSettingsFile,
+                    modulePathPrefix = ":dependency-catalog"
+                )
+            )
+        )
+
+        // THEN
+        modules shouldBe setOf(":dependency-catalog")
+    }
 })
 
 private fun settingsFile(content: String): File =
@@ -58,5 +79,5 @@ private fun settingsFile(content: String): File =
         .resolve("settings.gradle.kts")
         .toFile()
         .apply {
-        writeText(content)
-    }
+            writeText(content)
+        }

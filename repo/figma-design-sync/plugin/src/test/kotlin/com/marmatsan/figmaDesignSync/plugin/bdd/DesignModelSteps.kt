@@ -211,6 +211,7 @@ class DesignModelSteps : En {
                     settingsFile = File("repo/gradle-plugins/settings.gradle.kts"),
                     rootDirectory = File("repo/gradle-plugins"),
                     modulePathPrefix = ":gradle-plugins",
+                    publishesCatalogs = true,
                     publishesConventionPlugins = true
                 )
             )

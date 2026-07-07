@@ -13,6 +13,7 @@ import {
   sortedUnique,
 } from "../domain/catalog/library-catalog-entries";
 import { countNamedTextNodes, updateNamedTextNodes } from "./figma-text-gateway";
+import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
 
 export function collectTreeNodeInstancesByLabel(section, type) {
   const instances = section.findAllWithCriteria({ types: ["INSTANCE"] })
@@ -62,6 +63,8 @@ export async function createMissingTreeNode(
     await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
   }
 
+  const group = syncTreeNodeGroup(instance);
+  mutatedNodeIds.push(group.id);
   mutatedNodeIds.push(instance.id);
   return instance;
 }
@@ -89,6 +92,10 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   await updateNamedTextNodes(instance, "artifact version", artifactVersions, mutatedNodeIds, { allowExtra: true });
   await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
   await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
+
+  if (artifactNames.length === 0 && requiredByModules.length === 0) {
+    resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
+  }
 }
 
 export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
@@ -109,6 +116,40 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
   mutatedNodeIds.push(instance.id);
 
   await updateConsumerModuleInstances(instance, "Applied by", appliedToModules, mutatedNodeIds);
+
+  if (appliedToModules.length === 0 && !isGradleConventionPlugin && !hasVisiblePluginVersion(node)) {
+    resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);
+  }
+}
+
+function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
+  return node.version?.visible === true && Boolean(node.version?.value);
+}
+
+function resizeBareTreeNodeToFitLabel(instance, labelName, mutatedNodeIds) {
+  const label = findVisibleTextNode(instance, labelName);
+  if (!label) return;
+
+  const targetWidth = Math.ceil(label.width + TREE_NODE_LABEL_HORIZONTAL_PADDING);
+  const targetHeight = Math.ceil(Math.max(instance.height, label.height + TREE_NODE_LABEL_VERTICAL_PADDING));
+  if (Math.ceil(instance.width) === targetWidth && Math.ceil(instance.height) === targetHeight) return;
+
+  instance.resizeWithoutConstraints(targetWidth, targetHeight);
+  mutatedNodeIds.push(instance.id);
+}
+
+function findVisibleTextNode(root, name) {
+  return root.findAllWithCriteria({ types: ["TEXT"] })
+    .find((textNode) => textNode.name === name && isVisibleInside(textNode, root));
+}
+
+function isVisibleInside(node, boundary) {
+  let current = node;
+  while (current && current.id !== boundary.id) {
+    if (current.visible === false) return false;
+    current = current.parent;
+  }
+  return boundary.visible !== false;
 }
 
 function requireTreeNodeContainer(section, node: FlattenedCatalogNode) {
@@ -182,30 +223,33 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
     const parentLabel = node.parentPath[node.parentPath.length - 1];
     const parentInstance = instancesByLabel.get(parentLabel);
     if (parentInstance) {
-      const siblingInstances = container.children
-        .filter((child) => child.type === "INSTANCE" && child.id !== parentInstance.id)
+      const parentLayoutNode = treeNodeLayoutNode(parentInstance);
+      const siblingNodes = [...instancesByLabel.values()]
+        .map((instance) => treeNodeLayoutNode(instance))
+        .filter((layoutNode) => layoutNode.parent?.id === container.id && layoutNode.id !== parentLayoutNode.id)
         .sort((first, second) => first.y - second.y || first.x - second.x);
-      const existingSiblingRowY = siblingInstances[0]?.y;
-      const lastSibling = siblingInstances[siblingInstances.length - 1];
+      const existingSiblingRowY = siblingNodes[0]?.y;
+      const lastSibling = siblingNodes[siblingNodes.length - 1];
       const x = lastSibling
         ? lastSibling.x + lastSibling.width + 120
-        : parentInstance.x;
+        : parentLayoutNode.x;
       return {
         x,
-        y: existingSiblingRowY ?? parentInstance.y + parentInstance.height + TREE_NODE_PARENT_CHILD_GAP,
+        y: existingSiblingRowY ?? parentLayoutNode.y + parentLayoutNode.height + TREE_NODE_PARENT_CHILD_GAP,
       };
     }
   }
 
-  const instances = container.children
-    .filter((child) => child.type === "INSTANCE")
+  const layoutNodes = [...instancesByLabel.values()]
+    .map((instance) => treeNodeLayoutNode(instance))
+    .filter((layoutNode) => layoutNode.parent?.id === container.id)
     .sort((first, second) => first.y - second.y || first.x - second.x);
 
-  if (instances.length === 0) {
+  if (layoutNodes.length === 0) {
     return { x: 100, y: 100 };
   }
 
-  const last = instances[instances.length - 1];
+  const last = layoutNodes[layoutNodes.length - 1];
   return {
     x: last.x + last.width + 120,
     y: last.y,
@@ -213,3 +257,5 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
 }
 
 const TREE_NODE_PARENT_CHILD_GAP = 128;
+const TREE_NODE_LABEL_HORIZONTAL_PADDING = 64;
+const TREE_NODE_LABEL_VERTICAL_PADDING = 64;

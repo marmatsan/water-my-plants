@@ -15,6 +15,7 @@ internal data class FigmaDesignModelIncludedBuildSource(
     val settingsFile: File,
     val rootDirectory: File,
     val modulePathPrefix: String,
+    val publishesCatalogs: Boolean,
     val publishesConventionPlugins: Boolean
 ) {
     fun toDomainSource(): IncludedBuildSource =
@@ -22,6 +23,7 @@ internal data class FigmaDesignModelIncludedBuildSource(
             settingsFilePath = settingsFile.absolutePath,
             rootDirPath = rootDirectory.absolutePath,
             modulePathPrefix = modulePathPrefix,
+            publishesCatalogs = publishesCatalogs,
             publishesConventionPlugins = publishesConventionPlugins
         )
 }

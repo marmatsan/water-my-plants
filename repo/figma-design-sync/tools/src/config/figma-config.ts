@@ -35,7 +35,7 @@ export const TREE_NODE_PROPS = {
   showArtifacts: "Show artifacts#63079:0",
   pluginVersion: "Plugin version#63081:2",
   showConsumerModule: "Show consumer module#63085:0",
-  showIsGradleConventionPlugin: "Show is a gradle convention plugin#63112:4",
+  showIsGradleConventionPlugin: "Show is a gradle plugin#63112:4",
   type: "Type",
 };
 
@@ -93,5 +93,17 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     sectionNodeId: "63100:2952",
     type: "Plugin",
     nodes: (designModel) => designModel.content?.catalogs?.gradlePlugins?.plugins,
+  },
+  {
+    name: "figmaDesignSync.libraries",
+    sectionNodeId: "63573:260",
+    type: "Library",
+    nodes: (designModel) => designModel.content?.catalogs?.figmaDesignSync?.libraries,
+  },
+  {
+    name: "figmaDesignSync.plugins",
+    sectionNodeId: "63573:346",
+    type: "Plugin",
+    nodes: (designModel) => designModel.content?.catalogs?.figmaDesignSync?.plugins,
   },
 ];

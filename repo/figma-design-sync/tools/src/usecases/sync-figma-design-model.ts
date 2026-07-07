@@ -19,6 +19,7 @@ export async function syncFigmaDesignModel(
   if (!designModel) {
     throw new Error("Replace DESIGN_MODEL with build/reports/figma-sync/design-model.json.");
   }
+  requireMainBranchDesignModel(designModel);
 
   const requestedTargets = resolveRequestedTargets(options);
   const completedTargets: SyncTargetName[] = [];
@@ -65,6 +66,16 @@ export async function syncFigmaDesignModel(
       ]),
     ],
   };
+}
+
+function requireMainBranchDesignModel(designModel: DesignModel) {
+  if (designModel.branch !== "main") {
+    throw new Error(
+      `Figma MCP sync only accepts the authoritative design-model.json generated from main. ` +
+        `Found branch '${designModel.branch ?? "<missing>"}'. Use the artifact from ` +
+        `TeamCity Figma Sync > Generate main design model.`
+    );
+  }
 }
 
 function resolveRequestedTargets(options: SyncFigmaDesignModelOptions) {
@@ -126,6 +137,8 @@ const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
   "waterMyPlants.customGradlePlugins",
   "gradlePlugins.libraries",
   "gradlePlugins.plugins",
+  "figmaDesignSync.libraries",
+  "figmaDesignSync.plugins",
 ];
 
 const ALL_SYNC_TARGETS: SyncTargetName[] = [

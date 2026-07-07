@@ -42,8 +42,7 @@ class ProjectCatalogTreesDataSource(
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
                 dependenciesCatalogTreesReader.readLibraryTreeWithVersionAliases(
-                    rootDir = File(source.rootDirPath),
-                    conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
+                    rootDir = File(source.rootDirPath)
                 )
 
             is ProjectCatalogTreeSource.IncludedBuildSettings ->
@@ -70,8 +69,7 @@ class ProjectCatalogTreesDataSource(
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
                 dependenciesCatalogTreesReader.readPluginTreeWithVersionAliases(
-                    rootDir = File(source.rootDirPath),
-                    conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
+                    rootDir = File(source.rootDirPath)
                 )
 
             is ProjectCatalogTreeSource.IncludedBuildSettings ->

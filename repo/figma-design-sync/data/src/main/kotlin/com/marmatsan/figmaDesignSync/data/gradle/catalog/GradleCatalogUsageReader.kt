@@ -89,6 +89,14 @@ class GradleCatalogUsageReader {
                 )
             }
 
+    fun readMainLibraryUsages(rootDir: File): LibraryUsages =
+        rootDir
+            .buildFiles()
+            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .fold(LibraryUsages()) { usages, buildFile ->
+                usages + buildFile.readMainLibraryAliases(rootDir)
+            }
+
     fun readMainPluginUsages(rootDir: File): Map<String, Set<String>> =
         rootDir
             .buildFiles()
@@ -152,6 +160,23 @@ class GradleCatalogUsageReader {
 
         return LibraryUsages(
             coordinates = coordinateUsages,
+            bundles = bundleUsages
+        )
+    }
+
+    private fun File.readMainLibraryAliases(rootDir: File): LibraryUsages {
+        val modulePath = parentFile.toModulePath(rootDir)
+        if (modulePath == ROOT_MODULE) return LibraryUsages()
+        val content = readText()
+        val libraryUsages = mainLibraryAliasRegex
+            .findAll(content)
+            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+        val bundleUsages = mainLibraryBundleAliasRegex
+            .findAll(content)
+            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+
+        return LibraryUsages(
+            aliases = libraryUsages,
             bundles = bundleUsages
         )
     }
@@ -253,7 +278,8 @@ class GradleCatalogUsageReader {
     private operator fun LibraryUsages.plus(other: LibraryUsages): LibraryUsages =
         LibraryUsages(
             coordinates = coordinates.merge(other.coordinates),
-            bundles = bundles.merge(other.bundles)
+            bundles = bundles.merge(other.bundles),
+            aliases = aliases.merge(other.aliases)
         )
 
     private fun File.toIncludedBuildModulePath(
@@ -291,7 +317,8 @@ class GradleCatalogUsageReader {
      */
     data class LibraryUsages(
         val coordinates: Map<String, Set<String>> = emptyMap(),
-        val bundles: Map<String, Set<String>> = emptyMap()
+        val bundles: Map<String, Set<String>> = emptyMap(),
+        val aliases: Map<String, Set<String>> = emptyMap()
     )
 
     private companion object {
@@ -307,6 +334,8 @@ class GradleCatalogUsageReader {
             """(?:\blibs\.)?implementationBundle\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
             RegexOption.DOT_MATCHES_ALL
         )
+        val mainLibraryBundleAliasRegex = Regex("""\blibs\.bundles\.([A-Za-z0-9_.]+)\b""")
+        val mainLibraryAliasRegex = Regex("""\blibs\.(?!bundles\.)([A-Za-z0-9_.]+)\b""")
         val appliedPluginRegex = Regex("""pluginManager\.apply\s*\(\s*"([^"]+)"""")
         val includedBuildLibraryAliasRegex = Regex("""\blibs\.([A-Za-z0-9_.]+)\b""")
         val includedBuildPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
