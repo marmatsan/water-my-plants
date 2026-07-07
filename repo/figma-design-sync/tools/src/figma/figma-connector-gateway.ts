@@ -43,8 +43,9 @@ export function connectorReferencesAnyNode(connector, nodeIds) {
 }
 
 export function createTreeConnector(section, parentInstance, childInstance) {
-  const container = childInstance.parent && childInstance.parent.type === "SECTION"
-    ? childInstance.parent
+  const childGroup = syncTreeNodeGroup(childInstance);
+  const container = childGroup.parent && childGroup.parent.type === "SECTION"
+    ? childGroup.parent
     : section;
   const template = findConnectorTemplate(container, section);
   const connector = template.clone();
@@ -61,8 +62,9 @@ export function createTreeConnector(section, parentInstance, childInstance) {
 }
 
 export function ensureTreeConnectorContainer(section, connector, childInstance) {
-  const container = childInstance.parent && childInstance.parent.type === "SECTION"
-    ? childInstance.parent
+  const childGroup = treeNodeLayoutNode(childInstance);
+  const container = childGroup.parent && childGroup.parent.type === "SECTION"
+    ? childGroup.parent
     : section;
   if (connector.parent?.id !== container.id) {
     container.appendChild(connector);
@@ -76,30 +78,33 @@ export function syncTreeConnector(connector, parentInstance, childInstance) {
     treeConnectorEdgeKey(parentInstance.id, childInstance.id)
   );
 
+  const parentGroup = syncTreeNodeGroup(parentInstance);
+  const childGroup = syncTreeNodeGroup(childInstance);
+
   try {
-    syncTreeConnectorEndpoints(connector, parentInstance, childInstance);
+    syncTreeConnectorEndpoints(connector, parentGroup, childGroup);
   } catch (_) {
     syncTreeConnectorPositions(connector, parentInstance, childInstance);
   }
 }
 
-function syncTreeConnectorEndpoints(connector, parentInstance, childInstance) {
+function syncTreeConnectorEndpoints(connector, parentGroup, childGroup) {
   const nextStart = {
-    endpointNodeId: parentInstance.id,
+    endpointNodeId: parentGroup.id,
     magnet: "BOTTOM",
   };
   const nextEnd = {
-    endpointNodeId: childInstance.id,
+    endpointNodeId: childGroup.id,
     magnet: "TOP",
   };
 
-  if (connector.connectorEnd?.endpointNodeId === parentInstance.id) {
+  if (connector.connectorEnd?.endpointNodeId === parentGroup.id) {
     connector.connectorEnd = nextEnd;
     connector.connectorStart = nextStart;
     return;
   }
 
-  if (connector.connectorStart?.endpointNodeId === childInstance.id) {
+  if (connector.connectorStart?.endpointNodeId === childGroup.id) {
     connector.connectorStart = nextStart;
     connector.connectorEnd = nextEnd;
     return;
@@ -107,6 +112,60 @@ function syncTreeConnectorEndpoints(connector, parentInstance, childInstance) {
 
   connector.connectorEnd = nextEnd;
   connector.connectorStart = nextStart;
+}
+
+export function syncTreeNodeGroup(instance) {
+  const currentGroup = treeNodeGroup(instance);
+  if (currentGroup) {
+    syncTreeNodeGroupMetadata(currentGroup, instance);
+    return currentGroup;
+  }
+
+  const container = instance.parent;
+  if (!container || !("children" in container)) {
+    return instance;
+  }
+
+  removeLegacyTreeConnectorAnchors(container, instance);
+  const instanceIndex = container.children.indexOf(instance);
+  const group = figma.group([instance], container, Math.max(0, instanceIndex));
+  syncTreeNodeGroupMetadata(group, instance);
+  return group;
+}
+
+export function treeNodeLayoutNode(instance) {
+  return treeNodeGroup(instance) || instance;
+}
+
+export function removeTreeNodeWithGroup(instance) {
+  treeNodeLayoutNode(instance).remove();
+}
+
+function treeNodeGroup(instance) {
+  const parent = instance.parent;
+  if (parent?.type === "GROUP" && parent.name === TREE_NODE_GROUP_NAME) {
+    return parent;
+  }
+
+  return null;
+}
+
+function syncTreeNodeGroupMetadata(group, instance) {
+  group.name = TREE_NODE_GROUP_NAME;
+  group.visible = true;
+  group.locked = false;
+  group.setSharedPluginData(METADATA_NAMESPACE, TREE_NODE_GROUP_NODE_PLUGIN_DATA_KEY, instance.id);
+}
+
+function removeLegacyTreeConnectorAnchors(container, instance) {
+  const anchors = container.findAllWithCriteria({ types: ["FRAME"] })
+    .filter((node) =>
+      node.name === LEGACY_TREE_CONNECTOR_ANCHOR_NAME &&
+        node.getSharedPluginData?.(METADATA_NAMESPACE, LEGACY_TREE_CONNECTOR_ANCHOR_NODE_PLUGIN_DATA_KEY) === instance.id
+    );
+  for (const anchor of anchors) {
+    anchor.remove();
+  }
 }
 
 function syncTreeConnectorPositions(connector, parentInstance, childInstance) {
@@ -171,3 +230,7 @@ function findConnectorTemplate(container, section) {
 }
 
 export const TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY = "treeConnectorEdge";
+export const TREE_NODE_GROUP_NAME = ".tree node group";
+export const TREE_NODE_GROUP_NODE_PLUGIN_DATA_KEY = "treeNodeGroupNode";
+const LEGACY_TREE_CONNECTOR_ANCHOR_NAME = ".tree connector anchor";
+const LEGACY_TREE_CONNECTOR_ANCHOR_NODE_PLUGIN_DATA_KEY = "treeConnectorAnchorNode";

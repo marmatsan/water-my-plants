@@ -73,6 +73,11 @@ used by CI.
   helper tools. Agents must follow:
   - `docs/runbooks/trunk-sync.md` when validating or publishing the Figma trunk
     sync state.
+  - `docs/runbooks/visual-sync-contract.md` when changing or validating Figma
+    visual sync behavior, especially catalog tree nodes, connectors, layout, and
+    locking.
+  - `docs/runbooks/troubleshooting.md` when diagnosing failed or visually
+    incorrect Figma sync runs.
   - `docs/uml/figma-import.md` when publishing PlantUML-generated UML diagrams
     to Figma.
 - When adding or updating a `.Header` component for a Figma documentation

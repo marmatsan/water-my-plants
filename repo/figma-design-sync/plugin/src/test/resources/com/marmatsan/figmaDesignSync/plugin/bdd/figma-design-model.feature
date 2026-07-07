@@ -37,11 +37,12 @@ Feature: Figma design model generation
     Then both generated model hashes are equal
 
   @gradle @integration
-  Scenario: generateFigmaDesignModel writes the design model report
+  Scenario: generateFigmaDesignModel writes the official TeamCity design model report
     Given a temporary Gradle project exists
     And the temporary Gradle project has repository model files
     And the temporary Gradle project applies the figmaDesignSync plugin
     And the temporary Gradle project is a git repository
+    And official Figma Sync model generation is authorized
     When generateFigmaDesignModel runs in the temporary project
     Then the design model report is written in the temporary project
     And the written design model contains the current branch
@@ -49,3 +50,12 @@ Feature: Figma design model generation
     And the written design model contains content
     And the written design model contains repository infrastructure modules
     And the written design model contains a model hash
+
+  @gradle @integration
+  Scenario: generateFigmaDesignModel rejects unofficial model generation
+    Given a temporary Gradle project exists
+    And the temporary Gradle project has repository model files
+    And the temporary Gradle project applies the figmaDesignSync plugin
+    And the temporary Gradle project is a git repository
+    When generateFigmaDesignModel runs without official Figma Sync authorization
+    Then generateFigmaDesignModel fails because official Figma Sync generation is required

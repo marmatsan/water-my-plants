@@ -25,11 +25,13 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Gradle task that writes the local `design-model.json` artifact.
+ * Gradle task that writes the official `main` branch `design-model.json` artifact.
  *
  * The artifact is the source consumed by the Figma MCP sync step. Git branch
  * and SHA are captured at execution time so the generated metadata identifies
- * the exact repository snapshot.
+ * the exact repository snapshot. The artifact is intentionally restricted to the
+ * TeamCity Figma Sync pipeline on `main` so local or short-lived branch models
+ * cannot be mistaken for the official Figma publication input.
  */
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:InputFile
@@ -70,9 +72,13 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
      */
     @TaskAction
     fun generate() {
+        val branch = officialTeamCityBranch()
+        requireMainBranch(branch)
+        requireCompatibleGitCheckout(branch)
+
         val result = figmaDesignSyncComponent::class.create().designModelGenerator.generate(
             FigmaDesignModelGenerationRequest(
-                branch = git("rev-parse", "--abbrev-ref", "HEAD"),
+                branch = branch,
                 gitSha = git("rev-parse", "HEAD"),
                 generatedAt = Instant.now(),
                 versionsFile = versionsFile.get().asFile,
@@ -113,7 +119,62 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
         includedBuildSourcesProvider?.get().orEmpty()
 
+    private fun officialTeamCityBranch(): String {
+        val officialGeneration = System.getenv(OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE)
+        if (officialGeneration != "true") {
+            throw GradleException(
+                "generateFigmaDesignModel may only create the official design-model.json from " +
+                    "TeamCity Figma Sync. Missing $OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true."
+            )
+        }
+
+        val rawBranch = System.getenv(BRANCH_ENVIRONMENT_VARIABLE)?.trim().orEmpty()
+        if (rawBranch.isBlank()) {
+            throw GradleException(
+                "generateFigmaDesignModel may only create the official design-model.json when " +
+                    "$BRANCH_ENVIRONMENT_VARIABLE identifies the TeamCity build branch."
+            )
+        }
+
+        return normalizeBranch(rawBranch)
+    }
+
+    private fun requireMainBranch(branch: String) {
+        if (branch != MAIN_BRANCH) {
+            throw GradleException(
+                "generateFigmaDesignModel may only create the official design-model.json from " +
+                    "'$MAIN_BRANCH'. Current branch is '$branch'. Use TeamCity Figma Sync on " +
+                    "'$MAIN_BRANCH' to produce the artifact consumed by the Figma MCP sync."
+            )
+        }
+    }
+
+    private fun requireCompatibleGitCheckout(branch: String) {
+        val gitBranch = normalizeBranch(git("rev-parse", "--abbrev-ref", "HEAD"))
+        if (gitBranch != DETACHED_HEAD && gitBranch != branch) {
+            throw GradleException(
+                "TeamCity declared Figma design model branch '$branch', but the Git checkout is " +
+                    "'$gitBranch'. Fix the TeamCity checkout before generating design-model.json."
+            )
+        }
+    }
+
+    private fun normalizeBranch(branch: String): String {
+        val normalized = branch
+            .removePrefix("refs/heads/")
+            .removePrefix("refs/remotes/")
+            .removePrefix("origin/")
+
+        return if (normalized == TEAMCITY_DEFAULT_BRANCH) MAIN_BRANCH else normalized
+    }
+
     private companion object {
+        const val MAIN_BRANCH = "main"
+        const val DETACHED_HEAD = "HEAD"
+        const val TEAMCITY_DEFAULT_BRANCH = "<default>"
+        const val OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE = "FIGMA_DESIGN_SYNC_OFFICIAL"
+        const val BRANCH_ENVIRONMENT_VARIABLE = "FIGMA_DESIGN_SYNC_BRANCH"
+
         val prettyJson = Json {
             prettyPrint = true
             explicitNulls = true

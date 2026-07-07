@@ -108,6 +108,18 @@ export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100)
   }
 }
 
+export function unlockSectionTreeForMutation(section, mutatedNodeIds) {
+  const root = rootSection(section);
+  setNodeLocked(root, false, mutatedNodeIds);
+  setDescendantsLocked(root, false, mutatedNodeIds);
+}
+
+export function lockOnlyRootSection(section, mutatedNodeIds) {
+  const root = rootSection(section);
+  setDescendantsLocked(root, false, mutatedNodeIds);
+  setNodeLocked(root, true, mutatedNodeIds);
+}
+
 export async function requireTreeNodeComponent(type: CatalogTreeType, componentIds, componentCache) {
   if (componentCache.has(type)) {
     return componentCache.get(type);
@@ -128,4 +140,27 @@ function resizeDirectHeadersToSectionWidth(section, mutatedNodeIds) {
     header.resizeWithoutConstraints(section.width, header.height);
     mutatedNodeIds.push(header.id);
   }
+}
+
+function rootSection(section) {
+  let current = section;
+  while (current.parent?.type === "SECTION") {
+    current = current.parent;
+  }
+  return current;
+}
+
+function setDescendantsLocked(node, locked, mutatedNodeIds) {
+  if (!("findAll" in node)) return;
+
+  for (const descendant of node.findAll(() => true)) {
+    setNodeLocked(descendant, locked, mutatedNodeIds);
+  }
+}
+
+function setNodeLocked(node, locked, mutatedNodeIds) {
+  if (!("locked" in node) || node.locked === locked) return;
+
+  node.locked = locked;
+  mutatedNodeIds.push(node.id);
 }

@@ -9,10 +9,19 @@ import {
   ensureTreeConnectorContainer,
   findTreeConnector,
   hasConnector,
+  removeTreeNodeWithGroup,
   syncTreeConnector,
+  syncTreeNodeGroup,
   TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY,
+  treeNodeLayoutNode,
 } from "./figma-connector-gateway";
-import { requireSection, resizeAncestorSectionsToFit, resizeNodeToFit } from "./figma-node-gateway";
+import {
+  lockOnlyRootSection,
+  requireSection,
+  resizeAncestorSectionsToFit,
+  resizeNodeToFit,
+  unlockSectionTreeForMutation,
+} from "./figma-node-gateway";
 import {
   collectTreeNodeInstancesByLabel,
   createMissingTreeNode,
@@ -54,6 +63,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     requireUniqueLabels(target, expectedNodes);
 
     const section = await requireSection(target.sectionNodeId);
+    unlockSectionTreeForMutation(section, mutatedNodeIds);
     const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
     let connectors = collectTreeConnectors(section);
     const disconnectedConnectors = connectors.filter((connector) =>
@@ -110,6 +120,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     syncCatalogConnectors(section, expectedNodes, instancesByLabel, connectors, mutatedNodeIds);
     resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
+    lockOnlyRootSection(section, mutatedNodeIds);
   }
 
   return {
@@ -185,7 +196,7 @@ function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connec
 
   for (const [label, instance] of staleInstances) {
     removedCatalogNodes.push(`${target.name}/${label}`);
-    instance.remove();
+    removeTreeNodeWithGroup(instance);
     instancesByLabel.delete(label);
   }
 
@@ -199,6 +210,11 @@ function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connec
 }
 
 function layoutCatalogTreeNodes(section, nodes, instancesByLabel, mutatedNodeIds) {
+  for (const instance of instancesByLabel.values()) {
+    const group = syncTreeNodeGroup(instance);
+    mutatedNodeIds.push(group.id);
+  }
+
   const nodesByPath = new Map(nodes.map((node) => [pathKey(node.path), node]));
   const childrenByParentPath = new Map();
 
@@ -215,8 +231,9 @@ function layoutCatalogTreeNodes(section, nodes, instancesByLabel, mutatedNodeIds
 
   for (const root of roots) {
     const rootInstance = instancesByLabel.get(root.label);
-    const container = rootInstance?.parent?.type === "SECTION"
-      ? rootInstance.parent
+    const rootLayoutNode = rootInstance ? treeNodeLayoutNode(rootInstance) : null;
+    const container = rootLayoutNode?.parent?.type === "SECTION"
+      ? rootLayoutNode.parent
       : section;
     containers.set(
       container.id,
@@ -253,6 +270,7 @@ function layoutCatalogSubtree(
   if (!instance) {
     throw new Error(`Cannot layout catalog node '${node.path.join("/")}' because its Figma instance is missing.`);
   }
+  const layoutNode = treeNodeLayoutNode(instance);
 
   const children = (childrenByParentPath.get(pathKey(node.path)) || [])
     .map((child) => nodesByPath.get(pathKey(child.path)))
@@ -260,17 +278,17 @@ function layoutCatalogSubtree(
   const placements = new Map();
 
   if (children.length === 0) {
-    placements.set(instance.id, { instance, x, y });
+    placements.set(instance.id, { instance, layoutNode, x, y });
     return {
       placements,
       minX: x,
-      maxX: x + instance.width,
-      nextX: x + instance.width + CATALOG_TREE_SIBLING_GAP,
+      maxX: x + layoutNode.width,
+      nextX: x + layoutNode.width + CATALOG_TREE_SIBLING_GAP,
     };
   }
 
   let childX = x;
-  const childY = y + instance.height + CATALOG_TREE_PARENT_CHILD_GAP;
+  const childY = y + layoutNode.height + CATALOG_TREE_PARENT_CHILD_GAP;
   let minX = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let firstChildCenter;
@@ -291,17 +309,18 @@ function layoutCatalogSubtree(
     minX = Math.min(minX, childLayout.minX);
     maxX = Math.max(maxX, childLayout.maxX);
     const childInstance = instancesByLabel.get(child.label);
+    const childLayoutNode = treeNodeLayoutNode(childInstance);
     const childPlacement = childLayout.placements.get(childInstance.id);
-    const childCenter = childPlacement.x + childInstance.width / 2;
+    const childCenter = childPlacement.x + childLayoutNode.width / 2;
     firstChildCenter = firstChildCenter ?? childCenter;
     lastChildCenter = childCenter;
     childX = childLayout.nextX;
   }
 
-  let parentX = ((firstChildCenter + lastChildCenter) / 2) - instance.width / 2;
-  placements.set(instance.id, { instance, x: parentX, y });
+  let parentX = ((firstChildCenter + lastChildCenter) / 2) - layoutNode.width / 2;
+  placements.set(instance.id, { instance, layoutNode, x: parentX, y });
   minX = Math.min(minX, parentX);
-  maxX = Math.max(maxX, parentX + instance.width);
+  maxX = Math.max(maxX, parentX + layoutNode.width);
 
   if (minX < x) {
     const offset = x - minX;
@@ -322,9 +341,9 @@ function layoutCatalogSubtree(
 
 function applyCatalogPlacements(placements, mutatedNodeIds) {
   for (const placement of placements.values()) {
-    placement.instance.x = placement.x;
-    placement.instance.y = placement.y;
-    mutatedNodeIds.push(placement.instance.id);
+    placement.layoutNode.x = placement.x;
+    placement.layoutNode.y = placement.y;
+    mutatedNodeIds.push(placement.layoutNode.id);
   }
 }
 
@@ -343,6 +362,7 @@ function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mut
       continue;
     }
 
+    ensureTreeConnectorContainer(section, connector, childInstance);
     syncTreeConnector(connector, parentInstance, childInstance);
     ensureTreeConnectorContainer(section, connector, childInstance);
     mutatedNodeIds.push(connector.id);
@@ -352,12 +372,13 @@ function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mut
 function resizeSectionsToFit(section, nodes, mutatedNodeIds) {
   const nodesBySection = new Map();
   for (const node of nodes) {
-    const parentSection = node.parent?.type === "SECTION" ? node.parent : section;
+    const layoutNode = treeNodeLayoutNode(node);
+    const parentSection = layoutNode.parent?.type === "SECTION" ? layoutNode.parent : section;
     nodesBySection.set(
       parentSection.id,
       {
         section: parentSection,
-        nodes: [...(nodesBySection.get(parentSection.id)?.nodes || []), node],
+        nodes: [...(nodesBySection.get(parentSection.id)?.nodes || []), layoutNode],
       }
     );
   }

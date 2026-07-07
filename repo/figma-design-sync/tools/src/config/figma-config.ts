@@ -35,7 +35,7 @@ export const TREE_NODE_PROPS = {
   showArtifacts: "Show artifacts#63079:0",
   pluginVersion: "Plugin version#63081:2",
   showConsumerModule: "Show consumer module#63085:0",
-  showIsGradleConventionPlugin: "Show is a gradle convention plugin#63112:4",
+  showIsGradleConventionPlugin: "Show is a gradle plugin#63112:4",
   type: "Type",
 };
 
