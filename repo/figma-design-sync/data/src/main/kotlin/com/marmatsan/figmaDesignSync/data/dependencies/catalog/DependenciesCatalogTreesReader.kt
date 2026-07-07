@@ -13,7 +13,6 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
-import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
@@ -49,38 +48,22 @@ class DependenciesCatalogTreesReader(
      * repository-owned version key that should be edited.
      */
     fun readLibraryTreeWithVersionAliases(
-        rootDir: File,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
+        rootDir: File
     ): LibraryCatalogTree =
         readLibraryTree(versions = CatalogVersionAliases)
             .withLibraryUsages(
-                conventionPluginIncludedBuilds.fold(GradleCatalogUsageReader.LibraryUsages()) { usages, includedBuild ->
-                    usages + gradleCatalogUsageReader.readConventionLibraryUsages(
-                        rootDir = File(includedBuild.rootDirPath),
-                        modulePathPrefix = includedBuild.modulePathPrefix
-                    )
-                }
+                gradleCatalogUsageReader.readMainLibraryUsages(rootDir)
             )
 
     /**
      * Reads a plugin tree using version aliases instead of resolved versions.
      */
     fun readPluginTreeWithVersionAliases(
-        rootDir: File,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
+        rootDir: File
     ): PluginCatalogTree =
         readPluginTree(versions = CatalogVersionAliases)
             .withPluginUsages(
-                conventionPluginIncludedBuilds
-                    .fold(emptyMap<String, Set<String>>()) { usages, includedBuild ->
-                        usages.merge(
-                            gradleCatalogUsageReader.readConventionPluginUsages(
-                                rootDir = File(includedBuild.rootDirPath),
-                                modulePathPrefix = includedBuild.modulePathPrefix
-                            )
-                        )
-                    }
-                    .merge(gradleCatalogUsageReader.readMainPluginUsages(rootDir))
+                gradleCatalogUsageReader.readMainPluginUsages(rootDir)
             )
 
     /**
@@ -166,7 +149,10 @@ private fun LibraryCatalogEntry.withLibraryUsages(
 ): LibraryCatalogEntry =
     when (this) {
         is LibraryCatalogEntry.Artifact -> copy(
-            requiredByModules = usages.coordinates["$group:$artifact"].orEmpty().sorted()
+            requiredByModules = (
+                usages.coordinates["$group:$artifact"].orEmpty() +
+                    usages.aliases[libraryAlias(group, artifact)].orEmpty()
+                ).sorted()
         )
 
         is LibraryCatalogEntry.ArtifactsBundle -> copy(
@@ -205,8 +191,44 @@ private operator fun GradleCatalogUsageReader.LibraryUsages.plus(
 ): GradleCatalogUsageReader.LibraryUsages =
     GradleCatalogUsageReader.LibraryUsages(
         coordinates = coordinates.merge(other.coordinates),
-        bundles = bundles.merge(other.bundles)
+        bundles = bundles.merge(other.bundles),
+        aliases = aliases.merge(other.aliases)
     )
+
+private fun libraryAlias(
+    libraryGroup: String,
+    artifact: String
+): String {
+    val groupSegments = libraryGroup.split(".")
+    var groupSuffix = ""
+    var artifactAliasSegment: String? = null
+
+    for (index in groupSegments.lastIndex downTo 0) {
+        groupSuffix = if (groupSuffix.isEmpty()) {
+            groupSegments[index]
+        } else {
+            "${groupSegments[index]}-$groupSuffix"
+        }
+
+        artifactAliasSegment = when {
+            artifact == groupSuffix -> ""
+            artifact.startsWith("$groupSuffix-") -> artifact.removePrefix("$groupSuffix-")
+            else -> null
+        }
+
+        if (artifactAliasSegment != null) {
+            break
+        }
+    }
+
+    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace("-", ".")
+
+    return if (artifactAliasSegment?.isEmpty() == true) {
+        libraryGroup
+    } else {
+        "$libraryGroup.$normalizedArtifactAliasSegment"
+    }
+}
 
 private val CatalogVersionAliases = Versions(
     activityComposeVersion = "activityComposeVersion",

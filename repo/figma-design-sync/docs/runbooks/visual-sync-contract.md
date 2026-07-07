@@ -57,6 +57,25 @@ updates these visual sections:
 - `figma-design-sync` libraries.
 - `figma-design-sync` plugins.
 
+Consumer modules are scoped to the catalog that owns the visual section:
+
+- `waterMyPlants.libraries` and `waterMyPlants.plugins` represent the catalog
+  generated from `repo/dependency-catalog` into the main Water My Plants build.
+  Their `Required by` and `Applied by` modules must come only from modules in
+  the main build, such as `:app`, `:core:*`, and `:onboarding:*`.
+- `gradlePlugins.*` sections represent catalogs declared by
+  `repo/gradle-plugins/settings.gradle.kts`. Their consumers may be
+  `:gradle-plugins:*` modules.
+- `figmaDesignSync.*` sections represent catalogs declared by
+  `repo/figma-design-sync/settings.gradle.kts`. Their consumers may be
+  `:figma-design-sync:*` modules.
+
+Do not merge consumers across catalogs just because the same plugin id,
+artifact coordinate, or version alias appears in more than one catalog. For
+example, `org.jetbrains.dokka` applied inside
+`:gradle-plugins:dokka-documentation` belongs to the `gradlePlugins.plugins`
+tree, not to `waterMyPlants.plugins`.
+
 For each section:
 
 - Match existing tree nodes by label inside the section. Labels must be unique
