@@ -59,6 +59,23 @@ class GradleCatalogUsageReader {
             }
     }
 
+    fun readConventionPluginIdsByModule(
+        rootDir: File,
+        modulePathPrefix: String
+    ): Map<String, Set<String>> =
+        rootDir
+            .conventionPluginModuleDirs()
+            .associate { moduleDir ->
+                val modulePath = moduleDir.toIncludedBuildModulePath(rootDir, modulePathPrefix)
+                val pluginIds = moduleDir
+                    .resolve(BUILD_FILE_NAME)
+                    .readText()
+                    .pluginIds()
+                    .toSet()
+
+                modulePath to pluginIds
+            }
+
     fun readIncludedBuildLibraryUsages(
         rootDir: File,
         modulePathPrefix: String
@@ -310,6 +327,11 @@ class GradleCatalogUsageReader {
     private fun String.hasGradleConventionPluginImplementation(): Boolean =
         GradleConventionPluginImplementationRegex.containsMatchIn(this)
 
+    private fun String.pluginIds(): Sequence<String> =
+        sequenceOf(pluginNameRegex, pluginIdRegex)
+            .flatMap { regex -> regex.findAll(this) }
+            .map { match -> match.groupValues[1] }
+
     /**
      * Usage index for libraries declared as direct coordinates or bundles.
      *
@@ -342,6 +364,8 @@ class GradleCatalogUsageReader {
         val mainPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
         val literalPluginIdRegex = Regex("""\bid\s*\(\s*"([^"]+)"\s*\)""")
         val applyFalseRegex = Regex("""\bapply\s+false\b""")
+        val pluginNameRegex = Regex("val\\s+pluginName\\s*=\\s*\"([^\"]+)\"")
+        val pluginIdRegex = Regex("id\\s*=\\s*\"([^\"]+)\"")
         val GradleConventionPluginImplementationRegex = Regex(
             "implementationClass\\s*=\\s*\"[^\"]*GradleConventionPlugin\""
         )

@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.plugin.generator
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
@@ -86,6 +87,47 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             section.jsonObject["name"]?.jsonPrimitive?.content
         } shouldBe listOf("Main project dependencies", "Libraries")
     }
+
+    test("generate writes convention plugin provenance for library artifacts") {
+        // GIVEN
+        val generator = generator()
+
+        // WHEN
+        val result = generator.generate(request())
+
+        // THEN
+        val usages = result.model["content"]
+            ?.jsonObject
+            ?.get("catalogs")
+            ?.jsonObject
+            ?.get("waterMyPlants")
+            ?.jsonObject
+            ?.get("libraries")
+            ?.jsonArray
+            ?.single()
+            ?.jsonObject
+            ?.get("entries")
+            ?.jsonArray
+            ?.single()
+            ?.jsonObject
+            ?.get("providedByConventionPlugins")
+            ?.jsonArray
+
+        usages?.map { usage ->
+            val usageObject = usage.jsonObject
+            Triple(
+                usageObject["pluginId"]?.jsonPrimitive?.content,
+                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                usageObject["requiredByModules"]?.jsonArray?.map { module -> module.jsonPrimitive.content }
+            )
+        } shouldBe listOf(
+            Triple(
+                "com.marmatsan.compose",
+                ":gradle-plugins:compose",
+                listOf(":app", ":core:ui")
+            )
+        )
+    }
 })
 
 private fun generator(): FigmaDesignModelGenerator =
@@ -140,8 +182,23 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
-        LibraryCatalogTree(
+    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree {
+        val conventionPluginUsages = if (
+            source is ProjectCatalogTreeSource.DependenciesDslVersionAliases &&
+            source.conventionPluginIncludedBuilds.any { includedBuild -> includedBuild.modulePathPrefix == ":gradle-plugins" }
+        ) {
+            listOf(
+                ConventionPluginUsage(
+                    pluginId = "com.marmatsan.compose",
+                    pluginModule = ":gradle-plugins:compose",
+                    requiredByModules = listOf(":core:ui", ":app")
+                )
+            )
+        } else {
+            emptyList()
+        }
+
+        return LibraryCatalogTree(
             roots = listOf(
                 LibraryCatalogNode(
                     group = "org.jetbrains.kotlin",
@@ -149,12 +206,14 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                         LibraryCatalogEntry.Artifact(
                             artifact = "kotlin-stdlib",
                             version = CatalogVersion("2.4.0"),
-                            requiredByModules = listOf(":app")
+                            requiredByModules = listOf(":app"),
+                            providedByConventionPlugins = conventionPluginUsages
                         )
                     )
                 )
             )
         )
+    }
 
     override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
         PluginCatalogTree(

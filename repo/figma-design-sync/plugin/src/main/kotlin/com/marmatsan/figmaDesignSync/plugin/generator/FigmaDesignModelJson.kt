@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.plugin.generator
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
@@ -92,6 +93,7 @@ private fun LibraryCatalogEntry.toDesignJson(): JsonObject =
             put("artifact", artifact)
             put("version", version.toDesignJson())
             put("requiredByModules", requiredByModules.toSortedJsonArray())
+            put("providedByConventionPlugins", providedByConventionPlugins.toDesignJson())
         }
 
         is LibraryCatalogEntry.ArtifactsBundle -> buildJsonObject {
@@ -100,8 +102,25 @@ private fun LibraryCatalogEntry.toDesignJson(): JsonObject =
             put("artifacts", artifacts.sorted().toJsonArray())
             put("version", version.toDesignJson())
             put("requiredByModules", requiredByModules.toSortedJsonArray())
+            put("providedByConventionPlugins", providedByConventionPlugins.toDesignJson())
         }
     }
+
+private fun List<ConventionPluginUsage>.toDesignJson(): JsonArray =
+    sortedWith(
+        compareBy<ConventionPluginUsage>(
+            { usage -> usage.pluginId },
+            { usage -> usage.pluginModule }
+        )
+    )
+        .map { usage ->
+            buildJsonObject {
+                put("pluginId", usage.pluginId)
+                put("pluginModule", usage.pluginModule)
+                put("requiredByModules", usage.requiredByModules.toSortedJsonArray())
+            }
+        }
+        .let(::JsonArray)
 
 /**
  * Converts a plugin catalog tree to the array consumed by Figma plugin tree

@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.domain.samples
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
@@ -39,7 +40,14 @@ internal object DomainKDocSamples {
         val artifact = LibraryCatalogEntry.Artifact(
             artifact = "kotlin-stdlib",
             version = CatalogVersion("2.4.0"),
-            requiredByModules = listOf(":app")
+            requiredByModules = listOf(":app"),
+            providedByConventionPlugins = listOf(
+                ConventionPluginUsage(
+                    pluginId = "com.marmatsan.compose",
+                    pluginModule = ":gradle-plugins:compose",
+                    requiredByModules = listOf(":app")
+                )
+            )
         )
 
         val bundle = LibraryCatalogEntry.ArtifactsBundle(
@@ -50,6 +58,7 @@ internal object DomainKDocSamples {
         )
 
         check(artifact.requiredByModules == listOf(":app"))
+        check(artifact.providedByConventionPlugins.single().pluginModule == ":gradle-plugins:compose")
         check(bundle.artifacts.contains("ui-tooling"))
     }
 

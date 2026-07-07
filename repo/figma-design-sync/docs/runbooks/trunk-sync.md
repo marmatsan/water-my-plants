@@ -124,6 +124,9 @@ Important generation details:
 - `content.catalogs` contains Water My Plants libraries/plugins, catalog data
   from included builds that publish settings catalogs, custom Gradle convention
   plugins, and regular custom Gradle plugins.
+- Water My Plants library entries include `providedByConventionPlugins`. Each
+  item records the convention plugin id, the Gradle module that implements it,
+  and the production modules that receive the dependency through that plugin.
 - `dependencyCatalog` contributes modules and module dependencies but not
   `content.catalogs.dependencyCatalog` because
   `repo/dependency-catalog/settings.gradle.kts` does not declare

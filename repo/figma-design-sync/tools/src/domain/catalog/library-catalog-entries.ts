@@ -5,8 +5,9 @@ export function libraryArtifactNames(entries) {
 export function libraryArtifacts(entries) {
   return entries.flatMap((entry) => {
     if (entry.type === "artifact") {
-      const requiredByModules = sortedUnique(entry.requiredByModules || []);
-      return [{ name: entry.artifact, requiredByModules }];
+      const providedByConventionPlugins = sortedConventionPluginUsages(entry.providedByConventionPlugins || []);
+      const requiredByModules = effectiveRequiredByModules(entry.requiredByModules || [], providedByConventionPlugins);
+      return [{ name: entry.artifact, requiredByModules, providedByConventionPlugins }];
     }
     if (entry.type === "bundle") {
       return (entry.artifacts || []).map((artifact) => ({ name: artifact, requiredByModules: [] }));
@@ -18,10 +19,14 @@ export function libraryArtifacts(entries) {
 export function libraryBundles(entries) {
   return entries
     .filter((entry) => entry.type === "bundle")
-    .map((entry) => ({
-      alias: entry.alias,
-      requiredByModules: sortedUnique(entry.requiredByModules || []),
-    }));
+    .map((entry) => {
+      const providedByConventionPlugins = sortedConventionPluginUsages(entry.providedByConventionPlugins || []);
+      return {
+        alias: entry.alias,
+        requiredByModules: effectiveRequiredByModules(entry.requiredByModules || [], providedByConventionPlugins),
+        providedByConventionPlugins,
+      };
+    });
 }
 
 export function libraryArtifactVersions(entries) {
@@ -36,4 +41,24 @@ export function libraryArtifactVersions(entries) {
 
 export function sortedUnique(values) {
   return [...new Set(values)].sort();
+}
+
+function sortedConventionPluginUsages(usages) {
+  return [...usages]
+    .map((usage) => ({
+      pluginId: usage.pluginId,
+      pluginModule: usage.pluginModule,
+      requiredByModules: sortedUnique(usage.requiredByModules || []),
+    }))
+    .sort((first, second) =>
+      first.pluginId.localeCompare(second.pluginId) ||
+        first.pluginModule.localeCompare(second.pluginModule)
+    );
+}
+
+function effectiveRequiredByModules(requiredByModules, providedByConventionPlugins) {
+  return sortedUnique([
+    ...requiredByModules,
+    ...providedByConventionPlugins.flatMap((usage) => usage.requiredByModules || []),
+  ]);
 }

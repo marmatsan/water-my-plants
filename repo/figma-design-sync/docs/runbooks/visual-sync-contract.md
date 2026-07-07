@@ -85,17 +85,23 @@ For each section:
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
 - Update `Required by` module instances for library artifacts from
-  `requiredByModules`.
+  `requiredByModules` plus the modules listed by each
+  `providedByConventionPlugins.requiredByModules` entry.
+- Library artifacts and bundles may also carry `providedByConventionPlugins`.
+  Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  model source for `Provided by` `.usage chip kind=convention-plugin` rows.
 - Update `Required by` module instances for `.artifacts bundle` entries from
-  the bundle `requiredByModules`. Child `.artifact` instances inside a bundle
-  must not show their own `Required by` section.
+  the bundle `requiredByModules` plus the modules listed by each
+  `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
+  instances inside a bundle must not show their own `Required by` section.
 - Update `Applied by` module instances for plugin tree nodes from
   `appliedToModules`.
-- Represent consumer modules with `.module` instances. If the component exposes
-  a `size` variant, set it to `small`; the deleted `big` variant is no longer
-  used.
-- Update the `.module` `name` variant instead of editing inner text overrides
-  directly.
+- Represent usage metadata with `.usage chip` instances.
+- `.usage chip` exposes only two `kind` variants: `module` for modules that
+  require or apply an item, and `convention-plugin` for Gradle convention
+  plugins that provide dependencies to production modules.
+- `.usage chip` exposes `name` as a text component property bound to the label.
+  Do not add a variant for every module, plugin, artifact, or dependency name.
 - Create missing `.tree node` instances by cloning a compatible existing node
   from the same visual section, then applying generated model values.
 - Create missing top-level tree sections when a new top-level library group or

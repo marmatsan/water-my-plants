@@ -3,11 +3,12 @@ import {
   ARTIFACTS_BUNDLE_INSTANCE_NAME,
   ARTIFACTS_BUNDLE_PROPS,
   ARTIFACT_PROPS,
-  MODULE_INSTANCE_NAME,
-  MODULE_PROPS,
-  SMALL_MODULE_SIZE,
+  USAGE_CHIP_INSTANCE_NAME,
+  USAGE_CHIP_KINDS,
+  USAGE_CHIP_PROPS,
 } from "../config/figma-config";
-import { loadTextNodeFonts, updateNamedTextNodes } from "./figma-text-gateway";
+import { sortedUnique } from "../domain/catalog/library-catalog-entries";
+import { loadTextNodeFonts } from "./figma-text-gateway";
 
 type ConsumerModuleOptions = {
   excludeArtifactDescendants?: boolean;
@@ -27,11 +28,18 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
   for (let index = 0; index < artifacts.length; index += 1) {
     const artifactInstance = artifactInstances[index];
     const artifact = artifacts[index];
+    const providedByConventionPlugins = usageChipsForConventionPlugins(artifact.providedByConventionPlugins || []);
     artifactInstance.visible = true;
     artifactInstance.setProperties({
-      [ARTIFACT_PROPS.showConsumerModules]: artifact.requiredByModules.length > 0,
+      [ARTIFACT_PROPS.showConsumerModules]: artifact.requiredByModules.length > 0 || providedByConventionPlugins.length > 0,
     });
     mutatedNodeIds.push(artifactInstance.id);
+    await updateUsageChipInstances(
+      artifactInstance,
+      "Provided by",
+      providedByConventionPlugins,
+      mutatedNodeIds
+    );
     await updateConsumerModuleInstances(
       artifactInstance,
       "Required by",
@@ -57,11 +65,19 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
   for (let index = 0; index < bundles.length; index += 1) {
     const bundleInstance = bundleInstances[index];
     const bundle = bundles[index];
+    const providedByConventionPlugins = usageChipsForConventionPlugins(bundle.providedByConventionPlugins || []);
     bundleInstance.visible = true;
     bundleInstance.setProperties({
-      [ARTIFACTS_BUNDLE_PROPS.showConsumerModules]: bundle.requiredByModules.length > 0,
+      [ARTIFACTS_BUNDLE_PROPS.showConsumerModules]: bundle.requiredByModules.length > 0 || providedByConventionPlugins.length > 0,
     });
     mutatedNodeIds.push(bundleInstance.id);
+    await updateUsageChipInstances(
+      bundleInstance,
+      "Provided by",
+      providedByConventionPlugins,
+      mutatedNodeIds,
+      { excludeArtifactDescendants: true }
+    );
     await updateConsumerModuleInstances(
       bundleInstance,
       "Required by",
@@ -81,28 +97,48 @@ export async function updateConsumerModuleInstances(
   mutatedNodeIds,
   options: ConsumerModuleOptions = {}
 ) {
-  if (modules.length > 0) {
-    requireConsumerModuleHeading(root, heading);
+  await updateUsageChipInstances(
+    root,
+    heading,
+    modules.map((moduleName) => ({
+      kind: USAGE_CHIP_KINDS.module,
+      name: moduleName,
+    })),
+    mutatedNodeIds,
+    options
+  );
+}
+
+export async function updateUsageChipInstances(
+  root,
+  heading,
+  usages,
+  mutatedNodeIds,
+  options: ConsumerModuleOptions = {}
+) {
+  if (usages.length > 0) {
+    requireUsageChipHeading(root, heading);
   }
 
-  const moduleInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === MODULE_INSTANCE_NAME)
+  const usageChipInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME)
+    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading))
     .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
-  if (moduleInstances.length < modules.length) {
+  if (usageChipInstances.length < usages.length) {
     throw new Error(
-      `Node '${root.id}' expected at least ${modules.length} '${MODULE_INSTANCE_NAME}' instances for '${heading}', ` +
-        `found ${moduleInstances.length}. Update the .tree node component structure before writing metadata.`
+      `Node '${root.id}' expected at least ${usages.length} '${USAGE_CHIP_INSTANCE_NAME}' instances for '${heading}', ` +
+        `found ${usageChipInstances.length}. Update the .tree node component structure before writing metadata.`
     );
   }
 
-  for (let index = 0; index < modules.length; index += 1) {
-    const moduleInstance = moduleInstances[index];
-    await setModuleInstance(moduleInstance, modules[index], mutatedNodeIds);
+  for (let index = 0; index < usages.length; index += 1) {
+    const usageChipInstance = usageChipInstances[index];
+    await setUsageChipInstance(usageChipInstance, usages[index], mutatedNodeIds);
   }
 
-  for (const moduleInstance of moduleInstances.slice(modules.length)) {
-    hideInstance(moduleInstance, mutatedNodeIds);
+  for (const usageChipInstance of usageChipInstances.slice(usages.length)) {
+    hideInstance(usageChipInstance, mutatedNodeIds);
   }
 }
 
@@ -115,37 +151,65 @@ function hasAncestorInstanceNamed(node, name, boundary) {
   return false;
 }
 
-function requireConsumerModuleHeading(root, heading) {
-  const hasHeading = root.findAllWithCriteria({ types: ["TEXT"] })
-    .some((textNode) => textNode.name === "label" && textNode.characters === heading);
+function requireUsageChipHeading(root, heading) {
+  const hasHeading = findUsageChipHeading(root, heading) !== undefined;
 
   if (!hasHeading) {
-    throw new Error(`Node '${root.id}' is missing '${heading}' consumer module heading text.`);
+    throw new Error(`Node '${root.id}' is missing '${heading}' usage chip heading text.`);
   }
 }
 
-async function setModuleInstance(moduleInstance, moduleName, mutatedNodeIds) {
-  requireModuleVariantProperty(moduleInstance, MODULE_PROPS.name);
+async function setUsageChipInstance(usageChipInstance, usage, mutatedNodeIds) {
+  const kindPropertyKey = requireUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.kind, "VARIANT");
+  const namePropertyKey = requireUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.name, "TEXT");
 
-  moduleInstance.visible = true;
-  const properties = moduleInstance.componentProperties?.[MODULE_PROPS.size]
-    ? {
-        [MODULE_PROPS.name]: moduleName,
-        [MODULE_PROPS.size]: SMALL_MODULE_SIZE,
-      }
-    : {
-        [MODULE_PROPS.name]: moduleName,
-      };
-
-  moduleInstance.setProperties(properties);
-  mutatedNodeIds.push(moduleInstance.id);
-  await updateNamedTextNodes(moduleInstance, "label", [moduleName], mutatedNodeIds);
-  await resizeModuleInstanceToFitLabel(moduleInstance, mutatedNodeIds);
-  resizeAncestorContainersToFit(moduleInstance, mutatedNodeIds);
+  usageChipInstance.visible = true;
+  usageChipInstance.setProperties({
+    [kindPropertyKey]: usage.kind,
+    [namePropertyKey]: usage.name,
+  });
+  mutatedNodeIds.push(usageChipInstance.id);
+  await resizeUsageChipInstanceToFitLabel(usageChipInstance, mutatedNodeIds);
+  resizeAncestorContainersToFit(usageChipInstance, mutatedNodeIds);
 }
 
-async function resizeModuleInstanceToFitLabel(moduleInstance, mutatedNodeIds) {
-  const label = moduleInstance.findAllWithCriteria({ types: ["TEXT"] })
+function belongsToHeadingUsageChipBlock(candidate, root, heading) {
+  const headingNode = findUsageChipHeading(root, heading);
+  if (!headingNode) return false;
+
+  const container = nearestAncestorWithUsageChips(headingNode, root) || root;
+  return candidate.id === container.id || hasAncestor(candidate, container);
+}
+
+function findUsageChipHeading(root, heading) {
+  return root.findAllWithCriteria({ types: ["TEXT"] })
+    .find((textNode) => textNode.name === "label" && textNode.characters === heading);
+}
+
+function nearestAncestorWithUsageChips(node, boundary) {
+  let current = node.parent;
+  while (current && current.id !== boundary.id) {
+    if ("findAllWithCriteria" in current) {
+      const hasUsageChips = current.findAllWithCriteria({ types: ["INSTANCE"] })
+        .some((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME);
+      if (hasUsageChips) return current;
+    }
+    current = current.parent;
+  }
+  return boundary;
+}
+
+function hasAncestor(node, ancestor) {
+  let current = node.parent;
+  while (current) {
+    if (current.id === ancestor.id) return true;
+    current = current.parent;
+  }
+  return false;
+}
+
+async function resizeUsageChipInstanceToFitLabel(usageChipInstance, mutatedNodeIds) {
+  const label = usageChipInstance.findAllWithCriteria({ types: ["TEXT"] })
     .find((textNode) => textNode.name === "label");
   if (!label) return;
 
@@ -153,13 +217,13 @@ async function resizeModuleInstanceToFitLabel(moduleInstance, mutatedNodeIds) {
   label.textAutoResize = "WIDTH_AND_HEIGHT";
 
   const targetWidth = Math.ceil(label.x + label.width + MODULE_HORIZONTAL_PADDING);
-  const targetHeight = Math.ceil(Math.max(moduleInstance.height, label.y + label.height + MODULE_VERTICAL_PADDING));
-  if (moduleInstance.width < targetWidth || moduleInstance.height < targetHeight) {
-    moduleInstance.resizeWithoutConstraints(
-      Math.max(moduleInstance.width, targetWidth),
-      Math.max(moduleInstance.height, targetHeight)
+  const targetHeight = Math.ceil(Math.max(usageChipInstance.height, label.y + label.height + MODULE_VERTICAL_PADDING));
+  if (usageChipInstance.width < targetWidth || usageChipInstance.height < targetHeight) {
+    usageChipInstance.resizeWithoutConstraints(
+      Math.max(usageChipInstance.width, targetWidth),
+      Math.max(usageChipInstance.height, targetHeight)
     );
-    mutatedNodeIds.push(moduleInstance.id);
+    mutatedNodeIds.push(usageChipInstance.id);
   }
 }
 
@@ -206,13 +270,27 @@ function hideInstance(instance, mutatedNodeIds) {
   mutatedNodeIds.push(instance.id);
 }
 
-function requireModuleVariantProperty(moduleInstance, propertyName) {
-  const property = moduleInstance.componentProperties?.[propertyName];
-  if (!property || property.type !== "VARIANT") {
+function requireUsageChipProperty(moduleInstance, propertyName, propertyType) {
+  const properties = (moduleInstance.componentProperties || {}) as Record<string, { type: string }>;
+  const propertyEntry = Object.entries(properties)
+    .find(([key, property]) => (key === propertyName || key.startsWith(`${propertyName}#`)) && property.type === propertyType);
+
+  if (!propertyEntry) {
     throw new Error(
-      `Expected '${moduleInstance.id}' to be a '${MODULE_INSTANCE_NAME}' instance with '${propertyName}' variant property.`
+      `Expected '${moduleInstance.id}' to be a '${USAGE_CHIP_INSTANCE_NAME}' instance with '${propertyName}' ${propertyType} property.`
     );
   }
+
+  return propertyEntry[0];
+}
+
+function usageChipsForConventionPlugins(providedByConventionPlugins) {
+  return sortedUnique(
+    providedByConventionPlugins.map((usage) => usage.pluginId)
+  ).map((pluginId) => ({
+    kind: USAGE_CHIP_KINDS.conventionPlugin,
+    name: pluginId,
+  }));
 }
 
 const MODULE_HORIZONTAL_PADDING = 26;
