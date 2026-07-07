@@ -49,12 +49,15 @@ export const ARTIFACTS_BUNDLE_PROPS = {
 
 export const ARTIFACT_INSTANCE_NAME = ".artifact";
 export const ARTIFACTS_BUNDLE_INSTANCE_NAME = ".artifacts bundle";
-export const MODULE_INSTANCE_NAME = ".module";
-export const MODULE_PROPS = {
+export const USAGE_CHIP_INSTANCE_NAME = ".usage chip";
+export const USAGE_CHIP_PROPS = {
+  kind: "kind",
   name: "name",
-  size: "size",
 };
-export const SMALL_MODULE_SIZE = "small";
+export const USAGE_CHIP_KINDS = {
+  module: "module",
+  conventionPlugin: "convention-plugin",
+};
 
 export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
   {

@@ -28,9 +28,12 @@ sealed interface ProjectCatalogTreeSource {
      * and `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`.
      *
      * @property rootDirPath Repository root containing the dependency DSL.
+     * @property conventionPluginIncludedBuilds Included builds that may provide
+     * dependency DSL libraries through repository convention plugins.
      */
     data class DependenciesDslVersionAliases(
-        val rootDirPath: String
+        val rootDirPath: String,
+        val conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ) : ProjectCatalogTreeSource
 
     /**

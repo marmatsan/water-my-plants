@@ -42,7 +42,8 @@ class ProjectCatalogTreesDataSource(
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
                 dependenciesCatalogTreesReader.readLibraryTreeWithVersionAliases(
-                    rootDir = File(source.rootDirPath)
+                    rootDir = File(source.rootDirPath),
+                    conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
 
             is ProjectCatalogTreeSource.IncludedBuildSettings ->

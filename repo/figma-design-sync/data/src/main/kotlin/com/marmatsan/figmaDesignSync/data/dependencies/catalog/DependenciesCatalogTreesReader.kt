@@ -9,10 +9,12 @@ import com.marmatsan.dependencies.Versions
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
+import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import java.io.File
 import me.tatarka.inject.annotations.Inject
 
@@ -48,11 +50,18 @@ class DependenciesCatalogTreesReader(
      * repository-owned version key that should be edited.
      */
     fun readLibraryTreeWithVersionAliases(
-        rootDir: File
+        rootDir: File,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): LibraryCatalogTree =
         readLibraryTree(versions = CatalogVersionAliases)
             .withLibraryUsages(
                 gradleCatalogUsageReader.readMainLibraryUsages(rootDir)
+            )
+            .withConventionPluginUsages(
+                readConventionPluginLibraryUsages(
+                    rootDir = rootDir,
+                    includedBuilds = conventionPluginIncludedBuilds
+                )
             )
 
     /**
@@ -89,6 +98,32 @@ class DependenciesCatalogTreesReader(
     ): PluginCatalogTree = PluginCatalogTree(
         roots = roots.map { root -> root.toPluginCatalogNode() }
     )
+
+    private fun readConventionPluginLibraryUsages(
+        rootDir: File,
+        includedBuilds: List<IncludedBuildSource>
+    ): ConventionPluginLibraryUsages {
+        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(rootDir)
+
+        return includedBuilds
+            .filter(IncludedBuildSource::publishesConventionPlugins)
+            .fold(ConventionPluginLibraryUsages()) { usages, includedBuild ->
+                val includedBuildRootDir = File(includedBuild.rootDirPath)
+                val libraryUsages = gradleCatalogUsageReader.readConventionLibraryUsages(
+                    rootDir = includedBuildRootDir,
+                    modulePathPrefix = includedBuild.modulePathPrefix
+                )
+                val pluginIdsByModule = gradleCatalogUsageReader.readConventionPluginIdsByModule(
+                    rootDir = includedBuildRootDir,
+                    modulePathPrefix = includedBuild.modulePathPrefix
+                )
+
+                usages + libraryUsages.toConventionPluginLibraryUsages(
+                    pluginIdsByModule = pluginIdsByModule,
+                    modulesByPluginId = modulesByPluginId
+                )
+            }
+    }
 }
 
 private fun Node<DependencyNode.Library>.toLibraryCatalogNode(): LibraryCatalogNode {
@@ -160,6 +195,81 @@ private fun LibraryCatalogEntry.withLibraryUsages(
         )
     }
 
+private fun LibraryCatalogTree.withConventionPluginUsages(
+    usages: ConventionPluginLibraryUsages
+): LibraryCatalogTree =
+    copy(
+        roots = roots.map { node -> node.withConventionPluginUsages(usages) }
+    )
+
+private fun LibraryCatalogNode.withConventionPluginUsages(
+    usages: ConventionPluginLibraryUsages,
+    parentGroup: String = ""
+): LibraryCatalogNode {
+    val groupPath = listOf(parentGroup, group)
+        .filter(String::isNotBlank)
+        .joinToString(".")
+
+    return copy(
+        entries = entries.map { entry -> entry.withConventionPluginUsages(groupPath, usages) },
+        children = children.map { child -> child.withConventionPluginUsages(usages, groupPath) }
+    )
+}
+
+private fun LibraryCatalogEntry.withConventionPluginUsages(
+    group: String,
+    usages: ConventionPluginLibraryUsages
+): LibraryCatalogEntry =
+    when (this) {
+        is LibraryCatalogEntry.Artifact -> copy(
+            providedByConventionPlugins = usages.coordinates["$group:$artifact"].orEmpty()
+        )
+
+        is LibraryCatalogEntry.ArtifactsBundle -> copy(
+            providedByConventionPlugins = usages.bundles[alias].orEmpty()
+        )
+    }
+
+private fun GradleCatalogUsageReader.LibraryUsages.toConventionPluginLibraryUsages(
+    pluginIdsByModule: Map<String, Set<String>>,
+    modulesByPluginId: Map<String, Set<String>>
+): ConventionPluginLibraryUsages =
+    ConventionPluginLibraryUsages(
+        coordinates = coordinates.toConventionPluginUsageMap(
+            pluginIdsByModule = pluginIdsByModule,
+            modulesByPluginId = modulesByPluginId
+        ),
+        bundles = bundles.toConventionPluginUsageMap(
+            pluginIdsByModule = pluginIdsByModule,
+            modulesByPluginId = modulesByPluginId
+        )
+    )
+
+private fun Map<String, Set<String>>.toConventionPluginUsageMap(
+    pluginIdsByModule: Map<String, Set<String>>,
+    modulesByPluginId: Map<String, Set<String>>
+): Map<String, List<ConventionPluginUsage>> =
+    mapValues { (_, pluginModules) ->
+        pluginModules
+            .flatMap { pluginModule ->
+                pluginIdsByModule[pluginModule].orEmpty().mapNotNull { pluginId ->
+                    val requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
+                    if (requiredByModules.isEmpty()) {
+                        null
+                    } else {
+                        ConventionPluginUsage(
+                            pluginId = pluginId,
+                            pluginModule = pluginModule,
+                            requiredByModules = requiredByModules
+                        )
+                    }
+                }
+            }
+            .distinct()
+            .sortedWith(compareBy(ConventionPluginUsage::pluginId, ConventionPluginUsage::pluginModule))
+    }
+        .filterValues(List<ConventionPluginUsage>::isNotEmpty)
+
 private fun PluginCatalogTree.withPluginUsages(
     usages: Map<String, Set<String>>
 ): PluginCatalogTree =
@@ -194,6 +304,28 @@ private operator fun GradleCatalogUsageReader.LibraryUsages.plus(
         bundles = bundles.merge(other.bundles),
         aliases = aliases.merge(other.aliases)
     )
+
+private data class ConventionPluginLibraryUsages(
+    val coordinates: Map<String, List<ConventionPluginUsage>> = emptyMap(),
+    val bundles: Map<String, List<ConventionPluginUsage>> = emptyMap()
+)
+
+private operator fun ConventionPluginLibraryUsages.plus(
+    other: ConventionPluginLibraryUsages
+): ConventionPluginLibraryUsages =
+    ConventionPluginLibraryUsages(
+        coordinates = coordinates.mergeConventionPluginUsages(other.coordinates),
+        bundles = bundles.mergeConventionPluginUsages(other.bundles)
+    )
+
+private fun Map<String, List<ConventionPluginUsage>>.mergeConventionPluginUsages(
+    other: Map<String, List<ConventionPluginUsage>>
+): Map<String, List<ConventionPluginUsage>> =
+    (keys + other.keys).associateWith { key ->
+        (this[key].orEmpty() + other[key].orEmpty())
+            .distinct()
+            .sortedWith(compareBy(ConventionPluginUsage::pluginId, ConventionPluginUsage::pluginModule))
+    }
 
 private fun libraryAlias(
     libraryGroup: String,

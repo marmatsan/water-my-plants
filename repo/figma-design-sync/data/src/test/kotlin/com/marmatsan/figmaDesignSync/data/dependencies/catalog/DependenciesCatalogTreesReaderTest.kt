@@ -5,10 +5,12 @@ import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
+import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -169,6 +171,119 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         actualTree.findArtifact("io.mockk", "mockk").requiredByModules shouldBe emptyList()
     }
 
+    test("readLibraryTreeWithVersionAliases maps convention plugin providers to main build modules") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("water-my-plants-convention-library-usages").toFile()
+        rootDir.writeBuildFile(
+            path = "app",
+            content = """
+            plugins {
+                id("com.marmatsan.compose")
+            }
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "core/ui",
+            content = """
+            plugins {
+                id("com.marmatsan.compose")
+            }
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "onboarding/ui",
+            content = """
+            plugins {
+                id("com.marmatsan.android")
+            }
+            """.trimIndent()
+        )
+        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        includedBuildRootDir.writeBuildFile(
+            path = "compose",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.compose"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "compose/src/main/kotlin/com/marmatsan/compose/plugin",
+            fileName = "ComposeGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.compose.plugin
+
+            fun configure() {
+                libs.implementation(
+                    libraryGroup = "androidx.activity",
+                    artifact = "activity-compose"
+                )
+                libs.implementationBundle(
+                    bundle = "composeBundle"
+                )
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeBuildFile(
+            path = "unit-test",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.unitTest"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.unitTest.plugin.UnitTestGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "unit-test/src/main/kotlin/com/marmatsan/unitTest/plugin",
+            fileName = "UnitTestGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.unitTest.plugin
+
+            fun configure() {
+                libs.implementation(
+                    libraryGroup = "io.mockk",
+                    artifact = "mockk"
+                )
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
+            rootDir = rootDir,
+            conventionPluginIncludedBuilds = listOf(
+                IncludedBuildSource(
+                    settingsFilePath = includedBuildRootDir.resolve("settings.gradle.kts").absolutePath,
+                    rootDirPath = includedBuildRootDir.absolutePath,
+                    modulePathPrefix = ":gradle-plugins",
+                    publishesConventionPlugins = true
+                )
+            )
+        )
+
+        // THEN
+        val expectedComposeUsage = listOf(
+            ConventionPluginUsage(
+                pluginId = "com.marmatsan.compose",
+                pluginModule = ":gradle-plugins:compose",
+                requiredByModules = listOf(":app", ":core:ui")
+            )
+        )
+        actualTree.findArtifact("androidx.activity", "activity-compose")
+            .providedByConventionPlugins shouldBe expectedComposeUsage
+        actualTree.findBundle("androidx.compose.ui", "composeBundle")
+            .providedByConventionPlugins shouldBe expectedComposeUsage
+        actualTree.findArtifact("io.mockk", "mockk")
+            .providedByConventionPlugins shouldBe emptyList()
+    }
+
     test("readPluginTreeWithVersionAliases scopes applied modules to the main build catalog") {
         // GIVEN
         val rootDir = Files.createTempDirectory("water-my-plants-plugin-usages").toFile()
@@ -271,4 +386,14 @@ private fun File.writeBuildFile(
     val directory = resolve(path)
     directory.mkdirs()
     directory.resolve("build.gradle.kts").writeText(content)
+}
+
+private fun File.writeKotlinFile(
+    path: String,
+    fileName: String,
+    content: String
+) {
+    val directory = resolve(path)
+    directory.mkdirs()
+    directory.resolve(fileName).writeText(content)
 }

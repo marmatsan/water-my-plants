@@ -104,7 +104,8 @@ internal class FigmaDesignModelGenerator(
                         projectCatalogTreesPort
                             .readLibraryTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath
+                                    rootDirPath = request.projectRootDirectory.absolutePath,
+                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
                                 )
                             )
                             .toDesignJson()
@@ -199,6 +200,6 @@ internal class FigmaDesignModelGenerator(
         }
 
     private companion object {
-        const val SCHEMA_VERSION = 1
+        const val SCHEMA_VERSION = 2
     }
 }

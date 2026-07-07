@@ -62,6 +62,47 @@ internal class GradleCatalogUsageReaderTest : FunSpec({
         )
     }
 
+    test("readConventionPluginIdsByModule maps convention plugin ids to their implementing modules") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("convention-plugin-ids").toFile()
+        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        includedBuildRootDir.writeBuildFile(
+            path = "compose",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.compose"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeBuildFile(
+            path = "figma-design-sync",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.figmaDesignSync"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.figmaDesignSync.plugin.FigmaDesignSyncGradlePlugin"
+                }
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val pluginIdsByModule = GradleCatalogUsageReader().readConventionPluginIdsByModule(
+            rootDir = includedBuildRootDir,
+            modulePathPrefix = ":gradle-plugins"
+        )
+
+        // THEN
+        pluginIdsByModule shouldBe mapOf(
+            ":gradle-plugins:compose" to setOf("com.marmatsan.compose")
+        )
+    }
+
     test("readMainLiteralPluginUsages maps literal plugin ids to main modules") {
         // GIVEN
         val rootDir = Files.createTempDirectory("main-literal-plugin-usages").toFile()
