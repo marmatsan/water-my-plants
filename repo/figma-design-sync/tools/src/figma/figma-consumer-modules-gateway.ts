@@ -3,6 +3,7 @@ import {
   ARTIFACTS_BUNDLE_INSTANCE_NAME,
   ARTIFACTS_BUNDLE_PROPS,
   ARTIFACT_PROPS,
+  USAGE_CHIP_COMPONENT_SET_ID,
   USAGE_CHIP_INSTANCE_NAME,
   USAGE_CHIP_KINDS,
   USAGE_CHIP_PROPS,
@@ -160,17 +161,66 @@ function requireUsageChipHeading(root, heading) {
 }
 
 async function setUsageChipInstance(usageChipInstance, usage, mutatedNodeIds) {
-  const kindPropertyKey = requireUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.kind, "VARIANT");
-  const namePropertyKey = requireUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.name, "TEXT");
+  const kindPropertyKey = findUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.kind, "VARIANT");
+  const namePropertyKey = findUsageChipProperty(usageChipInstance, USAGE_CHIP_PROPS.name, "TEXT");
 
   usageChipInstance.visible = true;
-  usageChipInstance.setProperties({
-    [kindPropertyKey]: usage.kind,
-    [namePropertyKey]: usage.name,
-  });
+  usageChipInstance.name = USAGE_CHIP_INSTANCE_NAME;
+
+  if (kindPropertyKey) {
+    usageChipInstance.setProperties({ [kindPropertyKey]: usage.kind });
+  } else {
+    await swapUsageChipKind(usageChipInstance, usage.kind, mutatedNodeIds);
+  }
+
+  if (namePropertyKey) {
+    usageChipInstance.setProperties({ [namePropertyKey]: usage.name });
+  }
+
+  await updateUsageChipLabelText(usageChipInstance, usage.name, mutatedNodeIds);
   mutatedNodeIds.push(usageChipInstance.id);
   await resizeUsageChipInstanceToFitLabel(usageChipInstance, mutatedNodeIds);
   resizeAncestorContainersToFit(usageChipInstance, mutatedNodeIds);
+}
+
+async function swapUsageChipKind(usageChipInstance, kind, mutatedNodeIds) {
+  const variant = await requireUsageChipVariant(kind);
+  const mainComponent = await usageChipInstance.getMainComponentAsync();
+  if (mainComponent?.id === variant.id) return;
+
+  usageChipInstance.swapComponent(variant);
+  usageChipInstance.name = USAGE_CHIP_INSTANCE_NAME;
+  mutatedNodeIds.push(usageChipInstance.id);
+}
+
+async function requireUsageChipVariant(kind) {
+  const componentSet = await figma.getNodeByIdAsync(USAGE_CHIP_COMPONENT_SET_ID);
+  if (!componentSet || componentSet.type !== "COMPONENT_SET") {
+    throw new Error(`Expected '${USAGE_CHIP_COMPONENT_SET_ID}' to be the '${USAGE_CHIP_INSTANCE_NAME}' COMPONENT_SET.`);
+  }
+
+  const variant = componentSet.children
+    .filter((candidate) => candidate.type === "COMPONENT")
+    .find((candidate) => candidate.variantProperties?.[USAGE_CHIP_PROPS.kind] === kind);
+  if (!variant) {
+    throw new Error(`Expected '${USAGE_CHIP_INSTANCE_NAME}' component set to contain kind='${kind}'.`);
+  }
+
+  return variant;
+}
+
+async function updateUsageChipLabelText(usageChipInstance, name, mutatedNodeIds) {
+  const label = usageChipInstance.findAllWithCriteria({ types: ["TEXT"] })
+    .find((textNode) => textNode.name === "label");
+  if (!label) {
+    throw new Error(`Expected '${usageChipInstance.id}' to contain a 'label' text node.`);
+  }
+
+  if (label.characters === name) return;
+
+  await loadTextNodeFonts(label);
+  label.characters = name;
+  mutatedNodeIds.push(label.id);
 }
 
 function belongsToHeadingUsageChipBlock(candidate, root, heading) {
@@ -270,18 +320,12 @@ function hideInstance(instance, mutatedNodeIds) {
   mutatedNodeIds.push(instance.id);
 }
 
-function requireUsageChipProperty(moduleInstance, propertyName, propertyType) {
+function findUsageChipProperty(moduleInstance, propertyName, propertyType) {
   const properties = (moduleInstance.componentProperties || {}) as Record<string, { type: string }>;
   const propertyEntry = Object.entries(properties)
     .find(([key, property]) => (key === propertyName || key.startsWith(`${propertyName}#`)) && property.type === propertyType);
 
-  if (!propertyEntry) {
-    throw new Error(
-      `Expected '${moduleInstance.id}' to be a '${USAGE_CHIP_INSTANCE_NAME}' instance with '${propertyName}' ${propertyType} property.`
-    );
-  }
-
-  return propertyEntry[0];
+  return propertyEntry?.[0];
 }
 
 function usageChipsForConventionPlugins(providedByConventionPlugins) {

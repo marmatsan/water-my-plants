@@ -49,6 +49,7 @@ export const ARTIFACTS_BUNDLE_PROPS = {
 
 export const ARTIFACT_INSTANCE_NAME = ".artifact";
 export const ARTIFACTS_BUNDLE_INSTANCE_NAME = ".artifacts bundle";
+export const USAGE_CHIP_COMPONENT_SET_ID = "63085:793";
 export const USAGE_CHIP_INSTANCE_NAME = ".usage chip";
 export const USAGE_CHIP_PROPS = {
   kind: "kind",
