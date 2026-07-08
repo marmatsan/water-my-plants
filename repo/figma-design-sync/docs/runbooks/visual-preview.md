@@ -119,6 +119,22 @@ node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=gr
 Use `--allow-official-sections=true` only for supervised manual repair where the
 intent is to mutate an official section without writing metadata.
 
+## Sandbox Cleanup
+
+Preview sections are temporary validation artifacts. Name copied sections with
+the `Preview - ` prefix, use their node id only for the current preview run, and
+delete them after the result has been inspected or the run has been abandoned.
+
+Do not leave `Preview - ...` sections in the official Figma file after a visual
+iteration. They are not source of truth, are not referenced by TeamCity, and
+should not be reused as stable section ids in committed documentation or
+scripts.
+
+If a preview run fails before `99-run-target.mcp.js`, clear
+`water_my_plants_sync_preview` staging first, then delete the temporary preview
+section. The official visual sections and `water_my_plants_sync` metadata should
+remain untouched.
+
 ## Version Preview
 
 Version preview still touches the configured Figma variable collection and

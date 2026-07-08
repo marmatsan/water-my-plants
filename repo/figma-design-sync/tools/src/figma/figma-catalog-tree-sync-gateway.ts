@@ -20,6 +20,8 @@ import {
   requireSection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
+  stackAncestorSectionSiblingsWithGap,
+  stackDescendantSectionsWithGap,
   unlockSectionTreeForMutation,
 } from "./figma-node-gateway";
 import {
@@ -120,6 +122,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
     syncCatalogConnectors(section, expectedNodes, instancesByLabel, connectors, mutatedNodeIds);
     resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+    stackDescendantSectionsWithGap(section, mutatedNodeIds);
+    stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
     lockOnlyRootSection(section, mutatedNodeIds);
   }

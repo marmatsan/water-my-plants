@@ -15,6 +15,7 @@ import {
   requireVariableCollection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
+  stackAncestorSectionSiblingsWithGap,
 } from "./figma-node-gateway";
 import { collectText } from "./figma-text-gateway";
 
@@ -77,6 +78,7 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
     }
 
     resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+    stackAncestorSectionSiblingsWithGap(parent, mutatedNodeIds);
     resizeAncestorSectionsToFit(parent, mutatedNodeIds);
   }
 

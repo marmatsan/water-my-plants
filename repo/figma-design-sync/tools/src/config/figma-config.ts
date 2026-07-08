@@ -7,6 +7,16 @@ export const VERSIONS_COLLECTION_NAMES = [VERSIONS_COLLECTION_NAME];
 export const VERSION_ALIAS_MODE_NAME = "Version alias";
 export const VERSION_NUMBER_MODE_NAME = "Version number";
 export const PROJECT_VERSION_COMPONENT_ID = "63075:591";
+export const PARENT_SECTION_SIBLING_GAP = 1139;
+export const PARENT_SECTION_NODE_IDS = [
+  "63685:108540",
+  "62936:183",
+  "63099:949",
+  "63099:954",
+  "63216:6907",
+  "63330:551",
+];
+export const SECTION_SIBLING_GAP = 114;
 export const TREE_NODE_COMPONENT_IDS = {
   Library: "63069:681",
   Plugin: "63069:694",

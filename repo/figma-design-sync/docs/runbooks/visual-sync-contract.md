@@ -173,7 +173,19 @@ Layout rules:
   the connector is vertical.
 - Resize every touched tree section and parent section to fit after visual
   updates.
-- Direct `.Header` instances in touched sections must span section width.
+- Stack direct child sections inside touched section containers with 114 px
+  between one section bottom edge and the next section top edge. Apply the same
+  spacing to ancestor section containers after their children are resized.
+- Direct child sections stacked inside the same container must share the same
+  left edge. This keeps module sections such as `gradle-plugins` and
+  `figma-design-sync` horizontally aligned when they belong to the same parent
+  package section.
+- Top-level parent documentation sections on the Gradle dependencies page must
+  keep 1139 px of horizontal space between one section right edge and the next
+  section left edge.
+- Direct `.Header` instances in touched sections must span section width. If a
+  section is narrower than the header's Hug width, resize the section first so
+  the fixed-width header can show its content without clipping.
 
 ## Locking Contract
 
