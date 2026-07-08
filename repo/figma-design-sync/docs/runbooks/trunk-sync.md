@@ -30,39 +30,39 @@ MCP write flow.
 
 ## Sources
 
-| Source | Value |
-|--------|-------|
-| Figma page URL | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908` |
-| Figma file key | `YBZXsd8oyGLbcI2KWxJvRK` |
-| Metadata page node id | `62934:908` |
-| Shared plugin data namespace | `water_my_plants_sync` |
-| Generated model | `build/reports/figma-sync/design-model.json` |
-| Repository versions file | `repo/dependency-catalog/versions.properties` |
-| Figma versions section | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183` |
-| Figma versions variable collection | `repo\dependency-catalog\versions.properties` |
-| Figma UML documentation page | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386` |
-| Root settings file | `settings.gradle.kts` |
+| Source                             | Value                                                                                    |
+|------------------------------------|------------------------------------------------------------------------------------------|
+| Figma page URL                     | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908`  |
+| Figma file key                     | `YBZXsd8oyGLbcI2KWxJvRK`                                                                 |
+| Metadata page node id              | `62934:908`                                                                              |
+| Shared plugin data namespace       | `water_my_plants_sync`                                                                   |
+| Generated model                    | `build/reports/figma-sync/design-model.json`                                             |
+| Repository versions file           | `repo/dependency-catalog/versions.properties`                                            |
+| Figma versions section             | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183`  |
+| Figma versions variable collection | `repo\dependency-catalog\versions.properties`                                            |
+| Figma UML documentation page       | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386` |
+| Root settings file                 | `settings.gradle.kts`                                                                    |
 
 Default included builds:
 
-| Gradle build name | Model name | Root directory | Module path prefix | Publishes catalogs | Publishes convention plugins |
-|-------------------|------------|----------------|--------------------|--------------------|-----------------------------|
-| `dependency-catalog` | `dependencyCatalog` | `repo/dependency-catalog` | `:dependency-catalog` | No | No |
-| `figma-design-sync` | `figmaDesignSync` | `repo/figma-design-sync` | `:figma-design-sync` | Yes | No |
-| `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | Yes | Yes |
+| Gradle build name    | Model name          | Root directory            | Module path prefix    | Publishes catalogs | Publishes convention plugins |
+|----------------------|---------------------|---------------------------|-----------------------|--------------------|------------------------------|
+| `dependency-catalog` | `dependencyCatalog` | `repo/dependency-catalog` | `:dependency-catalog` | No                 | No                           |
+| `figma-design-sync`  | `figmaDesignSync`   | `repo/figma-design-sync`  | `:figma-design-sync`  | Yes                | No                           |
+| `gradle-plugins`     | `gradlePlugins`     | `repo/gradle-plugins`     | `:gradle-plugins`     | Yes                | Yes                          |
 
 Catalog tree visual targets:
 
-| Model target | Source | Figma section |
-|--------------|--------|---------------|
-| `waterMyPlants.libraries` | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` | `63069:629` |
-| `waterMyPlants.plugins` | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` | `63069:594` |
-| `waterMyPlants.customGradleConventionPlugins` | `repo/gradle-plugins/**/build.gradle.kts` | `63216:6907` |
-| `waterMyPlants.customGradlePlugins` | repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins | `63330:551` |
-| `gradlePlugins.libraries` | `repo/gradle-plugins/settings.gradle.kts` | `63099:951` |
-| `gradlePlugins.plugins` | `repo/gradle-plugins/settings.gradle.kts` | `63100:2952` |
-| `figmaDesignSync.libraries` | `repo/figma-design-sync/settings.gradle.kts` | `63573:260` |
-| `figmaDesignSync.plugins` | `repo/figma-design-sync/settings.gradle.kts` | `63573:346` |
+| Model target                                  | Source                                                                                    | Figma section |
+|-----------------------------------------------|-------------------------------------------------------------------------------------------|---------------|
+| `waterMyPlants.libraries`                     | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`      | `63069:629`   |
+| `waterMyPlants.plugins`                       | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`       | `63069:594`   |
+| `waterMyPlants.customGradleConventionPlugins` | `repo/gradle-plugins/**/build.gradle.kts`                                                 | `63216:6907`  |
+| `waterMyPlants.customGradlePlugins`           | repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins | `63330:551`   |
+| `gradlePlugins.libraries`                     | `repo/gradle-plugins/settings.gradle.kts`                                                 | `63099:951`   |
+| `gradlePlugins.plugins`                       | `repo/gradle-plugins/settings.gradle.kts`                                                 | `63100:2952`  |
+| `figmaDesignSync.libraries`                   | `repo/figma-design-sync/settings.gradle.kts`                                              | `63573:260`   |
+| `figmaDesignSync.plugins`                     | `repo/figma-design-sync/settings.gradle.kts`                                              | `63573:346`   |
 
 `repo/dependency-catalog` has no settings-catalog visual target. It contributes
 the versions file and the standalone `:dependency-catalog` module.
@@ -175,25 +175,150 @@ the catalogs present in the TeamCity model.
 
 ## Run The MCP Sync
 
-Use the Figma MCP `use_figma` tool to:
+The Figma MCP runtime cannot read local files or TeamCity artifacts directly.
+Before calling `use_figma`, download the official TeamCity artifact outside
+Figma, build the compatible MCP bundle, and stage both values in temporary Figma
+shared plugin data.
 
-1. Read the TeamCity `Figma Sync > Generate main design model` artifact.
-2. Update version variables and `.project version` visual nodes.
-3. Update catalog tree sections listed in this runbook.
-4. Apply the visual contract from
+The execution flow is:
+
+1. Download `Figma Sync > Generate main design model >
+   build/reports/figma-sync/design-model.json` from TeamCity.
+2. Verify that artifact is from `main` and that its `gitSha` matches the
+   TeamCity `main` revision being synced.
+3. Build the MCP bundle from code compatible with that artifact.
+4. Stage the official `design-model.json` text and generated script under
+   temporary namespace `water_my_plants_sync_staging`.
+5. Run visual targets one by one with `use_figma`.
+6. Apply the visual contract from
    [visual-sync-contract.md](visual-sync-contract.md).
-5. Verify the visual mutation result.
-6. Write metadata only after all visual updates complete successfully.
+7. Verify each visual mutation result.
+8. Write official metadata only after all visual updates complete successfully.
+
+The staging namespace is not authoritative state. It is a transport mechanism
+for the current sync run. The authoritative namespace remains
+`water_my_plants_sync`, and only the final `metadata` target writes to it.
+Always overwrite staged values for a new sync run; do not reuse values already
+present in `water_my_plants_sync_staging`.
+
+Stage these keys on page `62934:908` under
+`water_my_plants_sync_staging`:
+
+| Key                  | Value                                                                          |
+|----------------------|--------------------------------------------------------------------------------|
+| `designModelJson`    | Minified JSON text from TeamCity's official `design-model.json` artifact.      |
+| `designModelHash`    | The artifact `modelHash`, used to validate the staged model.                   |
+| `designModelGitSha`  | The artifact `gitSha`, used to validate the staged model.                      |
+| `designModelLength`  | Character length of `designModelJson`, used to catch truncated staging writes. |
+| `scriptBase64`       | Base64-encoded generated `sync-trunk-design-model.mcp.js` content.             |
+| `scriptLength`       | Character length of the decoded script.                                        |
+| `scriptBase64Length` | Character length of `scriptBase64`, used to catch truncated staging writes.    |
 
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
-characters. If the generated script plus injected model is small enough, pass a
-base64 payload split into chunks in a single call. When it approaches the limit,
-stage chunks in temporary shared plugin data and validate chunk count and length
-before decoding. Do not copy long base64 payloads manually from terminal output.
+characters. Stage large payloads in temporary shared plugin data, validate
+lengths before execution, and do not copy long base64 payloads manually from
+terminal output. If chunking is needed for staging, validate chunk count and
+encoded length before assembling the final `scriptBase64` value.
 
 The runtime supports `atob`, `btoa`, and `Function`, but not browser or Node
 transfer helpers such as `fetch`, `XMLHttpRequest`, `importScripts`,
 `TextDecoder`, `Blob`, `Response`, or `DecompressionStream`.
+
+Run visual updates by granular target. Do not run `metadata` until every visual
+target has completed successfully.
+
+| Order | Target                                        | Scope                                          | Typical failure                                                                       | Quick check                                                                           |
+|-------|-----------------------------------------------|------------------------------------------------|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| 1     | `versions`                                    | Version variables and `.project version` nodes | Missing variable collection or stale version section                                  | Returned `updatedVersions` contains the expected version keys.                        |
+| 2     | `waterMyPlants.libraries`                     | Main app libraries and usage chips             | Ambiguous `.artifact` / `.artifacts bundle` usage headings or missing root chip slots | Returned `completedTargets` contains only this target and no metadata.                |
+| 3     | `waterMyPlants.plugins`                       | Main app plugin catalog tree                   | Missing `.tree node` property or connector binding issue                              | Returned catalog nodes match the plugin tree and connectors stay in the section.      |
+| 4     | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog                      | Stale convention plugin names or missing usage chip variants                          | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
+| 5     | `waterMyPlants.customGradlePlugins`           | Regular custom Gradle plugin catalog           | A regular plugin is modeled as a convention plugin, or the reverse                    | Returned nodes include `com.marmatsan.figmaDesignSync` as a regular plugin.           |
+| 6     | `gradlePlugins.libraries`                     | `repo/gradle-plugins` libraries catalog        | Large artifact/bundle update with stale nested component internals                    | Returned `completedTargets` contains the target and no metadata.                      |
+| 7     | `gradlePlugins.plugins`                       | `repo/gradle-plugins` plugins catalog          | Missing plugin tree connector or stale plugin aliases                                 | Returned catalog nodes match the settings catalog.                                    |
+| 8     | `figmaDesignSync.libraries`                   | `repo/figma-design-sync` libraries catalog     | Large artifact/bundle update with stale nested component internals                    | Returned `completedTargets` contains the target and no metadata.                      |
+| 9     | `figmaDesignSync.plugins`                     | `repo/figma-design-sync` plugins catalog       | Missing plugin tree connector or stale plugin aliases                                 | Returned catalog nodes match the settings catalog.                                    |
+| 10    | `metadata`                                    | Shared plugin sync metadata                    | Metadata written before visual targets complete                                       | Figma shared plugin data matches the TeamCity artifact.                               |
+
+When a target fails, fix that target's component or TypeScript contract, merge
+the fix to `main`, regenerate the official TeamCity artifact, and resume from
+the failed target. Do not repeat already-successful targets unless the fix
+changes their source data or shared component contract.
+
+Reusable MCP target runner:
+
+```javascript
+const page = await figma.getNodeByIdAsync("62934:908");
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page 62934:908 to be a PAGE");
+}
+
+const stagingNamespace = "water_my_plants_sync_staging";
+const stagedModelJson = page.getSharedPluginData(stagingNamespace, "designModelJson");
+const scriptBase64 = page.getSharedPluginData(stagingNamespace, "scriptBase64");
+
+if (!stagedModelJson || !scriptBase64) {
+  throw new Error("Missing staged model or script.");
+}
+
+const stagedModel = JSON.parse(stagedModelJson);
+const stagedModelHash = page.getSharedPluginData(stagingNamespace, "designModelHash");
+const stagedModelGitSha = page.getSharedPluginData(stagingNamespace, "designModelGitSha");
+const stagedModelLength = page.getSharedPluginData(stagingNamespace, "designModelLength");
+const scriptLength = page.getSharedPluginData(stagingNamespace, "scriptLength");
+const scriptBase64Length = page.getSharedPluginData(stagingNamespace, "scriptBase64Length");
+
+const requiredStagingValues = {
+  designModelHash: stagedModelHash,
+  designModelGitSha: stagedModelGitSha,
+  designModelLength: stagedModelLength,
+  scriptLength,
+  scriptBase64Length
+};
+
+for (const [key, value] of Object.entries(requiredStagingValues)) {
+  if (!value) {
+    throw new Error(`Missing staged ${key}.`);
+  }
+}
+
+if (stagedModelHash !== stagedModel.modelHash) {
+  throw new Error(`Staged modelHash mismatch: ${stagedModelHash} != ${stagedModel.modelHash}`);
+}
+
+if (stagedModelGitSha !== stagedModel.gitSha) {
+  throw new Error(`Staged gitSha mismatch: ${stagedModelGitSha} != ${stagedModel.gitSha}`);
+}
+
+if (Number(stagedModelLength) !== stagedModelJson.length) {
+  throw new Error(`Staged model length mismatch: ${stagedModelLength} != ${stagedModelJson.length}`);
+}
+
+if (Number(scriptBase64Length) !== scriptBase64.length) {
+  throw new Error(`Staged script length mismatch: ${scriptBase64Length} != ${scriptBase64.length}`);
+}
+
+let script = atob(scriptBase64);
+
+if (Number(scriptLength) !== script.length) {
+  throw new Error(`Decoded script length mismatch: ${scriptLength} != ${script.length}`);
+}
+
+script = script.replace(
+  "const DESIGN_MODEL = undefined;",
+  "const DESIGN_MODEL = stagedModel;"
+);
+script = script.replace(
+  "const SYNC_OPTIONS = undefined;",
+  "const SYNC_OPTIONS = {\"targets\":[\"TARGET_NAME\"],\"writeMetadata\":false};"
+);
+
+const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+const run = new AsyncFunction("figma", "stagedModel", script);
+
+return await run(figma, stagedModel);
+```
 
 ## Write Metadata
 
@@ -240,6 +365,33 @@ return {
 A metadata-only write is acceptable only when the visual model is already known
 to match `design-model.json` and the only mismatch is stale shared plugin
 metadata.
+
+When using the staged MCP runner above, write metadata by changing
+`SYNC_OPTIONS` to:
+
+```javascript
+"const SYNC_OPTIONS = {\"targets\":[\"metadata\"],\"writeMetadata\":true};"
+```
+
+Then verify the stored metadata before rerunning TeamCity:
+
+```javascript
+const page = await figma.getNodeByIdAsync("62934:908");
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page 62934:908 to be a PAGE");
+}
+
+const namespace = "water_my_plants_sync";
+
+return {
+  schemaVersion: page.getSharedPluginData(namespace, "schemaVersion"),
+  branch: page.getSharedPluginData(namespace, "branch"),
+  gitSha: page.getSharedPluginData(namespace, "gitSha"),
+  modelHash: page.getSharedPluginData(namespace, "modelHash"),
+  syncedAt: page.getSharedPluginData(namespace, "syncedAt")
+};
+```
 
 ## Verify
 
