@@ -27,9 +27,45 @@ characters. The plugin runtime supports `atob`, `btoa`, and `Function`, but it
 does not provide browser or Node transfer helpers such as `fetch`,
 `XMLHttpRequest`, `importScripts`, `TextDecoder`, `Blob`, `Response`, or
 `DecompressionStream`.
+Do not try to work around this with a local HTTP payload server; `fetch` is not
+defined in the Figma MCP `use_figma` runtime, so Figma cannot download the
+TeamCity artifact from `127.0.0.1`.
 
 If a payload is truncated, fail before mutating Figma. One failed sync attempt
 had expected encoded length `45228`, but only `44624` characters reached Figma.
+
+If a target runner appears to complete without visual changes, inspect staging
+before debugging the catalog model. An empty staging value means the runner had
+no official payload to apply:
+
+```javascript
+const page = await figma.getNodeByIdAsync("62934:908");
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page 62934:908 to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+return {
+  designModelJsonLength: page.getSharedPluginData(
+    "water_my_plants_sync_staging",
+    "designModelJson"
+  ).length,
+  scriptBase64Length: page.getSharedPluginData(
+    "water_my_plants_sync_staging",
+    "scriptBase64"
+  ).length
+};
+```
+
+`designModelJsonLength: 0` after `00-clear-staging.mcp.js` usually means a
+large chunk call never reached Figma. Regenerate the runner with a smaller
+chunk size and rerun the files in lexical order:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --chunk-size=8000
+```
 
 For larger payloads, stage base64 chunks in temporary shared plugin data:
 
@@ -60,6 +96,20 @@ Catalog preview uses the smaller `sync-catalog-tree-preview.mcp.js` entrypoint
 by default so connector and layout fixes can be tested without transporting the
 full trunk-sync bundle.
 
+## Figma REST Read Flakes
+
+`checkFigmaTrunkSync` can fail because the Figma REST API closes the connection
+while the task is reading metadata:
+
+```text
+java.io.EOFException: Failed to parse HTTP response: the server prematurely closed the connection
+```
+
+Treat this as a transport failure, not as proof that Figma metadata is stale. If
+a direct Figma MCP read shows `water_my_plants_sync.modelHash` and `gitSha`
+match the TeamCity artifact, rerun `checkFigmaTrunkSync` once before changing
+the model, the metadata, or the visual sync code.
+
 ## Component Instance Shape
 
 Figma component instances can contain hidden template internals that remain
@@ -87,6 +137,10 @@ visible `.artifact` kept `Show consumer modules=false` and its direct
 an empty `Unused catalog entry` block remains visible. Hidden template internals
 under the same `.tree node` can still contain chips, which makes the file look
 partially updated through the plugin API but not visually updated on canvas.
+`Unused catalog entry` is a static status block, not usage metadata. The
+`.tree node` `Plugin` variant must not contain `.usage chip` instances inside
+that block; if one appears there, repair the component contract before changing
+catalog extraction.
 
 Diagnose this as a visual sync inconsistency before changing catalog
 extraction:

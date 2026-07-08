@@ -39,6 +39,7 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
       requiredByModules.length > 0 ||
       providedByConventionPlugins.length > 0;
     artifactInstance.visible = true;
+    syncStructuralSeparators(artifactInstance, mutatedNodeIds);
     setBooleanComponentProperty(
       artifactInstance,
       ARTIFACT_PROPS.showConsumerModules,
@@ -127,6 +128,7 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
       requiredByModules.length > 0 ||
       providedByConventionPlugins.length > 0;
     bundleInstance.visible = true;
+    syncStructuralSeparators(bundleInstance, mutatedNodeIds);
     setBooleanComponentProperty(
       bundleInstance,
       ARTIFACTS_BUNDLE_PROPS.showConsumerModules,
@@ -390,6 +392,15 @@ function syncDirectUsageSeparators(root, mutatedNodeIds, options: ConsumerModule
   }
 }
 
+function syncStructuralSeparators(root, mutatedNodeIds) {
+  for (const child of childrenOf(root)) {
+    if (child.name !== STRUCTURAL_SEPARATOR_FRAME_NAME) continue;
+    if (child.componentPropertyReferences?.visible) continue;
+
+    setNodeVisible(child, true, mutatedNodeIds);
+  }
+}
+
 function childrenOf(node) {
   return "children" in node ? [...node.children] : [];
 }
@@ -626,7 +637,20 @@ function assertUsageSurface(instance, expectedBlocks, options: ConsumerModuleOpt
         `Node '${instance.id}' has '${heading}' usage block visible='${actualVisible}', expected '${expectedVisible}'.`
       );
     }
+    if (heading === UNUSED_CATALOG_ENTRY_HEADING && actualVisible && hasVisibleUsageChip(usageBlock)) {
+      throw new Error(
+        `Node '${instance.id}' has visible '${USAGE_CHIP_INSTANCE_NAME}' instances inside '${heading}'. ` +
+          "The unused catalog entry state must be rendered as a static status block."
+      );
+    }
   }
+}
+
+function hasVisibleUsageChip(usageBlock) {
+  if (!usageBlock) return false;
+
+  return usageBlock.findAllWithCriteria({ types: ["INSTANCE"] })
+    .some((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME && candidate.visible !== false);
 }
 
 function findUsageChipProperty(moduleInstance, propertyName, propertyType) {
@@ -675,13 +699,15 @@ function hasConsumerUsage(entry) {
 
 const MODULE_HORIZONTAL_PADDING = 26;
 const MODULE_VERTICAL_PADDING = 6;
+const STRUCTURAL_SEPARATOR_FRAME_NAME = "separator";
 const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
+const UNUSED_CATALOG_ENTRY_HEADING = "Unused catalog entry";
 const USAGE_BLOCK_HEADINGS = [
   "Provided by",
   "Required by",
   "Applied by",
   "Tool artifacts",
-  "Unused catalog entry",
+  UNUSED_CATALOG_ENTRY_HEADING,
 ];
 const USAGE_BLOCK_FRAME_NAMES = new Set([
   "provided by",
