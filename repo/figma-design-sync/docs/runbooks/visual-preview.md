@@ -30,6 +30,12 @@ Do not use preview output to make `checkFigmaTrunkSync` pass. That check is tied
 to the official namespace `water_my_plants_sync` and the TeamCity artifact from
 `main`.
 
+For visual-only tooling changes on a branch, an explicitly provided model may be
+the official TeamCity `main` artifact. Treat it as a stable visual input, not as
+permission to write official metadata from the branch. If the branch changes the
+model content itself, merge first and regenerate the artifact through
+TeamCity/main.
+
 ## Fixtures
 
 Visual fixtures live under:

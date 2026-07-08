@@ -16,8 +16,7 @@ type ConsumerModuleOptions = {
 };
 
 export async function updateLibraryArtifactConsumerModules(root, artifacts, mutatedNodeIds) {
-  const artifactInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === ARTIFACT_INSTANCE_NAME);
+  const artifactInstances = directCatalogItemInstances(root, ARTIFACT_INSTANCE_NAME);
 
   if (artifactInstances.length < artifacts.length) {
     throw new Error(
@@ -35,14 +34,40 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
       artifact.configuredByConventionPlugins || []
     );
     const isUnused = isUnusedCatalogEntry(artifact);
+    const showConsumerModuleBlocks =
+      requiredByModules.length > 0 ||
+      providedByConventionPlugins.length > 0;
     artifactInstance.visible = true;
-    artifactInstance.setProperties({
-      [ARTIFACT_PROPS.showConsumerModules]:
-        requiredByModules.length > 0 ||
-        providedByConventionPlugins.length > 0 ||
-        configuredByConventionPlugins.length > 0 ||
-        isUnused,
-    });
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showConsumerModules,
+      showConsumerModuleBlocks,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showProvidedBy,
+      providedByConventionPlugins.length > 0,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showToolArtifacts,
+      configuredByConventionPlugins.length > 0,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showRequiredBy,
+      requiredByModules.length > 0,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showUnusedCatalogEntry,
+      isUnused,
+      mutatedNodeIds
+    );
     mutatedNodeIds.push(artifactInstance.id);
     await updateUsageChipInstances(
       artifactInstance,
@@ -67,14 +92,22 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
     setUsageBlockVisible(artifactInstance, "Required by", requiredByModules.length > 0, mutatedNodeIds);
     setUsageBlockVisible(artifactInstance, "Unused catalog entry", isUnused, mutatedNodeIds);
     syncDirectUsageSeparators(artifactInstance, mutatedNodeIds);
+    assertUsageSurface(
+      artifactInstance,
+      [
+        ["Provided by", providedByConventionPlugins.length > 0],
+        ["Tool artifacts", configuredByConventionPlugins.length > 0],
+        ["Required by", requiredByModules.length > 0],
+        ["Unused catalog entry", isUnused],
+      ]
+    );
   }
 
   hideUnusedInstances(artifactInstances.slice(artifacts.length), mutatedNodeIds);
 }
 
 export async function updateLibraryBundleConsumerModules(root, bundles, mutatedNodeIds) {
-  const bundleInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === ARTIFACTS_BUNDLE_INSTANCE_NAME);
+  const bundleInstances = directCatalogItemInstances(root, ARTIFACTS_BUNDLE_INSTANCE_NAME);
 
   if (bundleInstances.length < bundles.length) {
     throw new Error(
@@ -89,13 +122,34 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
     const requiredByModules = bundle.requiredByModules || [];
     const providedByConventionPlugins = usageChipsForConventionPlugins(bundle.providedByConventionPlugins || []);
     const isUnused = !hasConsumerUsage(bundle);
+    const showConsumerModuleBlocks =
+      requiredByModules.length > 0 ||
+      providedByConventionPlugins.length > 0;
     bundleInstance.visible = true;
-    bundleInstance.setProperties({
-      [ARTIFACTS_BUNDLE_PROPS.showConsumerModules]:
-        requiredByModules.length > 0 ||
-        providedByConventionPlugins.length > 0 ||
-        isUnused,
-    });
+    setBooleanComponentProperty(
+      bundleInstance,
+      ARTIFACTS_BUNDLE_PROPS.showConsumerModules,
+      showConsumerModuleBlocks,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      bundleInstance,
+      ARTIFACTS_BUNDLE_PROPS.showProvidedBy,
+      providedByConventionPlugins.length > 0,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      bundleInstance,
+      ARTIFACTS_BUNDLE_PROPS.showRequiredBy,
+      requiredByModules.length > 0,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      bundleInstance,
+      ARTIFACTS_BUNDLE_PROPS.showUnusedCatalogEntry,
+      isUnused,
+      mutatedNodeIds
+    );
     mutatedNodeIds.push(bundleInstance.id);
     await updateUsageChipInstances(
       bundleInstance,
@@ -121,6 +175,15 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
       excludeArtifactDescendants: true,
     });
     syncDirectUsageSeparators(bundleInstance, mutatedNodeIds, { excludeArtifactDescendants: true });
+    assertUsageSurface(
+      bundleInstance,
+      [
+        ["Provided by", providedByConventionPlugins.length > 0],
+        ["Required by", requiredByModules.length > 0],
+        ["Unused catalog entry", isUnused],
+      ],
+      { excludeArtifactDescendants: true }
+    );
   }
 
   hideUnusedInstances(bundleInstances.slice(bundles.length), mutatedNodeIds);
@@ -249,6 +312,7 @@ function syncDirectUsageSeparators(root, mutatedNodeIds, options: ConsumerModule
   for (let index = 0; index < children.length; index += 1) {
     const child = children[index];
     if (child.name !== USAGE_SEPARATOR_FRAME_NAME) continue;
+    if (child.componentPropertyReferences?.visible) continue;
 
     const nextUsageBlock = children
       .slice(index + 1)
@@ -265,6 +329,24 @@ function syncDirectUsageSeparators(root, mutatedNodeIds, options: ConsumerModule
 
 function childrenOf(node) {
   return "children" in node ? [...node.children] : [];
+}
+
+function directCatalogItemInstances(root, instanceName) {
+  const visibleInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((candidate) => candidate.name === instanceName)
+    .filter((candidate) => candidate.visible !== false);
+
+  if (visibleInstances.length > 0) return visibleInstances;
+
+  const container = childrenOf(root)
+    .find((child) => child.name === "artifacts" && "children" in child);
+  const directInstances = childrenOf(container || root)
+    .filter((candidate) => candidate.type === "INSTANCE" && candidate.name === instanceName);
+
+  if (directInstances.length > 0) return directInstances;
+
+  return root.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((candidate) => candidate.name === instanceName);
 }
 
 function isExcludedByOptions(node, root, options: ConsumerModuleOptions = {}) {
@@ -456,12 +538,48 @@ function setNodeVisible(node, visible, mutatedNodeIds) {
   mutatedNodeIds.push(node.id);
 }
 
+function setBooleanComponentProperty(instance, propertyName, value, mutatedNodeIds) {
+  const propertyKey = findComponentProperty(instance, propertyName, "BOOLEAN");
+  if (!propertyKey) {
+    throw new Error(`Node '${instance.id}' is missing boolean component property '${componentPropertyName(propertyName)}'.`);
+  }
+
+  instance.setProperties({ [propertyKey]: value });
+  const actual = instance.componentProperties?.[propertyKey]?.value;
+  if (actual !== value) {
+    throw new Error(
+      `Node '${instance.id}' did not apply '${componentPropertyName(propertyName)}=${value}'. Actual value: '${actual}'.`
+    );
+  }
+  mutatedNodeIds.push(instance.id);
+}
+
+function assertUsageSurface(instance, expectedBlocks, options: ConsumerModuleOptions = {}) {
+  for (const [heading, expectedVisible] of expectedBlocks) {
+    const usageBlock = findUsageBlock(instance, heading, options);
+    const actualVisible = usageBlock?.visible === true;
+    if (actualVisible !== expectedVisible) {
+      throw new Error(
+        `Node '${instance.id}' has '${heading}' usage block visible='${actualVisible}', expected '${expectedVisible}'.`
+      );
+    }
+  }
+}
+
 function findUsageChipProperty(moduleInstance, propertyName, propertyType) {
+  return findComponentProperty(moduleInstance, propertyName, propertyType);
+}
+
+function findComponentProperty(moduleInstance, propertyName, propertyType) {
   const properties = (moduleInstance.componentProperties || {}) as Record<string, { type: string }>;
   const propertyEntry = Object.entries(properties)
-    .find(([key, property]) => (key === propertyName || key.startsWith(`${propertyName}#`)) && property.type === propertyType);
+    .find(([key, property]) => (key === propertyName || key.startsWith(`${componentPropertyName(propertyName)}#`)) && property.type === propertyType);
 
   return propertyEntry?.[0];
+}
+
+function componentPropertyName(propertyName) {
+  return propertyName.split("#")[0];
 }
 
 function usageChipsForConventionPlugins(providedByConventionPlugins) {

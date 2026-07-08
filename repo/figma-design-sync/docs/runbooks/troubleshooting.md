@@ -74,6 +74,34 @@ visible entries. The failure signature is similar to:
 expected 0 'artifact name' text nodes, found 8
 ```
 
+## Usage Blocks Hidden Despite Model Data
+
+The official `design-model.json` can be correct while the visible Figma
+`.artifact` instance is still visually stale. The observed failure mode was a
+library artifact whose model contained `providedByConventionPlugins` and
+effective `requiredByModules`, while the visible `.artifact` kept
+`Show consumer modules=false` and its direct `Provided by` / `Required by`
+blocks hidden. Hidden template internals under the same `.tree node` still
+contained chips, which made the file look partially updated through the plugin
+API but not visually updated on canvas.
+
+Diagnose this as a visual sync inconsistency before changing catalog
+extraction:
+
+- Confirm the official TeamCity `design-model.json` contains the artifact usage.
+- Inspect the owning `.tree node` and confirm `Show consumer module=true` when
+  usage is expected.
+- Inspect the visible direct `.artifact` or `.artifacts bundle` instance under
+  the `artifacts` frame, not hidden template internals.
+- Confirm the visible direct `.artifact` / `.artifacts bundle` instance has the
+  granular component booleans expected by the model: `Show provided by`,
+  `Show required by`, `Show tool artifacts` when present, and
+  `Show unused catalog entry`. `Show consumer modules` is not enough to validate
+  the surface because it can show both `Provided by` and `Required by`.
+
+The TypeScript sync must fail the visual target before metadata if this
+invariant is not true. Do not repair this with a metadata-only write.
+
 ## Connector Binding Failures
 
 Cloned tree nodes and cloned connectors must be made visible before connector
