@@ -202,6 +202,13 @@ To generate chunked MCP runner snippets for an official TeamCity artifact:
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
 ```
 
+If a generated runner file is too large for the MCP transport, reduce the chunk
+size instead of copying the long payload manually:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --chunk-size=8000
+```
+
 Use [visual-preview.md](visual-preview.md) instead when testing fixture-driven
 visual changes before the change reaches `main`.
 
@@ -260,6 +267,35 @@ encoded length before assembling the final `scriptBase64` value.
 The runtime supports `atob`, `btoa`, and `Function`, but not browser or Node
 transfer helpers such as `fetch`, `XMLHttpRequest`, `importScripts`,
 `TextDecoder`, `Blob`, `Response`, or `DecompressionStream`.
+That means a local HTTP payload server is not a valid shortcut for loading the
+TeamCity artifact into `use_figma`; the payload must be staged through Figma
+shared plugin data.
+
+Before diagnosing a visual no-op as a model or component bug, confirm that the
+official payload was actually staged. A common interrupted-sync symptom is
+`designModelJson.length = 0` in `water_my_plants_sync_staging`, which means
+`99-run-target.mcp.js` has no model to apply:
+
+```javascript
+const page = await figma.getNodeByIdAsync("62934:908");
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page 62934:908 to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+return {
+  designModelJsonLength: page.getSharedPluginData(
+    "water_my_plants_sync_staging",
+    "designModelJson"
+  ).length,
+  scriptBase64Length: page.getSharedPluginData(
+    "water_my_plants_sync_staging",
+    "scriptBase64"
+  ).length
+};
+```
 
 Run visual updates by granular target. Do not run `metadata` until every visual
 target has completed successfully.

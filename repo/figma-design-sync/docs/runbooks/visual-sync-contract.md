@@ -110,6 +110,10 @@ For each section:
 - Hide `Provided by`, `Required by`, and `Tool artifacts` blocks when their
   source lists are empty. Do not render empty headings or empty chip
   containers.
+- Keep structural `separator` frames inside `.artifact` and `.artifacts bundle`
+  visible. Only `usage separator` frames, or separators bound to a usage
+  boolean through `componentPropertyReferences.visible`, are conditional on
+  usage content.
 - Control each usage block through its own component boolean on `.artifact` and
   `.artifacts bundle`: `Show provided by`, `Show required by`,
   `Show tool artifacts` where the component supports tooling rows, and
@@ -137,13 +141,22 @@ For each section:
   node` `Plugin`: `Show applied by`, `Show provided by`, and
   `Show unused catalog entry`. Keep `Show consumer module` only as a
   backwards-compatible aggregate for plugin usage rows.
-- Represent usage metadata with `.usage chip` instances.
+- Parent components must expose every usage section in their template. The sync
+  decides visibility on each generated instance from the model data by setting
+  the granular boolean and the direct block visibility for that section.
+- Represent usage metadata with `.usage chip` instances. `Unused catalog entry`
+  is not usage metadata and must not be rendered as a `.usage chip`.
 - `.usage chip` exposes only two `kind` variants: `module` for modules that
   require or apply an item, and `convention-plugin` for Gradle convention
   plugins that provide dependencies to production modules or configure tooling
   artifacts.
 - `.usage chip` exposes `name` as a text component property bound to the label.
   Do not add a variant for every module, plugin, artifact, or dependency name.
+- Render `Unused catalog entry` as a static status block matching `.artifact`
+  and `.artifacts bundle`: the container fill is
+  `md/sys/color/error-container`, the label fill is
+  `md/sys/color/on-error-container`. The `.tree node` `Plugin` variant must
+  not contain `.usage chip` instances inside that block.
 - Create missing `.tree node` instances by cloning a compatible existing node
   from the same visual section, then applying generated model values.
 - Create missing top-level tree sections when a new top-level library group or
