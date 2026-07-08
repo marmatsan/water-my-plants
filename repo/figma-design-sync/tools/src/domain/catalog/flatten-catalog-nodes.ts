@@ -25,6 +25,7 @@ export function flattenCatalogNodes(
           path,
           version: node.version,
           appliedToModules: node.appliedToModules || [],
+          providedByConventionPlugins: node.providedByConventionPlugins || [],
           children: node.children || [],
         };
 

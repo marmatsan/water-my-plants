@@ -2,7 +2,7 @@ import {
   TREE_NODE_COMPONENT_IDS,
   TREE_NODE_PROPS,
 } from "../config/figma-config";
-import { updateConsumerModuleInstances, updateLibraryArtifactConsumerModules, updateLibraryBundleConsumerModules } from "./figma-consumer-modules-gateway";
+import { updateLibraryArtifactConsumerModules, updateLibraryBundleConsumerModules, updatePluginUsageBlocks } from "./figma-consumer-modules-gateway";
 import type { FlattenedCatalogNode } from "../domain/design-model";
 import { getComponentPropertyValue, requireTreeNodeComponent } from "./figma-node-gateway";
 import {
@@ -105,27 +105,50 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     ? node.version.value
     : "Plugin version";
   const appliedToModules = sortedUnique(node.appliedToModules || []);
+  const providedByConventionPlugins = node.providedByConventionPlugins || [];
+  const effectiveAppliedToModules = sortedUnique([
+    ...appliedToModules,
+    ...providedByConventionPlugins.flatMap((usage) => usage.requiredByModules || []),
+  ]);
+  const isUnusedCatalogEntry = isPluginCatalogEntry(node) &&
+    effectiveAppliedToModules.length === 0 &&
+    providedByConventionPlugins.length === 0;
   const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
 
   instance.setProperties({
     [TREE_NODE_PROPS.pluginId]: node.label,
     [TREE_NODE_PROPS.pluginVersion]: versionValue,
     [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
-    [TREE_NODE_PROPS.showConsumerModule]: appliedToModules.length > 0,
+    [TREE_NODE_PROPS.showConsumerModule]: effectiveAppliedToModules.length > 0 || providedByConventionPlugins.length > 0,
     [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
     [TREE_NODE_PROPS.type]: "Plugin",
   });
   mutatedNodeIds.push(instance.id);
 
-  await updateConsumerModuleInstances(instance, "Applied by", appliedToModules, mutatedNodeIds);
+  await updatePluginUsageBlocks(
+    instance,
+    effectiveAppliedToModules,
+    providedByConventionPlugins,
+    isUnusedCatalogEntry,
+    mutatedNodeIds
+  );
 
-  if (appliedToModules.length === 0 && !isGradleConventionPlugin && !hasVisiblePluginVersion(node)) {
+  if (effectiveAppliedToModules.length === 0 &&
+    providedByConventionPlugins.length === 0 &&
+    !isUnusedCatalogEntry &&
+    !isGradleConventionPlugin &&
+    !hasVisiblePluginVersion(node)
+  ) {
     resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);
   }
 }
 
 function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
   return node.version?.visible === true && Boolean(node.version?.value);
+}
+
+function isPluginCatalogEntry(node: FlattenedCatalogNode) {
+  return node.version !== null && node.version !== undefined;
 }
 
 function resizeBareTreeNodeToFitLabel(instance, labelName, mutatedNodeIds) {

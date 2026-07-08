@@ -150,6 +150,11 @@ Important generation details:
 - Water My Plants library entries include `providedByConventionPlugins`. Each
   item records the convention plugin id, the Gradle module that implements it,
   and the production modules that receive the dependency through that plugin.
+- Water My Plants plugin entries include `providedByConventionPlugins` when a
+  convention plugin applies a catalog plugin and production modules apply that
+  convention plugin. Direct plugin applications remain in `appliedToModules`;
+  the visual `Applied by` row combines direct modules with the modules listed in
+  each `providedByConventionPlugins.requiredByModules` entry.
 - `dependencyCatalog` contributes modules and module dependencies but not
   `content.catalogs.dependencyCatalog` because
   `repo/dependency-catalog/settings.gradle.kts` does not declare

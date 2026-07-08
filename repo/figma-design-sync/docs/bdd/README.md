@@ -128,7 +128,7 @@ The contract has one main output:
 |----------------------|--------------------------------------------------------------------------------------------------------------|
 | `versions`           | Sorted flat map of version keys to repository values, used for deterministic comparison.                     |
 | `versionSections`    | Ordered version groups from `repo/dependency-catalog/versions.properties`, used to preserve the source section layout.   |
-| `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins. |
+| `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins, including direct and convention-plugin-provided usage metadata. |
 | `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                            |
 | `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                      |
 

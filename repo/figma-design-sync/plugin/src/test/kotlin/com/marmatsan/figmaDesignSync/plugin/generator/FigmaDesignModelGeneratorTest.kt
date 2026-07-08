@@ -170,6 +170,43 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             )
         )
     }
+
+    test("generate writes convention plugin provenance for plugins") {
+        // GIVEN
+        val generator = generator()
+
+        // WHEN
+        val result = generator.generate(request())
+
+        // THEN
+        val usages = result.model["content"]
+            ?.jsonObject
+            ?.get("catalogs")
+            ?.jsonObject
+            ?.get("waterMyPlants")
+            ?.jsonObject
+            ?.get("plugins")
+            ?.jsonArray
+            ?.single()
+            ?.jsonObject
+            ?.get("providedByConventionPlugins")
+            ?.jsonArray
+
+        usages?.map { usage ->
+            val usageObject = usage.jsonObject
+            Triple(
+                usageObject["pluginId"]?.jsonPrimitive?.content,
+                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                usageObject["requiredByModules"]?.jsonArray?.map { module -> module.jsonPrimitive.content }
+            )
+        } shouldBe listOf(
+            Triple(
+                "com.marmatsan.compose",
+                ":gradle-plugins:compose",
+                listOf(":app", ":core:ui")
+            )
+        )
+    }
 })
 
 private fun generator(): FigmaDesignModelGenerator =
@@ -278,7 +315,14 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
                     version = CatalogVersion("2.4.0"),
-                    appliedToModules = listOf(":app")
+                    appliedToModules = listOf(":app"),
+                    providedByConventionPlugins = listOf(
+                        PluginCatalogNode.ConventionPluginUsage(
+                            pluginId = "com.marmatsan.compose",
+                            pluginModule = ":gradle-plugins:compose",
+                            requiredByModules = listOf(":core:ui", ":app")
+                        )
+                    )
                 )
             )
         )
