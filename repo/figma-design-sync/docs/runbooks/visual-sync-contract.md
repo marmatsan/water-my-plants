@@ -89,6 +89,10 @@ For each section:
   versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
+- When a `.tree node` contains hidden template placeholders and visible nested
+  catalog rows, update the visible representable `.artifact` /
+  `.artifacts bundle` instances. Do not let hidden placeholders win over visible
+  bundle child artifact rows.
 - Update `Required by` module instances for library artifacts from
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
@@ -102,6 +106,14 @@ For each section:
 - Hide `Provided by`, `Required by`, and `Tool artifacts` blocks when their
   source lists are empty. Do not render empty headings or empty chip
   containers.
+- Control each usage block through its own component boolean on `.artifact` and
+  `.artifacts bundle`: `Show provided by`, `Show required by`,
+  `Show tool artifacts` where the component supports tooling rows, and
+  `Show unused catalog entry`. Do not use one aggregate boolean to show multiple
+  usage blocks.
+- Keep `.artifact` / `.artifacts bundle` `Show consumer modules` only as a
+  backwards-compatible aggregate for consumer-module rows. The decisive visual
+  contract is the granular block boolean plus the direct block visibility.
 - When a direct artifact entry or bundle has no `Required by`, no `Provided by`,
   and no `Tool artifacts` data, show `Unused catalog entry` instead of empty
   usage blocks. Do not mark child artifact rows inside a bundle as unused; the

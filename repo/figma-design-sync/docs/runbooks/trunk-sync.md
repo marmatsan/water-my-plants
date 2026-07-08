@@ -98,6 +98,25 @@ The MCP sync code rejects models whose `branch` is not `main`. A branch-local
 model is never an authorized Figma write input, even when its `modelHash`
 matches the expected content.
 
+## Branch Visual Iteration With The Official Artifact
+
+If the TeamCity `main` artifact already represents the model state being tested,
+a short-lived Git branch may reuse that official `design-model.json` to iterate
+on visual sync tooling. This is valid for changes that only affect Figma
+representation, for example component property bindings, colors, connector
+behavior, layout, resize rules, spacing, or instance selection.
+
+Do not rerun TeamCity only to regenerate the JSON for those visual-only changes.
+Keep the official artifact as the stable input, build the MCP bundle from the
+branch, run only visual targets, and do not write official metadata from the
+branch.
+
+Regenerate through TeamCity on `main` when the change affects model content:
+catalog extraction, module or plugin paths, `Provided by` / `Required by` data,
+target names, `content`, `modelHash`, or any field serialized into
+`design-model.json`. After the tooling branch is merged, run the official
+TeamCity/main flow to seal the authoritative visual state and metadata.
+
 ## Local Diagnostics
 
 Do not generate `design-model.json` locally to repair Figma. Local execution is
@@ -243,7 +262,7 @@ target has completed successfully.
 | Order | Target                                        | Scope                                          | Typical failure                                                                       | Quick check                                                                           |
 |-------|-----------------------------------------------|------------------------------------------------|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
 | 1     | `versions`                                    | Version variables and `.project version` nodes | Missing variable collection or stale version section                                  | Returned `updatedVersions` contains the expected version keys.                        |
-| 2     | `waterMyPlants.libraries`                     | Main app libraries and usage chips             | Ambiguous `.artifact` / `.artifacts bundle` usage headings or missing root chip slots | Returned `completedTargets` contains only this target and no metadata.                |
+| 2     | `waterMyPlants.libraries`                     | Main app libraries and usage chips             | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains only this target and a spot-checked artifact with model usage shows `Provided by` / `Required by` chips. |
 | 3     | `waterMyPlants.plugins`                       | Main app plugin catalog tree                   | Missing `.tree node` property or connector binding issue                              | Returned catalog nodes match the plugin tree and connectors stay in the section.      |
 | 4     | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog                      | Stale convention plugin names or missing usage chip variants                          | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
 | 5     | `waterMyPlants.customGradlePlugins`           | Regular custom Gradle plugin catalog           | A regular plugin is modeled as a convention plugin, or the reverse                    | Returned nodes include `com.marmatsan.figmaDesignSync` as a regular plugin.           |

@@ -51,10 +51,17 @@ export const TREE_NODE_PROPS = {
 
 export const ARTIFACT_PROPS = {
   showConsumerModules: "Show consumer modules#63086:1",
+  showProvidedBy: "Show provided by",
+  showRequiredBy: "Show required by",
+  showToolArtifacts: "Show tool artifacts",
+  showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
 export const ARTIFACTS_BUNDLE_PROPS = {
   showConsumerModules: "Show consumer modules#63107:0",
+  showProvidedBy: "Show provided by",
+  showRequiredBy: "Show required by",
+  showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
 export const ARTIFACT_INSTANCE_NAME = ".artifact";
