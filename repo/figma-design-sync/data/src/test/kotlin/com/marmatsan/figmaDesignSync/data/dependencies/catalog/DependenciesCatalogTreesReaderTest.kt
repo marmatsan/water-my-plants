@@ -389,6 +389,114 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         actualTree.findPlugin("com.android.library").appliedToModules shouldBe listOf(":core:ui")
         actualTree.findPlugin("org.jetbrains.dokka").appliedToModules shouldBe emptyList()
     }
+
+    test("readPluginTreeWithVersionAliases maps convention plugin providers to main build modules") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("water-my-plants-convention-plugin-usages").toFile()
+        rootDir.writeBuildFile(
+            path = "app",
+            content = """
+            plugins {
+                id("com.marmatsan.compose")
+            }
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "core/ui",
+            content = """
+            plugins {
+                id("com.marmatsan.compose")
+            }
+            """.trimIndent()
+        )
+        rootDir.writeBuildFile(
+            path = "onboarding/ui",
+            content = """
+            plugins {
+                id("com.marmatsan.android")
+            }
+            """.trimIndent()
+        )
+        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        includedBuildRootDir.writeBuildFile(
+            path = "compose",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.compose"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "compose/src/main/kotlin/com/marmatsan/compose/plugin",
+            fileName = "ComposeGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.compose.plugin
+
+            fun configure(project: Project) {
+                project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeBuildFile(
+            path = "android",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.android"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.android.plugin.AndroidGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "android/src/main/kotlin/com/marmatsan/android/plugin",
+            fileName = "AndroidGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.android.plugin
+
+            fun configure(project: Project) {
+                project.pluginManager.apply("com.google.devtools.ksp")
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(
+            rootDir = rootDir,
+            conventionPluginIncludedBuilds = listOf(
+                IncludedBuildSource(
+                    settingsFilePath = includedBuildRootDir.resolve("settings.gradle.kts").absolutePath,
+                    rootDirPath = includedBuildRootDir.absolutePath,
+                    modulePathPrefix = ":gradle-plugins",
+                    publishesConventionPlugins = true
+                )
+            )
+        )
+
+        // THEN
+        actualTree.findPlugin("org.jetbrains.kotlin.plugin.compose")
+            .providedByConventionPlugins shouldBe listOf(
+            PluginCatalogNode.ConventionPluginUsage(
+                pluginId = "com.marmatsan.compose",
+                pluginModule = ":gradle-plugins:compose",
+                requiredByModules = listOf(":app", ":core:ui")
+            )
+        )
+        actualTree.findPlugin("com.google.devtools.ksp")
+            .providedByConventionPlugins shouldBe listOf(
+            PluginCatalogNode.ConventionPluginUsage(
+                pluginId = "com.marmatsan.android",
+                pluginModule = ":gradle-plugins:android",
+                requiredByModules = listOf(":onboarding:ui")
+            )
+        )
+        actualTree.findPlugin("org.jetbrains.dokka").providedByConventionPlugins shouldBe emptyList()
+    }
 })
 
 private fun dependenciesCatalogTreesReader() =

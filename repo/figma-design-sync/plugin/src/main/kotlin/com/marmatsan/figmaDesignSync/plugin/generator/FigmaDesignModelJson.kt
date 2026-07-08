@@ -156,6 +156,7 @@ private fun PluginCatalogNode.toDesignJson(): JsonObject =
         put("id", id)
         put("version", version?.toDesignJson() ?: JsonNull)
         put("appliedToModules", appliedToModules.toSortedJsonArray())
+        put("providedByConventionPlugins", providedByConventionPlugins.toPluginConventionUsageDesignJson())
         put(
             "children",
             children
@@ -164,6 +165,22 @@ private fun PluginCatalogNode.toDesignJson(): JsonObject =
                 .let(::JsonArray)
         )
     }
+
+private fun List<PluginCatalogNode.ConventionPluginUsage>.toPluginConventionUsageDesignJson(): JsonArray =
+    sortedWith(
+        compareBy<PluginCatalogNode.ConventionPluginUsage>(
+            { usage -> usage.pluginId },
+            { usage -> usage.pluginModule }
+        )
+    )
+        .map { usage ->
+            buildJsonObject {
+                put("pluginId", usage.pluginId)
+                put("pluginModule", usage.pluginModule)
+                put("requiredByModules", usage.requiredByModules.toSortedJsonArray())
+            }
+        }
+        .let(::JsonArray)
 
 private fun CatalogVersion.toDesignJson(): JsonObject =
     buildJsonObject {

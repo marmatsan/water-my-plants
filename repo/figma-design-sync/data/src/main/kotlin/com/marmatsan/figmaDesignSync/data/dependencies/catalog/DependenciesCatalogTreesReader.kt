@@ -69,11 +69,18 @@ class DependenciesCatalogTreesReader(
      * Reads a plugin tree using version aliases instead of resolved versions.
      */
     fun readPluginTreeWithVersionAliases(
-        rootDir: File
+        rootDir: File,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): PluginCatalogTree =
         readPluginTree(versions = CatalogVersionAliases)
             .withPluginUsages(
                 gradleCatalogUsageReader.readMainPluginUsages(rootDir)
+            )
+            .withConventionPluginUsages(
+                readConventionPluginPluginUsages(
+                    rootDir = rootDir,
+                    includedBuilds = conventionPluginIncludedBuilds
+                )
             )
 
     /**
@@ -131,6 +138,34 @@ class DependenciesCatalogTreesReader(
                     configurationUsages.toConventionPluginLibraryConfigurationUsages(
                         pluginIdsByModule = pluginIdsByModule
                     )
+            }
+    }
+
+    private fun readConventionPluginPluginUsages(
+        rootDir: File,
+        includedBuilds: List<IncludedBuildSource>
+    ): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> {
+        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(rootDir)
+
+        return includedBuilds
+            .filter(IncludedBuildSource::publishesConventionPlugins)
+            .fold(emptyMap<String, List<PluginCatalogNode.ConventionPluginUsage>>()) { usages, includedBuild ->
+                val includedBuildRootDir = File(includedBuild.rootDirPath)
+                val pluginUsages = gradleCatalogUsageReader.readConventionPluginUsages(
+                    rootDir = includedBuildRootDir,
+                    modulePathPrefix = includedBuild.modulePathPrefix
+                )
+                val pluginIdsByModule = gradleCatalogUsageReader.readConventionPluginIdsByModule(
+                    rootDir = includedBuildRootDir,
+                    modulePathPrefix = includedBuild.modulePathPrefix
+                )
+
+                usages.mergePluginConventionPluginUsages(
+                    pluginUsages.toConventionPluginPluginUsages(
+                        pluginIdsByModule = pluginIdsByModule,
+                        modulesByPluginId = modulesByPluginId
+                    )
+                )
             }
     }
 }
@@ -301,6 +336,57 @@ private fun PluginCatalogNode.withPluginUsages(
     )
 }
 
+private fun PluginCatalogTree.withConventionPluginUsages(
+    usages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>
+): PluginCatalogTree =
+    copy(
+        roots = roots.map { node -> node.withConventionPluginUsages(usages) }
+    )
+
+private fun PluginCatalogNode.withConventionPluginUsages(
+    usages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>,
+    parentId: String = ""
+): PluginCatalogNode {
+    val pluginId = listOf(parentId, id)
+        .filter(String::isNotBlank)
+        .joinToString(".")
+
+    return copy(
+        providedByConventionPlugins = usages[pluginId].orEmpty(),
+        children = children.map { child -> child.withConventionPluginUsages(usages, pluginId) }
+    )
+}
+
+private fun Map<String, Set<String>>.toConventionPluginPluginUsages(
+    pluginIdsByModule: Map<String, Set<String>>,
+    modulesByPluginId: Map<String, Set<String>>
+): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> =
+    mapValues { (_, pluginModules) ->
+        pluginModules
+            .flatMap { pluginModule ->
+                pluginIdsByModule[pluginModule].orEmpty().mapNotNull { pluginId ->
+                    val requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
+                    if (requiredByModules.isEmpty()) {
+                        null
+                    } else {
+                        PluginCatalogNode.ConventionPluginUsage(
+                            pluginId = pluginId,
+                            pluginModule = pluginModule,
+                            requiredByModules = requiredByModules
+                        )
+                    }
+                }
+            }
+            .distinct()
+            .sortedWith(
+                compareBy(
+                    PluginCatalogNode.ConventionPluginUsage::pluginId,
+                    PluginCatalogNode.ConventionPluginUsage::pluginModule
+                )
+            )
+    }
+        .filterValues(List<PluginCatalogNode.ConventionPluginUsage>::isNotEmpty)
+
 private fun Map<String, Set<String>>.merge(other: Map<String, Set<String>>): Map<String, Set<String>> =
     (keys + other.keys).associateWith { key ->
         (this[key].orEmpty() + other[key].orEmpty()).toSortedSet()
@@ -364,6 +450,20 @@ private fun Map<String, List<ConventionPluginUsage>>.mergeConventionPluginUsages
         (this[key].orEmpty() + other[key].orEmpty())
             .distinct()
             .sortedWith(compareBy(ConventionPluginUsage::pluginId, ConventionPluginUsage::pluginModule))
+    }
+
+private fun Map<String, List<PluginCatalogNode.ConventionPluginUsage>>.mergePluginConventionPluginUsages(
+    other: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>
+): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> =
+    (keys + other.keys).associateWith { key ->
+        (this[key].orEmpty() + other[key].orEmpty())
+            .distinct()
+            .sortedWith(
+                compareBy(
+                    PluginCatalogNode.ConventionPluginUsage::pluginId,
+                    PluginCatalogNode.ConventionPluginUsage::pluginModule
+                )
+            )
     }
 
 private fun Map<String, List<ConventionPluginConfigurationUsage>>.mergeConventionPluginConfigurationUsages(

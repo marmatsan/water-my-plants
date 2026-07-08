@@ -70,7 +70,8 @@ class ProjectCatalogTreesDataSource(
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
                 dependenciesCatalogTreesReader.readPluginTreeWithVersionAliases(
-                    rootDir = File(source.rootDirPath)
+                    rootDir = File(source.rootDirPath),
+                    conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
 
             is ProjectCatalogTreeSource.IncludedBuildSettings ->
@@ -126,5 +127,13 @@ private fun PluginCatalogNode.merge(other: PluginCatalogNode): PluginCatalogNode
     copy(
         version = version ?: other.version,
         appliedToModules = (appliedToModules + other.appliedToModules).sorted(),
+        providedByConventionPlugins = (providedByConventionPlugins + other.providedByConventionPlugins)
+            .distinct()
+            .sortedWith(
+                compareBy(
+                    PluginCatalogNode.ConventionPluginUsage::pluginId,
+                    PluginCatalogNode.ConventionPluginUsage::pluginModule
+                )
+            ),
         children = children.mergePluginNodes(other.children)
     )

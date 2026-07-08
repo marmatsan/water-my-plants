@@ -99,6 +99,10 @@ For each section:
 - Library artifacts and bundles may also carry `providedByConventionPlugins`.
   Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
   model source for `Provided by` `.usage chip kind=convention-plugin` rows.
+- Plugin catalog entries may also carry `providedByConventionPlugins`. Each
+  usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  model source for `Provided by` `.usage chip kind=convention-plugin` rows on
+  the `Plugin` `.tree node` variant.
 - Library artifacts may also carry `configuredByConventionPlugins`. Each usage
   has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
   uses the artifact as build tooling configuration, not that it provides the
@@ -123,7 +127,16 @@ For each section:
   `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
   instances inside a bundle must not show their own `Required by` section.
 - Update `Applied by` module instances for plugin tree nodes from
-  `appliedToModules`.
+  `appliedToModules` plus the modules listed by each
+  `providedByConventionPlugins.requiredByModules` entry.
+- For plugin tree nodes, hide `Applied by` and `Provided by` when their source
+  lists are empty. When a plugin catalog entry has no `appliedToModules` and no
+  `providedByConventionPlugins`, show `Unused catalog entry` instead of empty
+  usage blocks.
+- Control plugin usage blocks through their own component boolean on `.tree
+  node` `Plugin`: `Show applied by`, `Show provided by`, and
+  `Show unused catalog entry`. Keep `Show consumer module` only as a
+  backwards-compatible aggregate for plugin usage rows.
 - Represent usage metadata with `.usage chip` instances.
 - `.usage chip` exposes only two `kind` variants: `module` for modules that
   require or apply an item, and `convention-plugin` for Gradle convention
@@ -148,6 +161,12 @@ Use `.tree node` component:
   `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-678`
 - Use the `Library` variant for libraries.
 - Use the `Plugin` variant for plugins.
+- The `Plugin` variant exposes granular usage booleans: `Show applied by`,
+  `Show provided by`, and `Show unused catalog entry`.
+- The `Plugin` variant keeps `Show consumer module` as an aggregate compatibility
+  switch only; visual correctness comes from the granular booleans and the
+  direct `Applied by`, `Provided by`, and `Unused catalog entry` block
+  visibility.
 - The plugin component property for marking repository Gradle plugin nodes is
   `Show is a gradle plugin#63112:4`.
 - The older property name

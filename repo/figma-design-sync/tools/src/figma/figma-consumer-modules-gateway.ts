@@ -3,6 +3,7 @@ import {
   ARTIFACTS_BUNDLE_INSTANCE_NAME,
   ARTIFACTS_BUNDLE_PROPS,
   ARTIFACT_PROPS,
+  TREE_NODE_PROPS,
   USAGE_CHIP_COMPONENT_SET_ID,
   USAGE_CHIP_INSTANCE_NAME,
   USAGE_CHIP_KINDS,
@@ -205,6 +206,68 @@ export async function updateConsumerModuleInstances(
     })),
     mutatedNodeIds,
     options
+  );
+}
+
+export async function updatePluginUsageBlocks(
+  root,
+  appliedToModules,
+  providedByConventionPlugins,
+  isUnused,
+  mutatedNodeIds
+) {
+  const providedByConventionPluginChips = usageChipsForConventionPlugins(providedByConventionPlugins || []);
+  const showAppliedBy = appliedToModules.length > 0;
+  const showProvidedBy = providedByConventionPluginChips.length > 0;
+
+  setBooleanComponentProperty(
+    root,
+    TREE_NODE_PROPS.showConsumerModule,
+    showAppliedBy || showProvidedBy,
+    mutatedNodeIds
+  );
+  setBooleanComponentProperty(
+    root,
+    TREE_NODE_PROPS.showAppliedBy,
+    showAppliedBy,
+    mutatedNodeIds
+  );
+  setBooleanComponentProperty(
+    root,
+    TREE_NODE_PROPS.showProvidedBy,
+    showProvidedBy,
+    mutatedNodeIds
+  );
+  setBooleanComponentProperty(
+    root,
+    TREE_NODE_PROPS.showUnusedCatalogEntry,
+    isUnused,
+    mutatedNodeIds
+  );
+
+  await updateUsageChipInstances(
+    root,
+    "Provided by",
+    providedByConventionPluginChips,
+    mutatedNodeIds
+  );
+  setUsageBlockVisible(root, "Provided by", showProvidedBy, mutatedNodeIds);
+  await updateConsumerModuleInstances(
+    root,
+    "Applied by",
+    appliedToModules,
+    mutatedNodeIds
+  );
+  setUsageBlockVisible(root, "Applied by", showAppliedBy, mutatedNodeIds);
+  setUsageBlockVisible(root, "Unused catalog entry", isUnused, mutatedNodeIds);
+  syncDirectUsageSeparators(root, mutatedNodeIds);
+  assertUsageSurface(
+    root,
+    [
+      ["Provided by", showProvidedBy],
+      ["Applied by", showAppliedBy],
+      ["Unused catalog entry", isUnused],
+    ]
   );
 }
 
@@ -616,12 +679,14 @@ const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
 const USAGE_BLOCK_HEADINGS = [
   "Provided by",
   "Required by",
+  "Applied by",
   "Tool artifacts",
   "Unused catalog entry",
 ];
 const USAGE_BLOCK_FRAME_NAMES = new Set([
   "provided by",
   "required by",
+  "applied by",
   "tool artifacts",
   "unused catalog entry",
 ]);

@@ -83,6 +83,7 @@
               "value": null
             },
             "appliedToModules": [],
+            "providedByConventionPlugins": [],
             "children": [
               {
                 "id": "marmatsan",
@@ -91,6 +92,7 @@
                   "value": null
                 },
                 "appliedToModules": [],
+                "providedByConventionPlugins": [],
                 "children": [
                   {
                     "id": "android",
@@ -102,6 +104,7 @@
                       ":app",
                       ":core:ui"
                     ],
+                    "providedByConventionPlugins": [],
                     "children": []
                   }
                 ]
@@ -120,6 +123,7 @@
               ":app",
               ":onboarding:presentation"
             ],
+            "providedByConventionPlugins": [],
             "children": []
           }
         ],
@@ -133,6 +137,7 @@
             "appliedToModules": [
               ":"
             ],
+            "providedByConventionPlugins": [],
             "children": []
           }
         ]
@@ -167,6 +172,7 @@
               "value": null
             },
             "appliedToModules": [],
+            "providedByConventionPlugins": [],
             "children": [
               {
                 "id": "jetbrains",
@@ -175,6 +181,7 @@
                   "value": null
                 },
                 "appliedToModules": [],
+                "providedByConventionPlugins": [],
                 "children": [
                   {
                     "id": "dokka",
@@ -185,6 +192,7 @@
                     "appliedToModules": [
                       ":gradle-plugins:dokka-documentation"
                     ],
+                    "providedByConventionPlugins": [],
                     "children": []
                   }
                 ]
@@ -223,6 +231,7 @@
               "value": null
             },
             "appliedToModules": [],
+            "providedByConventionPlugins": [],
             "children": [
               {
                 "id": "google",
@@ -231,6 +240,7 @@
                   "value": null
                 },
                 "appliedToModules": [],
+                "providedByConventionPlugins": [],
                 "children": [
                   {
                     "id": "devtools",
@@ -239,6 +249,7 @@
                       "value": null
                     },
                     "appliedToModules": [],
+                    "providedByConventionPlugins": [],
                     "children": [
                       {
                         "id": "ksp",
@@ -249,6 +260,7 @@
                         "appliedToModules": [
                           ":figma-design-sync:plugin"
                         ],
+                        "providedByConventionPlugins": [],
                         "children": []
                       }
                     ]

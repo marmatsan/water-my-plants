@@ -77,13 +77,16 @@ expected 0 'artifact name' text nodes, found 8
 ## Usage Blocks Hidden Despite Model Data
 
 The official `design-model.json` can be correct while the visible Figma
-`.artifact` instance is still visually stale. The observed failure mode was a
-library artifact whose model contained `providedByConventionPlugins` and
-effective `requiredByModules`, while the visible `.artifact` kept
-`Show consumer modules=false` and its direct `Provided by` / `Required by`
-blocks hidden. Hidden template internals under the same `.tree node` still
-contained chips, which made the file look partially updated through the plugin
-API but not visually updated on canvas.
+`.artifact` or `.tree node` instance is still visually stale. One observed
+failure mode was a library artifact whose model contained
+`providedByConventionPlugins` and effective `requiredByModules`, while the
+visible `.artifact` kept `Show consumer modules=false` and its direct
+`Provided by` / `Required by` blocks hidden. The equivalent plugin failure is a
+`Plugin` `.tree node` whose model contains `appliedToModules` or
+`providedByConventionPlugins`, while `Applied by` / `Provided by` stay hidden or
+an empty `Unused catalog entry` block remains visible. Hidden template internals
+under the same `.tree node` can still contain chips, which makes the file look
+partially updated through the plugin API but not visually updated on canvas.
 
 Diagnose this as a visual sync inconsistency before changing catalog
 extraction:
@@ -98,6 +101,10 @@ extraction:
   `Show required by`, `Show tool artifacts` when present, and
   `Show unused catalog entry`. `Show consumer modules` is not enough to validate
   the surface because it can show both `Provided by` and `Required by`.
+- For plugin trees, confirm the visible `Plugin` `.tree node` has the granular
+  component booleans expected by the model: `Show applied by`,
+  `Show provided by`, and `Show unused catalog entry`. `Show consumer module` is
+  only a compatibility aggregate and is not enough to validate the surface.
 
 The TypeScript sync must fail the visual target before metadata if this
 invariant is not true. Do not repair this with a metadata-only write.
