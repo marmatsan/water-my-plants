@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.plugin.generator
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
@@ -94,6 +95,7 @@ private fun LibraryCatalogEntry.toDesignJson(): JsonObject =
             put("version", version.toDesignJson())
             put("requiredByModules", requiredByModules.toSortedJsonArray())
             put("providedByConventionPlugins", providedByConventionPlugins.toDesignJson())
+            put("configuredByConventionPlugins", configuredByConventionPlugins.toConfigurationUsageDesignJson())
         }
 
         is LibraryCatalogEntry.ArtifactsBundle -> buildJsonObject {
@@ -118,6 +120,23 @@ private fun List<ConventionPluginUsage>.toDesignJson(): JsonArray =
                 put("pluginId", usage.pluginId)
                 put("pluginModule", usage.pluginModule)
                 put("requiredByModules", usage.requiredByModules.toSortedJsonArray())
+            }
+        }
+        .let(::JsonArray)
+
+private fun List<ConventionPluginConfigurationUsage>.toConfigurationUsageDesignJson(): JsonArray =
+    sortedWith(
+        compareBy<ConventionPluginConfigurationUsage>(
+            { usage -> usage.pluginId },
+            { usage -> usage.pluginModule },
+            { usage -> usage.target }
+        )
+    )
+        .map { usage ->
+            buildJsonObject {
+                put("pluginId", usage.pluginId)
+                put("pluginModule", usage.pluginModule)
+                put("target", usage.target)
             }
         }
         .let(::JsonArray)

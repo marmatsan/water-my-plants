@@ -95,6 +95,17 @@ For each section:
 - Library artifacts and bundles may also carry `providedByConventionPlugins`.
   Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
   model source for `Provided by` `.usage chip kind=convention-plugin` rows.
+- Library artifacts may also carry `configuredByConventionPlugins`. Each usage
+  has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
+  uses the artifact as build tooling configuration, not that it provides the
+  artifact to production modules. Render these rows under `Tool artifacts`.
+- Hide `Provided by`, `Required by`, and `Tool artifacts` blocks when their
+  source lists are empty. Do not render empty headings or empty chip
+  containers.
+- When a direct artifact entry or bundle has no `Required by`, no `Provided by`,
+  and no `Tool artifacts` data, show `Unused catalog entry` instead of empty
+  usage blocks. Do not mark child artifact rows inside a bundle as unused; the
+  bundle is the catalog entry.
 - Update `Required by` module instances for `.artifacts bundle` entries from
   the bundle `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
@@ -104,7 +115,8 @@ For each section:
 - Represent usage metadata with `.usage chip` instances.
 - `.usage chip` exposes only two `kind` variants: `module` for modules that
   require or apply an item, and `convention-plugin` for Gradle convention
-  plugins that provide dependencies to production modules.
+  plugins that provide dependencies to production modules or configure tooling
+  artifacts.
 - `.usage chip` exposes `name` as a text component property bound to the label.
   Do not add a variant for every module, plugin, artifact, or dependency name.
 - Create missing `.tree node` instances by cloning a compatible existing node

@@ -29,10 +29,19 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
   for (let index = 0; index < artifacts.length; index += 1) {
     const artifactInstance = artifactInstances[index];
     const artifact = artifacts[index];
+    const requiredByModules = artifact.requiredByModules || [];
     const providedByConventionPlugins = usageChipsForConventionPlugins(artifact.providedByConventionPlugins || []);
+    const configuredByConventionPlugins = usageChipsForConventionPluginConfigurations(
+      artifact.configuredByConventionPlugins || []
+    );
+    const isUnused = isUnusedCatalogEntry(artifact);
     artifactInstance.visible = true;
     artifactInstance.setProperties({
-      [ARTIFACT_PROPS.showConsumerModules]: artifact.requiredByModules.length > 0 || providedByConventionPlugins.length > 0,
+      [ARTIFACT_PROPS.showConsumerModules]:
+        requiredByModules.length > 0 ||
+        providedByConventionPlugins.length > 0 ||
+        configuredByConventionPlugins.length > 0 ||
+        isUnused,
     });
     mutatedNodeIds.push(artifactInstance.id);
     await updateUsageChipInstances(
@@ -41,12 +50,23 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
       providedByConventionPlugins,
       mutatedNodeIds
     );
+    setUsageBlockVisible(artifactInstance, "Provided by", providedByConventionPlugins.length > 0, mutatedNodeIds);
+    await updateUsageChipInstances(
+      artifactInstance,
+      "Tool artifacts",
+      configuredByConventionPlugins,
+      mutatedNodeIds
+    );
+    setUsageBlockVisible(artifactInstance, "Tool artifacts", configuredByConventionPlugins.length > 0, mutatedNodeIds);
     await updateConsumerModuleInstances(
       artifactInstance,
       "Required by",
-      artifact.requiredByModules,
+      requiredByModules,
       mutatedNodeIds
     );
+    setUsageBlockVisible(artifactInstance, "Required by", requiredByModules.length > 0, mutatedNodeIds);
+    setUsageBlockVisible(artifactInstance, "Unused catalog entry", isUnused, mutatedNodeIds);
+    syncDirectUsageSeparators(artifactInstance, mutatedNodeIds);
   }
 
   hideUnusedInstances(artifactInstances.slice(artifacts.length), mutatedNodeIds);
@@ -66,10 +86,15 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
   for (let index = 0; index < bundles.length; index += 1) {
     const bundleInstance = bundleInstances[index];
     const bundle = bundles[index];
+    const requiredByModules = bundle.requiredByModules || [];
     const providedByConventionPlugins = usageChipsForConventionPlugins(bundle.providedByConventionPlugins || []);
+    const isUnused = !hasConsumerUsage(bundle);
     bundleInstance.visible = true;
     bundleInstance.setProperties({
-      [ARTIFACTS_BUNDLE_PROPS.showConsumerModules]: bundle.requiredByModules.length > 0 || providedByConventionPlugins.length > 0,
+      [ARTIFACTS_BUNDLE_PROPS.showConsumerModules]:
+        requiredByModules.length > 0 ||
+        providedByConventionPlugins.length > 0 ||
+        isUnused,
     });
     mutatedNodeIds.push(bundleInstance.id);
     await updateUsageChipInstances(
@@ -79,13 +104,23 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
       mutatedNodeIds,
       { excludeArtifactDescendants: true }
     );
+    setUsageBlockVisible(bundleInstance, "Provided by", providedByConventionPlugins.length > 0, mutatedNodeIds, {
+      excludeArtifactDescendants: true,
+    });
     await updateConsumerModuleInstances(
       bundleInstance,
       "Required by",
-      bundle.requiredByModules,
+      requiredByModules,
       mutatedNodeIds,
       { excludeArtifactDescendants: true }
     );
+    setUsageBlockVisible(bundleInstance, "Required by", requiredByModules.length > 0, mutatedNodeIds, {
+      excludeArtifactDescendants: true,
+    });
+    setUsageBlockVisible(bundleInstance, "Unused catalog entry", isUnused, mutatedNodeIds, {
+      excludeArtifactDescendants: true,
+    });
+    syncDirectUsageSeparators(bundleInstance, mutatedNodeIds, { excludeArtifactDescendants: true });
   }
 
   hideUnusedInstances(bundleInstances.slice(bundles.length), mutatedNodeIds);
@@ -141,6 +176,99 @@ export async function updateUsageChipInstances(
   for (const usageChipInstance of usageChipInstances.slice(usages.length)) {
     hideInstance(usageChipInstance, mutatedNodeIds);
   }
+}
+
+function setUsageBlockVisible(
+  root,
+  heading,
+  visible,
+  mutatedNodeIds,
+  options: ConsumerModuleOptions = {}
+) {
+  const usageBlock = findUsageBlock(root, heading, options);
+  if (!usageBlock) {
+    if (visible) {
+      throw new Error(`Node '${root.id}' is missing '${heading}' usage block.`);
+    }
+    return;
+  }
+
+  setNodeVisible(usageBlock, visible, mutatedNodeIds);
+}
+
+function findUsageBlock(root, heading, options: ConsumerModuleOptions = {}) {
+  const blockName = heading.toLowerCase();
+  const directBlock = childrenOf(root)
+    .find((child) =>
+      child.name === blockName &&
+      !isExcludedByOptions(child, root, options)
+    );
+  if (directBlock) return directBlock;
+
+  const namedBlock = root.findAllWithCriteria({ types: ["FRAME"] })
+    .find((frame) =>
+      frame.name === blockName &&
+      !isExcludedByOptions(frame, root, options)
+    );
+  if (namedBlock) return namedBlock;
+
+  const headingNode = findUsageChipHeading(root, heading, options);
+  if (!headingNode) return undefined;
+
+  return nearestAncestorNamedUsageBlock(headingNode, root) ||
+    nearestDirectChildAncestor(headingNode, root);
+}
+
+function nearestAncestorNamedUsageBlock(node, boundary) {
+  let current = node.parent;
+  while (current && current.id !== boundary.id) {
+    if (USAGE_BLOCK_FRAME_NAMES.has(current.name)) return current;
+    current = current.parent;
+  }
+  return undefined;
+}
+
+function nearestDirectChildAncestor(node, boundary) {
+  let current = node.parent;
+  while (current && current.id !== boundary.id) {
+    if (current.parent?.id === boundary.id) return current;
+    current = current.parent;
+  }
+  return undefined;
+}
+
+function syncDirectUsageSeparators(root, mutatedNodeIds, options: ConsumerModuleOptions = {}) {
+  const children = childrenOf(root);
+  const usageBlockIds = new Set(
+    [...USAGE_BLOCK_HEADINGS]
+      .map((heading) => findUsageBlock(root, heading, options))
+      .filter(Boolean)
+      .map((usageBlock) => usageBlock.id)
+  );
+
+  for (let index = 0; index < children.length; index += 1) {
+    const child = children[index];
+    if (child.name !== USAGE_SEPARATOR_FRAME_NAME) continue;
+
+    const nextUsageBlock = children
+      .slice(index + 1)
+      .find((candidate) =>
+        candidate.name === USAGE_SEPARATOR_FRAME_NAME ||
+        usageBlockIds.has(candidate.id)
+      );
+    const visible = nextUsageBlock && nextUsageBlock.name !== USAGE_SEPARATOR_FRAME_NAME
+      ? nextUsageBlock.visible !== false
+      : false;
+    setNodeVisible(child, visible, mutatedNodeIds);
+  }
+}
+
+function childrenOf(node) {
+  return "children" in node ? [...node.children] : [];
+}
+
+function isExcludedByOptions(node, root, options: ConsumerModuleOptions = {}) {
+  return options.excludeArtifactDescendants && hasAncestorInstanceNamed(node, ARTIFACT_INSTANCE_NAME, root);
 }
 
 function hasAncestorInstanceNamed(node, name, boundary) {
@@ -318,10 +446,14 @@ function hideUnusedInstances(instances, mutatedNodeIds) {
 }
 
 function hideInstance(instance, mutatedNodeIds) {
-  if (instance.visible === false) return;
+  setNodeVisible(instance, false, mutatedNodeIds);
+}
 
-  instance.visible = false;
-  mutatedNodeIds.push(instance.id);
+function setNodeVisible(node, visible, mutatedNodeIds) {
+  if (node.visible === visible) return;
+
+  node.visible = visible;
+  mutatedNodeIds.push(node.id);
 }
 
 function findUsageChipProperty(moduleInstance, propertyName, propertyType) {
@@ -341,5 +473,37 @@ function usageChipsForConventionPlugins(providedByConventionPlugins) {
   }));
 }
 
+function usageChipsForConventionPluginConfigurations(configuredByConventionPlugins) {
+  return sortedUnique(
+    configuredByConventionPlugins.map((usage) => `${usage.pluginId} -> ${usage.target}`)
+  ).map((usageLabel) => ({
+    kind: USAGE_CHIP_KINDS.conventionPlugin,
+    name: usageLabel,
+  }));
+}
+
+function isUnusedCatalogEntry(entry) {
+  return entry.isCatalogEntry === true && !hasConsumerUsage(entry);
+}
+
+function hasConsumerUsage(entry) {
+  return (entry.requiredByModules || []).length > 0 ||
+    (entry.providedByConventionPlugins || []).length > 0 ||
+    (entry.configuredByConventionPlugins || []).length > 0;
+}
+
 const MODULE_HORIZONTAL_PADDING = 26;
 const MODULE_VERTICAL_PADDING = 6;
+const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
+const USAGE_BLOCK_HEADINGS = [
+  "Provided by",
+  "Required by",
+  "Tool artifacts",
+  "Unused catalog entry",
+];
+const USAGE_BLOCK_FRAME_NAMES = new Set([
+  "provided by",
+  "required by",
+  "tool artifacts",
+  "unused catalog entry",
+]);

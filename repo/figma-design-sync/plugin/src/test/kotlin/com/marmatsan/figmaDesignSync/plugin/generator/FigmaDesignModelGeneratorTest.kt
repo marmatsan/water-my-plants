@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.plugin.generator
 
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
@@ -128,6 +129,47 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             )
         )
     }
+
+    test("generate writes convention plugin configuration usage for library artifacts") {
+        // GIVEN
+        val generator = generator()
+
+        // WHEN
+        val result = generator.generate(request())
+
+        // THEN
+        val usages = result.model["content"]
+            ?.jsonObject
+            ?.get("catalogs")
+            ?.jsonObject
+            ?.get("waterMyPlants")
+            ?.jsonObject
+            ?.get("libraries")
+            ?.jsonArray
+            ?.single()
+            ?.jsonObject
+            ?.get("entries")
+            ?.jsonArray
+            ?.single()
+            ?.jsonObject
+            ?.get("configuredByConventionPlugins")
+            ?.jsonArray
+
+        usages?.map { usage ->
+            val usageObject = usage.jsonObject
+            Triple(
+                usageObject["pluginId"]?.jsonPrimitive?.content,
+                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                usageObject["target"]?.jsonPrimitive?.content
+            )
+        } shouldBe listOf(
+            Triple(
+                "com.marmatsan.kotlin",
+                ":gradle-plugins:kotlin",
+                "kotlin.compiler.classpath"
+            )
+        )
+    }
 })
 
 private fun generator(): FigmaDesignModelGenerator =
@@ -197,6 +239,20 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         } else {
             emptyList()
         }
+        val conventionPluginConfigurationUsages = if (
+            source is ProjectCatalogTreeSource.DependenciesDslVersionAliases &&
+            source.conventionPluginIncludedBuilds.any { includedBuild -> includedBuild.modulePathPrefix == ":gradle-plugins" }
+        ) {
+            listOf(
+                ConventionPluginConfigurationUsage(
+                    pluginId = "com.marmatsan.kotlin",
+                    pluginModule = ":gradle-plugins:kotlin",
+                    target = "kotlin.compiler.classpath"
+                )
+            )
+        } else {
+            emptyList()
+        }
 
         return LibraryCatalogTree(
             roots = listOf(
@@ -207,7 +263,8 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                             artifact = "kotlin-stdlib",
                             version = CatalogVersion("2.4.0"),
                             requiredByModules = listOf(":app"),
-                            providedByConventionPlugins = conventionPluginUsages
+                            providedByConventionPlugins = conventionPluginUsages,
+                            configuredByConventionPlugins = conventionPluginConfigurationUsages
                         )
                     )
                 )

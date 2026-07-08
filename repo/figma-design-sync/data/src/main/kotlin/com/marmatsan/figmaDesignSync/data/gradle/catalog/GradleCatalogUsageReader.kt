@@ -37,6 +37,26 @@ class GradleCatalogUsageReader {
             }
     }
 
+    fun readConventionLibraryConfigurationUsages(
+        rootDir: File,
+        modulePathPrefix: String
+    ): LibraryConfigurationUsages {
+        val conventionPluginModuleDirs = rootDir.conventionPluginModuleDirs()
+
+        return conventionPluginModuleDirs
+            .asSequence()
+            .flatMap { moduleDir ->
+                moduleDir.kotlinFiles().map { kotlinFile -> moduleDir to kotlinFile }
+            }
+            .fold(LibraryConfigurationUsages()) { usages, (moduleDir, kotlinFile) ->
+                usages + kotlinFile.readConventionLibraryConfigurationUsageDeclarations(
+                    includedBuildRootDir = rootDir,
+                    modulePathPrefix = modulePathPrefix,
+                    moduleDir = moduleDir
+                )
+            }
+    }
+
     fun readConventionPluginUsages(
         rootDir: File,
         modulePathPrefix: String
@@ -181,6 +201,28 @@ class GradleCatalogUsageReader {
         )
     }
 
+    private fun File.readConventionLibraryConfigurationUsageDeclarations(
+        includedBuildRootDir: File,
+        modulePathPrefix: String,
+        moduleDir: File
+    ): LibraryConfigurationUsages {
+        val modulePath = moduleDir.toIncludedBuildModulePath(includedBuildRootDir, modulePathPrefix)
+        val content = readText()
+        val coordinateUsages = libraryConfigurationUsageRegex
+            .findAll(content)
+            .fold(emptyMap<String, Set<LibraryConfigurationUsage>>()) { usages, match ->
+                val coordinate = "${match.groupValues[2]}:${match.groupValues[3]}"
+                val usage = LibraryConfigurationUsage(
+                    pluginModule = modulePath,
+                    target = content.configurationTarget(match)
+                )
+
+                usages + (coordinate to (usages[coordinate].orEmpty() + usage))
+            }
+
+        return LibraryConfigurationUsages(coordinates = coordinateUsages)
+    }
+
     private fun File.readMainLibraryAliases(rootDir: File): LibraryUsages {
         val modulePath = parentFile.toModulePath(rootDir)
         if (modulePath == ROOT_MODULE) return LibraryUsages()
@@ -292,12 +334,66 @@ class GradleCatalogUsageReader {
             (this[key].orEmpty() + other[key].orEmpty()).toSortedSet()
         }
 
+    private fun Map<String, Set<LibraryConfigurationUsage>>.mergeConfigurationUsages(
+        other: Map<String, Set<LibraryConfigurationUsage>>
+    ): Map<String, Set<LibraryConfigurationUsage>> =
+        (keys + other.keys).associateWith { key ->
+            (this[key].orEmpty() + other[key].orEmpty()).toSortedSet()
+        }
+
     private operator fun LibraryUsages.plus(other: LibraryUsages): LibraryUsages =
         LibraryUsages(
             coordinates = coordinates.merge(other.coordinates),
             bundles = bundles.merge(other.bundles),
             aliases = aliases.merge(other.aliases)
         )
+
+    private operator fun LibraryConfigurationUsages.plus(
+        other: LibraryConfigurationUsages
+    ): LibraryConfigurationUsages =
+        LibraryConfigurationUsages(
+            coordinates = coordinates.mergeConfigurationUsages(other.coordinates)
+        )
+
+    private fun String.configurationTarget(match: MatchResult): String {
+        val assignmentName = match.groupValues[1]
+        val prefix = substring(0, match.range.first)
+        val blockNames = activeBlockNames(prefix)
+            .filterNot { name -> name in IgnoredConfigurationTargetSegments }
+
+        return (blockNames + assignmentName)
+            .filter(String::isNotBlank)
+            .joinToString(".")
+    }
+
+    private fun activeBlockNames(contentBeforeMatch: String): List<String> {
+        var depth = 0
+        val stack = mutableListOf<BlockName>()
+
+        configurationBlockTokenRegex.findAll(contentBeforeMatch).forEach { token ->
+            val text = token.value
+            when {
+                text == "}" -> {
+                    depth = (depth - 1).coerceAtLeast(0)
+                    stack.removeAll { block -> block.depth >= depth }
+                }
+
+                text == "{" -> {
+                    depth += 1
+                }
+
+                else -> {
+                    val blockName = token.groupValues[1].ifBlank {
+                        token.groupValues[2]
+                    }
+                    stack += BlockName(depth = depth, name = blockName)
+                    depth += 1
+                }
+            }
+        }
+
+        return stack.map(BlockName::name)
+    }
 
     private fun File.toIncludedBuildModulePath(
         includedBuildRootDir: File,
@@ -343,6 +439,28 @@ class GradleCatalogUsageReader {
         val aliases: Map<String, Set<String>> = emptyMap()
     )
 
+    data class LibraryConfigurationUsages(
+        val coordinates: Map<String, Set<LibraryConfigurationUsage>> = emptyMap()
+    )
+
+    data class LibraryConfigurationUsage(
+        val pluginModule: String,
+        val target: String
+    ) : Comparable<LibraryConfigurationUsage> {
+        override fun compareTo(other: LibraryConfigurationUsage): Int =
+            compareValuesBy(
+                this,
+                other,
+                LibraryConfigurationUsage::pluginModule,
+                LibraryConfigurationUsage::target
+            )
+    }
+
+    private data class BlockName(
+        val depth: Int,
+        val name: String
+    )
+
     private companion object {
         const val BUILD_FILE_NAME = "build.gradle.kts"
         const val KOTLIN_FILE_EXTENSION = "kt"
@@ -355,6 +473,19 @@ class GradleCatalogUsageReader {
         val libraryBundleUsageRegex = Regex(
             """(?:\blibs\.)?implementationBundle\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
             RegexOption.DOT_MATCHES_ALL
+        )
+        val libraryConfigurationUsageRegex = Regex(
+            """([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?requireDependencyNotation\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?libraryGroup\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"""",
+            RegexOption.DOT_MATCHES_ALL
+        )
+        val configurationBlockTokenRegex = Regex(
+            """configure<[^>]+>\s*\(\s*"([^"]+)"\s*\)\s*\{|([A-Za-z_][A-Za-z0-9_]*)\s*\{|[{}]"""
+        )
+        val IgnoredConfigurationTargetSegments = setOf(
+            "apply",
+            "dependencies",
+            "project",
+            "tasks"
         )
         val mainLibraryBundleAliasRegex = Regex("""\blibs\.bundles\.([A-Za-z0-9_.]+)\b""")
         val mainLibraryAliasRegex = Regex("""\blibs\.(?!bundles\.)([A-Za-z0-9_.]+)\b""")
