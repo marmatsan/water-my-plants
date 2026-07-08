@@ -115,7 +115,8 @@ internal class FigmaDesignModelGenerator(
                         projectCatalogTreesPort
                             .readPluginTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath
+                                    rootDirPath = request.projectRootDirectory.absolutePath,
+                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
                                 )
                             )
                             .toDesignJson()
