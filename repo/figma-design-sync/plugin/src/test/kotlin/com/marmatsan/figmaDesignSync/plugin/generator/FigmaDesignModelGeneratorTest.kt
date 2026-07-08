@@ -309,23 +309,33 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         )
     }
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
-        PluginCatalogTree(
+    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree {
+        val conventionPluginUsages = if (
+            source is ProjectCatalogTreeSource.DependenciesDslVersionAliases &&
+            source.conventionPluginIncludedBuilds.any { includedBuild -> includedBuild.modulePathPrefix == ":gradle-plugins" }
+        ) {
+            listOf(
+                PluginCatalogNode.ConventionPluginUsage(
+                    pluginId = "com.marmatsan.compose",
+                    pluginModule = ":gradle-plugins:compose",
+                    requiredByModules = listOf(":core:ui", ":app")
+                )
+            )
+        } else {
+            emptyList()
+        }
+
+        return PluginCatalogTree(
             roots = listOf(
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
                     version = CatalogVersion("2.4.0"),
                     appliedToModules = listOf(":app"),
-                    providedByConventionPlugins = listOf(
-                        PluginCatalogNode.ConventionPluginUsage(
-                            pluginId = "com.marmatsan.compose",
-                            pluginModule = ":gradle-plugins:compose",
-                            requiredByModules = listOf(":core:ui", ":app")
-                        )
-                    )
+                    providedByConventionPlugins = conventionPluginUsages
                 )
             )
         )
+    }
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
