@@ -22,6 +22,11 @@ The tool source follows the same dependency direction as the Gradle sync code:
 The generated JavaScript bundle is a temporary MCP runtime artifact and must not
 be committed.
 
+Preview runners may pass `sectionNodeOverrides` so a catalog target mutates a
+sandbox section instead of the configured official section. Official sync runs
+must use the configured section ids from `figma-config.ts` unless a documented
+manual repair explicitly overrides one target.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and

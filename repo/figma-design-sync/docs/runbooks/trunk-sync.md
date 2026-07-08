@@ -28,6 +28,10 @@ Local execution is useful for diagnosis, but it is not required before every
 commit because Figma sync depends on external Figma state, credentials, and the
 MCP write flow.
 
+For fast visual iteration on component shape, colors, connectors, layout, or
+fixture data, use [visual-preview.md](visual-preview.md). Preview is intentionally
+non-authoritative and must not write official metadata.
+
 ## Sources
 
 | Source                             | Value                                                                                    |
@@ -167,6 +171,15 @@ The generated script is:
 Do not commit the generated JavaScript. The script expects
 `design-model.json` to be injected as `DESIGN_MODEL` before execution and must
 run in the Figma MCP runtime because it uses the Figma plugin API.
+
+To generate chunked MCP runner snippets for an official TeamCity artifact:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
+```
+
+Use [visual-preview.md](visual-preview.md) instead when testing fixture-driven
+visual changes before the change reaches `main`.
 
 Build and execute the MCP bundle from a code version compatible with the
 TeamCity `main` artifact being synced. If local sync tooling is ahead of `main`,

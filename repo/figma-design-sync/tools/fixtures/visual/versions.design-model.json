@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "branch": "main",
+  "gitSha": "preview-versions",
+  "generatedAt": "2026-07-08T00:00:00.000Z",
+  "modelHash": "sha256:preview-versions",
+  "content": {
+    "versions": {
+      "activityComposeVersion": "1.9.3",
+      "androidGradlePluginVersion": "8.9.1",
+      "appVersionName": "1.0.0",
+      "dokkaVersion": "2.0.0",
+      "kspVersion": "2.1.10-1.0.31"
+    },
+    "versionSections": [
+      {
+        "name": "Main project dependencies",
+        "versions": {
+          "appVersionName": "1.0.0"
+        }
+      },
+      {
+        "name": "Libraries",
+        "versions": {
+          "activityComposeVersion": "1.9.3"
+        }
+      },
+      {
+        "name": "Plugins",
+        "versions": {
+          "androidGradlePluginVersion": "8.9.1",
+          "dokkaVersion": "2.0.0",
+          "kspVersion": "2.1.10-1.0.31"
+        }
+      }
+    ],
+    "catalogs": {
+      "waterMyPlants": {
+        "libraries": [],
+        "plugins": [],
+        "customGradleConventionPlugins": [],
+        "customGradlePlugins": []
+      },
+      "gradlePlugins": {
+        "libraries": [],
+        "plugins": []
+      },
+      "figmaDesignSync": {
+        "libraries": [],
+        "plugins": []
+      }
+    },
+    "modules": {},
+    "moduleDependencies": {}
+  }
+}

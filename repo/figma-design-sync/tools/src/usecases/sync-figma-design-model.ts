@@ -33,7 +33,13 @@ export async function syncFigmaDesignModel(
 
   const catalogTargets = CATALOG_SYNC_TARGETS.filter((target) => requestedTargets.has(target));
   const catalogSyncResult = catalogTargets.length > 0
-    ? await dependencies.catalogTreeSyncGateway.syncCatalogTrees(designModel, { targetNames: catalogTargets })
+    ? await dependencies.catalogTreeSyncGateway.syncCatalogTrees(
+        designModel,
+        {
+          targetNames: catalogTargets,
+          sectionNodeOverrides: options.sectionNodeOverrides,
+        }
+      )
     : emptyCatalogTreeSyncResult();
   completedTargets.push(...catalogTargets);
 
