@@ -27,6 +27,23 @@ sealed interface LibraryCatalogEntry {
     )
 
     /**
+     * Gradle convention plugin that uses a catalog artifact as build tooling
+     * configuration instead of adding it to a production module dependency
+     * bucket.
+     *
+     * @property pluginId Gradle plugin id implemented by the convention plugin.
+     * @property pluginModule Gradle module path that implements the convention
+     * plugin.
+     * @property target Configuration target that consumes the artifact, such as
+     * `protobuf.protoc.artifact`.
+     */
+    data class ConventionPluginConfigurationUsage(
+        val pluginId: String,
+        val pluginModule: String,
+        val target: String
+    )
+
+    /**
      * Single Maven artifact declared in a version catalog or dependency DSL.
      *
      * @property artifact Maven artifact id without the group.
@@ -35,12 +52,15 @@ sealed interface LibraryCatalogEntry {
      * artifact.
      * @property providedByConventionPlugins Gradle convention plugins that
      * provide this artifact to production modules.
+     * @property configuredByConventionPlugins Gradle convention plugins that
+     * use this artifact to configure tooling needed by the plugin.
      */
     data class Artifact(
         val artifact: String,
         val version: CatalogVersion,
         val requiredByModules: List<String> = emptyList(),
-        val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList()
+        val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList(),
+        val configuredByConventionPlugins: List<ConventionPluginConfigurationUsage> = emptyList()
     ) : LibraryCatalogEntry
 
     /**

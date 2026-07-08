@@ -8,6 +8,7 @@ Use this directory as the module documentation index:
 | Path | Role | Purpose |
 |------|------|---------|
 | `runbooks/trunk-sync.md` | Runbook | Execute the Figma trunk sync flow: generate the model, run MCP, write metadata, and verify TeamCity state. |
+| `runbooks/visual-preview.md` | Runbook | Iterate on Figma visual sync behavior with fixtures and sandbox sections without writing official metadata. |
 | `runbooks/visual-sync-contract.md` | Reference | Define the Figma visual contract used by the MCP sync, including catalog trees, connectors, layout, and locking. |
 | `runbooks/troubleshooting.md` | Runbook | Diagnose failed or visually incorrect Figma sync runs without weakening the metadata contract. |
 | `bdd/README.md` | Reference | Explain executable BDD scenarios and their technical resource map. |

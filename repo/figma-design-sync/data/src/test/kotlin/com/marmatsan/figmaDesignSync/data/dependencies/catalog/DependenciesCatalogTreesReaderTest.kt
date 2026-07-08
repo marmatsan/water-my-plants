@@ -5,6 +5,7 @@ import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
@@ -282,6 +283,67 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
             .providedByConventionPlugins shouldBe expectedComposeUsage
         actualTree.findArtifact("io.mockk", "mockk")
             .providedByConventionPlugins shouldBe emptyList()
+    }
+
+    test("readLibraryTreeWithVersionAliases maps convention plugin tool artifact configuration") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("water-my-plants-convention-library-configuration").toFile()
+        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        includedBuildRootDir.writeBuildFile(
+            path = "protobuf",
+            content = """
+            gradlePlugin {
+                val pluginName = "com.marmatsan.protobuf"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "com.marmatsan.protobuf.plugin.ProtobufGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "protobuf/src/main/kotlin/com/marmatsan/protobuf/plugin",
+            fileName = "ProtobufGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.protobuf.plugin
+
+            fun configure() {
+                project.extensions.configure<ProtobufExtension>("protobuf") {
+                    protoc {
+                        artifact = libs.requireDependencyNotation(
+                            libraryGroup = "com.google.protobuf",
+                            artifact = "protoc"
+                        )
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
+            rootDir = rootDir,
+            conventionPluginIncludedBuilds = listOf(
+                IncludedBuildSource(
+                    settingsFilePath = includedBuildRootDir.resolve("settings.gradle.kts").absolutePath,
+                    rootDirPath = includedBuildRootDir.absolutePath,
+                    modulePathPrefix = ":gradle-plugins",
+                    publishesConventionPlugins = true
+                )
+            )
+        )
+
+        // THEN
+        val protoc = actualTree.findArtifact("com.google.protobuf", "protoc")
+        protoc.requiredByModules shouldBe emptyList()
+        protoc.providedByConventionPlugins shouldBe emptyList()
+        protoc.configuredByConventionPlugins shouldBe listOf(
+            ConventionPluginConfigurationUsage(
+                pluginId = "com.marmatsan.protobuf",
+                pluginModule = ":gradle-plugins:protobuf",
+                target = "protobuf.protoc.artifact"
+            )
+        )
     }
 
     test("readPluginTreeWithVersionAliases scopes applied modules to the main build catalog") {

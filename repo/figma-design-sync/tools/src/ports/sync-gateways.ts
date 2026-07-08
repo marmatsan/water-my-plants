@@ -18,6 +18,7 @@ export type CatalogTreeSyncResult = {
 
 export type CatalogTreeSyncOptions = {
   targetNames?: string[];
+  sectionNodeOverrides?: Record<string, string>;
 };
 
 export type MetadataSyncResult = {

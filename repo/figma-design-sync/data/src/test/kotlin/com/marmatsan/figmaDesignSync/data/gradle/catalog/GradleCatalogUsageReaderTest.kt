@@ -103,6 +103,59 @@ internal class GradleCatalogUsageReaderTest : FunSpec({
         )
     }
 
+    test("readConventionLibraryConfigurationUsages maps requireDependencyNotation calls to convention modules") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("convention-library-configuration-usages").toFile()
+        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        includedBuildRootDir.writeBuildFile(
+            path = "protobuf",
+            content = """
+            gradlePlugin {
+                plugins.register("protobuf") {
+                    id = "com.marmatsan.protobuf"
+                    implementationClass = "com.marmatsan.protobuf.plugin.ProtobufGradleConventionPlugin"
+                }
+            }
+            """.trimIndent()
+        )
+        includedBuildRootDir.writeKotlinFile(
+            path = "protobuf/src/main/kotlin/com/marmatsan/protobuf/plugin",
+            fileName = "ProtobufGradleConventionPlugin.kt",
+            content = """
+            package com.marmatsan.protobuf.plugin
+
+            fun configureProtobuf() {
+                project.extensions.configure<ProtobufExtension>("protobuf") {
+                    protoc {
+                        artifact = libs.requireDependencyNotation(
+                            libraryGroup = "com.google.protobuf",
+                            artifact = "protoc"
+                        )
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val usages = GradleCatalogUsageReader().readConventionLibraryConfigurationUsages(
+            rootDir = includedBuildRootDir,
+            modulePathPrefix = ":gradle-plugins"
+        )
+
+        // THEN
+        usages shouldBe GradleCatalogUsageReader.LibraryConfigurationUsages(
+            coordinates = mapOf(
+                "com.google.protobuf:protoc" to setOf(
+                    GradleCatalogUsageReader.LibraryConfigurationUsage(
+                        pluginModule = ":gradle-plugins:protobuf",
+                        target = "protobuf.protoc.artifact"
+                    )
+                )
+            )
+        )
+    }
+
     test("readMainLiteralPluginUsages maps literal plugin ids to main modules") {
         // GIVEN
         val rootDir = Files.createTempDirectory("main-literal-plugin-usages").toFile()

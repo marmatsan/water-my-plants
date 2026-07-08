@@ -9,6 +9,7 @@ import com.marmatsan.dependencies.Versions
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
+import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
@@ -117,11 +118,19 @@ class DependenciesCatalogTreesReader(
                     rootDir = includedBuildRootDir,
                     modulePathPrefix = includedBuild.modulePathPrefix
                 )
-
-                usages + libraryUsages.toConventionPluginLibraryUsages(
-                    pluginIdsByModule = pluginIdsByModule,
-                    modulesByPluginId = modulesByPluginId
+                val configurationUsages = gradleCatalogUsageReader.readConventionLibraryConfigurationUsages(
+                    rootDir = includedBuildRootDir,
+                    modulePathPrefix = includedBuild.modulePathPrefix
                 )
+
+                usages +
+                    libraryUsages.toConventionPluginLibraryUsages(
+                        pluginIdsByModule = pluginIdsByModule,
+                        modulesByPluginId = modulesByPluginId
+                    ) +
+                    configurationUsages.toConventionPluginLibraryConfigurationUsages(
+                        pluginIdsByModule = pluginIdsByModule
+                    )
             }
     }
 }
@@ -222,7 +231,8 @@ private fun LibraryCatalogEntry.withConventionPluginUsages(
 ): LibraryCatalogEntry =
     when (this) {
         is LibraryCatalogEntry.Artifact -> copy(
-            providedByConventionPlugins = usages.coordinates["$group:$artifact"].orEmpty()
+            providedByConventionPlugins = usages.coordinates["$group:$artifact"].orEmpty(),
+            configuredByConventionPlugins = usages.configuredCoordinates["$group:$artifact"].orEmpty()
         )
 
         is LibraryCatalogEntry.ArtifactsBundle -> copy(
@@ -307,7 +317,8 @@ private operator fun GradleCatalogUsageReader.LibraryUsages.plus(
 
 private data class ConventionPluginLibraryUsages(
     val coordinates: Map<String, List<ConventionPluginUsage>> = emptyMap(),
-    val bundles: Map<String, List<ConventionPluginUsage>> = emptyMap()
+    val bundles: Map<String, List<ConventionPluginUsage>> = emptyMap(),
+    val configuredCoordinates: Map<String, List<ConventionPluginConfigurationUsage>> = emptyMap()
 )
 
 private operator fun ConventionPluginLibraryUsages.plus(
@@ -315,7 +326,35 @@ private operator fun ConventionPluginLibraryUsages.plus(
 ): ConventionPluginLibraryUsages =
     ConventionPluginLibraryUsages(
         coordinates = coordinates.mergeConventionPluginUsages(other.coordinates),
-        bundles = bundles.mergeConventionPluginUsages(other.bundles)
+        bundles = bundles.mergeConventionPluginUsages(other.bundles),
+        configuredCoordinates = configuredCoordinates.mergeConventionPluginConfigurationUsages(other.configuredCoordinates)
+    )
+
+private fun GradleCatalogUsageReader.LibraryConfigurationUsages.toConventionPluginLibraryConfigurationUsages(
+    pluginIdsByModule: Map<String, Set<String>>
+): ConventionPluginLibraryUsages =
+    ConventionPluginLibraryUsages(
+        configuredCoordinates = coordinates.mapValues { (_, usages) ->
+            usages
+                .flatMap { usage ->
+                    pluginIdsByModule[usage.pluginModule].orEmpty().map { pluginId ->
+                        ConventionPluginConfigurationUsage(
+                            pluginId = pluginId,
+                            pluginModule = usage.pluginModule,
+                            target = usage.target
+                        )
+                    }
+                }
+                .distinct()
+                .sortedWith(
+                    compareBy(
+                        ConventionPluginConfigurationUsage::pluginId,
+                        ConventionPluginConfigurationUsage::pluginModule,
+                        ConventionPluginConfigurationUsage::target
+                    )
+                )
+        }
+            .filterValues(List<ConventionPluginConfigurationUsage>::isNotEmpty)
     )
 
 private fun Map<String, List<ConventionPluginUsage>>.mergeConventionPluginUsages(
@@ -325,6 +364,21 @@ private fun Map<String, List<ConventionPluginUsage>>.mergeConventionPluginUsages
         (this[key].orEmpty() + other[key].orEmpty())
             .distinct()
             .sortedWith(compareBy(ConventionPluginUsage::pluginId, ConventionPluginUsage::pluginModule))
+    }
+
+private fun Map<String, List<ConventionPluginConfigurationUsage>>.mergeConventionPluginConfigurationUsages(
+    other: Map<String, List<ConventionPluginConfigurationUsage>>
+): Map<String, List<ConventionPluginConfigurationUsage>> =
+    (keys + other.keys).associateWith { key ->
+        (this[key].orEmpty() + other[key].orEmpty())
+            .distinct()
+            .sortedWith(
+                compareBy(
+                    ConventionPluginConfigurationUsage::pluginId,
+                    ConventionPluginConfigurationUsage::pluginModule,
+                    ConventionPluginConfigurationUsage::target
+                )
+            )
     }
 
 private fun libraryAlias(

@@ -22,6 +22,11 @@ The tool source follows the same dependency direction as the Gradle sync code:
 The generated JavaScript bundle is a temporary MCP runtime artifact and must not
 be committed.
 
+Preview runners may pass `sectionNodeOverrides` so a catalog target mutates a
+sandbox section instead of the configured official section. Official sync runs
+must use the configured section ids from `figma-config.ts` unless a documented
+manual repair explicitly overrides one target.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and
@@ -90,6 +95,17 @@ For each section:
 - Library artifacts and bundles may also carry `providedByConventionPlugins`.
   Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
   model source for `Provided by` `.usage chip kind=convention-plugin` rows.
+- Library artifacts may also carry `configuredByConventionPlugins`. Each usage
+  has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
+  uses the artifact as build tooling configuration, not that it provides the
+  artifact to production modules. Render these rows under `Tool artifacts`.
+- Hide `Provided by`, `Required by`, and `Tool artifacts` blocks when their
+  source lists are empty. Do not render empty headings or empty chip
+  containers.
+- When a direct artifact entry or bundle has no `Required by`, no `Provided by`,
+  and no `Tool artifacts` data, show `Unused catalog entry` instead of empty
+  usage blocks. Do not mark child artifact rows inside a bundle as unused; the
+  bundle is the catalog entry.
 - Update `Required by` module instances for `.artifacts bundle` entries from
   the bundle `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
@@ -99,7 +115,8 @@ For each section:
 - Represent usage metadata with `.usage chip` instances.
 - `.usage chip` exposes only two `kind` variants: `module` for modules that
   require or apply an item, and `convention-plugin` for Gradle convention
-  plugins that provide dependencies to production modules.
+  plugins that provide dependencies to production modules or configure tooling
+  artifacts.
 - `.usage chip` exposes `name` as a text component property bound to the label.
   Do not add a variant for every module, plugin, artifact, or dependency name.
 - Create missing `.tree node` instances by cloning a compatible existing node
@@ -168,7 +185,19 @@ Layout rules:
   the connector is vertical.
 - Resize every touched tree section and parent section to fit after visual
   updates.
-- Direct `.Header` instances in touched sections must span section width.
+- Stack direct child sections inside touched section containers with 114 px
+  between one section bottom edge and the next section top edge. Apply the same
+  spacing to ancestor section containers after their children are resized.
+- Direct child sections stacked inside the same container must share the same
+  left edge. This keeps module sections such as `gradle-plugins` and
+  `figma-design-sync` horizontally aligned when they belong to the same parent
+  package section.
+- Top-level parent documentation sections on the Gradle dependencies page must
+  keep 1139 px of horizontal space between one section right edge and the next
+  section left edge.
+- Direct `.Header` instances in touched sections must span section width. If a
+  section is narrower than the header's Hug width, resize the section first so
+  the fixed-width header can show its content without clipping.
 
 ## Locking Contract
 

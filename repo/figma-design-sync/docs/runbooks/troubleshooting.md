@@ -35,12 +35,30 @@ For larger payloads, stage base64 chunks in temporary shared plugin data:
 
 - Store a `runId`, expected chunk count, expected encoded length, and every
   chunk.
+- Validate each chunk's own length and the previously staged length before
+  writing it.
 - In the final call, read all chunks, validate count and length, decode, run the
   script, verify the returned `modelHash`, then delete the temporary data.
 - If the final call fails before execution, Figma visuals stay unchanged; only
   temporary staged chunk data may need cleanup.
 
 Do not copy long base64 payloads manually from terminal output.
+
+The tools package can generate chunked runner files for both official sync and
+visual preview:
+
+```powershell
+cd repo\figma-design-sync\tools
+npm run build
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
+node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+```
+
+Use preview runners to reproduce visual issues quickly. They stage data under
+`water_my_plants_sync_preview` and must not be used to write official metadata.
+Catalog preview uses the smaller `sync-catalog-tree-preview.mcp.js` entrypoint
+by default so connector and layout fixes can be tested without transporting the
+full trunk-sync bundle.
 
 ## Component Instance Shape
 

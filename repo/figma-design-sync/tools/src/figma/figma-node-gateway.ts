@@ -1,4 +1,9 @@
 import type { CatalogTreeType } from "../domain/design-model";
+import {
+  PARENT_SECTION_NODE_IDS,
+  PARENT_SECTION_SIBLING_GAP,
+  SECTION_SIBLING_GAP,
+} from "../config/figma-config";
 
 export async function requireVariableCollection(nameOrNames) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
@@ -81,10 +86,11 @@ export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
     ? visibleChildren.filter((child) => !(child.type === "INSTANCE" && child.name === ".Header"))
     : visibleChildren;
   const boundsChildren = contentChildren.length > 0 ? contentChildren : visibleChildren;
+  const directHeaderHugWidth = node.type === "SECTION" ? maxDirectHeaderHugWidth(node) : 0;
   const maxRight = Math.max(...boundsChildren.map((child) => child.x + child.width));
   const maxBottom = Math.max(...boundsChildren.map((child) => child.y + child.height));
   node.resizeWithoutConstraints(
-    Math.max(1, maxRight + padding),
+    Math.max(1, maxRight + padding, directHeaderHugWidth),
     Math.max(1, maxBottom + padding)
   );
   mutatedNodeIds.push(node.id);
@@ -106,6 +112,35 @@ export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100)
     );
     current = current.parent;
   }
+}
+
+export function stackDescendantSectionsWithGap(section, mutatedNodeIds, gap = SECTION_SIBLING_GAP) {
+  for (const childSection of directChildSections(section)) {
+    stackDescendantSectionsWithGap(childSection, mutatedNodeIds, gap);
+  }
+
+  stackDirectChildSectionsWithGap(section, mutatedNodeIds, gap);
+  resizeNodeToFit(
+    section,
+    section.children.filter((child) => child.visible !== false),
+    mutatedNodeIds
+  );
+}
+
+export function stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds, gap = SECTION_SIBLING_GAP) {
+  let current = section.parent;
+
+  while (current && current.type === "SECTION") {
+    stackDirectChildSectionsWithGap(current, mutatedNodeIds, gap);
+    resizeNodeToFit(
+      current,
+      current.children.filter((child) => child.visible !== false),
+      mutatedNodeIds
+    );
+    current = current.parent;
+  }
+
+  stackConfiguredPageSectionsWithGap(section, mutatedNodeIds);
 }
 
 export function unlockSectionTreeForMutation(section, mutatedNodeIds) {
@@ -137,9 +172,81 @@ function resizeDirectHeadersToSectionWidth(section, mutatedNodeIds) {
 
   for (const header of headers) {
     header.x = 0;
+    if (header.layoutMode === "VERTICAL" || header.layoutMode === "HORIZONTAL") {
+      header.counterAxisSizingMode = "FIXED";
+      header.primaryAxisSizingMode = "AUTO";
+    }
     header.resizeWithoutConstraints(section.width, header.height);
     mutatedNodeIds.push(header.id);
   }
+}
+
+function maxDirectHeaderHugWidth(section) {
+  return Math.max(
+    0,
+    ...section.children
+      .filter((child) => child.type === "INSTANCE" && child.name === ".Header")
+      .map((header) => directHeaderHugWidth(header))
+  );
+}
+
+function directHeaderHugWidth(header) {
+  if (header.layoutMode !== "VERTICAL" && header.layoutMode !== "HORIZONTAL") {
+    return header.width;
+  }
+
+  const originalCounterAxisSizingMode = header.counterAxisSizingMode;
+  header.counterAxisSizingMode = "AUTO";
+  const hugWidth = header.width;
+  header.counterAxisSizingMode = originalCounterAxisSizingMode;
+  return hugWidth;
+}
+
+function stackConfiguredPageSectionsWithGap(section, mutatedNodeIds, gap = PARENT_SECTION_SIBLING_GAP) {
+  const root = rootSection(section);
+  if (!PARENT_SECTION_NODE_IDS.includes(root.id)) return;
+  if (root.parent?.type !== "PAGE") return;
+
+  const sections = PARENT_SECTION_NODE_IDS
+    .map((sectionId) => root.parent.children.find((child) => child.id === sectionId))
+    .filter((child) => child?.type === "SECTION" && child.visible !== false);
+
+  if (sections.length < 2) return;
+
+  let nextX = sections[0].x;
+  for (const siblingSection of sections) {
+    if (Math.abs(siblingSection.x - nextX) > 0.01) {
+      siblingSection.x = nextX;
+      mutatedNodeIds.push(siblingSection.id);
+    }
+    nextX = siblingSection.x + siblingSection.width + gap;
+  }
+}
+
+function stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap) {
+  const sections = directChildSections(parent)
+    .sort((first, second) => first.y - second.y || first.x - second.x);
+
+  if (sections.length < 2) return;
+
+  const alignedX = sections[0].x;
+  let nextY = sections[0].y;
+  for (const section of sections) {
+    if (Math.abs(section.x - alignedX) > 0.01) {
+      section.x = alignedX;
+      mutatedNodeIds.push(section.id);
+    }
+    if (Math.abs(section.y - nextY) > 0.01) {
+      section.y = nextY;
+      mutatedNodeIds.push(section.id);
+    }
+    nextY = section.y + section.height + gap;
+  }
+}
+
+function directChildSections(parent) {
+  return parent.children
+    .filter((child) => child.type === "SECTION" && child.visible !== false);
 }
 
 function rootSection(section) {

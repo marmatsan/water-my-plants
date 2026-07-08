@@ -6,11 +6,24 @@ export function libraryArtifacts(entries) {
   return entries.flatMap((entry) => {
     if (entry.type === "artifact") {
       const providedByConventionPlugins = sortedConventionPluginUsages(entry.providedByConventionPlugins || []);
+      const configuredByConventionPlugins = sortedConventionPluginConfigurationUsages(entry.configuredByConventionPlugins || []);
       const requiredByModules = effectiveRequiredByModules(entry.requiredByModules || [], providedByConventionPlugins);
-      return [{ name: entry.artifact, requiredByModules, providedByConventionPlugins }];
+      return [{
+        name: entry.artifact,
+        requiredByModules,
+        providedByConventionPlugins,
+        configuredByConventionPlugins,
+        isCatalogEntry: true,
+      }];
     }
     if (entry.type === "bundle") {
-      return (entry.artifacts || []).map((artifact) => ({ name: artifact, requiredByModules: [] }));
+      return (entry.artifacts || []).map((artifact) => ({
+        name: artifact,
+        requiredByModules: [],
+        providedByConventionPlugins: [],
+        configuredByConventionPlugins: [],
+        isCatalogEntry: false,
+      }));
     }
     throw new Error(`Unsupported library catalog entry type '${entry.type}'.`);
   });
@@ -25,6 +38,7 @@ export function libraryBundles(entries) {
         alias: entry.alias,
         requiredByModules: effectiveRequiredByModules(entry.requiredByModules || [], providedByConventionPlugins),
         providedByConventionPlugins,
+        isCatalogEntry: true,
       };
     });
 }
@@ -53,6 +67,20 @@ function sortedConventionPluginUsages(usages) {
     .sort((first, second) =>
       first.pluginId.localeCompare(second.pluginId) ||
         first.pluginModule.localeCompare(second.pluginModule)
+    );
+}
+
+function sortedConventionPluginConfigurationUsages(usages) {
+  return [...usages]
+    .map((usage) => ({
+      pluginId: usage.pluginId,
+      pluginModule: usage.pluginModule,
+      target: usage.target,
+    }))
+    .sort((first, second) =>
+      first.pluginId.localeCompare(second.pluginId) ||
+        first.pluginModule.localeCompare(second.pluginModule) ||
+        first.target.localeCompare(second.target)
     );
 }
 

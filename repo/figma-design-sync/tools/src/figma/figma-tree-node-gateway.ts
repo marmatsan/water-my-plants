@@ -78,11 +78,13 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
     ...artifacts.flatMap((artifact) => artifact.requiredByModules),
     ...bundles.flatMap((bundle) => bundle.requiredByModules),
   ]);
+  const hasCatalogEntries = artifacts.some((artifact) => artifact.isCatalogEntry === true) ||
+    bundles.some((bundle) => bundle.isCatalogEntry === true);
 
   instance.setProperties({
     [TREE_NODE_PROPS.libraryGroup]: node.label,
     [TREE_NODE_PROPS.showArtifacts]: node.artifactsVisible && artifactNames.length > 0,
-    [TREE_NODE_PROPS.showConsumerModule]: requiredByModules.length > 0,
+    [TREE_NODE_PROPS.showConsumerModule]: requiredByModules.length > 0 || hasCatalogEntries,
     [TREE_NODE_PROPS.type]: "Library",
   });
   mutatedNodeIds.push(instance.id);
@@ -93,7 +95,7 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
   await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
 
-  if (artifactNames.length === 0 && requiredByModules.length === 0) {
+  if (artifactNames.length === 0 && requiredByModules.length === 0 && !hasCatalogEntries) {
     resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
   }
 }

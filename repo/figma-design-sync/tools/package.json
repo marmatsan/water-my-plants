@@ -2,7 +2,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.json && esbuild src/app/sync-trunk-design-model.mcp.ts --bundle --format=iife --global-name=FigmaTrunkSync --target=es2022 --minify --outfile=dist/sync-trunk-design-model.mcp.js && esbuild scripts/write-mcp-js.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/write-mcp-js.mjs && node dist/write-mcp-js.mjs"
+    "build": "tsc --project tsconfig.json && esbuild src/app/sync-trunk-design-model.mcp.ts --bundle --format=iife --global-name=FigmaTrunkSync --target=es2022 --minify --outfile=dist/sync-trunk-design-model.mcp.js && esbuild src/app/sync-catalog-tree-preview.mcp.ts --bundle --format=iife --global-name=FigmaCatalogTreePreview --target=es2022 --minify --outfile=dist/sync-catalog-tree-preview.mcp.js && esbuild scripts/write-mcp-js.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/write-mcp-js.mjs && esbuild scripts/write-mcp-runner.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/write-mcp-runner.mjs && node dist/write-mcp-js.mjs",
+    "premcp:runner": "npm run build",
+    "mcp:runner": "node dist/write-mcp-runner.mjs",
+    "premcp:preview": "npm run build",
+    "mcp:preview": "node dist/write-mcp-runner.mjs --mode=preview"
   },
   "devDependencies": {
     "@figma/plugin-typings": "^1.117.0",
