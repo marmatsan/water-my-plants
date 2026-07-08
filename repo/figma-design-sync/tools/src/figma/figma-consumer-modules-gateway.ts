@@ -118,12 +118,12 @@ export async function updateUsageChipInstances(
   options: ConsumerModuleOptions = {}
 ) {
   if (usages.length > 0) {
-    requireUsageChipHeading(root, heading);
+    requireUsageChipHeading(root, heading, options);
   }
 
   const usageChipInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
     .filter((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME)
-    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading))
+    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading, options))
     .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
   if (usageChipInstances.length < usages.length) {
@@ -152,8 +152,8 @@ function hasAncestorInstanceNamed(node, name, boundary) {
   return false;
 }
 
-function requireUsageChipHeading(root, heading) {
-  const hasHeading = findUsageChipHeading(root, heading) !== undefined;
+function requireUsageChipHeading(root, heading, options: ConsumerModuleOptions = {}) {
+  const hasHeading = findUsageChipHeading(root, heading, options) !== undefined;
 
   if (!hasHeading) {
     throw new Error(`Node '${root.id}' is missing '${heading}' usage chip heading text.`);
@@ -223,17 +223,21 @@ async function updateUsageChipLabelText(usageChipInstance, name, mutatedNodeIds)
   mutatedNodeIds.push(label.id);
 }
 
-function belongsToHeadingUsageChipBlock(candidate, root, heading) {
-  const headingNode = findUsageChipHeading(root, heading);
+function belongsToHeadingUsageChipBlock(candidate, root, heading, options: ConsumerModuleOptions = {}) {
+  const headingNode = findUsageChipHeading(root, heading, options);
   if (!headingNode) return false;
 
   const container = nearestAncestorWithUsageChips(headingNode, root) || root;
   return candidate.id === container.id || hasAncestor(candidate, container);
 }
 
-function findUsageChipHeading(root, heading) {
+function findUsageChipHeading(root, heading, options: ConsumerModuleOptions = {}) {
   return root.findAllWithCriteria({ types: ["TEXT"] })
-    .find((textNode) => textNode.name === "label" && textNode.characters === heading);
+    .find((textNode) =>
+      textNode.name === "label" &&
+      textNode.characters === heading &&
+      (!options.excludeArtifactDescendants || !hasAncestorInstanceNamed(textNode, ARTIFACT_INSTANCE_NAME, root))
+    );
 }
 
 function nearestAncestorWithUsageChips(node, boundary) {
