@@ -124,6 +124,15 @@ visible entries. The failure signature is similar to:
 expected 0 'artifact name' text nodes, found 8
 ```
 
+Library artifact and bundle slot selection must prefer direct children of the
+`.tree node` `artifacts` frame, including hidden reusable slots. If the sync
+counts only visible descendants, it can accidentally select a nested artifact
+inside `.artifacts bundle` and fail with a misleading slot count:
+
+```text
+Tree node '...' expected at least 4 '.artifact' instances, found 1.
+```
+
 ## Usage Blocks Hidden Despite Model Data
 
 The official `design-model.json` can be correct while the visible Figma

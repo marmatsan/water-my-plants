@@ -95,10 +95,10 @@ For each section:
   versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
-- When a `.tree node` contains hidden template placeholders and visible nested
-  catalog rows, update the visible representable `.artifact` /
-  `.artifacts bundle` instances. Do not let hidden placeholders win over visible
-  bundle child artifact rows.
+- When a `.tree node` contains an `artifacts` frame, select its direct
+  `.artifact` / `.artifacts bundle` children first, including hidden template
+  slots that can be made visible. Do not let visible nested `.artifact` rows
+  inside a `.artifacts bundle` win over direct hidden slots.
 - Update `Used by module` instances for library artifacts from
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
