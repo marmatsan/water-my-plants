@@ -442,12 +442,6 @@ function childrenOf(node) {
 }
 
 function directCatalogItemInstances(root, instanceName) {
-  const visibleInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === instanceName)
-    .filter((candidate) => candidate.visible !== false);
-
-  if (visibleInstances.length > 0) return visibleInstances;
-
   const container = childrenOf(root)
     .find((child) => child.name === "artifacts" && "children" in child);
   const directInstances = childrenOf(container || root)
