@@ -78,6 +78,7 @@ function readNpmConfigArgs() {
     "out-dir": "npm_config_out_dir",
     "chunk-size": "npm_config_chunk_size",
     "section-node-id": "npm_config_section_node_id",
+    roots: "npm_config_roots",
     "allow-official-sections": "npm_config_allow_official_sections",
   };
   const values = {};
@@ -165,6 +166,7 @@ function resolveOptions(args) {
     : OFFICIAL_STAGING_NAMESPACE;
   const writeMetadata = mode === "official" && target === "metadata";
   const sectionNodeId = args["section-node-id"];
+  const roots = parseRoots(args.roots);
   const allowOfficialSections = args["allow-official-sections"] === "true";
 
   if (
@@ -191,6 +193,7 @@ function resolveOptions(args) {
     namespace,
     writeMetadata,
     sectionNodeId,
+    roots,
     allowOfficialSections,
   };
 }
@@ -258,6 +261,7 @@ async function writeManifest(outDir, files, options, designModel, modelJson, scr
         writeMetadata: options.writeMetadata,
         namespace: options.namespace,
         sectionNodeId: options.sectionNodeId || null,
+        roots: options.roots,
         allowOfficialSections: options.allowOfficialSections,
         metadataPageId: METADATA_PAGE_ID,
         modelPath: relativeToToolRoot(options.modelPath),
@@ -398,6 +402,7 @@ function runTargetSource(options) {
     targets: [options.target],
     writeMetadata: options.writeMetadata,
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
+    ...(options.roots.length > 0 ? { catalogRootFilters: { [options.target]: options.roots } } : {}),
   };
 
   const invokeScript = options.entrypoint === "preview-catalog"
@@ -537,6 +542,23 @@ function chunkString(value, chunkSize) {
     chunks.push(value.slice(index, index + chunkSize));
   }
   return chunks.length > 0 ? chunks : [""];
+}
+
+function parseRoots(value) {
+  if (!value) {
+    return [];
+  }
+
+  const roots = value
+    .split(",")
+    .map((root) => root.trim())
+    .filter(Boolean);
+
+  if (roots.length === 0) {
+    throw new Error("--roots must contain at least one root label.");
+  }
+
+  return [...new Set(roots)];
 }
 
 function safeName(value) {

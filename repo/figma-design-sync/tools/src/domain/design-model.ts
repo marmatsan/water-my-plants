@@ -37,4 +37,5 @@ export type SyncFigmaDesignModelOptions = {
   targets?: SyncTargetName[];
   writeMetadata?: boolean;
   sectionNodeOverrides?: Record<string, string>;
+  catalogRootFilters?: Partial<Record<SyncTargetName, string[]>>;
 };

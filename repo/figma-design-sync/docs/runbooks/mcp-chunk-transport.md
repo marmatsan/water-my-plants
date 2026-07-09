@@ -33,6 +33,17 @@ To generate chunked MCP runner snippets for an official TeamCity artifact:
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
 ```
 
+To run only one top-level catalog root against its child section, add `--roots`
+and `--section-node-id`:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630
+```
+
+Use this for large catalog targets that hit MCP timeouts or generic Figma
+runtime failures. `--roots` scopes the already-official TeamCity model in the
+runner; it does not create or authorize a branch-local design model.
+
 If a generated runner file is too large for the MCP transport, reduce the chunk
 size instead of copying the long payload manually:
 

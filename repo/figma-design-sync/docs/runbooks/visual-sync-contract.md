@@ -27,6 +27,12 @@ sandbox section instead of the configured official section. Official sync runs
 must use the configured section ids from `figma-config.ts` unless a documented
 manual repair explicitly overrides one target.
 
+Catalog runners may pass `catalogRootFilters` to sync only one or more
+top-level roots inside a catalog target, for example `androidx` in
+`waterMyPlants.libraries` or `com` in `waterMyPlants.plugins`. Root filters are
+runtime scope only: they narrow an already-authorized `main` design model and
+must not be used to create an alternate branch-local model.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and

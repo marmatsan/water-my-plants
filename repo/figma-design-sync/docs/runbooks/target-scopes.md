@@ -51,6 +51,51 @@ target has completed successfully.
 | 9 | `figmaDesignSync.plugins` | `repo/figma-design-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
 | 10 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
+## Subtree Scoped Runs
+
+When a catalog target is too large for one MCP call, or a visual fix only
+affects one top-level catalog root, run the target against the matching child
+section and filter the TeamCity model with `--roots`.
+
+```powershell
+cd repo\figma-design-sync\tools
+npm run build
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630
+```
+
+`--roots` filters only top-level catalog roots before the tree is flattened.
+Library roots match `group`; plugin roots match `id`. If the root is missing,
+the runner fails before mutating Figma and prints the available roots.
+
+Known child sections:
+
+| Target | Root | Child section |
+|--------|------|---------------|
+| `waterMyPlants.libraries` | `androidx` | `63069:630` |
+| `waterMyPlants.libraries` | `com` | `63069:647` |
+| `waterMyPlants.libraries` | `io` | `63069:655` |
+| `waterMyPlants.libraries` | `me` | `63069:659` |
+| `waterMyPlants.libraries` | `org` | `63069:665` |
+| `waterMyPlants.plugins` | `com` | `63069:595` |
+| `waterMyPlants.plugins` | `de` | `63069:611` |
+| `waterMyPlants.plugins` | `org` | `63069:617` |
+| `gradlePlugins.libraries` | `com` | `63100:1707` |
+| `gradlePlugins.libraries` | `io` | `63100:2395` |
+| `gradlePlugins.libraries` | `me` | `63207:6400` |
+| `gradlePlugins.libraries` | `org` | `63100:1708` |
+| `gradlePlugins.plugins` | `com` | `63209:6579` |
+| `gradlePlugins.plugins` | `org` | `63100:2960` |
+| `figmaDesignSync.libraries` | `com` | `63573:261` |
+| `figmaDesignSync.libraries` | `io` | `63573:286` |
+| `figmaDesignSync.libraries` | `me` | `63573:295` |
+| `figmaDesignSync.libraries` | `org` | `63573:273` |
+| `figmaDesignSync.plugins` | `com` | `63573:358` |
+| `figmaDesignSync.plugins` | `org` | `63573:347` |
+
+Use a subtree scoped run instead of editing `design-model.json` manually. The
+artifact must still come from `main`; the filter is a transport/runtime scope,
+not a different source of truth.
+
 ## Failure Rule
 
 When a target fails, fix that target's component or TypeScript contract, merge
