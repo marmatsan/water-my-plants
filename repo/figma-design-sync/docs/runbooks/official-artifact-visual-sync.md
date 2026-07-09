@@ -45,8 +45,9 @@ branch, run only visual targets, and do not write official metadata from the
 branch.
 
 Regenerate through TeamCity on `main` when the change affects model content:
-catalog extraction, module or plugin paths, `Provided by` / `Required by` data,
-target names, `content`, `modelHash`, or any field serialized into
+catalog extraction, module or plugin paths, usage data such as
+`providedByConventionPlugins` or `requiredByModules`, target names, `content`,
+`modelHash`, or any field serialized into
 `design-model.json`. After the tooling branch is merged, run the official
 TeamCity/main flow to seal the authoritative visual state and metadata.
 
@@ -86,8 +87,8 @@ Important generation details:
 - Water My Plants plugin entries include `providedByConventionPlugins` when a
   convention plugin applies a catalog plugin and production modules apply that
   convention plugin. Direct plugin applications remain in `appliedToModules`;
-  the visual `Applied by` row combines direct modules with the modules listed in
-  each `providedByConventionPlugins.requiredByModules` entry.
+  the visual `Used by module` row combines direct modules with the modules
+  listed in each `providedByConventionPlugins.requiredByModules` entry.
 - `dependencyCatalog` contributes modules and module dependencies but not
   `content.catalogs.dependencyCatalog` because
   `repo/dependency-catalog/settings.gradle.kts` does not declare

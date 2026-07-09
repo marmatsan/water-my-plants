@@ -85,7 +85,6 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   instance.setProperties({
     [TREE_NODE_PROPS.libraryGroup]: node.label,
     [TREE_NODE_PROPS.showArtifacts]: node.artifactsVisible && artifactNames.length > 0,
-    [TREE_NODE_PROPS.showConsumerModule]: requiredByModules.length > 0 || hasCatalogEntries,
     [TREE_NODE_PROPS.type]: "Library",
   });
   mutatedNodeIds.push(instance.id);
@@ -123,7 +122,6 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     [TREE_NODE_PROPS.pluginId]: node.label,
     [TREE_NODE_PROPS.pluginVersion]: versionValue,
     [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
-    [TREE_NODE_PROPS.showConsumerModule]: effectiveAppliedToModules.length > 0 || providedByConventionPlugins.length > 0 || isUnusedCatalogEntry,
     [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
     [TREE_NODE_PROPS.type]: "Plugin",
   });

@@ -130,13 +130,15 @@ The official `design-model.json` can be correct while the visible Figma
 `.artifact` or `.tree node` instance is still visually stale. One observed
 failure mode was a library artifact whose model contained
 `providedByConventionPlugins` and effective `requiredByModules`, while the
-visible `.artifact` kept `Show consumer modules=false` and its direct
-`Provided by` / `Required by` blocks hidden. The equivalent plugin failure is a
+visible `.artifact` either still exposed the obsolete aggregate
+`Show consumer modules` property or kept its direct `Applied by plugin` /
+`Used by module` blocks hidden. The equivalent plugin failure is a
 `Plugin` `.tree node` whose model contains `appliedToModules` or
-`providedByConventionPlugins`, while `Applied by` / `Provided by` stay hidden or
-an empty `Unused catalog entry` block remains visible. Hidden template internals
-under the same `.tree node` can still contain chips, which makes the file look
-partially updated through the plugin API but not visually updated on canvas.
+`providedByConventionPlugins`, while `Used by module` /
+`Used by convention plugin` stay hidden or an empty `Unused catalog entry`
+block remains visible. Hidden template internals under the same `.tree node`
+can still contain chips, which makes the file look partially updated through
+the plugin API but not visually updated on canvas.
 `Unused catalog entry` is a static status block, not usage metadata. The
 `.tree node` `Plugin` variant must not contain `.usage chip` instances inside
 that block; if one appears there, repair the component contract before changing
@@ -146,19 +148,16 @@ Diagnose this as a visual sync inconsistency before changing catalog
 extraction:
 
 - Confirm the official TeamCity `design-model.json` contains the artifact usage.
-- Inspect the owning `.tree node` and confirm `Show consumer module=true` when
-  usage is expected.
 - Inspect the visible direct `.artifact` or `.artifacts bundle` instance under
   the `artifacts` frame, not hidden template internals.
 - Confirm the visible direct `.artifact` / `.artifacts bundle` instance has the
-  granular component booleans expected by the model: `Show provided by`,
-  `Show required by`, `Show tool artifacts` when present, and
-  `Show unused catalog entry`. `Show consumer modules` is not enough to validate
-  the surface because it can show both `Provided by` and `Required by`.
+  granular component booleans expected by the model:
+  `Show applied by plugin`, `Show used by module`, `Show configured as tool`
+  when present, and `Show unused catalog entry`. `Show consumer modules` is
+  obsolete and must not be used to validate the surface.
 - For plugin trees, confirm the visible `Plugin` `.tree node` has the granular
-  component booleans expected by the model: `Show applied by`,
-  `Show provided by`, and `Show unused catalog entry`. `Show consumer module` is
-  only a compatibility aggregate and is not enough to validate the surface.
+  component booleans expected by the model: `Show used by module`,
+  `Show used by convention plugin`, and `Show unused catalog entry`.
 
 The TypeScript sync must fail the visual target before metadata if this
 invariant is not true. Do not repair this with a metadata-only write.

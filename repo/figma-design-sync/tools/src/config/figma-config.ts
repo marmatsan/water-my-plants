@@ -44,26 +44,23 @@ export const TREE_NODE_PROPS = {
   showPluginVersion: "Show plugin version#58719:0",
   showArtifacts: "Show artifacts#63079:0",
   pluginVersion: "Plugin version#63081:2",
-  showConsumerModule: "Show consumer module#63085:0",
-  showAppliedBy: "Show applied by",
-  showProvidedBy: "Show provided by",
+  showUsedByModule: "Show used by module",
+  showUsedByConventionPlugin: "Show used by convention plugin",
   showUnusedCatalogEntry: "Show unused catalog entry",
   showIsGradleConventionPlugin: "Show is a gradle plugin#63112:4",
   type: "Type",
 };
 
 export const ARTIFACT_PROPS = {
-  showConsumerModules: "Show consumer modules#63086:1",
-  showProvidedBy: "Show provided by",
-  showRequiredBy: "Show required by",
-  showToolArtifacts: "Show tool artifacts",
+  showAppliedByPlugin: "Show applied by plugin",
+  showUsedByModule: "Show used by module",
+  showConfiguredAsTool: "Show configured as tool",
   showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
 export const ARTIFACTS_BUNDLE_PROPS = {
-  showConsumerModules: "Show consumer modules#63107:0",
-  showProvidedBy: "Show provided by",
-  showRequiredBy: "Show required by",
+  showAppliedByPlugin: "Show applied by plugin",
+  showUsedByModule: "Show used by module",
   showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
@@ -71,6 +68,10 @@ export const ARTIFACT_INSTANCE_NAME = ".artifact";
 export const ARTIFACTS_BUNDLE_INSTANCE_NAME = ".artifacts bundle";
 export const USAGE_CHIP_COMPONENT_SET_ID = "63085:793";
 export const USAGE_CHIP_INSTANCE_NAME = ".usage chip";
+export const TOOL_ARTIFACT_USAGE_INSTANCE_NAME = ".tool artifact usage";
+export const TOOL_ARTIFACT_USAGE_PROPS = {
+  target: "tool artifact target",
+};
 export const USAGE_CHIP_PROPS = {
   kind: "kind",
   name: "name",
