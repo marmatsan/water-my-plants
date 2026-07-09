@@ -17,6 +17,7 @@ import {
 } from "./figma-connector-gateway";
 import {
   lockOnlyRootSection,
+  removeCatalogTreeSectionFills,
   requireSection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
@@ -61,7 +62,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       throw new Error(`designModel.content.catalogs.${target.name} is required for catalog tree sync.`);
     }
 
-    const expectedNodes = flattenCatalogNodes(modelNodes, target.type);
+    const scopedModelNodes = filterModelRoots(target, modelNodes, options.rootFilters?.[target.name]);
+    const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
     requireUniqueLabels(target, expectedNodes);
 
     const sectionNodeId = options.sectionNodeOverrides?.[target.name] || target.sectionNodeId;
@@ -125,6 +127,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     stackDescendantSectionsWithGap(section, mutatedNodeIds);
     stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
+    removeCatalogTreeSectionFills(section, mutatedNodeIds);
     lockOnlyRootSection(section, mutatedNodeIds);
   }
 
@@ -137,6 +140,32 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     mutatedNodeIds,
   };
   }
+}
+
+function filterModelRoots(target, modelNodes, rootFilter) {
+  if (!rootFilter || rootFilter.length === 0) {
+    return modelNodes;
+  }
+
+  const requestedRoots = new Set(rootFilter);
+  const filteredNodes = modelNodes.filter((node) => requestedRoots.has(rootLabel(target, node)));
+  const missingRoots = [...requestedRoots].filter((root) =>
+    !filteredNodes.some((node) => rootLabel(target, node) === root)
+  );
+
+  if (missingRoots.length > 0) {
+    const availableRoots = modelNodes.map((node) => rootLabel(target, node)).join(", ");
+    throw new Error(
+      `${target.name} does not contain root filter(s): ${missingRoots.join(", ")}. ` +
+        `Available roots: ${availableRoots || "<none>"}.`
+    );
+  }
+
+  return filteredNodes;
+}
+
+function rootLabel(target, node) {
+  return target.type === "Library" ? node.group : node.id;
 }
 
 function errorMessage(error) {

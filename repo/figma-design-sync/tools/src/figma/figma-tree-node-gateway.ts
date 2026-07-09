@@ -70,6 +70,7 @@ export async function createMissingTreeNode(
 }
 
 export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
+  const horizontalCenter = treeNodeHorizontalCenter(instance);
   const artifacts = libraryArtifacts(node.entries);
   const bundles = libraryBundles(node.entries);
   const artifactNames = artifacts.map((artifact) => artifact.name);
@@ -84,7 +85,6 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   instance.setProperties({
     [TREE_NODE_PROPS.libraryGroup]: node.label,
     [TREE_NODE_PROPS.showArtifacts]: node.artifactsVisible && artifactNames.length > 0,
-    [TREE_NODE_PROPS.showConsumerModule]: requiredByModules.length > 0 || hasCatalogEntries,
     [TREE_NODE_PROPS.type]: "Library",
   });
   mutatedNodeIds.push(instance.id);
@@ -98,9 +98,12 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   if (artifactNames.length === 0 && requiredByModules.length === 0 && !hasCatalogEntries) {
     resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
   }
+
+  restoreTreeNodeHorizontalCenter(instance, horizontalCenter, mutatedNodeIds);
 }
 
 export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
+  const horizontalCenter = treeNodeHorizontalCenter(instance);
   const versionValue = node.version?.visible && node.version?.value
     ? node.version.value
     : "Plugin version";
@@ -110,16 +113,15 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     ...appliedToModules,
     ...providedByConventionPlugins.flatMap((usage) => usage.requiredByModules || []),
   ]);
-  const isUnusedCatalogEntry = isPluginCatalogEntry(node) &&
+  const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
+  const isUnusedCatalogEntry = (isPluginCatalogEntry(node) || isGradleConventionPlugin) &&
     effectiveAppliedToModules.length === 0 &&
     providedByConventionPlugins.length === 0;
-  const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
 
   instance.setProperties({
     [TREE_NODE_PROPS.pluginId]: node.label,
     [TREE_NODE_PROPS.pluginVersion]: versionValue,
     [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
-    [TREE_NODE_PROPS.showConsumerModule]: effectiveAppliedToModules.length > 0 || providedByConventionPlugins.length > 0,
     [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
     [TREE_NODE_PROPS.type]: "Plugin",
   });
@@ -141,6 +143,8 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
   ) {
     resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);
   }
+
+  restoreTreeNodeHorizontalCenter(instance, horizontalCenter, mutatedNodeIds);
 }
 
 function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
@@ -161,6 +165,20 @@ function resizeBareTreeNodeToFitLabel(instance, labelName, mutatedNodeIds) {
 
   instance.resizeWithoutConstraints(targetWidth, targetHeight);
   mutatedNodeIds.push(instance.id);
+}
+
+function treeNodeHorizontalCenter(instance) {
+  const layoutNode = treeNodeLayoutNode(instance);
+  return layoutNode.x + layoutNode.width / 2;
+}
+
+function restoreTreeNodeHorizontalCenter(instance, horizontalCenter, mutatedNodeIds) {
+  const layoutNode = treeNodeLayoutNode(instance);
+  const nextX = horizontalCenter - layoutNode.width / 2;
+  if (Math.abs(layoutNode.x - nextX) <= 0.01) return;
+
+  layoutNode.x = nextX;
+  mutatedNodeIds.push(layoutNode.id);
 }
 
 function findVisibleTextNode(root, name) {

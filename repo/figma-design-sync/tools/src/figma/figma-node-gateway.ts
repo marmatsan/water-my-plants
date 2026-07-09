@@ -74,8 +74,24 @@ export function getComponentPropertyValue(instance, propertyName) {
 }
 
 export function removeSectionFill(section, mutatedNodeIds) {
+  if (!("fills" in section)) return;
+  if (Array.isArray(section.fills) && section.fills.length === 0) return;
+
   section.fills = [];
   mutatedNodeIds.push(section.id);
+}
+
+export function removeCatalogTreeSectionFills(section, mutatedNodeIds) {
+  const sections = [
+    section,
+    ...section.findAllWithCriteria({ types: ["SECTION"] }),
+  ];
+
+  for (const candidate of sections) {
+    if (PARENT_SECTION_NODE_IDS.includes(candidate.id)) continue;
+
+    removeSectionFill(candidate, mutatedNodeIds);
+  }
 }
 
 export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {

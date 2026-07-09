@@ -73,6 +73,12 @@ used by CI.
   helper tools. Agents must follow:
   - `docs/runbooks/trunk-sync.md` when validating or publishing the Figma trunk
     sync state.
+  - `docs/runbooks/official-artifact-visual-sync.md` when deciding whether a
+    `design-model.json` may be used for an official or branch-local visual sync.
+  - `docs/runbooks/mcp-chunk-transport.md` when staging TeamCity artifacts and
+    generated MCP scripts through Figma shared plugin data.
+  - `docs/runbooks/target-scopes.md` when choosing the smallest sync target for
+    a Figma section.
   - `docs/runbooks/visual-sync-contract.md` when changing or validating Figma
     visual sync behavior, especially catalog tree nodes, connectors, layout, and
     locking.
