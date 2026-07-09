@@ -17,6 +17,7 @@ import {
 } from "./figma-connector-gateway";
 import {
   lockOnlyRootSection,
+  removeCatalogTreeSectionFills,
   requireSection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
@@ -125,6 +126,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     stackDescendantSectionsWithGap(section, mutatedNodeIds);
     stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
+    removeCatalogTreeSectionFills(section, mutatedNodeIds);
     lockOnlyRootSection(section, mutatedNodeIds);
   }
 

@@ -221,11 +221,12 @@ export async function updatePluginUsageBlocks(
   const providedByConventionPluginChips = usageChipsForConventionPlugins(providedByConventionPlugins || []);
   const showAppliedBy = appliedToModules.length > 0;
   const showProvidedBy = providedByConventionPluginChips.length > 0;
+  const showContent = showAppliedBy || showProvidedBy || isUnused;
 
   setBooleanComponentProperty(
     root,
     TREE_NODE_PROPS.showConsumerModule,
-    showAppliedBy || showProvidedBy,
+    showContent,
     mutatedNodeIds
   );
   setBooleanComponentProperty(
@@ -263,6 +264,7 @@ export async function updatePluginUsageBlocks(
   setUsageBlockVisible(root, "Applied by", showAppliedBy, mutatedNodeIds);
   setUsageBlockVisible(root, "Unused catalog entry", isUnused, mutatedNodeIds);
   syncDirectUsageSeparators(root, mutatedNodeIds);
+  syncLegacyTreeNodeContent(root, showContent, mutatedNodeIds);
   assertUsageSurface(
     root,
     [
@@ -271,6 +273,18 @@ export async function updatePluginUsageBlocks(
       ["Unused catalog entry", isUnused],
     ]
   );
+}
+
+function syncLegacyTreeNodeContent(root, visible, mutatedNodeIds) {
+  const content = childrenOf(root).find((child) => child.name === TREE_NODE_CONTENT_FRAME_NAME);
+  if (!content) return;
+
+  setNodeVisible(content, visible, mutatedNodeIds);
+
+  const separator = childrenOf(root).find((child) => child.name === STRUCTURAL_SEPARATOR_FRAME_NAME);
+  if (separator && !separator.componentPropertyReferences?.visible) {
+    setNodeVisible(separator, visible, mutatedNodeIds);
+  }
 }
 
 export async function updateUsageChipInstances(
@@ -702,6 +716,7 @@ const MODULE_VERTICAL_PADDING = 6;
 const STRUCTURAL_SEPARATOR_FRAME_NAME = "separator";
 const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
 const UNUSED_CATALOG_ENTRY_HEADING = "Unused catalog entry";
+const TREE_NODE_CONTENT_FRAME_NAME = "content";
 const USAGE_BLOCK_HEADINGS = [
   "Provided by",
   "Required by",

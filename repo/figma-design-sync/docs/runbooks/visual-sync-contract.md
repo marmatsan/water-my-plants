@@ -137,10 +137,19 @@ For each section:
   lists are empty. When a plugin catalog entry has no `appliedToModules` and no
   `providedByConventionPlugins`, show `Unused catalog entry` instead of empty
   usage blocks.
+- Leaf nodes in `waterMyPlants.customGradleConventionPlugins` are also catalog
+  entries for this visual state even though they do not declare versions. A
+  convention plugin such as `dokkaDocumentation` or `protobuf` with no
+  `appliedToModules` must show `Unused catalog entry`.
 - Control plugin usage blocks through their own component boolean on `.tree
   node` `Plugin`: `Show applied by`, `Show provided by`, and
   `Show unused catalog entry`. Keep `Show consumer module` only as a
   backwards-compatible aggregate for plugin usage rows.
+- In `.tree node` `Plugin`, usage blocks are direct children of the component:
+  `Applied by`, `Provided by`, and `Unused catalog entry`, each controlled by
+  its own boolean. Do not require a wrapper frame named `content`; if an older
+  instance still has one, treat it as legacy and show it only when at least one
+  usage/status block is visible.
 - Parent components must expose every usage section in their template. The sync
   decides visibility on each generated instance from the model data by setting
   the granular boolean and the direct block visibility for that section.
@@ -165,6 +174,10 @@ For each section:
   exist in the generated model.
 - Fail without writing metadata if an existing or cloned instance cannot
   represent artifact text or consumer module structure from the generated model.
+- Library/plugin catalog tree sections must not have fill. Only parent
+  documentation sections, such as the configured Gradle dependencies parent
+  section, keep the `md/sys/color/surface` fill. Child catalog sections keep
+  their section geometry and stroke but use an empty `fills` array.
 
 ## Tree Node Component
 
@@ -224,6 +237,9 @@ Layout rules:
 
 - Move `.tree node group` nodes, not the `.tree node` instance inside them.
 - Center each parent horizontally over its children.
+- When a touched `.tree node` changes width because usage blocks, status
+  blocks, or labels are shown/hidden, preserve the `.tree node group`
+  horizontal center before syncing connectors.
 - Use 128 px between a parent bottom edge and its child top edge.
 - A parent with a single child should be centered directly above that child so
   the connector is vertical.
