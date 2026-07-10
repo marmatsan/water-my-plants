@@ -44,10 +44,10 @@ export const TREE_NODE_PROPS = {
   showPluginVersion: "Show plugin version#58719:0",
   showArtifacts: "Show artifacts#63079:0",
   pluginVersion: "Plugin version#63081:2",
-  showUsedByModule: "Show used by module",
+  showAppliedByModule: "Show applied by module",
   showUsedByConventionPlugin: "Show used by convention plugin",
-  showUnusedCatalogEntry: "Show unused catalog entry",
-  showIsGradleConventionPlugin: "Show is a gradle plugin#63112:4",
+  showUnused: "Show unused",
+  showIsGradlePlugin: "Show is a gradle plugin#63112:4",
   type: "Type",
 };
 
@@ -58,7 +58,6 @@ export const ARTIFACT_PROPS = {
   showAppliedByPlugin: "Show applied by plugin",
   showUsedByModule: "Show used by module",
   showConfiguredAsTool: "Show configured as tool",
-  showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
 export const ARTIFACTS_BUNDLE_PROPS = {
@@ -67,7 +66,6 @@ export const ARTIFACTS_BUNDLE_PROPS = {
   showVersion: "With version",
   showAppliedByPlugin: "Show applied by plugin",
   showUsedByModule: "Show used by module",
-  showUnusedCatalogEntry: "Show unused catalog entry",
 };
 
 export const ARTIFACT_INSTANCE_NAME = ".artifact";
@@ -104,13 +102,14 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     name: "waterMyPlants.customGradleConventionPlugins",
     sectionNodeId: "63216:6907",
     type: "Plugin",
-    gradleConventionPluginNodes: true,
+    gradlePluginNodes: true,
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradleConventionPlugins,
   },
   {
     name: "waterMyPlants.customGradlePlugins",
     sectionNodeId: "63330:551",
     type: "Plugin",
+    gradlePluginNodes: true,
     warnWhenUnused: true,
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradlePlugins,
   },

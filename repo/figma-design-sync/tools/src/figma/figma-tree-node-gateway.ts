@@ -108,7 +108,7 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     ...appliedToModules,
     ...providedByConventionPlugins.flatMap((usage) => usage.requiredByModules || []),
   ]);
-  const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
+  const showGradlePluginBadge = target?.gradlePluginNodes === true && node.children.length === 0;
   const showUnusedPluginWarning = target?.warnWhenUnused === true &&
     node.children.length === 0 &&
     effectiveAppliedToModules.length === 0 &&
@@ -118,7 +118,7 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     [TREE_NODE_PROPS.pluginId]: node.label,
     [TREE_NODE_PROPS.pluginVersion]: versionValue,
     [TREE_NODE_PROPS.showPluginVersion]: node.version?.visible === true && Boolean(node.version?.value),
-    [TREE_NODE_PROPS.showIsGradleConventionPlugin]: isGradleConventionPlugin,
+    [TREE_NODE_PROPS.showIsGradlePlugin]: showGradlePluginBadge,
     [TREE_NODE_PROPS.type]: "Plugin",
   });
   mutatedNodeIds.push(instance.id);
@@ -134,7 +134,7 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
   if (effectiveAppliedToModules.length === 0 &&
     providedByConventionPlugins.length === 0 &&
     !showUnusedPluginWarning &&
-    !isGradleConventionPlugin &&
+    !showGradlePluginBadge &&
     !hasVisiblePluginVersion(node)
   ) {
     resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);

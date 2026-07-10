@@ -161,7 +161,7 @@ visible `.artifact` either still exposed the obsolete aggregate
 `Show consumer modules` property or kept its direct `Applied by plugin` /
 `Used by module` blocks hidden. The equivalent plugin failure is a
 `Plugin` `.tree node` whose model contains `appliedToModules` or
-`providedByConventionPlugins`, while `Used by module` /
+`providedByConventionPlugins`, while `Applied by module` /
 `Used by convention plugin` stay hidden or the custom-plugin warning block
 remains visible. Hidden template internals under the same `.tree node` can
 still contain chips, which makes the file look partially updated through the
@@ -184,13 +184,13 @@ extraction:
 - Confirm the visible direct `.artifact` / `.artifacts bundle` instance has the
   granular component booleans expected by the model:
   `Show applied by plugin`, `Show used by module`, `Show configured as tool`
-  when present. `Show unused catalog entry` should stay false for library
-  catalog entries because unused libraries are rejected by CI. `Show consumer
-  modules` is obsolete and must not be used to validate the surface.
+  when present. `.artifact` and `.artifacts bundle` do not expose an
+  unused-entry boolean because unused libraries are rejected by CI. `Show
+  consumer modules` is obsolete and must not be used to validate the surface.
 - For plugin trees, confirm the visible `Plugin` `.tree node` has the granular
-  component booleans expected by the model: `Show used by module`,
-  `Show used by convention plugin`, and `Show unused catalog entry` only when a
-  custom Gradle plugin warning is expected.
+  component booleans expected by the model: `Show applied by module`,
+  `Show used by convention plugin`, and `Show unused` only when a custom Gradle
+  plugin warning is expected.
 
 The TypeScript sync must fail the visual target before metadata if this
 invariant is not true. Do not repair this with a metadata-only write.
