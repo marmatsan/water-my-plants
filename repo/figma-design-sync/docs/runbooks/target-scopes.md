@@ -29,7 +29,7 @@ Catalog tree visual targets:
 | `waterMyPlants.customGradleConventionPlugins` | `repo/gradle-plugins/**/build.gradle.kts` | `63216:6907` |
 | `waterMyPlants.customGradlePlugins` | repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins | `63330:551` |
 | `gradlePlugins.libraries` | `repo/gradle-plugins/settings.gradle.kts` | `63099:951` |
-| `gradlePlugins.plugins` | `repo/gradle-plugins/settings.gradle.kts` | `63100:2952` |
+| `gradlePlugins.plugins` | declared catalog target from `repo/gradle-plugins/settings.gradle.kts` `create("plugins")` | removed when source catalog is absent |
 | `figmaDesignSync.libraries` | `repo/figma-design-sync/settings.gradle.kts` | `63573:260` |
 | `figmaDesignSync.plugins` | `repo/figma-design-sync/settings.gradle.kts` | `63573:346` |
 
@@ -46,7 +46,7 @@ target has completed successfully.
 | 4 | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog | Stale convention plugin names or missing usage chip variants | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
 | 5 | `waterMyPlants.customGradlePlugins` | Regular custom Gradle plugin catalog | A regular plugin is modeled as a convention plugin, or the reverse | Returned nodes include `com.marmatsan.figmaDesignSync` as a regular plugin. |
 | 6 | `gradlePlugins.libraries` | `repo/gradle-plugins` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
-| 7 | `gradlePlugins.plugins` | `repo/gradle-plugins` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
+| 7 | `gradlePlugins.plugins` | Declared catalog target from `repo/gradle-plugins` plugins catalog | Stale hidden section after removing `create("plugins")` | Empty or omitted catalog removes the target section; declared catalog nodes match the settings catalog. |
 | 8 | `figmaDesignSync.libraries` | `repo/figma-design-sync` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
 | 9 | `figmaDesignSync.plugins` | `repo/figma-design-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
 | 10 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
@@ -81,11 +81,7 @@ Known child sections:
 | `waterMyPlants.plugins` | `org` | `63069:617` |
 | `gradlePlugins.libraries` | `com` | `63100:1707` |
 | `gradlePlugins.libraries` | `io` | `63100:2395` |
-| `gradlePlugins.libraries` | `me` | `63207:6400` |
 | `gradlePlugins.libraries` | `org` | `63100:1708` |
-| `gradlePlugins.plugins` | `com` | `63209:6579` |
-| `gradlePlugins.plugins` | `org` | `63100:2960` |
-| `figmaDesignSync.libraries` | `com` | `63573:261` |
 | `figmaDesignSync.libraries` | `io` | `63573:286` |
 | `figmaDesignSync.libraries` | `me` | `63573:295` |
 | `figmaDesignSync.libraries` | `org` | `63573:273` |

@@ -207,6 +207,25 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             )
         )
     }
+
+    test("generate omits included-build catalog types without roots") {
+        // GIVEN
+        val generator = generator()
+
+        // WHEN
+        val result = generator.generate(request())
+
+        // THEN
+        val gradlePluginsCatalog = result.model["content"]
+            ?.jsonObject
+            ?.get("catalogs")
+            ?.jsonObject
+            ?.get("gradlePlugins")
+            ?.jsonObject
+
+        gradlePluginsCatalog?.get("libraries") shouldBe null
+        gradlePluginsCatalog?.get("plugins") shouldBe null
+    }
 })
 
 private fun generator(): FigmaDesignModelGenerator =
@@ -262,6 +281,10 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
     override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree {
+        if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
+            return LibraryCatalogTree(roots = emptyList())
+        }
+
         val conventionPluginUsages = if (
             source is ProjectCatalogTreeSource.DependenciesDslVersionAliases &&
             source.conventionPluginIncludedBuilds.any { includedBuild -> includedBuild.modulePathPrefix == ":gradle-plugins" }
@@ -310,6 +333,10 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
     }
 
     override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree {
+        if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
+            return PluginCatalogTree(roots = emptyList())
+        }
+
         val conventionPluginUsages = if (
             source is ProjectCatalogTreeSource.DependenciesDslVersionAliases &&
             source.conventionPluginIncludedBuilds.any { includedBuild -> includedBuild.modulePathPrefix == ":gradle-plugins" }

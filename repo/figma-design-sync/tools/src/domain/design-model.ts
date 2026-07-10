@@ -1,12 +1,14 @@
 export type DesignModel = Record<string, any>;
 
 export type CatalogTreeType = "Library" | "Plugin";
+export type CatalogTreeTargetLifecycle = "stableDocumentationTarget" | "declaredCatalogTarget";
 
 export type CatalogTreeTarget = {
   name: string;
   aliases?: string[];
   sectionNodeId: string;
   type: CatalogTreeType;
+  lifecycle: CatalogTreeTargetLifecycle;
   nodes: (designModel: DesignModel) => any[] | undefined;
   gradlePluginNodes?: boolean;
   warnWhenUnused?: boolean;

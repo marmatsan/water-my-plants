@@ -153,18 +153,15 @@ internal class FigmaDesignModelGenerator(
                             val source = ProjectCatalogTreeSource.IncludedBuildSettings(
                                 includedBuild = includedBuild.toDomainSource()
                             )
-                            put(
-                                "libraries",
-                                projectCatalogTreesPort
-                                    .readLibraryTree(source)
-                                    .toDesignJson()
-                            )
-                            put(
-                                "plugins",
-                                projectCatalogTreesPort
-                                    .readPluginTree(source)
-                                    .toDesignJson()
-                            )
+                            val libraries = projectCatalogTreesPort.readLibraryTree(source)
+                            val plugins = projectCatalogTreesPort.readPluginTree(source)
+
+                            if (libraries.roots.isNotEmpty()) {
+                                put("libraries", libraries.toDesignJson())
+                            }
+                            if (plugins.roots.isNotEmpty()) {
+                                put("plugins", plugins.toDesignJson())
+                            }
                         }
                     )
                 }

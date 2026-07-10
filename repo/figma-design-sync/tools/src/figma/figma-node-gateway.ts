@@ -69,6 +69,15 @@ export async function requireSection(nodeId) {
   return node;
 }
 
+export async function findSection(nodeId) {
+  const node = await figma.getNodeByIdAsync(nodeId);
+  if (!node) return null;
+  if (node.type !== "SECTION") {
+    throw new Error(`Expected '${nodeId}' to be a SECTION.`);
+  }
+  return node;
+}
+
 export function getComponentPropertyValue(instance, propertyName) {
   return instance.componentProperties?.[propertyName]?.value;
 }

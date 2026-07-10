@@ -16,9 +16,9 @@ import {
   treeNodeLayoutNode,
 } from "./figma-connector-gateway";
 import {
+  findSection,
   lockOnlyRootSection,
   removeCatalogTreeSectionFills,
-  requireSection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
   stackAncestorSectionSiblingsWithGap,
@@ -58,6 +58,19 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
 
   for (const target of targets) {
     const modelNodes = target.nodes(designModel);
+    const sectionNodeId = options.sectionNodeOverrides?.[target.name] || target.sectionNodeId;
+
+    if (modelNodes == null) {
+      removedCatalogNodes.push(
+        ...await removeOmittedCatalogTreeTarget(
+          target,
+          sectionNodeId,
+          mutatedNodeIds
+        )
+      );
+      continue;
+    }
+
     if (!Array.isArray(modelNodes)) {
       throw new Error(`designModel.content.catalogs.${target.name} is required for catalog tree sync.`);
     }
@@ -69,15 +82,18 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
     requireUniqueLabels(target, expectedNodes);
 
-    const sectionNodeId = options.sectionNodeOverrides?.[target.name] || target.sectionNodeId;
-    const section = await requireSection(sectionNodeId);
+    const section = await findSection(sectionNodeId);
+    if (!section) {
+      if (!isPartialRootSync && scopedModelNodes.length === 0) {
+        continue;
+      }
+
+      throw new Error(`Expected '${sectionNodeId}' to be a SECTION.`);
+    }
     unlockSectionTreeForMutation(section, mutatedNodeIds);
 
     if (!isPartialRootSync && scopedModelNodes.length === 0) {
-      hideEmptyCatalogTreeSection(section, mutatedNodeIds);
-      stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
-      resizeAncestorSectionsToFit(section, mutatedNodeIds);
-      lockOnlyRootSection(section, mutatedNodeIds);
+      removedCatalogNodes.push(...removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds));
       continue;
     }
 
@@ -141,6 +157,15 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
     connectors = staleResult.connectors;
+    if (!isPartialRootSync) {
+      const removedRootSections = removeEmptyStaleCatalogRootSections(
+        target,
+        section,
+        scopedRootLabels,
+        mutatedNodeIds
+      );
+      removedCatalogNodes.push(...removedRootSections);
+    }
 
     connectors = createMissingCatalogConnectors(
       target,
@@ -215,6 +240,42 @@ function showCatalogTreeSection(section, mutatedNodeIds) {
 
   section.visible = true;
   mutatedNodeIds.push(section.id);
+}
+
+async function removeOmittedCatalogTreeTarget(target, sectionNodeId, mutatedNodeIds) {
+  const section = await findSection(sectionNodeId);
+  if (!section) return [];
+
+  unlockSectionTreeForMutation(section, mutatedNodeIds);
+  return removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds);
+}
+
+function removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds) {
+  if (target.lifecycle === "stableDocumentationTarget") {
+    hideEmptyCatalogTreeSection(section, mutatedNodeIds);
+    stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
+    resizeAncestorSectionsToFit(section, mutatedNodeIds);
+    lockOnlyRootSection(section, mutatedNodeIds);
+    return [];
+  }
+
+  if (target.lifecycle !== "declaredCatalogTarget") {
+    throw new Error(`Unsupported catalog tree target lifecycle '${target.lifecycle}' for ${target.name}.`);
+  }
+
+  const parentSection = section.parent?.type === "SECTION" ? section.parent : null;
+  const removedCatalogNodes = [`${target.name}/${section.name}`];
+  mutatedNodeIds.push(section.id);
+  section.remove();
+
+  if (parentSection) {
+    stackDescendantSectionsWithGap(parentSection, mutatedNodeIds);
+    stackAncestorSectionSiblingsWithGap(parentSection, mutatedNodeIds);
+    resizeAncestorSectionsToFit(parentSection, mutatedNodeIds);
+    lockOnlyRootSection(parentSection, mutatedNodeIds);
+  }
+
+  return removedCatalogNodes;
 }
 
 function rootLabel(target, node) {
@@ -345,6 +406,28 @@ export function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel,
     removedCatalogConnectors,
     connectors: connectors.filter((connector) => !removedConnectorIds.has(connector.id)),
   };
+}
+
+export function removeEmptyStaleCatalogRootSections(target, section, expectedRootLabels, mutatedNodeIds = []) {
+  const expectedRoots = new Set(expectedRootLabels);
+  const removedCatalogRootSections = [];
+  const childSections = [...section.children].filter((child) => child.type === "SECTION");
+
+  for (const childSection of childSections) {
+    if (expectedRoots.has(childSection.name) || !isEmptySection(childSection)) {
+      continue;
+    }
+
+    removedCatalogRootSections.push(`${target.name}/${childSection.name}`);
+    mutatedNodeIds.push(childSection.id);
+    childSection.remove();
+  }
+
+  return removedCatalogRootSections;
+}
+
+function isEmptySection(section) {
+  return section.children.length === 0;
 }
 
 function layoutCatalogTreeNodes(
