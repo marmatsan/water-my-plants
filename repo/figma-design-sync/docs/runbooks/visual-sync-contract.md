@@ -33,6 +33,18 @@ top-level roots inside a catalog target, for example `androidx` in
 runtime scope only: they narrow an already-authorized `main` design model and
 must not be used to create an alternate branch-local model.
 
+When `catalogRootFilters` is present, the mutation scope is the selected root
+subtree, not the whole visual section. The sync may update expected nodes,
+create missing expected nodes, and remove stale nodes reachable from the
+selected roots through managed `treeConnectorEdge` metadata. It must leave
+sibling roots outside the filter untouched, including their stale nodes and
+connectors. If a stale sibling needs cleanup, run that sibling root or the full
+target explicitly.
+
+Partial root sync is a repair/execution granularity, not a completion signal.
+The official metadata (`gitSha` and `modelHash`) must be written only after all
+required roots and all other official targets have completed successfully.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and
