@@ -220,10 +220,12 @@ function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connec
   const staleInstanceIds = new Set(staleInstances.map(([, instance]) => instance.id));
   const removedCatalogNodes = [];
   const removedCatalogConnectors = [];
+  const removedConnectorIds = new Set();
 
   for (const connector of connectors) {
     if (connectorReferencesAnyNode(connector, staleInstanceIds)) {
       removedCatalogConnectors.push(`${target.name}/${connector.id}`);
+      removedConnectorIds.add(connector.id);
       connector.remove();
     }
   }
@@ -237,9 +239,7 @@ function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connec
   return {
     removedCatalogNodes,
     removedCatalogConnectors,
-    connectors: connectors.filter((connector) =>
-      !connectorReferencesAnyNode(connector, staleInstanceIds)
-    ),
+    connectors: connectors.filter((connector) => !removedConnectorIds.has(connector.id)),
   };
 }
 

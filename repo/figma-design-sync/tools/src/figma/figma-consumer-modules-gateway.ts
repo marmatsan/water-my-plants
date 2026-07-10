@@ -74,7 +74,7 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
       configuredByConventionPlugins,
       mutatedNodeIds
     );
-    setUsageBlockVisible(artifactInstance, CONFIGURED_AS_TOOL_HEADING, configuredByConventionPlugins.length > 0, mutatedNodeIds);
+    setUsageBlockVisible(artifactInstance, TOOL_ARTIFACTS_HEADING, configuredByConventionPlugins.length > 0, mutatedNodeIds);
     await updateConsumerModuleInstances(
       artifactInstance,
       USED_BY_MODULE_HEADING,
@@ -88,7 +88,7 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
       artifactInstance,
       [
         [APPLIED_BY_PLUGIN_HEADING, providedByConventionPlugins.length > 0],
-        [CONFIGURED_AS_TOOL_HEADING, configuredByConventionPlugins.length > 0],
+        [TOOL_ARTIFACTS_HEADING, configuredByConventionPlugins.length > 0],
         [USED_BY_MODULE_HEADING, requiredByModules.length > 0],
         [UNUSED_CATALOG_ENTRY_HEADING, isUnused],
       ]
@@ -288,17 +288,17 @@ async function updateToolArtifactUsageInstances(
   options: ConsumerModuleOptions = {}
 ) {
   if (usages.length > 0) {
-    requireUsageChipHeading(root, CONFIGURED_AS_TOOL_HEADING, options);
+    requireUsageChipHeading(root, TOOL_ARTIFACTS_HEADING, options);
   }
 
   const toolArtifactUsageInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
     .filter((candidate) => candidate.name === TOOL_ARTIFACT_USAGE_INSTANCE_NAME)
-    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, CONFIGURED_AS_TOOL_HEADING, options))
+    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, TOOL_ARTIFACTS_HEADING, options))
     .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
   if (toolArtifactUsageInstances.length < usages.length) {
     throw new Error(
-      `Node '${root.id}' expected at least ${usages.length} '${TOOL_ARTIFACT_USAGE_INSTANCE_NAME}' instances for '${CONFIGURED_AS_TOOL_HEADING}', ` +
+      `Node '${root.id}' expected at least ${usages.length} '${TOOL_ARTIFACT_USAGE_INSTANCE_NAME}' instances for '${TOOL_ARTIFACTS_HEADING}', ` +
         `found ${toolArtifactUsageInstances.length}. Update the .artifact component structure before writing metadata.`
     );
   }
@@ -741,13 +741,13 @@ const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
 const APPLIED_BY_PLUGIN_HEADING = "Applied by plugin";
 const USED_BY_MODULE_HEADING = "Used by module";
 const USED_BY_CONVENTION_PLUGIN_HEADING = "Used by convention plugin";
-const CONFIGURED_AS_TOOL_HEADING = "Configured as tool";
+const TOOL_ARTIFACTS_HEADING = "Tool artifacts";
 const UNUSED_CATALOG_ENTRY_HEADING = "Unused catalog entry";
 const USAGE_BLOCK_HEADINGS = [
   APPLIED_BY_PLUGIN_HEADING,
   USED_BY_MODULE_HEADING,
   USED_BY_CONVENTION_PLUGIN_HEADING,
-  CONFIGURED_AS_TOOL_HEADING,
+  TOOL_ARTIFACTS_HEADING,
   UNUSED_CATALOG_ENTRY_HEADING,
 ];
 const USAGE_BLOCK_FRAME_NAMES = new Set([
