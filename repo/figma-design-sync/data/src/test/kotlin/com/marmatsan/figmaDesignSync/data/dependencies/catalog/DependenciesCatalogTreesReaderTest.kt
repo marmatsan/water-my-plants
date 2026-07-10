@@ -277,12 +277,19 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
                 requiredByModules = listOf(":app", ":core:ui")
             )
         )
+        val expectedUnusedUnitTestUsage = listOf(
+            ConventionPluginUsage(
+                pluginId = "com.marmatsan.unitTest",
+                pluginModule = ":gradle-plugins:unit-test",
+                requiredByModules = emptyList()
+            )
+        )
         actualTree.findArtifact("androidx.activity", "activity-compose")
             .providedByConventionPlugins shouldBe expectedComposeUsage
         actualTree.findBundle("androidx.compose.ui", "composeBundle")
             .providedByConventionPlugins shouldBe expectedComposeUsage
         actualTree.findArtifact("io.mockk", "mockk")
-            .providedByConventionPlugins shouldBe emptyList()
+            .providedByConventionPlugins shouldBe expectedUnusedUnitTestUsage
     }
 
     test("readLibraryTreeWithVersionAliases maps convention plugin tool artifact configuration") {
@@ -308,6 +315,10 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
             package com.marmatsan.protobuf.plugin
 
             fun configure() {
+                libs.implementation(
+                    libraryGroup = "com.google.protobuf",
+                    artifact = "protobuf-kotlin"
+                )
                 project.extensions.configure<ProtobufExtension>("protobuf") {
                     protoc {
                         artifact = libs.requireDependencyNotation(
@@ -334,6 +345,17 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         )
 
         // THEN
+        val protobufKotlin = actualTree.findArtifact("com.google.protobuf", "protobuf-kotlin")
+        protobufKotlin.requiredByModules shouldBe emptyList()
+        protobufKotlin.providedByConventionPlugins shouldBe listOf(
+            ConventionPluginUsage(
+                pluginId = "com.marmatsan.protobuf",
+                pluginModule = ":gradle-plugins:protobuf",
+                requiredByModules = emptyList()
+            )
+        )
+        protobufKotlin.configuredByConventionPlugins shouldBe emptyList()
+
         val protoc = actualTree.findArtifact("com.google.protobuf", "protoc")
         protoc.requiredByModules shouldBe emptyList()
         protoc.providedByConventionPlugins shouldBe emptyList()

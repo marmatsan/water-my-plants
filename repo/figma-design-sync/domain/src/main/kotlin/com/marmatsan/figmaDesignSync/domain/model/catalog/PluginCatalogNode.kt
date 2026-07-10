@@ -7,7 +7,7 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
  * present only where the catalog source declares it, [appliedToModules]
  * records modules that apply the plugin directly, and
  * [providedByConventionPlugins] records convention plugins that apply it
- * indirectly to production modules.
+ * indirectly when those convention plugins are used.
  *
  * Example:
  * ```
@@ -22,7 +22,7 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
  * @property version Version metadata declared for the plugin, if any.
  * @property appliedToModules Sorted Gradle module paths applying this plugin.
  * @property providedByConventionPlugins Gradle convention plugins that apply
- * this plugin to production modules.
+ * this plugin for their consumers.
  * @property children Nested plugin-id segments.
  */
 data class PluginCatalogNode(
@@ -33,13 +33,15 @@ data class PluginCatalogNode(
     val children: List<PluginCatalogNode> = emptyList()
 ) {
     /**
-     * Gradle convention plugin that applies this plugin to production modules.
+     * Gradle convention plugin that applies this plugin for projects that apply
+     * the convention plugin.
      *
      * @property pluginId Gradle plugin id applied by production modules.
      * @property pluginModule Gradle module path that implements the convention
      * plugin.
-     * @property requiredByModules Sorted production module paths that receive
-     * this plugin through the convention plugin.
+     * @property requiredByModules Sorted production module paths that currently
+     * receive this plugin through the convention plugin. This list is empty
+     * when no module applies the convention plugin yet.
      */
     data class ConventionPluginUsage(
         val pluginId: String,

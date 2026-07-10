@@ -297,17 +297,12 @@ private fun Map<String, Set<String>>.toConventionPluginUsageMap(
     mapValues { (_, pluginModules) ->
         pluginModules
             .flatMap { pluginModule ->
-                pluginIdsByModule[pluginModule].orEmpty().mapNotNull { pluginId ->
-                    val requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
-                    if (requiredByModules.isEmpty()) {
-                        null
-                    } else {
-                        ConventionPluginUsage(
-                            pluginId = pluginId,
-                            pluginModule = pluginModule,
-                            requiredByModules = requiredByModules
-                        )
-                    }
+                pluginIdsByModule[pluginModule].orEmpty().map { pluginId ->
+                    ConventionPluginUsage(
+                        pluginId = pluginId,
+                        pluginModule = pluginModule,
+                        requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
+                    )
                 }
             }
             .distinct()
@@ -364,17 +359,12 @@ private fun Map<String, Set<String>>.toConventionPluginPluginUsages(
     mapValues { (_, pluginModules) ->
         pluginModules
             .flatMap { pluginModule ->
-                pluginIdsByModule[pluginModule].orEmpty().mapNotNull { pluginId ->
-                    val requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
-                    if (requiredByModules.isEmpty()) {
-                        null
-                    } else {
-                        PluginCatalogNode.ConventionPluginUsage(
-                            pluginId = pluginId,
-                            pluginModule = pluginModule,
-                            requiredByModules = requiredByModules
-                        )
-                    }
+                pluginIdsByModule[pluginModule].orEmpty().map { pluginId ->
+                    PluginCatalogNode.ConventionPluginUsage(
+                        pluginId = pluginId,
+                        pluginModule = pluginModule,
+                        requiredByModules = modulesByPluginId[pluginId].orEmpty().sorted()
+                    )
                 }
             }
             .distinct()
@@ -522,9 +512,7 @@ private val CatalogVersionAliases = Versions(
     androidGradlePlugin = "androidGradlePlugin",
     composeBomVersion = "composeBomVersion",
     coreKtxVersion = "coreKtxVersion",
-    coreSplashscreenVersion = "coreSplashscreenVersion",
     cucumberVersion = "cucumberVersion",
-    datastoreVersion = "datastoreVersion",
     dokkaVersion = "dokkaVersion",
     figmaCodeConnectLibraryVersion = "figmaCodeConnectLibraryVersion",
     figmaCodeConnectPluginVersion = "figmaCodeConnectPluginVersion",
@@ -534,7 +522,6 @@ private val CatalogVersionAliases = Versions(
     kotlinVersion = "kotlinVersion",
     ktorVersion = "ktorVersion",
     kspVersion = "kspVersion",
-    landscapistVersion = "landscapistVersion",
     lifecycleVersion = "lifecycleVersion",
     mockkVersion = "mockkVersion",
     navigationComposeVersion = "navigationComposeVersion",

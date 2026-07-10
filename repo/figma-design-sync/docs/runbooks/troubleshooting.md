@@ -170,6 +170,9 @@ the plugin API but not visually updated on canvas.
 `.tree node` `Plugin` variant must not contain `.usage chip` instances inside
 that block; if one appears there, repair the component contract before changing
 catalog extraction.
+Do not treat an empty `providedByConventionPlugins.requiredByModules` list as
+unused by itself: the entry is still applied by the convention plugin, but no
+module currently applies that convention plugin.
 
 Diagnose this as a visual sync inconsistency before changing catalog
 extraction:

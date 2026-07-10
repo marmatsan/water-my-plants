@@ -32,11 +32,6 @@ fun VersionCatalogBuilder.library(
     artifact: String
 ) = library(alias, group, artifact)
 
-fun VersionCatalogBuilder.plugin(
-    alias: String,
-    id: String
-) = plugin(alias, id)
-
 dependencyResolutionManagement {
     versionCatalogs {
         // gradle-plugins libraries
@@ -65,54 +60,6 @@ dependencyResolutionManagement {
                 group = "org.jetbrains.dokka",
                 artifact = "dokka-gradle-plugin"
             ).version(version("dokkaVersion"))
-
-            library(
-                alias = "io.ktor.bom",
-                group = "io.ktor",
-                artifact = "ktor-bom"
-            ).version(version("ktorVersion"))
-
-            library(
-                alias = "io.ktor.client.core",
-                group = "io.ktor",
-                artifact = "ktor-client-core"
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.client.cio",
-                group = "io.ktor",
-                artifact = "ktor-client-cio"
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.client.content.negotiation",
-                group = "io.ktor",
-                artifact = "ktor-client-content-negotiation"
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.serialization.kotlinx.json",
-                group = "io.ktor",
-                artifact = "ktor-serialization-kotlinx-json"
-            ).withoutVersion()
-
-            library(
-                alias = "org.jetbrains.kotlinx.serialization.json",
-                group = "org.jetbrains.kotlinx",
-                artifact = "kotlinx-serialization-json"
-            ).version(version("serializationVersion"))
-
-            library(
-                alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
-                group = "me.tatarka.inject",
-                artifact = "kotlin-inject-compiler-ksp"
-            ).version(version("kotlinInjectVersion"))
-
-            library(
-                alias = "me.tatarka.inject.kotlin.inject.runtime",
-                group = "me.tatarka.inject",
-                artifact = "kotlin-inject-runtime"
-            ).version(version("kotlinInjectVersion"))
             
             /* Testing */
             // JUnit Platform
@@ -120,31 +67,6 @@ dependencyResolutionManagement {
                 alias = "org.junit.jupiter.platform.launcher",
                 group = "org.junit.platform",
                 artifact = "junit-platform-launcher"
-            ).withoutVersion()
-
-            library(
-                alias = "org.junit.platform.suite",
-                group = "org.junit.platform",
-                artifact = "junit-platform-suite"
-            ).withoutVersion()
-
-            // Cucumber
-            library(
-                alias = "io.cucumber.bom",
-                group = "io.cucumber",
-                artifact = "cucumber-bom"
-            ).version(version("cucumberVersion"))
-
-            library(
-                alias = "io.cucumber.java8",
-                group = "io.cucumber",
-                artifact = "cucumber-java8"
-            ).withoutVersion()
-
-            library(
-                alias = "io.cucumber.junit.platform.engine",
-                group = "io.cucumber",
-                artifact = "cucumber-junit-platform-engine"
             ).withoutVersion()
 
             // Kotest
@@ -166,23 +88,6 @@ dependencyResolutionManagement {
                 group = "io.mockk",
                 artifact = "mockk"
             ).version(version("mockkVersion"))
-        }
-
-        create("plugins") {
-            plugin(
-                alias = "com.google.devtools.ksp",
-                id = "com.google.devtools.ksp"
-            ).version(version("kspVersion"))
-
-            plugin(
-                alias = "org.jetbrains.kotlin.plugin.serialization",
-                id = "org.jetbrains.kotlin.plugin.serialization"
-            ).version(version("kotlinVersion"))
-
-            plugin(
-                alias = "org.jetbrains.dokka",
-                id = "org.jetbrains.dokka"
-            ).version(version("dokkaVersion"))
         }
     }
 }

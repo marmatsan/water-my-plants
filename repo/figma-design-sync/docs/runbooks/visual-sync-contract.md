@@ -119,13 +119,15 @@ For each section:
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
 - Library artifacts and bundles may also carry `providedByConventionPlugins`.
-  Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  Each usage has `pluginId`, `pluginModule`, and `requiredByModules`. It is the
   model source for `Applied by plugin` `.usage block type=applied-by-plugin`
-  rows.
+  rows, even when `requiredByModules` is empty because no module currently
+  applies that convention plugin.
 - Plugin catalog entries may also carry `providedByConventionPlugins`. Each
-  usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  usage has `pluginId`, `pluginModule`, and `requiredByModules`. It is the
   model source for `Used by convention plugin` `.usage block
-  type=used-by-convention-plugin` rows on the `Plugin` `.tree node` variant.
+  type=used-by-convention-plugin` rows on the `Plugin` `.tree node` variant,
+  even when no module currently applies that convention plugin.
 - Library artifacts may also carry `configuredByConventionPlugins`. Each usage
   has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
   uses the artifact as build tooling configuration, not that it provides the
@@ -148,8 +150,8 @@ For each section:
 - `.artifact` and `.artifacts bundle` must not expose the legacy aggregate
   `Show consumer modules` property. Their usage block visibility is derived
   only from model data and the granular booleans above.
-- When a direct artifact entry or bundle has no `Used by module`, no
-  `Applied by plugin`, and no `Tool artifacts` data, show
+- When a direct artifact entry or bundle has no direct `requiredByModules`, no
+  `providedByConventionPlugins`, and no `configuredByConventionPlugins`, show
   `Unused catalog entry` instead of empty usage blocks. Do not mark child
   artifact rows inside a bundle as unused; the bundle is the catalog entry.
 - Update `Used by module` instances for `.artifacts bundle` entries from
