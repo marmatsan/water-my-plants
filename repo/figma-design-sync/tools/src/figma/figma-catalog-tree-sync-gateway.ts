@@ -72,6 +72,16 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const sectionNodeId = options.sectionNodeOverrides?.[target.name] || target.sectionNodeId;
     const section = await requireSection(sectionNodeId);
     unlockSectionTreeForMutation(section, mutatedNodeIds);
+
+    if (!isPartialRootSync && scopedModelNodes.length === 0) {
+      hideEmptyCatalogTreeSection(section, mutatedNodeIds);
+      stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
+      resizeAncestorSectionsToFit(section, mutatedNodeIds);
+      lockOnlyRootSection(section, mutatedNodeIds);
+      continue;
+    }
+
+    showCatalogTreeSection(section, mutatedNodeIds);
     const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
     let connectors = collectTreeConnectors(section);
 
@@ -191,6 +201,20 @@ export function filterModelRoots(target, modelNodes, rootFilter) {
   }
 
   return filteredNodes;
+}
+
+function hideEmptyCatalogTreeSection(section, mutatedNodeIds) {
+  if (section.visible === false) return;
+
+  section.visible = false;
+  mutatedNodeIds.push(section.id);
+}
+
+function showCatalogTreeSection(section, mutatedNodeIds) {
+  if (section.visible !== false) return;
+
+  section.visible = true;
+  mutatedNodeIds.push(section.id);
 }
 
 function rootLabel(target, node) {

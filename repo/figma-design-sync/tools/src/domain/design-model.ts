@@ -8,7 +8,8 @@ export type CatalogTreeTarget = {
   sectionNodeId: string;
   type: CatalogTreeType;
   nodes: (designModel: DesignModel) => any[] | undefined;
-  gradleConventionPluginNodes?: boolean;
+  gradlePluginNodes?: boolean;
+  warnWhenUnused?: boolean;
 };
 
 export type FlattenedCatalogNode = Record<string, any> & {

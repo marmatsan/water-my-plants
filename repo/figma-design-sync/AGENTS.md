@@ -54,6 +54,9 @@ used by CI.
 
 - `generateFigmaDesignModel`: generates
   `build/reports/figma-sync/design-model.json`.
+- `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
+  plugin entries that are not used by a module, convention plugin, or tool
+  configuration. This task is wired into the root `check` lifecycle.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it

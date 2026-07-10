@@ -143,49 +143,54 @@ For each section:
   usage content.
 - Control each usage block through its own component boolean on `.artifact` and
   `.artifacts bundle`: `Show applied by plugin`, `Show used by module`,
-  `Show configured as tool` where the component supports tooling rows, and
-  `Show unused catalog entry`. `Show configured as tool` controls the visible
-  `Tool artifacts` section; it is not the required heading text. Do not use one
-  aggregate boolean to show multiple usage blocks.
+  and `Show configured as tool` where the component supports tooling rows.
+  `Show configured as tool` controls the visible `Tool artifacts` section; it
+  is not the required heading text. `.artifact` and `.artifacts bundle` do not
+  expose an unused-entry boolean. Do not use one aggregate boolean to show
+  multiple usage blocks.
 - `.artifact` and `.artifacts bundle` must not expose the legacy aggregate
   `Show consumer modules` property. Their usage block visibility is derived
   only from model data and the granular booleans above.
-- When a direct artifact entry or bundle has no direct `requiredByModules`, no
-  `providedByConventionPlugins`, and no `configuredByConventionPlugins`, show
-  `Unused catalog entry` instead of empty usage blocks. Do not mark child
-  artifact rows inside a bundle as unused; the bundle is the catalog entry.
+- Direct artifact entries and bundles with no direct `requiredByModules`, no
+  `providedByConventionPlugins`, and no `configuredByConventionPlugins` are
+  invalid catalog data. `checkFigmaCatalogUsage` must fail in CI before the
+  model can be merged, so `.artifact` and `.artifacts bundle` must not render
+  or expose an unused-entry block.
 - Update `Used by module` instances for `.artifacts bundle` entries from
   the bundle `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
   instances inside a bundle must not show their own `Used by module` section.
-- Update `Used by module` instances for plugin tree nodes from
+- Update `Applied by module` instances for plugin tree nodes from
   `appliedToModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
-- For plugin tree nodes, hide `Used by module` and
-  `Used by convention plugin` when their source lists are empty. When a plugin
-  catalog entry has no `appliedToModules` and no `providedByConventionPlugins`,
-  show `Unused catalog entry` instead of empty usage blocks.
-- Leaf nodes in `waterMyPlants.customGradleConventionPlugins` are also catalog
-  entries for this visual state even though they do not declare versions. A
-  convention plugin such as `dokkaDocumentation` or `protobuf` with no
-  `appliedToModules` must show `Unused catalog entry`.
+- For plugin tree nodes, hide `Applied by module` and
+  `Used by convention plugin` when their source lists are empty. Plugin catalog
+  entries with no `appliedToModules` and no `providedByConventionPlugins` are
+  invalid catalog data and must be rejected by `checkFigmaCatalogUsage`.
+- Leaf nodes in `waterMyPlants.customGradlePlugins` are an inventory of
+  repository-owned Gradle plugins, not dependency catalog entries. They may be
+  present even when no module consumes them yet. When such a leaf has no
+  effective consumers, show the static warning block `No module applies it`
+  instead of `Unused catalog entry`.
 - Control plugin usage blocks through their own component boolean on `.tree
-  node` `Plugin`: `Show used by module`, `Show used by convention plugin`, and
-  `Show unused catalog entry`. Do not expose the legacy aggregate
-  `Show consumer module` property.
+  node` `Plugin`: `Show applied by module`,
+  `Show used by convention plugin`, and
+  `Show unused` for the custom-plugin warning block. Do not expose
+  the legacy aggregate `Show consumer module` property.
 - In `.tree node` `Plugin`, usage blocks are direct children of the component:
-  `.usage block type=used-by-module`, `.usage block
-  type=used-by-convention-plugin`, and `.usage block
-  type=unused-catalog-entry`, each controlled by its own boolean. Do not
-  require a wrapper frame named `content`.
+  `.usage block type=applied-by-module`, `.usage block
+  type=used-by-convention-plugin`, plus a static `No module applies it` status
+  block for the custom-plugin warning, each controlled by its own boolean. Do
+  not require a wrapper frame named `content`.
 - Parent components must expose every usage section in their template. The sync
   decides visibility on each generated instance from the model data by setting
   the granular boolean and the direct block visibility for that section.
-- Represent usage metadata with `.usage chip` instances. `Unused catalog entry`
-  is not usage metadata and must not be rendered as a `.usage chip`.
+- Represent usage metadata with `.usage chip` instances. The custom-plugin
+  warning block is not usage metadata and must not render `.usage chip`
+  instances.
 - Represent shared usage sections with `.usage block`. The supported `type`
   variants are `applied-by-plugin`, `used-by-module`,
-  `used-by-convention-plugin`, and `unused-catalog-entry`.
+  `used-by-convention-plugin`, and `applied-by-module`.
 - `.usage chip` exposes only two `kind` variants: `module` for modules that
   require or apply an item, and `convention-plugin` for Gradle convention
   plugins that provide dependencies to production modules or configure tooling
@@ -195,11 +200,17 @@ For each section:
 - `.tool artifact usage` represents one `configuredByConventionPlugins` entry.
   Its direct text property `tool artifact target` receives `target`; its nested
   `.usage chip` receives `kind=convention-plugin` and `name=pluginId`.
-- Render `Unused catalog entry` as a static status block matching `.artifact`
-  and `.artifacts bundle`: the container fill is
-  `md/sys/color/error-container`, the label fill is
-  `md/sys/color/on-error-container`. The `.tree node` `Plugin` variant must
-  not contain `.usage chip` instances inside that block.
+- Render the custom-plugin warning as a static status block: the container fill
+  is `md/sys/color/error-container`, the label fill is
+  `md/sys/color/on-error-container`, and the `.tree node` `Plugin` variant must
+  not contain `.usage chip` instances inside that block. The writer accepts
+  `No module applies it`; legacy `Not used by module` and
+  `Unused catalog entry` headings are accepted only to clean up sections still
+  being migrated.
+- If a catalog target contains no model nodes, hide that target section and
+  resize/re-stack its parent sections. For example, an included build with no
+  `plugins` catalog must not leave an empty `gradlePlugins.plugins` section in
+  Figma.
 - Create missing `.tree node` instances by cloning a compatible existing node
   from the same visual section, then applying generated model values.
 - Create missing top-level tree sections when a new top-level library group or
@@ -225,8 +236,9 @@ Use `.tree node` component:
   `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63069-678`
 - Use the `Library` variant for libraries.
 - Use the `Plugin` variant for plugins.
-- The `Plugin` variant exposes granular usage booleans: `Show used by module`,
-  `Show used by convention plugin`, and `Show unused catalog entry`.
+- The `Plugin` variant exposes granular usage booleans:
+  `Show applied by module`, `Show used by convention plugin`, and
+  `Show unused`.
 - The `Plugin` variant must not expose the legacy aggregate
   `Show consumer module` switch. Visual correctness comes from the granular
   booleans and the `.usage block` visibility.

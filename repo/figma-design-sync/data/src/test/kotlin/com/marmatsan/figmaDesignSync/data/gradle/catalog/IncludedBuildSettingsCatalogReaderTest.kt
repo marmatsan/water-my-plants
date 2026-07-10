@@ -64,6 +64,30 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
         )
     }
 
+    test("readLibraryTree returns an empty tree when the included build has no libs catalog") {
+        // GIVEN
+        val settingsFile = settingsFile(
+            """
+            dependencyResolutionManagement {
+                versionCatalogs {
+                    create("plugins") {
+                        plugin(
+                            alias = "org.jetbrains.dokka",
+                            id = "org.jetbrains.dokka"
+                        ).version(version("dokkaVersion"))
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
+
+        // THEN
+        actualTree shouldBe LibraryCatalogTree(roots = emptyList())
+    }
+
     test("readPluginTree maps included build settings plugins catalog to plugin catalog tree") {
         // GIVEN
         val settingsFile = settingsFile(
@@ -108,6 +132,31 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                 )
             )
         )
+    }
+
+    test("readPluginTree returns an empty tree when the included build has no plugins catalog") {
+        // GIVEN
+        val settingsFile = settingsFile(
+            """
+            dependencyResolutionManagement {
+                versionCatalogs {
+                    create("libs") {
+                        library(
+                            alias = "io.ktor.client.core",
+                            group = "io.ktor",
+                            artifact = "ktor-client-core"
+                        ).withoutVersion()
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        // WHEN
+        val actualTree = IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
+
+        // THEN
+        actualTree shouldBe PluginCatalogTree(roots = emptyList())
     }
 })
 

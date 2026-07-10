@@ -88,8 +88,8 @@ Important generation details:
   dependency but no module applies the convention plugin yet.
 - Water My Plants plugin entries include `providedByConventionPlugins` when a
   convention plugin applies a catalog plugin. Direct plugin applications remain
-  in `appliedToModules`; the visual `Used by module` row combines direct modules
-  with the modules listed in each
+  in `appliedToModules`; the visual `Applied by module` row combines direct
+  modules with the modules listed in each
   `providedByConventionPlugins.requiredByModules` entry, which may be empty.
 - `dependencyCatalog` contributes modules and module dependencies but not
   `content.catalogs.dependencyCatalog` because
@@ -103,6 +103,15 @@ Important generation details:
   `GradleConventionPlugin` and whose plugin id is applied from the main build.
 - `com.marmatsan.figmaDesignSync` is a regular Gradle plugin, not a convention
   plugin. It is included in `content.catalogs.waterMyPlants.customGradlePlugins`.
+- Dependency catalog entries are expected to be used. `checkFigmaCatalogUsage`
+  runs through `.\gradlew.bat check` and rejects unused library/plugin entries
+  before they can be merged. Repository-owned custom Gradle plugin inventories
+  are the exception: they may include plugins that no module consumes yet, and
+  the visual sync renders those leaves with a `No module applies it` warning.
+- Included-build catalog targets with no model nodes are hidden by visual sync.
+  An included build may omit `versionCatalogs.create("plugins")`; the resulting
+  `*.plugins` Figma section should disappear instead of staying as an empty
+  section.
 - `content.moduleDependencies` contains one graph for the root build and one
   graph per configured included build: `main`, `dependencyCatalog`,
   `figmaDesignSync`, and `gradlePlugins`.
