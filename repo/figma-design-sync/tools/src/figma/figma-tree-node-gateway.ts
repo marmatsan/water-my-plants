@@ -6,13 +6,11 @@ import { updateLibraryArtifactConsumerModules, updateLibraryBundleConsumerModule
 import type { FlattenedCatalogNode } from "../domain/design-model";
 import { getComponentPropertyValue, requireTreeNodeComponent } from "./figma-node-gateway";
 import {
-  libraryArtifactNames,
   libraryArtifacts,
-  libraryArtifactVersions,
   libraryBundles,
   sortedUnique,
 } from "../domain/catalog/library-catalog-entries";
-import { countNamedTextNodes, updateNamedTextNodes } from "./figma-text-gateway";
+import { updateNamedTextNodes } from "./figma-text-gateway";
 import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
 
 export function collectTreeNodeInstancesByLabel(section, type) {
@@ -73,29 +71,26 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   const horizontalCenter = treeNodeHorizontalCenter(instance);
   const artifacts = libraryArtifacts(node.entries);
   const bundles = libraryBundles(node.entries);
-  const artifactNames = artifacts.map((artifact) => artifact.name);
-  const artifactVersions = libraryArtifactVersions(node.entries);
   const requiredByModules = sortedUnique([
     ...artifacts.flatMap((artifact) => artifact.requiredByModules),
     ...bundles.flatMap((bundle) => bundle.requiredByModules),
   ]);
   const hasCatalogEntries = artifacts.some((artifact) => artifact.isCatalogEntry === true) ||
     bundles.some((bundle) => bundle.isCatalogEntry === true);
+  const hasVisibleCatalogItems = artifacts.length > 0 || bundles.length > 0;
 
   instance.setProperties({
     [TREE_NODE_PROPS.libraryGroup]: node.label,
-    [TREE_NODE_PROPS.showArtifacts]: node.artifactsVisible && artifactNames.length > 0,
+    [TREE_NODE_PROPS.showArtifacts]: node.artifactsVisible && hasVisibleCatalogItems,
     [TREE_NODE_PROPS.type]: "Library",
   });
   mutatedNodeIds.push(instance.id);
 
   await updateNamedTextNodes(instance, "Library group", [node.label], mutatedNodeIds);
-  await updateNamedTextNodes(instance, "artifact name", artifactNames, mutatedNodeIds, { allowExtra: true });
-  await updateNamedTextNodes(instance, "artifact version", artifactVersions, mutatedNodeIds, { allowExtra: true });
   await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
   await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
 
-  if (artifactNames.length === 0 && requiredByModules.length === 0 && !hasCatalogEntries) {
+  if (!hasVisibleCatalogItems && requiredByModules.length === 0 && !hasCatalogEntries) {
     resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
   }
 
@@ -246,13 +241,10 @@ function findTreeNodeTemplate(section, node) {
     ) || candidates[0];
   }
 
-  const artifactNameCount = libraryArtifactNames(node.entries).length;
-  const artifactVersionCount = libraryArtifactVersions(node.entries).length;
+  const hasVisibleCatalogItems = libraryArtifacts(node.entries).length > 0 ||
+    libraryBundles(node.entries).length > 0;
   return candidates.find((instance) =>
-    countNamedTextNodes(instance, "artifact name") === artifactNameCount &&
-      countNamedTextNodes(instance, "artifact version") === artifactVersionCount
-  ) || candidates.find((instance) =>
-    getComponentPropertyValue(instance, TREE_NODE_PROPS.showArtifacts) === (node.artifactsVisible && artifactNameCount > 0)
+    getComponentPropertyValue(instance, TREE_NODE_PROPS.showArtifacts) === (node.artifactsVisible && hasVisibleCatalogItems)
   ) || candidates[0];
 }
 

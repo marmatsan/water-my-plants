@@ -36,6 +36,7 @@ export async function updateLibraryArtifactConsumerModules(root, artifacts, muta
     const configuredByConventionPlugins = artifact.configuredByConventionPlugins || [];
     const isUnused = isUnusedCatalogEntry(artifact);
     artifactInstance.visible = true;
+    syncArtifactIdentity(artifactInstance, artifact, mutatedNodeIds);
     syncStructuralSeparators(artifactInstance, mutatedNodeIds);
     setBooleanComponentProperty(
       artifactInstance,
@@ -115,6 +116,8 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
     const providedByConventionPlugins = usageChipsForConventionPlugins(bundle.providedByConventionPlugins || []);
     const isUnused = !hasConsumerUsage(bundle);
     bundleInstance.visible = true;
+    syncBundleIdentity(bundleInstance, bundle, mutatedNodeIds);
+    syncBundleArtifactInstances(bundleInstance, bundle.artifacts || [], mutatedNodeIds);
     syncStructuralSeparators(bundleInstance, mutatedNodeIds);
     setBooleanComponentProperty(
       bundleInstance,
@@ -171,6 +174,116 @@ export async function updateLibraryBundleConsumerModules(root, bundles, mutatedN
   }
 
   hideUnusedInstances(bundleInstances.slice(bundles.length), mutatedNodeIds);
+}
+
+function syncArtifactIdentity(artifactInstance, artifact, mutatedNodeIds) {
+  const version = visibleVersion(artifact.version, "artifact version");
+
+  setTextComponentProperty(
+    artifactInstance,
+    ARTIFACT_PROPS.name,
+    String(artifact.name ?? "artifact name"),
+    mutatedNodeIds
+  );
+  setTextComponentProperty(
+    artifactInstance,
+    ARTIFACT_PROPS.version,
+    version.value,
+    mutatedNodeIds
+  );
+  setBooleanComponentProperty(
+    artifactInstance,
+    ARTIFACT_PROPS.showVersion,
+    version.visible,
+    mutatedNodeIds
+  );
+}
+
+function syncBundleIdentity(bundleInstance, bundle, mutatedNodeIds) {
+  const version = visibleVersion(bundle.version, "version");
+
+  setTextComponentProperty(
+    bundleInstance,
+    ARTIFACTS_BUNDLE_PROPS.alias,
+    String(bundle.alias ?? "Alias"),
+    mutatedNodeIds
+  );
+  setTextComponentProperty(
+    bundleInstance,
+    ARTIFACTS_BUNDLE_PROPS.version,
+    version.value,
+    mutatedNodeIds
+  );
+  setBooleanComponentProperty(
+    bundleInstance,
+    ARTIFACTS_BUNDLE_PROPS.showVersion,
+    version.visible,
+    mutatedNodeIds
+  );
+}
+
+function syncBundleArtifactInstances(bundleInstance, artifacts, mutatedNodeIds) {
+  const artifactInstances = directCatalogItemInstances(bundleInstance, ARTIFACT_INSTANCE_NAME);
+
+  if (artifactInstances.length < artifacts.length) {
+    throw new Error(
+      `Bundle '${bundleInstance.id}' expected at least ${artifacts.length} '${ARTIFACT_INSTANCE_NAME}' instances, ` +
+        `found ${artifactInstances.length}. Update the .artifacts bundle component structure before writing metadata.`
+    );
+  }
+
+  for (let index = 0; index < artifacts.length; index += 1) {
+    const artifactInstance = artifactInstances[index];
+    artifactInstance.visible = true;
+    syncArtifactIdentity(artifactInstance, artifacts[index], mutatedNodeIds);
+    syncStructuralSeparators(artifactInstance, mutatedNodeIds);
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showAppliedByPlugin,
+      false,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showConfiguredAsTool,
+      false,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showUsedByModule,
+      false,
+      mutatedNodeIds
+    );
+    setBooleanComponentProperty(
+      artifactInstance,
+      ARTIFACT_PROPS.showUnusedCatalogEntry,
+      false,
+      mutatedNodeIds
+    );
+    setUsageBlockVisible(artifactInstance, APPLIED_BY_PLUGIN_HEADING, false, mutatedNodeIds);
+    setUsageBlockVisible(artifactInstance, TOOL_ARTIFACTS_HEADING, false, mutatedNodeIds);
+    setUsageBlockVisible(artifactInstance, USED_BY_MODULE_HEADING, false, mutatedNodeIds);
+    setUsageBlockVisible(artifactInstance, UNUSED_CATALOG_ENTRY_HEADING, false, mutatedNodeIds);
+    syncDirectUsageSeparators(artifactInstance, mutatedNodeIds);
+    assertUsageSurface(
+      artifactInstance,
+      [
+        [APPLIED_BY_PLUGIN_HEADING, false],
+        [TOOL_ARTIFACTS_HEADING, false],
+        [USED_BY_MODULE_HEADING, false],
+        [UNUSED_CATALOG_ENTRY_HEADING, false],
+      ]
+    );
+  }
+
+  hideUnusedInstances(artifactInstances.slice(artifacts.length), mutatedNodeIds);
+}
+
+function visibleVersion(version, placeholder) {
+  return version?.visible === true && Boolean(version.value)
+    ? { visible: true, value: String(version.value) }
+    : { visible: false, value: placeholder };
 }
 
 export async function updateConsumerModuleInstances(

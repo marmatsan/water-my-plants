@@ -111,6 +111,10 @@ For each section:
   `.artifact` / `.artifacts bundle` children first, including hidden template
   slots that can be made visible. Do not let visible nested `.artifact` rows
   inside a `.artifacts bundle` win over direct hidden slots.
+- Bind direct catalog artifact entries to direct `.artifact` slots only. Bind
+  artifacts declared inside a bundle only to child `.artifact` rows inside the
+  corresponding `.artifacts bundle`; they must not consume sibling `.artifact`
+  slots in the `.tree node` `artifacts` frame.
 - Update `Used by module` instances for library artifacts from
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
