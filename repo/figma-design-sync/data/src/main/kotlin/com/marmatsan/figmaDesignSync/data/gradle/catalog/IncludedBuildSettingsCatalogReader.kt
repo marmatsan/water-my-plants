@@ -26,7 +26,8 @@ class IncludedBuildSettingsCatalogReader {
         usageByAlias: Map<String, Set<String>> = emptyMap()
     ): LibraryCatalogTree {
         val content = settingsFile.readText()
-        val libsBlock = content.extractCreateBlock("libs")
+        val libsBlock = content.extractCreateBlockOrNull("libs")
+            ?: return LibraryCatalogTree(roots = emptyList())
 
         return libsBlock
             .readLibraryDeclarations()
@@ -41,7 +42,8 @@ class IncludedBuildSettingsCatalogReader {
         usageByAlias: Map<String, Set<String>> = emptyMap()
     ): PluginCatalogTree {
         val content = settingsFile.readText()
-        val pluginsBlock = content.extractCreateBlock("plugins")
+        val pluginsBlock = content.extractCreateBlockOrNull("plugins")
+            ?: return PluginCatalogTree(roots = emptyList())
 
         return pluginsBlock
             .readPluginDeclarations()
@@ -134,13 +136,11 @@ class IncludedBuildSettingsCatalogReader {
         )
     }
 
-    private fun String.extractCreateBlock(catalogName: String): String {
+    private fun String.extractCreateBlockOrNull(catalogName: String): String? {
         val createCall = """create("$catalogName")"""
         val createCallIndex = indexOf(createCall)
 
-        require(createCallIndex >= 0) {
-            "Catalog '$catalogName' not found in included-build settings.gradle.kts"
-        }
+        if (createCallIndex < 0) return null
 
         val blockStart = indexOf('{', startIndex = createCallIndex)
 
