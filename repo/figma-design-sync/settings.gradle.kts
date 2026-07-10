@@ -139,12 +139,6 @@ dependencyResolutionManagement {
                 artifact = "kotest-assertions-core"
             ).version(version("kotestVersion"))
 
-            // MockK
-            library(
-                alias = "io.mockk",
-                group = "io.mockk",
-                artifact = "mockk"
-            ).version(version("mockkVersion"))
         }
 
         create("plugins") {

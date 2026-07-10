@@ -1,11 +1,14 @@
 package com.marmatsan.figmaDesignSync.plugin.gradle
 
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelIncludedBuildSource
+import com.marmatsan.figmaDesignSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 /**
@@ -20,10 +23,40 @@ import org.gradle.kotlin.dsl.register
 @Suppress("unused")
 class FigmaDesignSyncGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        project.pluginManager.apply("base")
+
         val extension = project.extensions.create<figmaDesignSyncExtension>("figmaDesignSync")
 
         extension.designModelMetadataNodeUrl.convention(FIGMA_PAGE_URL)
         val includedBuildSources = extension.includedBuildSources(project)
+
+        val checkFigmaCatalogUsage = project.tasks.register<CheckFigmaCatalogUsageTask>("checkFigmaCatalogUsage") {
+            group = "verification"
+            description = "Checks that dependency catalog entries rendered in Figma are used by the repository."
+
+            rootSettingsFile.set(extension.rootSettingsFile)
+            includedBuildSettingsFiles.from(
+                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
+            )
+            includedBuildModelNames.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
+            )
+            includedBuildModulePathPrefixes.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+            )
+            includedBuildPublishesCatalogs.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+            )
+            includedBuildPublishesConventionPlugins.set(
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
+            )
+            projectRootDirectory.set(project.layout.projectDirectory)
+            includedBuildSourcesProvider = includedBuildSources
+        }
+
+        project.tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+            dependsOn(checkFigmaCatalogUsage)
+        }
 
         project.tasks.register<GenerateFigmaDesignModelTask>("generateFigmaDesignModel") {
             group = "documentation"

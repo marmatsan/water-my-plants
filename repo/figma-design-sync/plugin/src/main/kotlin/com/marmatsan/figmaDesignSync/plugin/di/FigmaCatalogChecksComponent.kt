@@ -9,6 +9,7 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDesignSync.domain.port.versions.RepositoryVersionsPort
+import com.marmatsan.figmaDesignSync.plugin.checker.catalog.CatalogUsageChecker
 import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaTrunkSyncChecker
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
 import me.tatarka.inject.annotations.Component
@@ -32,6 +33,11 @@ internal abstract class figmaDesignSyncComponent {
      * Service used by `checkFigmaTrunkSync`.
      */
     abstract val trunkSyncChecker: FigmaTrunkSyncChecker
+
+    /**
+     * Service used by `checkFigmaCatalogUsage`.
+     */
+    abstract val catalogUsageChecker: CatalogUsageChecker
 
     /**
      * Provides the narrow Figma API client used only by the sync checker.

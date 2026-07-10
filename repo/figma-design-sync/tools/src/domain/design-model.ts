@@ -9,6 +9,7 @@ export type CatalogTreeTarget = {
   type: CatalogTreeType;
   nodes: (designModel: DesignModel) => any[] | undefined;
   gradleConventionPluginNodes?: boolean;
+  warnWhenUnused?: boolean;
 };
 
 export type FlattenedCatalogNode = Record<string, any> & {

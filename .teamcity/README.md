@@ -66,7 +66,9 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
-- runs `Verify`;
+- runs `Verify` with `.\gradlew.bat check`;
+- blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
+  which is wired into the Gradle `check` lifecycle;
 - publishes the `TeamCity CI` GitHub status from `Verify`.
 
 `CI` does not run `generateFigmaDesignModel` and does not publish

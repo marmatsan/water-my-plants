@@ -109,7 +109,8 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     ...providedByConventionPlugins.flatMap((usage) => usage.requiredByModules || []),
   ]);
   const isGradleConventionPlugin = target?.gradleConventionPluginNodes === true && node.children.length === 0;
-  const isUnusedCatalogEntry = (isPluginCatalogEntry(node) || isGradleConventionPlugin) &&
+  const showUnusedPluginWarning = target?.warnWhenUnused === true &&
+    node.children.length === 0 &&
     effectiveAppliedToModules.length === 0 &&
     providedByConventionPlugins.length === 0;
 
@@ -126,13 +127,13 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     instance,
     effectiveAppliedToModules,
     providedByConventionPlugins,
-    isUnusedCatalogEntry,
+    showUnusedPluginWarning,
     mutatedNodeIds
   );
 
   if (effectiveAppliedToModules.length === 0 &&
     providedByConventionPlugins.length === 0 &&
-    !isUnusedCatalogEntry &&
+    !showUnusedPluginWarning &&
     !isGradleConventionPlugin &&
     !hasVisiblePluginVersion(node)
   ) {
@@ -144,10 +145,6 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
 
 function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
   return node.version?.visible === true && Boolean(node.version?.value);
-}
-
-function isPluginCatalogEntry(node: FlattenedCatalogNode) {
-  return node.version !== null && node.version !== undefined;
 }
 
 function resizeBareTreeNodeToFitLabel(instance, labelName, mutatedNodeIds) {

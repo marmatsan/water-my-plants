@@ -111,6 +111,7 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     name: "waterMyPlants.customGradlePlugins",
     sectionNodeId: "63330:551",
     type: "Plugin",
+    warnWhenUnused: true,
     nodes: (designModel) => designModel.content?.catalogs?.waterMyPlants?.customGradlePlugins,
   },
   {
