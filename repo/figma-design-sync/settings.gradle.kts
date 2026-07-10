@@ -49,7 +49,7 @@ dependencyResolutionManagement {
                 alias = "io.ktor.bom",
                 group = "io.ktor",
                 artifact = "ktor-bom"
-            ).version(version("ktorVersion"))
+            ).version(version("ktorLibraryVersion"))
 
             library(
                 alias = "io.ktor.client.core",
@@ -79,19 +79,19 @@ dependencyResolutionManagement {
                 alias = "org.jetbrains.kotlinx.serialization.json",
                 group = "org.jetbrains.kotlinx",
                 artifact = "kotlinx-serialization-json"
-            ).version(version("serializationVersion"))
+            ).version(version("serializationLibraryVersion"))
 
             library(
                 alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
                 group = "me.tatarka.inject",
                 artifact = "kotlin-inject-compiler-ksp"
-            ).version(version("kotlinInjectVersion"))
+            ).version(version("kotlinInjectLibraryVersion"))
 
             library(
                 alias = "me.tatarka.inject.kotlin.inject.runtime",
                 group = "me.tatarka.inject",
                 artifact = "kotlin-inject-runtime"
-            ).version(version("kotlinInjectVersion"))
+            ).version(version("kotlinInjectLibraryVersion"))
             
             /* Testing */
             // JUnit Platform
@@ -112,7 +112,7 @@ dependencyResolutionManagement {
                 alias = "io.cucumber.bom",
                 group = "io.cucumber",
                 artifact = "cucumber-bom"
-            ).version(version("cucumberVersion"))
+            ).version(version("cucumberLibraryVersion"))
 
             library(
                 alias = "io.cucumber.java8",
@@ -131,13 +131,13 @@ dependencyResolutionManagement {
                 alias = "io.kotest.runner.junit5",
                 group = "io.kotest",
                 artifact = "kotest-runner-junit5"
-            ).version(version("kotestVersion"))
+            ).version(version("kotestLibraryVersion"))
 
             library(
                 alias = "io.kotest.assertions.core",
                 group = "io.kotest",
                 artifact = "kotest-assertions-core"
-            ).version(version("kotestVersion"))
+            ).version(version("kotestLibraryVersion"))
 
         }
 
@@ -145,7 +145,7 @@ dependencyResolutionManagement {
             plugin(
                 alias = "com.google.devtools.ksp",
                 id = "com.google.devtools.ksp"
-            ).version(version("kspVersion"))
+            ).version(version("kspPluginVersion"))
 
             plugin(
                 alias = "org.jetbrains.kotlin.plugin.serialization",
@@ -155,7 +155,7 @@ dependencyResolutionManagement {
             plugin(
                 alias = "org.jetbrains.dokka",
                 id = "org.jetbrains.dokka"
-            ).version(version("dokkaVersion"))
+            ).version(version("dokkaPluginVersion"))
         }
     }
 }

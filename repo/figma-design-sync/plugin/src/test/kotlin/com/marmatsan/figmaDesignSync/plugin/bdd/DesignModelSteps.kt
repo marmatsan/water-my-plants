@@ -124,7 +124,12 @@ class DesignModelSteps : En {
             firstResult.content["versions"]
                 ?.jsonObject
                 ?.keys
-                ?.toList() shouldBe listOf("androidGradlePlugin", "kotlinVersion")
+                ?.toList() shouldBe listOf(
+                    "activityComposeLibraryVersion",
+                    "androidGradlePlugin",
+                    "kotlinVersion",
+                    "kspPluginVersion"
+                )
         }
 
         Then("the version sections keep repository order") {
@@ -132,7 +137,7 @@ class DesignModelSteps : En {
                 ?.jsonArray
                 ?.map { section ->
                     section.jsonObject["name"]?.jsonPrimitive?.content
-                } shouldBe listOf("Main project dependencies", "Libraries")
+                } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
         }
 
         Then("the model hash is stored in the generated model") {
@@ -225,19 +230,28 @@ class DesignModelSteps : En {
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
     override fun readVersions(source: VersionsFileSource): Map<String, String> =
         mapOf(
+            "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
-            "androidGradlePlugin" to "9.2.1"
+            "androidGradlePlugin" to "9.2.1",
+            "kspPluginVersion" to "2.3.9"
         )
 
     override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
                 name = "Main project dependencies",
-                versions = mapOf("androidGradlePlugin" to "9.2.1")
+                versions = mapOf(
+                    "androidGradlePlugin" to "9.2.1",
+                    "kotlinVersion" to "2.4.0"
+                )
             ),
             RepositoryVersionSection(
                 name = "Libraries",
-                versions = mapOf("kotlinVersion" to "2.4.0")
+                versions = mapOf("activityComposeLibraryVersion" to "1.13.0")
+            ),
+            RepositoryVersionSection(
+                name = "Plugins",
+                versions = mapOf("kspPluginVersion" to "2.3.9")
             )
         )
 }

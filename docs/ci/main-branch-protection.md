@@ -62,6 +62,8 @@ changes reach `main`. It may still appear on `main` commits as the optional
 It validates:
 
 - Gradle `check`;
+- dependency version key names through `checkFigmaVersionNaming`;
+- dependency catalog usage through `checkFigmaCatalogUsage`;
 - repository health before merge.
 
 The final `CI` job publishes the `TeamCity CI` commit status to GitHub.

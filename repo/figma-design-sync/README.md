@@ -1,0 +1,168 @@
+
+# figma-design-sync
+
+`figma-design-sync` is the repository-owned bridge between the Gradle project
+model and the Figma documentation model. It is not application production code:
+it generates a deterministic `design-model.json`, validates repository catalog
+rules, and supports the Figma visual sync workflow used by CI.
+
+## What It Does
+
+The module answers one question: does the Figma dependency documentation still
+represent the current repository?
+
+It does that in two stages:
+
+1. Gradle code reads repository sources and generates
+   `build/reports/figma-sync/design-model.json`.
+2. Figma sync tooling consumes that model, updates visual sections, and writes
+   Figma shared plugin metadata containing the generated `modelHash`.
+
+The generated hash is based on `schemaVersion` and stable `content`. Traceability
+fields such as branch, Git SHA, and generation timestamp are written to the
+model, but they do not affect `modelHash`.
+
+## Included Build Shape
+
+This directory is an included Gradle build with three Kotlin modules and one
+TypeScript tooling package:
+
+| Path | Role |
+|------|------|
+| `domain/` | Pure model and port definitions for versions, catalogs, modules, and module dependency edges. |
+| `data/` | File, Gradle, dependency-catalog, and Figma API adapters that implement domain ports. |
+| `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
+| `tools/` | TypeScript MCP/Figma scripts and visual sync tests that consume `design-model.json`. |
+| `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
+
+Dependency direction is intentional:
+
+```text
+domain <- data <- plugin
+```
+
+`domain` must stay independent from Gradle, files, Figma clients, and plugin
+composition. `plugin` is the adapter layer that wires Gradle tasks to domain
+ports through `data` implementations.
+
+## Inputs
+
+The model is generated from repository source files, not from Figma:
+
+| Input | Purpose |
+|-------|---------|
+| `repo/dependency-catalog/versions.properties` | Ordered version sections rendered in Figma and validated by CI. |
+| `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` | Source of truth for main project library catalog trees. |
+| `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` | Source of truth for main project plugin catalog trees. |
+| Root `settings.gradle.kts` | Main project module discovery. |
+| Included-build `settings.gradle.kts` files | Included-build catalog and module discovery. |
+| Gradle build files | Module dependency edges and applied plugin usage. |
+
+The default included-build sources are configured by the `figmaDesignSync`
+Gradle extension:
+
+| Included build | Model name | Purpose |
+|----------------|------------|---------|
+| `repo/dependency-catalog` | `dependencyCatalog` | Publishes the catalog tree DSL used by the main project. |
+| `repo/figma-design-sync` | `figmaDesignSync` | Describes this tooling build's own dependencies. |
+| `repo/gradle-plugins` | `gradlePlugins` | Describes repository Gradle plugin modules and convention plugins. |
+
+## Output Contract
+
+`generateFigmaDesignModel` writes:
+
+```text
+build/reports/figma-sync/design-model.json
+```
+
+The stable `content` object contains:
+
+| Key | Meaning |
+|-----|---------|
+| `versions` | Flat map of version keys to values. |
+| `versionSections` | Ordered version sections used by the Figma versions page. |
+| `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
+| `modules` | Repository module paths discovered from the root project and included builds. |
+| `moduleDependencies` | Module dependency edges grouped by source build. |
+
+Figma visual code must treat this JSON as the source of truth. Manual visual
+changes in Figma are acceptable only when they are component contract changes;
+data shown in Figma must come from the generated model.
+
+## Gradle Tasks
+
+Run these from the repository root:
+
+```powershell
+.\gradlew.bat checkFigmaVersionNaming
+.\gradlew.bat checkFigmaCatalogUsage
+.\gradlew.bat generateFigmaDesignModel
+.\gradlew.bat checkFigmaTrunkSync
+```
+
+Task responsibilities:
+
+| Task | Responsibility |
+|------|----------------|
+| `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
+| `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
+| `generateFigmaDesignModel` | Generates the official JSON artifact consumed by Figma sync. |
+| `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata. |
+
+`checkFigmaVersionNaming` and `checkFigmaCatalogUsage` are wired into the root
+Gradle `check` lifecycle, so the TeamCity `Verify` step runs them through:
+
+```powershell
+.\gradlew.bat check
+```
+
+## Figma Sync Flow
+
+The strict flow is:
+
+1. Merge code changes through a pull request after TeamCity CI passes.
+2. Let TeamCity run on `main` and generate the official `design-model.json`.
+3. Use the official artifact as the visual sync input.
+4. Run the MCP visual write step against Figma.
+5. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
+
+Do not create official design-model metadata from a feature branch. Branch-local
+visual iteration may reuse an official `main` artifact for layout debugging, but
+it must not publish trunk metadata.
+
+## Human Workflow
+
+For code changes in this module:
+
+```powershell
+.\gradlew.bat :figma-design-sync:domain:check :figma-design-sync:data:check :figma-design-sync:plugin:check
+```
+
+For visual tooling changes:
+
+```powershell
+cd repo\figma-design-sync\tools
+npm test
+npm run build
+```
+
+For dependency catalog changes that affect Figma:
+
+```powershell
+.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage generateFigmaDesignModel
+```
+
+## Where To Read Next
+
+Use `docs/README.md` as the documentation index.
+
+High-signal entry points:
+
+| Document | Use When |
+|----------|----------|
+| `docs/runbooks/dependency-version-naming.md` | Adding or renaming dependency version keys. |
+| `docs/runbooks/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
+| `docs/runbooks/trunk-sync.md` | Running the official trunk sync workflow. |
+| `docs/runbooks/official-artifact-visual-sync.md` | Deciding whether a `design-model.json` is official enough for sync. |
+| `docs/runbooks/target-scopes.md` | Updating the smallest possible Figma section. |
+| `docs/runbooks/troubleshooting.md` | Diagnosing broken sync output or metadata mismatches. |

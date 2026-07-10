@@ -16,7 +16,7 @@ internal class VersionsPropertiesReaderTest : FunSpec({
             androidGradlePlugin=9.2.1
             ## Libraries
             # io.kotest:kotest-runner-junit5
-            kotestVersion=6.2.1
+            kotestLibraryVersion=6.2.1
             ## Plugins
             figmaCodeConnectPluginVersion=1.4.0
             """.trimIndent()
@@ -32,6 +32,6 @@ internal class VersionsPropertiesReaderTest : FunSpec({
             "Libraries",
             "Plugins"
         )
-        sections[1].versions shouldBe mapOf("kotestVersion" to "6.2.1")
+        sections[1].versions shouldBe mapOf("kotestLibraryVersion" to "6.2.1")
     }
 })

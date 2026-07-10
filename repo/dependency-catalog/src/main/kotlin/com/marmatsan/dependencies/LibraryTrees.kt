@@ -18,13 +18,13 @@ private fun androidxLibrariesTree(
     library("activity") {
         artifact(
             "activity-compose",
-            version = versions.activityComposeVersion
+            version = versions.activityComposeLibraryVersion
         )
     }
     library("compose") {
         artifact(
             "compose-bom",
-            version = versions.composeBomVersion
+            version = versions.composeBomLibraryVersion
         )
         library("ui") {
             artifactsBundle(
@@ -49,27 +49,27 @@ private fun androidxLibrariesTree(
     library("core") {
         artifact(
             "core-ktx",
-            version = versions.coreKtxVersion
+            version = versions.coreKtxLibraryVersion
         )
     }
     library("lifecycle") {
         artifact(
             "lifecycle-runtime-ktx",
-            version = versions.lifecycleVersion
+            version = versions.lifecycleLibraryVersion
         )
         artifact(
             "lifecycle-viewmodel-compose",
-            version = versions.lifecycleVersion
+            version = versions.lifecycleLibraryVersion
         )
         artifact(
             "lifecycle-runtime-compose",
-            version = versions.lifecycleVersion
+            version = versions.lifecycleLibraryVersion
         )
     }
     library("navigation") {
         artifact(
             "navigation-compose",
-            version = versions.navigationComposeVersion
+            version = versions.navigationComposeLibraryVersion
         )
     }
 }
@@ -107,7 +107,7 @@ private fun ioLibrariesTree(
     library("cucumber") {
         artifact(
             "cucumber-bom",
-            version = versions.cucumberVersion
+            version = versions.cucumberLibraryVersion
         )
         artifact(
             "cucumber-java8"
@@ -119,17 +119,17 @@ private fun ioLibrariesTree(
     library("kotest") {
         artifact(
             "kotest-runner-junit5",
-            version = versions.kotestVersion
+            version = versions.kotestLibraryVersion
         )
         artifact(
             "kotest-assertions-core",
-            version = versions.kotestVersion
+            version = versions.kotestLibraryVersion
         )
     }
     library("mockk") {
         artifact(
             "mockk",
-            version = versions.mockkVersion
+            version = versions.mockkLibraryVersion
         )
     }
 }
@@ -141,11 +141,11 @@ private fun meLibrariesTree(
         library("inject") {
             artifact(
                 artifact = "kotlin-inject-compiler-ksp",
-                version = versions.kotlinInjectVersion
+                version = versions.kotlinInjectLibraryVersion
             )
             artifact(
                 artifact = "kotlin-inject-runtime",
-                version = versions.kotlinInjectVersion
+                version = versions.kotlinInjectLibraryVersion
             )
         }
     }
@@ -158,7 +158,7 @@ private fun orgLibrariesTree(
         library("kotlinx") {
             artifact(
                 artifact = "kotlinx-coroutines-android",
-                version = versions.androidCoroutinesVersion
+                version = versions.androidCoroutinesLibraryVersion
             )
         }
     }

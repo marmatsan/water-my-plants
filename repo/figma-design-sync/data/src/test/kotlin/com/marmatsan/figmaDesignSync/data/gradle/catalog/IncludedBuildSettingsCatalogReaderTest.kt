@@ -23,7 +23,7 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                             alias = "io.ktor.bom",
                             group = "io.ktor",
                             artifact = "ktor-bom"
-                        ).version(version("ktorVersion"))
+                        ).version(version("ktorLibraryVersion"))
 
                         library(
                             alias = "io.ktor.client.core",
@@ -50,7 +50,7 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                             entries = listOf(
                                 LibraryCatalogEntry.Artifact(
                                     artifact = "ktor-bom",
-                                    version = CatalogVersion("ktorVersion")
+                                    version = CatalogVersion("ktorLibraryVersion")
                                 ),
                                 LibraryCatalogEntry.Artifact(
                                     artifact = "ktor-client-core",
@@ -74,7 +74,7 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                         plugin(
                             alias = "org.jetbrains.dokka",
                             id = "org.jetbrains.dokka"
-                        ).version(version("dokkaVersion"))
+                        ).version(version("dokkaPluginVersion"))
                     }
                 }
             }
@@ -98,7 +98,7 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                         plugin(
                             alias = "com.google.devtools.ksp",
                             id = "com.google.devtools.ksp"
-                        ).version(version("kspVersion"))
+                        ).version(version("kspPluginVersion"))
                     }
                 }
             }
@@ -122,7 +122,7 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec({
                                     children = listOf(
                                         PluginCatalogNode(
                                             id = "ksp",
-                                            version = CatalogVersion("kspVersion")
+                                            version = CatalogVersion("kspPluginVersion")
                                         )
                                     )
                                 )
