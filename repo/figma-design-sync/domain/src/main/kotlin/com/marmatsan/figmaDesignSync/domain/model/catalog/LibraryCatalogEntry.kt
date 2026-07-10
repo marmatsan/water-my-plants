@@ -12,13 +12,15 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
  */
 sealed interface LibraryCatalogEntry {
     /**
-     * Gradle convention plugin that provides a dependency to production modules.
+     * Gradle convention plugin that declares this dependency for projects that
+     * apply the plugin.
      *
      * @property pluginId Gradle plugin id applied by production modules.
      * @property pluginModule Gradle module path that implements the convention
      * plugin.
-     * @property requiredByModules Sorted production module paths that receive
-     * this dependency through the convention plugin.
+     * @property requiredByModules Sorted production module paths that currently
+     * receive this dependency through the convention plugin. This list is empty
+     * when no module applies the convention plugin yet.
      */
     data class ConventionPluginUsage(
         val pluginId: String,
@@ -51,7 +53,7 @@ sealed interface LibraryCatalogEntry {
      * @property requiredByModules Sorted Gradle module paths that use this
      * artifact.
      * @property providedByConventionPlugins Gradle convention plugins that
-     * provide this artifact to production modules.
+     * declare this artifact for their consumers.
      * @property configuredByConventionPlugins Gradle convention plugins that
      * use this artifact to configure tooling needed by the plugin.
      */
@@ -75,7 +77,7 @@ sealed interface LibraryCatalogEntry {
      * @property requiredByModules Sorted Gradle module paths that use this
      * bundle.
      * @property providedByConventionPlugins Gradle convention plugins that
-     * provide this bundle to production modules.
+     * declare this bundle for their consumers.
      */
     data class ArtifactsBundle(
         val alias: String,

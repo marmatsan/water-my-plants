@@ -126,24 +126,6 @@ private fun ioLibrariesTree(
             version = versions.kotestVersion
         )
     }
-    library("ktor") {
-        artifact(
-            "ktor-bom",
-            version = versions.ktorVersion
-        )
-        artifact(
-            "ktor-client-core"
-        )
-        artifact(
-            "ktor-client-cio"
-        )
-        artifact(
-            "ktor-client-content-negotiation"
-        )
-        artifact(
-            "ktor-serialization-kotlinx-json"
-        )
-    }
     library("mockk") {
         artifact(
             "mockk",
@@ -177,10 +159,6 @@ private fun orgLibrariesTree(
             artifact(
                 artifact = "kotlinx-coroutines-android",
                 version = versions.androidCoroutinesVersion
-            )
-            artifact(
-                artifact = "kotlinx-serialization-json",
-                version = versions.serializationVersion
             )
         }
     }

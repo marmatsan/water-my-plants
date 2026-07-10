@@ -62,7 +62,10 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       throw new Error(`designModel.content.catalogs.${target.name} is required for catalog tree sync.`);
     }
 
-    const scopedModelNodes = filterModelRoots(target, modelNodes, options.rootFilters?.[target.name]);
+    const rootFilter = options.rootFilters?.[target.name];
+    const isPartialRootSync = Boolean(rootFilter && rootFilter.length > 0);
+    const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
+    const scopedRootLabels = scopedModelNodes.map((node) => rootLabel(target, node));
     const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
     requireUniqueLabels(target, expectedNodes);
 
@@ -71,15 +74,27 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     unlockSectionTreeForMutation(section, mutatedNodeIds);
     const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
     let connectors = collectTreeConnectors(section);
-    const disconnectedConnectors = connectors.filter((connector) =>
-      !connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) &&
-        (!connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId)
-    );
-    for (const connector of disconnectedConnectors) {
-      removedCatalogConnectors.push(`${target.name}/${connector.id}`);
-      connector.remove();
+
+    if (!isPartialRootSync) {
+      const disconnectedConnectors = connectors.filter((connector) =>
+        !connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) &&
+          (!connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId)
+      );
+      for (const connector of disconnectedConnectors) {
+        removedCatalogConnectors.push(`${target.name}/${connector.id}`);
+        connector.remove();
+      }
+      connectors = connectors.filter((connector) => !disconnectedConnectors.includes(connector));
     }
-    connectors = connectors.filter((connector) => !disconnectedConnectors.includes(connector));
+
+    const partialScope = isPartialRootSync
+      ? buildPartialCatalogSyncScope({
+          expectedNodes,
+          rootLabels: scopedRootLabels,
+          instancesByLabel,
+          connectors,
+        })
+      : null;
 
     for (const node of expectedNodes) {
       if (instancesByLabel.has(node.label)) continue;
@@ -106,7 +121,13 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       updatedCatalogNodes.push(`${target.name}/${node.path.join("/")}`);
     }
 
-    const staleResult = removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors);
+    const staleResult = removeStaleCatalogNodes(
+      target,
+      expectedNodes,
+      instancesByLabel,
+      connectors,
+      partialScope?.labels
+    );
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
     connectors = staleResult.connectors;
@@ -121,9 +142,17 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       mutatedNodeIds
     );
 
-    layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds);
+    layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds, {
+      scopeLabels: partialScope?.labels,
+      preserveRootPosition: isPartialRootSync,
+    });
     syncCatalogConnectors(section, expectedNodes, instancesByLabel, connectors, mutatedNodeIds);
-    resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+    const nodesToResize = partialScope
+      ? [...partialScope.labels]
+          .map((label) => instancesByLabel.get(label))
+          .filter(Boolean)
+      : [...instancesByLabel.values()];
+    resizeSectionsToFit(section, nodesToResize, mutatedNodeIds);
     stackDescendantSectionsWithGap(section, mutatedNodeIds);
     stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
@@ -142,7 +171,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
   }
 }
 
-function filterModelRoots(target, modelNodes, rootFilter) {
+export function filterModelRoots(target, modelNodes, rootFilter) {
   if (!rootFilter || rootFilter.length === 0) {
     return modelNodes;
   }
@@ -166,6 +195,56 @@ function filterModelRoots(target, modelNodes, rootFilter) {
 
 function rootLabel(target, node) {
   return target.type === "Library" ? node.group : node.id;
+}
+
+export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instancesByLabel, connectors }) {
+  const labels = new Set<string>(expectedNodes.map((node) => node.label));
+  const instanceIdByLabel = new Map();
+  const labelByInstanceId = new Map();
+
+  for (const [label, instance] of instancesByLabel.entries()) {
+    instanceIdByLabel.set(label, instance.id);
+    labelByInstanceId.set(instance.id, label);
+  }
+
+  const childrenByParentInstanceId = new Map();
+  for (const connector of connectors) {
+    const edgeKey = connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY);
+    if (!edgeKey) continue;
+
+    const [parentInstanceId, childInstanceId] = edgeKey.split("->");
+    if (!labelByInstanceId.has(parentInstanceId) || !labelByInstanceId.has(childInstanceId)) {
+      continue;
+    }
+
+    childrenByParentInstanceId.set(
+      parentInstanceId,
+      [...(childrenByParentInstanceId.get(parentInstanceId) || []), childInstanceId]
+    );
+  }
+
+  for (const rootLabel of rootLabels) {
+    labels.add(rootLabel);
+    const rootInstanceId = instanceIdByLabel.get(rootLabel);
+    if (!rootInstanceId) continue;
+
+    const pendingInstanceIds = [rootInstanceId];
+    const visitedInstanceIds = new Set();
+    while (pendingInstanceIds.length > 0) {
+      const instanceId = pendingInstanceIds.pop();
+      if (!instanceId || visitedInstanceIds.has(instanceId)) continue;
+
+      visitedInstanceIds.add(instanceId);
+      const label = labelByInstanceId.get(instanceId);
+      if (label) labels.add(label);
+
+      for (const childInstanceId of childrenByParentInstanceId.get(instanceId) || []) {
+        pendingInstanceIds.push(childInstanceId);
+      }
+    }
+  }
+
+  return { labels };
 }
 
 function errorMessage(error) {
@@ -213,10 +292,11 @@ function createMissingCatalogConnectors(
   return syncedConnectors;
 }
 
-function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors) {
+export function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors, scopeLabels) {
   const expectedLabels = new Set(expectedNodes.map((node) => node.label));
   const staleInstances = [...instancesByLabel.entries()]
-    .filter(([label]) => !expectedLabels.has(label));
+    .filter(([label]) => !expectedLabels.has(label))
+    .filter(([label]) => !scopeLabels || scopeLabels.has(label));
   const staleInstanceIds = new Set(staleInstances.map(([, instance]) => instance.id));
   const removedCatalogNodes = [];
   const removedCatalogConnectors = [];
@@ -243,8 +323,18 @@ function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connec
   };
 }
 
-function layoutCatalogTreeNodes(section, nodes, instancesByLabel, mutatedNodeIds) {
-  for (const instance of instancesByLabel.values()) {
+function layoutCatalogTreeNodes(
+  section,
+  nodes,
+  instancesByLabel,
+  mutatedNodeIds,
+  options: { scopeLabels?: Set<string>; preserveRootPosition?: boolean } = {}
+) {
+  const instancesToGroup = [...instancesByLabel.entries()]
+    .filter(([label]) => !options.scopeLabels || options.scopeLabels.has(label))
+    .map(([, instance]) => instance);
+
+  for (const instance of instancesToGroup) {
     const group = syncTreeNodeGroup(instance);
     mutatedNodeIds.push(group.id);
   }
@@ -278,14 +368,28 @@ function layoutCatalogTreeNodes(section, nodes, instancesByLabel, mutatedNodeIds
   for (const containerRoots of containers.values()) {
     let nextX = CATALOG_TREE_LAYOUT_PADDING;
     for (const root of containerRoots) {
+      const rootInstance = instancesByLabel.get(root.label);
+      const rootLayoutNode = rootInstance ? treeNodeLayoutNode(rootInstance) : null;
+      const startX = options.preserveRootPosition && rootLayoutNode
+        ? rootLayoutNode.x
+        : nextX;
+      const startY = options.preserveRootPosition && rootLayoutNode
+        ? rootLayoutNode.y
+        : CATALOG_TREE_LAYOUT_PADDING;
       const layout = layoutCatalogSubtree(
         root,
         nodesByPath,
         childrenByParentPath,
         instancesByLabel,
-        nextX,
-        CATALOG_TREE_LAYOUT_PADDING
+        startX,
+        startY
       );
+      if (options.preserveRootPosition && rootInstance && rootLayoutNode) {
+        const offset = alignCatalogPlacementsToCurrentRoot(layout.placements, rootInstance, rootLayoutNode);
+        layout.minX += offset.x;
+        layout.maxX += offset.x;
+        layout.nextX += offset.x;
+      }
       applyCatalogPlacements(layout.placements, mutatedNodeIds);
       nextX = layout.maxX + CATALOG_TREE_SIBLING_GAP;
     }
@@ -379,6 +483,19 @@ function applyCatalogPlacements(placements, mutatedNodeIds) {
     placement.layoutNode.y = placement.y;
     mutatedNodeIds.push(placement.layoutNode.id);
   }
+}
+
+function alignCatalogPlacementsToCurrentRoot(placements, rootInstance, rootLayoutNode) {
+  const rootPlacement = placements.get(rootInstance.id);
+  if (!rootPlacement) return { x: 0, y: 0 };
+
+  const offsetX = rootLayoutNode.x - rootPlacement.x;
+  const offsetY = rootLayoutNode.y - rootPlacement.y;
+  for (const placement of placements.values()) {
+    placement.x += offsetX;
+    placement.y += offsetY;
+  }
+  return { x: offsetX, y: offsetY };
 }
 
 function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mutatedNodeIds) {

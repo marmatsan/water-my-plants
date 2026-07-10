@@ -33,6 +33,18 @@ top-level roots inside a catalog target, for example `androidx` in
 runtime scope only: they narrow an already-authorized `main` design model and
 must not be used to create an alternate branch-local model.
 
+When `catalogRootFilters` is present, the mutation scope is the selected root
+subtree, not the whole visual section. The sync may update expected nodes,
+create missing expected nodes, and remove stale nodes reachable from the
+selected roots through managed `treeConnectorEdge` metadata. It must leave
+sibling roots outside the filter untouched, including their stale nodes and
+connectors. If a stale sibling needs cleanup, run that sibling root or the full
+target explicitly.
+
+Partial root sync is a repair/execution granularity, not a completion signal.
+The official metadata (`gitSha` and `modelHash`) must be written only after all
+required roots and all other official targets have completed successfully.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and
@@ -99,17 +111,23 @@ For each section:
   `.artifact` / `.artifacts bundle` children first, including hidden template
   slots that can be made visible. Do not let visible nested `.artifact` rows
   inside a `.artifacts bundle` win over direct hidden slots.
+- Bind direct catalog artifact entries to direct `.artifact` slots only. Bind
+  artifacts declared inside a bundle only to child `.artifact` rows inside the
+  corresponding `.artifacts bundle`; they must not consume sibling `.artifact`
+  slots in the `.tree node` `artifacts` frame.
 - Update `Used by module` instances for library artifacts from
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
 - Library artifacts and bundles may also carry `providedByConventionPlugins`.
-  Each usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  Each usage has `pluginId`, `pluginModule`, and `requiredByModules`. It is the
   model source for `Applied by plugin` `.usage block type=applied-by-plugin`
-  rows.
+  rows, even when `requiredByModules` is empty because no module currently
+  applies that convention plugin.
 - Plugin catalog entries may also carry `providedByConventionPlugins`. Each
-  usage has `pluginId`, `pluginModule`, and `requiredByModules`; it is the
+  usage has `pluginId`, `pluginModule`, and `requiredByModules`. It is the
   model source for `Used by convention plugin` `.usage block
-  type=used-by-convention-plugin` rows on the `Plugin` `.tree node` variant.
+  type=used-by-convention-plugin` rows on the `Plugin` `.tree node` variant,
+  even when no module currently applies that convention plugin.
 - Library artifacts may also carry `configuredByConventionPlugins`. Each usage
   has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
   uses the artifact as build tooling configuration, not that it provides the
@@ -132,8 +150,8 @@ For each section:
 - `.artifact` and `.artifacts bundle` must not expose the legacy aggregate
   `Show consumer modules` property. Their usage block visibility is derived
   only from model data and the granular booleans above.
-- When a direct artifact entry or bundle has no `Used by module`, no
-  `Applied by plugin`, and no `Tool artifacts` data, show
+- When a direct artifact entry or bundle has no direct `requiredByModules`, no
+  `providedByConventionPlugins`, and no `configuredByConventionPlugins`, show
   `Unused catalog entry` instead of empty usage blocks. Do not mark child
   artifact rows inside a bundle as unused; the bundle is the catalog entry.
 - Update `Used by module` instances for `.artifacts bundle` entries from

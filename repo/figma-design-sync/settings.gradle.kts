@@ -42,33 +42,9 @@ fun VersionCatalogBuilder.plugin(
 
 dependencyResolutionManagement {
     versionCatalogs {
-        // gradle-plugins libraries
+        // figma-design-sync libraries
         create("libs") {
-            /* Build */
-            library(
-                alias = "com.android.tools.build.gradle",
-                group = "com.android.tools.build",
-                artifact = "gradle"
-            ).version(version("androidGradlePlugin"))
-
-            library(
-                alias = "com.google.protobuf.gradle.plugin",
-                group = "com.google.protobuf",
-                artifact = "protobuf-gradle-plugin"
-            ).version(version("protobufPluginVersion"))
-
-            library(
-                alias = "org.jetbrains.kotlin.gradle.plugin",
-                group = "org.jetbrains.kotlin",
-                artifact = "kotlin-gradle-plugin"
-            ).version(version("kotlinVersion"))
-
-            library(
-                alias = "org.jetbrains.dokka.gradle.plugin",
-                group = "org.jetbrains.dokka",
-                artifact = "dokka-gradle-plugin"
-            ).version(version("dokkaVersion"))
-
+            /* Runtime */
             library(
                 alias = "io.ktor.bom",
                 group = "io.ktor",

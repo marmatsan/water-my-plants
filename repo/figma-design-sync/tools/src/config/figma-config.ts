@@ -52,6 +52,9 @@ export const TREE_NODE_PROPS = {
 };
 
 export const ARTIFACT_PROPS = {
+  name: "Artifact name",
+  version: "Artifact version",
+  showVersion: "Show version",
   showAppliedByPlugin: "Show applied by plugin",
   showUsedByModule: "Show used by module",
   showConfiguredAsTool: "Show configured as tool",
@@ -59,6 +62,9 @@ export const ARTIFACT_PROPS = {
 };
 
 export const ARTIFACTS_BUNDLE_PROPS = {
+  alias: "Alias",
+  version: "Version",
+  showVersion: "With version",
   showAppliedByPlugin: "Show applied by plugin",
   showUsedByModule: "Show used by module",
   showUnusedCatalogEntry: "Show unused catalog entry",
