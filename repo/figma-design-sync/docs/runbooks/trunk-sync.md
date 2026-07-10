@@ -31,6 +31,13 @@ TeamCity owns the repository workflow:
   TeamCity's `Generate main design model` job. Do not regenerate the model from
   a feature branch to repair `main`.
 
+Treat artifact generation, metadata verification, and visual writing as
+separate phases. A TeamCity `Figma Sync` run can successfully generate and
+publish a valid official `design-model.json` artifact while the later MCP
+visual write still fails because the Figma component contract or writer code is
+stale. Do not interpret a valid artifact, or a green repository check, as proof
+that the visual MCP write has completed.
+
 Local execution is useful for diagnosis, but it is not required before every
 commit because Figma sync depends on external Figma state, credentials, and the
 MCP write flow.

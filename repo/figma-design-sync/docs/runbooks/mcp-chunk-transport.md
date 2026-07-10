@@ -101,6 +101,23 @@ lengths before execution, and do not copy long base64 payloads manually from
 terminal output. If chunking is needed for staging, validate chunk count and
 encoded length before assembling the final `scriptBase64` value.
 
+Generated `.mcp.js` runner files are source snippets for the Figma MCP
+`use_figma` call. They are not local scripts that can talk to Figma from
+PowerShell or Node. The Figma plugin runtime cannot read local files from
+`%TEMP%`, `dist/`, or any repository path, so a generated runner must still be
+passed as the `use_figma` code argument or transported through staged shared
+plugin data.
+
+Generated staging snippets are intentionally defensive: each chunk validates
+its own length and the previously staged length before writing. A failed
+`use_figma` call is atomic, so a chunk length failure does not append partial
+data. If `designModelJson` is already fully staged and only a `scriptBase64`
+chunk fails, clear only `scriptBase64`, `scriptLength`, and
+`scriptBase64Length`, regenerate the runner with a smaller `--chunk-size`, and
+rerun the `20-scriptBase64-*.mcp.js`, `90-finalize-staging.mcp.js`, and target
+runner files in lexical order. If the model chunks are uncertain, rerun the
+full runner from `00-clear-staging.mcp.js`.
+
 Before diagnosing a visual no-op as a model or component bug, confirm that the
 official payload was actually staged. A common interrupted-sync symptom is
 `designModelJson.length = 0` in `water_my_plants_sync_staging`, which means

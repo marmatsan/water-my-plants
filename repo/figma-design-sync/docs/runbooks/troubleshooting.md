@@ -20,6 +20,13 @@ metadata.
 If visual mutation fails, leave the old hash in Figma and let
 `checkFigmaTrunkSync` fail until the visual sync can be rerun successfully.
 
+The official TeamCity artifact and the MCP visual write are separate failure
+domains. A `Figma Sync` run can generate and publish a valid `design-model.json`
+artifact from `main`, while the visual write fails later because the Figma
+component contract no longer matches the writer code. In that case, keep using
+the TeamCity artifact as the authoritative model input, fix the visual contract
+or writer, and rerun the failed MCP visual target before writing metadata.
+
 ## Payload Transport Failures
 
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
@@ -96,6 +103,17 @@ Catalog preview uses the smaller `sync-catalog-tree-preview.mcp.js` entrypoint
 by default so connector and layout fixes can be tested without transporting the
 full trunk-sync bundle.
 
+For narrow connector or catalog-tree diagnostics, a temporary bundle that
+imports only the catalog tree gateway can reduce the payload enough to run a
+single root scope. Treat that bundle as a diagnostic artifact only: it does not
+replace the official TeamCity artifact plus `sync-trunk-design-model.mcp.js`
+runner, and it must not write final sync metadata.
+
+Figma MCP cannot execute a local runner file by path. If a diagnostic bundle is
+generated under `%TEMP%` or `dist/`, its JavaScript still has to be supplied as
+the `use_figma` code argument or staged through shared plugin data. Do not
+spend time trying to make the Figma runtime read local files directly.
+
 ## Figma REST Read Flakes
 
 `checkFigmaTrunkSync` can fail because the Figma REST API closes the connection
@@ -171,6 +189,33 @@ extraction:
 The TypeScript sync must fail the visual target before metadata if this
 invariant is not true. Do not repair this with a metadata-only write.
 
+## Missing Usage Chip Heading Text
+
+If the visual target fails with a message like:
+
+```text
+Node '...' is missing 'Configured as tool' usage chip heading text.
+```
+
+the official TeamCity artifact and staging can still be valid. This failure
+usually means the writer's expected visual contract is stale relative to the
+Figma component structure. For example, `.artifact` now renders tooling rows in
+a visible `Tool artifacts` section that contains `.tool artifact usage`
+instances; `Configured as tool` is no longer the visible heading text even
+though the granular boolean may still be named `Show configured as tool`.
+
+Treat this as a sync-code/component-contract mismatch:
+
+- Inspect the failing node id and confirm which visible section and nested
+  component instances exist.
+- Update `repo/figma-design-sync/tools/src/figma/figma-consumer-modules-gateway.ts`
+  and the Figma config constants to match the current component text and
+  component property names.
+- Rebuild the tools package, regenerate the MCP runner, and rerun the failed
+  visual target before writing metadata.
+
+Do not fix this by editing metadata. The visual mutation did not complete.
+
 ## Connector Binding Failures
 
 Cloned tree nodes and cloned connectors must be made visible before connector
@@ -230,6 +275,28 @@ connector into a section: that makes the line render far away from the
 
 Verify a touched section visually before writing metadata when connector
 behavior changes.
+
+## Removed Connector Lookup Failures
+
+If a catalog tree sync fails with a message like:
+
+```text
+The node with id "..." does not exist
+```
+
+while removing stale tree nodes or connectors, inspect whether the sync removed
+a `simple-solid_arrow` connector and then read that same connector object again
+in the same `use_figma` execution. Figma can invalidate removed nodes
+immediately.
+
+The cleanup code must collect removed connector ids before calling
+`connector.remove()` and then filter the in-memory connector list by those ids.
+Do not call `connectorReferencesAnyNode()` or read shared plugin data from a
+connector after it has been removed.
+
+This is a writer bug, not evidence that the TeamCity `design-model.json`
+artifact is invalid. Rebuild the MCP bundle after fixing the writer and rerun
+the failed visual target before writing metadata.
 
 ## Missing Connector Template
 

@@ -113,10 +113,11 @@ For each section:
 - Library artifacts may also carry `configuredByConventionPlugins`. Each usage
   has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
   uses the artifact as build tooling configuration, not that it provides the
-  artifact to production modules. Render these rows under `Configured as tool`
-  with `.tool artifact usage`, not a plain `.usage chip`.
-- Hide `Applied by plugin`, `Used by module`, and `Configured as tool` blocks
-  when their source lists are empty. Do not render empty headings or empty chip
+  artifact to production modules. Render these rows under the visible
+  `Tool artifacts` section with `.tool artifact usage`, not a plain
+  `.usage chip`.
+- Hide `Applied by plugin`, `Used by module`, and `Tool artifacts` blocks when
+  their source lists are empty. Do not render empty headings or empty chip
   containers.
 - Keep structural `separator` frames inside `.artifact` and `.artifacts bundle`
   visible. Only `usage separator` frames, or separators bound to a usage
@@ -125,13 +126,14 @@ For each section:
 - Control each usage block through its own component boolean on `.artifact` and
   `.artifacts bundle`: `Show applied by plugin`, `Show used by module`,
   `Show configured as tool` where the component supports tooling rows, and
-  `Show unused catalog entry`. Do not use one aggregate boolean to show multiple
-  usage blocks.
+  `Show unused catalog entry`. `Show configured as tool` controls the visible
+  `Tool artifacts` section; it is not the required heading text. Do not use one
+  aggregate boolean to show multiple usage blocks.
 - `.artifact` and `.artifacts bundle` must not expose the legacy aggregate
   `Show consumer modules` property. Their usage block visibility is derived
   only from model data and the granular booleans above.
 - When a direct artifact entry or bundle has no `Used by module`, no
-  `Applied by plugin`, and no `Configured as tool` data, show
+  `Applied by plugin`, and no `Tool artifacts` data, show
   `Unused catalog entry` instead of empty usage blocks. Do not mark child
   artifact rows inside a bundle as unused; the bundle is the catalog entry.
 - Update `Used by module` instances for `.artifacts bundle` entries from
@@ -186,6 +188,10 @@ For each section:
   plugin id appears.
 - Remove stale catalog tree nodes and their connectors when they no longer
   exist in the generated model.
+- Treat removed Figma nodes as immediately invalid. When removing stale
+  connectors, record connector ids before `connector.remove()` and keep the
+  remaining connector list by id. Do not inspect connector endpoints or shared
+  plugin data after removal.
 - Fail without writing metadata if an existing or cloned instance cannot
   represent artifact text or consumer module structure from the generated model.
 - Library/plugin catalog tree sections must not have fill. Only parent
@@ -229,6 +235,9 @@ is group-based:
 - Connector endpoints point to `.tree node group` nodes:
   `connectorStart = parentGroup.BOTTOM` and
   `connectorEnd = childGroup.TOP`.
+- `simple-solid_arrow` connectors with `treeConnectorEdge` are managed sync
+  state. Cleanup, stale-node removal, and connector reconciliation must identify
+  them by metadata and id, not by visual position alone.
 
 Do not bind connectors directly to `.tree node` instances. Figma rejects that
 endpoint shape with:
