@@ -4,6 +4,7 @@ import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelIncludedBu
 import com.marmatsan.figmaDesignSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
+import com.marmatsan.figmaDesignSync.plugin.task.versions.CheckFigmaVersionNamingTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.language.base.plugins.LifecycleBasePlugin
@@ -18,6 +19,8 @@ import org.gradle.kotlin.dsl.register
  * plugin exposes the `figmaDesignSync` extension and creates:
  *
  * - `generateFigmaDesignModel`
+ * - `checkFigmaCatalogUsage`
+ * - `checkFigmaVersionNaming`
  * - `checkFigmaTrunkSync`
  */
 @Suppress("unused")
@@ -53,9 +56,16 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             projectRootDirectory.set(project.layout.projectDirectory)
             includedBuildSourcesProvider = includedBuildSources
         }
+        val checkFigmaVersionNaming = project.tasks.register<CheckFigmaVersionNamingTask>("checkFigmaVersionNaming") {
+            group = "verification"
+            description = "Checks that dependency version keys follow the Figma section naming contract."
+
+            versionsFile.set(extension.versionsFile)
+        }
 
         project.tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
             dependsOn(checkFigmaCatalogUsage)
+            dependsOn(checkFigmaVersionNaming)
         }
 
         project.tasks.register<GenerateFigmaDesignModelTask>("generateFigmaDesignModel") {

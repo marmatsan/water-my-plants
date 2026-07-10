@@ -78,6 +78,10 @@ Important generation details:
 - `content.versionSections` preserves grouping from
   `repo/dependency-catalog/versions.properties` so the MCP sync can place
   visual version nodes in the correct frame.
+- `checkFigmaVersionNaming` runs through `.\gradlew.bat check` and enforces
+  the version key format rendered in Figma: only `androidGradlePlugin` and
+  `kotlinVersion` live in `Main project dependencies`, library keys end with
+  `LibraryVersion`, and plugin keys end with `PluginVersion`.
 - `content.catalogs` contains Water My Plants libraries/plugins, catalog data
   from included builds that publish settings catalogs, custom Gradle convention
   plugins, and regular custom Gradle plugins.

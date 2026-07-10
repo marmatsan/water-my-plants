@@ -130,7 +130,17 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
             .entries
             .single() as LibraryCatalogEntry.Artifact
 
-        activity.version shouldBe CatalogVersion("activityComposeVersion")
+        activity.version shouldBe CatalogVersion("activityComposeLibraryVersion")
+    }
+
+    test("readPluginTreeWithVersionAliases maps plugin versions as property aliases") {
+        // WHEN
+        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(rootDir = java.io.File("."))
+
+        // THEN
+        actualTree.findPlugin("com.google.devtools.ksp").version shouldBe CatalogVersion("kspPluginVersion")
+        actualTree.findPlugin("org.jetbrains.dokka").version shouldBe CatalogVersion("dokkaPluginVersion")
+        actualTree.findPlugin("org.jetbrains.kotlin.plugin.compose").version shouldBe CatalogVersion("kotlinVersion")
     }
 
     test("readLibraryTreeWithVersionAliases scopes required modules to the main build catalog") {

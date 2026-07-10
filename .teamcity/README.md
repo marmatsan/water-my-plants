@@ -67,6 +67,8 @@ The pipeline:
 
 - monitors all branches;
 - runs `Verify` with `.\gradlew.bat check`;
+- blocks invalid dependency version key names through
+  `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
   which is wired into the Gradle `check` lifecycle;
 - publishes the `TeamCity CI` GitHub status from `Verify`.

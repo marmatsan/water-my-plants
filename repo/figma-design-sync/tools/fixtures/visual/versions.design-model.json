@@ -6,31 +6,31 @@
   "modelHash": "sha256:preview-versions",
   "content": {
     "versions": {
-      "activityComposeVersion": "1.9.3",
-      "androidGradlePluginVersion": "8.9.1",
-      "appVersionName": "1.0.0",
-      "dokkaVersion": "2.0.0",
-      "kspVersion": "2.1.10-1.0.31"
+      "activityComposeLibraryVersion": "1.9.3",
+      "androidGradlePlugin": "8.9.1",
+      "dokkaPluginVersion": "2.0.0",
+      "kotlinVersion": "2.1.10",
+      "kspPluginVersion": "2.1.10-1.0.31"
     },
     "versionSections": [
       {
         "name": "Main project dependencies",
         "versions": {
-          "appVersionName": "1.0.0"
+          "androidGradlePlugin": "8.9.1",
+          "kotlinVersion": "2.1.10"
         }
       },
       {
         "name": "Libraries",
         "versions": {
-          "activityComposeVersion": "1.9.3"
+          "activityComposeLibraryVersion": "1.9.3"
         }
       },
       {
         "name": "Plugins",
         "versions": {
-          "androidGradlePluginVersion": "8.9.1",
-          "dokkaVersion": "2.0.0",
-          "kspVersion": "2.1.10-1.0.31"
+          "dokkaPluginVersion": "2.0.0",
+          "kspPluginVersion": "2.1.10-1.0.31"
         }
       }
     ],

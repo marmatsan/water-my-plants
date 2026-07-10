@@ -35,7 +35,7 @@ private fun comPluginTree(
         plugin("devtools") {
             plugin(
                 id = "ksp",
-                version = versions.kspVersion
+                version = versions.kspPluginVersion
             )
         }
         plugin(
@@ -62,7 +62,7 @@ private fun orgPluginTree(
     plugin("jetbrains") {
         plugin(
             id = "dokka",
-            version = versions.dokkaVersion
+            version = versions.dokkaPluginVersion
         )
         plugin("kotlin") {
             plugin("plugin") {

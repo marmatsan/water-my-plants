@@ -206,7 +206,7 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                 children = listOf(
                                     PluginCatalogNode(
                                         id = "dokka",
-                                        version = CatalogVersion("dokkaVersion")
+                                        version = CatalogVersion("dokkaPluginVersion")
                                     )
                                 )
                             )

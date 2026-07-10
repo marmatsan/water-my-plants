@@ -54,7 +54,17 @@ uses the Figma variable collection named
 For each repository version:
 
 - Find an existing variable whose name is either the version key or ends with
-  `/<versionKey>`, such as `Libraries/kotestVersion`.
+  `/<versionKey>`, such as `Libraries/kotestLibraryVersion`.
+- Keep the repository version sections semantically named:
+  `Main project dependencies`, `Libraries`, and `Plugins`.
+- Keep `androidGradlePlugin` and `kotlinVersion` in
+  `Main project dependencies`. These keys may be referenced by plugin catalog
+  nodes, but their source version section remains the main project section.
+- Name library-owned version keys with the `LibraryVersion` suffix.
+- Name plugin-owned version keys with the `PluginVersion` suffix.
+- `checkFigmaVersionNaming` enforces this naming contract in CI through the
+  root Gradle `check` lifecycle. See
+  [dependency-version-naming.md](dependency-version-naming.md).
 - Ensure `Version alias` mode equals the version key.
 - Set `Version number` mode to the repository value.
 - Create a missing Figma variable under the matching section folder.

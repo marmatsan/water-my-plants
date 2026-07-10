@@ -6,10 +6,10 @@
   "modelHash": "sha256:preview-catalog-tree",
   "content": {
     "versions": {
-      "activityComposeVersion": "1.9.3",
-      "androidGradlePluginVersion": "8.9.1",
-      "dokkaVersion": "2.0.0",
-      "kspVersion": "2.1.10-1.0.31"
+      "activityComposeLibraryVersion": "1.9.3",
+      "androidGradlePlugin": "8.9.1",
+      "dokkaPluginVersion": "2.0.0",
+      "kspPluginVersion": "2.1.10-1.0.31"
     },
     "versionSections": [],
     "catalogs": {
@@ -29,7 +29,7 @@
                     "artifact": "androidx.activity:activity-compose",
                     "version": {
                       "visible": true,
-                      "value": "activityComposeVersion"
+                      "value": "activityComposeLibraryVersion"
                     },
                     "requiredByModules": [
                       ":app"
@@ -64,7 +64,7 @@
                 ],
                 "version": {
                   "visible": true,
-                  "value": "mockkVersion"
+                  "value": "mockkLibraryVersion"
                 },
                 "requiredByModules": [
                   ":figma-design-sync:data"
@@ -98,7 +98,7 @@
                     "id": "android",
                     "version": {
                       "visible": true,
-                      "value": "androidGradlePluginVersion"
+                      "value": "androidGradlePlugin"
                     },
                     "appliedToModules": [
                       ":app",
@@ -153,7 +153,7 @@
                 "artifact": "org.jetbrains.dokka:dokka-gradle-plugin",
                 "version": {
                   "visible": true,
-                  "value": "dokkaVersion"
+                  "value": "dokkaPluginVersion"
                 },
                 "requiredByModules": [
                   ":gradle-plugins:dokka-documentation"
@@ -187,7 +187,7 @@
                     "id": "dokka",
                     "version": {
                       "visible": true,
-                      "value": "dokkaVersion"
+                      "value": "dokkaPluginVersion"
                     },
                     "appliedToModules": [
                       ":gradle-plugins:dokka-documentation"
@@ -212,7 +212,7 @@
                 "artifact": "io.cucumber:cucumber-java8",
                 "version": {
                   "visible": true,
-                  "value": "cucumberVersion"
+                  "value": "cucumberLibraryVersion"
                 },
                 "requiredByModules": [
                   ":figma-design-sync:plugin"
@@ -255,7 +255,7 @@
                         "id": "ksp",
                         "version": {
                           "visible": true,
-                          "value": "kspVersion"
+                          "value": "kspPluginVersion"
                         },
                         "appliedToModules": [
                           ":figma-design-sync:plugin"

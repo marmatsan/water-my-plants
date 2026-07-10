@@ -43,6 +43,10 @@ used by CI.
   `dependency-catalog`.
 - `data/properties/versions`: readers for version properties files.
 - `plugin/generator`: design model JSON generation and hash calculation.
+- `plugin/checker/versions`: Gradle-facing adapter that verifies repository
+  version section and suffix naming before CI can merge catalog changes.
+- `plugin/checker/catalog`: Gradle-facing adapter that rejects unused
+  dependency catalog entries before CI can merge catalog changes.
 - `plugin/checker/sync`: Gradle-facing adapter that compares generated model
   metadata with Figma shared plugin data.
 - `plugin/task/generate` and `plugin/task/sync`: Gradle task classes for model
@@ -57,6 +61,9 @@ used by CI.
 - `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
   plugin entries that are not used by a module, convention plugin, or tool
   configuration. This task is wired into the root `check` lifecycle.
+- `checkFigmaVersionNaming`: fails when
+  `repo/dependency-catalog/versions.properties` does not use the Figma version
+  naming contract. This task is wired into the root `check` lifecycle.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it

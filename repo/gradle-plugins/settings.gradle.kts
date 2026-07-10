@@ -59,7 +59,7 @@ dependencyResolutionManagement {
                 alias = "org.jetbrains.dokka.gradle.plugin",
                 group = "org.jetbrains.dokka",
                 artifact = "dokka-gradle-plugin"
-            ).version(version("dokkaVersion"))
+            ).version(version("dokkaPluginVersion"))
             
             /* Testing */
             // JUnit Platform
@@ -74,20 +74,20 @@ dependencyResolutionManagement {
                 alias = "io.kotest.runner.junit5",
                 group = "io.kotest",
                 artifact = "kotest-runner-junit5"
-            ).version(version("kotestVersion"))
+            ).version(version("kotestLibraryVersion"))
 
             library(
                 alias = "io.kotest.assertions.core",
                 group = "io.kotest",
                 artifact = "kotest-assertions-core"
-            ).version(version("kotestVersion"))
+            ).version(version("kotestLibraryVersion"))
 
             // MockK
             library(
                 alias = "io.mockk",
                 group = "io.mockk",
                 artifact = "mockk"
-            ).version(version("mockkVersion"))
+            ).version(version("mockkLibraryVersion"))
         }
     }
 }
