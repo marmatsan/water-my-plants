@@ -86,18 +86,21 @@ Consumer modules are scoped to the catalog that owns the visual section:
   generated from `repo/dependency-catalog` into the main Water My Plants build.
   Their `Used by module` chips must come only from modules in the main build,
   such as `:app`, `:core:*`, and `:onboarding:*`.
-- `gradlePlugins.*` sections represent catalogs declared by
-  `repo/gradle-plugins/settings.gradle.kts`. Their consumers may be
+- `waterMyPlants.*` sections are stable documentation targets. If their model
+  nodes are empty, the writer may hide the section, but the target remains part
+  of the stable documentation surface.
+- `gradlePlugins.*` sections are declared catalog targets from catalogs declared
+  by `repo/gradle-plugins/settings.gradle.kts`. Their consumers may be
   `:gradle-plugins:*` modules.
-- `figmaDesignSync.*` sections represent catalogs declared by
-  `repo/figma-design-sync/settings.gradle.kts`. Their consumers may be
-  `:figma-design-sync:*` modules.
+- `figmaDesignSync.*` sections are declared catalog targets from catalogs
+  declared by `repo/figma-design-sync/settings.gradle.kts`. Their consumers may
+  be `:figma-design-sync:*` modules.
 
 Do not merge consumers across catalogs just because the same plugin id,
-artifact coordinate, or version alias appears in more than one catalog. For
-example, `org.jetbrains.dokka` applied inside
-`:gradle-plugins:dokka-documentation` belongs to the `gradlePlugins.plugins`
-tree, not to `waterMyPlants.plugins`.
+artifact coordinate, or version alias appears in more than one catalog. When an
+included build declares its own `plugins` catalog, plugin aliases applied by
+that included build belong to that included-build target, not to
+`waterMyPlants.plugins`.
 
 For each section:
 
@@ -207,10 +210,11 @@ For each section:
   `No module applies it`; legacy `Not used by module` and
   `Unused catalog entry` headings are accepted only to clean up sections still
   being migrated.
-- If a catalog target contains no model nodes, hide that target section and
-  resize/re-stack its parent sections. For example, an included build with no
-  `plugins` catalog must not leave an empty `gradlePlugins.plugins` section in
-  Figma.
+- If a declared catalog target contains no model nodes, remove that target
+  section and resize/re-stack its parent sections. For example, an included
+  build with no `plugins` catalog must not leave an empty
+  `gradlePlugins.plugins` section in Figma. Stable documentation targets with
+  no model nodes are hidden instead.
 - Create missing `.tree node` instances by cloning a compatible existing node
   from the same visual section, then applying generated model values.
 - Create missing top-level tree sections when a new top-level library group or

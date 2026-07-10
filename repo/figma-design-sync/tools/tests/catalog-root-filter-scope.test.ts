@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildPartialCatalogSyncScope,
+  removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
 
@@ -85,6 +86,45 @@ test("partial scope includes expected missing descendants even before Figma node
   assert.equal(scope.labels.has("com"), false);
 });
 
+test("stale empty root section cleanup removes roots that are no longer in the model", () => {
+  const mutatedNodeIds = [];
+  const section = parentSection([
+    childSection("androidx", ["tree-node"]),
+    childSection("legacy", []),
+  ]);
+
+  const result = removeEmptyStaleCatalogRootSections(
+    target,
+    section,
+    ["androidx"],
+    mutatedNodeIds
+  );
+
+  assert.deepEqual(result, ["waterMyPlants.libraries/legacy"]);
+  assert.deepEqual(mutatedNodeIds, ["legacy-id"]);
+  assert.equal(section.children.length, 1);
+  assert.equal(section.children[0].name, "androidx");
+});
+
+test("stale empty root section cleanup keeps expected roots and non-empty roots", () => {
+  const mutatedNodeIds = [];
+  const section = parentSection([
+    childSection("androidx", []),
+    childSection("legacy", ["manual-content"]),
+  ]);
+
+  const result = removeEmptyStaleCatalogRootSections(
+    target,
+    section,
+    ["androidx"],
+    mutatedNodeIds
+  );
+
+  assert.deepEqual(result, []);
+  assert.deepEqual(mutatedNodeIds, []);
+  assert.deepEqual(section.children.map((child) => child.name), ["androidx", "legacy"]);
+});
+
 function catalogNode(label: string, parentPath: string[] = []) {
   return {
     label,
@@ -115,6 +155,36 @@ function connector(id: string, parentInstanceId: string, childInstanceId: string
     },
     remove() {
       this.removed = true;
+    },
+  };
+}
+
+function parentSection(children) {
+  const section = {
+    children,
+  };
+
+  for (const child of children) {
+    child.parent = section;
+  }
+
+  return section;
+}
+
+function childSection(name: string, childIds: string[]) {
+  return {
+    id: `${name}-id`,
+    name,
+    type: "SECTION",
+    children: childIds.map((id) => ({ id })),
+    removed: false,
+    parent: null,
+    remove() {
+      this.removed = true;
+      const index = this.parent.children.indexOf(this);
+      if (index >= 0) {
+        this.parent.children.splice(index, 1);
+      }
     },
   };
 }
