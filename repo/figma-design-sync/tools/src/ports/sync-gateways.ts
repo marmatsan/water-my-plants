@@ -32,6 +32,20 @@ export type MetadataSyncResult = {
   mutatedNodeIds: string[];
 };
 
+export type VisualContractCheckOptions = {
+  targetNames?: string[];
+  sectionNodeOverrides?: Record<string, string>;
+  rootFilters?: Record<string, string[]>;
+};
+
+export type VisualContractCheckResult = {
+  checkedComponents: string[];
+  checkedSections: string[];
+  checkedVariables: string[];
+  checkedTargets: string[];
+  mutatedNodeIds: string[];
+};
+
 export type VersionSyncGateway = {
   syncVersions(designModel: DesignModel): Promise<VersionSyncResult>;
 };
@@ -42,4 +56,11 @@ export type CatalogTreeSyncGateway = {
 
 export type MetadataSyncGateway = {
   writeMetadata(designModel: DesignModel): Promise<MetadataSyncResult>;
+};
+
+export type VisualContractCheckGateway = {
+  checkVisualContract(
+    designModel: DesignModel,
+    options?: VisualContractCheckOptions
+  ): Promise<VisualContractCheckResult>;
 };

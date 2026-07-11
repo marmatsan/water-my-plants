@@ -125,6 +125,26 @@ test("stale empty root section cleanup keeps expected roots and non-empty roots"
   assert.deepEqual(section.children.map((child) => child.name), ["androidx", "legacy"]);
 });
 
+test("stale empty root section cleanup can remove empty roots outside a partial sync filter", () => {
+  const mutatedNodeIds = [];
+  const section = parentSection([
+    childSection("com", ["tree-node"]),
+    childSection("io", ["tree-node"]),
+    childSection("me", []),
+  ]);
+
+  const result = removeEmptyStaleCatalogRootSections(
+    target,
+    section,
+    ["com", "io"],
+    mutatedNodeIds
+  );
+
+  assert.deepEqual(result, ["waterMyPlants.libraries/me"]);
+  assert.deepEqual(mutatedNodeIds, ["me-id"]);
+  assert.deepEqual(section.children.map((child) => child.name), ["com", "io"]);
+});
+
 function catalogNode(label: string, parentPath: string[] = []) {
   return {
     label,

@@ -3,12 +3,14 @@ import type {
   CatalogTreeSyncGateway,
   MetadataSyncGateway,
   VersionSyncGateway,
+  VisualContractCheckGateway,
 } from "../ports/sync-gateways";
 
 export type SyncFigmaDesignModelDependencies = {
   versionSyncGateway: VersionSyncGateway;
   catalogTreeSyncGateway: CatalogTreeSyncGateway;
   metadataSyncGateway: MetadataSyncGateway;
+  visualContractCheckGateway: VisualContractCheckGateway;
 };
 
 export async function syncFigmaDesignModel(
@@ -24,6 +26,21 @@ export async function syncFigmaDesignModel(
   const requestedTargets = resolveRequestedTargets(options);
   const completedTargets: SyncTargetName[] = [];
   const skippedTargets = ALL_SYNC_TARGETS.filter((target) => !requestedTargets.has(target));
+  const visualTargets = [...requestedTargets].filter((target) => target !== "preflight");
+  const preflightResult = requestedTargets.has("preflight")
+    ? await dependencies.visualContractCheckGateway.checkVisualContract(
+        designModel,
+        {
+          targetNames: visualTargets.length > 0 ? visualTargets : undefined,
+          sectionNodeOverrides: options.sectionNodeOverrides,
+          rootFilters: options.catalogRootFilters,
+        }
+      )
+    : emptyVisualContractCheckResult();
+  if (requestedTargets.has("preflight")) {
+    completedTargets.push("preflight");
+  }
+
   const versionSyncResult = requestedTargets.has("versions")
     ? await dependencies.versionSyncGateway.syncVersions(designModel)
     : emptyVersionSyncResult();
@@ -64,9 +81,14 @@ export async function syncFigmaDesignModel(
     createdCatalogConnectors: catalogSyncResult.createdCatalogConnectors,
     removedCatalogNodes: catalogSyncResult.removedCatalogNodes,
     removedCatalogConnectors: catalogSyncResult.removedCatalogConnectors,
+    checkedComponents: preflightResult.checkedComponents,
+    checkedSections: preflightResult.checkedSections,
+    checkedVariables: preflightResult.checkedVariables,
+    checkedTargets: preflightResult.checkedTargets,
     metadata: metadataSyncResult.metadata,
     mutatedNodeIds: [
       ...new Set([
+        ...preflightResult.mutatedNodeIds,
         ...versionSyncResult.mutatedNodeIds,
         ...catalogSyncResult.mutatedNodeIds,
         ...metadataSyncResult.mutatedNodeIds,
@@ -137,6 +159,20 @@ function emptyMetadataSyncResult() {
   };
 }
 
+function emptyVisualContractCheckResult() {
+  return {
+    checkedComponents: [],
+    checkedSections: [],
+    checkedVariables: [],
+    checkedTargets: [],
+    mutatedNodeIds: [],
+  };
+}
+
+const PREFLIGHT_SYNC_TARGETS: SyncTargetName[] = [
+  "preflight",
+];
+
 const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
@@ -156,4 +192,7 @@ const ALL_SYNC_TARGETS: SyncTargetName[] = [
 
 const TARGET_ALIASES: Partial<Record<SyncTargetName, SyncTargetName>> = {};
 
-const KNOWN_SYNC_TARGETS: SyncTargetName[] = [...ALL_SYNC_TARGETS];
+const KNOWN_SYNC_TARGETS: SyncTargetName[] = [
+  ...PREFLIGHT_SYNC_TARGETS,
+  ...ALL_SYNC_TARGETS,
+];

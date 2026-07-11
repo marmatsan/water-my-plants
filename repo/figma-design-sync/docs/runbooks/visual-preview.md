@@ -49,7 +49,7 @@ Available fixtures:
 | Fixture | Purpose |
 |---------|---------|
 | `catalog-tree.design-model.json` | Catalog tree layout, connectors, `.tree node`, `.artifact`, `.artifacts bundle`, and `.usage chip` variants. |
-| `versions.design-model.json` | Version variables and `.project version` visual nodes. |
+| `versions.design-model.json` | Version variables and `.dependency version` visual nodes. |
 
 Fixture models keep `branch = "main"` because the MCP bundle refuses non-main
 models. They use preview `gitSha` and `modelHash` values and must not be treated
@@ -94,10 +94,11 @@ section id.
 
 Do not copy long generated source from terminal output into `use_figma`. Shell
 or chat output can truncate the source before it reaches Figma. Use the
-generated `.mcp.js` files directly and reduce `--chunk-size` if a single staging
-snippet is too large for the MCP transport. Every generated staging snippet
-validates its own chunk length and the previously staged length before writing,
-so truncation fails before `99-run-target.mcp.js` can mutate visuals.
+generated `.mcp.js` files directly and reduce `--chunk-size` if a preview
+staging snippet is too large for the MCP transport. Every generated preview
+staging snippet validates its own chunk length and the previously staged length
+before writing, so truncation fails before `99-run-target.mcp.js` can mutate
+visuals.
 After any staging failure, rerun `00-clear-staging.mcp.js` before trying again.
 
 The preview catalog entrypoint refuses `versions`, `metadata`, and catalog
@@ -144,7 +145,7 @@ remain untouched.
 ## Version Preview
 
 Version preview still touches the configured Figma variable collection and
-`.project version` frames. Prefer running it only in a copied Figma file or when
+`.dependency version` frames. Prefer running it only in a copied Figma file or when
 the visual mutation is intentionally being inspected in the official file:
 
 ```powershell
@@ -155,9 +156,9 @@ Do not write metadata after a version preview run.
 
 ## Official Runner Generation
 
-The same generator can create chunked MCP runner files for an official TeamCity
-artifact, but the source model must be the artifact from `Figma Sync > Generate
-main design model`:
+The same generator can create MCP runner files for an official TeamCity
+artifact. Official mode defaults to PNG payload transport, and the source model
+must be the artifact from `Figma Sync > Generate main design model`:
 
 ```powershell
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins

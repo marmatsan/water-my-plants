@@ -12,7 +12,7 @@ fine-grained runbooks:
 | Runbook | Use it for |
 |---------|------------|
 | [official-artifact-visual-sync.md](official-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
-| [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging payloads through chunks, running targets, and writing metadata. |
+| [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging official payloads through PNG or chunk fallback, running targets, and writing metadata. |
 | [target-scopes.md](target-scopes.md) | Choosing the granular visual target and understanding its Figma section. |
 | [visual-sync-contract.md](visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
 | [troubleshooting.md](troubleshooting.md) | Diagnosing failed or visually incorrect sync runs. |
@@ -69,16 +69,20 @@ intentionally non-authoritative and must not write official metadata.
 3. Validate the artifact with
    [official-artifact-visual-sync.md](official-artifact-visual-sync.md).
 4. Build the MCP bundle from code compatible with the artifact.
-5. Stage the official model and generated MCP script through the chunk transport
+5. Stage the official model and generated MCP script through the PNG payload
+   transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
-6. Run visual targets one by one using the order in
+6. Run the `preflight` target when component contracts changed or before a full
+   official visual sync. It must validate the Figma contract without mutating
+   nodes.
+7. Run visual targets one by one using the order in
    [target-scopes.md](target-scopes.md). Keep `writeMetadata=false` for visual
    targets.
-7. Check each changed Figma section against
+8. Check each changed Figma section against
    [visual-sync-contract.md](visual-sync-contract.md).
-8. After all visual targets are correct, run only the `metadata` target with
+9. After all visual targets are correct, run only the `metadata` target with
    `writeMetadata=true`.
-9. Rerun TeamCity `Figma Sync`, or run `checkFigmaTrunkSync` locally as a
+10. Rerun TeamCity `Figma Sync`, or run `checkFigmaTrunkSync` locally as a
    diagnostic check before rerunning TeamCity.
 
 Do not write metadata before visual targets are reconciled. `checkFigmaTrunkSync`

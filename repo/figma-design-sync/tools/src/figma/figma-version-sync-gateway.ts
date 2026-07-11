@@ -1,5 +1,7 @@
 import {
-  PROJECT_VERSION_COMPONENT_ID,
+  DEPENDENCY_VERSION_COMPONENT_ID,
+  DEPENDENCY_VERSION_INSTANCE_NAMES,
+  DEPENDENCY_VERSION_PROPS,
   VERSION_ALIAS_MODE_NAME,
   VERSION_NUMBER_MODE_NAME,
   VERSION_SECTION_TARGETS,
@@ -16,78 +18,90 @@ import {
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
   stackAncestorSectionSiblingsWithGap,
+  getComponentPropertyValue,
 } from "./figma-node-gateway";
 import { collectText } from "./figma-text-gateway";
 
 export class FigmaVersionSyncGateway implements VersionSyncGateway {
   async syncVersions(designModel: DesignModel) {
     const versionSections = requireVersionSections(designModel);
-  const collection = await requireVariableCollection(VERSIONS_COLLECTION_NAMES);
-  const versionAliasModeId = requireModeId(collection, VERSION_ALIAS_MODE_NAME);
-  const versionNumberModeId = requireModeId(collection, VERSION_NUMBER_MODE_NAME);
-  const projectVersionComponent = await requireComponent(PROJECT_VERSION_COMPONENT_ID);
+    const collection = await requireVariableCollection(VERSIONS_COLLECTION_NAMES);
+    const versionAliasModeId = requireModeId(collection, VERSION_ALIAS_MODE_NAME);
+    const versionNumberModeId = requireModeId(collection, VERSION_NUMBER_MODE_NAME);
+    const dependencyVersionComponent = await requireComponent(DEPENDENCY_VERSION_COMPONENT_ID);
 
-  const variables = await loadVariablesByVersionKey(collection);
-  const mutatedNodeIds = [];
-  const createdVariables = [];
-  const createdInstances = [];
-  const updatedVersions = [];
+    const variables = await loadVariablesByVersionKey(collection);
+    const mutatedNodeIds = [];
+    const createdVariables = [];
+    const createdInstances = [];
+    const updatedVersions = [];
 
-  for (const section of versionSections) {
-    const target = VERSION_SECTION_TARGETS[section.name];
-    if (!target) {
-      throw new Error(`No Figma target configured for version section '${section.name}'.`);
-    }
-
-    const parent = await requireFrame(target.parentNodeId);
-    const entries = Object.entries(section.versions);
-
-    for (const [versionKey, versionNumber] of entries) {
-      let variable = variables.get(versionKey);
-
-      if (!variable) {
-        variable = figma.variables.createVariable(
-          `${target.variableFolder}/${versionKey}`,
-          collection,
-          "STRING"
-        );
-        variable.scopes = ["TEXT_CONTENT"];
-        variables.set(versionKey, variable);
-        createdVariables.push(variable.name);
+    for (const section of versionSections) {
+      const target = VERSION_SECTION_TARGETS[section.name];
+      if (!target) {
+        throw new Error(`No Figma target configured for version section '${section.name}'.`);
       }
 
-      variable.setValueForMode(versionAliasModeId, versionKey);
-      variable.setValueForMode(versionNumberModeId, versionNumber);
-      updatedVersions.push(versionKey);
+      const parent = await requireFrame(target.parentNodeId);
+      const entries = Object.entries(section.versions);
+      const existingInstances = findDependencyVersionInstances(parent);
+      const instancePlan = planDependencyVersionInstanceSync(
+        existingInstances,
+        entries.map(([versionKey]) => versionKey),
+        readDependencyVersionKey
+      );
 
-      const existingInstance = findProjectVersionInstance(parent, versionKey);
-      if (!existingInstance) {
-        const instance = projectVersionComponent.createInstance();
-        const position = nextProjectVersionPosition(parent);
-
-        parent.appendChild(instance);
-        instance.x = position.x;
-        instance.y = position.y;
-        bindProjectVersionInstance(instance, variable);
-
+      for (const instance of [...instancePlan.staleInstances, ...instancePlan.duplicateInstances]) {
         mutatedNodeIds.push(instance.id);
-        createdInstances.push(versionKey);
+        instance.remove();
       }
 
-      mutatedNodeIds.push(variable.id);
+      for (const [versionKey, versionNumber] of entries) {
+        let variable = variables.get(versionKey);
+
+        if (!variable) {
+          variable = figma.variables.createVariable(
+            `${target.variableFolder}/${versionKey}`,
+            collection,
+            "STRING"
+          );
+          variable.scopes = ["TEXT_CONTENT"];
+          variables.set(versionKey, variable);
+          createdVariables.push(variable.name);
+        }
+
+        variable.setValueForMode(versionAliasModeId, versionKey);
+        variable.setValueForMode(versionNumberModeId, versionNumber);
+        updatedVersions.push(versionKey);
+
+        let instance = instancePlan.existingInstancesByVersionKey.get(versionKey);
+        if (!instance) {
+          instance = dependencyVersionComponent.createInstance();
+          const position = nextDependencyVersionPosition(parent);
+
+          parent.appendChild(instance);
+          instance.x = position.x;
+          instance.y = position.y;
+
+          mutatedNodeIds.push(instance.id);
+          createdInstances.push(versionKey);
+        }
+
+        bindDependencyVersionInstance(instance, variable);
+        mutatedNodeIds.push(variable.id);
+      }
+
+      resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+      stackAncestorSectionSiblingsWithGap(parent, mutatedNodeIds);
+      resizeAncestorSectionsToFit(parent, mutatedNodeIds);
     }
 
-    resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
-    stackAncestorSectionSiblingsWithGap(parent, mutatedNodeIds);
-    resizeAncestorSectionsToFit(parent, mutatedNodeIds);
-  }
-
-  return {
-    updatedVersions,
-    createdVariables,
-    createdInstances,
-    mutatedNodeIds,
-  };
+    return {
+      updatedVersions,
+      createdVariables,
+      createdInstances,
+      mutatedNodeIds,
+    };
   }
 }
 
@@ -99,16 +113,54 @@ function requireVersionSections(designModel: DesignModel) {
   return sections;
 }
 
-function findProjectVersionInstance(parent, versionKey) {
-  return parent.children.find((child) => {
-    if (child.type !== "INSTANCE" || child.name !== ".project version") return false;
-    return collectText(child).includes(versionKey);
-  });
+export function planDependencyVersionInstanceSync(instances, expectedVersionKeys, readVersionKey) {
+  const expectedVersionKeySet = new Set(expectedVersionKeys);
+  const existingInstancesByVersionKey = new Map();
+  const staleInstances = [];
+  const duplicateInstances = [];
+
+  for (const instance of instances) {
+    const versionKey = readVersionKey(instance);
+    if (!versionKey || !expectedVersionKeySet.has(versionKey)) {
+      staleInstances.push(instance);
+      continue;
+    }
+
+    if (existingInstancesByVersionKey.has(versionKey)) {
+      duplicateInstances.push(instance);
+      continue;
+    }
+
+    existingInstancesByVersionKey.set(versionKey, instance);
+  }
+
+  return {
+    existingInstancesByVersionKey,
+    staleInstances,
+    duplicateInstances,
+  };
 }
 
-function nextProjectVersionPosition(parent): { x: number; y: number } {
+function findDependencyVersionInstances(parent) {
+  return parent.children.filter((child) =>
+    child.type === "INSTANCE" && DEPENDENCY_VERSION_INSTANCE_NAMES.includes(child.name)
+  );
+}
+
+function readDependencyVersionKey(instance) {
+  const aliasPropertyValue = getComponentPropertyValue(instance, DEPENDENCY_VERSION_PROPS.alias);
+  if (typeof aliasPropertyValue === "string" && aliasPropertyValue.trim()) {
+    return aliasPropertyValue.trim();
+  }
+
+  return collectText(instance)
+    .map((value) => value.trim())
+    .find(Boolean);
+}
+
+function nextDependencyVersionPosition(parent): { x: number; y: number } {
   const instances = parent.children
-    .filter((child) => child.type === "INSTANCE" && child.name === ".project version")
+    .filter((child) => child.type === "INSTANCE" && DEPENDENCY_VERSION_INSTANCE_NAMES.includes(child.name))
     .sort((first, second) => first.y - second.y || first.x - second.x);
 
   if (instances.length === 0) {
@@ -134,11 +186,11 @@ function nextProjectVersionPosition(parent): { x: number; y: number } {
   };
 }
 
-function bindProjectVersionInstance(instance, variable) {
+function bindDependencyVersionInstance(instance, variable) {
   const alias = figma.variables.createVariableAlias(variable);
 
   instance.setProperties({
-    "Version alias#63075:0": alias,
-    "Version number#63075:1": alias,
+    [DEPENDENCY_VERSION_PROPS.alias]: alias,
+    [DEPENDENCY_VERSION_PROPS.number]: alias,
   });
 }

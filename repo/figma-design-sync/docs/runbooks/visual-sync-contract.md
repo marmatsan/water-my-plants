@@ -27,6 +27,20 @@ sandbox section instead of the configured official section. Official sync runs
 must use the configured section ids from `figma-config.ts` unless a documented
 manual repair explicitly overrides one target.
 
+The `preflight` target validates the visual contract without mutating Figma.
+Run it after staging the official model and before visual targets when component
+contracts changed. It checks the metadata page, version variable collection,
+version section frames, `.tree node` component properties, `.artifact` and
+`.artifacts bundle` template properties, `.tool artifact usage`, `.usage chip`
+variants, configured catalog sections, catalog target model shape, and root
+filters. A successful preflight must return `mutatedNodeIds: []`.
+
+For library catalog items, preflight validates `.artifact`, `.artifacts bundle`,
+and `.tool artifact usage` templates from the target section when present,
+falling back to the base `.tree node` component only when the section has no
+template. This matches the writer behavior: new nodes clone compatible section
+instances before falling back to the base component variant.
+
 Catalog runners may pass `catalogRootFilters` to sync only one or more
 top-level roots inside a catalog target, for example `androidx` in
 `waterMyPlants.libraries` or `com` in `waterMyPlants.plugins`. Root filters are
@@ -38,8 +52,10 @@ subtree, not the whole visual section. The sync may update expected nodes,
 create missing expected nodes, and remove stale nodes reachable from the
 selected roots through managed `treeConnectorEdge` metadata. It must leave
 sibling roots outside the filter untouched, including their stale nodes and
-connectors. If a stale sibling needs cleanup, run that sibling root or the full
-target explicitly.
+connectors. The exception is an empty top-level root section that no longer
+exists in the complete target model; that stale empty section may be removed
+even during a partial root sync so visual cleanup is not blocked by repair
+granularity.
 
 Partial root sync is a repair/execution granularity, not a completion signal.
 The official metadata (`gitSha` and `modelHash`) must be written only after all
@@ -68,9 +84,13 @@ For each repository version:
 - Ensure `Version alias` mode equals the version key.
 - Set `Version number` mode to the repository value.
 - Create a missing Figma variable under the matching section folder.
-- Create a missing `.project version` instance in the matching visual frame.
+- Create a missing `.dependency version` instance in the matching visual frame.
+- Remove stale `.dependency version` instances whose alias is no longer present
+  in that version section, such as old keys left behind after renaming a library
+  version to the `LibraryVersion` suffix.
+- Keep at most one `.dependency version` instance for each expected version key.
 - Bind both component properties to the created or existing variable.
-- Do not edit visual text nodes directly. `.project version` instances update
+- Do not edit visual text nodes directly. `.dependency version` instances update
   through variable bindings.
 
 The sync must fail without writing metadata if the design model contains an
