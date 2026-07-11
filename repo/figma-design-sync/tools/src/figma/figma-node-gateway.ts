@@ -53,6 +53,14 @@ export async function requireFrame(nodeId) {
   return node;
 }
 
+export async function requireFrameOrSection(nodeId) {
+  const node = await figma.getNodeByIdAsync(nodeId);
+  if (!node || (node.type !== "FRAME" && node.type !== "SECTION")) {
+    throw new Error(`Expected '${nodeId}' to be a FRAME or SECTION.`);
+  }
+  return node;
+}
+
 export async function requirePage(nodeId) {
   const node = await figma.getNodeByIdAsync(nodeId);
   if (!node || node.type !== "PAGE") {

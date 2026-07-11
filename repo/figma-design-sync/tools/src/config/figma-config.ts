@@ -31,15 +31,15 @@ export const CONNECTOR_TEMPLATE_NAME = "simple-solid_arrow";
 
 export const VERSION_SECTION_TARGETS = {
   "Main project dependencies": {
-    parentNodeId: "63075:634",
+    parentNodeId: "64247:3827",
     variableFolder: "Main project dependencies",
   },
   Libraries: {
-    parentNodeId: "63075:644",
+    parentNodeId: "64247:3853",
     variableFolder: "Libraries",
   },
   Plugins: {
-    parentNodeId: "63075:804",
+    parentNodeId: "64247:3854",
     variableFolder: "Plugins",
   },
 };
