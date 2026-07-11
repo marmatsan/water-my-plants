@@ -126,7 +126,7 @@ class DesignModelSteps : En {
                 ?.keys
                 ?.toList() shouldBe listOf(
                     "activityComposeLibraryVersion",
-                    "androidGradlePlugin",
+                    "androidGradlePluginVersion",
                     "kotlinVersion",
                     "kspPluginVersion"
                 )
@@ -232,7 +232,7 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
-            "androidGradlePlugin" to "9.2.1",
+            "androidGradlePluginVersion" to "9.2.1",
             "kspPluginVersion" to "2.3.9"
         )
 
@@ -241,7 +241,7 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             RepositoryVersionSection(
                 name = "Main project dependencies",
                 versions = mapOf(
-                    "androidGradlePlugin" to "9.2.1",
+                    "androidGradlePluginVersion" to "9.2.1",
                     "kotlinVersion" to "2.4.0"
                 )
             ),

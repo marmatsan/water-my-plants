@@ -7,7 +7,7 @@
   "content": {
     "versions": {
       "activityComposeLibraryVersion": "1.9.3",
-      "androidGradlePlugin": "8.9.1",
+      "androidGradlePluginVersion": "8.9.1",
       "dokkaPluginVersion": "2.0.0",
       "kotlinVersion": "2.1.10",
       "kspPluginVersion": "2.1.10-1.0.31"
@@ -16,7 +16,7 @@
       {
         "name": "Main project dependencies",
         "versions": {
-          "androidGradlePlugin": "8.9.1",
+          "androidGradlePluginVersion": "8.9.1",
           "kotlinVersion": "2.1.10"
         }
       },

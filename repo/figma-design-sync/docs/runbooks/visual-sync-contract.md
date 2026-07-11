@@ -73,7 +73,7 @@ For each repository version:
   `/<versionKey>`, such as `Libraries/kotestLibraryVersion`.
 - Keep the repository version sections semantically named:
   `Main project dependencies`, `Libraries`, and `Plugins`.
-- Keep `androidGradlePlugin` and `kotlinVersion` in
+- Keep `androidGradlePluginVersion` and `kotlinVersion` in
   `Main project dependencies`. These keys may be referenced by plugin catalog
   nodes, but their source version section remains the main project section.
 - Name library-owned version keys with the `LibraryVersion` suffix.
@@ -85,6 +85,11 @@ For each repository version:
 - Set `Version number` mode to the repository value.
 - Create a missing Figma variable under the matching section folder.
 - Create a missing `.dependency version` instance in the matching visual frame.
+- Layout `.dependency version` instances as a row-major grid with at most two
+  instances per row, 64 px between columns, and 32 px between rows.
+- Stack the visual frames for `Main project dependencies`, `Libraries`, and
+  `Plugins` with 128 px between one frame bottom edge and the next frame top
+  edge.
 - Remove stale `.dependency version` instances whose alias is no longer present
   in that version section, such as old keys left behind after renaming a library
   version to the `LibraryVersion` suffix.
@@ -336,6 +341,10 @@ Layout rules:
 - Stack direct child sections inside touched section containers with 114 px
   between one section bottom edge and the next section top edge. Apply the same
   spacing to ancestor section containers after their children are resized.
+- Reflowed direct child sections must start at the container padding, or below
+  the direct `.Header` plus the section gap when the container has a header.
+  Do not preserve the first child section's previous `y` after deleting an
+  earlier sibling; otherwise removed roots leave a stale top gap.
 - Direct child sections stacked inside the same container must share the same
   left edge. This keeps module sections such as `gradle-plugins` and
   `figma-design-sync` horizontally aligned when they belong to the same parent

@@ -125,6 +125,10 @@ export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
   }
 }
 
+export function stackChildSectionsFromPadding(parent, mutatedNodeIds, gap = SECTION_SIBLING_GAP, padding = 100) {
+  stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap, padding);
+}
+
 export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
   let current = node.parent;
 
@@ -248,14 +252,14 @@ function stackConfiguredPageSectionsWithGap(section, mutatedNodeIds, gap = PAREN
   }
 }
 
-function stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap) {
+function stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap, startY = firstSectionStartY(parent)) {
   const sections = directChildSections(parent)
     .sort((first, second) => first.y - second.y || first.x - second.x);
 
-  if (sections.length < 2) return;
+  if (sections.length === 0) return;
 
   const alignedX = sections[0].x;
-  let nextY = sections[0].y;
+  let nextY = startY;
   for (const section of sections) {
     if (Math.abs(section.x - alignedX) > 0.01) {
       section.x = alignedX;
@@ -267,6 +271,20 @@ function stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap) {
     }
     nextY = section.y + section.height + gap;
   }
+}
+
+function firstSectionStartY(parent) {
+  const nonSectionVisibleChildren = parent.children
+    .filter((child) => child.type !== "SECTION" && child.visible !== false);
+
+  if (nonSectionVisibleChildren.length === 0) {
+    return 100;
+  }
+
+  return Math.max(
+    100,
+    Math.max(...nonSectionVisibleChildren.map((child) => child.y + child.height + SECTION_SIBLING_GAP))
+  );
 }
 
 function directChildSections(parent) {

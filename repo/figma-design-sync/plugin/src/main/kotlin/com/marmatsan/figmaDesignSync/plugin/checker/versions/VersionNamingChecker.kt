@@ -101,7 +101,7 @@ internal class VersionNamingChecker(
             PLUGINS_SECTION
         )
         val MAIN_PROJECT_DEPENDENCIES_KEYS = listOf(
-            "androidGradlePlugin",
+            "androidGradlePluginVersion",
             "kotlinVersion"
         )
     }

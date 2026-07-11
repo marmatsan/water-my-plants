@@ -195,7 +195,7 @@ class GradleTaskSteps : En {
         resolve("repo/dependency-catalog/versions.properties").writeText(
             """
             ## Main project dependencies
-            androidGradlePlugin=9.2.1
+            androidGradlePluginVersion=9.2.1
             kotlinVersion=2.4.0
             """.trimIndent()
         )
