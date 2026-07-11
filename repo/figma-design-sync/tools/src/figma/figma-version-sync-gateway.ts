@@ -12,7 +12,7 @@ import type { VersionSyncGateway } from "../ports/sync-gateways";
 import {
   loadVariablesByVersionKey,
   requireComponent,
-  requireFrame,
+  requireFrameOrSection,
   requireModeId,
   requireVariableCollection,
   resizeAncestorSectionsToFit,
@@ -48,7 +48,7 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
         throw new Error(`No Figma target configured for version section '${section.name}'.`);
       }
 
-      const parent = await requireFrame(target.parentNodeId);
+      const parent = await requireFrameOrSection(target.parentNodeId);
       const entries = Object.entries(section.versions);
       const orderedVersionKeys = entries.map(([versionKey]) => versionKey);
       const existingInstances = findDependencyVersionInstances(parent);

@@ -73,6 +73,12 @@ For each repository version:
   `/<versionKey>`, such as `Libraries/kotestLibraryVersion`.
 - Keep the repository version sections semantically named:
   `Main project dependencies`, `Libraries`, and `Plugins`.
+- Map those semantic sections to the visual subsections named `main versions`,
+  `library versions`, and `plugin versions` in Figma. These subsection node ids
+  are part of `figma-config.ts`; update them whenever the `.dependency version`
+  component area is rebuilt manually. The version visual containers may be
+  Figma `SECTION` nodes or `FRAME` nodes as long as they own the direct
+  `.dependency version` instances.
 - Keep `androidGradlePluginVersion` and `kotlinVersion` in
   `Main project dependencies`. These keys may be referenced by plugin catalog
   nodes, but their source version section remains the main project section.

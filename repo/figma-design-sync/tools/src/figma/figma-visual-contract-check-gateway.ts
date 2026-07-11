@@ -32,7 +32,7 @@ import type {
 import { filterModelRoots } from "./figma-catalog-tree-sync-gateway";
 import {
   requireComponent,
-  requireFrame,
+  requireFrameOrSection,
   requireModeId,
   requirePage,
   requireSection,
@@ -75,7 +75,7 @@ async function checkVersionContract(checkedComponents, checkedSections, checkedV
   checkedComponents.push(`${projectVersionComponent.name}:${projectVersionComponent.id}`);
 
   for (const [sectionName, sectionTarget] of Object.entries(VERSION_SECTION_TARGETS)) {
-    const sectionFrame = await requireFrame(sectionTarget.parentNodeId);
+    const sectionFrame = await requireFrameOrSection(sectionTarget.parentNodeId);
     checkedSections.push(`${sectionName}:${sectionFrame.id}`);
   }
 }
