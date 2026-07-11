@@ -1,4 +1,4 @@
-# MCP Chunk Transport Runbook
+# MCP Payload Transport Runbook
 
 ## Purpose
 
@@ -6,6 +6,12 @@ Use this runbook when a TeamCity `design-model.json` artifact and the generated
 MCP script must be transported into the Figma MCP runtime. Figma MCP cannot read
 local files or TeamCity artifacts directly, so payloads are staged through
 temporary Figma shared plugin data.
+
+For official trunk syncs, prefer the generated PNG payload transport. It writes
+the model and MCP script into a small PNG uploaded through Figma assets, then a
+short MCP runner extracts that payload and stages the validated values. Chunked
+shared-plugin-data transport remains available as the fallback when the PNG
+payload is too large or asset upload is unavailable.
 
 ## Build The MCP Bundle
 
@@ -27,11 +33,52 @@ Do not commit the generated JavaScript. The script expects
 `design-model.json` to be injected as `DESIGN_MODEL` before execution and must
 run in the Figma MCP runtime because it uses the Figma plugin API.
 
-To generate chunked MCP runner snippets for an official TeamCity artifact:
+To generate MCP runner snippets for an official TeamCity artifact:
 
 ```powershell
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
 ```
+
+To validate the Figma visual contract before mutating visual targets, generate a
+preflight runner:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=preflight
+```
+
+`preflight` reads the same official model and validates variables, component
+properties, usage chip variants, configured sections, target model shape, and
+root filters. It must return `mutatedNodeIds: []`.
+
+To make a visual write fail before mutation when the visual contract is stale,
+combine `preflight` with one visual target:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries
+```
+
+The generated `99-run-target.mcp.js` executes both targets in one atomic
+`use_figma` call. Do not combine `metadata` with any other target; metadata must
+run alone after all visuals are correct.
+
+Official mode defaults to `--transport=png` and writes:
+
+- `10-official-sync-payload.png`
+- `00-clear-staging.mcp.js`
+- `10-stage-payload-from-png.mcp.js`
+- `90-finalize-staging.mcp.js`
+- `99-run-target.mcp.js`
+- `manifest.json`
+
+Upload `10-official-sync-payload.png` to the Figma file before running
+`10-stage-payload-from-png.mcp.js`. Then run the generated `.mcp.js` snippets in
+lexical order. The PNG asset is a transport artifact only; the staging runner
+removes the uploaded image node after extracting the payload.
+
+`upload_assets` may place the temporary image on the current Figma page, which
+does not have to be the metadata page. The staging runner searches document
+image fills and does not rely on `loadAllPagesAsync`; this MCP runtime may
+expose that API while rejecting it at execution time.
 
 To run only one top-level catalog root against its child section, add `--roots`
 and `--section-node-id`:
@@ -44,11 +91,18 @@ Use this for large catalog targets that hit MCP timeouts or generic Figma
 runtime failures. `--roots` scopes the already-official TeamCity model in the
 runner; it does not create or authorize a branch-local design model.
 
-If a generated runner file is too large for the MCP transport, reduce the chunk
-size instead of copying the long payload manually:
+If the generated PNG exceeds the supported upload size or asset upload is not
+usable, regenerate with chunk transport:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --chunk-size=8000
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks
+```
+
+If a generated chunk runner file is too large for the MCP transport, reduce the
+chunk size instead of copying the long payload manually:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks --chunk-size=8000
 ```
 
 Use [visual-preview.md](visual-preview.md) instead when testing fixture-driven
@@ -72,7 +126,9 @@ transfer helpers such as `fetch`, `XMLHttpRequest`, `importScripts`,
 
 That means a local HTTP payload server is not a valid shortcut for loading the
 TeamCity artifact into `use_figma`; the payload must be staged through Figma
-shared plugin data.
+shared plugin data. The PNG transport still follows this boundary: Figma only
+receives an uploaded image asset and a short MCP runner that reads that image
+through the Figma plugin image API.
 
 ## Staging Keys
 
@@ -95,6 +151,10 @@ Stage these keys on page `62934:908` under
 | `scriptLength` | Character length of the decoded script. |
 | `scriptBase64Length` | Character length of `scriptBase64`, used to catch truncated staging writes. |
 
+The PNG transport writes all keys in one staging step after validating the
+payload hash, Git SHA, model length, script length, and script base64 length.
+Chunk transport writes the same keys incrementally.
+
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
 characters. Stage large payloads in temporary shared plugin data, validate
 lengths before execution, and do not copy long base64 payloads manually from
@@ -108,11 +168,13 @@ PowerShell or Node. The Figma plugin runtime cannot read local files from
 passed as the `use_figma` code argument or transported through staged shared
 plugin data.
 
-Generated staging snippets are intentionally defensive: each chunk validates
-its own length and the previously staged length before writing. A failed
-`use_figma` call is atomic, so a chunk length failure does not append partial
-data. If `designModelJson` is already fully staged and only a `scriptBase64`
-chunk fails, clear only `scriptBase64`, `scriptLength`, and
+Generated staging snippets are intentionally defensive. In PNG mode, the
+staging snippet rejects payloads whose hash, SHA, or lengths do not match the
+TeamCity artifact used to generate the runner. In chunk mode, each chunk
+validates its own length and the previously staged length before writing. A
+failed `use_figma` call is atomic, so a chunk length failure does not append
+partial data. If `designModelJson` is already fully staged and only a
+`scriptBase64` chunk fails, clear only `scriptBase64`, `scriptLength`, and
 `scriptBase64Length`, regenerate the runner with a smaller `--chunk-size`, and
 rerun the `20-scriptBase64-*.mcp.js`, `90-finalize-staging.mcp.js`, and target
 runner files in lexical order. If the model chunks are uncertain, rerun the

@@ -1,6 +1,13 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  buildOfficialSyncPayload,
+  createPayloadPng,
+  MAX_FIGMA_UPLOAD_ASSET_BYTES,
+  PAYLOAD_PNG_TEXT_KEYWORD,
+  stringifyAsciiJson,
+} from "./payload-png";
 
 const TOOL_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DEFAULT_TRUNK_SYNC_SCRIPT = resolve(TOOL_ROOT, "sync-trunk-design-model.mcp.js");
@@ -11,8 +18,10 @@ const OFFICIAL_STAGING_NAMESPACE = "water_my_plants_sync_staging";
 const PREVIEW_STAGING_NAMESPACE = "water_my_plants_sync_preview";
 const METADATA_PAGE_ID = "62934:908";
 const DEFAULT_CHUNK_SIZE = 30_000;
+const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
 
 const KNOWN_TARGETS = [
+  "preflight",
   "versions",
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
@@ -23,6 +32,17 @@ const KNOWN_TARGETS = [
   "figmaDesignSync.libraries",
   "figmaDesignSync.plugins",
   "metadata",
+];
+
+const CATALOG_TARGETS = [
+  "waterMyPlants.libraries",
+  "waterMyPlants.plugins",
+  "waterMyPlants.customGradleConventionPlugins",
+  "waterMyPlants.customGradlePlugins",
+  "gradlePlugins.libraries",
+  "gradlePlugins.plugins",
+  "figmaDesignSync.libraries",
+  "figmaDesignSync.plugins",
 ];
 
 const DEFAULT_FIXTURE_TARGETS = {
@@ -75,8 +95,10 @@ function readNpmConfigArgs() {
     script: "npm_config_script",
     entrypoint: "npm_config_entrypoint",
     target: "npm_config_target",
+    targets: "npm_config_targets",
     "out-dir": "npm_config_out_dir",
     "chunk-size": "npm_config_chunk_size",
+    transport: "npm_config_transport",
     "section-node-id": "npm_config_section_node_id",
     roots: "npm_config_roots",
     "allow-official-sections": "npm_config_allow_official_sections",
@@ -117,18 +139,41 @@ function resolveOptions(args) {
   }
 
   const fixture = args.fixture || (mode === "preview" && !args.model ? "catalog-tree" : undefined);
-  const target = args.target || (fixture ? DEFAULT_FIXTURE_TARGETS[fixture] : undefined);
-  if (!target) {
+  const targetValue = args.targets || args.target || (fixture ? DEFAULT_FIXTURE_TARGETS[fixture] : undefined);
+  if (!targetValue) {
     throw new Error("Missing --target. Preview fixtures can infer a default target.");
   }
-  if (!KNOWN_TARGETS.includes(target)) {
-    throw new Error(`Unknown target '${target}'. Expected one of: ${KNOWN_TARGETS.join(", ")}.`);
+  const targets = parseTargets(targetValue);
+  if (targets.length === 0) {
+    throw new Error("Missing --target.");
   }
-  if (mode === "preview" && target === "metadata") {
+  const unknownTargets = targets.filter((target) => !KNOWN_TARGETS.includes(target));
+  if (unknownTargets.length > 0) {
+    throw new Error(`Unknown target(s) '${unknownTargets.join(", ")}'. Expected one of: ${KNOWN_TARGETS.join(", ")}.`);
+  }
+  if (mode === "preview" && targets.length !== 1) {
+    throw new Error("Preview runners support exactly one target.");
+  }
+  if (targets.includes("metadata") && targets.length > 1) {
+    throw new Error("The metadata target must run alone after every visual target is correct.");
+  }
+  const target = targets[0];
+  if (mode === "preview" && targets.includes("metadata")) {
     throw new Error("Preview runners must not target metadata.");
   }
   if (mode === "official" && !args.model) {
     throw new Error("Official runners require --model with the TeamCity design-model.json artifact.");
+  }
+  if (mode === "preview" && targets.includes("preflight")) {
+    throw new Error("Preview runners must not target preflight.");
+  }
+
+  const transport = args.transport || (mode === "official" ? "png" : "chunks");
+  if (!["chunks", "png"].includes(transport)) {
+    throw new Error(`Unsupported --transport '${transport}'. Expected 'chunks' or 'png'.`);
+  }
+  if (transport === "png" && mode !== "official") {
+    throw new Error("--transport=png is only supported for official runners.");
   }
 
   const entrypoint = args.entrypoint || (
@@ -169,6 +214,10 @@ function resolveOptions(args) {
   const roots = parseRoots(args.roots);
   const allowOfficialSections = args["allow-official-sections"] === "true";
 
+  if ((sectionNodeId || roots.length > 0) && targets.length !== 1) {
+    throw new Error("--section-node-id and --roots can only be used with a single target.");
+  }
+
   if (
     mode === "preview" &&
     isCatalogTarget(target) &&
@@ -186,10 +235,12 @@ function resolveOptions(args) {
     fixture,
     entrypoint,
     target,
+    targets,
     modelPath,
     scriptPath,
     outRoot,
     chunkSize,
+    transport,
     namespace,
     writeMetadata,
     sectionNodeId,
@@ -206,20 +257,58 @@ async function writeRunnerFiles(options) {
   validateDesignModel(designModel, options);
 
   const scriptBase64 = Buffer.from(script, "utf8").toString("base64");
-  const runDirName = `${options.mode}-${safeName(options.entrypoint)}-${safeName(options.target)}-${safeName(basename(options.modelPath, ".design-model.json"))}`;
+  const runDirName = `${options.mode}-${safeName(options.entrypoint)}-${safeName(options.targets.join("-"))}-${safeName(options.transport)}-${safeName(basename(options.modelPath, ".design-model.json"))}`;
   const outDir = join(options.outRoot, runDirName);
   const files = [];
+  let payloadImage = null;
 
   await mkdir(outDir, { recursive: true });
 
   files.push(await writeFileIn(outDir, "00-clear-staging.mcp.js", clearStagingSource(options.namespace)));
-  files.push(...await writeChunkSources(outDir, "designModelJson", minifiedModelJson, options));
-  files.push(...await writeChunkSources(outDir, "scriptBase64", scriptBase64, options));
+
+  if (options.transport === "png") {
+    const payload = buildOfficialSyncPayload({
+      designModel,
+      modelJson: minifiedModelJson,
+      script,
+      scriptBase64,
+    });
+    const payloadJson = stringifyAsciiJson(payload);
+    const payloadPng = createPayloadPng(payloadJson);
+    if (payloadPng.length > MAX_FIGMA_UPLOAD_ASSET_BYTES) {
+      throw new Error(
+        `Official payload PNG is ${payloadPng.length} bytes and exceeds ` +
+          `${MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes. Regenerate with --transport=chunks.`
+      );
+    }
+
+    await writeFile(join(outDir, PAYLOAD_PNG_FILE_NAME), payloadPng);
+    payloadImage = {
+      fileName: PAYLOAD_PNG_FILE_NAME,
+      byteLength: payloadPng.length,
+      textKeyword: PAYLOAD_PNG_TEXT_KEYWORD,
+    };
+    files.push(await writeFileIn(outDir, "10-stage-payload-from-png.mcp.js", stagePayloadFromPngSource(
+      options,
+      designModel,
+      minifiedModelJson,
+      script,
+      scriptBase64,
+      PAYLOAD_PNG_FILE_NAME
+    )));
+  } else {
+    files.push(...await writeChunkSources(outDir, "designModelJson", minifiedModelJson, options));
+    files.push(...await writeChunkSources(outDir, "scriptBase64", scriptBase64, options));
+  }
+
   files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script, scriptBase64)));
   files.push(await writeFileIn(outDir, "99-run-target.mcp.js", runTargetSource(options)));
-  files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, scriptBase64));
+  files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, scriptBase64, payloadImage));
 
   console.log(`Wrote ${files.length} MCP runner files to ${outDir}`);
+  if (payloadImage) {
+    console.log(`Upload ${PAYLOAD_PNG_FILE_NAME} to Figma before running 10-stage-payload-from-png.mcp.js.`);
+  }
   console.log(`Run them in lexical order, ending with 99-run-target.mcp.js.`);
 }
 
@@ -249,7 +338,7 @@ async function writeChunkSources(outDir, key, value, options) {
   return files;
 }
 
-async function writeManifest(outDir, files, options, designModel, modelJson, script, scriptBase64) {
+async function writeManifest(outDir, files, options, designModel, modelJson, script, scriptBase64, payloadImage) {
   return writeFileIn(
     outDir,
     "manifest.json",
@@ -258,7 +347,9 @@ async function writeManifest(outDir, files, options, designModel, modelJson, scr
         mode: options.mode,
         entrypoint: options.entrypoint,
         target: options.target,
+        targets: options.targets,
         writeMetadata: options.writeMetadata,
+        transport: options.transport,
         namespace: options.namespace,
         sectionNodeId: options.sectionNodeId || null,
         roots: options.roots,
@@ -271,6 +362,7 @@ async function writeManifest(outDir, files, options, designModel, modelJson, scr
         designModelLength: modelJson.length,
         scriptLength: script.length,
         scriptBase64Length: scriptBase64.length,
+        payloadImage,
         files,
       },
       null,
@@ -349,6 +441,206 @@ return {
 `;
 }
 
+function stagePayloadFromPngSource(options, designModel, modelJson, script, scriptBase64, payloadFileName) {
+  return `${runtimeHeader()}
+const namespace = ${JSON.stringify(options.namespace)};
+const payloadKeyword = ${JSON.stringify(PAYLOAD_PNG_TEXT_KEYWORD)};
+const payloadFileName = ${JSON.stringify(payloadFileName)};
+const expected = {
+  designModelHash: ${JSON.stringify(designModel.modelHash)},
+  designModelGitSha: ${JSON.stringify(designModel.gitSha)},
+  designModelLength: ${JSON.stringify(String(modelJson.length))},
+  scriptLength: ${JSON.stringify(String(script.length))},
+  scriptBase64Length: ${JSON.stringify(String(scriptBase64.length))}
+};
+
+if (typeof figma.loadAllPagesAsync === "function") {
+  try {
+    await figma.loadAllPagesAsync();
+  } catch (error) {
+    // Some MCP runtimes expose this method but reject it at execution time.
+    // Document-level traversal still sees uploaded image nodes in this file.
+  }
+}
+
+const candidates = [];
+const imageHashes = new Set();
+const imageNodes = figma.root.findAll((node) => {
+  const fills = "fills" in node ? node.fills : undefined;
+  if (!Array.isArray(fills)) {
+    return false;
+  }
+
+  let hasPayloadCandidate = false;
+  for (const fill of fills) {
+    if (fill?.type === "IMAGE" && fill.imageHash) {
+      hasPayloadCandidate = true;
+      imageHashes.add(fill.imageHash);
+    }
+  }
+  return hasPayloadCandidate;
+});
+
+for (const imageHash of imageHashes) {
+  const image = figma.getImageByHash(imageHash);
+  if (!image) {
+    continue;
+  }
+
+  const bytes = await image.getBytesAsync();
+  const encodedPayload = readPayloadFromPngText(bytes, payloadKeyword);
+  if (!encodedPayload) {
+    continue;
+  }
+
+  const payload = JSON.parse(atob(encodedPayload));
+  if (
+    payload.designModelHash === expected.designModelHash &&
+    String(payload.designModelLength) === expected.designModelLength &&
+    String(payload.scriptBase64Length) === expected.scriptBase64Length
+  ) {
+    candidates.push({ imageHash, payload });
+  }
+}
+
+if (candidates.length === 0) {
+  throw new Error(
+    "Could not find official sync payload PNG for model " + expected.designModelHash + ". " +
+    "Upload " + payloadFileName + " with Figma upload_assets before this step."
+  );
+}
+
+const { imageHash, payload } = candidates[0];
+validatePayload(payload, expected);
+
+page.setSharedPluginData(namespace, "designModelJson", payload.designModelJson);
+page.setSharedPluginData(namespace, "scriptBase64", payload.scriptBase64);
+page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash);
+page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
+page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
+page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
+page.setSharedPluginData(namespace, "scriptBase64Length", expected.scriptBase64Length);
+
+let payloadNodesRemoved = 0;
+for (const node of imageNodes) {
+  const fills = Array.isArray(node.fills) ? node.fills : [];
+  if (fills.some((fill) => fill?.type === "IMAGE" && fill.imageHash === imageHash)) {
+    node.remove();
+    payloadNodesRemoved += 1;
+  }
+}
+
+return {
+  namespace,
+  transport: "png",
+  payloadNodesRemoved,
+  modelHash: expected.designModelHash,
+  gitSha: expected.designModelGitSha,
+  designModelLength: expected.designModelLength,
+  scriptBase64Length: expected.scriptBase64Length
+};
+
+function validatePayload(payload, expected) {
+  for (const [key, value] of Object.entries({
+    designModelJson: payload.designModelJson,
+    scriptBase64: payload.scriptBase64,
+    designModelHash: payload.designModelHash,
+    designModelGitSha: payload.designModelGitSha
+  })) {
+    if (!value) {
+      throw new Error(\`Payload is missing \${key}.\`);
+    }
+  }
+
+  if (payload.designModelHash !== expected.designModelHash) {
+    throw new Error(\`Payload modelHash mismatch: \${payload.designModelHash} != \${expected.designModelHash}\`);
+  }
+  if (payload.designModelGitSha !== expected.designModelGitSha) {
+    throw new Error(\`Payload gitSha mismatch: \${payload.designModelGitSha} != \${expected.designModelGitSha}\`);
+  }
+  if (String(payload.designModelLength) !== expected.designModelLength) {
+    throw new Error(\`Payload model length metadata mismatch: \${payload.designModelLength} != \${expected.designModelLength}\`);
+  }
+  if (payload.designModelJson.length !== Number(expected.designModelLength)) {
+    throw new Error(\`Payload model JSON length mismatch: \${payload.designModelJson.length} != \${expected.designModelLength}\`);
+  }
+  if (String(payload.scriptLength) !== expected.scriptLength) {
+    throw new Error(\`Payload script length metadata mismatch: \${payload.scriptLength} != \${expected.scriptLength}\`);
+  }
+  if (String(payload.scriptBase64Length) !== expected.scriptBase64Length) {
+    throw new Error(\`Payload scriptBase64 length metadata mismatch: \${payload.scriptBase64Length} != \${expected.scriptBase64Length}\`);
+  }
+  if (payload.scriptBase64.length !== Number(expected.scriptBase64Length)) {
+    throw new Error(\`Payload scriptBase64 length mismatch: \${payload.scriptBase64.length} != \${expected.scriptBase64Length}\`);
+  }
+
+  const parsedModel = JSON.parse(payload.designModelJson);
+  if (parsedModel.modelHash !== expected.designModelHash) {
+    throw new Error(\`Payload model JSON hash mismatch: \${parsedModel.modelHash} != \${expected.designModelHash}\`);
+  }
+  if (parsedModel.gitSha !== expected.designModelGitSha) {
+    throw new Error(\`Payload model JSON gitSha mismatch: \${parsedModel.gitSha} != \${expected.designModelGitSha}\`);
+  }
+
+  const decodedScript = atob(payload.scriptBase64);
+  if (decodedScript.length !== Number(expected.scriptLength)) {
+    throw new Error(\`Payload decoded script length mismatch: \${decodedScript.length} != \${expected.scriptLength}\`);
+  }
+}
+
+function readPayloadFromPngText(bytes, keyword) {
+  const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  for (let index = 0; index < pngSignature.length; index += 1) {
+    if (bytes[index] !== pngSignature[index]) {
+      return null;
+    }
+  }
+
+  let offset = 8;
+  while (offset + 12 <= bytes.length) {
+    const length = readUint32(bytes, offset);
+    const type = readLatin1(bytes, offset + 4, offset + 8);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    const nextOffset = dataEnd + 4;
+    if (dataEnd > bytes.length || nextOffset > bytes.length) {
+      return null;
+    }
+
+    if (type === "tEXt") {
+      const text = readLatin1(bytes, dataStart, dataEnd);
+      const separatorIndex = text.indexOf("\\0");
+      if (separatorIndex > -1 && text.slice(0, separatorIndex) === keyword) {
+        return text.slice(separatorIndex + 1);
+      }
+    }
+
+    offset = nextOffset;
+  }
+
+  return null;
+}
+
+function readUint32(bytes, offset) {
+  return (
+    (bytes[offset] * 0x1000000) +
+    ((bytes[offset + 1] << 16) >>> 0) +
+    ((bytes[offset + 2] << 8) >>> 0) +
+    bytes[offset + 3]
+  ) >>> 0;
+}
+
+function readLatin1(bytes, start, end) {
+  let text = "";
+  for (let index = start; index < end; index += 8192) {
+    const chunk = bytes.slice(index, Math.min(index + 8192, end));
+    text += String.fromCharCode(...chunk);
+  }
+  return text;
+}
+`;
+}
+
 function finalizeStagingSource(options, designModel, modelJson, script, scriptBase64) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
@@ -399,7 +691,7 @@ return {
 
 function runTargetSource(options) {
   const syncOptions = {
-    targets: [options.target],
+    targets: options.targets,
     writeMetadata: options.writeMetadata,
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
     ...(options.roots.length > 0 ? { catalogRootFilters: { [options.target]: options.roots } } : {}),
@@ -561,6 +853,15 @@ function parseRoots(value) {
   return [...new Set(roots)];
 }
 
+function parseTargets(value) {
+  return [...new Set(
+    String(value)
+      .split(",")
+      .map((target) => target.trim())
+      .filter(Boolean)
+  )];
+}
+
 function safeName(value) {
   return value.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -573,5 +874,5 @@ function relativeToToolRoot(path) {
 }
 
 function isCatalogTarget(target) {
-  return target !== "versions" && target !== "metadata";
+  return CATALOG_TARGETS.includes(target);
 }

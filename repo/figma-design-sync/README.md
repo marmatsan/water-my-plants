@@ -123,12 +123,19 @@ The strict flow is:
 1. Merge code changes through a pull request after TeamCity CI passes.
 2. Let TeamCity run on `main` and generate the official `design-model.json`.
 3. Use the official artifact as the visual sync input.
-4. Run the MCP visual write step against Figma.
-5. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
+4. Run the MCP `preflight` target when Figma component contracts changed.
+5. Run the MCP visual write step against Figma.
+6. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
 
 Do not create official design-model metadata from a feature branch. Branch-local
 visual iteration may reuse an official `main` artifact for layout debugging, but
 it must not publish trunk metadata.
+
+The official MCP runner uses PNG payload transport by default: the generated
+runner writes `10-official-sync-payload.png`, that image is uploaded to Figma,
+and the staging runner extracts and validates the model plus MCP script before
+running visual targets. Chunked staging remains a fallback for oversized or
+blocked asset uploads.
 
 ## Human Workflow
 

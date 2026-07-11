@@ -25,6 +25,7 @@ export type FlattenedCatalogNode = Record<string, any> & {
 export type SyncIdList = string[];
 
 export type SyncTargetName =
+  | "preflight"
   | "versions"
   | "waterMyPlants.libraries"
   | "waterMyPlants.plugins"

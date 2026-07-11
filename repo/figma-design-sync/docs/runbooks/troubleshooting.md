@@ -66,15 +66,23 @@ return {
 };
 ```
 
-`designModelJsonLength: 0` after `00-clear-staging.mcp.js` usually means a
-large chunk call never reached Figma. Regenerate the runner with a smaller
-chunk size and rerun the files in lexical order:
+`designModelJsonLength: 0` after `00-clear-staging.mcp.js` means the payload was
+not staged. In PNG transport, confirm that `10-official-sync-payload.png` was
+uploaded to Figma and that `10-stage-payload-from-png.mcp.js` completed. If PNG
+asset upload is blocked, regenerate with chunk transport:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --chunk-size=8000
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks
 ```
 
-For larger payloads, stage base64 chunks in temporary shared plugin data:
+If a chunk call is too large and never reaches Figma, regenerate the chunk
+runner with a smaller chunk size and rerun the files in lexical order:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks --chunk-size=8000
+```
+
+For chunk transport, stage base64 chunks in temporary shared plugin data:
 
 - Store a `runId`, expected chunk count, expected encoded length, and every
   chunk.
@@ -87,8 +95,14 @@ For larger payloads, stage base64 chunks in temporary shared plugin data:
 
 Do not copy long base64 payloads manually from terminal output.
 
-The tools package can generate chunked runner files for both official sync and
-visual preview:
+If PNG staging fails with `loadAllPagesAsync is not a supported API`, treat it
+as a runner bug, not a bad payload. The generated staging code must tolerate
+that API being present but rejected by the MCP runtime. Document-level traversal
+can still find uploaded image fills in this file, even when the upload landed
+on a different page from the metadata page.
+
+The tools package can generate PNG-based official runner files and chunked
+visual preview runner files:
 
 ```powershell
 cd repo\figma-design-sync\tools

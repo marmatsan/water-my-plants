@@ -36,11 +36,23 @@ Catalog tree visual targets:
 ## Execution Order
 
 Run visual updates by granular target. Do not run `metadata` until every visual
-target has completed successfully.
+target has completed successfully. Run `preflight` first when the Figma
+component contract has changed, when a previous visual write failed before
+metadata, or before a full official sync after component edits.
+
+For a single visual target, prefer an atomic preflight-and-write runner:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries
+```
+
+If the preflight fails, the visual target is not executed. Use `--target=preflight`
+alone when you only want to inspect the contract without changing visuals.
 
 | Order | Target | Scope | Typical failure | Quick check |
 |-------|--------|-------|-----------------|-------------|
-| 1 | `versions` | Version variables and `.project version` nodes | Missing variable collection or stale version section | Returned `updatedVersions` contains the expected version keys. |
+| 0 | `preflight` | Figma variables, component contracts, configured sections, and target model shape | Missing component property, usage chip variant, section, variable collection, or invalid root filter | Returned `checkedComponents`, `checkedSections`, `checkedVariables`, and `checkedTargets` are populated and `mutatedNodeIds` is empty. |
+| 1 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
 | 2 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains only this target and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
 | 3 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
 | 4 | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog | Stale convention plugin names or missing usage chip variants | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |

@@ -6,7 +6,13 @@ export const VERSIONS_COLLECTION_NAME = "repo\\dependency-catalog\\versions.prop
 export const VERSIONS_COLLECTION_NAMES = [VERSIONS_COLLECTION_NAME];
 export const VERSION_ALIAS_MODE_NAME = "Version alias";
 export const VERSION_NUMBER_MODE_NAME = "Version number";
-export const PROJECT_VERSION_COMPONENT_ID = "63075:591";
+export const DEPENDENCY_VERSION_COMPONENT_ID = "63075:591";
+export const PROJECT_VERSION_COMPONENT_ID = DEPENDENCY_VERSION_COMPONENT_ID;
+export const DEPENDENCY_VERSION_INSTANCE_NAMES = [".dependency version", ".project version"];
+export const DEPENDENCY_VERSION_PROPS = {
+  alias: "version alias#63075:0",
+  number: "version number#63075:1",
+};
 export const PARENT_SECTION_SIBLING_GAP = 1139;
 export const PARENT_SECTION_NODE_IDS = [
   "63685:108540",

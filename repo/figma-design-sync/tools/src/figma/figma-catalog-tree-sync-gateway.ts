@@ -77,6 +77,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
 
     const rootFilter = options.rootFilters?.[target.name];
     const isPartialRootSync = Boolean(rootFilter && rootFilter.length > 0);
+    const modelRootLabels = modelNodes.map((node) => rootLabel(target, node));
     const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
     const scopedRootLabels = scopedModelNodes.map((node) => rootLabel(target, node));
     const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
@@ -157,15 +158,13 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
     connectors = staleResult.connectors;
-    if (!isPartialRootSync) {
-      const removedRootSections = removeEmptyStaleCatalogRootSections(
-        target,
-        section,
-        scopedRootLabels,
-        mutatedNodeIds
-      );
-      removedCatalogNodes.push(...removedRootSections);
-    }
+    const removedRootSections = removeEmptyStaleCatalogRootSections(
+      target,
+      section,
+      modelRootLabels,
+      mutatedNodeIds
+    );
+    removedCatalogNodes.push(...removedRootSections);
 
     connectors = createMissingCatalogConnectors(
       target,
