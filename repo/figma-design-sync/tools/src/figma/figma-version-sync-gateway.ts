@@ -22,6 +22,11 @@ import {
 } from "./figma-node-gateway";
 import { collectText } from "./figma-text-gateway";
 
+const DEPENDENCY_VERSION_MAX_COLUMNS = 2;
+const DEPENDENCY_VERSION_COLUMN_GAP = 64;
+const DEPENDENCY_VERSION_ROW_GAP = 32;
+const VERSION_SECTION_GAP = 128;
+
 export class FigmaVersionSyncGateway implements VersionSyncGateway {
   async syncVersions(designModel: DesignModel) {
     const versionSections = requireVersionSections(designModel);
@@ -35,6 +40,7 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
     const createdVariables = [];
     const createdInstances = [];
     const updatedVersions = [];
+    const syncedParents = [];
 
     for (const section of versionSections) {
       const target = VERSION_SECTION_TARGETS[section.name];
@@ -44,10 +50,11 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
 
       const parent = await requireFrame(target.parentNodeId);
       const entries = Object.entries(section.versions);
+      const orderedVersionKeys = entries.map(([versionKey]) => versionKey);
       const existingInstances = findDependencyVersionInstances(parent);
       const instancePlan = planDependencyVersionInstanceSync(
         existingInstances,
-        entries.map(([versionKey]) => versionKey),
+        orderedVersionKeys,
         readDependencyVersionKey
       );
 
@@ -77,11 +84,8 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
         let instance = instancePlan.existingInstancesByVersionKey.get(versionKey);
         if (!instance) {
           instance = dependencyVersionComponent.createInstance();
-          const position = nextDependencyVersionPosition(parent);
 
           parent.appendChild(instance);
-          instance.x = position.x;
-          instance.y = position.y;
 
           mutatedNodeIds.push(instance.id);
           createdInstances.push(versionKey);
@@ -91,9 +95,18 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
         mutatedNodeIds.push(variable.id);
       }
 
+      layoutDependencyVersionGrid(parent, orderedVersionKeys, readDependencyVersionKey, mutatedNodeIds);
       resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
-      stackAncestorSectionSiblingsWithGap(parent, mutatedNodeIds);
-      resizeAncestorSectionsToFit(parent, mutatedNodeIds);
+      syncedParents.push(parent);
+    }
+
+    stackVersionSectionFrames(syncedParents, mutatedNodeIds);
+    for (const parent of syncedParents) {
+      resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+    }
+    if (syncedParents[0]) {
+      stackAncestorSectionSiblingsWithGap(syncedParents[0], mutatedNodeIds);
+      resizeAncestorSectionsToFit(syncedParents[0], mutatedNodeIds);
     }
 
     return {
@@ -158,32 +171,68 @@ function readDependencyVersionKey(instance) {
     .find(Boolean);
 }
 
-function nextDependencyVersionPosition(parent): { x: number; y: number } {
-  const instances = parent.children
-    .filter((child) => child.type === "INSTANCE" && DEPENDENCY_VERSION_INSTANCE_NAMES.includes(child.name))
-    .sort((first, second) => first.y - second.y || first.x - second.x);
-
-  if (instances.length === 0) {
-    return { x: 0, y: 0 };
-  }
-
-  const columnXs: number[] = [...new Set<number>(instances.map((instance) => Math.round(instance.x)))]
-    .sort((first, second) => first - second)
-    .slice(0, 2);
-
-  if (columnXs.length === 1) {
-    columnXs.push(columnXs[0] + Math.round(instances[0].width) + 64);
-  }
-
-  const nextColumnIndex = instances.length % columnXs.length;
-  const columnInstances = instances.filter((instance) => Math.round(instance.x) === columnXs[nextColumnIndex]);
-  const lastInColumn = columnInstances.at(-1);
-  const rowGap = 64;
+export function dependencyVersionGridPosition(index: number, itemWidth: number, rowHeights: number[]): { x: number; y: number } {
+  const column = index % DEPENDENCY_VERSION_MAX_COLUMNS;
+  const row = Math.floor(index / DEPENDENCY_VERSION_MAX_COLUMNS);
+  const y = rowHeights
+    .slice(0, row)
+    .reduce((sum, height) => sum + height + DEPENDENCY_VERSION_ROW_GAP, 0);
 
   return {
-    x: columnXs[nextColumnIndex],
-    y: lastInColumn ? lastInColumn.y + lastInColumn.height + rowGap : 0,
+    x: column * (itemWidth + DEPENDENCY_VERSION_COLUMN_GAP),
+    y,
   };
+}
+
+function layoutDependencyVersionGrid(parent, orderedVersionKeys, readVersionKey, mutatedNodeIds) {
+  const instancesByVersionKey = new Map(
+    findDependencyVersionInstances(parent)
+      .map((instance) => [readVersionKey(instance), instance])
+      .filter(([versionKey]) => Boolean(versionKey))
+  );
+  const orderedInstances = orderedVersionKeys
+    .map((versionKey) => instancesByVersionKey.get(versionKey))
+    .filter(Boolean);
+
+  if (orderedInstances.length === 0) return;
+
+  const columnWidth = Math.max(...orderedInstances.map((instance) => instance.width));
+  const rowHeights = [];
+  for (let index = 0; index < orderedInstances.length; index += DEPENDENCY_VERSION_MAX_COLUMNS) {
+    rowHeights.push(
+      Math.max(...orderedInstances.slice(index, index + DEPENDENCY_VERSION_MAX_COLUMNS).map((instance) => instance.height))
+    );
+  }
+
+  orderedInstances.forEach((instance, index) => {
+    const position = dependencyVersionGridPosition(index, columnWidth, rowHeights);
+    if (Math.abs(instance.x - position.x) > 0.01) {
+      instance.x = position.x;
+      mutatedNodeIds.push(instance.id);
+    }
+    if (Math.abs(instance.y - position.y) > 0.01) {
+      instance.y = position.y;
+      mutatedNodeIds.push(instance.id);
+    }
+  });
+}
+
+function stackVersionSectionFrames(frames, mutatedNodeIds) {
+  if (frames.length < 2) return;
+
+  const alignedX = frames[0].x;
+  let nextY = frames[0].y;
+  for (const frame of frames) {
+    if (Math.abs(frame.x - alignedX) > 0.01) {
+      frame.x = alignedX;
+      mutatedNodeIds.push(frame.id);
+    }
+    if (Math.abs(frame.y - nextY) > 0.01) {
+      frame.y = nextY;
+      mutatedNodeIds.push(frame.id);
+    }
+    nextY = frame.y + frame.height + VERSION_SECTION_GAP;
+  }
 }
 
 function bindDependencyVersionInstance(instance, variable) {

@@ -509,7 +509,7 @@ private fun libraryAlias(
 private val CatalogVersionAliases = Versions(
     activityComposeLibraryVersion = "activityComposeLibraryVersion",
     androidCoroutinesLibraryVersion = "androidCoroutinesLibraryVersion",
-    androidGradlePlugin = "androidGradlePlugin",
+    androidGradlePluginVersion = "androidGradlePluginVersion",
     composeBomLibraryVersion = "composeBomLibraryVersion",
     coreKtxLibraryVersion = "coreKtxLibraryVersion",
     cucumberLibraryVersion = "cucumberLibraryVersion",

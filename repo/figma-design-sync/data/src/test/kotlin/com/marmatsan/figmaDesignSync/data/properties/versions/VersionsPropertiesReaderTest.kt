@@ -13,7 +13,7 @@ internal class VersionsPropertiesReaderTest : FunSpec({
             """
             ## Main project dependencies
             # com.android.tools.build:gradle
-            androidGradlePlugin=9.2.1
+            androidGradlePluginVersion=9.2.1
             ## Libraries
             # io.kotest:kotest-runner-junit5
             kotestLibraryVersion=6.2.1

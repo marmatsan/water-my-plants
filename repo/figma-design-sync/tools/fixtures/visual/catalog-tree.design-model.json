@@ -7,7 +7,7 @@
   "content": {
     "versions": {
       "activityComposeLibraryVersion": "1.9.3",
-      "androidGradlePlugin": "8.9.1",
+      "androidGradlePluginVersion": "8.9.1",
       "dokkaPluginVersion": "2.0.0",
       "kspPluginVersion": "2.1.10-1.0.31"
     },
@@ -98,7 +98,7 @@
                     "id": "android",
                     "version": {
                       "visible": true,
-                      "value": "androidGradlePlugin"
+                      "value": "androidGradlePluginVersion"
                     },
                     "appliedToModules": [
                       ":app",

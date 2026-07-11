@@ -35,7 +35,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Plugin dependency trees are in `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`.
 - When adding a new version key, update `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/Versions.kt` and the tree definitions that consume it.
 - Version keys under `Libraries` must end with `LibraryVersion`; version keys
-  under `Plugins` must end with `PluginVersion`; only `androidGradlePlugin` and
+  under `Plugins` must end with `PluginVersion`; only `androidGradlePluginVersion` and
   `kotlinVersion` belong under `Main project dependencies`.
 - Run `.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage` after
   adding or moving dependency catalog entries.

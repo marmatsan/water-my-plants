@@ -21,6 +21,7 @@ import {
   removeCatalogTreeSectionFills,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
+  stackChildSectionsFromPadding,
   stackAncestorSectionSiblingsWithGap,
   stackDescendantSectionsWithGap,
   unlockSectionTreeForMutation,
@@ -268,7 +269,8 @@ function removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds) {
   section.remove();
 
   if (parentSection) {
-    stackDescendantSectionsWithGap(parentSection, mutatedNodeIds);
+    stackChildSectionsFromPadding(parentSection, mutatedNodeIds);
+    resizeNodeToFit(parentSection, parentSection.children.filter((child) => child.visible !== false), mutatedNodeIds);
     stackAncestorSectionSiblingsWithGap(parentSection, mutatedNodeIds);
     resizeAncestorSectionsToFit(parentSection, mutatedNodeIds);
     lockOnlyRootSection(parentSection, mutatedNodeIds);

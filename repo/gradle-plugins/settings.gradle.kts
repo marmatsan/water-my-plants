@@ -41,7 +41,7 @@ dependencyResolutionManagement {
                 alias = "com.android.tools.build.gradle",
                 group = "com.android.tools.build",
                 artifact = "gradle"
-            ).version(version("androidGradlePlugin"))
+            ).version(version("androidGradlePluginVersion"))
 
             library(
                 alias = "com.google.protobuf.gradle.plugin",

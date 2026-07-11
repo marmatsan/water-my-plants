@@ -6,7 +6,7 @@ import java.util.Properties
 data class Versions(
     val activityComposeLibraryVersion: String,
     val androidCoroutinesLibraryVersion: String,
-    val androidGradlePlugin: String,
+    val androidGradlePluginVersion: String,
     val composeBomLibraryVersion: String,
     val coreKtxLibraryVersion: String,
     val cucumberLibraryVersion: String,
@@ -43,7 +43,7 @@ data class Versions(
             return Versions(
                 activityComposeLibraryVersion = get("activityComposeLibraryVersion"),
                 androidCoroutinesLibraryVersion = get("androidCoroutinesLibraryVersion"),
-                androidGradlePlugin = get("androidGradlePlugin"),
+                androidGradlePluginVersion = get("androidGradlePluginVersion"),
                 composeBomLibraryVersion = get("composeBomLibraryVersion"),
                 coreKtxLibraryVersion = get("coreKtxLibraryVersion"),
                 cucumberLibraryVersion = get("cucumberLibraryVersion"),

@@ -17,7 +17,7 @@ internal class VersionNamingCheckerTest : FunSpec({
                     RepositoryVersionSection(
                         name = "Main project dependencies",
                         versions = mapOf(
-                            "androidGradlePlugin" to "9.2.1",
+                            "androidGradlePluginVersion" to "9.2.1",
                             "kotlinVersion" to "2.4.0"
                         )
                     ),
@@ -59,7 +59,7 @@ internal class VersionNamingCheckerTest : FunSpec({
                     RepositoryVersionSection(
                         name = "Main project dependencies",
                         versions = mapOf(
-                            "androidGradlePlugin" to "9.2.1",
+                            "androidGradlePluginVersion" to "9.2.1",
                             "kotlinVersion" to "2.4.0",
                             "kspPluginVersion" to "2.3.9"
                         )
@@ -79,8 +79,8 @@ internal class VersionNamingCheckerTest : FunSpec({
         result.violations.map(VersionNamingViolation::message) shouldBe listOf(
             "Expected version sections in order: Main project dependencies, Libraries, Plugins. " +
                 "Found: Libraries, Main project dependencies, Plugins.",
-            "Main project dependencies must declare only androidGradlePlugin, kotlinVersion. " +
-                "Found: androidGradlePlugin, kotlinVersion, kspPluginVersion.",
+            "Main project dependencies must declare only androidGradlePluginVersion, kotlinVersion. " +
+                "Found: androidGradlePluginVersion, kotlinVersion, kspPluginVersion.",
             "Libraries version key 'activityComposeVersion' must end with 'LibraryVersion'.",
             "Plugins version key 'dokkaVersion' must end with 'PluginVersion'."
         )

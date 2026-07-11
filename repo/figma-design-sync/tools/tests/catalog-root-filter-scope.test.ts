@@ -5,6 +5,7 @@ import {
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
+import { stackChildSectionsFromPadding } from "../src/figma/figma-node-gateway";
 
 const target = { name: "waterMyPlants.libraries" };
 
@@ -145,6 +146,34 @@ test("stale empty root section cleanup can remove empty roots outside a partial 
   assert.deepEqual(section.children.map((child) => child.name), ["com", "io"]);
 });
 
+test("child section reflow normalizes the first remaining root to container padding", () => {
+  const mutatedNodeIds = [];
+  const section = parentSection([
+    positionedChildSection("io", 100, 1458, 2353, 1898),
+    positionedChildSection("me", 100, 3470, 948, 1445),
+    positionedChildSection("org", 100, 5029, 1690, 1445),
+  ]);
+
+  stackChildSectionsFromPadding(section, mutatedNodeIds);
+
+  assert.equal(section.children[0].y, 100);
+  assert.equal(section.children[1].y, 2112);
+  assert.equal(section.children[2].y, 3671);
+  assert.deepEqual(mutatedNodeIds, ["io-id", "me-id", "org-id"]);
+});
+
+test("child section reflow normalizes a single remaining root", () => {
+  const mutatedNodeIds = [];
+  const section = parentSection([
+    positionedChildSection("org", 100, 5029, 1690, 1445),
+  ]);
+
+  stackChildSectionsFromPadding(section, mutatedNodeIds);
+
+  assert.equal(section.children[0].y, 100);
+  assert.deepEqual(mutatedNodeIds, ["org-id"]);
+});
+
 function catalogNode(label: string, parentPath: string[] = []) {
   return {
     label,
@@ -206,5 +235,20 @@ function childSection(name: string, childIds: string[]) {
         this.parent.children.splice(index, 1);
       }
     },
+  };
+}
+
+function positionedChildSection(name: string, x: number, y: number, width: number, height: number) {
+  return {
+    id: `${name}-id`,
+    name,
+    type: "SECTION",
+    visible: true,
+    x,
+    y,
+    width,
+    height,
+    children: [],
+    parent: null,
   };
 }

@@ -14,7 +14,7 @@ stable semantic grouping instead of using generic `*Version` keys.
 
 ```properties
 ## Main project dependencies
-androidGradlePlugin=...
+androidGradlePluginVersion=...
 kotlinVersion=...
 ## Libraries
 exampleLibraryVersion=...
@@ -24,14 +24,14 @@ examplePluginVersion=...
 
 Rules:
 
-- `Main project dependencies` contains only `androidGradlePlugin` and
+- `Main project dependencies` contains only `androidGradlePluginVersion` and
   `kotlinVersion`.
 - Library version keys must end with `LibraryVersion`, for example
   `activityComposeLibraryVersion`.
 - Plugin version keys must end with `PluginVersion`, for example
   `kspPluginVersion`.
 - Do not add new generic `*Version` keys to `Libraries` or `Plugins`.
-- If a plugin catalog node uses `androidGradlePlugin` or `kotlinVersion`, keep
+- If a plugin catalog node uses `androidGradlePluginVersion` or `kotlinVersion`, keep
   the version key in `Main project dependencies`; do not duplicate it as a
   plugin-specific key.
 

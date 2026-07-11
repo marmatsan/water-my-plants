@@ -16,11 +16,11 @@ private fun comPluginTree(
     plugin("android") {
         plugin(
             id = "application",
-            version = versions.androidGradlePlugin
+            version = versions.androidGradlePluginVersion
         )
         plugin(
             id = "library",
-            version = versions.androidGradlePlugin
+            version = versions.androidGradlePluginVersion
         )
     }
     plugin("figma") {
