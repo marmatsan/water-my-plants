@@ -92,7 +92,9 @@ For each repository version:
 - Create a missing Figma variable under the matching section folder.
 - Create a missing `.dependency version` instance in the matching visual frame.
 - Layout `.dependency version` instances as a row-major grid with at most two
-  instances per row, 64 px between columns, and 32 px between rows.
+  instances per row, 64 px between columns, and 32 px between rows. Start the
+  grid 100 px from the visual section's top and left edges, then resize the
+  section after layout so all four edges keep the same 100 px padding.
 - Stack the visual frames for `Main project dependencies`, `Libraries`, and
   `Plugins` with 128 px between one frame bottom edge and the next frame top
   edge.
@@ -106,6 +108,17 @@ For each repository version:
 
 The sync must fail without writing metadata if the design model contains an
 unknown version section.
+
+Every Figma `SECTION` managed or created by the visual sync must use a single
+stroke bound to `md/sys/color/outline`, aligned `INSIDE`, with weight `2`. The
+sync reapplies this contract to existing catalog and version sections so legacy
+or manually changed strokes are normalized on the next targeted sync.
+
+Direct child sections are positioned 100 px from their parent section's left
+edge before the parent is resized to fit. This keeps the left padding equal to
+the 100 px right and bottom padding added by the resize operation, including the
+`gradle-plugins` and `figma-design-sync` sections inside the repository tooling
+catalog container.
 
 ## Catalog Tree Sync
 

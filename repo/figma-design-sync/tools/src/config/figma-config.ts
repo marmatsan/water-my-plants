@@ -6,6 +6,7 @@ export const VERSIONS_COLLECTION_NAME = "repo\\dependency-catalog\\versions.prop
 export const VERSIONS_COLLECTION_NAMES = [VERSIONS_COLLECTION_NAME];
 export const VERSION_ALIAS_MODE_NAME = "Version alias";
 export const VERSION_NUMBER_MODE_NAME = "Version number";
+export const OUTLINE_COLOR_VARIABLE_NAME = "md/sys/color/outline";
 export const DEPENDENCY_VERSION_COMPONENT_ID = "63075:591";
 export const PROJECT_VERSION_COMPONENT_ID = DEPENDENCY_VERSION_COMPONENT_ID;
 export const DEPENDENCY_VERSION_INSTANCE_NAMES = [".dependency version", ".project version"];

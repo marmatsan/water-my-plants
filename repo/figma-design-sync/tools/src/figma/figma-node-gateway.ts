@@ -1,9 +1,13 @@
 import type { CatalogTreeType } from "../domain/design-model";
 import {
+  OUTLINE_COLOR_VARIABLE_NAME,
   PARENT_SECTION_NODE_IDS,
   PARENT_SECTION_SIBLING_GAP,
   SECTION_SIBLING_GAP,
 } from "../config/figma-config";
+
+const SECTION_STROKE_WEIGHT = 2;
+const SECTION_STROKE_ALIGN = "INSIDE";
 
 export async function requireVariableCollection(nameOrNames) {
   const names = Array.isArray(nameOrNames) ? nameOrNames : [nameOrNames];
@@ -35,6 +39,15 @@ export async function loadVariablesByVersionKey(collection) {
   }
 
   return variables;
+}
+
+export async function requireOutlineColorVariable() {
+  const variables = await figma.variables.getLocalVariablesAsync("COLOR");
+  const variable = variables.find((candidate) => candidate.name === OUTLINE_COLOR_VARIABLE_NAME);
+  if (!variable) {
+    throw new Error(`Color variable '${OUTLINE_COLOR_VARIABLE_NAME}' was not found.`);
+  }
+  return variable;
 }
 
 export async function requireComponent(nodeId) {
@@ -111,6 +124,57 @@ export function removeCatalogTreeSectionFills(section, mutatedNodeIds) {
   }
 }
 
+export function applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds) {
+  const sections = [
+    section,
+    ...section.findAllWithCriteria({ types: ["SECTION"] }),
+  ];
+
+  for (const candidate of sections) {
+    applySectionStrokeContract(candidate, outlineVariable, mutatedNodeIds);
+  }
+}
+
+export function applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds) {
+  let current = section.parent;
+
+  while (current && current.type === "SECTION") {
+    applySectionStrokeContract(current, outlineVariable, mutatedNodeIds);
+    current = current.parent;
+  }
+}
+
+export function sectionStrokeContractSatisfied(section, outlineVariableId) {
+  if (section.strokeAlign !== SECTION_STROKE_ALIGN || section.strokeWeight !== SECTION_STROKE_WEIGHT) {
+    return false;
+  }
+  if (!Array.isArray(section.strokes) || section.strokes.length !== 1) return false;
+
+  const stroke = section.strokes[0];
+  return stroke.type === "SOLID" && stroke.boundVariables?.color?.id === outlineVariableId;
+}
+
+function applySectionStrokeContract(section, outlineVariable, mutatedNodeIds) {
+  if (sectionStrokeContractSatisfied(section, outlineVariable.id)) return;
+
+  const existingSolidStroke = section.strokes.find((stroke) => stroke.type === "SOLID");
+  const stroke = figma.variables.setBoundVariableForPaint(
+    {
+      type: "SOLID",
+      color: existingSolidStroke?.color || { r: 0, g: 0, b: 0 },
+      opacity: 1,
+      visible: true,
+      blendMode: "NORMAL",
+    },
+    "color",
+    outlineVariable
+  );
+  section.strokes = [stroke];
+  section.strokeAlign = SECTION_STROKE_ALIGN;
+  section.strokeWeight = SECTION_STROKE_WEIGHT;
+  mutatedNodeIds.push(section.id);
+}
+
 export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
   const visibleChildren = children.filter((child) => child && child.visible !== false);
   if (visibleChildren.length === 0) return;
@@ -134,7 +198,7 @@ export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
 }
 
 export function stackChildSectionsFromPadding(parent, mutatedNodeIds, gap = SECTION_SIBLING_GAP, padding = 100) {
-  stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap, padding);
+  stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap, padding, padding);
 }
 
 export function resizeAncestorSectionsToFit(node, mutatedNodeIds, padding = 100) {
@@ -260,23 +324,30 @@ function stackConfiguredPageSectionsWithGap(section, mutatedNodeIds, gap = PAREN
   }
 }
 
-function stackDirectChildSectionsWithGap(parent, mutatedNodeIds, gap, startY = firstSectionStartY(parent)) {
+function stackDirectChildSectionsWithGap(
+  parent,
+  mutatedNodeIds,
+  gap,
+  startY = firstSectionStartY(parent),
+  startX = 100
+) {
   const sections = directChildSections(parent)
     .sort((first, second) => first.y - second.y || first.x - second.x);
 
   if (sections.length === 0) return;
 
-  const alignedX = sections[0].x;
   let nextY = startY;
   for (const section of sections) {
-    if (Math.abs(section.x - alignedX) > 0.01) {
-      section.x = alignedX;
-      mutatedNodeIds.push(section.id);
+    let positionChanged = false;
+    if (Math.abs(section.x - startX) > 0.01) {
+      section.x = startX;
+      positionChanged = true;
     }
     if (Math.abs(section.y - nextY) > 0.01) {
       section.y = nextY;
-      mutatedNodeIds.push(section.id);
+      positionChanged = true;
     }
+    if (positionChanged) mutatedNodeIds.push(section.id);
     nextY = section.y + section.height + gap;
   }
 }

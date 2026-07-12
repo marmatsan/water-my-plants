@@ -10,10 +10,13 @@ import {
 import type { DesignModel } from "../domain/design-model";
 import type { VersionSyncGateway } from "../ports/sync-gateways";
 import {
+  applyAncestorSectionStrokeContract,
+  applySectionStrokeContractTree,
   loadVariablesByVersionKey,
   requireComponent,
   requireFrameOrSection,
   requireModeId,
+  requireOutlineColorVariable,
   requireVariableCollection,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
@@ -25,6 +28,7 @@ import { collectText } from "./figma-text-gateway";
 const DEPENDENCY_VERSION_MAX_COLUMNS = 2;
 const DEPENDENCY_VERSION_COLUMN_GAP = 64;
 const DEPENDENCY_VERSION_ROW_GAP = 32;
+const DEPENDENCY_VERSION_SECTION_PADDING = 100;
 const VERSION_SECTION_GAP = 128;
 
 export class FigmaVersionSyncGateway implements VersionSyncGateway {
@@ -34,6 +38,7 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
     const versionAliasModeId = requireModeId(collection, VERSION_ALIAS_MODE_NAME);
     const versionNumberModeId = requireModeId(collection, VERSION_NUMBER_MODE_NAME);
     const dependencyVersionComponent = await requireComponent(DEPENDENCY_VERSION_COMPONENT_ID);
+    const outlineVariable = await requireOutlineColorVariable();
 
     const variables = await loadVariablesByVersionKey(collection);
     const mutatedNodeIds = [];
@@ -103,10 +108,12 @@ export class FigmaVersionSyncGateway implements VersionSyncGateway {
     stackVersionSectionFrames(syncedParents, mutatedNodeIds);
     for (const parent of syncedParents) {
       resizeNodeToFit(parent, parent.children.filter((child) => child.visible !== false), mutatedNodeIds);
+      applySectionStrokeContractTree(parent, outlineVariable, mutatedNodeIds);
     }
     if (syncedParents[0]) {
       stackAncestorSectionSiblingsWithGap(syncedParents[0], mutatedNodeIds);
       resizeAncestorSectionsToFit(syncedParents[0], mutatedNodeIds);
+      applyAncestorSectionStrokeContract(syncedParents[0], outlineVariable, mutatedNodeIds);
     }
 
     return {
@@ -179,8 +186,8 @@ export function dependencyVersionGridPosition(index: number, itemWidth: number, 
     .reduce((sum, height) => sum + height + DEPENDENCY_VERSION_ROW_GAP, 0);
 
   return {
-    x: column * (itemWidth + DEPENDENCY_VERSION_COLUMN_GAP),
-    y,
+    x: DEPENDENCY_VERSION_SECTION_PADDING + column * (itemWidth + DEPENDENCY_VERSION_COLUMN_GAP),
+    y: DEPENDENCY_VERSION_SECTION_PADDING + y,
   };
 }
 
