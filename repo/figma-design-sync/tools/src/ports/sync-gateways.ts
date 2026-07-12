@@ -7,6 +7,11 @@ export type VersionSyncResult = {
   mutatedNodeIds: string[];
 };
 
+export type HeaderSyncResult = {
+  updatedHeaders: string[];
+  mutatedNodeIds: string[];
+};
+
 export type CatalogTreeSyncResult = {
   updatedCatalogNodes: string[];
   createdCatalogNodes: string[];
@@ -48,6 +53,10 @@ export type VisualContractCheckResult = {
 
 export type VersionSyncGateway = {
   syncVersions(designModel: DesignModel): Promise<VersionSyncResult>;
+};
+
+export type HeaderSyncGateway = {
+  syncHeaders(): Promise<HeaderSyncResult>;
 };
 
 export type CatalogTreeSyncGateway = {

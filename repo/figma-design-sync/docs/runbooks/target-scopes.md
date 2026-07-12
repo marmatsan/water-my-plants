@@ -52,16 +52,17 @@ alone when you only want to inspect the contract without changing visuals.
 | Order | Target | Scope | Typical failure | Quick check |
 |-------|--------|-------|-----------------|-------------|
 | 0 | `preflight` | Figma variables, component contracts, configured sections, and target model shape | Missing component property, usage chip variant, section, variable collection, or invalid root filter | Returned `checkedComponents`, `checkedSections`, `checkedVariables`, and `checkedTargets` are populated and `mutatedNodeIds` is empty. |
-| 1 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
-| 2 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains only this target and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
-| 3 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
-| 4 | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog | Stale convention plugin names or missing usage chip variants | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
-| 5 | `waterMyPlants.customGradlePlugins` | Regular custom Gradle plugin catalog | A regular plugin is modeled as a convention plugin, or the reverse | Returned nodes include `com.marmatsan.figmaDesignSync` as a regular plugin. |
-| 6 | `gradlePlugins.libraries` | `repo/gradle-plugins` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
-| 7 | `gradlePlugins.plugins` | Declared catalog target from `repo/gradle-plugins` plugins catalog | Stale hidden section after removing `create("plugins")` | Empty or omitted catalog removes the target section; declared catalog nodes match the settings catalog. |
-| 8 | `figmaDesignSync.libraries` | `repo/figma-design-sync` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
-| 9 | `figmaDesignSync.plugins` | `repo/figma-design-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
-| 10 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
+| 1 | `headers` | Parent documentation `.Header` links | Stale `build-logic` URL, centered link text, missing `Link` property, or multiple source paths sharing one hyperlink | Every displayed source path is left-aligned, opens its own canonical GitHub `main` URL, and `updatedHeaders` lists all configured parent sections. |
+| 2 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
+| 3 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains only this target and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
+| 4 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
+| 5 | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog | Stale convention plugin names or missing usage chip variants | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
+| 6 | `waterMyPlants.customGradlePlugins` | Regular custom Gradle plugin catalog | A regular plugin is modeled as a convention plugin, or the reverse | Returned nodes include `com.marmatsan.figmaDesignSync` as a regular plugin. |
+| 7 | `gradlePlugins.libraries` | `repo/gradle-plugins` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
+| 8 | `gradlePlugins.plugins` | Declared catalog target from `repo/gradle-plugins` plugins catalog | Stale hidden section after removing `create("plugins")` | Empty or omitted catalog removes the target section; declared catalog nodes match the settings catalog. |
+| 9 | `figmaDesignSync.libraries` | `repo/figma-design-sync` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains the target and no metadata. |
+| 10 | `figmaDesignSync.plugins` | `repo/figma-design-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
+| 11 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
 ## Subtree Scoped Runs
 

@@ -14,7 +14,7 @@ export async function main(
   if (designModel.branch !== "main") {
     throw new Error(`Preview catalog sync requires a main-compatible model. Found '${designModel.branch ?? "<missing>"}'.`);
   }
-  if (!options?.target || options.target === "versions" || options.target === "metadata") {
+  if (!options?.target || options.target === "headers" || options.target === "versions" || options.target === "metadata") {
     throw new Error("Preview catalog sync requires one catalog target.");
   }
   if (!options.sectionNodeId) {

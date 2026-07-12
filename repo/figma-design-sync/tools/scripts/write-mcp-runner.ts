@@ -22,6 +22,7 @@ const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
 
 const KNOWN_TARGETS = [
   "preflight",
+  "headers",
   "versions",
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
@@ -166,6 +167,9 @@ function resolveOptions(args) {
   }
   if (mode === "preview" && targets.includes("preflight")) {
     throw new Error("Preview runners must not target preflight.");
+  }
+  if (mode === "preview" && targets.includes("headers")) {
+    throw new Error("Header sync requires an official main artifact runner.");
   }
 
   const transport = args.transport || (mode === "official" ? "png" : "chunks");

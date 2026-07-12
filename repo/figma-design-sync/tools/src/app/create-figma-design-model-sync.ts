@@ -1,4 +1,5 @@
 import { FigmaCatalogTreeSyncGateway } from "../figma/figma-catalog-tree-sync-gateway";
+import { FigmaHeaderSyncGateway } from "../figma/figma-header-sync-gateway";
 import { FigmaMetadataGateway } from "../figma/figma-metadata-gateway";
 import { FigmaVersionSyncGateway } from "../figma/figma-version-sync-gateway";
 import { FigmaVisualContractCheckGateway } from "../figma/figma-visual-contract-check-gateway";
@@ -9,6 +10,7 @@ export function createFigmaDesignModelSync() {
     designModel,
     {
       versionSyncGateway: new FigmaVersionSyncGateway(),
+      headerSyncGateway: new FigmaHeaderSyncGateway(),
       catalogTreeSyncGateway: new FigmaCatalogTreeSyncGateway(),
       metadataSyncGateway: new FigmaMetadataGateway(),
       visualContractCheckGateway: new FigmaVisualContractCheckGateway(),

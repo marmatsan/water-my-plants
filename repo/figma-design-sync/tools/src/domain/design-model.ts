@@ -26,6 +26,7 @@ export type SyncIdList = string[];
 
 export type SyncTargetName =
   | "preflight"
+  | "headers"
   | "versions"
   | "waterMyPlants.libraries"
   | "waterMyPlants.plugins"

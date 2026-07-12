@@ -1,6 +1,7 @@
 import type { DesignModel, SyncFigmaDesignModelOptions, SyncTargetName } from "../domain/design-model";
 import type {
   CatalogTreeSyncGateway,
+  HeaderSyncGateway,
   MetadataSyncGateway,
   VersionSyncGateway,
   VisualContractCheckGateway,
@@ -8,6 +9,7 @@ import type {
 
 export type SyncFigmaDesignModelDependencies = {
   versionSyncGateway: VersionSyncGateway;
+  headerSyncGateway: HeaderSyncGateway;
   catalogTreeSyncGateway: CatalogTreeSyncGateway;
   metadataSyncGateway: MetadataSyncGateway;
   visualContractCheckGateway: VisualContractCheckGateway;
@@ -27,11 +29,12 @@ export async function syncFigmaDesignModel(
   const completedTargets: SyncTargetName[] = [];
   const skippedTargets = ALL_SYNC_TARGETS.filter((target) => !requestedTargets.has(target));
   const visualTargets = [...requestedTargets].filter((target) => target !== "preflight");
+  const catalogPreflightTargets = visualTargets.filter((target) => CATALOG_SYNC_TARGETS.includes(target));
   const preflightResult = requestedTargets.has("preflight")
     ? await dependencies.visualContractCheckGateway.checkVisualContract(
         designModel,
         {
-          targetNames: visualTargets.length > 0 ? visualTargets : undefined,
+          targetNames: visualTargets.length > 0 ? catalogPreflightTargets : undefined,
           sectionNodeOverrides: options.sectionNodeOverrides,
           rootFilters: options.catalogRootFilters,
         }
@@ -39,6 +42,13 @@ export async function syncFigmaDesignModel(
     : emptyVisualContractCheckResult();
   if (requestedTargets.has("preflight")) {
     completedTargets.push("preflight");
+  }
+
+  const headerSyncResult = requestedTargets.has("headers")
+    ? await dependencies.headerSyncGateway.syncHeaders()
+    : emptyHeaderSyncResult();
+  if (requestedTargets.has("headers")) {
+    completedTargets.push("headers");
   }
 
   const versionSyncResult = requestedTargets.has("versions")
@@ -73,6 +83,7 @@ export async function syncFigmaDesignModel(
     requestedTargets: [...requestedTargets],
     completedTargets,
     skippedTargets,
+    updatedHeaders: headerSyncResult.updatedHeaders,
     updatedVersions: versionSyncResult.updatedVersions,
     createdVariables: versionSyncResult.createdVariables,
     createdInstances: versionSyncResult.createdInstances,
@@ -89,6 +100,7 @@ export async function syncFigmaDesignModel(
     mutatedNodeIds: [
       ...new Set([
         ...preflightResult.mutatedNodeIds,
+        ...headerSyncResult.mutatedNodeIds,
         ...versionSyncResult.mutatedNodeIds,
         ...catalogSyncResult.mutatedNodeIds,
         ...metadataSyncResult.mutatedNodeIds,
@@ -141,6 +153,13 @@ function emptyVersionSyncResult() {
   };
 }
 
+function emptyHeaderSyncResult() {
+  return {
+    updatedHeaders: [],
+    mutatedNodeIds: [],
+  };
+}
+
 function emptyCatalogTreeSyncResult() {
   return {
     updatedCatalogNodes: [],
@@ -185,6 +204,7 @@ const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
 ];
 
 const ALL_SYNC_TARGETS: SyncTargetName[] = [
+  "headers",
   "versions",
   ...CATALOG_SYNC_TARGETS,
   "metadata",
