@@ -16,11 +16,14 @@ import {
   treeNodeLayoutNode,
 } from "./figma-connector-gateway";
 import {
+  applyAncestorSectionStrokeContract,
+  applySectionStrokeContractTree,
   findSection,
   lockOnlyRootSection,
   removeCatalogTreeSectionFills,
   resizeAncestorSectionsToFit,
   resizeNodeToFit,
+  requireOutlineColorVariable,
   stackChildSectionsFromPadding,
   stackAncestorSectionSiblingsWithGap,
   stackDescendantSectionsWithGap,
@@ -42,6 +45,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
   const removedCatalogConnectors = [];
   const mutatedNodeIds = [];
   const componentCache = new Map();
+  const outlineVariable = await requireOutlineColorVariable();
   const targetNames = new Set(options.targetNames || CATALOG_TREE_TARGETS.map((target) => target.name));
   const targets = CATALOG_TREE_TARGETS.filter((target) =>
     targetNames.has(target.name) || (target.aliases || []).some((alias) => targetNames.has(alias))
@@ -93,6 +97,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       throw new Error(`Expected '${sectionNodeId}' to be a SECTION.`);
     }
     unlockSectionTreeForMutation(section, mutatedNodeIds);
+    applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
+    applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
 
     if (!isPartialRootSync && scopedModelNodes.length === 0) {
       removedCatalogNodes.push(...removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds));
@@ -192,6 +198,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
     removeCatalogTreeSectionFills(section, mutatedNodeIds);
+    applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
+    applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
     lockOnlyRootSection(section, mutatedNodeIds);
   }
 

@@ -34,6 +34,7 @@ import {
   requireComponent,
   requireFrameOrSection,
   requireModeId,
+  requireOutlineColorVariable,
   requirePage,
   requireSection,
   requireVariableCollection,
@@ -73,6 +74,8 @@ async function checkVersionContract(checkedComponents, checkedSections, checkedV
 
   const projectVersionComponent = await requireComponent(PROJECT_VERSION_COMPONENT_ID);
   checkedComponents.push(`${projectVersionComponent.name}:${projectVersionComponent.id}`);
+  const outlineVariable = await requireOutlineColorVariable();
+  checkedVariables.push(outlineVariable.name);
 
   for (const [sectionName, sectionTarget] of Object.entries(VERSION_SECTION_TARGETS)) {
     const sectionFrame = await requireFrameOrSection(sectionTarget.parentNodeId);

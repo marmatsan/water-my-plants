@@ -149,13 +149,14 @@ test("stale empty root section cleanup can remove empty roots outside a partial 
 test("child section reflow normalizes the first remaining root to container padding", () => {
   const mutatedNodeIds = [];
   const section = parentSection([
-    positionedChildSection("io", 100, 1458, 2353, 1898),
-    positionedChildSection("me", 100, 3470, 948, 1445),
-    positionedChildSection("org", 100, 5029, 1690, 1445),
+    positionedChildSection("io", 0, 1458, 2353, 1898),
+    positionedChildSection("me", 0, 3470, 948, 1445),
+    positionedChildSection("org", 0, 5029, 1690, 1445),
   ]);
 
   stackChildSectionsFromPadding(section, mutatedNodeIds);
 
+  assert.deepEqual(section.children.map((child) => child.x), [100, 100, 100]);
   assert.equal(section.children[0].y, 100);
   assert.equal(section.children[1].y, 2112);
   assert.equal(section.children[2].y, 3671);
@@ -165,11 +166,12 @@ test("child section reflow normalizes the first remaining root to container padd
 test("child section reflow normalizes a single remaining root", () => {
   const mutatedNodeIds = [];
   const section = parentSection([
-    positionedChildSection("org", 100, 5029, 1690, 1445),
+    positionedChildSection("org", 0, 5029, 1690, 1445),
   ]);
 
   stackChildSectionsFromPadding(section, mutatedNodeIds);
 
+  assert.equal(section.children[0].x, 100);
   assert.equal(section.children[0].y, 100);
   assert.deepEqual(mutatedNodeIds, ["org-id"]);
 });
