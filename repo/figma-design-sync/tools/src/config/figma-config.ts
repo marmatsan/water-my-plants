@@ -29,6 +29,55 @@ export const TREE_NODE_COMPONENT_IDS = {
   Plugin: "63069:694",
 };
 export const CONNECTOR_TEMPLATE_NAME = "simple-solid_arrow";
+export const HEADER_INSTANCE_NAME = ".Header";
+export const HEADER_LINK_PROPERTY_NAME = "Link";
+
+const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
+const GITHUB_MAIN_TREE_URL = "https://github.com/marmatsan/water-my-plants/tree/main";
+
+export const HEADER_SECTION_TARGETS = [
+  {
+    sectionNodeId: "63685:108540",
+    links: [
+      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryTreeDsl.kt",
+      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt",
+      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt",
+    ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
+  },
+  {
+    sectionNodeId: "62936:183",
+    links: [
+      "repo/dependency-catalog/versions.properties",
+    ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
+  },
+  {
+    sectionNodeId: "63099:949",
+    links: [
+      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt",
+      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt",
+    ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
+  },
+  {
+    sectionNodeId: "63099:954",
+    links: [
+      "repo/gradle-plugins/settings.gradle.kts",
+      "repo/figma-design-sync/settings.gradle.kts",
+    ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
+  },
+  {
+    sectionNodeId: "63216:6907",
+    links: [{
+      label: "repo/gradle-plugins",
+      url: `${GITHUB_MAIN_TREE_URL}/repo/gradle-plugins`,
+    }],
+  },
+  {
+    sectionNodeId: "63330:551",
+    links: [
+      "repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/gradle/FigmaDesignSyncGradlePlugin.kt",
+    ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
+  },
+];
 
 export const VERSION_SECTION_TARGETS = {
   "Main project dependencies": {

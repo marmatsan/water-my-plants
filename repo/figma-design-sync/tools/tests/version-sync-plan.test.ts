@@ -46,6 +46,7 @@ test("dependency version grid keeps equal section padding and documented gaps", 
 
 test("section stroke contract requires the bound outline variable, inside alignment, and weight two", () => {
   const compliantSection = {
+    children: [],
     strokeAlign: "INSIDE",
     strokeWeight: 2,
     strokes: [{
@@ -58,6 +59,27 @@ test("section stroke contract requires the bound outline variable, inside alignm
   assert.equal(sectionStrokeContractSatisfied({ ...compliantSection, strokeWeight: 1 }, "outline-variable"), false);
   assert.equal(sectionStrokeContractSatisfied({ ...compliantSection, strokeAlign: "CENTER" }, "outline-variable"), false);
   assert.equal(sectionStrokeContractSatisfied(compliantSection, "another-variable"), false);
+});
+
+test("parent sections with a direct Header satisfy the contract only without strokes", () => {
+  const parentSection = {
+    children: [{ type: "INSTANCE", name: ".Header" }],
+    strokeAlign: "INSIDE",
+    strokeWeight: 2,
+    strokes: [],
+  };
+
+  assert.equal(sectionStrokeContractSatisfied(parentSection, "outline-variable"), true);
+  assert.equal(
+    sectionStrokeContractSatisfied({
+      ...parentSection,
+      strokes: [{
+        type: "SOLID",
+        boundVariables: { color: { id: "outline-variable" } },
+      }],
+    }, "outline-variable"),
+    false
+  );
 });
 
 function dependencyVersion(id: string, versionKey: string) {

@@ -145,6 +145,9 @@ export function applyAncestorSectionStrokeContract(section, outlineVariable, mut
 }
 
 export function sectionStrokeContractSatisfied(section, outlineVariableId) {
+  if (hasDirectHeader(section)) {
+    return Array.isArray(section.strokes) && section.strokes.length === 0;
+  }
   if (section.strokeAlign !== SECTION_STROKE_ALIGN || section.strokeWeight !== SECTION_STROKE_WEIGHT) {
     return false;
   }
@@ -156,6 +159,12 @@ export function sectionStrokeContractSatisfied(section, outlineVariableId) {
 
 function applySectionStrokeContract(section, outlineVariable, mutatedNodeIds) {
   if (sectionStrokeContractSatisfied(section, outlineVariable.id)) return;
+
+  if (hasDirectHeader(section)) {
+    section.strokes = [];
+    mutatedNodeIds.push(section.id);
+    return;
+  }
 
   const existingSolidStroke = section.strokes.find((stroke) => stroke.type === "SOLID");
   const stroke = figma.variables.setBoundVariableForPaint(
@@ -173,6 +182,10 @@ function applySectionStrokeContract(section, outlineVariable, mutatedNodeIds) {
   section.strokeAlign = SECTION_STROKE_ALIGN;
   section.strokeWeight = SECTION_STROKE_WEIGHT;
   mutatedNodeIds.push(section.id);
+}
+
+function hasDirectHeader(section) {
+  return section.children.some((child) => child.type === "INSTANCE" && child.name === ".Header");
 }
 
 export function resizeNodeToFit(node, children, mutatedNodeIds, padding = 100) {
@@ -324,10 +337,10 @@ function stackConfiguredPageSectionsWithGap(section, mutatedNodeIds, gap = PAREN
   }
 }
 
-function stackDirectChildSectionsWithGap(
+export function stackDirectChildSectionsWithGap(
   parent,
   mutatedNodeIds,
-  gap,
+  gap = SECTION_SIBLING_GAP,
   startY = firstSectionStartY(parent),
   startX = 100
 ) {

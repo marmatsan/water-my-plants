@@ -43,6 +43,22 @@ test("preflight runs before a requested visual target and scopes the contract ch
   assert.deepEqual(result.updatedCatalogNodes, ["waterMyPlants.libraries/androidx"]);
 });
 
+test("headers can be synchronized as an independent visual target", async () => {
+  const calls: string[] = [];
+  const result = await syncFigmaDesignModel(
+    mainDesignModel(),
+    fakeDependencies(calls),
+    {
+      targets: ["headers"],
+      writeMetadata: false,
+    }
+  );
+
+  assert.deepEqual(calls, ["headers"]);
+  assert.deepEqual(result.completedTargets, ["headers"]);
+  assert.deepEqual(result.updatedHeaders, ["parent-section"]);
+});
+
 function mainDesignModel() {
   return {
     branch: "main",
@@ -52,6 +68,15 @@ function mainDesignModel() {
 
 function fakeDependencies(calls: string[]) {
   return {
+    headerSyncGateway: {
+      async syncHeaders() {
+        calls.push("headers");
+        return {
+          updatedHeaders: ["parent-section"],
+          mutatedNodeIds: ["header"],
+        };
+      },
+    },
     versionSyncGateway: {
       async syncVersions() {
         calls.push("versions");

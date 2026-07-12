@@ -110,9 +110,11 @@ The sync must fail without writing metadata if the design model contains an
 unknown version section.
 
 Every Figma `SECTION` managed or created by the visual sync must use a single
-stroke bound to `md/sys/color/outline`, aligned `INSIDE`, with weight `2`. The
-sync reapplies this contract to existing catalog and version sections so legacy
-or manually changed strokes are normalized on the next targeted sync.
+stroke bound to `md/sys/color/outline`, aligned `INSIDE`, with weight `2`,
+unless it directly contains a `.Header`. Parent documentation sections with a
+direct `.Header` must have no stroke. The sync reapplies this structural
+contract to existing catalog and version sections so legacy or manually
+changed strokes are normalized on the next targeted sync.
 
 Direct child sections are positioned 100 px from their parent section's left
 edge before the parent is resized to fit. This keeps the left padding equal to
@@ -374,6 +376,26 @@ Layout rules:
 - Direct `.Header` instances in touched sections must span section width. If a
   section is narrower than the header's Hug width, resize the section first so
   the fixed-width header can show its content without clipping.
+- The `headers` target owns parent documentation links. When one header lists
+  multiple sources, render one source path per line and assign each path its
+  own hyperlink range. Keep the `Link` text horizontally aligned `LEFT`; do not
+  inherit centered alignment from the component or bind the complete text to
+  only the first URL. Canonical sources are:
+  - `Gradle dependency visualization components`: `LibraryTreeDsl.kt`,
+    `LibraryScope.kt`, and `PluginTreeDsl.kt` under
+    `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
+  - `Project versions`: `repo/dependency-catalog/versions.properties`.
+  - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`.
+  - `Repository Gradle tooling version catalogs`:
+    `repo/gradle-plugins/settings.gradle.kts` and
+    `repo/figma-design-sync/settings.gradle.kts`.
+  - `Custom Gradle convention plugins`: the `repo/gradle-plugins` directory.
+  - `Custom Gradle plugins`: the regular plugin implementation at
+    `repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/gradle/FigmaDesignSyncGradlePlugin.kt`.
+- Keep explanatory prose outside generated catalog containers. In particular,
+  do not recreate the removed free-standing `Not actually trees` text in the
+  repository tooling catalog parent; future contextual guidance belongs in a
+  dedicated documentation surface.
 
 ## Locking Contract
 

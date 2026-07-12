@@ -4,6 +4,9 @@ import {
   ARTIFACT_INSTANCE_NAME,
   ARTIFACT_PROPS,
   CATALOG_TREE_TARGETS,
+  HEADER_INSTANCE_NAME,
+  HEADER_LINK_PROPERTY_NAME,
+  HEADER_SECTION_TARGETS,
   METADATA_PAGE_ID,
   PROJECT_VERSION_COMPONENT_ID,
   TOOL_ARTIFACT_USAGE_INSTANCE_NAME,
@@ -54,6 +57,7 @@ export class FigmaVisualContractCheckGateway implements VisualContractCheckGatew
     checkedSections.push(`metadata:${metadataPage.id}`);
 
     await checkVersionContract(checkedComponents, checkedSections, checkedVariables);
+    await checkHeaderContract(checkedComponents, checkedSections);
     await checkCatalogTreeContract(designModel, options, checkedComponents, checkedSections, checkedTargets);
 
     return {
@@ -63,6 +67,26 @@ export class FigmaVisualContractCheckGateway implements VisualContractCheckGatew
       checkedTargets,
       mutatedNodeIds: [],
     };
+  }
+}
+
+async function checkHeaderContract(checkedComponents, checkedSections) {
+  for (const target of HEADER_SECTION_TARGETS) {
+    const section = await requireSection(target.sectionNodeId);
+    const header = section.children.find(
+      (child) => child.type === "INSTANCE" && child.name === HEADER_INSTANCE_NAME
+    );
+    if (!header || header.type !== "INSTANCE") {
+      throw new Error(`Section '${section.id}' is missing a direct '${HEADER_INSTANCE_NAME}' instance.`);
+    }
+    requireComponentProperty(header, HEADER_LINK_PROPERTY_NAME, "TEXT");
+    const linkTexts = header.findAllWithCriteria({ types: ["TEXT"] })
+      .filter((text) => text.name === HEADER_LINK_PROPERTY_NAME);
+    if (linkTexts.length !== 1) {
+      throw new Error(`Header '${header.id}' expected one '${HEADER_LINK_PROPERTY_NAME}' text node, found ${linkTexts.length}.`);
+    }
+    checkedComponents.push(`${HEADER_INSTANCE_NAME}:${header.id}`);
+    checkedSections.push(`header:${section.id}`);
   }
 }
 

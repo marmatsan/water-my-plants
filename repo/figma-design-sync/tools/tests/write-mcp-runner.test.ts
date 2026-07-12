@@ -69,6 +69,25 @@ test("metadata target cannot be combined with visual targets", async () => {
   }
 });
 
+test("official runner accepts preflight plus the granular headers target", async () => {
+  const workspace = createRunnerFixture();
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      "--targets=preflight,headers",
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(workspace.outDir, "official-trunk-sync-preflight-headers-png-design-model-json");
+    const manifest = readManifest(runDir);
+    assert.deepEqual(manifest.targets, ["preflight", "headers"]);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
 test("official runner can explicitly use chunk transport fallback", async () => {
   const workspace = createRunnerFixture();
 
