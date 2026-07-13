@@ -2,7 +2,7 @@ package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 
-fun pluginTrees(
+internal fun pluginTrees(
     versions: Versions
 ) = listOf(
     comPluginTree(versions),

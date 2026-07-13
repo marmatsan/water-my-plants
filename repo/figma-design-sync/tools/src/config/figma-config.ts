@@ -39,9 +39,9 @@ export const HEADER_SECTION_TARGETS = [
   {
     sectionNodeId: "63685:108540",
     links: [
-      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryTreeDsl.kt",
-      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt",
-      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt",
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryTreeDsl.kt",
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt",
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt",
     ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
   },
   {
@@ -53,8 +53,8 @@ export const HEADER_SECTION_TARGETS = [
   {
     sectionNodeId: "63099:949",
     links: [
-      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt",
-      "repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt",
+      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt",
+      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt",
     ].map((path) => ({ label: path, url: `${GITHUB_MAIN_BLOB_URL}/${path}` })),
   },
   {

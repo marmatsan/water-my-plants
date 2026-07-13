@@ -20,7 +20,8 @@ tasks.withType<Test> {
 
 dependencies {
     implementation(projects.domain)
-    implementation("com.marmatsan.repo:dependency-catalog")
+    implementation("com.marmatsan.repo:catalog-core")
+    implementation("com.marmatsan.repo:water-my-plants-catalog")
 
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 

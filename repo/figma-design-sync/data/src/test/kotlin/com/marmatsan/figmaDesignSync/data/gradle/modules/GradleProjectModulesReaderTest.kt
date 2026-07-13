@@ -72,6 +72,36 @@ internal class GradleProjectModulesReaderTest : FunSpec({
         // THEN
         modules shouldBe setOf(":dependency-catalog")
     }
+
+    test("readModules returns dependency catalog submodules without a root module") {
+        // GIVEN
+        val rootSettingsFile = settingsFile("")
+        val includedBuildSettingsFile = settingsFile(
+            """
+            include(
+                ":catalog-core",
+                ":water-my-plants-catalog"
+            )
+            """.trimIndent()
+        )
+
+        // WHEN
+        val modules = GradleProjectModulesReader().readModules(
+            rootSettingsFile = rootSettingsFile,
+            includedBuilds = listOf(
+                GradleProjectModulesReader.IncludedBuild(
+                    settingsFile = includedBuildSettingsFile,
+                    modulePathPrefix = ":dependency-catalog"
+                )
+            )
+        )
+
+        // THEN
+        modules shouldBe setOf(
+            ":dependency-catalog:catalog-core",
+            ":dependency-catalog:water-my-plants-catalog"
+        )
+    }
 })
 
 private fun settingsFile(content: String): File =

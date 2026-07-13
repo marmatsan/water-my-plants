@@ -24,8 +24,8 @@ sealed interface ProjectCatalogTreeSource {
      * Source for dependencies declared through the repository dependency DSL.
      *
      * Reference files:
-     * `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`
-     * and `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`.
+     * `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`
+     * and `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`.
      *
      * @property rootDirPath Repository root containing the dependency DSL.
      * @property conventionPluginIncludedBuilds Included builds that may provide

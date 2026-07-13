@@ -25,3 +25,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "dependency-catalog"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(
+    ":catalog-core",
+    ":water-my-plants-catalog"
+)

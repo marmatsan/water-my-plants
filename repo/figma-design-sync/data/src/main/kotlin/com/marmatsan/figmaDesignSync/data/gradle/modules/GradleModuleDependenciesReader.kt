@@ -18,18 +18,22 @@ class GradleModuleDependenciesReader {
      * Reads dependencies between modules in the root project, excluding nested
      * Gradle builds such as build tooling and repository tools.
      */
-    fun readMain(rootDir: File): Set<ModuleDependency> =
-        rootDir
+    fun readMain(rootDir: File): Set<ModuleDependency> {
+        val modulePathsByProjectAccessor = rootDir.modulePathsByProjectAccessor(modulePathPrefix = "")
+
+        return rootDir
             .walkTopDown()
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
             .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
             .flatMap { buildFile ->
                 buildFile.readModuleDependencies(
                     rootDir = rootDir,
-                    modulePathPrefix = ""
+                    modulePathPrefix = "",
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
                 )
             }
             .toSortedSet()
+    }
 
     /**
      * Reads dependencies between modules inside an included build and prefixes
@@ -38,21 +42,26 @@ class GradleModuleDependenciesReader {
     fun readIncludedBuild(
         rootDir: File,
         modulePathPrefix: String
-    ): Set<ModuleDependency> =
-        rootDir
+    ): Set<ModuleDependency> {
+        val modulePathsByProjectAccessor = rootDir.modulePathsByProjectAccessor(modulePathPrefix)
+
+        return rootDir
             .walkTopDown()
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
             .flatMap { buildFile ->
                 buildFile.readModuleDependencies(
                     rootDir = rootDir,
-                    modulePathPrefix = modulePathPrefix
+                    modulePathPrefix = modulePathPrefix,
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
                 )
             }
             .toSortedSet()
+    }
 
     private fun File.readModuleDependencies(
         rootDir: File,
-        modulePathPrefix: String
+        modulePathPrefix: String,
+        modulePathsByProjectAccessor: Map<String, String>
     ): Set<ModuleDependency> {
         val dependentModule = parentFile.toModulePath(
             rootDir = rootDir,
@@ -65,7 +74,12 @@ class GradleModuleDependenciesReader {
 
         return readText()
             .dependenciesBlocks()
-            .flatMap { dependenciesBlock -> dependenciesBlock.dependencyModulePaths(modulePathPrefix) }
+            .flatMap { dependenciesBlock ->
+                dependenciesBlock.dependencyModulePaths(
+                    modulePathPrefix = modulePathPrefix,
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
+                )
+            }
             .map { dependencyModule ->
                 ModuleDependency(
                     dependentModule = dependentModule,
@@ -108,14 +122,21 @@ class GradleModuleDependenciesReader {
         return -1
     }
 
-    private fun String.dependencyModulePaths(modulePathPrefix: String): Set<String> {
+    private fun String.dependencyModulePaths(
+        modulePathPrefix: String,
+        modulePathsByProjectAccessor: Map<String, String>
+    ): Set<String> {
         val projectCallPaths = ProjectCallRegex
             .findAll(this)
             .map { match -> match.groupValues[1] }
 
         val projectAccessorPaths = ProjectAccessorRegex
             .findAll(this)
-            .map { match -> match.groupValues[1].toModulePath(modulePathPrefix) }
+            .map { match ->
+                val projectAccessor = match.groupValues[1]
+                modulePathsByProjectAccessor[projectAccessor]
+                    ?: projectAccessor.toModulePath(modulePathPrefix)
+            }
 
         return (projectCallPaths + projectAccessorPaths)
             .filter { modulePath -> modulePath.isNotBlank() }
@@ -145,6 +166,42 @@ class GradleModuleDependenciesReader {
 
         return "$modulePathPrefix:$modulePath"
     }
+
+    private fun File.modulePathsByProjectAccessor(
+        modulePathPrefix: String
+    ): Map<String, String> =
+        walkTopDown()
+            .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
+            .mapNotNull { buildFile ->
+                val relativePath = toPath().relativize(buildFile.parentFile.toPath()).toString()
+                val segments = relativePath
+                    .split(File.separatorChar, '/', '\\')
+                    .filter(String::isNotBlank)
+
+                if (segments.isEmpty()) {
+                    null
+                } else {
+                    segments
+                        .joinToString(".") { segment -> segment.toProjectAccessorSegment() } to
+                        buildFile.parentFile.toModulePath(
+                            rootDir = this,
+                            modulePathPrefix = modulePathPrefix
+                        )
+                }
+            }
+            .toMap()
+
+    private fun String.toProjectAccessorSegment(): String =
+        split('-', '_')
+            .filter(String::isNotEmpty)
+            .mapIndexed { index, segment ->
+                if (index == 0) {
+                    segment
+                } else {
+                    segment.replaceFirstChar(Char::uppercaseChar)
+                }
+            }
+            .joinToString("")
 
     private companion object {
         const val BUILD_FILE_NAME = "build.gradle.kts"

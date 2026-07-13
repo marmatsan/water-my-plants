@@ -86,7 +86,7 @@ Gherkin steps.
 | Feature language                               | Runtime resource or adapter                                                                                  | Test double or setup                                         |
 |------------------------------------------------|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
 | `repository versions are available`            | `repo/dependency-catalog/versions.properties` through `RepositoryVersionsPort`                                           | `FakeRepositoryVersionsPort` in `DesignModelSteps.kt`        |
-| `repository catalog trees are available`       | `dependency-catalog` catalog trees and configured included-build settings catalogs through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
+| `repository catalog trees are available`       | `water-my-plants-catalog` trees and configured included-build settings catalogs through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
 | `repository project modules are available`     | `settings.gradle.kts` and configured included-build settings files through `ProjectModulesPort`                     | `FakeProjectModulesPort` in `DesignModelSteps.kt`            |
 | `repository module dependencies are available` | Project `build.gradle.kts` dependency blocks through `ProjectModuleDependenciesPort`                         | `FakeProjectModuleDependenciesPort` in `DesignModelSteps.kt` |
 | `the design model is generated`                | `FigmaDesignModelGenerator` producing the in-memory design model                                             | Direct generator call from `DesignModelSteps.kt`             |
@@ -111,9 +111,9 @@ The contract has these inputs:
 | Repository metadata      | Current branch, current git SHA, and generation timestamp                                                |
 | Versions                 | `repo/dependency-catalog/versions.properties`                                                                        |
 | Version sections         | Ordered sections from `repo/dependency-catalog/versions.properties`                                                  |
-| Catalog trees            | Water My Plants catalog declarations from `dependency-catalog` and configured included-build catalog declarations |
+| Catalog trees            | Water My Plants declarations from `dependency-catalog:water-my-plants-catalog` and configured included-build catalog declarations |
 | Project modules          | Root and configured included-build Gradle settings                                                          |
-| Module dependency graphs | Resolved dependency trees for root modules and configured included-build modules                            |
+| Module dependency graphs | Parsed `build.gradle.kts` dependency blocks for root and configured included-build modules                  |
 
 The contract has one main output:
 

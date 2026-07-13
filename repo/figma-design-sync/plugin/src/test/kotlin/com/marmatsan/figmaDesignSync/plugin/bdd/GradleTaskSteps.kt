@@ -96,11 +96,27 @@ class GradleTaskSteps : En {
                 .map { module -> module.jsonPrimitive.content }
 
             modules shouldContainAll listOf(
-                ":dependency-catalog",
+                ":dependency-catalog:catalog-core",
+                ":dependency-catalog:water-my-plants-catalog",
                 ":figma-design-sync:data",
                 ":figma-design-sync:domain",
                 ":figma-design-sync:plugin",
                 ":gradle-plugins:android"
+            )
+
+            val dependencies = writtenDesignModel()["content"]!!
+                .jsonObject["moduleDependencies"]!!
+                .jsonObject["dependencyCatalog"]!!
+                .jsonArray
+                .map { dependency ->
+                    val dependencyObject = dependency.jsonObject
+                    dependencyObject["dependentModule"]!!.jsonPrimitive.content to
+                        dependencyObject["dependencyModule"]!!.jsonPrimitive.content
+                }
+
+            dependencies shouldBe listOf(
+                ":dependency-catalog:water-my-plants-catalog" to
+                    ":dependency-catalog:catalog-core"
             )
         }
 
@@ -189,9 +205,20 @@ class GradleTaskSteps : En {
         resolve("repo/dependency-catalog/settings.gradle.kts").writeText(
             """
             rootProject.name = "dependency-catalog"
+            enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+            include(":catalog-core", ":water-my-plants-catalog")
             """.trimIndent()
         )
-        resolve("repo/dependency-catalog/build.gradle.kts").writeText("")
+        resolve("repo/dependency-catalog/catalog-core").mkdirs()
+        resolve("repo/dependency-catalog/catalog-core/build.gradle.kts").writeText("")
+        resolve("repo/dependency-catalog/water-my-plants-catalog").mkdirs()
+        resolve("repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts").writeText(
+            """
+            dependencies {
+                implementation(projects.catalogCore)
+            }
+            """.trimIndent()
+        )
         resolve("repo/dependency-catalog/versions.properties").writeText(
             """
             ## Main project dependencies

@@ -1,0 +1,43 @@
+package com.marmatsan.dependencies
+
+import com.marmatsan.dependencies.catalog.DependencyCatalogTrees
+import java.io.File
+
+object WaterMyPlantsCatalog {
+    fun resolved(
+        rootDir: File
+    ): DependencyCatalogTrees = catalogTrees(Versions.load(rootDir))
+
+    fun withVersionAliases(): DependencyCatalogTrees = catalogTrees(versionAliases)
+
+    private fun catalogTrees(
+        versions: Versions
+    ): DependencyCatalogTrees = DependencyCatalogTrees(
+        libraries = libraryTrees(versions),
+        plugins = pluginTrees(versions)
+    )
+}
+
+private val versionAliases = Versions(
+    activityComposeLibraryVersion = Versions::activityComposeLibraryVersion.name,
+    androidCoroutinesLibraryVersion = Versions::androidCoroutinesLibraryVersion.name,
+    androidGradlePluginVersion = Versions::androidGradlePluginVersion.name,
+    composeBomLibraryVersion = Versions::composeBomLibraryVersion.name,
+    coreKtxLibraryVersion = Versions::coreKtxLibraryVersion.name,
+    cucumberLibraryVersion = Versions::cucumberLibraryVersion.name,
+    dokkaPluginVersion = Versions::dokkaPluginVersion.name,
+    figmaCodeConnectLibraryVersion = Versions::figmaCodeConnectLibraryVersion.name,
+    figmaCodeConnectPluginVersion = Versions::figmaCodeConnectPluginVersion.name,
+    junit5PluginVersion = Versions::junit5PluginVersion.name,
+    kotestLibraryVersion = Versions::kotestLibraryVersion.name,
+    kotlinInjectLibraryVersion = Versions::kotlinInjectLibraryVersion.name,
+    kotlinVersion = Versions::kotlinVersion.name,
+    ktorLibraryVersion = Versions::ktorLibraryVersion.name,
+    kspPluginVersion = Versions::kspPluginVersion.name,
+    lifecycleLibraryVersion = Versions::lifecycleLibraryVersion.name,
+    mockkLibraryVersion = Versions::mockkLibraryVersion.name,
+    navigationComposeLibraryVersion = Versions::navigationComposeLibraryVersion.name,
+    protobufLibraryVersion = Versions::protobufLibraryVersion.name,
+    protobufPluginVersion = Versions::protobufPluginVersion.name,
+    serializationLibraryVersion = Versions::serializationLibraryVersion.name
+)
