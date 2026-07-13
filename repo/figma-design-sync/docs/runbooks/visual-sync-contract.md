@@ -383,9 +383,10 @@ Layout rules:
   only the first URL. Canonical sources are:
   - `Gradle dependency visualization components`: `LibraryTreeDsl.kt`,
     `LibraryScope.kt`, and `PluginTreeDsl.kt` under
-    `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
+    `repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
   - `Project versions`: `repo/dependency-catalog/versions.properties`.
-  - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`.
+  - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`
+    under `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/`.
   - `Repository Gradle tooling version catalogs`:
     `repo/gradle-plugins/settings.gradle.kts` and
     `repo/figma-design-sync/settings.gradle.kts`.

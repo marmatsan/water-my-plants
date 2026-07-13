@@ -127,4 +127,39 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
             )
         )
     }
+
+    test("readIncludedBuild maps camel case accessors to kebab case module paths") {
+        // GIVEN
+        val rootDir = Files.createTempDirectory("dependency-catalog-module-dependencies").toFile()
+        rootDir
+            .resolve("catalog-core")
+            .also { directory -> directory.mkdirs() }
+            .resolve("build.gradle.kts")
+            .writeText("")
+        rootDir
+            .resolve("water-my-plants-catalog")
+            .also { directory -> directory.mkdirs() }
+            .resolve("build.gradle.kts")
+            .writeText(
+                """
+                dependencies {
+                    implementation(projects.catalogCore)
+                }
+                """.trimIndent()
+            )
+
+        // WHEN
+        val dependencies = GradleModuleDependenciesReader().readIncludedBuild(
+            rootDir = rootDir,
+            modulePathPrefix = ":dependency-catalog"
+        )
+
+        // THEN
+        dependencies shouldBe setOf(
+            ModuleDependency(
+                dependentModule = ":dependency-catalog:water-my-plants-catalog",
+                dependencyModule = ":dependency-catalog:catalog-core"
+            )
+        )
+    }
 })

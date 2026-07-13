@@ -1,11 +1,9 @@
 package com.marmatsan.figmaDesignSync.data.dependencies.catalog
 
-import com.marmatsan.dependencies.libraryTrees
-import com.marmatsan.dependencies.pluginTrees
+import com.marmatsan.dependencies.WaterMyPlantsCatalog
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
-import com.marmatsan.dependencies.Versions
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogEntry
@@ -36,13 +34,13 @@ class DependenciesCatalogTreesReader(
      * Reads concrete library versions from `versions.properties`.
      */
     fun readLibraryTree(rootDir: File): LibraryCatalogTree =
-        readLibraryTree(versions = Versions.load(rootDir))
+        readLibraryTree(WaterMyPlantsCatalog.resolved(rootDir).libraries)
 
     /**
      * Reads concrete plugin versions from `versions.properties`.
      */
     fun readPluginTree(rootDir: File): PluginCatalogTree =
-        readPluginTree(versions = Versions.load(rootDir))
+        readPluginTree(WaterMyPlantsCatalog.resolved(rootDir).plugins)
 
     /**
      * Reads a library tree using version aliases instead of resolved versions.
@@ -54,7 +52,7 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): LibraryCatalogTree =
-        readLibraryTree(versions = CatalogVersionAliases)
+        readLibraryTree(WaterMyPlantsCatalog.withVersionAliases().libraries)
             .withLibraryUsages(
                 gradleCatalogUsageReader.readMainLibraryUsages(rootDir)
             )
@@ -72,7 +70,7 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): PluginCatalogTree =
-        readPluginTree(versions = CatalogVersionAliases)
+        readPluginTree(WaterMyPlantsCatalog.withVersionAliases().plugins)
             .withPluginUsages(
                 gradleCatalogUsageReader.readMainPluginUsages(rootDir)
             )
@@ -82,18 +80,6 @@ class DependenciesCatalogTreesReader(
                     includedBuilds = conventionPluginIncludedBuilds
                 )
             )
-
-    /**
-     * Converts dependency DSL library nodes to the domain tree.
-     */
-    fun readLibraryTree(versions: Versions): LibraryCatalogTree =
-        readLibraryTree(libraryTrees(versions))
-
-    /**
-     * Converts dependency DSL plugin nodes to the domain tree.
-     */
-    fun readPluginTree(versions: Versions): PluginCatalogTree =
-        readPluginTree(pluginTrees(versions))
 
     internal fun readLibraryTree(
         roots: List<Node<DependencyNode.Library>>
@@ -505,27 +491,3 @@ private fun libraryAlias(
         "$libraryGroup.$normalizedArtifactAliasSegment"
     }
 }
-
-private val CatalogVersionAliases = Versions(
-    activityComposeLibraryVersion = "activityComposeLibraryVersion",
-    androidCoroutinesLibraryVersion = "androidCoroutinesLibraryVersion",
-    androidGradlePluginVersion = "androidGradlePluginVersion",
-    composeBomLibraryVersion = "composeBomLibraryVersion",
-    coreKtxLibraryVersion = "coreKtxLibraryVersion",
-    cucumberLibraryVersion = "cucumberLibraryVersion",
-    dokkaPluginVersion = "dokkaPluginVersion",
-    figmaCodeConnectLibraryVersion = "figmaCodeConnectLibraryVersion",
-    figmaCodeConnectPluginVersion = "figmaCodeConnectPluginVersion",
-    junit5PluginVersion = "junit5PluginVersion",
-    kotestLibraryVersion = "kotestLibraryVersion",
-    kotlinInjectLibraryVersion = "kotlinInjectLibraryVersion",
-    kotlinVersion = "kotlinVersion",
-    ktorLibraryVersion = "ktorLibraryVersion",
-    kspPluginVersion = "kspPluginVersion",
-    lifecycleLibraryVersion = "lifecycleLibraryVersion",
-    mockkLibraryVersion = "mockkLibraryVersion",
-    navigationComposeLibraryVersion = "navigationComposeLibraryVersion",
-    protobufLibraryVersion = "protobufLibraryVersion",
-    protobufPluginVersion = "protobufPluginVersion",
-    serializationLibraryVersion = "serializationLibraryVersion"
-)

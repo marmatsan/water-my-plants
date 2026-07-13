@@ -16,7 +16,8 @@ Default included builds:
 | `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | Yes | Yes |
 
 `repo/dependency-catalog` has no settings-catalog visual target. It contributes
-the versions file and the standalone `:dependency-catalog` module.
+the versions file and the `:dependency-catalog:catalog-core` and
+`:dependency-catalog:water-my-plants-catalog` modules.
 
 ## Visual Target Map
 
@@ -24,8 +25,8 @@ Catalog tree visual targets:
 
 | Model target | Source | Figma section |
 |--------------|--------|---------------|
-| `waterMyPlants.libraries` | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` | `63069:629` |
-| `waterMyPlants.plugins` | `repo/dependency-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` | `63069:594` |
+| `waterMyPlants.libraries` | `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` | `63069:629` |
+| `waterMyPlants.plugins` | `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` | `63069:594` |
 | `waterMyPlants.customGradleConventionPlugins` | `repo/gradle-plugins/**/build.gradle.kts` | `63216:6907` |
 | `waterMyPlants.customGradlePlugins` | repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins | `63330:551` |
 | `gradlePlugins.libraries` | `repo/gradle-plugins/settings.gradle.kts` | `63099:951` |

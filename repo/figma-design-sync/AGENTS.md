@@ -39,8 +39,9 @@ used by CI.
 - `data/figma/common`: shared Figma URL helpers.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
-- `data/dependencies/catalog`: readers for the dependency-tree DSL from
-  `dependency-catalog`.
+- `data/dependencies/catalog`: adapters from the reusable `catalog-core` tree
+  types and the concrete `WaterMyPlantsCatalog` facade to domain catalog
+  models. Keep both module dependencies explicit.
 - `data/properties/versions`: readers for version properties files.
 - `plugin/generator`: design model JSON generation and hash calculation.
 - `plugin/checker/versions`: Gradle-facing adapter that verifies repository
@@ -71,7 +72,9 @@ used by CI.
   `main`.
 - Module dependency extraction reads Gradle dependencies from `project(":...")`
   and type-safe project accessors such as `projects.core.ui` or
-  `projects.domain`.
+  `projects.domain`. Resolve type-safe accessors against real module paths so
+  camel-case accessors preserve kebab-case names; for example,
+  `projects.catalogCore` represents `:catalog-core`.
 
 ## Figma Automation
 
@@ -180,8 +183,11 @@ used by CI.
 .\gradlew.bat :figma-design-sync:domain:check :figma-design-sync:data:check :figma-design-sync:plugin:check
 ```
 
-- Useful root-project verification command:
+- Useful root-project diagnostic command:
 
 ```powershell
-.\gradlew.bat generateFigmaDesignModel checkFigmaTrunkSync
+.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage
 ```
+
+- Do not generate `design-model.json` locally or from a feature branch. Only
+  TeamCity `Figma Sync` on `main` may produce the official model artifact.

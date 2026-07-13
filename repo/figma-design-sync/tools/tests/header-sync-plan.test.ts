@@ -43,4 +43,19 @@ test("header source map covers every managed parent documentation section", () =
       .some((link) => link.url.includes("build-logic")),
     false
   );
+  assert.deepEqual(
+    HEADER_SECTION_TARGETS[0].links.map((link) => link.label),
+    [
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryTreeDsl.kt",
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt",
+      "repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt",
+    ]
+  );
+  assert.deepEqual(
+    HEADER_SECTION_TARGETS[2].links.map((link) => link.label),
+    [
+      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt",
+      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt",
+    ]
+  );
 });

@@ -3,7 +3,7 @@ package com.marmatsan.dependencies
 import java.io.File
 import java.util.Properties
 
-data class Versions(
+internal data class Versions(
     val activityComposeLibraryVersion: String,
     val androidCoroutinesLibraryVersion: String,
     val androidGradlePluginVersion: String,

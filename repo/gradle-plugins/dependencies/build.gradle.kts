@@ -17,7 +17,8 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    implementation("com.marmatsan.repo:dependency-catalog")
+    implementation("com.marmatsan.repo:catalog-core")
+    implementation("com.marmatsan.repo:water-my-plants-catalog")
 
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)

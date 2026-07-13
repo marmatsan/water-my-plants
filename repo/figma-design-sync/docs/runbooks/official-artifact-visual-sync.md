@@ -99,6 +99,8 @@ Important generation details:
   `content.catalogs.dependencyCatalog` because
   `repo/dependency-catalog/settings.gradle.kts` does not declare
   `versionCatalogs.create("libs")` or `versionCatalogs.create("plugins")`.
+  Its modules are `catalog-core` and `water-my-plants-catalog`, with the latter
+  depending on the former through `projects.catalogCore`.
 - Custom Gradle convention plugins are detected from `repo/gradle-plugins`
   build files that declare an implementation class ending in
   `GradleConventionPlugin`.
@@ -121,6 +123,8 @@ Important generation details:
   `figmaDesignSync`, and `gradlePlugins`.
 - Module dependency extraction reads explicit `project(":...")` calls and
   type-safe project accessors such as `projects.core.ui` and
-  `projects.domain`.
+  `projects.domain`. Type-safe accessors are resolved against module build
+  directories so camel-case accessors such as `projects.catalogCore` retain
+  the declared kebab-case module path `:catalog-core`.
 - Module dependency graphs are no longer rendered into the deleted Figma
   `dependency of modules` section. They belong in PlantUML architecture docs.

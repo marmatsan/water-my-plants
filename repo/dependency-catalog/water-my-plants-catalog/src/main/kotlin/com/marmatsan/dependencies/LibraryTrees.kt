@@ -2,7 +2,7 @@ package com.marmatsan.dependencies
 
 import com.marmatsan.dependencies.tree.dsl.library.libraryTree
 
-fun libraryTrees(
+internal fun libraryTrees(
     versions: Versions
 ) = listOf(
     androidxLibrariesTree(versions),

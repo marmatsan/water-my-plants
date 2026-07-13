@@ -26,6 +26,13 @@ package "module :core:ui" as ModuleCoreUi {
   OnboardingConsumesCore --> CoreUiTarget
 }
 
+package "included build dependency-catalog module :catalog-core" as ModuleCatalogCore {
+  component ":dependency-catalog:water-my-plants-catalog" as WaterMyPlantsCatalogConsumesCore <<gradle>>
+  component ":dependency-catalog:catalog-core" as CatalogCoreTarget <<domain>>
+
+  WaterMyPlantsCatalogConsumesCore --> CatalogCoreTarget
+}
+
 package "module :dependencies" as ModuleDependencies {
   component ":android" as AndroidConsumesDependencies <<gradle>>
   component ":bdd-test" as BddTestConsumesDependencies <<gradle>>
@@ -67,9 +74,11 @@ package "modules without incoming implementation(projects...) consumers" as Modu
   component ":onboarding:ui" as OnboardingTarget
   component ":protobuf" as ProtobufTarget <<gradle>>
   component ":unit-test" as UnitTestTarget <<gradle>>
+  component ":dependency-catalog:water-my-plants-catalog" as WaterMyPlantsCatalogTarget <<gradle>>
 }
 
-ModuleCoreUi -[hidden]down-> ModuleDependencies
+ModuleCoreUi -[hidden]down-> ModuleCatalogCore
+ModuleCatalogCore -[hidden]down-> ModuleDependencies
 ModuleDependencies -[hidden]down-> ModuleFigmaDesignSyncData
 ModuleFigmaDesignSyncData -[hidden]down-> ModuleFigmaDesignSyncDomain
 ModuleFigmaDesignSyncDomain -[hidden]down-> ModuleNoIncomingConsumers

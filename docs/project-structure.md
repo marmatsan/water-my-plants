@@ -49,13 +49,25 @@ modules support the repository and CI; they are not production app modules.
 
 | Path | Included build | Purpose |
 |------|----------------|---------|
-| `repo/dependency-catalog/` | `dependency-catalog` | Shared dependency model, version keys, library/plugin trees, and Gradle dependency DSL helpers. |
+| `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
 | `repo/figma-design-sync/` | `figma-design-sync` | CI-oriented Gradle plugin and TypeScript tooling that generate and sync the Figma design model. |
 
 The root build includes `repo/gradle-plugins` and `repo/figma-design-sync`
 through `pluginManagement.includeBuild(...)`. Both included builds consume
 `repo/dependency-catalog`.
+
+`repo/dependency-catalog` contains two Gradle modules with a one-way dependency:
+
+| Path | Gradle module | Purpose |
+|------|---------------|---------|
+| `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Reusable catalog tree model, DSL, traversal, and mappers. It does not know the Water My Plants dependencies. |
+| `repo/dependency-catalog/water-my-plants-catalog/` | `:water-my-plants-catalog` | Concrete library/plugin trees, version schema, and `WaterMyPlantsCatalog` facade. Depends on `:catalog-core`. |
+
+Repository tooling consumes the stable coordinates
+`com.marmatsan.repo:catalog-core` and
+`com.marmatsan.repo:water-my-plants-catalog`. The included-build root does not
+publish a compatibility artifact.
 
 ## Documentation
 
