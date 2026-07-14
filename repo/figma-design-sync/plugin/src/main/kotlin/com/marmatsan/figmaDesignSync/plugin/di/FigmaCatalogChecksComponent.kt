@@ -1,11 +1,15 @@
 package com.marmatsan.figmaDesignSync.plugin.di
 
 import com.marmatsan.figmaDesignSync.data.datasource.catalog.ProjectCatalogTreesDataSource
+import com.marmatsan.figmaDesignSync.data.datasource.ci.CiExternalTopologyDataSource
+import com.marmatsan.figmaDesignSync.data.datasource.ci.TeamCityConfigurationDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModuleDependenciesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModulesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.versions.RepositoryVersionsDataSource
 import com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDesignSync.domain.port.versions.RepositoryVersionsPort
@@ -59,6 +63,14 @@ internal abstract class figmaDesignSyncComponent {
 
     @Provides
     protected fun projectCatalogTreesPort(dataSource: ProjectCatalogTreesDataSource): ProjectCatalogTreesPort =
+        dataSource
+
+    @Provides
+    protected fun ciExternalTopologyPort(dataSource: CiExternalTopologyDataSource): CiExternalTopologyPort =
+        dataSource
+
+    @Provides
+    protected fun teamCityConfigurationPort(dataSource: TeamCityConfigurationDataSource): TeamCityConfigurationPort =
         dataSource
 
     @Provides

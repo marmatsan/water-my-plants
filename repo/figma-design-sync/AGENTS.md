@@ -26,14 +26,19 @@ used by CI.
 ## Package Layout
 
 - `domain/model/catalog`: catalog tree, node, entry, and version models.
+- `domain/model/ci`: external topology and effective TeamCity configuration
+  models used by CI documentation.
 - `domain/model/figma`: Figma references used by domain requests.
 - `domain/model/modules`: module dependency models included in the generated
   design model.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
+- `domain/port/ci`: path-based sources and ports for external topology and
+  effective TeamCity configuration.
 - `data/datasource/catalog`, `data/datasource/modules`, and
   `data/datasource/versions`: implementations of domain ports grouped by
   capability.
+- `data/datasource/ci`: filesystem adapters for CI documentation sources.
 - `data/figma/client`: Figma API client and client exceptions.
 - `data/figma/dto`: serializable Figma API response and node DTOs.
 - `data/figma/common`: shared Figma URL helpers.
@@ -43,6 +48,8 @@ used by CI.
   types and the concrete `WaterMyPlantsCatalog` facade to domain catalog
   models. Keep both module dependencies explicit.
 - `data/properties/versions`: readers for version properties files.
+- `data/teamcity/configuration`: readers for TeamCity generated YAML and XML.
+- `data/yaml/ci`: YAML 1.2 reader for the versioned external topology.
 - `plugin/generator`: design model JSON generation and hash calculation.
 - `plugin/checker/versions`: Gradle-facing adapter that verifies repository
   version section and suffix naming before CI can merge catalog changes.

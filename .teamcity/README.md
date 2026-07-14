@@ -2,6 +2,10 @@
 
 This directory is the source of truth for TeamCity project settings.
 
+The contract used to derive the Figma representation of CI from these settings
+is documented in
+[`docs/ci/visual-model-contract.md`](../docs/ci/visual-model-contract.md).
+
 ## Branching Workflow
 
 Change `.teamcity/settings.kts` on the short-lived branch:
