@@ -17,6 +17,7 @@ export const CI_VARIABLE_MODE_NAMES = [
 ] as const;
 export const CI_NODE_INSTANCE_NAME = ".ci node";
 export const CI_CONNECTOR_NAME = ".ci connector";
+export const CI_CONNECTOR_TEMPLATE_SECTION_ID = "63069:629";
 export const CI_NODE_PROPS = {
   name: "name",
   description: "description",

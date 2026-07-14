@@ -82,8 +82,10 @@ content. Commands are summarized for display; the `source` row links to the
 canonical file on GitHub `main`, where the literal DSL remains available.
 
 Every `.ci node` instance is the only child of a managed group. Native Figma
-connectors attach from the bottom of the source group to the top of the target
-group, remain children of the target section, and are inserted behind nodes.
+connectors are cloned from the existing `simple-solid_arrow` template because
+the MCP runtime does not expose `figma.createConnector()`. The clones attach
+from the bottom of the source group to the top of the target group, remain
+children of the target section, and are inserted behind nodes.
 The writer derives labels from triggers and connection purposes rather than
 using generic continuation text.
 

@@ -4,11 +4,13 @@ import {
   ARTIFACT_INSTANCE_NAME,
   ARTIFACT_PROPS,
   CATALOG_TREE_TARGETS,
+  CI_CONNECTOR_TEMPLATE_SECTION_ID,
   CI_DOCUMENTATION_PAGE_ID,
   CI_NODE_COMPONENT_ID,
   CI_NODE_PROPS,
   CI_VARIABLE_COLLECTION_NAME,
   CI_VARIABLE_MODE_NAMES,
+  CONNECTOR_TEMPLATE_NAME,
   HEADER_INSTANCE_NAME,
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
@@ -100,6 +102,17 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   checkedComponents.push(`${component.name}:${component.id}`);
+
+  const connectorSection = await requireSection(CI_CONNECTOR_TEMPLATE_SECTION_ID);
+  const connectorTemplate = connectorSection.findAllWithCriteria({ types: ["CONNECTOR"] })
+    .find((candidate) => candidate.name === CONNECTOR_TEMPLATE_NAME);
+  if (!connectorTemplate) {
+    throw new Error(
+      `No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${connectorSection.id}'.`
+    );
+  }
+  checkedComponents.push(`${connectorTemplate.name}:${connectorTemplate.id}`);
+  checkedSections.push(`ciConnectorTemplate:${connectorSection.id}`);
 
   const collection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
   for (const modeName of CI_VARIABLE_MODE_NAMES) {
