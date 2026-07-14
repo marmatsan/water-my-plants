@@ -1,10 +1,12 @@
 import {
   CI_CONNECTOR_NAME,
+  CI_CONNECTOR_TEMPLATE_SECTION_ID,
   CI_DOCUMENTATION_PAGE_ID,
   CI_NODE_COMPONENT_ID,
   CI_NODE_INSTANCE_NAME,
   CI_NODE_PROPS,
   CI_VARIABLE_COLLECTION_NAME,
+  CONNECTOR_TEMPLATE_NAME,
   HEADER_INSTANCE_NAME,
   HEADER_SECTION_TARGETS,
   METADATA_NAMESPACE,
@@ -193,6 +195,9 @@ async function syncSectionContent(
 ) {
   const groupsByModelId = new Map<string, GroupNode>();
   const groups: Array<{ plan: CiVisualNode; group: GroupNode }> = [];
+  const connectorTemplate = plan.connections.length > 0
+    ? await requireCiConnectorTemplate()
+    : null;
 
   for (const nodePlan of plan.nodes) {
     const instance = nodeComponent.createInstance();
@@ -217,7 +222,10 @@ async function syncSectionContent(
     if (!source || !target) {
       throw new Error(`CI section '${plan.target}' connection '${edge.id}' references an unknown node.`);
     }
-    const connector = figma.createConnector();
+    if (!connectorTemplate) {
+      throw new Error(`CI section '${plan.target}' requires a connector template.`);
+    }
+    const connector = connectorTemplate.clone();
     connector.name = CI_CONNECTOR_NAME;
     connector.connectorLineType = "ELBOWED";
     connector.connectorStartStrokeCap = "NONE";
@@ -236,6 +244,18 @@ async function syncSectionContent(
 
   resizeChildSection(section, groups.map((item) => item.group), mutatedNodeIds);
   applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
+}
+
+async function requireCiConnectorTemplate(): Promise<ConnectorNode> {
+  const section = await requireSection(CI_CONNECTOR_TEMPLATE_SECTION_ID);
+  const connector = section.findAllWithCriteria({ types: ["CONNECTOR"] })
+    .find((candidate) => candidate.name === CONNECTOR_TEMPLATE_NAME);
+  if (!connector) {
+    throw new Error(
+      `No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${section.id}'.`
+    );
+  }
+  return connector;
 }
 
 async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
