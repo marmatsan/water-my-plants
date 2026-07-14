@@ -2,6 +2,29 @@ import type { CatalogTreeTarget } from "../domain/design-model";
 
 export const METADATA_PAGE_ID = "62934:908";
 export const METADATA_NAMESPACE = "water_my_plants_sync";
+export const CI_DOCUMENTATION_PAGE_ID = "63153:2876";
+export const CI_NODE_COMPONENT_ID = "64301:3927";
+export const CI_VARIABLE_COLLECTION_NAME = "ci/cd";
+export const CI_VARIABLE_MODE_NAMES = [
+  "Actor",
+  "System",
+  "Git reference",
+  "Pipeline",
+  "Job",
+  "Artifact",
+  "Check",
+  "Gate",
+] as const;
+export const CI_NODE_INSTANCE_NAME = ".ci node";
+export const CI_CONNECTOR_NAME = ".ci connector";
+export const CI_NODE_PROPS = {
+  name: "name",
+  description: "description",
+  steps: "steps",
+  source: "source",
+  showSteps: "show steps",
+  showSource: "show source",
+};
 export const VERSIONS_COLLECTION_NAME = "repo\\dependency-catalog\\versions.properties";
 export const VERSIONS_COLLECTION_NAMES = [VERSIONS_COLLECTION_NAME];
 export const VERSION_ALIAS_MODE_NAME = "Version alias";

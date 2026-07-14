@@ -88,6 +88,25 @@ test("official runner accepts preflight plus the granular headers target", async
   }
 });
 
+test("official runner accepts preflight plus a granular CI documentation target", async () => {
+  const workspace = createRunnerFixture();
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      "--targets=preflight,ci.overview",
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(workspace.outDir, "official-trunk-sync-preflight-ci-overview-png-design-model-json");
+    const manifest = readManifest(runDir);
+    assert.deepEqual(manifest.targets, ["preflight", "ci.overview"]);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
 test("official runner can explicitly use chunk transport fallback", async () => {
   const workspace = createRunnerFixture();
 

@@ -61,6 +61,42 @@ Partial root sync is a repair/execution granularity, not a completion signal.
 The official metadata (`gitSha` and `modelHash`) must be written only after all
 required roots and all other official targets have completed successfully.
 
+## CI Documentation Visual Sync
+
+The CI writer reads only `content.ci` from the official `main`
+`design-model.json`. It creates or updates one parent section named
+`Continuous Integration and Design Documentation` on Figma page `63153:2876`
+and exposes four independently runnable targets:
+
+- `ci.overview`;
+- `ci.pullRequestIntegration`;
+- `ci.postMergeDesignDocumentation`;
+- `ci.infrastructureAndAccess`.
+
+Each visual entity is an instance of `.ci node` (`64301:3927`). The writer
+selects the matching mode from the `ci/cd` variable collection: `Actor`,
+`System`, `Git reference`, `Pipeline`, `Job`, `Artifact`, `Check`, or `Gate`.
+It binds the exposed `name`, `description`, `steps`, and `source` text
+properties and controls `show steps` and `show source` from actual model
+content. Commands are summarized for display; the `source` row links to the
+canonical file on GitHub `main`, where the literal DSL remains available.
+
+Every `.ci node` instance is the only child of a managed group. Native Figma
+connectors attach from the bottom of the source group to the top of the target
+group, remain children of the target section, and are inserted behind nodes.
+The writer derives labels from triggers and connection purposes rather than
+using generic continuation text.
+
+Child CI sections have no fill and use the standard outline stroke contract.
+They are stacked with 114 px between sections. The parent owns the only direct
+`.Header`, uses the surface fill and 28 px corner radius, has no stroke, and is
+the only node locked after synchronization. A granular rerun removes and
+recreates only content marked as managed inside the requested child section;
+other CI child sections remain untouched.
+
+Preflight for a CI target validates the destination page, the `.ci node`
+component properties, and all required `ci/cd` modes before visual mutation.
+
 ## Version Visual Sync
 
 The version sync reads `content.versionSections` from `design-model.json` and

@@ -4,6 +4,11 @@ import {
   ARTIFACT_INSTANCE_NAME,
   ARTIFACT_PROPS,
   CATALOG_TREE_TARGETS,
+  CI_DOCUMENTATION_PAGE_ID,
+  CI_NODE_COMPONENT_ID,
+  CI_NODE_PROPS,
+  CI_VARIABLE_COLLECTION_NAME,
+  CI_VARIABLE_MODE_NAMES,
   HEADER_INSTANCE_NAME,
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
@@ -22,6 +27,7 @@ import {
   VERSION_SECTION_TARGETS,
   VERSIONS_COLLECTION_NAMES,
 } from "../config/figma-config";
+import { CI_VISUAL_TARGET_NAMES } from "../domain/ci/create-ci-visual-plan";
 import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
 import {
   libraryArtifacts,
@@ -59,6 +65,7 @@ export class FigmaVisualContractCheckGateway implements VisualContractCheckGatew
     await checkVersionContract(checkedComponents, checkedSections, checkedVariables);
     await checkHeaderContract(checkedComponents, checkedSections);
     await checkCatalogTreeContract(designModel, options, checkedComponents, checkedSections, checkedTargets);
+    await checkCiDocumentationContract(options, checkedComponents, checkedSections, checkedVariables, checkedTargets);
 
     return {
       checkedComponents,
@@ -68,6 +75,38 @@ export class FigmaVisualContractCheckGateway implements VisualContractCheckGatew
       mutatedNodeIds: [],
     };
   }
+}
+
+async function checkCiDocumentationContract(
+  options,
+  checkedComponents,
+  checkedSections,
+  checkedVariables,
+  checkedTargets
+) {
+  const requestedTargets = options.targetNames == null
+    ? [...CI_VISUAL_TARGET_NAMES]
+    : options.targetNames.filter((target) => CI_VISUAL_TARGET_NAMES.includes(target));
+  if (requestedTargets.length === 0) return;
+
+  const page = await requirePage(CI_DOCUMENTATION_PAGE_ID);
+  checkedSections.push(`ciDocumentation:${page.id}`);
+
+  const component = await requireComponent(CI_NODE_COMPONENT_ID);
+  requireComponentProperty(component, CI_NODE_PROPS.name, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.description, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.steps, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.source, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
+  requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
+  checkedComponents.push(`${component.name}:${component.id}`);
+
+  const collection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
+  for (const modeName of CI_VARIABLE_MODE_NAMES) {
+    requireModeId(collection, modeName);
+  }
+  checkedVariables.push(collection.name);
+  checkedTargets.push(...requestedTargets);
 }
 
 async function checkHeaderContract(checkedComponents, checkedSections) {
@@ -258,14 +297,11 @@ async function checkUsageChipComponentSet(checkedComponents) {
 }
 
 function resolveCatalogTargets(targetNames?: string[]) {
-  const targetNameSet = new Set<string>(targetNames || CATALOG_TREE_TARGETS.map((target) => target.name));
   const knownTargetNames = new Set(
     CATALOG_TREE_TARGETS.flatMap((target) => [target.name, ...(target.aliases || [])])
   );
-  const unknownTargetNames = [...targetNameSet].filter((targetName) => !knownTargetNames.has(targetName));
-  if (unknownTargetNames.length > 0) {
-    throw new Error(`Unknown catalog tree target(s) for visual contract preflight: ${unknownTargetNames.join(", ")}.`);
-  }
+  const scopedTargetNames = targetNames?.filter((targetName) => knownTargetNames.has(targetName));
+  const targetNameSet = new Set<string>(scopedTargetNames || CATALOG_TREE_TARGETS.map((target) => target.name));
 
   return CATALOG_TREE_TARGETS.filter((target) =>
     targetNameSet.has(target.name) || (target.aliases || []).some((alias) => targetNameSet.has(alias))

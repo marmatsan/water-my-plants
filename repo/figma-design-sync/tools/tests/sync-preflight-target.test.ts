@@ -59,6 +59,23 @@ test("headers can be synchronized as an independent visual target", async () => 
   assert.deepEqual(result.updatedHeaders, ["parent-section"]);
 });
 
+test("preflight validates and synchronizes a granular CI documentation target", async () => {
+  const calls: string[] = [];
+  const result = await syncFigmaDesignModel(
+    mainDesignModel(),
+    fakeDependencies(calls),
+    {
+      targets: ["preflight", "ci.overview"],
+      writeMetadata: false,
+    }
+  );
+
+  assert.deepEqual(calls, ["preflight", "ci"]);
+  assert.deepEqual(result.completedTargets, ["preflight", "ci.overview"]);
+  assert.deepEqual(result.checkedTargets, ["ci.overview"]);
+  assert.deepEqual(result.updatedCiSections, ["ci.overview"]);
+});
+
 function mainDesignModel() {
   return {
     branch: "main",
@@ -100,6 +117,17 @@ function fakeDependencies(calls: string[]) {
           removedCatalogNodes: [],
           removedCatalogConnectors: [],
           mutatedNodeIds: ["catalog"],
+        };
+      },
+    },
+    ciDocumentationSyncGateway: {
+      async syncCiDocumentation(_designModel, targetNames) {
+        calls.push("ci");
+        return {
+          updatedCiSections: targetNames,
+          createdCiNodes: ["ci-node"],
+          createdCiConnectors: ["ci-connector"],
+          mutatedNodeIds: ["ci-section"],
         };
       },
     },

@@ -85,7 +85,8 @@ class GradleTaskSteps : En {
                 "versionSections",
                 "catalogs",
                 "modules",
-                "moduleDependencies"
+                "moduleDependencies",
+                "ci"
             )
         }
 
@@ -248,6 +249,37 @@ class GradleTaskSteps : En {
         resolve("repo/figma-design-sync/domain/build.gradle.kts").writeText("")
         resolve("repo/figma-design-sync/plugin").mkdirs()
         resolve("repo/figma-design-sync/plugin/build.gradle.kts").writeText("")
+        resolve("docs/ci").mkdirs()
+        resolve("docs/ci/external-topology.yaml").writeText(
+            """
+            schemaVersion: 1
+            validation:
+              lastValidatedOn: "2026-07-14"
+              warnAfterDays: 90
+            nodes:
+              - id: operator
+                type: actor
+                name: Operator
+                description: Initiates manual CI actions.
+            connections: []
+            """.trimIndent()
+        )
+        resolve(".teamcity/target/generated-configs/Root_Ci").mkdirs()
+        resolve(".teamcity/target/generated-configs/Root_Ci/project-config.xml").writeText(
+            """
+            <project>
+              <name>CI</name>
+            </project>
+            """.trimIndent()
+        )
+        resolve(".teamcity/target/generated-configs/Root_Ci/pipeline.yml").writeText(
+            """
+            version: 1
+            jobs:
+              verify:
+                name: Verify
+            """.trimIndent()
+        )
     }
 
     private fun File.initializeGitRepository() {

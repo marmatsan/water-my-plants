@@ -6,10 +6,19 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
@@ -27,6 +36,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.time.Instant
+import java.time.LocalDate
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -39,6 +49,8 @@ class DesignModelSteps : En {
     private var repositoryCatalogTreesAvailable = false
     private var repositoryProjectModulesAvailable = false
     private var repositoryModuleDependenciesAvailable = false
+    private var externalCiTopologyAvailable = false
+    private var effectiveTeamCityConfigurationAvailable = false
     private lateinit var generator: FigmaDesignModelGenerator
     private lateinit var firstResult: FigmaDesignModelGenerationResult
     private lateinit var secondResult: FigmaDesignModelGenerationResult
@@ -61,6 +73,16 @@ class DesignModelSteps : En {
 
         Given("repository module dependencies are available") {
             repositoryModuleDependenciesAvailable = true
+            configureGenerator()
+        }
+
+        Given("the external CI topology is available") {
+            externalCiTopologyAvailable = true
+            configureGenerator()
+        }
+
+        Given("the effective TeamCity configuration is available") {
+            effectiveTeamCityConfigurationAvailable = true
             configureGenerator()
         }
 
@@ -140,6 +162,12 @@ class DesignModelSteps : En {
                 } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
         }
 
+        Then("the CI model contains external topology and effective TeamCity configuration") {
+            firstResult.content["ci"]!!
+                .jsonObject
+                .keys shouldContainAll listOf("externalTopology", "teamCity")
+        }
+
         Then("the model hash is stored in the generated model") {
             firstResult.modelHash shouldBe firstResult.model["modelHash"]?.jsonPrimitive?.content
         }
@@ -188,7 +216,9 @@ class DesignModelSteps : En {
             repositoryVersionsPort = FakeRepositoryVersionsPort,
             projectCatalogTreesPort = FakeProjectCatalogTreesPort,
             projectModulesPort = FakeProjectModulesPort,
-            projectModuleDependenciesPort = FakeProjectModuleDependenciesPort
+            projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
+            ciExternalTopologyPort = FakeCiExternalTopologyPort,
+            teamCityConfigurationPort = FakeTeamCityConfigurationPort
         )
     }
 
@@ -197,6 +227,8 @@ class DesignModelSteps : En {
         check(repositoryCatalogTreesAvailable) { "Repository catalog trees are not available." }
         check(repositoryProjectModulesAvailable) { "Repository project modules are not available." }
         check(repositoryModuleDependenciesAvailable) { "Repository module dependencies are not available." }
+        check(externalCiTopologyAvailable) { "External CI topology is not available." }
+        check(effectiveTeamCityConfigurationAvailable) { "Effective TeamCity configuration is not available." }
     }
 
     private fun request(
@@ -209,6 +241,8 @@ class DesignModelSteps : En {
             generatedAt = generatedAt,
             versionsFile = File("versions.properties"),
             rootSettingsFile = File("settings.gradle.kts"),
+            ciExternalTopologyFile = File("docs/ci/external-topology.yaml"),
+            teamCityGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
             projectRootDirectory = File("."),
             includedBuilds = listOf(
                 FigmaDesignModelIncludedBuildSource(
@@ -297,5 +331,50 @@ private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort
                 dependentModule = ":app",
                 dependencyModule = ":core:ui"
             )
+        )
+}
+
+private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
+    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+        CiExternalTopology(
+            schemaVersion = 1,
+            validation = CiExternalTopology.Validation(
+                lastValidatedOn = LocalDate.parse("2026-07-14"),
+                warnAfterDays = 90
+            ),
+            nodes = listOf(
+                CiNode(
+                    id = "operator",
+                    type = CiNode.Type.Actor,
+                    name = "Operator",
+                    description = "Initiates manual CI actions."
+                )
+            ),
+            connections = emptyList()
+        )
+}
+
+private object FakeTeamCityConfigurationPort : TeamCityConfigurationPort {
+    override fun readConfiguration(source: TeamCityGeneratedConfigurationSource): TeamCityConfiguration =
+        TeamCityConfiguration(
+            pipelines = listOf(
+                TeamCityPipeline(
+                    id = "Root_Ci",
+                    name = "CI",
+                    triggers = emptyList(),
+                    jobs = listOf(
+                        TeamCityJob(
+                            id = "verify",
+                            name = "Verify",
+                            steps = emptyList(),
+                            repositoryIds = emptyList(),
+                            artifacts = emptyList(),
+                            dependencies = emptyList(),
+                            publishedChecks = emptyList()
+                        )
+                    )
+                )
+            ),
+            vcsRoots = emptyList()
         )
 }

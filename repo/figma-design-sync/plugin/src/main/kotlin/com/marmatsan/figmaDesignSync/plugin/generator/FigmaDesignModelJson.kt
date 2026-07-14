@@ -8,6 +8,12 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
+import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityVcsRoot
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import kotlinx.serialization.json.JsonArray
@@ -209,3 +215,163 @@ internal fun Collection<ModuleDependency>.toModuleDependenciesJson(): JsonArray 
             }
         }
         .let(::JsonArray)
+
+/**
+ * Converts the versioned external CI topology to its stable model shape.
+ */
+internal fun CiExternalTopology.toDesignJson(): JsonObject =
+    buildJsonObject {
+        put("schemaVersion", schemaVersion)
+        put(
+            "validation",
+            buildJsonObject {
+                put("lastValidatedOn", validation.lastValidatedOn.toString())
+                put("warnAfterDays", validation.warnAfterDays)
+            }
+        )
+        put(
+            "nodes",
+            nodes
+                .sortedBy(CiNode::id)
+                .map { node ->
+                    buildJsonObject {
+                        put("id", node.id)
+                        put("type", node.type.serializedName)
+                        put("name", node.name)
+                        put("description", node.description)
+                    }
+                }
+                .let(::JsonArray)
+        )
+        put(
+            "connections",
+            connections
+                .sortedBy { connection -> connection.id }
+                .map { connection ->
+                    buildJsonObject {
+                        put("id", connection.id)
+                        put("source", connection.sourceNodeId)
+                        put("target", connection.targetNodeId)
+                        put("label", connection.label)
+                        put("description", connection.description)
+                        put("protocol", connection.protocol.toJsonPrimitiveOrNull())
+                        put("authentication", connection.authentication.toSortedJsonArray())
+                        put("policy", connection.policy.toJsonPrimitiveOrNull())
+                        put("path", connection.path.toJsonPrimitiveOrNull())
+                        put("automation", connection.automation.serializedName)
+                        put("annotation", connection.annotation.toJsonPrimitiveOrNull())
+                    }
+                }
+                .let(::JsonArray)
+        )
+    }
+
+/**
+ * Converts effective TeamCity pipelines and VCS roots to stable JSON.
+ */
+internal fun TeamCityConfiguration.toDesignJson(): JsonObject =
+    buildJsonObject {
+        put(
+            "pipelines",
+            pipelines
+                .sortedBy(TeamCityPipeline::id)
+                .map(TeamCityPipeline::toDesignJson)
+                .let(::JsonArray)
+        )
+        put(
+            "vcsRoots",
+            vcsRoots
+                .sortedBy(TeamCityVcsRoot::id)
+                .map { vcsRoot ->
+                    buildJsonObject {
+                        put("id", vcsRoot.id)
+                        put("name", vcsRoot.name)
+                        put("url", vcsRoot.url)
+                        put("defaultBranchRef", vcsRoot.defaultBranchRef)
+                        put("branchSpec", vcsRoot.branchSpec.toJsonArray())
+                    }
+                }
+                .let(::JsonArray)
+        )
+    }
+
+private fun TeamCityPipeline.toDesignJson(): JsonObject =
+    buildJsonObject {
+        put("id", id)
+        put("name", name)
+        put(
+            "triggers",
+            triggers
+                .map { trigger ->
+                    buildJsonObject {
+                        put("type", trigger.type.serializedName)
+                        put("branchFilter", trigger.branchFilter.toJsonPrimitiveOrNull())
+                        put("dependencyPipelineId", trigger.dependencyPipelineId.toJsonPrimitiveOrNull())
+                        put(
+                            "afterSuccessfulBuildOnly",
+                            trigger.afterSuccessfulBuildOnly?.let(::JsonPrimitive) ?: JsonNull
+                        )
+                    }
+                }
+                .let(::JsonArray)
+        )
+        put(
+            "jobs",
+            jobs
+                .sortedBy(TeamCityJob::id)
+                .map(TeamCityJob::toDesignJson)
+                .let(::JsonArray)
+        )
+    }
+
+private fun TeamCityJob.toDesignJson(): JsonObject =
+    buildJsonObject {
+        put("id", id)
+        put("name", name)
+        put(
+            "steps",
+            steps.map { step ->
+                buildJsonObject {
+                    put("id", step.id)
+                    put("name", step.name)
+                    put("command", step.command)
+                }
+            }.let(::JsonArray)
+        )
+        put("repositoryIds", repositoryIds.toSortedJsonArray())
+        put(
+            "artifacts",
+            artifacts
+                .sortedBy(TeamCityJob.Artifact::path)
+                .map { artifact ->
+                    buildJsonObject {
+                        put("path", artifact.path)
+                        put("publish", artifact.publish)
+                        put("shareWithJobs", artifact.shareWithJobs)
+                    }
+                }
+                .let(::JsonArray)
+        )
+        put(
+            "dependencies",
+            dependencies
+                .sortedBy(TeamCityJob.Dependency::jobId)
+                .map { dependency ->
+                    buildJsonObject {
+                        put("jobId", dependency.jobId)
+                        put("artifactPaths", dependency.artifactPaths.toSortedJsonArray())
+                    }
+                }
+                .let(::JsonArray)
+        )
+        put(
+            "publishedChecks",
+            publishedChecks
+                .sortedBy(TeamCityJob.PublishedCheck::name)
+                .map { check -> buildJsonObject { put("name", check.name) } }
+                .let(::JsonArray)
+        )
+    }
+
+private fun String?.toJsonPrimitiveOrNull() =
+    this?.let(::JsonPrimitive) ?: JsonNull

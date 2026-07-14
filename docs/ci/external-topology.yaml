@@ -1,0 +1,186 @@
+schemaVersion: 1
+
+validation:
+  lastValidatedOn: "2026-07-14"
+  warnAfterDays: 90
+
+nodes:
+  - id: operator
+    type: actor
+    name: Operator
+    description: Initiates and verifies manual CI and visual documentation actions.
+
+  - id: browser
+    type: system
+    name: Browser
+    description: Provides interactive access to the TeamCity user interface.
+
+  - id: teamcity-cli
+    type: system
+    name: TeamCity CLI
+    description: Provides authenticated command-line access to TeamCity.
+
+  - id: github-repository
+    type: system
+    name: GitHub Repository
+    description: Stores the reviewed source code and receives CI checks and statuses.
+
+  - id: github-app
+    type: system
+    name: GitHub App
+    description: Integrates GitHub repository events and credentials with TeamCity.
+
+  - id: cloudflare-access
+    type: system
+    name: Cloudflare Access
+    description: Applies user, service, and webhook access policies at the public boundary.
+
+  - id: cloudflare-tunnel
+    type: system
+    name: Cloudflare Tunnel
+    description: Routes approved HTTPS traffic to the private TeamCity origin.
+
+  - id: teamcity-server
+    type: system
+    name: TeamCity Server
+    description: Orchestrates pipelines, schedules work, and publishes repository checks.
+
+  - id: build-agent
+    type: system
+    name: Build Agent
+    description: Executes repository build, verification, and design model commands.
+
+  - id: codex-mcp-client
+    type: system
+    name: Codex/MCP Client
+    description: Applies operator-approved visual changes through the Figma MCP integration.
+
+  - id: figma-api
+    type: system
+    name: Figma API
+    description: Exposes design metadata and authorized document write operations.
+
+  - id: figma-design-document
+    type: system
+    name: Figma Design Document
+    description: Contains the derived visual representation of the repository CI contract.
+
+connections:
+  - id: browser-teamcity-access
+    source: browser
+    target: cloudflare-access
+    label: Open TeamCity UI
+    description: Starts an interactive TeamCity session through the public HTTPS hostname.
+    protocol: HTTPS
+    authentication:
+      - Cloudflare user authentication
+    policy: Allow
+    automation: manual
+
+  - id: cli-teamcity-access
+    source: teamcity-cli
+    target: cloudflare-access
+    label: Call TeamCity API
+    description: Authenticates non-browser TeamCity CLI requests at both access boundaries.
+    protocol: HTTPS
+    authentication:
+      - Cloudflare Service Auth
+      - TeamCity access token
+    policy: Service Auth
+    automation: manual
+
+  - id: github-webhook-ingress
+    source: github-app
+    target: cloudflare-access
+    label: Deliver GitHub webhook
+    description: Sends supported repository events to the dedicated TeamCity webhook endpoint.
+    protocol: HTTPS
+    authentication:
+      - GitHub webhook signature
+    policy: Bypass
+    path: /app/webhooks/githubapp
+    automation: automatic
+
+  - id: cloudflare-origin-routing
+    source: cloudflare-access
+    target: cloudflare-tunnel
+    label: Route approved traffic
+    description: Routes allowed, service-authenticated, and bypassed requests to the tunnel.
+    protocol: Cloudflare Tunnel
+    automation: automatic
+
+  - id: teamcity-origin-delivery
+    source: cloudflare-tunnel
+    target: teamcity-server
+    label: Reach private TeamCity origin
+    description: Delivers approved requests without exposing the TeamCity origin directly.
+    automation: automatic
+
+  - id: github-source-checkout
+    source: teamcity-server
+    target: github-repository
+    label: Obtain repository sources
+    description: Resolves revisions and obtains the repository sources required by CI.
+    protocol: HTTPS
+    authentication:
+      - GitHub App installation token
+    automation: automatic
+
+  - id: github-check-publication
+    source: teamcity-server
+    target: github-repository
+    label: Publish checks and statuses
+    description: Publishes TeamCity CI results for pull requests and post-merge documentation.
+    protocol: HTTPS
+    authentication:
+      - GitHub App installation token
+    automation: automatic
+
+  - id: teamcity-job-dispatch
+    source: teamcity-server
+    target: build-agent
+    label: Schedule build work
+    description: Assigns eligible pipeline jobs to the build agent.
+    automation: automatic
+
+  - id: teamcity-build-results
+    source: build-agent
+    target: teamcity-server
+    label: Return results and artifacts
+    description: Returns build output, verification results, and declared artifacts.
+    automation: automatic
+
+  - id: figma-metadata-read
+    source: build-agent
+    target: figma-api
+    label: Read design metadata
+    description: Reads the Figma state required by repository-owned synchronization checks.
+    protocol: HTTPS
+    authentication:
+      - Figma access token
+    automation: automatic
+
+  - id: operator-visual-sync
+    source: operator
+    target: codex-mcp-client
+    label: Request visual synchronization
+    description: Starts an operator-approved synchronization using the official design model.
+    automation: manual
+    annotation: The official artifact may be staged through a temporary MCP transport.
+
+  - id: mcp-figma-write
+    source: codex-mcp-client
+    target: figma-api
+    label: Apply visual changes
+    description: Creates or updates native Figma nodes from the repository design model.
+    protocol: HTTPS
+    authentication:
+      - Figma MCP authorization
+    automation: operator-assisted
+
+  - id: figma-document-update
+    source: figma-api
+    target: figma-design-document
+    label: Update visual documentation
+    description: Persists the approved CI documentation changes in the Figma document.
+    automation: operator-assisted

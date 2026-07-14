@@ -89,6 +89,8 @@ Gherkin steps.
 | `repository catalog trees are available`       | `water-my-plants-catalog` trees and configured included-build settings catalogs through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
 | `repository project modules are available`     | `settings.gradle.kts` and configured included-build settings files through `ProjectModulesPort`                     | `FakeProjectModulesPort` in `DesignModelSteps.kt`            |
 | `repository module dependencies are available` | Project `build.gradle.kts` dependency blocks through `ProjectModuleDependenciesPort`                         | `FakeProjectModuleDependenciesPort` in `DesignModelSteps.kt` |
+| `the external CI topology is available`         | `docs/ci/external-topology.yaml` through `CiExternalTopologyPort`                                            | `FakeCiExternalTopologyPort` in `DesignModelSteps.kt`        |
+| `the effective TeamCity configuration is available` | `.teamcity/target/generated-configs` through `TeamCityConfigurationPort`                                  | `FakeTeamCityConfigurationPort` in `DesignModelSteps.kt`     |
 | `the design model is generated`                | `FigmaDesignModelGenerator` producing the in-memory design model                                             | Direct generator call from `DesignModelSteps.kt`             |
 | `generateFigmaDesignModel runs`                | Gradle task writing `build/reports/figma-sync/design-model.json`                                             | Temporary Gradle project assembled by `GradleTaskSteps.kt`   |
 
@@ -114,6 +116,8 @@ The contract has these inputs:
 | Catalog trees            | Water My Plants declarations from `dependency-catalog:water-my-plants-catalog` and configured included-build catalog declarations |
 | Project modules          | Root and configured included-build Gradle settings                                                          |
 | Module dependency graphs | Parsed `build.gradle.kts` dependency blocks for root and configured included-build modules                  |
+| External CI topology     | `docs/ci/external-topology.yaml`                                                                            |
+| Effective TeamCity model | Generated XML and YAML under `.teamcity/target/generated-configs`                                           |
 
 The contract has one main output:
 
@@ -131,12 +135,13 @@ The contract has one main output:
 | `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins, including direct and convention-plugin-provided usage metadata. |
 | `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                            |
 | `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                      |
+| `ci`                 | Versioned external topology plus effective TeamCity pipelines, jobs, triggers, artifacts, checks, and VCS roots.         |
 
 The current executable scenarios assert these guarantees:
 
 - The model contains repository metadata.
-- The model contains `versions`, `versionSections`, `catalogs`, `modules`, and
-  `moduleDependencies`.
+- The model contains `versions`, `versionSections`, `catalogs`, `modules`,
+  `moduleDependencies`, and `ci`.
 - Version keys are sorted.
 - Version sections keep repository order.
 - The model stores a reproducible `modelHash`.

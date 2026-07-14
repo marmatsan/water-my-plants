@@ -36,6 +36,10 @@ export type SyncTargetName =
   | "gradlePlugins.plugins"
   | "figmaDesignSync.libraries"
   | "figmaDesignSync.plugins"
+  | "ci.overview"
+  | "ci.pullRequestIntegration"
+  | "ci.postMergeDesignDocumentation"
+  | "ci.infrastructureAndAccess"
   | "metadata";
 
 export type SyncFigmaDesignModelOptions = {

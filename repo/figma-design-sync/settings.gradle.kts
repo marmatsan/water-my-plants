@@ -82,6 +82,12 @@ dependencyResolutionManagement {
             ).version(version("serializationLibraryVersion"))
 
             library(
+                alias = "org.snakeyaml.engine",
+                group = "org.snakeyaml",
+                artifact = "snakeyaml-engine"
+            ).version(version("snakeYamlLibraryVersion"))
+
+            library(
                 alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
                 group = "me.tatarka.inject",
                 artifact = "kotlin-inject-compiler-ksp"
