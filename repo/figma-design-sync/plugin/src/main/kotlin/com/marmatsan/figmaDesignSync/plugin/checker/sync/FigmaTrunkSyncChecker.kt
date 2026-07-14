@@ -35,6 +35,8 @@ internal class FigmaTrunkSyncChecker(
                 generatedAt = request.generatedAt,
                 versionsFile = request.versionsFile,
                 rootSettingsFile = request.rootSettingsFile,
+                ciExternalTopologyFile = request.ciExternalTopologyFile,
+                teamCityGeneratedConfigurationDirectory = request.teamCityGeneratedConfigurationDirectory,
                 projectRootDirectory = request.projectRootDirectory,
                 includedBuilds = request.includedBuilds
             )

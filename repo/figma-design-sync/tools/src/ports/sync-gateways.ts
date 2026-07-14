@@ -21,6 +21,13 @@ export type CatalogTreeSyncResult = {
   mutatedNodeIds: string[];
 };
 
+export type CiDocumentationSyncResult = {
+  updatedCiSections: string[];
+  createdCiNodes: string[];
+  createdCiConnectors: string[];
+  mutatedNodeIds: string[];
+};
+
 export type CatalogTreeSyncOptions = {
   targetNames?: string[];
   sectionNodeOverrides?: Record<string, string>;
@@ -61,6 +68,10 @@ export type HeaderSyncGateway = {
 
 export type CatalogTreeSyncGateway = {
   syncCatalogTrees(designModel: DesignModel, options?: CatalogTreeSyncOptions): Promise<CatalogTreeSyncResult>;
+};
+
+export type CiDocumentationSyncGateway = {
+  syncCiDocumentation(designModel: DesignModel, targetNames: string[]): Promise<CiDocumentationSyncResult>;
 };
 
 export type MetadataSyncGateway = {

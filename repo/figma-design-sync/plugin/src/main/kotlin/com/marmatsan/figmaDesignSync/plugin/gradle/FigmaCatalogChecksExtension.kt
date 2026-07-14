@@ -84,6 +84,16 @@ abstract class figmaDesignSyncExtension @Inject constructor(
     val rootSettingsFile: RegularFileProperty = objects.fileProperty()
 
     /**
+     * Versioned external systems and connections rendered in CI documentation.
+     */
+    val ciExternalTopologyFile: RegularFileProperty = objects.fileProperty()
+
+    /**
+     * Effective TeamCity configuration generated from the versioned Kotlin DSL.
+     */
+    val teamCityGeneratedConfigurationDirectory: DirectoryProperty = objects.directoryProperty()
+
+    /**
      * Included builds that contribute repository model data.
      */
     val includedBuilds: NamedDomainObjectContainer<FigmaDesignSyncIncludedBuild> =
@@ -99,6 +109,10 @@ abstract class figmaDesignSyncExtension @Inject constructor(
     init {
         versionsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
         rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
+        ciExternalTopologyFile.convention(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
+        teamCityGeneratedConfigurationDirectory.convention(
+            layout.projectDirectory.dir(".teamcity/target/generated-configs")
+        )
         designModelFile.convention(layout.buildDirectory.file("reports/figma-sync/design-model.json"))
 
         includedBuilds.register("dependency-catalog") {

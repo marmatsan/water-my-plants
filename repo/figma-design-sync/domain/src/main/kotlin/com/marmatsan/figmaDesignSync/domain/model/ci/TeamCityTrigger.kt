@@ -9,8 +9,8 @@ data class TeamCityTrigger(
     val dependencyPipelineId: String?,
     val afterSuccessfulBuildOnly: Boolean?
 ) {
-    enum class Type {
-        Vcs,
-        PipelineFinish
+    enum class Type(val serializedName: String) {
+        Vcs("vcs"),
+        PipelineFinish("pipeline finish")
     }
 }

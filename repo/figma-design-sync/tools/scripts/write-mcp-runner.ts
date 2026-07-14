@@ -32,6 +32,10 @@ const KNOWN_TARGETS = [
   "gradlePlugins.plugins",
   "figmaDesignSync.libraries",
   "figmaDesignSync.plugins",
+  "ci.overview",
+  "ci.pullRequestIntegration",
+  "ci.postMergeDesignDocumentation",
+  "ci.infrastructureAndAccess",
   "metadata",
 ];
 

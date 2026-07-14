@@ -127,6 +127,10 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
         steps {
             step(PipelineScriptStep {
+                name = "Generate effective TeamCity configuration"
+                scriptContent = """.\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate"""
+            })
+            step(PipelineScriptStep {
                 name = "Generate Figma design model"
                 scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
             })
@@ -148,6 +152,10 @@ object WaterMyPlantsFigmaSync : Pipeline({
         }
 
         steps {
+            step(PipelineScriptStep {
+                name = "Generate effective TeamCity configuration"
+                scriptContent = """.\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate"""
+            })
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
                 scriptContent = """.\gradlew.bat checkFigmaTrunkSync"""

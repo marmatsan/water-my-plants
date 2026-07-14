@@ -72,6 +72,9 @@ used by CI.
 - `checkFigmaVersionNaming`: fails when
   `repo/dependency-catalog/versions.properties` does not use the Figma version
   naming contract. This task is wired into the root `check` lifecycle.
+- `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
+  validation window in `docs/ci/external-topology.yaml` expires. This task is
+  wired into the root `check` lifecycle.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it

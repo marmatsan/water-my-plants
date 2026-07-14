@@ -57,6 +57,8 @@ The model is generated from repository source files, not from Figma:
 | Root `settings.gradle.kts` | Main project module discovery. |
 | Included-build `settings.gradle.kts` files | Included-build catalog and module discovery. |
 | Gradle build files | Module dependency edges and applied plugin usage. |
+| `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
+| `.teamcity/target/generated-configs` | Effective pipelines, jobs, triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
 
 The default included-build sources are configured by the `figmaDesignSync`
 Gradle extension:
@@ -84,6 +86,7 @@ The stable `content` object contains:
 | `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
 | `modules` | Repository module paths discovered from the root project and included builds. |
 | `moduleDependencies` | Module dependency edges grouped by source build. |
+| `ci` | External CI topology and effective TeamCity configuration. |
 
 Figma visual code must treat this JSON as the source of truth. Manual visual
 changes in Figma are acceptable only when they are component contract changes;
@@ -104,11 +107,13 @@ Task responsibilities:
 |------|----------------|
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
+| `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
 | `generateFigmaDesignModel` | Generates the official JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
 | `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the official pipeline. |
 
-`checkFigmaVersionNaming` and `checkFigmaCatalogUsage` are wired into the root
-Gradle `check` lifecycle, so the TeamCity `Verify` step runs them through:
+`checkFigmaVersionNaming`, `checkFigmaCatalogUsage`, and
+`checkCiExternalTopologyFreshness` are wired into the root Gradle `check`
+lifecycle, so the TeamCity `Verify` step runs them through:
 
 ```powershell
 .\gradlew.bat check
@@ -119,11 +124,12 @@ Gradle `check` lifecycle, so the TeamCity `Verify` step runs them through:
 The strict flow is:
 
 1. Merge code changes through a pull request after TeamCity CI passes.
-2. Let TeamCity run on `main` and generate the official `design-model.json`.
-3. Use the official artifact as the visual sync input.
-4. Run the MCP `preflight` target when Figma component contracts changed.
-5. Run the MCP visual write step against Figma.
-6. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
+2. Let TeamCity generate the effective configuration from `.teamcity/settings.kts`.
+3. Let the same job generate the official `design-model.json` from those effective files.
+4. Use the official artifact as the visual sync input.
+5. Run the MCP `preflight` target when Figma component contracts changed.
+6. Run the MCP visual write step against Figma.
+7. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
 
 Do not create official design-model metadata from a feature branch. Branch-local
 visual iteration may reuse an official `main` artifact for layout debugging, but

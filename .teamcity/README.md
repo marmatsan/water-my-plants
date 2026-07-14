@@ -91,6 +91,8 @@ requests.
 The pipeline:
 
 - triggers after `CI` finishes successfully on `<default>`;
+- generates `.teamcity/target/generated-configs` from the versioned Kotlin DSL
+  before each model generation or hash verification;
 - generates `build/reports/figma-sync/design-model.json` from `main`;
 - sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the
   Gradle task can verify it is running under the official Figma Sync pipeline;

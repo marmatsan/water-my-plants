@@ -68,7 +68,7 @@ The TeamCity artifact JSON contains:
 - `modelHash`
 
 `content` is the stable comparison body. It includes `versions`,
-`versionSections`, `catalogs`, `modules`, and `moduleDependencies`.
+`versionSections`, `catalogs`, `modules`, `moduleDependencies`, and `ci`.
 `modelHash` is calculated from stable model content and excludes `branch`,
 `gitSha`, `generatedAt`, and `modelHash` itself.
 
@@ -126,5 +126,11 @@ Important generation details:
   `projects.domain`. Type-safe accessors are resolved against module build
   directories so camel-case accessors such as `projects.catalogCore` retain
   the declared kebab-case module path `:catalog-core`.
+- `content.ci.externalTopology` comes from
+  `docs/ci/external-topology.yaml`.
+- `content.ci.teamCity` comes from the effective configuration generated under
+  `.teamcity/target/generated-configs`. The official TeamCity jobs run
+  `.\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate` before invoking
+  either `generateFigmaDesignModel` or `checkFigmaTrunkSync`.
 - Module dependency graphs are no longer rendered into the deleted Figma
   `dependency of modules` section. They belong in PlantUML architecture docs.

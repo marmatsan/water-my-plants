@@ -9,6 +9,8 @@ Feature: Figma design model generation
     And repository catalog trees are available
     And repository project modules are available
     And repository module dependencies are available
+    And the external CI topology is available
+    And the effective TeamCity configuration is available
 
   @domain
   Scenario: Generate the dependency design model
@@ -20,8 +22,10 @@ Feature: Figma design model generation
       | catalogs           |
       | modules            |
       | moduleDependencies |
+      | ci                 |
     And the version keys are sorted
     And the version sections keep repository order
+    And the CI model contains external topology and effective TeamCity configuration
     And the model hash is stored in the generated model
 
   @domain

@@ -2,6 +2,10 @@ package com.marmatsan.figmaDesignSync.plugin.generator
 
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesScope
@@ -31,7 +35,9 @@ internal class FigmaDesignModelGenerator(
     private val repositoryVersionsPort: RepositoryVersionsPort,
     private val projectCatalogTreesPort: ProjectCatalogTreesPort,
     private val projectModulesPort: ProjectModulesPort,
-    private val projectModuleDependenciesPort: ProjectModuleDependenciesPort
+    private val projectModuleDependenciesPort: ProjectModuleDependenciesPort,
+    private val ciExternalTopologyPort: CiExternalTopologyPort,
+    private val teamCityConfigurationPort: TeamCityConfigurationPort
 ) {
     /**
      * Generates the complete model and stable model hash for [request].
@@ -89,6 +95,27 @@ internal class FigmaDesignModelGenerator(
                     .toSortedJsonArray()
             )
             put("moduleDependencies", buildModuleDependencies(request))
+            put("ci", buildCi(request))
+        }
+
+    private fun buildCi(request: FigmaDesignModelGenerationRequest) =
+        buildJsonObject {
+            put(
+                "externalTopology",
+                ciExternalTopologyPort
+                    .readTopology(CiExternalTopologySource(request.ciExternalTopologyFile.absolutePath))
+                    .toDesignJson()
+            )
+            put(
+                "teamCity",
+                teamCityConfigurationPort
+                    .readConfiguration(
+                        TeamCityGeneratedConfigurationSource(
+                            request.teamCityGeneratedConfigurationDirectory.absolutePath
+                        )
+                    )
+                    .toDesignJson()
+            )
         }
 
     private fun buildCatalogs(request: FigmaDesignModelGenerationRequest) =
@@ -198,6 +225,6 @@ internal class FigmaDesignModelGenerator(
         }
 
     private companion object {
-        const val SCHEMA_VERSION = 2
+        const val SCHEMA_VERSION = 3
     }
 }

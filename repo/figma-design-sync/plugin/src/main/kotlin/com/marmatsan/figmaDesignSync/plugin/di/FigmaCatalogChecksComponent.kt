@@ -17,6 +17,7 @@ import com.marmatsan.figmaDesignSync.plugin.checker.catalog.CatalogUsageChecker
 import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaTrunkSyncChecker
 import com.marmatsan.figmaDesignSync.plugin.checker.versions.VersionNamingChecker
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
+import com.marmatsan.figmaDesignSync.plugin.checker.ci.CiExternalTopologyFreshnessChecker
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 
@@ -33,6 +34,11 @@ internal abstract class figmaDesignSyncComponent {
      * Service used by `generateFigmaDesignModel`.
      */
     abstract val designModelGenerator: FigmaDesignModelGenerator
+
+    /**
+     * Service used by the non-blocking external topology freshness check.
+     */
+    abstract val ciExternalTopologyFreshnessChecker: CiExternalTopologyFreshnessChecker
 
     /**
      * Service used by `checkFigmaTrunkSync`.

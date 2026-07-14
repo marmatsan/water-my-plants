@@ -36,6 +36,15 @@ The visual model aggregates sources without duplicating their ownership:
 - The generated `design-model.json` aggregates both sources for the visual sync.
 - Figma is derived documentation and is not a source of CI configuration.
 
+The generated JSON stores this aggregate under `content.ci`:
+
+- `externalTopology` contains the versioned YAML topology;
+- `teamCity` contains the effective generated pipelines and VCS roots.
+
+The official TeamCity jobs must run `teamcity-configs:generate` before Gradle
+generates the model or checks its hash. Gradle consumes the generated directory
+as a declared input; it does not invoke Maven implicitly.
+
 The external topology YAML must not duplicate TeamCity pipeline or job
 definitions. It must not contain tokens, secrets, credential references,
 account identifiers, personal names, or visual layout coordinates.
@@ -157,6 +166,9 @@ repository metadata and is not rendered in Figma.
 CI emits a non-blocking warning when more than 90 days have passed since the
 recorded validation. The operational runbook must describe how to verify each
 external connection before updating that date.
+
+The executable warning is `checkCiExternalTopologyFreshness`, wired into the
+root Gradle `check` lifecycle.
 
 ## Excluded Content
 
