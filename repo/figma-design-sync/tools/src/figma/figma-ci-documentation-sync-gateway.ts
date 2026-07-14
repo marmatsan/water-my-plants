@@ -26,6 +26,7 @@ import {
   requireSection,
   requireVariableCollection,
 } from "./figma-node-gateway";
+import { loadTextNodeFonts } from "./figma-text-gateway";
 
 const SECTION_PADDING = 100;
 const SECTION_GAP = 114;
@@ -147,7 +148,7 @@ async function syncParentHeader(parent, mutatedNodeIds) {
   );
   const linkText = links.map((link) => link.label).join("\n");
   setComponentTextProperty(header, "Link", linkText);
-  applyTextLinks(header, "Link", links, linkText);
+  await applyTextLinks(header, "Link", links, linkText);
   header.x = 0;
   header.y = 0;
   mutatedNodeIds.push(header.id);
@@ -246,7 +247,7 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   setComponentTextProperty(instance, CI_NODE_PROPS.source, nodePlan.source);
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, Boolean(nodePlan.steps));
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, true);
-  applyTextLinks(
+  await applyTextLinks(
     instance,
     "File",
     [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
@@ -369,10 +370,12 @@ function normalizePropertyName(value) {
   return value.split("#")[0].trim().toLowerCase();
 }
 
-function applyTextLinks(root, textNodeName, links, expectedText) {
+async function applyTextLinks(root, textNodeName, links, expectedText) {
   const text = root.findAllWithCriteria({ types: ["TEXT"] })
     .find((candidate) => candidate.name.toLowerCase() === textNodeName.toLowerCase());
   if (!text || text.characters !== expectedText) return;
+
+  await loadTextNodeFonts(text);
 
   let start = 0;
   for (const link of links) {
