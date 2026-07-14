@@ -63,6 +63,9 @@ export async function loadTextNodeFonts(textNode) {
     if (segment.fontName === figma.mixed) {
       continue;
     }
+    if (!segment.fontName.family?.trim() || !segment.fontName.style?.trim()) {
+      continue;
+    }
     fontKeys.add(`${segment.fontName.family}\u0000${segment.fontName.style}`);
   }
 

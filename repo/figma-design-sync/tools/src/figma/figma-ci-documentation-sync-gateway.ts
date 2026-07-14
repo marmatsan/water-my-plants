@@ -403,17 +403,18 @@ async function applyTextLinks(root, textNodeName, links, expectedText) {
     text.setRangeHyperlink(start, end, { type: "URL", value: link.url });
     start = end + 1;
   }
-  text.textAlignHorizontal = "LEFT";
 }
 
 async function setConnectorLabel(connector, label) {
-  const fontName = connector.text.fontName === figma.mixed
-    ? { family: "Inter", style: "Regular" }
-    : connector.text.fontName;
+  const currentFontName = connector.text.fontName;
+  const fontName = currentFontName === figma.mixed ||
+      !currentFontName.family?.trim() ||
+      !currentFontName.style?.trim()
+    ? { family: "Poppins", style: "Regular" }
+    : currentFontName;
   await figma.loadFontAsync(fontName);
   connector.text.fontName = fontName;
   connector.text.characters = label;
-  connector.text.textAlignHorizontal = "CENTER";
 }
 
 async function requireColorVariable(name) {
