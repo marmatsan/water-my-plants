@@ -86,6 +86,12 @@ connectors are cloned from the existing `simple-solid_arrow` template because
 the MCP runtime does not expose `figma.createConnector()`. The clones attach
 from the bottom of the source group to the top of the target group, remain
 children of the target section, and are inserted behind nodes.
+Cloned connector text may initially expose an empty font name; the writer uses
+the design file's `Poppins Regular` connector font as the explicit fallback
+before setting the connection label.
+Text alignment is owned by `.ci node`, `.Header`, and the connector template;
+the writer does not override sublayer alignment because the MCP text proxy does
+not expose that style mutation consistently.
 The writer derives labels from triggers and connection purposes rather than
 using generic continuation text.
 
