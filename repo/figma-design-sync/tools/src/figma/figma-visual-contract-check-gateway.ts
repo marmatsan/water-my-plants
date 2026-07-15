@@ -6,6 +6,10 @@ import {
   CATALOG_TREE_TARGETS,
   CI_CONNECTOR_TEMPLATE_SECTION_ID,
   CI_DOCUMENTATION_PAGE_ID,
+  CI_ICON_COMPONENT_SET_ID,
+  CI_ICON_ENVIRONMENT_PROPERTY,
+  CI_ICON_ENVIRONMENTS,
+  CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
   CI_NODE_PROPS,
   CI_VARIABLE_COLLECTION_NAME,
@@ -43,6 +47,7 @@ import type {
 import { filterModelRoots } from "./figma-catalog-tree-sync-gateway";
 import {
   requireComponent,
+  requireComponentSet,
   requireFrameOrSection,
   requireModeId,
   requireOutlineColorVariable,
@@ -102,6 +107,40 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   checkedComponents.push(`${component.name}:${component.id}`);
+
+  const iconSet = await requireComponentSet(CI_ICON_COMPONENT_SET_ID);
+  const nestedIcons = component.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((candidate) => candidate.name === CI_ICON_INSTANCE_NAME);
+  if (nestedIcons.length !== 1) {
+    throw new Error(
+      `CI node component '${component.id}' must contain exactly one '${CI_ICON_INSTANCE_NAME}' ` +
+        `nested instance; found ${nestedIcons.length}.`
+    );
+  }
+  const nestedIcon = nestedIcons[0];
+  const mainIconComponent = await nestedIcon.getMainComponentAsync();
+  if (!mainIconComponent || mainIconComponent.parent?.id !== iconSet.id) {
+    throw new Error(
+      `Nested CI icon '${nestedIcon.id}' must belong to component set '${iconSet.id}'.`
+    );
+  }
+  requireComponentProperty(nestedIcon, CI_ICON_ENVIRONMENT_PROPERTY, "VARIANT");
+  const environmentDefinition = requireComponentProperty(
+    iconSet,
+    CI_ICON_ENVIRONMENT_PROPERTY,
+    "VARIANT"
+  );
+  const actualEnvironments = environmentDefinition.variantOptions || [];
+  const missingEnvironments = CI_ICON_ENVIRONMENTS.filter((value) => !actualEnvironments.includes(value));
+  const unexpectedEnvironments = actualEnvironments.filter((value) => !CI_ICON_ENVIRONMENTS.includes(value));
+  if (missingEnvironments.length > 0 || unexpectedEnvironments.length > 0) {
+    throw new Error(
+      `CI icon environments differ from the supported contract. ` +
+        `Missing: ${missingEnvironments.join(", ") || "none"}. ` +
+        `Unexpected: ${unexpectedEnvironments.join(", ") || "none"}.`
+    );
+  }
+  checkedComponents.push(`${iconSet.name}:${iconSet.id}`);
 
   const connectorSection = await requireSection(CI_CONNECTOR_TEMPLATE_SECTION_ID);
   const connectorTemplate = connectorSection.findAllWithCriteria({ types: ["CONNECTOR"] })
@@ -343,6 +382,7 @@ function requireComponentProperty(node: any, propertyName: string, propertyType:
       `Node '${node.id}' is missing ${propertyType} component property '${componentPropertyName(propertyName)}'.`
     );
   }
+  return propertyEntry[1] as any;
 }
 
 function componentPropertiesForPreflight(node: any): Record<string, any> {

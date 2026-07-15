@@ -4,6 +4,7 @@ export const METADATA_PAGE_ID = "62934:908";
 export const METADATA_NAMESPACE = "water_my_plants_sync";
 export const CI_DOCUMENTATION_PAGE_ID = "63153:2876";
 export const CI_NODE_COMPONENT_ID = "64301:3927";
+export const CI_ICON_COMPONENT_SET_ID = "64361:716";
 export const CI_VARIABLE_COLLECTION_NAME = "ci/cd";
 export const CI_VARIABLE_MODE_NAMES = [
   "Actor",
@@ -16,7 +17,21 @@ export const CI_VARIABLE_MODE_NAMES = [
   "Gate",
 ] as const;
 export const CI_NODE_INSTANCE_NAME = ".ci node";
+export const CI_ICON_INSTANCE_NAME = ".ci icon";
+export const CI_ICON_ENVIRONMENT_PROPERTY = "environment";
+export const CI_ICON_ENVIRONMENTS = [
+  "github",
+  "teamcity",
+  "cloudflare",
+  "figma",
+  "codex",
+  "browser",
+  "terminal",
+  "operator",
+  "json",
+] as const;
 export const CI_CONNECTOR_NAME = ".ci connector";
+export const CI_CONNECTOR_LABEL_NAME = ".ci connector label";
 export const CI_CONNECTOR_TEMPLATE_SECTION_ID = "63069:629";
 export const CI_NODE_PROPS = {
   name: "name",

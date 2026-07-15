@@ -82,12 +82,23 @@ intentionally non-authoritative and must not write official metadata.
    [visual-sync-contract.md](visual-sync-contract.md).
 9. After all visual targets are correct, run only the `metadata` target with
    `writeMetadata=true`.
-10. Rerun TeamCity `Figma Sync`, or run `checkFigmaTrunkSync` locally as a
-   diagnostic check before rerunning TeamCity.
+10. Optionally rerun only TeamCity `Check Figma trunk sync`, or run
+    `checkFigmaTrunkSync` locally, as an early diagnostic after writing
+    metadata.
+11. Rerun the complete TeamCity `Figma Sync` pipeline. Confirm that `Generate
+    main design model`, `Check Figma trunk sync`, and the aggregate pipeline all
+    succeed so TeamCity publishes a successful final status.
 
 Do not write metadata before visual targets are reconciled. `checkFigmaTrunkSync`
 trusts the metadata hash, so premature metadata can make CI pass while Figma is
 still visually stale.
+
+A successful standalone `Check Figma trunk sync` does not change the result of
+an earlier failed aggregate `Figma Sync` run. The complete pipeline must be
+rerun after the MCP write. If its generated artifact has the same `gitSha` and
+`modelHash` already stored in Figma, do not repeat the visual write. If either
+value changes, treat the new artifact as a new synchronization input and resume
+the visual flow before writing metadata again.
 
 ## Failure Recovery
 

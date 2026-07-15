@@ -58,6 +58,14 @@ export async function requireComponent(nodeId) {
   return node;
 }
 
+export async function requireComponentSet(nodeId) {
+  const node = await figma.getNodeByIdAsync(nodeId);
+  if (!node || node.type !== "COMPONENT_SET") {
+    throw new Error(`Expected '${nodeId}' to be a COMPONENT_SET.`);
+  }
+  return node;
+}
+
 export async function requireFrame(nodeId) {
   const node = await figma.getNodeByIdAsync(nodeId);
   if (!node || node.type !== "FRAME") {

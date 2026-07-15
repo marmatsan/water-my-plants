@@ -76,6 +76,8 @@ and exposes four independently runnable targets:
 Each visual entity is an instance of `.ci node` (`64301:3927`). The writer
 selects the matching mode from the `ci/cd` variable collection: `Actor`,
 `System`, `Git reference`, `Pipeline`, `Job`, `Artifact`, `Check`, or `Gate`.
+The collection's `type_label` string supplies the visible type label for each
+mode.
 It binds the exposed `name`, `description`, `steps`, and `source` text
 properties and controls `show steps` and `show source` from actual model
 content. Commands are summarized for display; the `source` row links to the
@@ -83,15 +85,53 @@ canonical file on GitHub `main`, where the literal DSL remains available.
 
 Every `.ci node` instance is the only child of a managed group. Native Figma
 connectors are cloned from the existing `simple-solid_arrow` template because
-the MCP runtime does not expose `figma.createConnector()`. The clones attach
-from the bottom of the source group to the top of the target group, remain
-children of the target section, and are inserted behind nodes.
+the MCP runtime does not expose `figma.createConnector()`. The clones attach to
+the managed node groups using the magnets selected for the section layout,
+remain children of the target section, and are inserted behind nodes.
 Cloned connector text may initially expose an empty font name; the writer uses
 the design file's `Poppins Regular` connector font as the explicit fallback
-before setting the connection label.
+before clearing the native connector text. Connector labels are managed groups
+named `.ci connector label`, composed of a surface background and horizontal
+text, and placed between connected node groups. Do not use native connector
+text for CI labels because Figma rotates it with vertical and elbowed connector
+paths.
+`Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
+use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
+topology grid. Horizontal flows connect from the side anchors of their node
+groups and vertically align node centers. Their inter-node gap grows when
+necessary so the connector label fits centered on the horizontal connector.
+Disconnected horizontal flows are stacked as separate rows and each row starts
+at the same left edge. Post-merge job order is derived from declared artifact
+publication and job dependencies, never from the order of jobs in the generated
+TeamCity model.
+Return connections use bottom anchors and route below the row instead of
+crossing intermediate nodes. In the topology grid, parallel opposite vertical
+connections keep the forward path direct and route the return path around the
+left side so its label cannot obscure the forward path or adjacent connectors.
+Label text wraps when it exceeds 280 px, and label placement must avoid every
+`.ci node group` and previously placed connector label. If no direct gap is
+available, search additional positions outside the connected nodes instead of
+covering a node or another label.
+Distinct connections that share the same endpoints must remain visually
+distinct. Route horizontal parallel connections above and below their nodes;
+for opposite vertical connections, keep the forward path direct and route the
+return path around one side.
+The icon shown in a `.ci node` header is exactly one nested `.ci icon` instance
+from component set `64361:716`. Its `environment` variant is configured directly
+on the nested instance because Figma does not promote that property to the
+parent `.ci node` component. Supported environments are `github`, `teamcity`,
+`cloudflare`, `figma`, `codex`, `browser`, `terminal`, `operator`, and `json`.
+The visual plan maps every node explicitly; there is no generic fallback. The
+preflight must fail when the nested instance is absent or duplicated, belongs
+to another component set, lacks the `environment` property, or exposes a
+different set of variant values.
 Text alignment is owned by `.ci node`, `.Header`, and the connector template;
 the writer does not override sublayer alignment because the MCP text proxy does
 not expose that style mutation consistently.
+The CI parent section explicitly uses the `Light` mode from the collection that
+owns `md/sys/color/surface`. Its bound fill also carries the resolved Light
+color as fallback so exports and MCP screenshots do not render the section as a
+black surface when variable resolution is unavailable.
 The writer derives labels from triggers and connection purposes rather than
 using generic continuation text.
 
