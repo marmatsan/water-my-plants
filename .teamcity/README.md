@@ -5,6 +5,9 @@ This directory is the source of truth for TeamCity project settings.
 The contract used to derive the Figma representation of CI from these settings
 is documented in
 [`docs/ci/visual-model-contract.md`](../docs/ci/visual-model-contract.md).
+Public HTTPS access, Cloudflare policies, CLI service authentication, webhook
+validation, and CSRF recovery are documented in
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md).
 
 ## Branching Workflow
 
@@ -310,6 +313,13 @@ teamcity auth login --server <teamcity-url> --token <token>
 teamcity auth status
 ```
 
+The public HTTPS route also requires Cloudflare Service Auth. Keep the
+Cloudflare service token in PowerShell SecretStore and inject its headers only
+for the duration of each CLI command. Follow
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md)
+for the wrapper, verification procedure, webhook boundary, and the known CSRF
+limitation on mutating CLI requests.
+
 Bind the current checkout to the TeamCity project and default pipeline if the
 local `teamcity.toml` is missing:
 
@@ -394,6 +404,12 @@ If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
 been run with the latest `design-model.json` artifact from
 `Figma Sync > Generate main design model`. If the failure mentions a branch
 other than `main`, fix repository checkout before investigating Figma sync.
+
+After the MCP write updates official metadata, rerun the complete `Figma Sync`
+pipeline. A successful standalone `Check Figma trunk sync` proves that metadata
+matches, but it does not replace the previously failed aggregate pipeline or
+its GitHub status. Confirm that `Generate main design model`, `Check Figma trunk
+sync`, and the aggregate `Figma Sync` run all succeed.
 
 ## Clean-up Rules
 
