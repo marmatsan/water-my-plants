@@ -5,6 +5,9 @@ This directory is the source of truth for TeamCity project settings.
 The contract used to derive the Figma representation of CI from these settings
 is documented in
 [`docs/ci/visual-model-contract.md`](../docs/ci/visual-model-contract.md).
+Public HTTPS access, Cloudflare policies, CLI service authentication, webhook
+validation, and CSRF recovery are documented in
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md).
 
 ## Branching Workflow
 
@@ -70,7 +73,8 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
-- runs `Verify` with `.\gradlew.bat check`;
+- runs `Verify` with `.\gradlew.bat check --stacktrace` so Gradle failures keep
+  their diagnostic context in the TeamCity build log;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
@@ -179,7 +183,7 @@ repositories:
 The generated script content should remain a direct Gradle call:
 
 ```yaml
-script-content: .\gradlew.bat check
+script-content: .\gradlew.bat check --stacktrace
 ```
 
 Do not perform `git init`, `git fetch`, or `git checkout` from build script
@@ -310,6 +314,13 @@ teamcity auth login --server <teamcity-url> --token <token>
 teamcity auth status
 ```
 
+The public HTTPS route also requires Cloudflare Service Auth. Keep the
+Cloudflare service token in PowerShell SecretStore and inject its headers only
+for the duration of each CLI command. Follow
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md)
+for the wrapper, verification procedure, webhook boundary, and the known CSRF
+limitation on mutating CLI requests.
+
 Bind the current checkout to the TeamCity project and default pipeline if the
 local `teamcity.toml` is missing:
 
@@ -367,6 +378,42 @@ Do not rely on `--local-changes` unless the access token has the TeamCity
 permission `Change build source code with a custom patch`. The normal workflow
 is to commit and push the branch, then run the pipeline against that branch.
 
+## Windows Agent Runtime
+
+Run the TeamCity server and build agent with separate virtual service accounts:
+
+- `NT SERVICE\TeamCity` owns the server data directory;
+- `NT SERVICE\TCBuildAgent` owns the agent's mutable `system`, `work`, `temp`,
+  and `.gradle` directories.
+
+The agent must use a system-wide JDK instead of a JDK inside a developer profile.
+Keep the following properties in
+`C:\TeamCity\buildAgent\conf\buildAgent.properties`, updating the Temurin
+directory when the installed patch version changes:
+
+```properties
+env.JAVA_HOME=C\:\\Program Files\\Eclipse Adoptium\\jdk-21.0.11.10-hotspot
+env.GRADLE_USER_HOME=C\:\\TeamCity\\buildAgent\\.gradle
+```
+
+`NT SERVICE\TCBuildAgent` needs `Modify` on its mutable directories. It also
+needs non-inherited `ReadAndExecute` on `C:\TeamCity` so Java
+`Path.toRealPath()` can traverse the parent directory while resolving Gradle
+distribution JARs. Do not grant the agent `FullControl` over `C:\TeamCity` or
+inherit agent permissions into the server data directory.
+
+After changing the service account or these permissions:
+
+1. stop the build agent;
+2. stop Gradle daemons owned by the agent;
+3. remove only the failed `dependencies-accessors` cache and the checkout's
+   `.gradle` directory;
+4. restart the agent and run the pipeline again.
+
+The first clean run downloads and compiles more work than later runs. Confirm
+that its log reports the expected JDK and that `BUILD SUCCESSFUL` comes from the
+child `Verify` job.
+
 ## Troubleshooting
 
 If a job cannot find `gradlew.bat`, check that the job declares the GitHub
@@ -387,6 +434,23 @@ If pipeline generation reports that a repository is not found, check for direct
 references to generated VCS root ids in job repository blocks. Use the local DSL
 object instead.
 
+If Gradle reports `GeneratedClassCompilationException`, inspect the final
+`Caused by` entry from the `--stacktrace` output. An `AccessDeniedException` for
+`gradle-core-api-*.jar` from `ZipFileSystemProvider.removeFileSystem` means the
+agent cannot resolve the real path through `C:\TeamCity`; fix parent-directory
+traversal before clearing the generated accessor cache.
+
+If agent-side checkout reports dubious ownership after changing the Windows
+service account, stop the agent and assign both ownership and `Modify` access on
+the agent's mutable directories to `NT SERVICE\TCBuildAgent`. Do not hide the
+problem with a global Git `safe.directory` entry.
+
+If the TeamCity server cannot run `git ls-remote origin` after its service
+account changes, reset the server `git` cache from
+`Administration > Diagnostics > Caches`. The page does not show progress; verify
+the reset in the server log, then send a VCS commit-hook notification or push a
+new commit.
+
 If GitHub receives no status check, inspect `teamcity-commit-status.log` and
 confirm that the status publisher feature is attached to the final job.
 
@@ -394,6 +458,12 @@ If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
 been run with the latest `design-model.json` artifact from
 `Figma Sync > Generate main design model`. If the failure mentions a branch
 other than `main`, fix repository checkout before investigating Figma sync.
+
+After the MCP write updates official metadata, rerun the complete `Figma Sync`
+pipeline. A successful standalone `Check Figma trunk sync` proves that metadata
+matches, but it does not replace the previously failed aggregate pipeline or
+its GitHub status. Confirm that `Generate main design model`, `Check Figma trunk
+sync`, and the aggregate `Figma Sync` run all succeed.
 
 ## Clean-up Rules
 

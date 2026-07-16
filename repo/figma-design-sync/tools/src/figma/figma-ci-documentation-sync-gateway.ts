@@ -1,7 +1,10 @@
 import {
   CI_CONNECTOR_NAME,
+  CI_CONNECTOR_LABEL_NAME,
   CI_CONNECTOR_TEMPLATE_SECTION_ID,
   CI_DOCUMENTATION_PAGE_ID,
+  CI_ICON_ENVIRONMENT_PROPERTY,
+  CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
   CI_NODE_INSTANCE_NAME,
   CI_NODE_PROPS,
@@ -14,7 +17,9 @@ import {
 import {
   CI_VISUAL_TARGET_NAMES,
   createCiVisualPlan,
+  type CiVisualConnection,
   type CiVisualNode,
+  type CiVisualOrientation,
   type CiVisualSection,
 } from "../domain/ci/create-ci-visual-plan";
 import type { DesignModel } from "../domain/design-model";
@@ -42,6 +47,11 @@ const ROLE_PARENT = "parent";
 const ROLE_SECTION = "section";
 const ROLE_NODE = "node";
 const ROLE_CONNECTOR = "connector";
+const LIGHT_MODE_NAME = "Light";
+const CONNECTOR_LABEL_FONT = { family: "Inter", style: "Medium" } as const;
+const CONNECTOR_LABEL_CLEARANCE = 24;
+const CONNECTOR_LABEL_COLLISION_GAP = 16;
+const CONNECTOR_LABEL_MAX_TEXT_WIDTH = 280;
 
 export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGateway {
   async syncCiDocumentation(designModel: DesignModel, targetNames: string[]) {
@@ -56,11 +66,21 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
     const modeCollection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
     const outlineVariable = await requireOutlineColorVariable();
     const surfaceVariable = await requireColorVariable("md/sys/color/surface");
+    const onSurfaceVariable = await requireColorVariable("md/sys/color/on-surface");
+    const surfaceCollection = await requireVariableCollectionById(surfaceVariable.variableCollectionId);
+    const surfaceModeId = requireModeId(surfaceCollection, LIGHT_MODE_NAME);
     const mutatedNodeIds: string[] = [];
     const createdCiNodes: string[] = [];
     const createdCiConnectors: string[] = [];
     const updatedCiSections: string[] = [];
-    const parent = await requireOrCreateParentSection(page, plan.parentName, surfaceVariable, mutatedNodeIds);
+    const parent = await requireOrCreateParentSection(
+      page,
+      plan.parentName,
+      surfaceVariable,
+      surfaceCollection,
+      surfaceModeId,
+      mutatedNodeIds
+    );
     unlockTree(parent, mutatedNodeIds);
     await syncParentHeader(parent, mutatedNodeIds);
 
@@ -76,6 +96,8 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
         nodeComponent,
         modeCollection,
         outlineVariable,
+        surfaceVariable,
+        onSurfaceVariable,
         createdCiNodes,
         createdCiConnectors,
         mutatedNodeIds
@@ -96,7 +118,14 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
   }
 }
 
-async function requireOrCreateParentSection(page, name, surfaceVariable, mutatedNodeIds) {
+async function requireOrCreateParentSection(
+  page,
+  name,
+  surfaceVariable,
+  surfaceCollection,
+  surfaceModeId,
+  mutatedNodeIds
+) {
   const existing = page.children.find((child) =>
     child.type === "SECTION" &&
       (
@@ -114,7 +143,8 @@ async function requireOrCreateParentSection(page, name, surfaceVariable, mutated
   parent.name = name;
   parent.cornerRadius = PARENT_CORNER_RADIUS;
   parent.strokes = [];
-  parent.fills = [boundColorPaint(surfaceVariable)];
+  parent.setExplicitVariableModeForCollection(surfaceCollection, surfaceModeId);
+  parent.fills = [boundColorPaint(surfaceVariable, resolveColorForConsumer(surfaceVariable, parent))];
   parent.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_PARENT);
   mutatedNodeIds.push(parent.id);
   return parent;
@@ -189,12 +219,16 @@ async function syncSectionContent(
   nodeComponent,
   modeCollection,
   outlineVariable,
+  surfaceVariable,
+  onSurfaceVariable,
   createdCiNodes,
   createdCiConnectors,
   mutatedNodeIds
 ) {
   const groupsByModelId = new Map<string, GroupNode>();
   const groups: Array<{ plan: CiVisualNode; group: GroupNode }> = [];
+  const connectorLabels: GroupNode[] = [];
+  const connectorLabelsByModelId = new Map<string, GroupNode>();
   const connectorTemplate = plan.connections.length > 0
     ? await requireCiConnectorTemplate()
     : null;
@@ -214,7 +248,22 @@ async function syncSectionContent(
     mutatedNodeIds.push(group.id, instance.id);
   }
 
-  layoutNodeGroups(groups);
+  for (const edge of plan.connections) {
+    const label = await createConnectorLabel(
+      section,
+      edge.label,
+      edge.id,
+      surfaceVariable,
+      onSurfaceVariable
+    );
+    connectorLabels.push(label);
+    connectorLabelsByModelId.set(edge.id, label);
+    mutatedNodeIds.push(label.id);
+  }
+
+  layoutNodeGroups(groups, plan.orientation, plan.connections, connectorLabelsByModelId);
+  const positionedLabels: GroupNode[] = [];
+  const parallelConnections = parallelConnectionInfo(plan.connections);
 
   for (const edge of plan.connections) {
     const source = groupsByModelId.get(edge.source);
@@ -225,24 +274,57 @@ async function syncSectionContent(
     if (!connectorTemplate) {
       throw new Error(`CI section '${plan.target}' requires a connector template.`);
     }
+    const label = connectorLabelsByModelId.get(edge.id);
+    if (!label) throw new Error(`CI section '${plan.target}' has no label for connection '${edge.id}'.`);
     const connector = connectorTemplate.clone();
     connector.name = CI_CONNECTOR_NAME;
     connector.connectorLineType = "ELBOWED";
     connector.connectorStartStrokeCap = "NONE";
     connector.connectorEndStrokeCap = "ARROW_LINES";
-    connector.connectorStart = { endpointNodeId: source.id, magnet: "BOTTOM" };
-    connector.connectorEnd = { endpointNodeId: target.id, magnet: "TOP" };
+    const magnets = ciConnectorMagnets(
+      source,
+      target,
+      plan.orientation,
+      parallelConnections.get(edge.id)
+    );
+    connector.connectorStart = { endpointNodeId: source.id, magnet: magnets.start };
+    connector.connectorEnd = { endpointNodeId: target.id, magnet: magnets.end };
     connector.strokes = [boundColorPaint(outlineVariable)];
     connector.strokeWeight = 2;
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR);
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, edge.id);
     section.insertChild(0, connector);
-    await setConnectorLabel(connector, edge.label);
+    await clearNativeConnectorLabel(connector);
+    const connectorBounds = connector.absoluteBoundingBox;
+    const sectionBounds = section.absoluteBoundingBox;
+    const position = centersLabelOnConnector(magnets) && connectorBounds && sectionBounds
+      ? connectorBoundsLabelPosition(
+          connectorBounds,
+          sectionBounds,
+          label.width,
+          label.height
+        )
+      : connectorLabelPosition(
+          source,
+          target,
+          label.width,
+          label.height,
+          groups.map((item) => item.group),
+          positionedLabels,
+          magnets
+        );
+    label.x = position.x;
+    label.y = position.y;
+    positionedLabels.push(label);
     createdCiConnectors.push(connector.id);
     mutatedNodeIds.push(connector.id);
   }
 
-  resizeChildSection(section, groups.map((item) => item.group), mutatedNodeIds);
+  resizeChildSection(
+    section,
+    [...groups.map((item) => item.group), ...connectorLabels],
+    mutatedNodeIds
+  );
   applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
 }
 
@@ -261,6 +343,8 @@ async function requireCiConnectorTemplate(): Promise<ConnectorNode> {
 async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   const modeId = requireModeId(modeCollection, modeName(nodePlan.type));
   instance.setExplicitVariableModeForCollection(modeCollection, modeId);
+  const icon = requireSingleNestedInstance(instance, CI_ICON_INSTANCE_NAME);
+  setComponentVariantProperty(icon, CI_ICON_ENVIRONMENT_PROPERTY, nodePlan.environment);
   setComponentTextProperty(instance, CI_NODE_PROPS.name, nodePlan.name);
   setComponentTextProperty(instance, CI_NODE_PROPS.description, nodePlan.description);
   setComponentTextProperty(instance, CI_NODE_PROPS.steps, nodePlan.steps || "");
@@ -275,25 +359,203 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   );
 }
 
-function layoutNodeGroups(groups: Array<{ plan: CiVisualNode; group: GroupNode }>) {
-  const rows = [...new Set(groups.map(({ plan }) => plan.row))].sort((a, b) => a - b);
-  const columns = [...new Set(groups.map(({ plan }) => plan.column))].sort((a, b) => a - b);
+function layoutNodeGroups(
+  groups: Array<{ plan: CiVisualNode; group: GroupNode }>,
+  orientation: CiVisualOrientation,
+  connections: CiVisualConnection[],
+  labelsByModelId: Map<string, GroupNode>
+) {
+  const items = groups.map(({ plan, group }) => ({
+    plan,
+    group,
+    position: ciVisualGridPosition(plan, orientation),
+  }));
+  if (orientation === "horizontal") {
+    const flowPositions = horizontalFlowPositions(groups.map(({ plan }) => plan), connections);
+    for (const item of items) {
+      item.position = flowPositions.get(item.plan.id) ?? item.position;
+    }
+  }
+  const rows = [...new Set(items.map(({ position }) => position.row))].sort((a, b) => a - b);
+  const columns = [...new Set(items.map(({ position }) => position.column))].sort((a, b) => a - b);
   const rowHeights = new Map(rows.map((row) => [
     row,
-    Math.max(...groups.filter(({ plan }) => plan.row === row).map(({ group }) => group.height)),
+    Math.max(...items.filter(({ position }) => position.row === row).map(({ group }) => group.height)),
   ]));
   const columnWidths = new Map(columns.map((column) => [
     column,
-    Math.max(...groups.filter(({ plan }) => plan.column === column).map(({ group }) => group.width)),
+    Math.max(...items.filter(({ position }) => position.column === column).map(({ group }) => group.width)),
   ]));
   const rowY = cumulativePositions(rows, rowHeights, NODE_ROW_GAP, SECTION_PADDING);
-  const columnX = cumulativePositions(columns, columnWidths, NODE_COLUMN_GAP, SECTION_PADDING);
+  const columnGaps = requiredHorizontalColumnGaps(
+    items,
+    columns,
+    connections,
+    labelsByModelId,
+    orientation
+  );
+  const columnX = cumulativePositionsWithVariableGaps(
+    columns,
+    columnWidths,
+    columnGaps,
+    NODE_COLUMN_GAP,
+    SECTION_PADDING
+  );
 
-  for (const { plan, group } of groups) {
-    const columnWidth = columnWidths.get(plan.column)!;
-    group.x = columnX.get(plan.column)! + (columnWidth - group.width) / 2;
-    group.y = rowY.get(plan.row)!;
+  for (const { group, position } of items) {
+    const columnWidth = columnWidths.get(position.column)!;
+    const rowHeight = rowHeights.get(position.row)!;
+    group.x = columnX.get(position.column)! + (columnWidth - group.width) / 2;
+    group.y = centeredRowY(rowY.get(position.row)!, rowHeight, group.height);
   }
+}
+
+function requireSingleNestedInstance(root, instanceName) {
+  const matches = root.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((candidate) => candidate.name === instanceName);
+  if (matches.length !== 1) {
+    throw new Error(
+      `CI node '${root.id}' must contain exactly one '${instanceName}' nested instance; found ${matches.length}.`
+    );
+  }
+  return matches[0];
+}
+
+function requiredHorizontalColumnGaps(
+  items: Array<{
+    plan: CiVisualNode;
+    group: GroupNode;
+    position: { row: number; column: number };
+  }>,
+  columns: number[],
+  connections: CiVisualConnection[],
+  labelsByModelId: Map<string, GroupNode>,
+  orientation: CiVisualOrientation
+): Map<number, number> {
+  const gaps = new Map<number, number>();
+  if (orientation !== "horizontal") return gaps;
+  const itemByModelId = new Map(items.map((item) => [item.plan.id, item]));
+  const columnIndex = new Map(columns.map((column, index) => [column, index]));
+
+  for (const edge of connections) {
+    const source = itemByModelId.get(edge.source);
+    const target = itemByModelId.get(edge.target);
+    const label = labelsByModelId.get(edge.id);
+    if (!source || !target || !label || source.position.row !== target.position.row) continue;
+    const sourceIndex = columnIndex.get(source.position.column);
+    const targetIndex = columnIndex.get(target.position.column);
+    if (sourceIndex === undefined || targetIndex === undefined || Math.abs(sourceIndex - targetIndex) !== 1) continue;
+    const boundaryColumn = columns[Math.min(sourceIndex, targetIndex)];
+    const requiredGap = horizontalConnectorGap(label.width);
+    gaps.set(boundaryColumn, Math.max(gaps.get(boundaryColumn) || 0, requiredGap));
+  }
+  return gaps;
+}
+
+export function centeredRowY(rowTop: number, rowHeight: number, itemHeight: number) {
+  return rowTop + (rowHeight - itemHeight) / 2;
+}
+
+export function horizontalConnectorGap(labelWidth: number) {
+  return Math.max(NODE_COLUMN_GAP, labelWidth + CONNECTOR_LABEL_CLEARANCE * 2);
+}
+
+export function ciVisualGridPosition(
+  plan: Pick<CiVisualNode, "row" | "column">,
+  orientation: CiVisualOrientation
+) {
+  return orientation === "horizontal"
+    ? { row: plan.column, column: plan.row }
+    : { row: plan.row, column: plan.column };
+}
+
+export function horizontalFlowPositions(
+  nodes: Array<Pick<CiVisualNode, "id" | "row">>,
+  connections: Array<Pick<CiVisualConnection, "source" | "target">>
+) {
+  const byId = new Map(nodes.map((node) => [node.id, node]));
+  const adjacent = new Map(nodes.map((node) => [node.id, new Set<string>()]));
+  for (const edge of connections) {
+    if (!byId.has(edge.source) || !byId.has(edge.target)) continue;
+    adjacent.get(edge.source)!.add(edge.target);
+    adjacent.get(edge.target)!.add(edge.source);
+  }
+
+  const components: Array<Array<Pick<CiVisualNode, "id" | "row">>> = [];
+  const visited = new Set<string>();
+  for (const node of [...nodes].sort((first, second) => first.row - second.row)) {
+    if (visited.has(node.id)) continue;
+    const component: Array<Pick<CiVisualNode, "id" | "row">> = [];
+    const pending = [node.id];
+    visited.add(node.id);
+    while (pending.length > 0) {
+      const id = pending.shift()!;
+      component.push(byId.get(id)!);
+      for (const neighbour of adjacent.get(id) || []) {
+        if (visited.has(neighbour)) continue;
+        visited.add(neighbour);
+        pending.push(neighbour);
+      }
+    }
+    components.push(component.sort((first, second) => first.row - second.row));
+  }
+
+  return new Map(components.flatMap((component, visualRow) =>
+    component.map((node, visualColumn) => [node.id, { row: visualRow, column: visualColumn }] as const)
+  ));
+}
+
+export function ciConnectorMagnets(
+  source: Pick<SceneNode, "x" | "y" | "width" | "height">,
+  target: Pick<SceneNode, "x" | "y" | "width" | "height">,
+  orientation: CiVisualOrientation,
+  parallel: { index: number; count: number } = { index: 0, count: 1 }
+) {
+  if (orientation === "horizontal") {
+    return source.x <= target.x
+      ? { start: "RIGHT", end: "LEFT" } as const
+      : { start: "BOTTOM", end: "BOTTOM" } as const;
+  }
+
+  const sourceCenterX = source.x + source.width / 2;
+  const sourceCenterY = source.y + source.height / 2;
+  const targetCenterX = target.x + target.width / 2;
+  const targetCenterY = target.y + target.height / 2;
+  const isHorizontal = Math.abs(targetCenterX - sourceCenterX) >=
+    Math.abs(targetCenterY - sourceCenterY);
+
+  if (parallel.count > 1) {
+    if (isHorizontal) {
+      return parallel.index % 2 === 0
+        ? { start: "TOP", end: "TOP" } as const
+        : { start: "BOTTOM", end: "BOTTOM" } as const;
+    }
+    if (parallel.index > 0) return { start: "LEFT", end: "LEFT" } as const;
+  }
+
+  if (isHorizontal) {
+    return sourceCenterX <= targetCenterX
+      ? { start: "RIGHT", end: "LEFT" } as const
+      : { start: "LEFT", end: "RIGHT" } as const;
+  }
+  return sourceCenterY <= targetCenterY
+    ? { start: "BOTTOM", end: "TOP" } as const
+    : { start: "TOP", end: "BOTTOM" } as const;
+}
+
+function parallelConnectionInfo(connections: CiVisualConnection[]) {
+  const byEndpoints = new Map<string, CiVisualConnection[]>();
+  for (const edge of connections) {
+    const key = [edge.source, edge.target].sort().join("::");
+    const edges = byEndpoints.get(key) || [];
+    edges.push(edge);
+    byEndpoints.set(key, edges);
+  }
+  const result = new Map<string, { index: number; count: number }>();
+  for (const edges of byEndpoints.values()) {
+    edges.forEach((edge, index) => result.set(edge.id, { index, count: edges.length }));
+  }
+  return result;
 }
 
 function cumulativePositions(
@@ -405,7 +667,7 @@ async function applyTextLinks(root, textNodeName, links, expectedText) {
   }
 }
 
-async function setConnectorLabel(connector, label) {
+async function clearNativeConnectorLabel(connector) {
   const currentFontName = connector.text.fontName;
   const fontName = currentFontName === figma.mixed ||
       !currentFontName.family?.trim() ||
@@ -414,7 +676,72 @@ async function setConnectorLabel(connector, label) {
     : currentFontName;
   await figma.loadFontAsync(fontName);
   connector.text.fontName = fontName;
-  connector.text.characters = label;
+  connector.text.characters = "";
+}
+
+function setComponentVariantProperty(instance, propertyName, value) {
+  const key = requireComponentPropertyKey(instance, propertyName, "VARIANT");
+  instance.setProperties({ [key]: value });
+}
+
+function cumulativePositionsWithVariableGaps(
+  keys: number[],
+  sizes: Map<number, number>,
+  gaps: Map<number, number>,
+  defaultGap: number,
+  start: number
+) {
+  const positions = new Map<number, number>();
+  let next = start;
+  for (const key of keys) {
+    positions.set(key, next);
+    next += (sizes.get(key) ?? 0) + Math.max(defaultGap, gaps.get(key) || 0);
+  }
+  return positions;
+}
+
+async function createConnectorLabel(
+  section,
+  label,
+  modelId,
+  surfaceVariable,
+  onSurfaceVariable
+) {
+  await figma.loadFontAsync(CONNECTOR_LABEL_FONT);
+  const text = figma.createText();
+  text.name = "Label";
+  text.fontName = CONNECTOR_LABEL_FONT;
+  text.fontSize = 16;
+  text.lineHeight = { unit: "PERCENT", value: 150 };
+  text.textAlignHorizontal = "CENTER";
+  text.textAutoResize = "WIDTH_AND_HEIGHT";
+  text.characters = label;
+  if (text.width > CONNECTOR_LABEL_MAX_TEXT_WIDTH) {
+    text.textAutoResize = "HEIGHT";
+    text.resize(CONNECTOR_LABEL_MAX_TEXT_WIDTH, text.height);
+  }
+  section.appendChild(text);
+  text.fills = [boundColorPaint(onSurfaceVariable, resolveColorForConsumer(onSurfaceVariable, text))];
+
+  const background = figma.createRectangle();
+  background.name = "Background";
+  section.appendChild(background);
+  background.resize(text.width + 24, text.height + 16);
+  background.cornerRadius = 4;
+  background.strokes = [];
+  background.fills = [
+    boundColorPaint(surfaceVariable, resolveColorForConsumer(surfaceVariable, background)),
+  ];
+  background.x = 0;
+  background.y = 0;
+  text.x = 12;
+  text.y = 8;
+
+  const group = figma.group([background, text], section);
+  group.name = CI_CONNECTOR_LABEL_NAME;
+  group.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR);
+  group.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, modelId);
+  return group;
 }
 
 async function requireColorVariable(name) {
@@ -424,12 +751,147 @@ async function requireColorVariable(name) {
   return variable;
 }
 
-function boundColorPaint(variable) {
+async function requireVariableCollectionById(collectionId) {
+  const collection = await figma.variables.getVariableCollectionByIdAsync(collectionId);
+  if (!collection) throw new Error(`Variable collection '${collectionId}' was not found.`);
+  return collection;
+}
+
+function resolveColorForConsumer(variable, consumer) {
+  const resolved = variable.resolveForConsumer(consumer);
+  if (resolved.resolvedType !== "COLOR" || !resolved.value) {
+    throw new Error(`Color variable '${variable.name}' did not resolve for '${consumer.id}'.`);
+  }
+  const { r, g, b } = resolved.value;
+  return { r, g, b };
+}
+
+function boundColorPaint(variable, fallbackColor = { r: 0, g: 0, b: 0 }) {
   return figma.variables.setBoundVariableForPaint(
-    { type: "SOLID", color: { r: 0, g: 0, b: 0 }, opacity: 1 },
+    { type: "SOLID", color: fallbackColor, opacity: 1 },
     "color",
     variable
   );
+}
+
+export function connectorLabelPosition(
+  source,
+  target,
+  labelWidth,
+  labelHeight,
+  obstacles: Array<{ x: number; y: number; width: number; height: number }> = [],
+  occupied: Array<{ x: number; y: number; width: number; height: number }> = [],
+  route?: { start: string; end: string }
+) {
+  const sourceRight = source.x + source.width;
+  const sourceBottom = source.y + source.height;
+  const targetRight = target.x + target.width;
+  const targetBottom = target.y + target.height;
+  let centerX = (source.x + source.width / 2 + target.x + target.width / 2) / 2;
+  let centerY = (source.y + source.height / 2 + target.y + target.height / 2) / 2;
+
+  if (target.y >= sourceBottom) {
+    centerY = (sourceBottom + target.y) / 2;
+  } else if (source.y >= targetBottom) {
+    centerY = (targetBottom + source.y) / 2;
+  } else if (target.x >= sourceRight) {
+    centerX = (sourceRight + target.x) / 2;
+  } else if (source.x >= targetRight) {
+    centerX = (targetRight + source.x) / 2;
+  }
+
+  const preferred = {
+    x: centerX - labelWidth / 2,
+    y: centerY - labelHeight / 2,
+  };
+  const sharedCenterX = (source.x + source.width / 2 + target.x + target.width / 2) / 2;
+  const sharedCenterY = (source.y + source.height / 2 + target.y + target.height / 2) / 2;
+  const above = [];
+  const below = [];
+  const beside = [];
+  for (let level = 0; level < 6; level++) {
+    const offset = level * (labelHeight + CONNECTOR_LABEL_COLLISION_GAP);
+    above.push({
+      x: sharedCenterX - labelWidth / 2,
+      y: Math.min(source.y, target.y) - labelHeight - CONNECTOR_LABEL_CLEARANCE - offset,
+    });
+    below.push({
+      x: sharedCenterX - labelWidth / 2,
+      y: Math.max(sourceBottom, targetBottom) + CONNECTOR_LABEL_CLEARANCE + offset,
+    });
+    if (level > 0) {
+      const horizontalOffset = level * (labelWidth + CONNECTOR_LABEL_COLLISION_GAP);
+      beside.push(
+        { x: preferred.x - horizontalOffset, y: preferred.y },
+        { x: preferred.x + horizontalOffset, y: preferred.y }
+      );
+    }
+  }
+  const isHorizontalReturn = source.x > target.x &&
+    source.y < targetBottom && sourceBottom > target.y;
+  const hasVerticalGap = target.y >= sourceBottom || source.y >= targetBottom;
+  const right = {
+    x: Math.max(sourceRight, targetRight) + CONNECTOR_LABEL_CLEARANCE,
+    y: sharedCenterY - labelHeight / 2,
+  };
+  const left = {
+    x: Math.min(source.x, target.x) - labelWidth - CONNECTOR_LABEL_CLEARANCE,
+    y: sharedCenterY - labelHeight / 2,
+  };
+  let candidates;
+  if (route?.start === "TOP" && route.end === "TOP") {
+    candidates = [...above, ...below, ...beside, preferred, right, left];
+  } else if (route?.start === "BOTTOM" && route.end === "BOTTOM") {
+    candidates = [...below, ...above, ...beside, preferred, right, left];
+  } else if (route?.start === "RIGHT" && route.end === "RIGHT") {
+    candidates = [right, left, ...beside, preferred, ...above, ...below];
+  } else if (route?.start === "LEFT" && route.end === "LEFT") {
+    candidates = [left, right, ...beside, preferred, ...above, ...below];
+  } else {
+    candidates = [
+      ...(isHorizontalReturn ? [] : [preferred]),
+      ...(hasVerticalGap ? beside : []),
+      ...(isHorizontalReturn ? below : above),
+      ...(isHorizontalReturn ? above : below),
+      ...(hasVerticalGap ? [] : beside),
+      right,
+      left,
+    ];
+  }
+  const collisionBounds = [...obstacles, ...occupied];
+  return candidates.find((candidate) =>
+    candidate.x >= 0 &&
+    candidate.y >= 0 &&
+    collisionBounds.every((bounds) => !rectanglesOverlap(
+      candidate,
+      { width: labelWidth, height: labelHeight },
+      bounds,
+      CONNECTOR_LABEL_COLLISION_GAP
+    ))
+  ) || preferred;
+}
+
+export function connectorBoundsLabelPosition(
+  connectorBounds: { x: number; y: number; width: number; height: number },
+  parentBounds: { x: number; y: number },
+  labelWidth: number,
+  labelHeight: number
+) {
+  return {
+    x: connectorBounds.x - parentBounds.x + connectorBounds.width / 2 - labelWidth / 2,
+    y: connectorBounds.y - parentBounds.y + connectorBounds.height / 2 - labelHeight / 2,
+  };
+}
+
+function centersLabelOnConnector(route: { start: string; end: string }) {
+  return route.start === route.end && (route.start === "LEFT" || route.start === "RIGHT");
+}
+
+function rectanglesOverlap(position, size, bounds, gap) {
+  return position.x < bounds.x + bounds.width + gap &&
+    position.x + size.width + gap > bounds.x &&
+    position.y < bounds.y + bounds.height + gap &&
+    position.y + size.height + gap > bounds.y;
 }
 
 function sourceLink(path) {

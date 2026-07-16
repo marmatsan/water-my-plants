@@ -1,6 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createCiVisualPlan } from "../src/domain/ci/create-ci-visual-plan";
+import {
+  createCiVisualPlan,
+  externalEnvironment,
+} from "../src/domain/ci/create-ci-visual-plan";
+import {
+  centeredRowY,
+  ciConnectorMagnets,
+  ciVisualGridPosition,
+  connectorBoundsLabelPosition,
+  connectorLabelPosition,
+  horizontalFlowPositions,
+  horizontalConnectorGap,
+} from "../src/figma/figma-ci-documentation-sync-gateway";
 
 test("CI visual plan creates the four documented granular sections", () => {
   const plan = createCiVisualPlan(designModel());
@@ -15,6 +27,10 @@ test("CI visual plan creates the four documented granular sections", () => {
       "ci.infrastructureAndAccess",
     ]
   );
+  assert.deepEqual(
+    plan.sections.map((section) => section.orientation),
+    ["horizontal", "horizontal", "horizontal", "grid"]
+  );
 });
 
 test("CI visual plan summarizes commands and keeps exact operational names", () => {
@@ -28,6 +44,47 @@ test("CI visual plan summarizes commands and keeps exact operational names", () 
   );
   assert.ok(postMerge.nodes.some((node) => node.name === "design-model.json" && node.type === "artifact"));
   assert.ok(postMerge.connections.some((edge) => edge.label === "Manual rerun"));
+  assert.deepEqual(
+    postMerge.connections
+      .filter((edge) => ["pipeline-generate", "generate-artifact", "artifact-check"].includes(edge.id))
+      .map(({ source, target }) => ({ source, target })),
+    [
+      { source: "pipeline-Root_FigmaSync", target: "job-generate" },
+      { source: "job-generate", target: "design-model" },
+      { source: "design-model", target: "job-check" },
+    ]
+  );
+});
+
+test("CI visual plan maps node ownership to explicit icon environments", () => {
+  const plan = createCiVisualPlan(designModel());
+  const overview = plan.sections.find((section) => section.target === "ci.overview")!;
+
+  assert.deepEqual(
+    overview.nodes.map(({ name, environment }) => ({ name, environment })),
+    [
+      { name: "Pull Request", environment: "github" },
+      { name: "CI", environment: "teamcity" },
+      { name: "TeamCity CI", environment: "teamcity" },
+      { name: "Pull request merge gate", environment: "github" },
+      { name: "main", environment: "github" },
+      { name: "Figma Sync", environment: "teamcity" },
+      { name: "design-model.json", environment: "json" },
+      { name: "TeamCity Figma Sync", environment: "teamcity" },
+    ]
+  );
+});
+
+test("external CI nodes require an explicit icon environment mapping", () => {
+  assert.equal(externalEnvironment("operator"), "operator");
+  assert.equal(externalEnvironment("browser"), "browser");
+  assert.equal(externalEnvironment("teamcity-cli"), "terminal");
+  assert.equal(externalEnvironment("github-app"), "github");
+  assert.equal(externalEnvironment("cloudflare-tunnel"), "cloudflare");
+  assert.equal(externalEnvironment("build-agent"), "teamcity");
+  assert.equal(externalEnvironment("codex-mcp-client"), "codex");
+  assert.equal(externalEnvironment("figma-api"), "figma");
+  assert.throws(() => externalEnvironment("unknown-system"), /no \.ci icon environment mapping/);
 });
 
 test("CI overview labels trigger, check, gate, merge, and model verification connections", () => {
@@ -71,6 +128,162 @@ test("CI visual plan rejects models without CI content", () => {
   );
 });
 
+test("CI connector labels stay horizontal and centered in a vertical gap", () => {
+  assert.deepEqual(
+    connectorLabelPosition(
+      { x: 100, y: 100, width: 300, height: 100 },
+      { x: 200, y: 400, width: 300, height: 100 },
+      120,
+      40
+    ),
+    { x: 240, y: 280 }
+  );
+});
+
+test("CI connector labels stay centered in a horizontal gap", () => {
+  assert.deepEqual(
+    connectorLabelPosition(
+      { x: 100, y: 100, width: 200, height: 100 },
+      { x: 500, y: 120, width: 200, height: 100 },
+      100,
+      40
+    ),
+    { x: 350, y: 140 }
+  );
+});
+
+test("CI horizontal sections transpose logical rows into visual columns", () => {
+  assert.deepEqual(ciVisualGridPosition({ row: 3, column: 1 }, "horizontal"), {
+    row: 1,
+    column: 3,
+  });
+  assert.deepEqual(ciVisualGridPosition({ row: 3, column: 1 }, "grid"), {
+    row: 3,
+    column: 1,
+  });
+});
+
+test("CI connectors use horizontal anchors only in horizontal flows", () => {
+  const left = { x: 100, y: 100, width: 200, height: 100 };
+  const right = { x: 400, y: 100, width: 200, height: 100 };
+  assert.deepEqual(ciConnectorMagnets(left, right, "horizontal"), {
+    start: "RIGHT",
+    end: "LEFT",
+  });
+  assert.deepEqual(ciConnectorMagnets(right, left, "horizontal"), {
+    start: "BOTTOM",
+    end: "BOTTOM",
+  });
+  assert.deepEqual(ciConnectorMagnets(left, right, "grid"), {
+    start: "RIGHT",
+    end: "LEFT",
+  });
+  assert.deepEqual(ciConnectorMagnets(left, right, "grid", { index: 0, count: 2 }), {
+    start: "TOP",
+    end: "TOP",
+  });
+  assert.deepEqual(ciConnectorMagnets(left, right, "grid", { index: 1, count: 2 }), {
+    start: "BOTTOM",
+    end: "BOTTOM",
+  });
+  assert.deepEqual(
+    ciConnectorMagnets(
+      { x: 100, y: 100, width: 200, height: 100 },
+      { x: 100, y: 400, width: 200, height: 100 },
+      "grid",
+      { index: 1, count: 2 }
+    ),
+    { start: "LEFT", end: "LEFT" }
+  );
+});
+
+test("CI horizontal layouts stack disconnected flows and left-align each row", () => {
+  assert.deepEqual(
+    [...horizontalFlowPositions(
+      [
+        { id: "first-a", row: 4 },
+        { id: "first-b", row: 8 },
+        { id: "second-a", row: 10 },
+        { id: "second-b", row: 12 },
+      ],
+      [
+        { source: "first-a", target: "first-b" },
+        { source: "second-a", target: "second-b" },
+      ]
+    )],
+    [
+      ["first-a", { row: 0, column: 0 }],
+      ["first-b", { row: 0, column: 1 }],
+      ["second-a", { row: 1, column: 0 }],
+      ["second-b", { row: 1, column: 1 }],
+    ]
+  );
+});
+
+test("CI horizontal rows align node centers and reserve label width", () => {
+  assert.equal(centeredRowY(100, 200, 120), 140);
+  assert.equal(horizontalConnectorGap(80), 160);
+  assert.equal(horizontalConnectorGap(280), 328);
+});
+
+test("CI connector labels move outside nodes when the direct gap is too narrow", () => {
+  assert.deepEqual(
+    connectorLabelPosition(
+      { x: 100, y: 100, width: 200, height: 100 },
+      { x: 400, y: 100, width: 200, height: 100 },
+      180,
+      40,
+      [
+        { x: 100, y: 100, width: 200, height: 100 },
+        { x: 400, y: 100, width: 200, height: 100 },
+      ]
+    ),
+    { x: 260, y: 36 }
+  );
+});
+
+test("CI parallel connector labels follow their distinct outside routes", () => {
+  const source = { x: 100, y: 100, width: 200, height: 100 };
+  const target = { x: 400, y: 100, width: 200, height: 100 };
+  const obstacles = [source, target];
+  assert.deepEqual(
+    connectorLabelPosition(
+      source,
+      target,
+      180,
+      40,
+      obstacles,
+      [],
+      { start: "TOP", end: "TOP" }
+    ),
+    { x: 260, y: 36 }
+  );
+  assert.deepEqual(
+    connectorLabelPosition(
+      source,
+      target,
+      180,
+      40,
+      obstacles,
+      [],
+      { start: "BOTTOM", end: "BOTTOM" }
+    ),
+    { x: 260, y: 224 }
+  );
+});
+
+test("CI vertical return labels are centered on their connector bounds", () => {
+  assert.deepEqual(
+    connectorBoundsLabelPosition(
+      { x: 1036.5, y: 3047.5, width: 55.5, height: 279 },
+      { x: 100, y: 2035 },
+      232,
+      40
+    ),
+    { x: 848.25, y: 1132 }
+  );
+});
+
 function designModel() {
   return {
     branch: "main",
@@ -111,6 +324,14 @@ function designModel() {
               triggers: [{ type: "pipeline finish", dependencyPipelineId: "Root_Ci" }],
               jobs: [
                 {
+                  id: "check",
+                  name: "Check Figma trunk sync",
+                  steps: [{ id: "RUNNER_1", name: "Check", command: ".\\gradlew.bat checkFigmaTrunkSync" }],
+                  artifacts: [],
+                  dependencies: [{ jobId: "generate", artifactPaths: ["build/reports/figma-sync/design-model.json"] }],
+                  publishedChecks: [{ name: "TeamCity Figma Sync" }],
+                },
+                {
                   id: "generate",
                   name: "Generate main design model",
                   steps: [
@@ -118,14 +339,8 @@ function designModel() {
                     { id: "RUNNER_2", name: "Generate model", command: ".\\gradlew.bat generateFigmaDesignModel" },
                   ],
                   artifacts: [{ path: "build/reports/figma-sync/design-model.json" }],
+                  dependencies: [],
                   publishedChecks: [],
-                },
-                {
-                  id: "check",
-                  name: "Check Figma trunk sync",
-                  steps: [{ id: "RUNNER_1", name: "Check", command: ".\\gradlew.bat checkFigmaTrunkSync" }],
-                  artifacts: [],
-                  publishedChecks: [{ name: "TeamCity Figma Sync" }],
                 },
               ],
             },

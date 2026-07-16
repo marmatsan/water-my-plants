@@ -8,6 +8,7 @@ export const CI_VISUAL_TARGET_NAMES = [
 ] as const;
 
 export type CiVisualTargetName = typeof CI_VISUAL_TARGET_NAMES[number];
+export type CiVisualOrientation = "horizontal" | "grid";
 export type CiVisualNodeType =
   | "actor"
   | "system"
@@ -17,10 +18,21 @@ export type CiVisualNodeType =
   | "artifact"
   | "check"
   | "gate";
+export type CiVisualEnvironment =
+  | "github"
+  | "teamcity"
+  | "cloudflare"
+  | "figma"
+  | "codex"
+  | "browser"
+  | "terminal"
+  | "operator"
+  | "json";
 
 export type CiVisualNode = {
   id: string;
   type: CiVisualNodeType;
+  environment: CiVisualEnvironment;
   name: string;
   description: string;
   steps?: string;
@@ -41,6 +53,7 @@ export type CiVisualSection = {
   target: CiVisualTargetName;
   name: string;
   description: string;
+  orientation: CiVisualOrientation;
   headerSources: Array<{ label: string; url: string }>;
   nodes: CiVisualNode[];
   connections: CiVisualConnection[];
@@ -92,14 +105,14 @@ function createOverviewSection(ciPipeline, figmaPipeline): CiVisualSection {
   const ciCheck = publishedChecks(ciPipeline)[0] || "TeamCity CI";
   const figmaCheck = publishedChecks(figmaPipeline)[0] || "TeamCity Figma Sync";
   const nodes: CiVisualNode[] = [
-    visualNode("overview-pr", "git reference", "Pull Request", "Proposes a reviewed change to the repository.", BRANCH_PROTECTION_SOURCE, 0, 0),
+    visualNode("overview-pr", "git reference", "github", "Pull Request", "Proposes a reviewed change to the repository.", BRANCH_PROTECTION_SOURCE, 0, 0),
     pipelineNode("overview-ci", ciPipeline, 1, 0),
-    visualNode("overview-ci-check", "check", ciCheck, "Reports CI verification to GitHub.", TEAMCITY_SOURCE, 2, 0),
-    visualNode("overview-gate", "gate", "Pull request merge gate", "Requires the CI check before merge.", BRANCH_PROTECTION_SOURCE, 3, 0),
-    visualNode("overview-main", "git reference", "main", "Stable trunk after the reviewed merge.", BRANCH_PROTECTION_SOURCE, 4, 0),
+    visualNode("overview-ci-check", "check", "teamcity", ciCheck, "Reports CI verification to GitHub.", TEAMCITY_SOURCE, 2, 0),
+    visualNode("overview-gate", "gate", "github", "Pull request merge gate", "Requires the CI check before merge.", BRANCH_PROTECTION_SOURCE, 3, 0),
+    visualNode("overview-main", "git reference", "github", "main", "Stable trunk after the reviewed merge.", BRANCH_PROTECTION_SOURCE, 4, 0),
     pipelineNode("overview-figma", figmaPipeline, 5, 0),
-    visualNode("overview-model", "artifact", "design-model.json", "Carries the repository documentation snapshot.", TEAMCITY_SOURCE, 6, 0),
-    visualNode("overview-figma-check", "check", figmaCheck, "Reports whether Figma metadata matches main.", TEAMCITY_SOURCE, 7, 0),
+    visualNode("overview-model", "artifact", "json", "design-model.json", "Carries the repository documentation snapshot.", TEAMCITY_SOURCE, 6, 0),
+    visualNode("overview-figma-check", "check", "teamcity", figmaCheck, "Reports whether Figma metadata matches main.", TEAMCITY_SOURCE, 7, 0),
   ];
 
   return section(
@@ -107,6 +120,7 @@ function createOverviewSection(ciPipeline, figmaPipeline): CiVisualSection {
     "Overview",
     "Simplified pull request and post-merge design documentation journeys.",
     [VISUAL_CONTRACT_SOURCE],
+    "horizontal",
     nodes,
     [
       connection("overview-pr-trigger", "overview-pr", "overview-ci", triggerLabel(ciPipeline)),
@@ -122,17 +136,17 @@ function createOverviewSection(ciPipeline, figmaPipeline): CiVisualSection {
 
 function createPullRequestSection(ciPipeline): CiVisualSection {
   const nodes: CiVisualNode[] = [
-    visualNode("pr", "git reference", "Pull Request", "Contains the branch revision proposed for main.", BRANCH_PROTECTION_SOURCE, 0, 0),
+    visualNode("pr", "git reference", "github", "Pull Request", "Contains the branch revision proposed for main.", BRANCH_PROTECTION_SOURCE, 0, 0),
     pipelineNode(`pipeline-${ciPipeline.id}`, ciPipeline, 1, 0),
     ...ciPipeline.jobs.map((job, index) => jobNode(`job-${job.id}`, job, 2 + index, 0)),
   ];
 
   const lastJob = ciPipeline.jobs.at(-1);
   for (const [index, checkName] of publishedChecks(ciPipeline).entries()) {
-    nodes.push(visualNode(`check-${index}`, "check", checkName, "Publishes the CI result to GitHub.", TEAMCITY_SOURCE, 2 + ciPipeline.jobs.length, index));
+    nodes.push(visualNode(`check-${index}`, "check", "teamcity", checkName, "Publishes the CI result to GitHub.", TEAMCITY_SOURCE, 2 + ciPipeline.jobs.length, index));
   }
-  nodes.push(visualNode("merge-gate", "gate", "Pull request merge gate", "Requires TeamCity CI before merging.", BRANCH_PROTECTION_SOURCE, 3 + ciPipeline.jobs.length, 0));
-  nodes.push(visualNode("main", "git reference", "main", "Receives the reviewed change after the gate passes.", BRANCH_PROTECTION_SOURCE, 4 + ciPipeline.jobs.length, 0));
+  nodes.push(visualNode("merge-gate", "gate", "github", "Pull request merge gate", "Requires TeamCity CI before merging.", BRANCH_PROTECTION_SOURCE, 3 + ciPipeline.jobs.length, 0));
+  nodes.push(visualNode("main", "git reference", "github", "main", "Receives the reviewed change after the gate passes.", BRANCH_PROTECTION_SOURCE, 4 + ciPipeline.jobs.length, 0));
 
   const connections: CiVisualConnection[] = [
     connection("pr-trigger", "pr", `pipeline-${ciPipeline.id}`, triggerLabel(ciPipeline)),
@@ -157,6 +171,7 @@ function createPullRequestSection(ciPipeline): CiVisualSection {
     "Pull Request Integration",
     "Detailed merge-gate flow derived from the effective CI pipeline.",
     [TEAMCITY_SOURCE, BRANCH_PROTECTION_SOURCE],
+    "horizontal",
     nodes,
     connections
   );
@@ -167,27 +182,40 @@ function createPostMergeSection(ci, figmaPipeline): CiVisualSection {
   const operator = externalById.get("operator");
   const codex = externalById.get("codex-mcp-client");
   const figmaDocument = externalById.get("figma-design-document");
+  const artifactJob = figmaPipeline.jobs.find((job) =>
+    job.artifacts?.some((artifact) => artifact.path.endsWith("design-model.json"))
+  );
+  const checkJob = artifactJob
+    ? figmaPipeline.jobs.find((job) => job.dependencies?.some((dependency) =>
+      dependency.jobId === artifactJob.id &&
+      dependency.artifactPaths?.some((path) => path.endsWith("design-model.json"))
+    ))
+    : undefined;
+  const remainingJobs = figmaPipeline.jobs.filter((job) =>
+    job.id !== artifactJob?.id && job.id !== checkJob?.id
+  );
+  const orderedJobs = [artifactJob, checkJob, ...remainingJobs].filter(Boolean);
+  const jobRows = new Map(orderedJobs.map((job, index) => [job.id, 2 + index * 2]));
   const nodes: CiVisualNode[] = [
-    visualNode("main", "git reference", "main", "Starts documentation verification after successful CI.", TEAMCITY_SOURCE, 0, 0),
+    visualNode("main", "git reference", "github", "main", "Starts documentation verification after successful CI.", TEAMCITY_SOURCE, 0, 0),
     pipelineNode(`pipeline-${figmaPipeline.id}`, figmaPipeline, 1, 0),
-    ...figmaPipeline.jobs.map((job, index) => jobNode(`job-${job.id}`, job, 2 + index * 2, 0)),
+    ...figmaPipeline.jobs.map((job, index) =>
+      jobNode(`job-${job.id}`, job, jobRows.get(job.id) ?? 2 + index * 2, 0)
+    ),
   ];
-  const artifactJob = figmaPipeline.jobs.find((job) => job.artifacts?.some((artifact) => artifact.path.endsWith("design-model.json")));
-  const artifactRow = artifactJob ? 3 : 2;
-  nodes.push(visualNode("design-model", "artifact", "design-model.json", "Official repository snapshot consumed by visual synchronization.", TEAMCITY_SOURCE, artifactRow, 0));
-  const checkRow = 2 + figmaPipeline.jobs.length * 2;
+  const artifactRow = artifactJob ? (jobRows.get(artifactJob.id) ?? 2) + 1 : 2;
+  nodes.push(visualNode("design-model", "artifact", "json", "design-model.json", "Official repository snapshot consumed by visual synchronization.", TEAMCITY_SOURCE, artifactRow, 0));
+  const checkRow = Math.max(2 + figmaPipeline.jobs.length * 2, ...(nodes.map((node) => node.row + 1)));
   for (const [index, checkName] of publishedChecks(figmaPipeline).entries()) {
-    nodes.push(visualNode(`figma-check-${index}`, "check", checkName, "Publishes the post-merge documentation result.", TEAMCITY_SOURCE, checkRow, index));
+    nodes.push(visualNode(`figma-check-${index}`, "check", "teamcity", checkName, "Publishes the post-merge documentation result.", TEAMCITY_SOURCE, checkRow, index));
   }
   if (operator) nodes.push(externalNode("operator", operator, checkRow + 1, 0));
   if (codex) nodes.push(externalNode("codex", codex, checkRow + 2, 0));
   if (figmaDocument) nodes.push(externalNode("figma-document", figmaDocument, checkRow + 3, 0));
 
-  const generateJob = figmaPipeline.jobs[0];
-  const checkJob = figmaPipeline.jobs[1];
   const connections: CiVisualConnection[] = [
     connection("main-trigger", "main", `pipeline-${figmaPipeline.id}`, triggerLabel(figmaPipeline)),
-    ...(generateJob ? [connection("pipeline-generate", `pipeline-${figmaPipeline.id}`, `job-${generateJob.id}`, "Run pipeline")] : []),
+    ...(artifactJob ? [connection("pipeline-generate", `pipeline-${figmaPipeline.id}`, `job-${artifactJob.id}`, "Run pipeline")] : []),
     ...(artifactJob ? [connection("generate-artifact", `job-${artifactJob.id}`, "design-model", "Publish artifact")] : []),
     ...(checkJob ? [connection("artifact-check", "design-model", `job-${checkJob.id}`, "Consume artifact")] : []),
     ...publishedChecks(figmaPipeline).map((_, index) => connection(
@@ -207,6 +235,7 @@ function createPostMergeSection(ci, figmaPipeline): CiVisualSection {
     "Post-merge Design Documentation",
     "Official model generation, visual synchronization, and verification loop.",
     [TEAMCITY_SOURCE, OFFICIAL_SYNC_SOURCE],
+    "horizontal",
     nodes,
     connections
   );
@@ -231,16 +260,18 @@ function createInfrastructureSection(ci): CiVisualSection {
     "Infrastructure and Access",
     "External systems, trust boundaries, authentication paths, and automation modes.",
     [TOPOLOGY_SOURCE, "docs/ci/external-topology-validation.md"],
+    "grid",
     nodes,
     connections
   );
 }
 
-function section(target, name, description, sources, nodes, connections): CiVisualSection {
+function section(target, name, description, sources, orientation, nodes, connections): CiVisualSection {
   return {
     target,
     name,
     description,
+    orientation,
     headerSources: sources.map((source) => ({ label: source, url: sourceUrl(source) })),
     nodes,
     connections,
@@ -248,22 +279,42 @@ function section(target, name, description, sources, nodes, connections): CiVisu
 }
 
 function pipelineNode(id, pipeline, row, column): CiVisualNode {
-  return visualNode(id, "pipeline", pipeline.name, pipelineDescription(pipeline.name), TEAMCITY_SOURCE, row, column);
+  return visualNode(id, "pipeline", "teamcity", pipeline.name, pipelineDescription(pipeline.name), TEAMCITY_SOURCE, row, column);
 }
 
 function jobNode(id, job, row, column): CiVisualNode {
   return {
-    ...visualNode(id, "job", job.name, jobDescription(job.name), TEAMCITY_SOURCE, row, column),
+    ...visualNode(id, "job", "teamcity", job.name, jobDescription(job.name), TEAMCITY_SOURCE, row, column),
     steps: job.steps?.map((step) => summarizeCommand(step.command, step.name)).join("\n") || undefined,
   };
 }
 
 function externalNode(id, node, row, column): CiVisualNode {
-  return visualNode(id, node.type, node.name, node.description, TOPOLOGY_SOURCE, row, column);
+  return visualNode(id, node.type, externalEnvironment(node.id), node.name, node.description, TOPOLOGY_SOURCE, row, column);
 }
 
-function visualNode(id, type, name, description, source, row, column): CiVisualNode {
-  return { id, type, name, description, source, sourceUrl: sourceUrl(source), row, column };
+function visualNode(id, type, environment, name, description, source, row, column): CiVisualNode {
+  return { id, type, environment, name, description, source, sourceUrl: sourceUrl(source), row, column };
+}
+
+export function externalEnvironment(id: string): CiVisualEnvironment {
+  const environments: Record<string, CiVisualEnvironment> = {
+    operator: "operator",
+    browser: "browser",
+    "teamcity-cli": "terminal",
+    "github-repository": "github",
+    "github-app": "github",
+    "cloudflare-access": "cloudflare",
+    "cloudflare-tunnel": "cloudflare",
+    "teamcity-server": "teamcity",
+    "build-agent": "teamcity",
+    "codex-mcp-client": "codex",
+    "figma-api": "figma",
+    "figma-design-document": "figma",
+  };
+  const environment = environments[id];
+  if (!environment) throw new Error(`External CI node '${id}' has no .ci icon environment mapping.`);
+  return environment;
 }
 
 function connection(id, source, target, label): CiVisualConnection {

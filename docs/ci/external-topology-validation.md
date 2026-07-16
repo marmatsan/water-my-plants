@@ -4,6 +4,11 @@ Use this runbook to validate `docs/ci/external-topology.yaml` against the active
 services. The review is manual because Cloudflare, GitHub, TeamCity, and Figma
 configuration is not fully represented by repository code.
 
+Use
+[`../runbooks/teamcity-cloudflare-access.md`](../runbooks/teamcity-cloudflare-access.md)
+for the executable HTTPS, CLI, and GitHub App webhook configuration and
+recovery procedure.
+
 ## Validation Procedure
 
 1. Confirm the public TeamCity UI route uses Cloudflare Access and Cloudflare

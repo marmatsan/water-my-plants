@@ -69,7 +69,7 @@ object WaterMyPlantsCi : Pipeline({
         steps {
             step(PipelineScriptStep {
                 name = "Run Gradle check"
-                scriptContent = """.\gradlew.bat check"""
+                scriptContent = """.\gradlew.bat check --stacktrace"""
             })
         }
 

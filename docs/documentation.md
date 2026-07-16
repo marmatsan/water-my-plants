@@ -55,4 +55,6 @@ scripts should stay together.
 - Repository overview: `README.md`
 - Project structure: `docs/project-structure.md`
 - CI policy: `docs/ci/main-branch-protection.md`
+- TeamCity HTTPS and webhook operations:
+  `docs/runbooks/teamcity-cloudflare-access.md`
 - Figma design sync docs: `repo/figma-design-sync/docs/README.md`
