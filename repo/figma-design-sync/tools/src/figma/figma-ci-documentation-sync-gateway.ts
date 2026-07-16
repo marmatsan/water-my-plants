@@ -204,13 +204,27 @@ function requireOrCreateChildSection(parent, plan: CiVisualSection, mutatedNodeI
 }
 
 function clearManagedSectionContent(section, mutatedNodeIds) {
-  for (const child of [...section.children]) {
-    const role = child.getSharedPluginData?.(METADATA_NAMESPACE, CI_ROLE_KEY);
-    if (role === ROLE_NODE || role === ROLE_CONNECTOR) {
-      mutatedNodeIds.push(child.id);
-      child.remove();
-    }
+  const managedChildren = [...section.children]
+    .filter((child) => !child.removed)
+    .map((child) => ({
+      child,
+      role: child.getSharedPluginData?.(METADATA_NAMESPACE, CI_ROLE_KEY),
+    }))
+    .filter(({ role }) => role === ROLE_NODE || role === ROLE_CONNECTOR)
+    .sort((first, second) => managedCiRemovalPriority(first.role) - managedCiRemovalPriority(second.role));
+
+  for (const { child } of managedChildren) {
+    // Removing an endpoint may remove its native connector as a side effect.
+    if (child.removed) continue;
+    mutatedNodeIds.push(child.id);
+    child.remove();
   }
+}
+
+export function managedCiRemovalPriority(role: string) {
+  if (role === ROLE_CONNECTOR) return 0;
+  if (role === ROLE_NODE) return 1;
+  return 2;
 }
 
 async function syncSectionContent(
