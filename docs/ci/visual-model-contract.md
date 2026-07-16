@@ -143,14 +143,18 @@ Generate main design model
   -> Operator
   -> Codex/MCP client
   -> Figma Design Document
-  -> manual rerun
+  -> HTTPS rerun client
   -> Check Figma trunk sync
 ```
 
-The manual rerun is interface-independent: it may be requested through the
-TeamCity UI or CLI. The current temporary transport mechanism used to stage the
-official artifact for MCP is represented as a technical annotation on the
-handoff connection, not as another domain artifact.
+The rerun uses the repository-owned HTTPS client. It performs active-run checks
+in a read session, then queues the complete `Figma Sync` pipeline with a fresh
+cookie-free session, Cloudflare's raw `cf-access-token`, and TeamCity Bearer
+authentication. This avoids forwarding Cloudflare's session cookie into
+TeamCity's CSRF check. The TeamCity UI remains the recovery interface. The
+current temporary transport mechanism used to stage the official artifact for
+MCP is represented as a technical annotation on the handoff connection, not as
+another domain artifact.
 
 `TeamCity CI` participates in the pull request merge gate. `TeamCity Figma
 Sync` is a post-merge documentation status and must not be represented as a pull

@@ -227,7 +227,7 @@ function createPostMergeSection(ci, figmaPipeline): CiVisualSection {
     ...(operator && publishedChecks(figmaPipeline).length > 0 ? [connection("mismatch-operator", "figma-check-0", "operator", "Mismatch requires action")] : []),
     ...(operator && codex ? [connection("operator-codex", "operator", "codex", "Request visual synchronization")] : []),
     ...(codex && figmaDocument ? [connection("codex-figma", "codex", "figma-document", "Apply visual changes")] : []),
-    ...(figmaDocument && checkJob ? [connection("rerun", "figma-document", `job-${checkJob.id}`, "Manual rerun")] : []),
+    ...(figmaDocument && checkJob ? [connection("rerun", "figma-document", `job-${checkJob.id}`, "Rerun via HTTPS client")] : []),
   ];
 
   return section(

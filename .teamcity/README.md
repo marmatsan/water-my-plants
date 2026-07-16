@@ -319,7 +319,18 @@ Cloudflare service token in PowerShell SecretStore and inject its headers only
 for the duration of each CLI command. Follow
 [`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md)
 for the wrapper, verification procedure, webhook boundary, and the known CSRF
-limitation on mutating CLI requests.
+contract for mutating requests.
+
+Read-only diagnostics continue to use TeamCity CLI. Queue the post-MCP
+verification rerun through the repository-owned HTTPS client. It performs
+read-only idempotency checks in one session and sends the Bearer-authenticated
+POST in a separate cookie-free session. The Cloudflare JWT is sent through
+`cf-access-token`, so TeamCity does not receive `CF_Authorization` and does not
+require CSRF:
+
+```powershell
+pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
+```
 
 Bind the current checkout to the TeamCity project and default pipeline if the
 local `teamcity.toml` is missing:
@@ -460,10 +471,12 @@ been run with the latest `design-model.json` artifact from
 other than `main`, fix repository checkout before investigating Figma sync.
 
 After the MCP write updates official metadata, rerun the complete `Figma Sync`
-pipeline. A successful standalone `Check Figma trunk sync` proves that metadata
-matches, but it does not replace the previously failed aggregate pipeline or
-its GitHub status. Confirm that `Generate main design model`, `Check Figma trunk
-sync`, and the aggregate `Figma Sync` run all succeed.
+pipeline with
+`pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait`. A successful
+standalone `Check Figma trunk sync` proves that metadata matches, but it does
+not replace the previously failed aggregate pipeline or its GitHub status.
+Confirm that `Generate main design model`, `Check Figma trunk sync`, and the
+aggregate `Figma Sync` run all succeed.
 
 ## Clean-up Rules
 

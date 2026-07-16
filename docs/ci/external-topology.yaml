@@ -81,13 +81,13 @@ connections:
     source: teamcity-cli
     target: cloudflare-access
     label: Call TeamCity API
-    description: Authenticates non-browser TeamCity CLI requests at both access boundaries.
+    description: Authenticates read-only CLI calls and the cookie-free HTTPS Figma Sync rerun client at both access boundaries.
     protocol: HTTPS
     authentication:
       - Cloudflare Service Auth
       - TeamCity access token
     policy: Service Auth
-    automation: manual
+    automation: operator-assisted
 
   - id: github-webhook-ingress
     source: github-app

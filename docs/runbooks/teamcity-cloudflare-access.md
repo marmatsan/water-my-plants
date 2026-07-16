@@ -22,8 +22,14 @@ credentials remain operator-managed state and must not be committed.
 - Cloudflare Tunnel routes the public hostname to the private TeamCity origin.
 - The browser `Allow` policy grants only intended users access to the UI.
 - A Cloudflare service token is included by the CLI `Service Auth` policy.
+- The Access application keeps at least one `Allow` policy in addition to
+  `Service Auth`, which permits subsequent requests to use the raw
+  `cf-access-token` JWT instead of resending the service-token pair.
 - TeamCity CLI is authenticated to the HTTPS server with a TeamCity access
   token stored in the system keyring.
+- A separate TeamCity automation token with only project view, build
+  configuration view, build runtime view, and run build permissions is stored
+  in PowerShell SecretStore.
 - The GitHub App webhook uses a dedicated bypass destination for only
   `/app/webhooks/githubapp`.
 - PowerShell SecretManagement and SecretStore are installed for local service
@@ -41,6 +47,28 @@ Set-Secret -Vault TeamCitySecrets -Name TeamCityCloudflareAccess -Secret (Get-Cr
 Configure SecretStore according to the workstation security policy. Never put
 the client ID, client secret, or TeamCity access token in the repository,
 PowerShell profile, command history, or `teamcity.toml`.
+
+## Store The TeamCity Automation Token
+
+Create a TeamCity access token named `figma-sync-automation` with only these
+permissions:
+
+- `View project and all parent projects (VIEW_PROJECT)`;
+- `View build configuration settings (VIEW_BUILD_CONFIGURATION_SETTINGS)`;
+- `View build runtime parameters and data (VIEW_BUILD_RUNTIME_DATA)`;
+- `Run build (RUN_BUILD)`.
+
+Store the token as a `SecureString` in the same vault:
+
+```powershell
+$teamCityToken = Read-Host "TeamCity automation token" -AsSecureString
+Set-Secret -Vault TeamCitySecrets -Name TeamCityAutomationToken -Secret $teamCityToken
+Remove-Variable teamCityToken
+```
+
+Do not reuse a broad administrator token or the TeamCity CLI token stored in
+the system keyring. The repository client needs only enough access to inspect
+active runs and queue `Figma Sync`.
 
 ## Run TeamCity CLI Through Service Auth
 
@@ -114,7 +142,7 @@ Validate the route by creating a temporary branch and checking the GitHub App
 advanced delivery log. A valid `push` delivery must receive HTTP `200` from
 TeamCity. Delete the temporary branch after validation.
 
-## Mutating CLI Requests And CSRF
+## Mutating Requests And CSRF
 
 Read-only CLI commands such as `teamcity auth status`, `teamcity run list`, and
 `teamcity run view` work through the public HTTPS route. A mutating command such
@@ -128,50 +156,57 @@ Cloudflare Access can add a `CF_Authorization` cookie to the authenticated
 request. TeamCity then treats the POST as cookie-authenticated and requires an
 `X-TC-CSRF-Token` value that TeamCity CLI does not currently provide.
 
-The CSRF value returned by:
+The CSRF value returned by `authenticationTest.html?csrf` is session-bound.
+Cloudflare Service Auth creates a `CF_Authorization` cookie, but TeamCity does
+not create its own stable session cookie for Bearer-authenticated requests in
+this route. Two consecutive CSRF reads therefore return different values, even
+when the HTTP client reuses one cookie container.
+
+TeamCity recommends clearing session cookies for unsafe requests authenticated
+with a Bearer token. The repository client follows that contract:
+
+1. It performs read-only idempotency checks with the Cloudflare service-token
+   headers.
+2. It captures the short-lived Access JWT returned in `CF_Authorization`.
+3. It sends the queue POST in a new cookie-free session using
+   `cf-access-token` and the TeamCity Bearer token.
+
+The POST does not resend the service-token pair because that would cause
+Cloudflare to inject a new `CF_Authorization` cookie into the request seen by
+TeamCity. Do not remove the application's `Allow` policy while this transport
+is in use; Cloudflare requires service-token headers on every request when an
+application has only `Service Auth` policies.
+
+Use the repository-owned HTTPS client for the supported rerun path:
 
 ```powershell
-teamcity api '/authenticationTest.html?csrf' --raw
+pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -ValidateOnly
+pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
 ```
 
-is session-bound. Fetching it in one TeamCity CLI invocation and passing it to
-a later `teamcity api -X POST` invocation does not work because the second
-process creates a different HTTP session. The failure reports that the supplied
-header does not match the current session value. Do not automate around this by
-disabling CSRF or by copying session cookies.
+The client:
 
-Use one of these recovery paths:
+- accepts only the public HTTPS TeamCity URL;
+- is fixed to `WaterMyPlants_WaterMyPlantsFigmaSync` on `main`;
+- loads Cloudflare and TeamCity credentials from SecretStore;
+- uses one session for read-only active-run checks and a separate cookie-free
+  session for the queue POST;
+- converts the Cloudflare authorization cookie into the raw
+  `cf-access-token` header for the cookie-free POST;
+- reuses a recently queued or running `Figma Sync` instead of creating a
+  duplicate, while ignoring stale runs that TeamCity has left active;
+- never retries an uncertain POST before checking whether TeamCity accepted it;
+- does not print either secret.
 
-1. Rerun the build from the authenticated TeamCity UI.
-2. On the TeamCity server host only, call the private origin with a TeamCity
-   Bearer token and no Cloudflare headers or cookies.
-
-For the second option, load `TEAMCITY_TOKEN` from an approved local secret
-provider, then queue the complete Figma Sync pipeline:
+Run its offline contract tests after changing the client:
 
 ```powershell
-$headers = @{
-    Authorization = "Bearer $env:TEAMCITY_TOKEN"
-    Accept = "application/json"
-}
-$body = @{
-    buildType = @{ id = "WaterMyPlants_WaterMyPlantsFigmaSync" }
-    branchName = "main"
-} | ConvertTo-Json -Depth 4 -Compress
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://localhost:8111/app/rest/buildQueue" `
-    -Headers $headers `
-    -ContentType "application/json" `
-    -Body $body
-
-Remove-Item Env:TEAMCITY_TOKEN -ErrorAction SilentlyContinue
+pwsh -File tools/teamcity/tests/test-teamcity-https-client.ps1
 ```
 
-Do not expose `localhost:8111` outside the TeamCity host, do not bypass
-Cloudflare for the public REST API, and do not add a build comment unless the
-token has the TeamCity `Comment build` permission.
+The TeamCity UI remains the fallback when the local secret provider or HTTPS
+client is unavailable. Do not disable CSRF, copy session cookies, expose
+`localhost:8111`, or bypass Cloudflare for the public REST API.
 
 ## Verification
 
@@ -180,11 +215,13 @@ After configuration or recovery:
 1. Open the TeamCity UI through the HTTPS hostname and complete interactive
    authentication.
 2. Run `teamcity auth status` and one read-only run query through the wrapper.
-3. Confirm a GitHub App test webhook and a real `push` delivery return HTTP
+3. Run the repository client with `-ValidateOnly`; it must authenticate both
+   access boundaries and return state `Validated` without queueing a build.
+4. Confirm a GitHub App test webhook and a real `push` delivery return HTTP
    `200`.
-4. Confirm GitHub push or pull request events start the expected TeamCity
+5. Confirm GitHub push or pull request events start the expected TeamCity
    pipeline and publish its repository check.
-5. Run the manual validation in
+6. Run the manual validation in
    [`../ci/external-topology-validation.md`](../ci/external-topology-validation.md).
 
 ## Secret Rotation
@@ -192,6 +229,8 @@ After configuration or recovery:
 - When the TeamCity access token expires, run `teamcity auth login` against the
   HTTPS server and approve only the required permissions. The replacement token
   remains in the system keyring.
+- When `figma-sync-automation` expires, create a replacement with the same
+  minimal permissions and replace `TeamCityAutomationToken` in SecretStore.
 - When the Cloudflare service token rotates, replace
   `TeamCityCloudflareAccess` in SecretStore and leave the PowerShell wrapper
   unchanged.

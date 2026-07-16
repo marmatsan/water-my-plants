@@ -85,9 +85,10 @@ intentionally non-authoritative and must not write official metadata.
 10. Optionally rerun only TeamCity `Check Figma trunk sync`, or run
     `checkFigmaTrunkSync` locally, as an early diagnostic after writing
     metadata.
-11. Rerun the complete TeamCity `Figma Sync` pipeline. Confirm that `Generate
-    main design model`, `Check Figma trunk sync`, and the aggregate pipeline all
-    succeed so TeamCity publishes a successful final status.
+11. Rerun the complete TeamCity `Figma Sync` pipeline with
+    `pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait`. Confirm that
+    `Generate main design model`, `Check Figma trunk sync`, and the aggregate
+    pipeline all succeed so TeamCity publishes a successful final status.
 
 Do not write metadata before visual targets are reconciled. `checkFigmaTrunkSync`
 trusts the metadata hash, so premature metadata can make CI pass while Figma is

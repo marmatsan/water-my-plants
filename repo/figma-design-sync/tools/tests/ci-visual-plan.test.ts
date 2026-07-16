@@ -44,7 +44,7 @@ test("CI visual plan summarizes commands and keeps exact operational names", () 
     "Generate effective TeamCity configuration\nGenerate design model"
   );
   assert.ok(postMerge.nodes.some((node) => node.name === "design-model.json" && node.type === "artifact"));
-  assert.ok(postMerge.connections.some((edge) => edge.label === "Manual rerun"));
+  assert.ok(postMerge.connections.some((edge) => edge.label === "Rerun via HTTPS client"));
   assert.deepEqual(
     postMerge.connections
       .filter((edge) => ["pipeline-generate", "generate-artifact", "artifact-check"].includes(edge.id))
