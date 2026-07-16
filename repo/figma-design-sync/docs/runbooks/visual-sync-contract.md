@@ -95,6 +95,9 @@ named `.ci connector label`, composed of a surface background and horizontal
 text, and placed between connected node groups. Do not use native connector
 text for CI labels because Figma rotates it with vertical and elbowed connector
 paths.
+Inside every label group, `Background` must be the bottom layer and `Label`
+must be the top layer. The background is opaque, so reversing this order keeps
+the text in the document but makes it disappear visually.
 `Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
 use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
 topology grid. Horizontal flows connect from the side anchors of their node

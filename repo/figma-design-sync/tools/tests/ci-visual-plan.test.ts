@@ -5,10 +5,12 @@ import {
   externalEnvironment,
 } from "../src/domain/ci/create-ci-visual-plan";
 import {
+  appendConnectorLabelLayers,
   centeredRowY,
   ciConnectorMagnets,
   ciVisualGridPosition,
   connectorBoundsLabelPosition,
+  connectorLabelLayers,
   connectorLabelPosition,
   horizontalFlowPositions,
   horizontalConnectorGap,
@@ -55,6 +57,23 @@ test("CI visual plan summarizes commands and keeps exact operational names", () 
       { source: "design-model", target: "job-check" },
     ]
   );
+});
+
+test("CI connector label text stays above its opaque background", () => {
+  const background = { name: "Background" };
+  const text = { name: "Label" };
+  const appended: Array<{ name: string }> = [];
+
+  assert.deepEqual(
+    appendConnectorLabelLayers(
+      { appendChild: (node) => appended.push(node) },
+      background,
+      text
+    ).map((node) => node.name),
+    ["Background", "Label"]
+  );
+  assert.deepEqual(appended.map((node) => node.name), ["Background", "Label"]);
+  assert.deepEqual(connectorLabelLayers(background, text), appended);
 });
 
 test("CI visual plan maps node ownership to explicit icon environments", () => {

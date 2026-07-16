@@ -734,28 +734,42 @@ async function createConnectorLabel(
     text.textAutoResize = "HEIGHT";
     text.resize(CONNECTOR_LABEL_MAX_TEXT_WIDTH, text.height);
   }
-  section.appendChild(text);
-  text.fills = [boundColorPaint(onSurfaceVariable, resolveColorForConsumer(onSurfaceVariable, text))];
 
   const background = figma.createRectangle();
   background.name = "Background";
-  section.appendChild(background);
   background.resize(text.width + 24, text.height + 16);
   background.cornerRadius = 4;
   background.strokes = [];
+
+  const layers = appendConnectorLabelLayers(section, background, text);
   background.fills = [
     boundColorPaint(surfaceVariable, resolveColorForConsumer(surfaceVariable, background)),
   ];
+  text.fills = [boundColorPaint(onSurfaceVariable, resolveColorForConsumer(onSurfaceVariable, text))];
   background.x = 0;
   background.y = 0;
   text.x = 12;
   text.y = 8;
 
-  const group = figma.group([background, text], section);
+  const group = figma.group(layers, section);
   group.name = CI_CONNECTOR_LABEL_NAME;
   group.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR);
   group.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, modelId);
   return group;
+}
+
+export function connectorLabelLayers<B, T>(background: B, text: T): Array<B | T> {
+  return [background, text];
+}
+
+export function appendConnectorLabelLayers<B, T>(
+  section: { appendChild(node: B | T): void },
+  background: B,
+  text: T
+): Array<B | T> {
+  const layers = connectorLabelLayers(background, text);
+  for (const layer of layers) section.appendChild(layer);
+  return layers;
 }
 
 async function requireColorVariable(name) {
