@@ -12,6 +12,7 @@ import {
   connectorLabelPosition,
   horizontalFlowPositions,
   horizontalConnectorGap,
+  managedCiRemovalPriority,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
 
 test("CI visual plan creates the four documented granular sections", () => {
@@ -281,6 +282,17 @@ test("CI vertical return labels are centered on their connector bounds", () => {
       40
     ),
     { x: 848.25, y: 1132 }
+  );
+});
+
+test("managed CI content removes connectors before their endpoint nodes", () => {
+  const roles = ["node", "connector", "unmanaged", "connector", "node"];
+
+  assert.deepEqual(
+    roles.toSorted((first, second) =>
+      managedCiRemovalPriority(first) - managedCiRemovalPriority(second)
+    ),
+    ["connector", "connector", "node", "node", "unmanaged"]
   );
 });
 

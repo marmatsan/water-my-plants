@@ -298,21 +298,24 @@ behavior changes.
 
 ## Removed Connector Lookup Failures
 
-If a catalog tree sync fails with a message like:
+If a catalog tree or granular CI documentation sync fails with a message like:
 
 ```text
 The node with id "..." does not exist
 ```
 
-while removing stale tree nodes or connectors, inspect whether the sync removed
-a `simple-solid_arrow` connector and then read that same connector object again
-in the same `use_figma` execution. Figma can invalidate removed nodes
-immediately.
+while removing stale nodes or connectors, inspect whether the sync removed a
+connector or one of its endpoint groups and then read an invalidated object
+again in the same `use_figma` execution. Figma can invalidate removed nodes
+immediately, and removing a native connector endpoint may remove its connector
+as a side effect.
 
-The cleanup code must collect removed connector ids before calling
+Catalog cleanup must collect removed connector ids before calling
 `connector.remove()` and then filter the in-memory connector list by those ids.
-Do not call `connectorReferencesAnyNode()` or read shared plugin data from a
-connector after it has been removed.
+CI section cleanup must classify managed children before mutating the tree,
+remove connectors before endpoint groups, and check `node.removed` immediately
+before every `remove()`. Do not call `connectorReferencesAnyNode()` or read
+shared plugin data from any node after it has been removed.
 
 This is a writer bug, not evidence that the TeamCity `design-model.json`
 artifact is invalid. Rebuild the MCP bundle after fixing the writer and rerun
