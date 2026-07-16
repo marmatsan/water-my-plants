@@ -75,6 +75,11 @@ Upload `10-official-sync-payload.png` to the Figma file before running
 lexical order. The PNG asset is a transport artifact only; the staging runner
 removes the uploaded image node after extracting the payload.
 
+`upload_assets` returns a single-use URL under `https://mcp.figma.com`. Upload
+the PNG as multipart form data with an explicit `image/png` content type.
+Sending it as the default `application/octet-stream` is rejected. Request a new
+URL after any failed or consumed upload attempt; do not reuse an old URL.
+
 `upload_assets` may place the temporary image on the current Figma page, which
 does not have to be the metadata page. The staging runner searches document
 image fills and does not rely on `loadAllPagesAsync`; this MCP runtime may
@@ -135,8 +140,22 @@ through the Figma plugin image API.
 The staging namespace is not authoritative state. It is a transport mechanism
 for the current sync run. The authoritative namespace remains
 `water_my_plants_sync`, and only the final `metadata` target writes to it.
-Always overwrite staged values for a new sync run; do not reuse values already
-present in `water_my_plants_sync_staging`.
+
+Staging may be reused across consecutive granular `99-run-target.mcp.js`
+executions only when all of these values remain identical:
+
+- `designModelHash`;
+- `designModelGitSha`;
+- `designModelLength`;
+- `scriptLength`;
+- `scriptBase64Length`.
+
+Restage from `00-clear-staging.mcp.js` whenever the TeamCity artifact or the
+generated MCP bundle changes. A stable `modelHash` is not sufficient: a
+visual-only TypeScript fix changes the generated script lengths even when the
+model content is unchanged. After that fix reaches `main`, the next official
+TeamCity artifact also has a new `gitSha`, so restage again before writing
+metadata.
 
 Stage these keys on page `62934:908` under
 `water_my_plants_sync_staging`:

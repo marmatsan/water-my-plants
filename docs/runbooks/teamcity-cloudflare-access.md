@@ -128,6 +128,18 @@ Cloudflare Access can add a `CF_Authorization` cookie to the authenticated
 request. TeamCity then treats the POST as cookie-authenticated and requires an
 `X-TC-CSRF-Token` value that TeamCity CLI does not currently provide.
 
+The CSRF value returned by:
+
+```powershell
+teamcity api '/authenticationTest.html?csrf' --raw
+```
+
+is session-bound. Fetching it in one TeamCity CLI invocation and passing it to
+a later `teamcity api -X POST` invocation does not work because the second
+process creates a different HTTP session. The failure reports that the supplied
+header does not match the current session value. Do not automate around this by
+disabling CSRF or by copying session cookies.
+
 Use one of these recovery paths:
 
 1. Rerun the build from the authenticated TeamCity UI.

@@ -27,6 +27,24 @@ component contract no longer matches the writer code. In that case, keep using
 the TeamCity artifact as the authoritative model input, fix the visual contract
 or writer, and rerun the failed MCP visual target before writing metadata.
 
+## Timeout With Unknown Completion
+
+A failed `use_figma` response does not commit partial visual mutations.
+However, a caller or subprocess timeout is ambiguous because the remote
+`use_figma` call may still be running when the local process stops waiting.
+
+Before retrying after a timeout:
+
+1. Stop only the abandoned local runner process if it is still active.
+2. Inspect the target section in read-only mode.
+3. Compare managed child node ids or expected node counts with the state before
+   the attempted write.
+4. Retry only when the inspection confirms that the target was not committed.
+
+Do not infer success from elapsed time, and do not infer failure only because
+the local runner returned no result. Keep metadata unchanged until every target
+has a confirmed successful result.
+
 ## Payload Transport Failures
 
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
