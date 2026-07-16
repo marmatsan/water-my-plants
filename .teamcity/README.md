@@ -397,6 +397,10 @@ Run the TeamCity server and build agent with separate virtual service accounts:
 - `NT SERVICE\TCBuildAgent` owns the agent's mutable `system`, `work`, `temp`,
   and `.gradle` directories.
 
+The complete Windows service inventory, recovery order, Cloudflare Tunnel
+service, and public-route health checks live in
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md#windows-service-runtime).
+
 The agent must use a system-wide JDK instead of a JDK inside a developer profile.
 Keep the following properties in
 `C:\TeamCity\buildAgent\conf\buildAgent.properties`, updating the Temurin

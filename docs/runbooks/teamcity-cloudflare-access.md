@@ -35,6 +35,64 @@ credentials remain operator-managed state and must not be committed.
 - PowerShell SecretManagement and SecretStore are installed for local service
   token storage.
 
+## Windows Service Runtime
+
+The supported local runtime uses three automatic Windows services:
+
+| Service name | Display name | Service account | Responsibility |
+|--------------|--------------|-----------------|----------------|
+| `TeamCity` | `TeamCity Server` | `NT SERVICE\TeamCity` | Hosts the TeamCity server and owns its data directory. |
+| `TCBuildAgent` | `TeamCity Build Agent` | `NT SERVICE\TCBuildAgent` | Executes repository jobs in the agent work directories. |
+| `Cloudflared` | `Cloudflared agent` | `LocalSystem` | Publishes the private TeamCity origin through Cloudflare Tunnel. |
+
+Inspect status, startup mode, and service identity from an elevated PowerShell
+session:
+
+```powershell
+Get-Service -Name TeamCity,TCBuildAgent,Cloudflared
+Get-CimInstance Win32_Service |
+    Where-Object Name -In @("TeamCity", "TCBuildAgent", "Cloudflared") |
+    Select-Object Name,DisplayName,State,StartMode,StartName
+```
+
+Do not print or document the `Cloudflared` service command line. The installed
+service definition can contain the tunnel credential.
+
+All three services should report `Running` and `Automatic`. They have no
+repository-managed Windows dependency relationship, so use this recovery order
+when the host restarts or the installation is repaired:
+
+1. start `TeamCity` and wait for `http://localhost:8111` to respond;
+2. start `TCBuildAgent` and confirm the agent is connected and authorized;
+3. start `Cloudflared` and validate the public HTTPS route.
+
+Use the reverse order for planned shutdown:
+
+```powershell
+Stop-Service Cloudflared
+Stop-Service TCBuildAgent
+Stop-Service TeamCity
+```
+
+Service management requires an elevated shell. Once the services are
+installed, `runAll.bat start` is not the canonical runtime and should not be
+used alongside the Windows services.
+
+Validate the local and public boundaries after recovery:
+
+```powershell
+Get-Service -Name TeamCity,TCBuildAgent,Cloudflared
+curl.exe -I http://localhost:8111
+curl.exe -I https://teamcity.marmatsan.dev
+curl.exe -sS -D - -o NUL https://teamcity.marmatsan.dev/app/webhooks/githubapp
+teamcity auth status
+```
+
+An unauthenticated request to the public root should receive the Cloudflare
+Access redirect. A `GET` to the webhook path should reach TeamCity and return
+`400 Bad Request` because it is not a signed GitHub `POST`; an Access redirect
+there means the path-specific bypass policy is broken.
+
 ## Store The Cloudflare Service Token
 
 Store the Cloudflare service token as a `PSCredential`. Use its client ID as the
