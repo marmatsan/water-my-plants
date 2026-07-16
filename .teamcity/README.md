@@ -73,7 +73,8 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
-- runs `Verify` with `.\gradlew.bat check`;
+- runs `Verify` with `.\gradlew.bat check --stacktrace` so Gradle failures keep
+  their diagnostic context in the TeamCity build log;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
@@ -182,7 +183,7 @@ repositories:
 The generated script content should remain a direct Gradle call:
 
 ```yaml
-script-content: .\gradlew.bat check
+script-content: .\gradlew.bat check --stacktrace
 ```
 
 Do not perform `git init`, `git fetch`, or `git checkout` from build script
