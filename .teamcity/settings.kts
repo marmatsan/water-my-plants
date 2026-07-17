@@ -68,8 +68,12 @@ object WaterMyPlantsCi : Pipeline({
 
         steps {
             step(PipelineScriptStep {
-                name = "Run Gradle check"
-                scriptContent = """.\gradlew.bat check --stacktrace"""
+                name = "Validate documentation coverage"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\get-change-impact.ps1 -FailOnDocumentationGap"""
+            })
+            step(PipelineScriptStep {
+                name = "Verify change scope"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1"""
             })
         }
 
@@ -127,19 +131,18 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
         steps {
             step(PipelineScriptStep {
-                name = "Generate effective TeamCity configuration"
-                scriptContent = """.\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate"""
-            })
-            step(PipelineScriptStep {
-                name = "Generate Figma design model"
-                scriptContent = """.\gradlew.bat generateFigmaDesignModel"""
+                name = "Prepare Figma Sync"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\prepare-figma-sync.ps1"""
             })
         }
 
         outputFiles {
-            pipelineArtifacts("build/reports/figma-sync/design-model.json")
-            sharedWithJobs("build/reports/figma-sync/design-model.json")
+            pipelineArtifacts("build/reports/figma-sync")
+            sharedWithJobs("build/reports/figma-sync")
+            pipelineArtifacts(".teamcity/target/generated-configs")
+            sharedWithJobs(".teamcity/target/generated-configs")
         }
+
     }
 
     job {
@@ -153,12 +156,8 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
         steps {
             step(PipelineScriptStep {
-                name = "Generate effective TeamCity configuration"
-                scriptContent = """.\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate"""
-            })
-            step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = """.\gradlew.bat checkFigmaTrunkSync"""
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\verify-figma-trunk-sync.ps1"""
             })
         }
 
@@ -166,7 +165,10 @@ object WaterMyPlantsFigmaSync : Pipeline({
             feature(GitHubStatusPublisher("TeamCity Figma Sync"))
         }
 
-        dependency("figma_sync_generate_design_model", listOf("build/reports/figma-sync/design-model.json"))
+        dependency(
+            "figma_sync_generate_design_model",
+            listOf("build/reports/figma-sync", ".teamcity/target/generated-configs")
+        )
     }
 })
 
