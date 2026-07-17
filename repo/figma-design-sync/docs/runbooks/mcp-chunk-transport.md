@@ -68,15 +68,16 @@ Official mode defaults to `--transport=png` and writes:
 - `00-clear-staging.mcp.js`
 - `10-stage-payload-from-png.mcp.js`
 - `90-finalize-staging.mcp.js`
-- `99-00-preflight.mcp.js` through the final ordered visual target runner
+- `99-00-preflight.mcp.js` through the final ordered visual execution unit
 - `manifest.json`
 
 Upload `10-official-sync-payload.png` to the Figma file before running
 `10-stage-payload-from-png.mcp.js`. Then run every generated `.mcp.js` snippet
-in lexical order. Full official runners use one `99-*.mcp.js` call per target
-so no individual MCP call must reconcile the complete document. The PNG asset
-is a transport artifact only; the staging runner removes the uploaded image
-node after extracting the payload.
+in lexical order. Full official runners use one `99-*.mcp.js` call per bounded
+execution unit. Non-catalog targets use one call; catalog targets with declared
+roots use one call per root followed by a cleanup-only call. The PNG asset is a
+transport artifact only; the staging runner removes the uploaded image node
+after extracting the payload.
 
 `upload_assets` returns a single-use URL under `https://mcp.figma.com`. Upload
 the PNG as multipart form data with an explicit `image/png` content type.
@@ -231,9 +232,10 @@ return {
 ## Run The Complete Visual Sync
 
 Execute every generated `99-*.mcp.js` file in lexical order without editing its
-target. The official runner contains one bounded MCP call for `preflight` and
-one for every visual target from [target-scopes.md](target-scopes.md), all with
-`writeMetadata=false`.
+target or root. The official runner contains bounded calls for `preflight` and
+every visual target from [target-scopes.md](target-scopes.md). Catalog calls are
+split by roots from the official model and finish with stale-node cleanup. All
+calls use `writeMetadata=false`.
 
 If a focused diagnostic is necessary, regenerate the runner with the target
 and `--allow-partial=true`. A partial runner may confirm a repair, but it cannot

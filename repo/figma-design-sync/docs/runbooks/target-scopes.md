@@ -53,8 +53,9 @@ an official integration.
 ## Execution Order
 
 Generate the complete official visual runner by omitting `--target`, or by
-passing `--target=all`. It creates one bounded MCP runner file for `preflight`
-and each visual target in the order below, and never writes metadata:
+passing `--target=all`. It creates bounded MCP runner files for `preflight` and
+each visual target in the order below, and never writes metadata. Catalog
+targets are expanded into one file per declared root plus a final cleanup file:
 
 ```powershell
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json

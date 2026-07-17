@@ -73,6 +73,7 @@ export async function syncFigmaDesignModel(
           targetNames: catalogTargets,
           sectionNodeOverrides: options.sectionNodeOverrides,
           rootFilters: options.catalogRootFilters,
+          cleanupOnlyTargetNames: options.catalogCleanupOnlyTargets,
         }
       )
     : emptyCatalogTreeSyncResult();

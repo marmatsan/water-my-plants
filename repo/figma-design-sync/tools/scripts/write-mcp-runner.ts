@@ -327,7 +327,7 @@ async function writeRunnerFiles(options) {
   }
 
   files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script, scriptBase64)));
-  files.push(...await writeTargetRunnerFiles(outDir, options));
+  files.push(...await writeTargetRunnerFiles(outDir, options, designModel));
   files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, scriptBase64, payloadImage));
 
   console.log(`Wrote ${files.length} MCP runner files to ${outDir}`);
@@ -337,7 +337,7 @@ async function writeRunnerFiles(options) {
   console.log("Run every generated .mcp.js file in lexical order.");
 }
 
-async function writeTargetRunnerFiles(outDir, options) {
+async function writeTargetRunnerFiles(outDir, options, designModel) {
   if (!options.fullVisualSync) {
     return [await writeFileIn(outDir, "99-run-target.mcp.js", runTargetSource(options))];
   }
@@ -345,10 +345,46 @@ async function writeTargetRunnerFiles(outDir, options) {
   const files = [];
   for (let index = 0; index < options.targets.length; index += 1) {
     const target = options.targets[index];
-    const fileName = `99-${String(index).padStart(2, "0")}-${safeName(target)}.mcp.js`;
-    files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target])));
+    const roots = catalogRoots(designModel, target);
+    if (roots.length === 0) {
+      const fileName = `99-${String(index).padStart(2, "0")}-${safeName(target)}.mcp.js`;
+      files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target])));
+      continue;
+    }
+
+    for (let rootIndex = 0; rootIndex < roots.length; rootIndex += 1) {
+      const root = roots[rootIndex];
+      const fileName = `99-${String(index).padStart(2, "0")}-${String(rootIndex).padStart(2, "0")}-${safeName(target)}-${safeName(root)}.mcp.js`;
+      files.push(await writeFileIn(
+        outDir,
+        fileName,
+        runTargetSource(options, [target], { roots: [root] })
+      ));
+    }
+
+    const cleanupFileName = `99-${String(index).padStart(2, "0")}-99-${safeName(target)}-cleanup.mcp.js`;
+    files.push(await writeFileIn(
+      outDir,
+      cleanupFileName,
+      runTargetSource(options, [target], { cleanupOnly: true })
+    ));
   }
   return files;
+}
+
+function catalogRoots(designModel, target) {
+  if (!CATALOG_TARGETS.includes(target)) {
+    return [];
+  }
+
+  const [catalogName, treeName] = target.split(".");
+  const nodes = designModel.content?.catalogs?.[catalogName]?.[treeName];
+  if (!Array.isArray(nodes) || nodes.length === 0) {
+    return [];
+  }
+
+  const rootKey = treeName === "libraries" ? "group" : "id";
+  return [...new Set(nodes.map((node) => node?.[rootKey]).filter(Boolean))];
 }
 
 async function writeChunkSources(outDir, key, value, options) {
@@ -730,12 +766,15 @@ return {
 `;
 }
 
-function runTargetSource(options, targets = options.targets) {
+function runTargetSource(options, targets = options.targets, runOptions = {}) {
+  const target = targets[0];
+  const roots = runOptions.roots || options.roots;
   const syncOptions = {
     targets,
     writeMetadata: options.writeMetadata,
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
-    ...(options.roots.length > 0 ? { catalogRootFilters: { [options.target]: options.roots } } : {}),
+    ...(roots.length > 0 ? { catalogRootFilters: { [target]: roots } } : {}),
+    ...(runOptions.cleanupOnly ? { catalogCleanupOnlyTargets: [target] } : {}),
   };
 
   const invokeScript = options.entrypoint === "preview-catalog"

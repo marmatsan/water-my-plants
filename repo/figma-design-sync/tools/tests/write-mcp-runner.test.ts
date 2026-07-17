@@ -46,6 +46,14 @@ test("official runner defaults to the complete visual sync without metadata", as
     const manifest = readManifest(runDir);
     const preflightSource = readFileSync(join(runDir, "99-00-preflight.mcp.js"), "utf8");
     const versionsSource = readFileSync(join(runDir, "99-02-versions.mcp.js"), "utf8");
+    const androidxSource = readFileSync(
+      join(runDir, "99-03-00-waterMyPlants-libraries-androidx.mcp.js"),
+      "utf8"
+    );
+    const libraryCleanupSource = readFileSync(
+      join(runDir, "99-03-99-waterMyPlants-libraries-cleanup.mcp.js"),
+      "utf8"
+    );
     const runtimeSource = readFileSync(join(runDir, "99-15-ci-windowsRuntime.mcp.js"), "utf8");
 
     assert.deepEqual(manifest.targets, FULL_VISUAL_TARGETS);
@@ -53,9 +61,17 @@ test("official runner defaults to the complete visual sync without metadata", as
     assert.equal(manifest.allowPartial, false);
     assert.equal(manifest.writeMetadata, false);
     assert.ok(!files.includes("99-run-target.mcp.js"));
-    assert.equal(files.filter((fileName) => fileName.startsWith("99-")).length, FULL_VISUAL_TARGETS.length);
+    assert.equal(files.filter((fileName) => fileName.startsWith("99-")).length, 24);
     assert.match(preflightSource, /"targets":\["preflight"\]/);
     assert.match(versionsSource, /"targets":\["versions"\]/);
+    assert.match(
+      androidxSource,
+      /"catalogRootFilters":\{"waterMyPlants\.libraries":\["androidx"\]\}/
+    );
+    assert.match(
+      libraryCleanupSource,
+      /"catalogCleanupOnlyTargets":\["waterMyPlants\.libraries"\]/
+    );
     assert.match(runtimeSource, /"targets":\["ci\.windowsRuntime"\]/);
     assert.doesNotMatch(runtimeSource, /writeMetadata":true/);
   } finally {
@@ -282,7 +298,23 @@ function createRunnerFixture() {
       branch: "main",
       gitSha: "git-sha",
       modelHash: "sha256:model-hash",
-      content: {},
+      content: {
+        catalogs: {
+          waterMyPlants: {
+            libraries: [{ group: "androidx" }, { group: "com" }],
+            plugins: [{ id: "com" }],
+            customGradleConventionPlugins: [{ id: "com" }],
+            customGradlePlugins: [{ id: "com" }],
+          },
+          gradlePlugins: {
+            libraries: [{ group: "org" }],
+          },
+          figmaDesignSync: {
+            libraries: [{ group: "io" }],
+            plugins: [{ id: "com" }],
+          },
+        },
+      },
     }),
     "utf8"
   );
