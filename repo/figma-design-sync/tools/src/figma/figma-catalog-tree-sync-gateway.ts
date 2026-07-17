@@ -319,7 +319,7 @@ function cleanupCatalogTreeTarget({
   removeCatalogTreeSectionFills(section, mutatedNodeIds);
   applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
   applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
-  lockOnlyRootSection(section, mutatedNodeIds);
+  lockOnlyRootSection(section, mutatedNodeIds, [section]);
 
   return {
     removedCatalogNodes: [

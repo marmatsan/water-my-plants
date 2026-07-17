@@ -128,7 +128,10 @@ section. Instance, connector, lock, stroke, fill, and descendant-layout scans
 must not visit sibling catalog roots or page-level connectors. The generated
 official runner uses one root-scoped `99-*.mcp.js` unit per declared root and a
 separate cleanup unit for stale nodes or sections that require a whole-catalog
-view. This keeps the runtime memory boundary aligned with the model scope.
+view. Cleanup may inspect every direct root of that catalog, but lock and unlock
+traversal remains scoped to the catalog section; it must not scan sibling
+catalogs under the shared parent documentation section. This keeps the runtime
+memory boundary aligned with the model scope.
 
 Known child sections:
 

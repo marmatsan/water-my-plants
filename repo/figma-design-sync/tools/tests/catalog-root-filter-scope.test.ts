@@ -7,7 +7,7 @@ import {
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
-import { stackChildSectionsFromPadding } from "../src/figma/figma-node-gateway";
+import { lockOnlyRootSection, stackChildSectionsFromPadding } from "../src/figma/figma-node-gateway";
 import { collectTreeNodeInstancesByLabel } from "../src/figma/figma-tree-node-gateway";
 import { collectTreeConnectors } from "../src/figma/figma-connector-gateway";
 
@@ -260,6 +260,21 @@ test("partial root layout shifts a wide subtree inside its section padding", () 
   assert.equal(placements.get("right-leaf").x, 1710);
 });
 
+test("catalog cleanup locks the parent without traversing sibling catalog trees", () => {
+  const sibling = lockableSection("sibling");
+  const catalog = lockableSection("catalog");
+  const parent = lockableSection("parent", [sibling, catalog]);
+  parent.parent = { type: "PAGE" };
+  const mutatedNodeIds = [];
+
+  lockOnlyRootSection(catalog, mutatedNodeIds, [catalog]);
+
+  assert.equal(parent.locked, true);
+  assert.equal(catalog.searchCount, 1);
+  assert.equal(sibling.searchCount, 0);
+  assert.deepEqual(mutatedNodeIds, ["parent-id"]);
+});
+
 function catalogNode(label: string, parentPath: string[] = []) {
   return {
     label,
@@ -348,6 +363,24 @@ function searchableRoot(name: string, instances) {
       return instances;
     },
   };
+}
+
+function lockableSection(name: string, children = []) {
+  const section = {
+    id: `${name}-id`,
+    name,
+    type: "SECTION",
+    locked: false,
+    children,
+    parent: null,
+    searchCount: 0,
+    findAll() {
+      this.searchCount += 1;
+      return this.children;
+    },
+  };
+  for (const child of children) child.parent = section;
+  return section;
 }
 
 function libraryTreeNodeInstance(label: string) {
