@@ -45,6 +45,28 @@ Do not infer success from elapsed time, and do not infer failure only because
 the local runner returned no result. Keep metadata unchanged until every target
 has a confirmed successful result.
 
+## Transient Figma Memory Failures
+
+Figma may return a direct `Out of memory` error from operations such as
+`get_locked` or `findAllWithCriteria`, particularly during catalog cleanup
+execution units. Unlike a caller timeout, this is an explicit failed
+`use_figma` response: the unit is atomic and does not commit partial visual
+mutations.
+
+When this happens:
+
+1. Retry exactly the failed `99-*.mcp.js` execution unit with the same staged
+   official payload.
+2. Do not restart already completed roots or targets.
+3. Confirm that the retried unit reports its requested target in
+   `completedTargets` before continuing.
+4. Keep metadata unchanged until every visual execution unit has completed.
+
+Cleanup-only units are idempotent, so an exact retry is the expected recovery.
+If the same unit fails repeatedly, stop retrying and inspect its target scope
+and Figma document size before changing the transport or restarting the full
+sync.
+
 ## Payload Transport Failures
 
 The Figma MCP `use_figma` call has a practical source-size limit near 50k

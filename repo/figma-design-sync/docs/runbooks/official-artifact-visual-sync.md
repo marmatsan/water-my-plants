@@ -31,6 +31,35 @@ The MCP sync code rejects models whose `branch` is not `main`. A branch-local
 model is never an authorized Figma write input, even when its `modelHash`
 matches the expected content.
 
+## Documentation-Only Changes
+
+A change that only edits Markdown documentation or runbooks does not change the
+design model, visual writer, Figma component contract, or visual state. For
+that scope, the normal pull request CI is sufficient: do not manually generate
+a TeamCity design model, run an MCP visual sync, or rewrite Figma metadata.
+
+This exemption applies only when every changed file is documentation that is
+not itself rendered or synchronized into Figma. It does not apply when the
+change includes any of the following:
+
+- PlantUML sources or other documentation artifacts published into Figma.
+- Model extraction, serialization, catalog, module, plugin, version, or CI
+  topology sources.
+- TypeScript visual writer, runner, transport, layout, or component-binding
+  code.
+- A Figma component or visual contract change that requires the checked-in
+  documentation to be updated with it.
+
+Do not trigger Figma Sync merely to make its metadata point at a
+documentation-only commit. The previous metadata remains valid because
+`modelHash` and the visual state are unchanged.
+
+On `main`, TeamCity still starts the `Figma Sync` pipeline after a successful
+`CI` run so the post-merge status chain remains visible. Its scope artifact
+marks documentation-only revisions and makes both jobs successful no-ops: they
+do not invoke Maven or Gradle, generate `design-model.json`, validate metadata,
+or request an MCP write.
+
 ## Branch Visual Iteration
 
 If the TeamCity `main` artifact already represents the model state being tested,
