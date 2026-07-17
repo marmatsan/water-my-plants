@@ -36,14 +36,14 @@ run in the Figma MCP runtime because it uses the Figma plugin API.
 To generate MCP runner snippets for an official TeamCity artifact:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
 ```
 
 To validate the Figma visual contract before mutating visual targets, generate a
 preflight runner:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=preflight
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=preflight --allow-partial=true
 ```
 
 `preflight` reads the same official model and validates variables, component
@@ -54,12 +54,13 @@ To make a visual write fail before mutation when the visual contract is stale,
 combine `preflight` with one visual target:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries --allow-partial=true
 ```
 
-The generated `99-run-target.mcp.js` executes both targets in one atomic
-`use_figma` call. Do not combine `metadata` with any other target; metadata must
-run alone after all visuals are correct.
+The generated `99-run-target.mcp.js` executes the requested diagnostic targets
+in one atomic `use_figma` call. Partial runs cannot complete an official
+integration. Do not combine `metadata` with any other target; metadata must run
+alone after the complete visual runner succeeds.
 
 Official mode defaults to `--transport=png` and writes:
 
@@ -89,7 +90,7 @@ To run only one top-level catalog root against its child section, add `--roots`
 and `--section-node-id`:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630 --allow-partial=true
 ```
 
 Use this for large catalog targets that hit MCP timeouts or generic Figma
@@ -100,14 +101,14 @@ If the generated PNG exceeds the supported upload size or asset upload is not
 usable, regenerate with chunk transport:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks
 ```
 
 If a generated chunk runner file is too large for the MCP transport, reduce the
 chunk size instead of copying the long payload manually:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks --chunk-size=8000
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks --chunk-size=8000
 ```
 
 Use [visual-preview.md](visual-preview.md) instead when testing fixture-driven
@@ -225,88 +226,16 @@ return {
 };
 ```
 
-## Run A Visual Target
+## Run The Complete Visual Sync
 
-Run visual updates by granular target. Do not run `metadata` until every visual
-target has completed successfully.
+Execute the generated `99-run-target.mcp.js` without editing its target list.
+The official runner contains `preflight` followed by every visual target from
+[target-scopes.md](target-scopes.md), with `writeMetadata=false`.
 
-Reusable MCP target runner:
-
-```javascript
-const page = await figma.getNodeByIdAsync("62934:908");
-
-if (!page || page.type !== "PAGE") {
-  throw new Error("Expected sync page 62934:908 to be a PAGE");
-}
-
-const stagingNamespace = "water_my_plants_sync_staging";
-const stagedModelJson = page.getSharedPluginData(stagingNamespace, "designModelJson");
-const scriptBase64 = page.getSharedPluginData(stagingNamespace, "scriptBase64");
-
-if (!stagedModelJson || !scriptBase64) {
-  throw new Error("Missing staged model or script.");
-}
-
-const stagedModel = JSON.parse(stagedModelJson);
-const stagedModelHash = page.getSharedPluginData(stagingNamespace, "designModelHash");
-const stagedModelGitSha = page.getSharedPluginData(stagingNamespace, "designModelGitSha");
-const stagedModelLength = page.getSharedPluginData(stagingNamespace, "designModelLength");
-const scriptLength = page.getSharedPluginData(stagingNamespace, "scriptLength");
-const scriptBase64Length = page.getSharedPluginData(stagingNamespace, "scriptBase64Length");
-
-const requiredStagingValues = {
-  designModelHash: stagedModelHash,
-  designModelGitSha: stagedModelGitSha,
-  designModelLength: stagedModelLength,
-  scriptLength,
-  scriptBase64Length
-};
-
-for (const [key, value] of Object.entries(requiredStagingValues)) {
-  if (!value) {
-    throw new Error(`Missing staged ${key}.`);
-  }
-}
-
-if (stagedModelHash !== stagedModel.modelHash) {
-  throw new Error(`Staged modelHash mismatch: ${stagedModelHash} != ${stagedModel.modelHash}`);
-}
-
-if (stagedModelGitSha !== stagedModel.gitSha) {
-  throw new Error(`Staged gitSha mismatch: ${stagedModelGitSha} != ${stagedModel.gitSha}`);
-}
-
-if (Number(stagedModelLength) !== stagedModelJson.length) {
-  throw new Error(`Staged model length mismatch: ${stagedModelLength} != ${stagedModelJson.length}`);
-}
-
-if (Number(scriptBase64Length) !== scriptBase64.length) {
-  throw new Error(`Staged script length mismatch: ${scriptBase64Length} != ${scriptBase64.length}`);
-}
-
-let script = atob(scriptBase64);
-
-if (Number(scriptLength) !== script.length) {
-  throw new Error(`Decoded script length mismatch: ${scriptLength} != ${script.length}`);
-}
-
-script = script.replace(
-  "const DESIGN_MODEL = undefined;",
-  "const DESIGN_MODEL = stagedModel;"
-);
-script = script.replace(
-  "const SYNC_OPTIONS = undefined;",
-  "const SYNC_OPTIONS = {\"targets\":[\"TARGET_NAME\"],\"writeMetadata\":false};"
-);
-
-const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
-const run = new AsyncFunction("figma", "stagedModel", script);
-
-return await run(figma, stagedModel);
-```
-
-Replace `TARGET_NAME` with a granular target from
-[target-scopes.md](target-scopes.md).
+If a focused diagnostic is necessary, regenerate the runner with the target
+and `--allow-partial=true`. A partial runner may confirm a repair, but it cannot
+authorize metadata. Regenerate and execute the complete runner before closing
+the official synchronization.
 
 ## Write Metadata
 

@@ -156,8 +156,8 @@ test("external CI nodes require an explicit icon environment mapping", () => {
 
 test("Windows runtime services require an explicit icon environment mapping", () => {
   assert.equal(windowsRuntimeEnvironment("teamcity-server"), "teamcity");
-  assert.equal(windowsRuntimeEnvironment("teamcity-build-agent"), "teamcity");
-  assert.equal(windowsRuntimeEnvironment("cloudflared-agent"), "cloudflare");
+  assert.equal(windowsRuntimeEnvironment("build-agent"), "teamcity");
+  assert.equal(windowsRuntimeEnvironment("cloudflare-tunnel"), "cloudflare");
   assert.throws(() => windowsRuntimeEnvironment("unknown-service"), /no \.ci icon environment mapping/);
 });
 
@@ -185,7 +185,7 @@ test("CI visual plan maps Windows service data to runtime node properties", () =
         },
       },
       {
-        name: "TeamCity Build Agent",
+        name: "Build Agent",
         environment: "teamcity",
         runtime: {
           platform: "Windows",
@@ -195,7 +195,7 @@ test("CI visual plan maps Windows service data to runtime node properties", () =
         },
       },
       {
-        name: "Cloudflared Agent",
+        name: "Cloudflare Tunnel",
         environment: "cloudflare",
         runtime: {
           platform: "Windows",
@@ -445,16 +445,16 @@ function designModel() {
               identity: "NT SERVICE\\TeamCity",
             },
             {
-              id: "teamcity-build-agent",
-              name: "TeamCity Build Agent",
+              id: "build-agent",
+              name: "Build Agent",
               description: "Runs builds.",
               service: "TCBuildAgent",
               startup: "Automatic",
               identity: "NT SERVICE\\TCBuildAgent",
             },
             {
-              id: "cloudflared-agent",
-              name: "Cloudflared Agent",
+              id: "cloudflare-tunnel",
+              name: "Cloudflare Tunnel",
               description: "Publishes TeamCity through Cloudflare Tunnel.",
               service: "Cloudflared",
               startup: "Automatic",

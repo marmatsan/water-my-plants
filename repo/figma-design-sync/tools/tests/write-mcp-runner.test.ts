@@ -8,7 +8,99 @@ import test from "node:test";
 
 const runnerPath = join(process.cwd(), "dist", "write-mcp-runner.mjs");
 
-test("official runner defaults to PNG transport and supports atomic preflight plus visual target", async () => {
+const FULL_VISUAL_TARGETS = [
+  "preflight",
+  "headers",
+  "versions",
+  "waterMyPlants.libraries",
+  "waterMyPlants.plugins",
+  "waterMyPlants.customGradleConventionPlugins",
+  "waterMyPlants.customGradlePlugins",
+  "gradlePlugins.libraries",
+  "gradlePlugins.plugins",
+  "figmaDesignSync.libraries",
+  "figmaDesignSync.plugins",
+  "ci.overview",
+  "ci.pullRequestIntegration",
+  "ci.postMergeDesignDocumentation",
+  "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
+];
+
+test("official runner defaults to the complete visual sync without metadata", async () => {
+  const workspace = createRunnerFixture();
+
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(
+      workspace.outDir,
+      "official-trunk-sync-all-visual-png-design-model-json"
+    );
+    const manifest = readManifest(runDir);
+    const runTargetSource = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
+
+    assert.deepEqual(manifest.targets, FULL_VISUAL_TARGETS);
+    assert.equal(manifest.fullVisualSync, true);
+    assert.equal(manifest.allowPartial, false);
+    assert.equal(manifest.writeMetadata, false);
+    assert.match(runTargetSource, /"targets":\["preflight","headers","versions"/);
+    assert.doesNotMatch(runTargetSource, /writeMetadata":true/);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
+test("official all alias selects the same complete visual target set", async () => {
+  const workspace = createRunnerFixture();
+
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      "--target=all",
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(
+      workspace.outDir,
+      "official-trunk-sync-all-visual-png-design-model-json"
+    );
+    const manifest = readManifest(runDir);
+
+    assert.deepEqual(manifest.targets, FULL_VISUAL_TARGETS);
+    assert.equal(manifest.fullVisualSync, true);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
+test("official runner requires an explicit override for partial visual diagnosis", async () => {
+  const workspace = createRunnerFixture();
+
+  try {
+    assert.throws(
+      () => runRunner([
+        "--mode=official",
+        `--model=${workspace.modelPath}`,
+        `--script=${workspace.scriptPath}`,
+        "--targets=preflight,waterMyPlants.libraries",
+        `--out-dir=${workspace.outDir}`,
+      ]),
+      /must target the complete visual model/
+    );
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
+test("official runner supports an explicitly partial diagnostic target", async () => {
   const workspace = createRunnerFixture();
 
   try {
@@ -17,6 +109,7 @@ test("official runner defaults to PNG transport and supports atomic preflight pl
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
       "--targets=preflight,waterMyPlants.libraries",
+      "--allow-partial=true",
       `--out-dir=${workspace.outDir}`,
     ]);
 
@@ -30,6 +123,8 @@ test("official runner defaults to PNG transport and supports atomic preflight pl
     assert.equal(manifest.transport, "png");
     assert.deepEqual(manifest.targets, ["preflight", "waterMyPlants.libraries"]);
     assert.equal(manifest.writeMetadata, false);
+    assert.equal(manifest.fullVisualSync, false);
+    assert.equal(manifest.allowPartial, true);
     assert.equal(manifest.payloadImage.fileName, "10-official-sync-payload.png");
     assert.deepEqual(
       manifest.files,
@@ -77,6 +172,7 @@ test("official runner accepts preflight plus the granular headers target", async
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
       "--targets=preflight,headers",
+      "--allow-partial=true",
       `--out-dir=${workspace.outDir}`,
     ]);
 
@@ -96,6 +192,7 @@ test("official runner accepts preflight plus a granular CI documentation target"
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
       "--targets=preflight,ci.overview",
+      "--allow-partial=true",
       `--out-dir=${workspace.outDir}`,
     ]);
 
@@ -115,6 +212,7 @@ test("official runner accepts the granular Windows runtime target", async () => 
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
       "--targets=preflight,ci.windowsRuntime",
+      "--allow-partial=true",
       `--out-dir=${workspace.outDir}`,
     ]);
 
@@ -138,6 +236,7 @@ test("official runner can explicitly use chunk transport fallback", async () => 
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
       "--target=preflight",
+      "--allow-partial=true",
       "--transport=chunks",
       "--chunk-size=1000",
       `--out-dir=${workspace.outDir}`,

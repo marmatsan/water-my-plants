@@ -2,8 +2,9 @@
 
 ## Purpose
 
-Use this runbook to choose the smallest visual target that covers the Figma
-section being changed. Prefer granular target execution over broad reruns.
+Use this runbook to understand the ordered visual targets in the Figma model.
+An official integration always synchronizes the complete visual target set.
+Granular targets are reserved for supervised diagnosis and repair.
 
 ## Included Builds
 
@@ -45,21 +46,29 @@ CI documentation visual targets:
 | `ci.windowsRuntime` | `docs/ci/windows-runtime.yaml` | `Windows Service Runtime` inside page `63153:2876` |
 
 The five targets share the parent section `Continuous Integration and Design
-Documentation`. Run one target at a time while iterating; the writer reuses the
-parent and only replaces nodes and connectors managed by the requested child
-section.
+Documentation`. A diagnostic target reuses the parent and only replaces nodes
+and connectors managed by the requested child section, but it does not complete
+an official integration.
 
 ## Execution Order
 
-Run visual updates by granular target. Do not run `metadata` until every visual
-target has completed successfully. Run `preflight` first when the Figma
-component contract has changed, when a previous visual write failed before
-metadata, or before a full official sync after component edits.
-
-For a single visual target, prefer an atomic preflight-and-write runner:
+Generate the complete official visual runner by omitting `--target`, or by
+passing `--target=all`. It executes `preflight` followed by every visual target
+in the order below and never writes metadata:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
+```
+
+Do not run `metadata` until that complete visual execution has succeeded and
+all affected sections have been checked. Then generate a separate metadata
+runner.
+
+For supervised diagnosis only, an official-artifact runner may select one
+target by explicitly acknowledging that it is partial:
+
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries --allow-partial=true
 ```
 
 For an atomic granular runner, `completedTargets` is expected to contain both
@@ -71,10 +80,11 @@ For an atomic granular runner, `completedTargets` is expected to contain both
 ```
 
 Do not reject a runner because `preflight` appears alongside the visual target.
-Generate `--target=preflight` only when no visual mutation is intended.
+Generate `--target=preflight --allow-partial=true` only when no visual mutation
+is intended.
 
-If the preflight fails, the visual target is not executed. Use `--target=preflight`
-alone when you only want to inspect the contract without changing visuals.
+If the preflight fails, visual targets are not executed. A partial preflight or
+repair can diagnose the issue, but the complete runner must pass afterward.
 
 | Order | Target | Scope | Typical failure | Quick check |
 |-------|--------|-------|-----------------|-------------|
@@ -93,7 +103,7 @@ alone when you only want to inspect the contract without changing visuals.
 | 12 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job or published check missing from Figma | Nodes and summarized steps match `content.ci.teamCity`. |
 | 13 | `ci.postMergeDesignDocumentation` | Official model generation and operator-assisted visual update loop | Automatic Figma write implied, artifact missing, or rerun loop absent | `design-model.json`, the operator/Codex handoff, and `Rerun via HTTPS client` are visible. |
 | 14 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
-| 15 | `ci.windowsRuntime` | TeamCity Server, TeamCity Build Agent, and Cloudflared Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
+| 15 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
 | 16 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
 ## Subtree Scoped Runs
@@ -105,7 +115,7 @@ section and filter the TeamCity model with `--roots`.
 ```powershell
 cd repo\figma-design-sync\tools
 npm run build
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630 --allow-partial=true
 ```
 
 `--roots` filters only top-level catalog roots before the tree is flattened.
@@ -139,7 +149,8 @@ not a different source of truth.
 
 ## Failure Rule
 
-When a target fails, fix that target's component or TypeScript contract, merge
-the fix to `main`, regenerate the official TeamCity artifact when model content
-changes, and resume from the failed target. Do not repeat already-successful
-targets unless the fix changes their source data or shared component contract.
+When a target fails, use a partial runner only to diagnose and verify the local
+repair. Fix the component or TypeScript contract, merge the fix to `main`, and
+regenerate the official TeamCity artifact when model content changes. Before
+writing metadata, rerun the complete official visual target set from
+`preflight`; a successful partial repair never closes the integration.

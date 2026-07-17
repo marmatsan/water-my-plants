@@ -40,6 +40,8 @@ const KNOWN_TARGETS = [
   "metadata",
 ];
 
+const FULL_VISUAL_TARGETS = KNOWN_TARGETS.filter((target) => target !== "metadata");
+
 const CATALOG_TARGETS = [
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
@@ -108,6 +110,7 @@ function readNpmConfigArgs() {
     "section-node-id": "npm_config_section_node_id",
     roots: "npm_config_roots",
     "allow-official-sections": "npm_config_allow_official_sections",
+    "allow-partial": "npm_config_allow_partial",
   };
   const values = {};
 
@@ -145,11 +148,13 @@ function resolveOptions(args) {
   }
 
   const fixture = args.fixture || (mode === "preview" && !args.model ? "catalog-tree" : undefined);
-  const targetValue = args.targets || args.target || (fixture ? DEFAULT_FIXTURE_TARGETS[fixture] : undefined);
+  const targetValue = args.targets || args.target || (fixture
+    ? DEFAULT_FIXTURE_TARGETS[fixture]
+    : mode === "official" ? "all" : undefined);
   if (!targetValue) {
     throw new Error("Missing --target. Preview fixtures can infer a default target.");
   }
-  const targets = parseTargets(targetValue);
+  const targets = targetValue === "all" ? [...FULL_VISUAL_TARGETS] : parseTargets(targetValue);
   if (targets.length === 0) {
     throw new Error("Missing --target.");
   }
@@ -162,6 +167,14 @@ function resolveOptions(args) {
   }
   if (targets.includes("metadata") && targets.length > 1) {
     throw new Error("The metadata target must run alone after every visual target is correct.");
+  }
+  const fullVisualSync = sameTargets(targets, FULL_VISUAL_TARGETS);
+  const allowPartial = args["allow-partial"] === "true";
+  if (mode === "official" && !fullVisualSync && targets[0] !== "metadata" && !allowPartial) {
+    throw new Error(
+      "Official visual sync must target the complete visual model. " +
+        "Omit --target or use --target=all. Use --allow-partial=true only for supervised diagnosis or repair."
+    );
   }
   const target = targets[0];
   if (mode === "preview" && targets.includes("metadata")) {
@@ -255,6 +268,8 @@ function resolveOptions(args) {
     sectionNodeId,
     roots,
     allowOfficialSections,
+    allowPartial,
+    fullVisualSync,
   };
 }
 
@@ -266,7 +281,8 @@ async function writeRunnerFiles(options) {
   validateDesignModel(designModel, options);
 
   const scriptBase64 = Buffer.from(script, "utf8").toString("base64");
-  const runDirName = `${options.mode}-${safeName(options.entrypoint)}-${safeName(options.targets.join("-"))}-${safeName(options.transport)}-${safeName(basename(options.modelPath, ".design-model.json"))}`;
+  const targetRunName = options.fullVisualSync ? "all-visual" : options.targets.join("-");
+  const runDirName = `${options.mode}-${safeName(options.entrypoint)}-${safeName(targetRunName)}-${safeName(options.transport)}-${safeName(basename(options.modelPath, ".design-model.json"))}`;
   const outDir = join(options.outRoot, runDirName);
   const files = [];
   let payloadImage = null;
@@ -363,6 +379,8 @@ async function writeManifest(outDir, files, options, designModel, modelJson, scr
         sectionNodeId: options.sectionNodeId || null,
         roots: options.roots,
         allowOfficialSections: options.allowOfficialSections,
+        allowPartial: options.allowPartial,
+        fullVisualSync: options.fullVisualSync,
         metadataPageId: METADATA_PAGE_ID,
         modelPath: relativeToToolRoot(options.modelPath),
         scriptPath: relativeToToolRoot(options.scriptPath),
@@ -869,6 +887,10 @@ function parseTargets(value) {
       .map((target) => target.trim())
       .filter(Boolean)
   )];
+}
+
+function sameTargets(actual, expected) {
+  return actual.length === expected.length && actual.every((target, index) => target === expected[index]);
 }
 
 function safeName(value) {

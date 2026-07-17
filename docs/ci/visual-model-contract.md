@@ -72,7 +72,7 @@ Cloudflare appears as a simplified boundary in the overview. Its policies and
 authentication paths belong in `Infrastructure and Access`.
 
 `Windows Service Runtime` is a connector-free inventory. It shows TeamCity
-Server, TeamCity Build Agent, and Cloudflared as independent service nodes with
+Server, Build Agent, and Cloudflare Tunnel as independent service nodes with
 their platform, Windows service name, startup mode, and service identity. The
 operational recovery order remains in the linked runbook and is not modeled as
 a dependency between services.
