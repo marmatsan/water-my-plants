@@ -13,8 +13,10 @@ import {
 import { updateNamedTextNodes } from "./figma-text-gateway";
 import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
 
-export function collectTreeNodeInstancesByLabel(section, type) {
-  const instances = section.findAllWithCriteria({ types: ["INSTANCE"] })
+export function collectTreeNodeInstancesByLabel(section, type, traversalRoots = [section]) {
+  const instances = traversalRoots.flatMap((root) =>
+    root.findAllWithCriteria({ types: ["INSTANCE"] })
+  )
     .filter((instance) => isTreeNodeInstance(instance, type));
   const instancesByLabel = new Map();
 
@@ -42,7 +44,7 @@ export async function createMissingTreeNode(
   mutatedNodeIds
 ) {
   const container = requireTreeNodeContainer(section, node);
-  const template = findTreeNodeTemplate(section, node);
+  const template = findTreeNodeTemplate(container, node);
   const instance = template
     ? template.clone()
     : (await requireTreeNodeComponent(node.type, TREE_NODE_COMPONENT_IDS, componentCache)).createInstance();
@@ -227,8 +229,8 @@ function nextTopLevelSectionPosition(section) {
   };
 }
 
-function findTreeNodeTemplate(section, node) {
-  const candidates = section.findAllWithCriteria({ types: ["INSTANCE"] })
+function findTreeNodeTemplate(container, node) {
+  const candidates = container.findAllWithCriteria({ types: ["INSTANCE"] })
     .filter((instance) => isTreeNodeInstance(instance, node.type));
 
   if (node.type === "Plugin") {
