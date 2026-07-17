@@ -68,13 +68,15 @@ Official mode defaults to `--transport=png` and writes:
 - `00-clear-staging.mcp.js`
 - `10-stage-payload-from-png.mcp.js`
 - `90-finalize-staging.mcp.js`
-- `99-run-target.mcp.js`
+- `99-00-preflight.mcp.js` through the final ordered visual target runner
 - `manifest.json`
 
 Upload `10-official-sync-payload.png` to the Figma file before running
-`10-stage-payload-from-png.mcp.js`. Then run the generated `.mcp.js` snippets in
-lexical order. The PNG asset is a transport artifact only; the staging runner
-removes the uploaded image node after extracting the payload.
+`10-stage-payload-from-png.mcp.js`. Then run every generated `.mcp.js` snippet
+in lexical order. Full official runners use one `99-*.mcp.js` call per target
+so no individual MCP call must reconcile the complete document. The PNG asset
+is a transport artifact only; the staging runner removes the uploaded image
+node after extracting the payload.
 
 `upload_assets` returns a single-use URL under `https://mcp.figma.com`. Upload
 the PNG as multipart form data with an explicit `image/png` content type.
@@ -142,8 +144,8 @@ The staging namespace is not authoritative state. It is a transport mechanism
 for the current sync run. The authoritative namespace remains
 `water_my_plants_sync`, and only the final `metadata` target writes to it.
 
-Staging may be reused across consecutive granular `99-run-target.mcp.js`
-executions only when all of these values remain identical:
+Staging is reused across consecutive `99-*.mcp.js` target executions only when
+all of these values remain identical:
 
 - `designModelHash`;
 - `designModelGitSha`;
@@ -203,7 +205,7 @@ full runner from `00-clear-staging.mcp.js`.
 Before diagnosing a visual no-op as a model or component bug, confirm that the
 official payload was actually staged. A common interrupted-sync symptom is
 `designModelJson.length = 0` in `water_my_plants_sync_staging`, which means
-`99-run-target.mcp.js` has no model to apply:
+the first `99-*.mcp.js` target runner has no model to apply:
 
 ```javascript
 const page = await figma.getNodeByIdAsync("62934:908");
@@ -228,9 +230,10 @@ return {
 
 ## Run The Complete Visual Sync
 
-Execute the generated `99-run-target.mcp.js` without editing its target list.
-The official runner contains `preflight` followed by every visual target from
-[target-scopes.md](target-scopes.md), with `writeMetadata=false`.
+Execute every generated `99-*.mcp.js` file in lexical order without editing its
+target. The official runner contains one bounded MCP call for `preflight` and
+one for every visual target from [target-scopes.md](target-scopes.md), all with
+`writeMetadata=false`.
 
 If a focused diagnostic is necessary, regenerate the runner with the target
 and `--allow-partial=true`. A partial runner may confirm a repair, but it cannot

@@ -72,9 +72,10 @@ intentionally non-authoritative and must not write official metadata.
 5. Stage the official model and generated MCP script through the PNG payload
    transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
-6. Generate and run the complete official visual runner without specifying a
-   target. It executes `preflight` and every visual target in the order defined
-   by [target-scopes.md](target-scopes.md), with `writeMetadata=false`.
+6. Generate the complete official visual runner without specifying a target,
+   then execute every generated MCP file in lexical order. The sequence runs
+   `preflight` and every visual target as bounded calls in the order defined by
+   [target-scopes.md](target-scopes.md), with `writeMetadata=false`.
 7. Check every managed Figma section against
    [visual-sync-contract.md](visual-sync-contract.md).
 8. After all visual targets are correct, run only the `metadata` target with
