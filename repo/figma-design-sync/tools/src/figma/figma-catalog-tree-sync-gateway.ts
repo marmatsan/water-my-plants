@@ -580,6 +580,7 @@ function layoutCatalogTreeNodes(
         layout.maxX += offset.x;
         layout.nextX += offset.x;
       }
+      constrainCatalogLayoutToPadding(layout);
       applyCatalogPlacements(layout.placements, mutatedNodeIds);
       nextX = layout.maxX + CATALOG_TREE_SIBLING_GAP;
     }
@@ -686,6 +687,19 @@ function alignCatalogPlacementsToCurrentRoot(placements, rootInstance, rootLayou
     placement.y += offsetY;
   }
   return { x: offsetX, y: offsetY };
+}
+
+export function constrainCatalogLayoutToPadding(layout, padding = CATALOG_TREE_LAYOUT_PADDING) {
+  const offsetX = Math.max(0, padding - layout.minX);
+  if (offsetX === 0) return 0;
+
+  for (const placement of layout.placements.values()) {
+    placement.x += offsetX;
+  }
+  layout.minX += offsetX;
+  layout.maxX += offsetX;
+  layout.nextX += offsetX;
+  return offsetX;
 }
 
 function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mutatedNodeIds) {

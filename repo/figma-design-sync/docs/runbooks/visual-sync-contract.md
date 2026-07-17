@@ -259,6 +259,10 @@ For each section:
   versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
+- After preserving an existing root position during a root-scoped sync, shift
+  the complete subtree when necessary so its leftmost group remains at least
+  100 px inside the owning root section. A wider regenerated descendant must
+  not extend outside its section.
 - When a `.tree node` contains an `artifacts` frame, select its direct
   `.artifact` / `.artifacts bundle` children first, including hidden template
   slots that can be made visible. Do not let visible nested `.artifact` rows
