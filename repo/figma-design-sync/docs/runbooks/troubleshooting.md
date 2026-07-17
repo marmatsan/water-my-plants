@@ -77,9 +77,9 @@ return {
     "water_my_plants_sync_staging",
     "designModelJson"
   ).length,
-  scriptBase64Length: page.getSharedPluginData(
+  scriptLength: page.getSharedPluginData(
     "water_my_plants_sync_staging",
-    "scriptBase64"
+    "script"
   ).length
 };
 ```

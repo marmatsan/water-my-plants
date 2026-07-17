@@ -3,15 +3,14 @@ import { deflateSync } from "node:zlib";
 export const PAYLOAD_PNG_TEXT_KEYWORD = "figmaSyncPayload";
 export const MAX_FIGMA_UPLOAD_ASSET_BYTES = 10 * 1024 * 1024;
 
-export function buildOfficialSyncPayload({ designModel, modelJson, script, scriptBase64 }) {
+export function buildOfficialSyncPayload({ designModel, modelJson, script }) {
   return {
     designModelJson: modelJson,
     designModelHash: designModel.modelHash,
     designModelGitSha: designModel.gitSha,
     designModelLength: modelJson.length,
-    scriptBase64,
+    script,
     scriptLength: script.length,
-    scriptBase64Length: scriptBase64.length,
   };
 }
 

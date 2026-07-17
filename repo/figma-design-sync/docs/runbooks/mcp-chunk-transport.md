@@ -151,8 +151,7 @@ all of these values remain identical:
 - `designModelHash`;
 - `designModelGitSha`;
 - `designModelLength`;
-- `scriptLength`;
-- `scriptBase64Length`.
+- `scriptLength`.
 
 Restage from `00-clear-staging.mcp.js` whenever the TeamCity artifact or the
 generated MCP bundle changes. A stable `modelHash` is not sufficient: a
@@ -170,19 +169,20 @@ Stage these keys on page `62934:908` under
 | `designModelHash` | The artifact `modelHash`, used to validate the staged model. |
 | `designModelGitSha` | The artifact `gitSha`, used to validate the staged model. |
 | `designModelLength` | Character length of `designModelJson`, used to catch truncated staging writes. |
-| `scriptBase64` | Base64-encoded generated `sync-trunk-design-model.mcp.js` content. |
-| `scriptLength` | Character length of the decoded script. |
-| `scriptBase64Length` | Character length of `scriptBase64`, used to catch truncated staging writes. |
+| `script` | Generated `sync-trunk-design-model.mcp.js` content in plain text. |
+| `scriptLength` | Character length of `script`, used to catch truncated staging writes. |
 
 The PNG transport writes all keys in one staging step after validating the
-payload hash, Git SHA, model length, script length, and script base64 length.
+payload hash, Git SHA, model length, and script length.
 Chunk transport writes the same keys incrementally.
 
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
 characters. Stage large payloads in temporary shared plugin data, validate
-lengths before execution, and do not copy long base64 payloads manually from
-terminal output. If chunking is needed for staging, validate chunk count and
-encoded length before assembling the final `scriptBase64` value.
+lengths before execution, and do not copy long payloads manually from terminal
+output. Figma limits each shared plugin data entry to about 100k characters, so
+runner generation fails locally when either `designModelJson` or `script`
+exceeds 100,000 characters. Chunk transport can reduce each MCP call size, but
+cannot bypass the final per-entry limit.
 
 Generated `.mcp.js` runner files are source snippets for the Figma MCP
 `use_figma` call. They are not local scripts that can talk to Figma from
@@ -197,9 +197,9 @@ TeamCity artifact used to generate the runner. In chunk mode, each chunk
 validates its own length and the previously staged length before writing. A
 failed `use_figma` call is atomic, so a chunk length failure does not append
 partial data. If `designModelJson` is already fully staged and only a
-`scriptBase64` chunk fails, clear only `scriptBase64`, `scriptLength`, and
-`scriptBase64Length`, regenerate the runner with a smaller `--chunk-size`, and
-rerun the `20-scriptBase64-*.mcp.js`, `90-finalize-staging.mcp.js`, and target
+`script` chunk fails, clear only `script` and `scriptLength`, regenerate the
+runner with a smaller `--chunk-size`, and rerun the `20-script-*.mcp.js`,
+`90-finalize-staging.mcp.js`, and target
 runner files in lexical order. If the model chunks are uncertain, rerun the
 full runner from `00-clear-staging.mcp.js`.
 
@@ -222,9 +222,9 @@ return {
     "water_my_plants_sync_staging",
     "designModelJson"
   ).length,
-  scriptBase64Length: page.getSharedPluginData(
+  scriptLength: page.getSharedPluginData(
     "water_my_plants_sync_staging",
-    "scriptBase64"
+    "script"
   ).length
 };
 ```

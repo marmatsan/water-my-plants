@@ -19,6 +19,7 @@ const PREVIEW_STAGING_NAMESPACE = "water_my_plants_sync_preview";
 const METADATA_PAGE_ID = "62934:908";
 const DEFAULT_CHUNK_SIZE = 30_000;
 const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
+const MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH = 100_000;
 
 const KNOWN_TARGETS = [
   "preflight",
@@ -280,7 +281,8 @@ async function writeRunnerFiles(options) {
   const script = await readFile(options.scriptPath, "utf8");
   validateDesignModel(designModel, options);
 
-  const scriptBase64 = Buffer.from(script, "utf8").toString("base64");
+  validateStagingEntryLength("designModelJson", minifiedModelJson);
+  validateStagingEntryLength("script", script);
   const targetRunName = options.fullVisualSync ? "all-visual" : options.targets.join("-");
   const runDirName = `${options.mode}-${safeName(options.entrypoint)}-${safeName(targetRunName)}-${safeName(options.transport)}-${safeName(basename(options.modelPath, ".design-model.json"))}`;
   const outDir = join(options.outRoot, runDirName);
@@ -296,7 +298,6 @@ async function writeRunnerFiles(options) {
       designModel,
       modelJson: minifiedModelJson,
       script,
-      scriptBase64,
     });
     const payloadJson = stringifyAsciiJson(payload);
     const payloadPng = createPayloadPng(payloadJson);
@@ -318,17 +319,16 @@ async function writeRunnerFiles(options) {
       designModel,
       minifiedModelJson,
       script,
-      scriptBase64,
       PAYLOAD_PNG_FILE_NAME
     )));
   } else {
     files.push(...await writeChunkSources(outDir, "designModelJson", minifiedModelJson, options));
-    files.push(...await writeChunkSources(outDir, "scriptBase64", scriptBase64, options));
+    files.push(...await writeChunkSources(outDir, "script", script, options));
   }
 
-  files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script, scriptBase64)));
+  files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script)));
   files.push(...await writeTargetRunnerFiles(outDir, options, designModel));
-  files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, scriptBase64, payloadImage));
+  files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, payloadImage));
 
   console.log(`Wrote ${files.length} MCP runner files to ${outDir}`);
   if (payloadImage) {
@@ -413,7 +413,7 @@ async function writeChunkSources(outDir, key, value, options) {
   return files;
 }
 
-async function writeManifest(outDir, files, options, designModel, modelJson, script, scriptBase64, payloadImage) {
+async function writeManifest(outDir, files, options, designModel, modelJson, script, payloadImage) {
   return writeFileIn(
     outDir,
     "manifest.json",
@@ -438,7 +438,6 @@ async function writeManifest(outDir, files, options, designModel, modelJson, scr
         gitSha: designModel.gitSha,
         designModelLength: modelJson.length,
         scriptLength: script.length,
-        scriptBase64Length: scriptBase64.length,
         payloadImage,
         files,
       },
@@ -468,6 +467,15 @@ function validateDesignModel(designModel, options) {
   }
 }
 
+function validateStagingEntryLength(key, value) {
+  if (value.length > MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH) {
+    throw new Error(
+      `${key} is ${value.length} characters and exceeds the ${MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH}-character ` +
+        "sharedPluginData staging limit. Reduce the generated payload before creating the runner."
+    );
+  }
+}
+
 function clearStagingSource(namespace) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(namespace)};
@@ -476,6 +484,7 @@ const keys = [
   "designModelHash",
   "designModelGitSha",
   "designModelLength",
+  "script",
   "scriptBase64",
   "scriptLength",
   "scriptBase64Length"
@@ -518,7 +527,7 @@ return {
 `;
 }
 
-function stagePayloadFromPngSource(options, designModel, modelJson, script, scriptBase64, payloadFileName) {
+function stagePayloadFromPngSource(options, designModel, modelJson, script, payloadFileName) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
 const payloadKeyword = ${JSON.stringify(PAYLOAD_PNG_TEXT_KEYWORD)};
@@ -527,8 +536,7 @@ const expected = {
   designModelHash: ${JSON.stringify(designModel.modelHash)},
   designModelGitSha: ${JSON.stringify(designModel.gitSha)},
   designModelLength: ${JSON.stringify(String(modelJson.length))},
-  scriptLength: ${JSON.stringify(String(script.length))},
-  scriptBase64Length: ${JSON.stringify(String(scriptBase64.length))}
+  scriptLength: ${JSON.stringify(String(script.length))}
 };
 
 if (typeof figma.loadAllPagesAsync === "function") {
@@ -574,7 +582,7 @@ for (const imageHash of imageHashes) {
   if (
     payload.designModelHash === expected.designModelHash &&
     String(payload.designModelLength) === expected.designModelLength &&
-    String(payload.scriptBase64Length) === expected.scriptBase64Length
+    String(payload.scriptLength) === expected.scriptLength
   ) {
     candidates.push({ imageHash, payload });
   }
@@ -591,12 +599,11 @@ const { imageHash, payload } = candidates[0];
 validatePayload(payload, expected);
 
 page.setSharedPluginData(namespace, "designModelJson", payload.designModelJson);
-page.setSharedPluginData(namespace, "scriptBase64", payload.scriptBase64);
+page.setSharedPluginData(namespace, "script", payload.script);
 page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash);
 page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
 page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
 page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
-page.setSharedPluginData(namespace, "scriptBase64Length", expected.scriptBase64Length);
 
 let payloadNodesRemoved = 0;
 for (const node of imageNodes) {
@@ -614,13 +621,13 @@ return {
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
   designModelLength: expected.designModelLength,
-  scriptBase64Length: expected.scriptBase64Length
+  scriptLength: expected.scriptLength
 };
 
 function validatePayload(payload, expected) {
   for (const [key, value] of Object.entries({
     designModelJson: payload.designModelJson,
-    scriptBase64: payload.scriptBase64,
+    script: payload.script,
     designModelHash: payload.designModelHash,
     designModelGitSha: payload.designModelGitSha
   })) {
@@ -644,11 +651,8 @@ function validatePayload(payload, expected) {
   if (String(payload.scriptLength) !== expected.scriptLength) {
     throw new Error(\`Payload script length metadata mismatch: \${payload.scriptLength} != \${expected.scriptLength}\`);
   }
-  if (String(payload.scriptBase64Length) !== expected.scriptBase64Length) {
-    throw new Error(\`Payload scriptBase64 length metadata mismatch: \${payload.scriptBase64Length} != \${expected.scriptBase64Length}\`);
-  }
-  if (payload.scriptBase64.length !== Number(expected.scriptBase64Length)) {
-    throw new Error(\`Payload scriptBase64 length mismatch: \${payload.scriptBase64.length} != \${expected.scriptBase64Length}\`);
+  if (payload.script.length !== Number(expected.scriptLength)) {
+    throw new Error(\`Payload script length mismatch: \${payload.script.length} != \${expected.scriptLength}\`);
   }
 
   const parsedModel = JSON.parse(payload.designModelJson);
@@ -659,10 +663,6 @@ function validatePayload(payload, expected) {
     throw new Error(\`Payload model JSON gitSha mismatch: \${parsedModel.gitSha} != \${expected.designModelGitSha}\`);
   }
 
-  const decodedScript = atob(payload.scriptBase64);
-  if (decodedScript.length !== Number(expected.scriptLength)) {
-    throw new Error(\`Payload decoded script length mismatch: \${decodedScript.length} != \${expected.scriptLength}\`);
-  }
 }
 
 function readPayloadFromPngText(bytes, keyword) {
@@ -718,26 +718,25 @@ function readLatin1(bytes, start, end) {
 `;
 }
 
-function finalizeStagingSource(options, designModel, modelJson, script, scriptBase64) {
+function finalizeStagingSource(options, designModel, modelJson, script) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
 const expected = {
   designModelHash: ${JSON.stringify(designModel.modelHash)},
   designModelGitSha: ${JSON.stringify(designModel.gitSha)},
   designModelLength: ${JSON.stringify(String(modelJson.length))},
-  scriptLength: ${JSON.stringify(String(script.length))},
-  scriptBase64Length: ${JSON.stringify(String(scriptBase64.length))}
+  scriptLength: ${JSON.stringify(String(script.length))}
 };
 
 const stagedModelJson = page.getSharedPluginData(namespace, "designModelJson");
-const stagedScriptBase64 = page.getSharedPluginData(namespace, "scriptBase64");
+const stagedScript = page.getSharedPluginData(namespace, "script");
 
 if (String(stagedModelJson.length) !== expected.designModelLength) {
   throw new Error(\`Staged model length mismatch: \${stagedModelJson.length} != \${expected.designModelLength}\`);
 }
 
-if (String(stagedScriptBase64.length) !== expected.scriptBase64Length) {
-  throw new Error(\`Staged scriptBase64 length mismatch: \${stagedScriptBase64.length} != \${expected.scriptBase64Length}\`);
+if (String(stagedScript.length) !== expected.scriptLength) {
+  throw new Error(\`Staged script length mismatch: \${stagedScript.length} != \${expected.scriptLength}\`);
 }
 
 const parsedModel = JSON.parse(stagedModelJson);
@@ -752,7 +751,6 @@ page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash)
 page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
 page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
 page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
-page.setSharedPluginData(namespace, "scriptBase64Length", expected.scriptBase64Length);
 
 return {
   namespace,
@@ -761,7 +759,7 @@ return {
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
   designModelLength: expected.designModelLength,
-  scriptBase64Length: expected.scriptBase64Length
+  scriptLength: expected.scriptLength
 };
 `;
 }
@@ -801,9 +799,9 @@ if (
 }
 
 const stagedModelJson = page.getSharedPluginData(namespace, "designModelJson");
-const scriptBase64 = page.getSharedPluginData(namespace, "scriptBase64");
+let script = page.getSharedPluginData(namespace, "script");
 
-if (!stagedModelJson || !scriptBase64) {
+if (!stagedModelJson || !script) {
   throw new Error("Missing staged model or script.");
 }
 
@@ -812,14 +810,12 @@ const stagedModelHash = page.getSharedPluginData(namespace, "designModelHash");
 const stagedModelGitSha = page.getSharedPluginData(namespace, "designModelGitSha");
 const stagedModelLength = page.getSharedPluginData(namespace, "designModelLength");
 const scriptLength = page.getSharedPluginData(namespace, "scriptLength");
-const scriptBase64Length = page.getSharedPluginData(namespace, "scriptBase64Length");
 
 for (const [key, value] of Object.entries({
   designModelHash: stagedModelHash,
   designModelGitSha: stagedModelGitSha,
   designModelLength: stagedModelLength,
-  scriptLength,
-  scriptBase64Length
+  scriptLength
 })) {
   if (!value) {
     throw new Error(\`Missing staged \${key}.\`);
@@ -838,14 +834,8 @@ if (Number(stagedModelLength) !== stagedModelJson.length) {
   throw new Error(\`Staged model length mismatch: \${stagedModelLength} != \${stagedModelJson.length}\`);
 }
 
-if (Number(scriptBase64Length) !== scriptBase64.length) {
-  throw new Error(\`Staged script length mismatch: \${scriptBase64Length} != \${scriptBase64.length}\`);
-}
-
-let script = atob(scriptBase64);
-
 if (Number(scriptLength) !== script.length) {
-  throw new Error(\`Decoded script length mismatch: \${scriptLength} != \${script.length}\`);
+  throw new Error(\`Staged script length mismatch: \${scriptLength} != \${script.length}\`);
 }
 
 ${invokeScript}
