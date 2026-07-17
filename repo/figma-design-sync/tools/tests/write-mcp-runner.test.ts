@@ -164,6 +164,10 @@ test("official runner supports an explicitly partial diagnostic target", async (
     const runTargetSource = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
     assert.match(stageSource, /payload\.payloadSchemaVersion === expected\.payloadSchemaVersion/);
     assert.match(stageSource, /setSharedPluginData\(namespace, "script", payload\.script\)/);
+    assert.match(stageSource, /for \(const documentPage of figma\.root\.children\)/);
+    assert.match(stageSource, /for \(const node of documentPage\.children\)/);
+    assert.doesNotMatch(stageSource, /figma\.root\.findAll/);
+    assert.doesNotMatch(stageSource, /loadAllPagesAsync/);
     assert.doesNotMatch(stageSource, /setSharedPluginData\(namespace, "scriptBase64"/);
     assert.match(runTargetSource, /getSharedPluginData\(namespace, "script"\)/);
     assert.doesNotMatch(runTargetSource, /getSharedPluginData\(namespace, "scriptBase64"\)/);
