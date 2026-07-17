@@ -123,6 +123,13 @@ node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
 Library roots match `group`; plugin roots match `id`. If the root is missing,
 the runner fails before mutating Figma and prints the available roots.
 
+Root-scoped execution also limits Figma traversal to the matching child
+section. Instance, connector, lock, stroke, fill, and descendant-layout scans
+must not visit sibling catalog roots or page-level connectors. The generated
+official runner uses one root-scoped `99-*.mcp.js` unit per declared root and a
+separate cleanup unit for stale nodes or sections that require a whole-catalog
+view. This keeps the runtime memory boundary aligned with the model scope.
+
 Known child sections:
 
 | Target | Root | Child section |

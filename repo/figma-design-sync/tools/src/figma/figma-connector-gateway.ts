@@ -1,13 +1,15 @@
 import { CONNECTOR_TEMPLATE_NAME, METADATA_NAMESPACE } from "../config/figma-config";
 
-export function collectTreeConnectors(section) {
-  const sectionNodeIds = new Set([
-    section.id,
-    ...section.findAll().map((node) => node.id),
-  ]);
-  const sectionConnectors = section.findAllWithCriteria({ types: ["CONNECTOR"] })
-    .filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME);
-  const pageConnectors = section.parent?.type === "PAGE"
+export function collectTreeConnectors(section, traversalRoots = [section]) {
+  const scopedTraversal = traversalRoots.length !== 1 || traversalRoots[0].id !== section.id;
+  const sectionNodeIds = new Set(traversalRoots.flatMap((root) => [
+    root.id,
+    ...root.findAll().map((node) => node.id),
+  ]));
+  const sectionConnectors = traversalRoots.flatMap((root) =>
+    root.findAllWithCriteria({ types: ["CONNECTOR"] })
+  ).filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME);
+  const pageConnectors = !scopedTraversal && section.parent?.type === "PAGE"
     ? section.parent.findAllWithCriteria({ types: ["CONNECTOR"] })
       .filter((connector) => connector.name === CONNECTOR_TEMPLATE_NAME)
       .filter((connector) => connectorReferencesAnyNode(connector, sectionNodeIds))

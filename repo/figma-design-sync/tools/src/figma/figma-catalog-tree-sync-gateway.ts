@@ -100,9 +100,15 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
 
       throw new Error(`Expected '${sectionNodeId}' to be a SECTION.`);
     }
-    unlockSectionTreeForMutation(section, mutatedNodeIds);
-    applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
-    applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
+    let traversalRoots = catalogTraversalRoots(section, isPartialRootSync ? scopedRootLabels : undefined);
+    unlockSectionTreeForMutation(section, mutatedNodeIds, isPartialRootSync ? traversalRoots : null);
+    applyCatalogSectionContract(
+      section,
+      traversalRoots,
+      isPartialRootSync,
+      outlineVariable,
+      mutatedNodeIds
+    );
 
     if (!isPartialRootSync && scopedModelNodes.length === 0) {
       removedCatalogNodes.push(...removeEmptyCatalogTreeTarget(target, section, mutatedNodeIds));
@@ -110,8 +116,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     }
 
     showCatalogTreeSection(section, mutatedNodeIds);
-    const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
-    let connectors = collectTreeConnectors(section);
+    const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type, traversalRoots);
+    let connectors = collectTreeConnectors(section, traversalRoots);
 
     if (cleanupOnly) {
       const cleanupResult = cleanupCatalogTreeTarget({
@@ -184,12 +190,9 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
     connectors = staleResult.connectors;
-    const removedRootSections = removeEmptyStaleCatalogRootSections(
-      target,
-      section,
-      modelRootLabels,
-      mutatedNodeIds
-    );
+    const removedRootSections = isPartialRootSync
+      ? []
+      : removeEmptyStaleCatalogRootSections(target, section, modelRootLabels, mutatedNodeIds);
     removedCatalogNodes.push(...removedRootSections);
 
     connectors = createMissingCatalogConnectors(
@@ -201,6 +204,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       createdCatalogConnectors,
       mutatedNodeIds
     );
+    traversalRoots = catalogTraversalRoots(section, isPartialRootSync ? scopedRootLabels : undefined);
 
     layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds, {
       scopeLabels: partialScope?.labels,
@@ -213,13 +217,22 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
           .filter(Boolean)
       : [...instancesByLabel.values()];
     resizeSectionsToFit(section, nodesToResize, mutatedNodeIds);
-    stackDescendantSectionsWithGap(section, mutatedNodeIds);
+    for (const traversalRoot of traversalRoots) {
+      stackDescendantSectionsWithGap(traversalRoot, mutatedNodeIds);
+    }
+    if (isPartialRootSync) {
+      stackChildSectionsFromPadding(section, mutatedNodeIds);
+    }
     stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
     resizeAncestorSectionsToFit(section, mutatedNodeIds);
-    removeCatalogTreeSectionFills(section, mutatedNodeIds);
-    applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
-    applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
-    lockOnlyRootSection(section, mutatedNodeIds);
+    applyCatalogSectionContract(
+      section,
+      traversalRoots,
+      isPartialRootSync,
+      outlineVariable,
+      mutatedNodeIds
+    );
+    lockOnlyRootSection(section, mutatedNodeIds, isPartialRootSync ? traversalRoots : null);
   }
 
   return {
@@ -230,6 +243,38 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     removedCatalogConnectors,
     mutatedNodeIds,
   };
+  }
+}
+
+export function catalogTraversalRoots(section, rootLabels) {
+  if (!rootLabels || rootLabels.length === 0) {
+    return [section];
+  }
+
+  const requestedRoots = new Set(rootLabels);
+  return section.children.filter((child) =>
+    child.type === "SECTION" && requestedRoots.has(child.name)
+  );
+}
+
+function applyCatalogSectionContract(
+  section,
+  traversalRoots,
+  isPartialRootSync,
+  outlineVariable,
+  mutatedNodeIds
+) {
+  if (!isPartialRootSync) {
+    removeCatalogTreeSectionFills(section, mutatedNodeIds);
+    applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
+    applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
+    return;
+  }
+
+  for (const traversalRoot of traversalRoots) {
+    removeCatalogTreeSectionFills(traversalRoot, mutatedNodeIds);
+    applySectionStrokeContractTree(traversalRoot, outlineVariable, mutatedNodeIds);
+    applyAncestorSectionStrokeContract(traversalRoot, outlineVariable, mutatedNodeIds);
   }
 }
 

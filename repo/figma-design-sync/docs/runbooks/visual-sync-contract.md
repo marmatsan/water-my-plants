@@ -66,12 +66,13 @@ required roots and all other official targets have completed successfully.
 The CI writer reads only `content.ci` from the official `main`
 `design-model.json`. It creates or updates one parent section named
 `Continuous Integration and Design Documentation` on Figma page `63153:2876`
-and exposes four independently runnable targets:
+and exposes five independently runnable targets:
 
 - `ci.overview`;
 - `ci.pullRequestIntegration`;
 - `ci.postMergeDesignDocumentation`;
-- `ci.infrastructureAndAccess`.
+- `ci.infrastructureAndAccess`;
+- `ci.windowsRuntime`.
 
 Each visual entity is an instance of `.ci node` (`64301:3927`). The writer
 selects the matching mode from the `ci/cd` variable collection: `Actor`,
@@ -104,6 +105,13 @@ topology grid. `Windows Service Runtime` is a connector-free grid whose service
 nodes share one row. Horizontal flows connect from the side anchors of their node
 groups and vertically align node centers. Their inter-node gap grows when
 necessary so the connector label fits centered on the horizontal connector.
+Figma can apply exposed boolean visibility properties after `setProperties`
+returns, which changes instance height after hidden blocks collapse. The writer
+must wait until managed node-group dimensions are stable before laying out a
+row, then wait for connector geometry to stabilize before centering labels on
+the resulting connector bounds. Calculating either position from the initial
+component dimensions top-aligns mixed-height nodes and leaves labels centered
+on stale connector coordinates.
 Disconnected horizontal flows are stacked as separate rows and each row starts
 at the same left edge. Post-merge job order is derived from declared artifact
 publication and job dependencies, never from the order of jobs in the generated

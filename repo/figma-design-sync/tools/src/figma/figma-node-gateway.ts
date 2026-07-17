@@ -265,15 +265,21 @@ export function stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds, gap
   stackConfiguredPageSectionsWithGap(section, mutatedNodeIds);
 }
 
-export function unlockSectionTreeForMutation(section, mutatedNodeIds) {
+export function unlockSectionTreeForMutation(section, mutatedNodeIds, traversalRoots = null) {
   const root = rootSection(section);
   setNodeLocked(root, false, mutatedNodeIds);
-  setDescendantsLocked(root, false, mutatedNodeIds);
+  for (const traversalRoot of traversalRoots || [root]) {
+    setNodeLocked(traversalRoot, false, mutatedNodeIds);
+    setDescendantsLocked(traversalRoot, false, mutatedNodeIds);
+  }
 }
 
-export function lockOnlyRootSection(section, mutatedNodeIds) {
+export function lockOnlyRootSection(section, mutatedNodeIds, traversalRoots = null) {
   const root = rootSection(section);
-  setDescendantsLocked(root, false, mutatedNodeIds);
+  for (const traversalRoot of traversalRoots || [root]) {
+    setNodeLocked(traversalRoot, false, mutatedNodeIds);
+    setDescendantsLocked(traversalRoot, false, mutatedNodeIds);
+  }
   setNodeLocked(root, true, mutatedNodeIds);
 }
 

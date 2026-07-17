@@ -2,13 +2,72 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildPartialCatalogSyncScope,
+  catalogTraversalRoots,
   constrainCatalogLayoutToPadding,
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
 import { stackChildSectionsFromPadding } from "../src/figma/figma-node-gateway";
+import { collectTreeNodeInstancesByLabel } from "../src/figma/figma-tree-node-gateway";
+import { collectTreeConnectors } from "../src/figma/figma-connector-gateway";
 
 const target = { name: "waterMyPlants.libraries" };
+
+test("partial catalog traversal returns only requested root sections", () => {
+  const section = parentSection([
+    childSection("androidx", ["androidx-node"]),
+    childSection("com", ["com-node"]),
+    childSection("io", ["io-node"]),
+  ]);
+
+  assert.deepEqual(
+    catalogTraversalRoots(section, ["io"]).map((root) => root.name),
+    ["io"]
+  );
+});
+
+test("full catalog traversal keeps the catalog section as its only root", () => {
+  const section = parentSection([childSection("androidx", [])]);
+
+  assert.deepEqual(catalogTraversalRoots(section), [section]);
+});
+
+test("partial instance collection never traverses sibling root sections", () => {
+  const ioInstance = libraryTreeNodeInstance("io");
+  const ioRoot = searchableRoot("io", [ioInstance]);
+  const comRoot = searchableRoot("com", [libraryTreeNodeInstance("com")]);
+  const section = parentSection([comRoot, ioRoot]);
+
+  const instances = collectTreeNodeInstancesByLabel(section, "Library", [ioRoot]);
+
+  assert.deepEqual([...instances.keys()], ["io"]);
+  assert.equal(ioRoot.searchCount, 1);
+  assert.equal(comRoot.searchCount, 0);
+});
+
+test("partial connector collection never traverses the catalog page", () => {
+  const connector = { id: "io-connector", name: "simple-solid_arrow" };
+  const ioRoot = {
+    ...searchableRoot("io", []),
+    findAll() {
+      return [{ id: "io-node" }];
+    },
+    findAllWithCriteria() {
+      this.searchCount += 1;
+      return [connector];
+    },
+  };
+  const page = {
+    type: "PAGE",
+    findAllWithCriteria() {
+      throw new Error("A partial root sync must not traverse the page.");
+    },
+  };
+  const section = { id: "catalog", parent: page };
+
+  assert.deepEqual(collectTreeConnectors(section, [ioRoot]), [connector]);
+  assert.equal(ioRoot.searchCount, 1);
+});
 
 test("partial catalog scope reaches stale descendants through managed connectors", () => {
   const instancesByLabel = new Map([
@@ -277,5 +336,26 @@ function positionedChildSection(name: string, x: number, y: number, width: numbe
     height,
     children: [],
     parent: null,
+  };
+}
+
+function searchableRoot(name: string, instances) {
+  return {
+    ...childSection(name, []),
+    searchCount: 0,
+    findAllWithCriteria() {
+      this.searchCount += 1;
+      return instances;
+    },
+  };
+}
+
+function libraryTreeNodeInstance(label: string) {
+  return {
+    name: ".tree node",
+    componentProperties: {
+      Type: { value: "Library" },
+      "Library group#1345:12": { value: label },
+    },
   };
 }

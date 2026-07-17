@@ -17,6 +17,7 @@ import {
   horizontalFlowPositions,
   horizontalConnectorGap,
   managedCiRemovalPriority,
+  waitForStableCiLayout,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
 
 test("CI visual plan creates the five documented granular sections", () => {
@@ -345,6 +346,40 @@ test("CI horizontal rows align node centers and reserve label width", () => {
   assert.equal(centeredRowY(100, 200, 120), 140);
   assert.equal(horizontalConnectorGap(80), 160);
   assert.equal(horizontalConnectorGap(280), 328);
+});
+
+test("CI layout waits for hidden component blocks to collapse before positioning", async () => {
+  const nodes = [
+    { x: 0, y: 0, width: 577, height: 283 },
+    { x: 0, y: 0, width: 763, height: 283 },
+  ];
+  let yields = 0;
+
+  await waitForStableCiLayout(nodes, async () => {
+    yields += 1;
+    if (yields === 1) nodes[0].height = 225;
+  });
+
+  assert.equal(yields, 2);
+  assert.equal(nodes[0].height, 225);
+  assert.equal(centeredRowY(100, 283, nodes[0].height), 129);
+  assert.equal(centeredRowY(100, 283, nodes[1].height), 100);
+});
+
+test("CI labels use stable connector bounds after endpoint geometry updates", async () => {
+  const connectors = [{ x: 680.5, y: 241.5, width: 182, height: 0 }];
+  let yields = 0;
+
+  await waitForStableCiLayout(connectors, async () => {
+    yields += 1;
+    if (yields === 1) connectors[0].y = 256;
+  });
+
+  assert.equal(yields, 2);
+  assert.deepEqual(
+    connectorBoundsLabelPosition(connectors[0], { x: 0, y: 0 }, 141, 40),
+    { x: 701, y: 236 }
+  );
 });
 
 test("CI connector labels move outside nodes when the direct gap is too narrow", () => {
