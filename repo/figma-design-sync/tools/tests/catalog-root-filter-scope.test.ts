@@ -7,7 +7,11 @@ import {
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
-import { lockOnlyRootSection, stackChildSectionsFromPadding } from "../src/figma/figma-node-gateway";
+import {
+  lockOnlyRootSection,
+  stackChildSectionsFromPadding,
+  unlockSectionTreeForMutation,
+} from "../src/figma/figma-node-gateway";
 import { collectTreeNodeInstancesByLabel } from "../src/figma/figma-tree-node-gateway";
 import { collectTreeConnectors } from "../src/figma/figma-connector-gateway";
 
@@ -270,6 +274,22 @@ test("catalog cleanup locks the parent without traversing sibling catalog trees"
   lockOnlyRootSection(catalog, mutatedNodeIds, [catalog]);
 
   assert.equal(parent.locked, true);
+  assert.equal(catalog.searchCount, 1);
+  assert.equal(sibling.searchCount, 0);
+  assert.deepEqual(mutatedNodeIds, ["parent-id"]);
+});
+
+test("catalog cleanup unlocks only its catalog tree and never traverses sibling catalogs", () => {
+  const sibling = lockableSection("sibling");
+  const catalog = lockableSection("catalog");
+  const parent = lockableSection("parent", [sibling, catalog]);
+  parent.locked = true;
+  parent.parent = { type: "PAGE" };
+  const mutatedNodeIds = [];
+
+  unlockSectionTreeForMutation(catalog, mutatedNodeIds, [catalog]);
+
+  assert.equal(parent.locked, false);
   assert.equal(catalog.searchCount, 1);
   assert.equal(sibling.searchCount, 0);
   assert.deepEqual(mutatedNodeIds, ["parent-id"]);
