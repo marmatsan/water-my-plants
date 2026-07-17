@@ -161,13 +161,15 @@ artifact. Official mode defaults to PNG payload transport, and the source model
 must be the artifact from `Figma Sync > Generate main design model`:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=metadata
 ```
 
 Official mode stages data under `water_my_plants_sync_staging`. Only the
 `metadata` target writes to the authoritative namespace, and it should be run
-after all visual targets have completed successfully.
+after the complete visual target set has completed successfully. Add
+`--allow-partial=true` only for supervised diagnosis; partial runs do not
+authorize a metadata write.
 
 ## Verification
 

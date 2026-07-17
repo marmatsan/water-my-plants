@@ -370,8 +370,8 @@ export function externalEnvironment(id: string): CiVisualEnvironment {
 export function windowsRuntimeEnvironment(id: string): CiVisualEnvironment {
   const environments: Record<string, CiVisualEnvironment> = {
     "teamcity-server": "teamcity",
-    "teamcity-build-agent": "teamcity",
-    "cloudflared-agent": "cloudflare",
+    "build-agent": "teamcity",
+    "cloudflare-tunnel": "cloudflare",
   };
   const environment = environments[id];
   if (!environment) throw new Error(`Windows CI runtime service '${id}' has no .ci icon environment mapping.`);

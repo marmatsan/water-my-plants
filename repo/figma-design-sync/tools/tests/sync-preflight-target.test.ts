@@ -2,6 +2,60 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { syncFigmaDesignModel } from "../src/usecases/sync-figma-design-model";
 
+const FULL_VISUAL_TARGETS = [
+  "preflight",
+  "headers",
+  "versions",
+  "waterMyPlants.libraries",
+  "waterMyPlants.plugins",
+  "waterMyPlants.customGradleConventionPlugins",
+  "waterMyPlants.customGradlePlugins",
+  "gradlePlugins.libraries",
+  "gradlePlugins.plugins",
+  "figmaDesignSync.libraries",
+  "figmaDesignSync.plugins",
+  "ci.overview",
+  "ci.pullRequestIntegration",
+  "ci.postMergeDesignDocumentation",
+  "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
+];
+
+test("default sync executes the complete visual contract without metadata", async () => {
+  const calls: string[] = [];
+
+  const result = await syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls));
+
+  assert.deepEqual(calls, ["preflight", "headers", "versions", "catalog", "ci"]);
+  assert.deepEqual(result.requestedTargets, FULL_VISUAL_TARGETS);
+  assert.deepEqual(result.completedTargets, FULL_VISUAL_TARGETS);
+  assert.equal(result.metadata, null);
+});
+
+test("metadata must be requested independently from visual targets", async () => {
+  const calls: string[] = [];
+
+  await assert.rejects(
+    syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+      targets: ["preflight", "metadata"],
+    }),
+    /metadata must run alone/
+  );
+  assert.deepEqual(calls, []);
+});
+
+test("metadata writes after being requested as the only target", async () => {
+  const calls: string[] = [];
+
+  const result = await syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+    targets: ["metadata"],
+  });
+
+  assert.deepEqual(calls, ["metadata"]);
+  assert.deepEqual(result.completedTargets, ["metadata"]);
+  assert.equal(result.metadata.modelHash, "hash");
+});
+
 test("preflight target validates the visual contract without mutating visual targets", async () => {
   const calls: string[] = [];
   const dependencies = fakeDependencies(calls);

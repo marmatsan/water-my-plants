@@ -90,14 +90,14 @@ uploaded to Figma and that `10-stage-payload-from-png.mcp.js` completed. If PNG
 asset upload is blocked, regenerate with chunk transport:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks
 ```
 
 If a chunk call is too large and never reaches Figma, regenerate the chunk
 runner with a smaller chunk size and rerun the files in lexical order:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --transport=chunks --chunk-size=8000
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks --chunk-size=8000
 ```
 
 For chunk transport, stage base64 chunks in temporary shared plugin data:
@@ -125,7 +125,7 @@ visual preview runner files:
 ```powershell
 cd repo\figma-design-sync\tools
 npm run build
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --allow-partial=true
 node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 

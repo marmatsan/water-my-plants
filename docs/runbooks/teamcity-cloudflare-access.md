@@ -44,11 +44,11 @@ before updating its validation date.
 
 The supported local runtime uses three automatic Windows services:
 
-| Service name | Display name | Service account | Responsibility |
-|--------------|--------------|-----------------|----------------|
-| `TeamCity` | `TeamCity Server` | `NT SERVICE\TeamCity` | Hosts the TeamCity server and owns its data directory. |
-| `TCBuildAgent` | `TeamCity Build Agent` | `NT SERVICE\TCBuildAgent` | Executes repository jobs in the agent work directories. |
-| `Cloudflared` | `Cloudflared agent` | `LocalSystem` | Publishes the private TeamCity origin through Cloudflare Tunnel. |
+| CI actor | Service name | Windows display name | Service account | Responsibility |
+|----------|--------------|----------------------|-----------------|----------------|
+| TeamCity Server | `TeamCity` | `TeamCity Server` | `NT SERVICE\TeamCity` | Hosts the TeamCity server and owns its data directory. |
+| Build Agent | `TCBuildAgent` | `TeamCity Build Agent` | `NT SERVICE\TCBuildAgent` | Executes repository jobs in the agent work directories. |
+| Cloudflare Tunnel | `Cloudflared` | `Cloudflared agent` | `LocalSystem` | Publishes the private TeamCity origin through Cloudflare Tunnel. |
 
 Inspect status, startup mode, and service identity from an elevated PowerShell
 session:

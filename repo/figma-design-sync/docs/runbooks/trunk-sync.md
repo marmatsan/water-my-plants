@@ -13,7 +13,7 @@ fine-grained runbooks:
 |---------|------------|
 | [official-artifact-visual-sync.md](official-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
 | [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging official payloads through PNG or chunk fallback, running targets, and writing metadata. |
-| [target-scopes.md](target-scopes.md) | Choosing the granular visual target and understanding its Figma section. |
+| [target-scopes.md](target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
 | [visual-sync-contract.md](visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
 | [troubleshooting.md](troubleshooting.md) | Diagnosing failed or visually incorrect sync runs. |
 
@@ -72,20 +72,17 @@ intentionally non-authoritative and must not write official metadata.
 5. Stage the official model and generated MCP script through the PNG payload
    transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
-6. Run the `preflight` target when component contracts changed or before a full
-   official visual sync. It must validate the Figma contract without mutating
-   nodes.
-7. Run visual targets one by one using the order in
-   [target-scopes.md](target-scopes.md). Keep `writeMetadata=false` for visual
-   targets.
-8. Check each changed Figma section against
+6. Generate and run the complete official visual runner without specifying a
+   target. It executes `preflight` and every visual target in the order defined
+   by [target-scopes.md](target-scopes.md), with `writeMetadata=false`.
+7. Check every managed Figma section against
    [visual-sync-contract.md](visual-sync-contract.md).
-9. After all visual targets are correct, run only the `metadata` target with
+8. After all visual targets are correct, run only the `metadata` target with
    `writeMetadata=true`.
-10. Optionally rerun only TeamCity `Check Figma trunk sync`, or run
+9. Optionally rerun only TeamCity `Check Figma trunk sync`, or run
     `checkFigmaTrunkSync` locally, as an early diagnostic after writing
     metadata.
-11. Rerun the complete TeamCity `Figma Sync` pipeline with
+10. Rerun the complete TeamCity `Figma Sync` pipeline with
     `pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait`. Confirm that
     `Generate main design model`, `Check Figma trunk sync`, and the aggregate
     pipeline all succeed so TeamCity publishes a successful final status.
@@ -109,9 +106,9 @@ When a visual target fails:
 - Merge the fix to `main` if it affects generated model content or the official
   sync code used by TeamCity.
 - Regenerate the official TeamCity artifact when model content changes.
-- Resume from the failed target.
-- Do not repeat already-successful targets unless the fix changes their source
-  data or shared component contract.
+- Use `--allow-partial=true` only to diagnose or verify the focused repair.
+- Rerun the complete visual target set before writing metadata; partial success
+  does not complete an official synchronization.
 
 Branch-local visual iteration with an already-official artifact is allowed only
 for visual representation changes. The rules are in

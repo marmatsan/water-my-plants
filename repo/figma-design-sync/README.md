@@ -131,13 +131,15 @@ The strict flow is:
 2. Let TeamCity generate the effective configuration from `.teamcity/settings.kts`.
 3. Let the same job generate the official `design-model.json` from those effective files.
 4. Use the official artifact as the visual sync input.
-5. Run the MCP `preflight` target when Figma component contracts changed.
-6. Run the MCP visual write step against Figma.
+5. Run the official MCP runner without a target so `preflight` and every visual
+   target execute in contractual order without writing metadata.
+6. Validate all managed sections, then run the separate `metadata` target.
 7. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
 
 Do not create official design-model metadata from a feature branch. Branch-local
 visual iteration may reuse an official `main` artifact for layout debugging, but
-it must not publish trunk metadata.
+it must use `--allow-partial=true` for focused diagnostics and must not publish
+trunk metadata. A partial run never completes the official synchronization.
 
 The official MCP runner uses PNG payload transport by default: the generated
 runner writes `10-official-sync-payload.png`, that image is uploaded to Figma,

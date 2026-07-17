@@ -28,9 +28,15 @@ export async function syncFigmaDesignModel(
   requireMainBranchDesignModel(designModel);
 
   const requestedTargets = resolveRequestedTargets(options);
+  const shouldWriteMetadata = requestedTargets.has("metadata") || options.writeMetadata === true;
+  if (shouldWriteMetadata && requestedTargets.size > 1) {
+    throw new Error("Figma sync metadata must run alone after the complete visual sync.");
+  }
   const completedTargets: SyncTargetName[] = [];
   const skippedTargets = ALL_SYNC_TARGETS.filter((target) => !requestedTargets.has(target));
-  const visualTargets = [...requestedTargets].filter((target) => target !== "preflight");
+  const visualTargets = [...requestedTargets].filter(
+    (target) => target !== "preflight" && target !== "metadata"
+  );
   const preflightResult = requestedTargets.has("preflight")
     ? await dependencies.visualContractCheckGateway.checkVisualContract(
         designModel,
@@ -78,7 +84,6 @@ export async function syncFigmaDesignModel(
     : emptyCiDocumentationSyncResult();
   completedTargets.push(...ciTargets);
 
-  const shouldWriteMetadata = requestedTargets.has("metadata") || options.writeMetadata === true;
   const metadataSyncResult = shouldWriteMetadata
     ? await dependencies.metadataSyncGateway.writeMetadata(designModel)
     : emptyMetadataSyncResult();
@@ -134,7 +139,7 @@ function resolveRequestedTargets(options: SyncFigmaDesignModelOptions) {
   const requestedTargets = new Set<SyncTargetName>(
     options.targets && options.targets.length > 0
       ? options.targets.map(canonicalTargetName)
-      : ALL_SYNC_TARGETS
+      : FULL_VISUAL_SYNC_TARGETS
   );
   const unknownTargets = (options.targets || []).filter((target) =>
     !KNOWN_SYNC_TARGETS.includes(target)
@@ -208,10 +213,6 @@ function emptyVisualContractCheckResult() {
   };
 }
 
-const PREFLIGHT_SYNC_TARGETS: SyncTargetName[] = [
-  "preflight",
-];
-
 const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
@@ -231,17 +232,25 @@ const CI_SYNC_TARGETS: SyncTargetName[] = [
   "ci.windowsRuntime",
 ];
 
-const ALL_SYNC_TARGETS: SyncTargetName[] = [
+const VISUAL_SYNC_TARGETS: SyncTargetName[] = [
   "headers",
   "versions",
   ...CATALOG_SYNC_TARGETS,
   ...CI_SYNC_TARGETS,
+];
+
+const FULL_VISUAL_SYNC_TARGETS: SyncTargetName[] = [
+  "preflight",
+  ...VISUAL_SYNC_TARGETS,
+];
+
+const ALL_SYNC_TARGETS: SyncTargetName[] = [
+  ...FULL_VISUAL_SYNC_TARGETS,
   "metadata",
 ];
 
 const TARGET_ALIASES: Partial<Record<SyncTargetName, SyncTargetName>> = {};
 
 const KNOWN_SYNC_TARGETS: SyncTargetName[] = [
-  ...PREFLIGHT_SYNC_TARGETS,
   ...ALL_SYNC_TARGETS,
 ];
