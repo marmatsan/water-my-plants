@@ -75,8 +75,14 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
-- runs `Verify` with `.\gradlew.bat check --stacktrace` so Gradle failures keep
-  their diagnostic context in the TeamCity build log;
+- validates documentation coverage before Gradle: changes to TeamCity,
+  Figma-sync implementation, dependency-catalog model, or CI topology must
+  update their mapped canonical documentation in
+  [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
+- uses `Verify change scope` to run `git diff --check` and local Markdown-link
+  validation for documentation-only changes; every other change runs
+  `.\gradlew.bat check --stacktrace` so Gradle failures retain their diagnostic
+  context in the TeamCity build log;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
@@ -97,14 +103,28 @@ requests.
 The pipeline:
 
 - triggers after `CI` finishes successfully on `<default>`;
-- generates `.teamcity/target/generated-configs` from the versioned Kotlin DSL
-  before each model generation or hash verification;
-- generates `build/reports/figma-sync/design-model.json` from `main`;
+- classifies the merged `main` revision before doing expensive work;
+- for a model-affecting revision, generates `.teamcity/target/generated-configs`
+  once and shares it with the verification job;
+- generates `build/reports/figma-sync/design-model.json` from `main` only for a
+  model-affecting revision;
 - sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the
   Gradle task can verify it is running under the official Figma Sync pipeline;
-- publishes the generated model as an artifact;
-- runs `Check Figma trunk sync` against the metadata currently stored in Figma;
+- publishes the Figma report directory and effective TeamCity configuration as
+  job artifacts;
+- runs `Check Figma trunk sync` against the metadata currently stored in Figma
+  only when the model can change;
 - publishes the optional `TeamCity Figma Sync` GitHub status on `main`.
+
+For a documentation-only `main` revision, the first Figma job publishes only a
+`sync-scope.json` artifact and the final job exits successfully without Maven,
+Gradle, model generation, metadata validation, or an MCP write. The previous
+official Figma metadata remains authoritative because the model is unchanged.
+
+Gradle configuration cache and local build cache are enabled in
+[`gradle.properties`](../gradle.properties). The current checked-in Pipeline DSL
+does not expose TeamCity Build Cache, so cache reuse remains agent-local; do not
+add untyped YAML just to force that feature.
 
 The visual write step is still MCP-operated outside TeamCity. Until that write
 step is automated, `Figma Sync` is expected to fail after a model-affecting
@@ -129,6 +149,21 @@ allowReuse = false
 This prevents TeamCity from satisfying a branch or pull request pipeline with a
 previously successful job from another branch. The generated design model must
 belong to the same branch revision as the pipeline chain being validated.
+
+### Queue And Cache Behaviour
+
+Keep TeamCity's built-in build queue optimization enabled for the VCS trigger.
+It coalesces obsolete queued runs when a newer revision arrives. The Pipeline
+DSL used by this repository has no typed, versioned setting to cancel a job that
+has already started; do not add a self-cancellation REST script because it can
+race with a newer revision and cancel the wrong run.
+
+The repository enables Gradle configuration cache and build cache in
+[`gradle.properties`](../gradle.properties). The current TeamCity DSL artifact
+does not expose the Pipeline-compatible Build Cache API, so the active cache is
+the local Gradle cache on the Windows build agent. Re-evaluate TeamCity artifact
+caching only after the exact DSL dependency used by `.teamcity/pom.xml` exposes
+that feature and a generated configuration validates it.
 
 ## Repository Checkout
 
@@ -182,10 +217,10 @@ repositories:
     path: ""
 ```
 
-The generated script content should remain a direct Gradle call:
+The generated CI script content should invoke the versioned scope wrapper:
 
 ```yaml
-script-content: .\gradlew.bat check --stacktrace
+script-content: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1
 ```
 
 Do not perform `git init`, `git fetch`, or `git checkout` from build script

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "documentationOnlyPaths": [
+    "README.md",
+    "docs/*.md",
+    ".teamcity/README.md",
+    "repo/*/README.md",
+    "repo/*/docs/*.md"
+  ],
+  "rules": [
+    {
+      "id": "teamcity-pipelines",
+      "sourcePaths": [".teamcity/settings.kts", ".teamcity/pom.xml", ".teamcity/scripts/*"],
+      "documentationPaths": [".teamcity/README.md", "docs/runbooks/teamcity-cloudflare-access.md"]
+    },
+    {
+      "id": "figma-sync-implementation",
+      "sourcePaths": [
+        "repo/figma-design-sync/tools/*",
+        "repo/figma-design-sync/data/src/*",
+        "repo/figma-design-sync/domain/src/*",
+        "repo/figma-design-sync/plugin/src/*",
+        "repo/figma-design-sync/*/build.gradle.kts",
+        "repo/figma-design-sync/settings.gradle.kts"
+      ],
+      "documentationPaths": ["repo/figma-design-sync/README.md", "repo/figma-design-sync/docs/runbooks/*.md"]
+    },
+    {
+      "id": "dependency-catalog-model",
+      "sourcePaths": [
+        "repo/dependency-catalog/*/src/*",
+        "repo/dependency-catalog/*/build.gradle.kts",
+        "repo/dependency-catalog/settings.gradle.kts",
+        "repo/dependency-catalog/versions.properties",
+        "repo/gradle-plugins/*/src/*",
+        "repo/gradle-plugins/*/build.gradle.kts",
+        "repo/gradle-plugins/settings.gradle.kts",
+        "settings.gradle.kts",
+        "build.gradle.kts",
+        "gradle.properties"
+      ],
+      "documentationPaths": [
+        "repo/dependency-catalog/README.md",
+        "repo/gradle-plugins/README.md",
+        "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md",
+        "repo/figma-design-sync/docs/runbooks/dependency-version-naming.md",
+        "repo/figma-design-sync/docs/runbooks/visual-sync-contract.md"
+      ]
+    },
+    {
+      "id": "ci-topology",
+      "sourcePaths": ["docs/ci/external-topology.yaml", "docs/ci/windows-runtime.yaml"],
+      "documentationPaths": [
+        "docs/ci/external-topology-validation.md",
+        "docs/ci/windows-runtime-validation.md",
+        "docs/ci/visual-model-contract.md"
+      ]
+    }
+  ]
+}
