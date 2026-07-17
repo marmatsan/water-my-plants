@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildPartialCatalogSyncScope,
+  constrainCatalogLayoutToPadding,
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
@@ -174,6 +175,30 @@ test("child section reflow normalizes a single remaining root", () => {
   assert.equal(section.children[0].x, 100);
   assert.equal(section.children[0].y, 100);
   assert.deepEqual(mutatedNodeIds, ["org-id"]);
+});
+
+test("partial root layout shifts a wide subtree inside its section padding", () => {
+  const placements = new Map([
+    ["root", { x: 824, y: 100 }],
+    ["wide-leaf", { x: -280.5, y: 542 }],
+    ["right-leaf", { x: 1329.5, y: 321 }],
+  ]);
+  const layout = {
+    placements,
+    minX: -280.5,
+    maxX: 1986.5,
+    nextX: 2106.5,
+  };
+
+  const offset = constrainCatalogLayoutToPadding(layout, 100);
+
+  assert.equal(offset, 380.5);
+  assert.equal(layout.minX, 100);
+  assert.equal(layout.maxX, 2367);
+  assert.equal(layout.nextX, 2487);
+  assert.equal(placements.get("root").x, 1204.5);
+  assert.equal(placements.get("wide-leaf").x, 100);
+  assert.equal(placements.get("right-leaf").x, 1710);
 });
 
 function catalogNode(label: string, parentPath: string[] = []) {
