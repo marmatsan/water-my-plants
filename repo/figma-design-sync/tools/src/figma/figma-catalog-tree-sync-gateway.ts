@@ -101,7 +101,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       throw new Error(`Expected '${sectionNodeId}' to be a SECTION.`);
     }
     let traversalRoots = catalogTraversalRoots(section, isPartialRootSync ? scopedRootLabels : undefined);
-    unlockSectionTreeForMutation(section, mutatedNodeIds, isPartialRootSync ? traversalRoots : null);
+    unlockSectionTreeForMutation(section, mutatedNodeIds, traversalRoots);
     applyCatalogSectionContract(
       section,
       traversalRoots,
