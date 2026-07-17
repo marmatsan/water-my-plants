@@ -130,8 +130,10 @@ official runner uses one root-scoped `99-*.mcp.js` unit per declared root and a
 separate cleanup unit for stale nodes or sections that require a whole-catalog
 view. Cleanup may inspect every direct root of that catalog, but lock and unlock
 traversal remains scoped to the catalog section; it must not scan sibling
-catalogs under the shared parent documentation section. This keeps the runtime
-memory boundary aligned with the model scope.
+catalogs under the shared parent documentation section. The shared parent is
+unlocked directly so the catalog can be mutated, while descendant `findAll`
+calls start at the selected catalog section rather than at that parent. This
+keeps the runtime memory boundary aligned with the model scope.
 
 Known child sections:
 
