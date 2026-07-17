@@ -327,14 +327,28 @@ async function writeRunnerFiles(options) {
   }
 
   files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script, scriptBase64)));
-  files.push(await writeFileIn(outDir, "99-run-target.mcp.js", runTargetSource(options)));
+  files.push(...await writeTargetRunnerFiles(outDir, options));
   files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, scriptBase64, payloadImage));
 
   console.log(`Wrote ${files.length} MCP runner files to ${outDir}`);
   if (payloadImage) {
     console.log(`Upload ${PAYLOAD_PNG_FILE_NAME} to Figma before running 10-stage-payload-from-png.mcp.js.`);
   }
-  console.log(`Run them in lexical order, ending with 99-run-target.mcp.js.`);
+  console.log("Run every generated .mcp.js file in lexical order.");
+}
+
+async function writeTargetRunnerFiles(outDir, options) {
+  if (!options.fullVisualSync) {
+    return [await writeFileIn(outDir, "99-run-target.mcp.js", runTargetSource(options))];
+  }
+
+  const files = [];
+  for (let index = 0; index < options.targets.length; index += 1) {
+    const target = options.targets[index];
+    const fileName = `99-${String(index).padStart(2, "0")}-${safeName(target)}.mcp.js`;
+    files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target])));
+  }
+  return files;
 }
 
 async function writeChunkSources(outDir, key, value, options) {
@@ -716,9 +730,9 @@ return {
 `;
 }
 
-function runTargetSource(options) {
+function runTargetSource(options, targets = options.targets) {
   const syncOptions = {
-    targets: options.targets,
+    targets,
     writeMetadata: options.writeMetadata,
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
     ...(options.roots.length > 0 ? { catalogRootFilters: { [options.target]: options.roots } } : {}),

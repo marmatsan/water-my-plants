@@ -42,15 +42,22 @@ test("official runner defaults to the complete visual sync without metadata", as
       workspace.outDir,
       "official-trunk-sync-all-visual-png-design-model-json"
     );
+    const files = await readdir(runDir);
     const manifest = readManifest(runDir);
-    const runTargetSource = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
+    const preflightSource = readFileSync(join(runDir, "99-00-preflight.mcp.js"), "utf8");
+    const versionsSource = readFileSync(join(runDir, "99-02-versions.mcp.js"), "utf8");
+    const runtimeSource = readFileSync(join(runDir, "99-15-ci-windowsRuntime.mcp.js"), "utf8");
 
     assert.deepEqual(manifest.targets, FULL_VISUAL_TARGETS);
     assert.equal(manifest.fullVisualSync, true);
     assert.equal(manifest.allowPartial, false);
     assert.equal(manifest.writeMetadata, false);
-    assert.match(runTargetSource, /"targets":\["preflight","headers","versions"/);
-    assert.doesNotMatch(runTargetSource, /writeMetadata":true/);
+    assert.ok(!files.includes("99-run-target.mcp.js"));
+    assert.equal(files.filter((fileName) => fileName.startsWith("99-")).length, FULL_VISUAL_TARGETS.length);
+    assert.match(preflightSource, /"targets":\["preflight"\]/);
+    assert.match(versionsSource, /"targets":\["versions"\]/);
+    assert.match(runtimeSource, /"targets":\["ci\.windowsRuntime"\]/);
+    assert.doesNotMatch(runtimeSource, /writeMetadata":true/);
   } finally {
     await rm(workspace.root, { recursive: true, force: true });
   }
