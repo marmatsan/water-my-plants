@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildOfficialSyncPayload,
   createPayloadPng,
+  PAYLOAD_PNG_SCHEMA_VERSION,
   PAYLOAD_PNG_TEXT_KEYWORD,
   stringifyAsciiJson,
 } from "../scripts/payload-png";
@@ -43,6 +44,7 @@ test("createPayloadPng stores the official sync payload as a PNG text chunk", ()
   );
   assert.equal(payload.script, script);
   assert.equal(payload.scriptLength, script.length);
+  assert.equal(payload.payloadSchemaVersion, PAYLOAD_PNG_SCHEMA_VERSION);
 });
 
 function readPayloadFromPngText(bytes: Buffer, keyword: string): string | null {

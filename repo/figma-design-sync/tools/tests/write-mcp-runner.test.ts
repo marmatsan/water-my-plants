@@ -162,6 +162,7 @@ test("official runner supports an explicitly partial diagnostic target", async (
 
     const stageSource = readFileSync(join(runDir, "10-stage-payload-from-png.mcp.js"), "utf8");
     const runTargetSource = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
+    assert.match(stageSource, /payload\.payloadSchemaVersion === expected\.payloadSchemaVersion/);
     assert.match(stageSource, /setSharedPluginData\(namespace, "script", payload\.script\)/);
     assert.doesNotMatch(stageSource, /setSharedPluginData\(namespace, "scriptBase64"/);
     assert.match(runTargetSource, /getSharedPluginData\(namespace, "script"\)/);

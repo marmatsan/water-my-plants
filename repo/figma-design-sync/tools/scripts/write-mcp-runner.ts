@@ -5,6 +5,7 @@ import {
   buildOfficialSyncPayload,
   createPayloadPng,
   MAX_FIGMA_UPLOAD_ASSET_BYTES,
+  PAYLOAD_PNG_SCHEMA_VERSION,
   PAYLOAD_PNG_TEXT_KEYWORD,
   stringifyAsciiJson,
 } from "./payload-png";
@@ -533,6 +534,7 @@ const namespace = ${JSON.stringify(options.namespace)};
 const payloadKeyword = ${JSON.stringify(PAYLOAD_PNG_TEXT_KEYWORD)};
 const payloadFileName = ${JSON.stringify(payloadFileName)};
 const expected = {
+  payloadSchemaVersion: ${JSON.stringify(PAYLOAD_PNG_SCHEMA_VERSION)},
   designModelHash: ${JSON.stringify(designModel.modelHash)},
   designModelGitSha: ${JSON.stringify(designModel.gitSha)},
   designModelLength: ${JSON.stringify(String(modelJson.length))},
@@ -580,6 +582,7 @@ for (const imageHash of imageHashes) {
 
   const payload = JSON.parse(atob(encodedPayload));
   if (
+    payload.payloadSchemaVersion === expected.payloadSchemaVersion &&
     payload.designModelHash === expected.designModelHash &&
     String(payload.designModelLength) === expected.designModelLength &&
     String(payload.scriptLength) === expected.scriptLength
@@ -617,6 +620,7 @@ for (const node of imageNodes) {
 return {
   namespace,
   transport: "png",
+  payloadSchemaVersion: expected.payloadSchemaVersion,
   payloadNodesRemoved,
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
@@ -636,6 +640,9 @@ function validatePayload(payload, expected) {
     }
   }
 
+  if (payload.payloadSchemaVersion !== expected.payloadSchemaVersion) {
+    throw new Error(\`Payload schema version mismatch: \${payload.payloadSchemaVersion} != \${expected.payloadSchemaVersion}\`);
+  }
   if (payload.designModelHash !== expected.designModelHash) {
     throw new Error(\`Payload modelHash mismatch: \${payload.designModelHash} != \${expected.designModelHash}\`);
   }

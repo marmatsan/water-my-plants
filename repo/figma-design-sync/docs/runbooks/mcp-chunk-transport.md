@@ -176,6 +176,12 @@ The PNG transport writes all keys in one staging step after validating the
 payload hash, Git SHA, model length, and script length.
 Chunk transport writes the same keys incrementally.
 
+The PNG payload also carries a `payloadSchemaVersion`. Candidate discovery must
+match that version before comparing model metadata, so an uploaded image from
+an older transport contract cannot be selected merely because it has the same
+model hash and lengths. The staging runner removes only the selected compatible
+payload node after a successful write.
+
 The Figma MCP `use_figma` call has a practical source-size limit near 50k
 characters. Stage large payloads in temporary shared plugin data, validate
 lengths before execution, and do not copy long payloads manually from terminal
