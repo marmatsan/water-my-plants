@@ -256,6 +256,28 @@ test("official runner accepts the granular Windows runtime target", async () => 
   }
 });
 
+test("official runner accepts a root-qualified catalog execution scope", async () => {
+  const workspace = createRunnerFixture();
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      "--target=waterMyPlants.libraries.androidx",
+      "--allow-partial=true",
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(workspace.outDir, "official-trunk-sync-waterMyPlants-libraries-png-design-model-json");
+    const source = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
+    assert.match(source, /"catalogRootFilters":\{"waterMyPlants\.libraries":\["androidx"\]\}/);
+    assert.match(source, /executionScope: "waterMyPlants\.libraries\.androidx"/);
+    assert.match(source, /modelTarget: "waterMyPlants\.libraries"/);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
 test("official runner can explicitly use chunk transport fallback", async () => {
   const workspace = createRunnerFixture();
 

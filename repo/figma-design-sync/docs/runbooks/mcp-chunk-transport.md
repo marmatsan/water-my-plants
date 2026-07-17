@@ -89,11 +89,10 @@ does not have to be the metadata page. The staging runner searches document
 image fills and does not rely on `loadAllPagesAsync`; this MCP runtime may
 expose that API while rejecting it at execution time.
 
-To run only one top-level catalog root against its child section, add `--roots`
-and `--section-node-id`:
+To run only one top-level catalog root, use its explicit execution scope:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630 --allow-partial=true
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries.androidx --allow-partial=true
 ```
 
 Use this for large catalog targets that hit MCP timeouts or generic Figma

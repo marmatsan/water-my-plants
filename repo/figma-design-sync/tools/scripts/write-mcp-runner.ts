@@ -156,7 +156,9 @@ function resolveOptions(args) {
   if (!targetValue) {
     throw new Error("Missing --target. Preview fixtures can infer a default target.");
   }
-  const targets = targetValue === "all" ? [...FULL_VISUAL_TARGETS] : parseTargets(targetValue);
+  const requestedTargets = targetValue === "all" ? [...FULL_VISUAL_TARGETS] : parseTargets(targetValue);
+  const scopedTargets = requestedTargets.map(parseTargetScope);
+  const targets = scopedTargets.map(({ target }) => target);
   if (targets.length === 0) {
     throw new Error("Missing --target.");
   }
@@ -235,7 +237,11 @@ function resolveOptions(args) {
     : OFFICIAL_STAGING_NAMESPACE;
   const writeMetadata = mode === "official" && target === "metadata";
   const sectionNodeId = args["section-node-id"];
-  const roots = parseRoots(args.roots);
+  const scopedRoots = scopedTargets.flatMap(({ root }) => root ? [root] : []);
+  if (scopedRoots.length > 0 && args.roots) {
+    throw new Error("A root-qualified target cannot be combined with --roots.");
+  }
+  const roots = scopedRoots.length > 0 ? scopedRoots : parseRoots(args.roots);
   const allowOfficialSections = args["allow-official-sections"] === "true";
 
   if ((sectionNodeId || roots.length > 0) && targets.length !== 1) {
@@ -260,6 +266,7 @@ function resolveOptions(args) {
     entrypoint,
     target,
     targets,
+    requestedTargets,
     modelPath,
     scriptPath,
     outRoot,
@@ -349,7 +356,7 @@ async function writeTargetRunnerFiles(outDir, options, designModel) {
     const roots = catalogRoots(designModel, target);
     if (roots.length === 0) {
       const fileName = `99-${String(index).padStart(2, "0")}-${safeName(target)}.mcp.js`;
-      files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target])));
+      files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target], { executionScope: target })));
       continue;
     }
 
@@ -359,7 +366,7 @@ async function writeTargetRunnerFiles(outDir, options, designModel) {
       files.push(await writeFileIn(
         outDir,
         fileName,
-        runTargetSource(options, [target], { roots: [root] })
+        runTargetSource(options, [target], { roots: [root], executionScope: `${target}.${root}` })
       ));
     }
 
@@ -367,7 +374,7 @@ async function writeTargetRunnerFiles(outDir, options, designModel) {
     files.push(await writeFileIn(
       outDir,
       cleanupFileName,
-      runTargetSource(options, [target], { cleanupOnly: true })
+      runTargetSource(options, [target], { cleanupOnly: true, executionScope: `${target}.cleanup` })
     ));
   }
   return files;
@@ -781,10 +788,11 @@ function runTargetSource(options, targets = options.targets, runOptions = {}) {
     ...(roots.length > 0 ? { catalogRootFilters: { [target]: roots } } : {}),
     ...(runOptions.cleanupOnly ? { catalogCleanupOnlyTargets: [target] } : {}),
   };
+  const executionScope = runOptions.executionScope || options.requestedTargets?.[0] || target;
 
   const invokeScript = options.entrypoint === "preview-catalog"
     ? previewCatalogInvocationSource()
-    : trunkSyncInvocationSource();
+    : trunkSyncInvocationSource(executionScope, target);
 
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
@@ -849,7 +857,7 @@ ${invokeScript}
 `;
 }
 
-function trunkSyncInvocationSource() {
+function trunkSyncInvocationSource(executionScope, target) {
   return `
 script = script.replace(
   "const DESIGN_MODEL = undefined;",
@@ -863,7 +871,8 @@ script = script.replace(
 const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
 const run = new AsyncFunction("figma", "stagedModel", script);
 
-return await run(figma, stagedModel);
+const result = await run(figma, stagedModel);
+return { ...result, executionScope: ${JSON.stringify(executionScope)}, modelTarget: ${JSON.stringify(target)} };
 `;
 }
 
@@ -937,6 +946,17 @@ function parseTargets(value) {
       .map((target) => target.trim())
       .filter(Boolean)
   )];
+}
+
+function parseTargetScope(value) {
+  if (KNOWN_TARGETS.includes(value)) return { target: value, root: null };
+  const catalogTarget = [...CATALOG_TARGETS].sort((left, right) => right.length - left.length)
+    .find((target) => value.startsWith(`${target}.`));
+  if (!catalogTarget) return { target: value, root: null };
+  const root = value.slice(catalogTarget.length + 1);
+  return !root || root === "cleanup" || root.includes(".")
+    ? { target: value, root: null }
+    : { target: catalogTarget, root };
 }
 
 function sameTargets(actual, expected) {
