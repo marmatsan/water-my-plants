@@ -104,8 +104,13 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.description, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.steps, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.source, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.runtimePlatform, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.runtimeService, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.runtimeStartup, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.runtimeIdentity, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
+  requireComponentProperty(component, CI_NODE_PROPS.showRuntime, "BOOLEAN");
   checkedComponents.push(`${component.name}:${component.id}`);
 
   const iconSet = await requireComponentSet(CI_ICON_COMPONENT_SET_ID);

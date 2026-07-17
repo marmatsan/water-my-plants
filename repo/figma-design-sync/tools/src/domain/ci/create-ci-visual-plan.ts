@@ -5,6 +5,7 @@ export const CI_VISUAL_TARGET_NAMES = [
   "ci.pullRequestIntegration",
   "ci.postMergeDesignDocumentation",
   "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
 ] as const;
 
 export type CiVisualTargetName = typeof CI_VISUAL_TARGET_NAMES[number];
@@ -29,6 +30,13 @@ export type CiVisualEnvironment =
   | "operator"
   | "json";
 
+export type CiVisualRuntime = {
+  platform: string;
+  service: string;
+  startup: string;
+  identity: string;
+};
+
 export type CiVisualNode = {
   id: string;
   type: CiVisualNodeType;
@@ -36,6 +44,7 @@ export type CiVisualNode = {
   name: string;
   description: string;
   steps?: string;
+  runtime?: CiVisualRuntime;
   source: string;
   sourceUrl: string;
   row: number;
@@ -67,6 +76,8 @@ export type CiVisualPlan = {
 const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
 const TEAMCITY_SOURCE = ".teamcity/settings.kts";
 const TOPOLOGY_SOURCE = "docs/ci/external-topology.yaml";
+const WINDOWS_RUNTIME_SOURCE = "docs/ci/windows-runtime.yaml";
+const WINDOWS_RUNTIME_RUNBOOK_SOURCE = "docs/runbooks/teamcity-cloudflare-access.md";
 const VISUAL_CONTRACT_SOURCE = "docs/ci/visual-model-contract.md";
 const BRANCH_PROTECTION_SOURCE = "docs/ci/main-branch-protection.md";
 const OFFICIAL_SYNC_SOURCE = "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md";
@@ -83,6 +94,7 @@ export function createCiVisualPlan(designModel: DesignModel): CiVisualPlan {
       createPullRequestSection(ciPipeline),
       createPostMergeSection(ci, figmaPipeline),
       createInfrastructureSection(ci),
+      createWindowsRuntimeSection(ci),
     ],
   };
 }
@@ -97,6 +109,13 @@ export function requireCiContent(designModel: DesignModel) {
   }
   if (!ci.teamCity || !Array.isArray(ci.teamCity.pipelines) || !Array.isArray(ci.teamCity.vcsRoots)) {
     throw new Error("designModel.content.ci.teamCity must contain pipelines and vcsRoots.");
+  }
+  if (
+    !ci.windowsRuntime ||
+    typeof ci.windowsRuntime.platform !== "string" ||
+    !Array.isArray(ci.windowsRuntime.services)
+  ) {
+    throw new Error("designModel.content.ci.windowsRuntime must contain platform and services.");
   }
   return ci;
 }
@@ -266,6 +285,37 @@ function createInfrastructureSection(ci): CiVisualSection {
   );
 }
 
+function createWindowsRuntimeSection(ci): CiVisualSection {
+  const nodes = ci.windowsRuntime.services.map((service, index) => ({
+    ...visualNode(
+      `windows-runtime-${service.id}`,
+      "system",
+      windowsRuntimeEnvironment(service.id),
+      service.name,
+      service.description,
+      WINDOWS_RUNTIME_SOURCE,
+      0,
+      index
+    ),
+    runtime: {
+      platform: ci.windowsRuntime.platform,
+      service: service.service,
+      startup: service.startup,
+      identity: service.identity,
+    },
+  }));
+
+  return section(
+    "ci.windowsRuntime",
+    "Windows Service Runtime",
+    "Versioned inventory of the Windows services that host the local CI runtime.",
+    [WINDOWS_RUNTIME_SOURCE, WINDOWS_RUNTIME_RUNBOOK_SOURCE],
+    "grid",
+    nodes,
+    []
+  );
+}
+
 function section(target, name, description, sources, orientation, nodes, connections): CiVisualSection {
   return {
     target,
@@ -314,6 +364,17 @@ export function externalEnvironment(id: string): CiVisualEnvironment {
   };
   const environment = environments[id];
   if (!environment) throw new Error(`External CI node '${id}' has no .ci icon environment mapping.`);
+  return environment;
+}
+
+export function windowsRuntimeEnvironment(id: string): CiVisualEnvironment {
+  const environments: Record<string, CiVisualEnvironment> = {
+    "teamcity-server": "teamcity",
+    "teamcity-build-agent": "teamcity",
+    "cloudflared-agent": "cloudflare",
+  };
+  const environment = environments[id];
+  if (!environment) throw new Error(`Windows CI runtime service '${id}' has no .ci icon environment mapping.`);
   return environment;
 }
 

@@ -26,15 +26,15 @@ used by CI.
 ## Package Layout
 
 - `domain/model/catalog`: catalog tree, node, entry, and version models.
-- `domain/model/ci`: external topology and effective TeamCity configuration
-  models used by CI documentation.
+- `domain/model/ci`: external topology, Windows service runtime, and effective
+  TeamCity configuration models used by CI documentation.
 - `domain/model/figma`: Figma references used by domain requests.
 - `domain/model/modules`: module dependency models included in the generated
   design model.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
-- `domain/port/ci`: path-based sources and ports for external topology and
-  effective TeamCity configuration.
+- `domain/port/ci`: path-based sources and ports for external topology,
+  Windows service runtime, and effective TeamCity configuration.
 - `data/datasource/catalog`, `data/datasource/modules`, and
   `data/datasource/versions`: implementations of domain ports grouped by
   capability.
@@ -49,7 +49,8 @@ used by CI.
   models. Keep both module dependencies explicit.
 - `data/properties/versions`: readers for version properties files.
 - `data/teamcity/configuration`: readers for TeamCity generated YAML and XML.
-- `data/yaml/ci`: YAML 1.2 reader for the versioned external topology.
+- `data/yaml/ci`: YAML 1.2 readers for the versioned external topology and
+  Windows service runtime.
 - `plugin/generator`: design model JSON generation and hash calculation.
 - `plugin/checker/versions`: Gradle-facing adapter that verifies repository
   version section and suffix naming before CI can merge catalog changes.
@@ -74,6 +75,9 @@ used by CI.
   naming contract. This task is wired into the root `check` lifecycle.
 - `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
   validation window in `docs/ci/external-topology.yaml` expires. This task is
+  wired into the root `check` lifecycle.
+- `checkCiWindowsRuntimeFreshness`: emits a non-blocking warning after the
+  validation window in `docs/ci/windows-runtime.yaml` expires. This task is
   wired into the root `check` lifecycle.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.

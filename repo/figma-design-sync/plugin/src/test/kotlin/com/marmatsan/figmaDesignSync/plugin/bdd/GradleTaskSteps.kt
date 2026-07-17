@@ -264,6 +264,22 @@ class GradleTaskSteps : En {
             connections: []
             """.trimIndent()
         )
+        resolve("docs/ci/windows-runtime.yaml").writeText(
+            """
+            schemaVersion: 1
+            validation:
+              lastValidatedOn: "2026-07-16"
+              warnAfterDays: 90
+            platform: Windows
+            services:
+              - id: teamcity-server
+                name: TeamCity Server
+                description: Hosts TeamCity.
+                service: TeamCity
+                startup: Automatic
+                identity: NT SERVICE\TeamCity
+            """.trimIndent()
+        )
         resolve(".teamcity/target/generated-configs/Root_Ci").mkdirs()
         resolve(".teamcity/target/generated-configs/Root_Ci/project-config.xml").writeText(
             """

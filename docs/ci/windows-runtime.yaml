@@ -1,0 +1,29 @@
+schemaVersion: 1
+
+validation:
+  lastValidatedOn: "2026-07-16"
+  warnAfterDays: 90
+
+platform: Windows
+
+services:
+  - id: teamcity-server
+    name: TeamCity Server
+    description: Hosts the TeamCity server and owns its data directory.
+    service: TeamCity
+    startup: Automatic
+    identity: NT SERVICE\TeamCity
+
+  - id: teamcity-build-agent
+    name: TeamCity Build Agent
+    description: Executes repository jobs in the agent work directories.
+    service: TCBuildAgent
+    startup: Automatic
+    identity: NT SERVICE\TCBuildAgent
+
+  - id: cloudflared-agent
+    name: Cloudflared Agent
+    description: Publishes the private TeamCity origin through Cloudflare Tunnel.
+    service: Cloudflared
+    startup: Automatic
+    identity: LocalSystem

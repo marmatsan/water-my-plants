@@ -171,12 +171,13 @@ async function syncParentHeader(parent, mutatedNodeIds) {
     sourceLink("docs/ci/visual-model-contract.md"),
     sourceLink(".teamcity/settings.kts"),
     sourceLink("docs/ci/external-topology.yaml"),
+    sourceLink("docs/ci/windows-runtime.yaml"),
   ];
   setComponentTextProperty(header, "Header", "Continuous Integration and Design Documentation");
   setComponentTextProperty(
     header,
     "Definition",
-    "Current pull request integration, post-merge design documentation, and CI infrastructure."
+    "Current pull request integration, post-merge design documentation, CI infrastructure, and Windows service runtime."
   );
   const linkText = links.map((link) => link.label).join("\n");
   setComponentTextProperty(header, "Link", linkText);
@@ -359,18 +360,40 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   instance.setExplicitVariableModeForCollection(modeCollection, modeId);
   const icon = requireSingleNestedInstance(instance, CI_ICON_INSTANCE_NAME);
   setComponentVariantProperty(icon, CI_ICON_ENVIRONMENT_PROPERTY, nodePlan.environment);
-  setComponentTextProperty(instance, CI_NODE_PROPS.name, nodePlan.name);
-  setComponentTextProperty(instance, CI_NODE_PROPS.description, nodePlan.description);
-  setComponentTextProperty(instance, CI_NODE_PROPS.steps, nodePlan.steps || "");
-  setComponentTextProperty(instance, CI_NODE_PROPS.source, nodePlan.source);
-  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, Boolean(nodePlan.steps));
-  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, true);
+  const properties = ciNodePropertyValues(nodePlan);
+  setComponentTextProperty(instance, CI_NODE_PROPS.name, properties.name);
+  setComponentTextProperty(instance, CI_NODE_PROPS.description, properties.description);
+  setComponentTextProperty(instance, CI_NODE_PROPS.steps, properties.steps);
+  setComponentTextProperty(instance, CI_NODE_PROPS.source, properties.source);
+  setComponentTextProperty(instance, CI_NODE_PROPS.runtimePlatform, properties.runtimePlatform);
+  setComponentTextProperty(instance, CI_NODE_PROPS.runtimeService, properties.runtimeService);
+  setComponentTextProperty(instance, CI_NODE_PROPS.runtimeStartup, properties.runtimeStartup);
+  setComponentTextProperty(instance, CI_NODE_PROPS.runtimeIdentity, properties.runtimeIdentity);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, properties.showSteps);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, properties.showSource);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showRuntime, properties.showRuntime);
   await applyTextLinks(
     instance,
     "File",
     [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
     nodePlan.source
   );
+}
+
+export function ciNodePropertyValues(nodePlan: CiVisualNode) {
+  return {
+    name: nodePlan.name,
+    description: nodePlan.description,
+    steps: nodePlan.steps || "",
+    source: nodePlan.source,
+    runtimePlatform: nodePlan.runtime?.platform || "",
+    runtimeService: nodePlan.runtime?.service || "",
+    runtimeStartup: nodePlan.runtime?.startup || "",
+    runtimeIdentity: nodePlan.runtime?.identity || "",
+    showSteps: Boolean(nodePlan.steps),
+    showSource: true,
+    showRuntime: Boolean(nodePlan.runtime),
+  };
 }
 
 function layoutNodeGroups(

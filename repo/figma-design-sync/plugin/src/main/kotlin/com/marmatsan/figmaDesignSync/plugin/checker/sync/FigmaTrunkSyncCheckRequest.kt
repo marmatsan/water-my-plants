@@ -21,6 +21,7 @@ internal data class FigmaTrunkSyncCheckRequest(
     val versionsFile: File,
     val rootSettingsFile: File,
     val ciExternalTopologyFile: File,
+    val ciWindowsRuntimeFile: File,
     val teamCityGeneratedConfigurationDirectory: File,
     val projectRootDirectory: File,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>

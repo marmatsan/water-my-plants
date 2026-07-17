@@ -38,8 +38,13 @@ export const CI_NODE_PROPS = {
   description: "description",
   steps: "steps",
   source: "source",
+  runtimePlatform: "runtime platform",
+  runtimeService: "runtime service",
+  runtimeStartup: "runtime startup",
+  runtimeIdentity: "runtime identity",
   showSteps: "show steps",
   showSource: "show source",
+  showRuntime: "show runtime",
 };
 export const VERSIONS_COLLECTION_NAME = "repo\\dependency-catalog\\versions.properties";
 export const VERSIONS_COLLECTION_NAMES = [VERSIONS_COLLECTION_NAME];

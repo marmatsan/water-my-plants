@@ -40,6 +40,7 @@ export type SyncTargetName =
   | "ci.pullRequestIntegration"
   | "ci.postMergeDesignDocumentation"
   | "ci.infrastructureAndAccess"
+  | "ci.windowsRuntime"
   | "metadata";
 
 export type SyncFigmaDesignModelOptions = {

@@ -107,6 +107,28 @@ test("official runner accepts preflight plus a granular CI documentation target"
   }
 });
 
+test("official runner accepts the granular Windows runtime target", async () => {
+  const workspace = createRunnerFixture();
+  try {
+    runRunner([
+      "--mode=official",
+      `--model=${workspace.modelPath}`,
+      `--script=${workspace.scriptPath}`,
+      "--targets=preflight,ci.windowsRuntime",
+      `--out-dir=${workspace.outDir}`,
+    ]);
+
+    const runDir = join(
+      workspace.outDir,
+      "official-trunk-sync-preflight-ci-windowsRuntime-png-design-model-json"
+    );
+    const manifest = readManifest(runDir);
+    assert.deepEqual(manifest.targets, ["preflight", "ci.windowsRuntime"]);
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
 test("official runner can explicitly use chunk transport fallback", async () => {
   const workspace = createRunnerFixture();
 

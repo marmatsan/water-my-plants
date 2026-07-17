@@ -36,6 +36,7 @@ const KNOWN_TARGETS = [
   "ci.pullRequestIntegration",
   "ci.postMergeDesignDocumentation",
   "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
   "metadata",
 ];
 

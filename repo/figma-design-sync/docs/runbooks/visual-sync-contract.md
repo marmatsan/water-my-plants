@@ -100,7 +100,8 @@ must be the top layer. The background is opaque, so reversing this order keeps
 the text in the document but makes it disappear visually.
 `Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
 use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
-topology grid. Horizontal flows connect from the side anchors of their node
+topology grid. `Windows Service Runtime` is a connector-free grid whose service
+nodes share one row. Horizontal flows connect from the side anchors of their node
 groups and vertically align node centers. Their inter-node gap grows when
 necessary so the connector label fits centered on the horizontal connector.
 Disconnected horizontal flows are stacked as separate rows and each row starts
@@ -128,6 +129,11 @@ The visual plan maps every node explicitly; there is no generic fallback. The
 preflight must fail when the nested instance is absent or duplicated, belongs
 to another component set, lacks the `environment` property, or exposes a
 different set of variant values.
+The `.ci node` component also exposes `runtime platform`, `runtime service`,
+`runtime startup`, `runtime identity`, and `show runtime`. The writer sets all
+four text properties and enables the runtime block only when the visual node
+contains complete runtime data. The preflight requires these properties even
+for targets whose instances keep the runtime block hidden.
 Text alignment is owned by `.ci node`, `.Header`, and the connector template;
 the writer does not override sublayer alignment because the MCP text proxy does
 not expose that style mutation consistently.

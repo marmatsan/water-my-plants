@@ -89,6 +89,11 @@ abstract class figmaDesignSyncExtension @Inject constructor(
     val ciExternalTopologyFile: RegularFileProperty = objects.fileProperty()
 
     /**
+     * Versioned Windows services rendered in CI documentation.
+     */
+    val ciWindowsRuntimeFile: RegularFileProperty = objects.fileProperty()
+
+    /**
      * Effective TeamCity configuration generated from the versioned Kotlin DSL.
      */
     val teamCityGeneratedConfigurationDirectory: DirectoryProperty = objects.directoryProperty()
@@ -110,6 +115,7 @@ abstract class figmaDesignSyncExtension @Inject constructor(
         versionsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
         rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
         ciExternalTopologyFile.convention(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
+        ciWindowsRuntimeFile.convention(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
         teamCityGeneratedConfigurationDirectory.convention(
             layout.projectDirectory.dir(".teamcity/target/generated-configs")
         )

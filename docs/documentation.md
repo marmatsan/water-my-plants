@@ -57,4 +57,6 @@ scripts should stay together.
 - CI policy: `docs/ci/main-branch-protection.md`
 - TeamCity HTTPS and webhook operations:
   `docs/runbooks/teamcity-cloudflare-access.md`
+- Windows CI runtime inventory validation:
+  `docs/ci/windows-runtime-validation.md`
 - Figma design sync docs: `repo/figma-design-sync/docs/README.md`

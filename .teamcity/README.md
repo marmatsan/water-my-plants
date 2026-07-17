@@ -8,6 +8,8 @@ is documented in
 Public HTTPS access, Cloudflare policies, CLI service authentication, webhook
 validation, and CSRF recovery are documented in
 [`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md).
+The Windows services that host this configuration are versioned in
+[`docs/ci/windows-runtime.yaml`](../docs/ci/windows-runtime.yaml).
 
 ## Branching Workflow
 

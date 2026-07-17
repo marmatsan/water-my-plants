@@ -3,6 +3,7 @@ package com.marmatsan.figmaDesignSync.plugin.gradle
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import com.marmatsan.figmaDesignSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiExternalTopologyFreshnessTask
+import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import com.marmatsan.figmaDesignSync.plugin.task.versions.CheckFigmaVersionNamingTask
@@ -70,11 +71,19 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
 
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
             }
+        val checkCiWindowsRuntimeFreshness =
+            project.tasks.register<CheckCiWindowsRuntimeFreshnessTask>("checkCiWindowsRuntimeFreshness") {
+                group = "verification"
+                description = "Warns when the Windows CI runtime has not been validated recently."
+
+                ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
+            }
 
         project.tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
             dependsOn(checkFigmaCatalogUsage)
             dependsOn(checkFigmaVersionNaming)
             dependsOn(checkCiExternalTopologyFreshness)
+            dependsOn(checkCiWindowsRuntimeFreshness)
         }
 
         project.tasks.register<GenerateFigmaDesignModelTask>("generateFigmaDesignModel") {
@@ -84,6 +93,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
+            ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
             teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
                 includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
@@ -113,6 +123,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
+            ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
             teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
                 includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }

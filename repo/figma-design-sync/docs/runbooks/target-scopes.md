@@ -42,8 +42,9 @@ CI documentation visual targets:
 | `ci.pullRequestIntegration` | Effective `.teamcity/settings.kts` model and branch protection contract | `Pull Request Integration` inside page `63153:2876` |
 | `ci.postMergeDesignDocumentation` | Effective Figma Sync pipeline and the operator/MCP loop | `Post-merge Design Documentation` inside page `63153:2876` |
 | `ci.infrastructureAndAccess` | `docs/ci/external-topology.yaml` | `Infrastructure and Access` inside page `63153:2876` |
+| `ci.windowsRuntime` | `docs/ci/windows-runtime.yaml` | `Windows Service Runtime` inside page `63153:2876` |
 
-The four targets share the parent section `Continuous Integration and Design
+The five targets share the parent section `Continuous Integration and Design
 Documentation`. Run one target at a time while iterating; the writer reuses the
 parent and only replaces nodes and connectors managed by the requested child
 section.
@@ -92,7 +93,8 @@ alone when you only want to inspect the contract without changing visuals.
 | 12 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job or published check missing from Figma | Nodes and summarized steps match `content.ci.teamCity`. |
 | 13 | `ci.postMergeDesignDocumentation` | Official model generation and operator-assisted visual update loop | Automatic Figma write implied, artifact missing, or rerun loop absent | `design-model.json`, the operator/Codex handoff, and `Rerun via HTTPS client` are visible. |
 | 14 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
-| 15 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
+| 15 | `ci.windowsRuntime` | TeamCity Server, TeamCity Build Agent, and Cloudflared Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
+| 16 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
 ## Subtree Scoped Runs
 
