@@ -1,12 +1,16 @@
 [CmdletBinding()]
 param(
-    [string]$ManifestPath = (Join-Path $PSScriptRoot "../documentation-coverage.json"),
+    [string]$ManifestPath,
     [string[]]$ChangedPath,
     [switch]$FailOnDocumentationGap,
     [switch]$AsJson
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
+    $ManifestPath = Join-Path $PSScriptRoot "../documentation-coverage.json"
+}
 
 function Normalize-Path([string]$Path) {
     return $Path.Trim().Replace("\\", "/")
