@@ -9,6 +9,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
@@ -260,6 +261,38 @@ internal fun CiExternalTopology.toDesignJson(): JsonObject =
                         put("path", connection.path.toJsonPrimitiveOrNull())
                         put("automation", connection.automation.serializedName)
                         put("annotation", connection.annotation.toJsonPrimitiveOrNull())
+                    }
+                }
+                .let(::JsonArray)
+        )
+    }
+
+/**
+ * Converts the versioned Windows CI runtime to its stable model shape.
+ */
+internal fun CiWindowsRuntime.toDesignJson(): JsonObject =
+    buildJsonObject {
+        put("schemaVersion", schemaVersion)
+        put(
+            "validation",
+            buildJsonObject {
+                put("lastValidatedOn", validation.lastValidatedOn.toString())
+                put("warnAfterDays", validation.warnAfterDays)
+            }
+        )
+        put("platform", platform)
+        put(
+            "services",
+            services
+                .sortedBy(CiWindowsRuntime.Service::id)
+                .map { service ->
+                    buildJsonObject {
+                        put("id", service.id)
+                        put("name", service.name)
+                        put("description", service.description)
+                        put("service", service.service)
+                        put("startup", service.startup)
+                        put("identity", service.identity)
                     }
                 }
                 .let(::JsonArray)

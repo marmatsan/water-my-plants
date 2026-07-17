@@ -4,6 +4,8 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSourc
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimeSource
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
@@ -37,6 +39,7 @@ internal class FigmaDesignModelGenerator(
     private val projectModulesPort: ProjectModulesPort,
     private val projectModuleDependenciesPort: ProjectModuleDependenciesPort,
     private val ciExternalTopologyPort: CiExternalTopologyPort,
+    private val ciWindowsRuntimePort: CiWindowsRuntimePort,
     private val teamCityConfigurationPort: TeamCityConfigurationPort
 ) {
     /**
@@ -104,6 +107,12 @@ internal class FigmaDesignModelGenerator(
                 "externalTopology",
                 ciExternalTopologyPort
                     .readTopology(CiExternalTopologySource(request.ciExternalTopologyFile.absolutePath))
+                    .toDesignJson()
+            )
+            put(
+                "windowsRuntime",
+                ciWindowsRuntimePort
+                    .readRuntime(CiWindowsRuntimeSource(request.ciWindowsRuntimeFile.absolutePath))
                     .toDesignJson()
             )
             put(
@@ -225,6 +234,6 @@ internal class FigmaDesignModelGenerator(
         }
 
     private companion object {
-        const val SCHEMA_VERSION = 3
+        const val SCHEMA_VERSION = 4
     }
 }

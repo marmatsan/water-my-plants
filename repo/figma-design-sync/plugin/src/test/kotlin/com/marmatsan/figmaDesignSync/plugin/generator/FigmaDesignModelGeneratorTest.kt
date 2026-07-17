@@ -10,6 +10,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
@@ -19,6 +20,8 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSourc
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimeSource
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
@@ -242,16 +245,19 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         gradlePluginsCatalog?.get("plugins") shouldBe null
     }
 
-    test("generate writes external topology and effective TeamCity configuration") {
+    test("generate writes external topology Windows runtime and effective TeamCity configuration") {
         // WHEN
         val result = generator().generate(request())
 
         // THEN
-        result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "3"
+        result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
         val ci = result.model["content"]?.jsonObject?.get("ci")?.jsonObject
         ci?.get("externalTopology")?.jsonObject
             ?.get("nodes")?.jsonArray?.single()?.jsonObject
             ?.get("name")?.jsonPrimitive?.content shouldBe "Operator"
+        ci?.get("windowsRuntime")?.jsonObject
+            ?.get("services")?.jsonArray?.single()?.jsonObject
+            ?.get("service")?.jsonPrimitive?.content shouldBe "TeamCity"
         ci?.get("teamCity")?.jsonObject
             ?.get("pipelines")?.jsonArray?.single()?.jsonObject
             ?.get("name")?.jsonPrimitive?.content shouldBe "CI"
@@ -265,6 +271,7 @@ private fun generator(): FigmaDesignModelGenerator =
         projectModulesPort = FakeProjectModulesPort,
         projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
         ciExternalTopologyPort = FakeCiExternalTopologyPort,
+        ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
         teamCityConfigurationPort = FakeTeamCityConfigurationPort
     )
 
@@ -279,6 +286,7 @@ private fun request(
         versionsFile = File("versions.properties"),
         rootSettingsFile = File("settings.gradle.kts"),
         ciExternalTopologyFile = File("docs/ci/external-topology.yaml"),
+        ciWindowsRuntimeFile = File("docs/ci/windows-runtime.yaml"),
         teamCityGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
         projectRootDirectory = File("."),
         includedBuilds = listOf(
@@ -440,6 +448,28 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
                 )
             ),
             connections = emptyList()
+        )
+}
+
+private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
+    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+        CiWindowsRuntime(
+            schemaVersion = 1,
+            validation = CiWindowsRuntime.Validation(
+                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                warnAfterDays = 90
+            ),
+            platform = "Windows",
+            services = listOf(
+                CiWindowsRuntime.Service(
+                    id = "teamcity-server",
+                    name = "TeamCity Server",
+                    description = "Hosts TeamCity.",
+                    service = "TeamCity",
+                    startup = "Automatic",
+                    identity = "NT SERVICE\\TeamCity"
+                )
+            )
         )
 }
 

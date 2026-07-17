@@ -46,6 +46,10 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciExternalTopologyFile: RegularFileProperty
 
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val ciWindowsRuntimeFile: RegularFileProperty
+
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val teamCityGeneratedConfigurationDirectory: DirectoryProperty
@@ -93,6 +97,7 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
                 versionsFile = versionsFile.get().asFile,
                 rootSettingsFile = rootSettingsFile.get().asFile,
                 ciExternalTopologyFile = ciExternalTopologyFile.get().asFile,
+                ciWindowsRuntimeFile = ciWindowsRuntimeFile.get().asFile,
                 teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.get().asFile,
                 projectRootDirectory = projectRootDirectory.get().asFile,
                 includedBuilds = includedBuildSources()

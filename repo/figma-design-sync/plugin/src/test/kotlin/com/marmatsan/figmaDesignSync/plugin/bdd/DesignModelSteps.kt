@@ -8,6 +8,7 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
 import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
@@ -17,6 +18,8 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSourc
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimeSource
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
@@ -50,6 +53,7 @@ class DesignModelSteps : En {
     private var repositoryProjectModulesAvailable = false
     private var repositoryModuleDependenciesAvailable = false
     private var externalCiTopologyAvailable = false
+    private var windowsCiRuntimeAvailable = false
     private var effectiveTeamCityConfigurationAvailable = false
     private lateinit var generator: FigmaDesignModelGenerator
     private lateinit var firstResult: FigmaDesignModelGenerationResult
@@ -78,6 +82,11 @@ class DesignModelSteps : En {
 
         Given("the external CI topology is available") {
             externalCiTopologyAvailable = true
+            configureGenerator()
+        }
+
+        Given("the Windows CI runtime is available") {
+            windowsCiRuntimeAvailable = true
             configureGenerator()
         }
 
@@ -162,10 +171,10 @@ class DesignModelSteps : En {
                 } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
         }
 
-        Then("the CI model contains external topology and effective TeamCity configuration") {
+        Then("the CI model contains external topology Windows runtime and effective TeamCity configuration") {
             firstResult.content["ci"]!!
                 .jsonObject
-                .keys shouldContainAll listOf("externalTopology", "teamCity")
+                .keys shouldContainAll listOf("externalTopology", "windowsRuntime", "teamCity")
         }
 
         Then("the model hash is stored in the generated model") {
@@ -218,6 +227,7 @@ class DesignModelSteps : En {
             projectModulesPort = FakeProjectModulesPort,
             projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
             ciExternalTopologyPort = FakeCiExternalTopologyPort,
+            ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
             teamCityConfigurationPort = FakeTeamCityConfigurationPort
         )
     }
@@ -228,6 +238,7 @@ class DesignModelSteps : En {
         check(repositoryProjectModulesAvailable) { "Repository project modules are not available." }
         check(repositoryModuleDependenciesAvailable) { "Repository module dependencies are not available." }
         check(externalCiTopologyAvailable) { "External CI topology is not available." }
+        check(windowsCiRuntimeAvailable) { "Windows CI runtime is not available." }
         check(effectiveTeamCityConfigurationAvailable) { "Effective TeamCity configuration is not available." }
     }
 
@@ -242,6 +253,7 @@ class DesignModelSteps : En {
             versionsFile = File("versions.properties"),
             rootSettingsFile = File("settings.gradle.kts"),
             ciExternalTopologyFile = File("docs/ci/external-topology.yaml"),
+            ciWindowsRuntimeFile = File("docs/ci/windows-runtime.yaml"),
             teamCityGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
             projectRootDirectory = File("."),
             includedBuilds = listOf(
@@ -351,6 +363,28 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
                 )
             ),
             connections = emptyList()
+        )
+}
+
+private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
+    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+        CiWindowsRuntime(
+            schemaVersion = 1,
+            validation = CiWindowsRuntime.Validation(
+                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                warnAfterDays = 90
+            ),
+            platform = "Windows",
+            services = listOf(
+                CiWindowsRuntime.Service(
+                    id = "teamcity-server",
+                    name = "TeamCity Server",
+                    description = "Hosts TeamCity.",
+                    service = "TeamCity",
+                    startup = "Automatic",
+                    identity = "NT SERVICE\\TeamCity"
+                )
+            )
         )
 }
 

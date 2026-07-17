@@ -228,6 +228,7 @@ const CI_SYNC_TARGETS: SyncTargetName[] = [
   "ci.pullRequestIntegration",
   "ci.postMergeDesignDocumentation",
   "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
 ];
 
 const ALL_SYNC_TARGETS: SyncTargetName[] = [

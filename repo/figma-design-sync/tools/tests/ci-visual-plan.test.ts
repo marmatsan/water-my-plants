@@ -3,11 +3,13 @@ import test from "node:test";
 import {
   createCiVisualPlan,
   externalEnvironment,
+  windowsRuntimeEnvironment,
 } from "../src/domain/ci/create-ci-visual-plan";
 import {
   appendConnectorLabelLayers,
   centeredRowY,
   ciConnectorMagnets,
+  ciNodePropertyValues,
   ciVisualGridPosition,
   connectorBoundsLabelPosition,
   connectorLabelLayers,
@@ -17,7 +19,7 @@ import {
   managedCiRemovalPriority,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
 
-test("CI visual plan creates the four documented granular sections", () => {
+test("CI visual plan creates the five documented granular sections", () => {
   const plan = createCiVisualPlan(designModel());
 
   assert.equal(plan.parentName, "Continuous Integration and Design Documentation");
@@ -28,11 +30,12 @@ test("CI visual plan creates the four documented granular sections", () => {
       "ci.pullRequestIntegration",
       "ci.postMergeDesignDocumentation",
       "ci.infrastructureAndAccess",
+      "ci.windowsRuntime",
     ]
   );
   assert.deepEqual(
     plan.sections.map((section) => section.orientation),
-    ["horizontal", "horizontal", "horizontal", "grid"]
+    ["horizontal", "horizontal", "horizontal", "grid", "grid"]
   );
 });
 
@@ -95,6 +98,50 @@ test("CI visual plan maps node ownership to explicit icon environments", () => {
   );
 });
 
+test("CI node properties hide runtime when the visual node has no runtime data", () => {
+  const node = createCiVisualPlan(designModel()).sections[0].nodes[0];
+
+  assert.deepEqual(ciNodePropertyValues(node), {
+    name: "Pull Request",
+    description: "Proposes a reviewed change to the repository.",
+    steps: "",
+    source: "docs/ci/main-branch-protection.md",
+    runtimePlatform: "",
+    runtimeService: "",
+    runtimeStartup: "",
+    runtimeIdentity: "",
+    showSteps: false,
+    showSource: true,
+    showRuntime: false,
+  });
+});
+
+test("CI node properties expose complete runtime data", () => {
+  const node = {
+    ...createCiVisualPlan(designModel()).sections[0].nodes[0],
+    runtime: {
+      platform: "Windows",
+      service: "TeamCity",
+      startup: "Automatic",
+      identity: "NT SERVICE\\TeamCity",
+    },
+  };
+
+  assert.deepEqual(ciNodePropertyValues(node), {
+    name: "Pull Request",
+    description: "Proposes a reviewed change to the repository.",
+    steps: "",
+    source: "docs/ci/main-branch-protection.md",
+    runtimePlatform: "Windows",
+    runtimeService: "TeamCity",
+    runtimeStartup: "Automatic",
+    runtimeIdentity: "NT SERVICE\\TeamCity",
+    showSteps: false,
+    showSource: true,
+    showRuntime: true,
+  });
+});
+
 test("external CI nodes require an explicit icon environment mapping", () => {
   assert.equal(externalEnvironment("operator"), "operator");
   assert.equal(externalEnvironment("browser"), "browser");
@@ -105,6 +152,60 @@ test("external CI nodes require an explicit icon environment mapping", () => {
   assert.equal(externalEnvironment("codex-mcp-client"), "codex");
   assert.equal(externalEnvironment("figma-api"), "figma");
   assert.throws(() => externalEnvironment("unknown-system"), /no \.ci icon environment mapping/);
+});
+
+test("Windows runtime services require an explicit icon environment mapping", () => {
+  assert.equal(windowsRuntimeEnvironment("teamcity-server"), "teamcity");
+  assert.equal(windowsRuntimeEnvironment("teamcity-build-agent"), "teamcity");
+  assert.equal(windowsRuntimeEnvironment("cloudflared-agent"), "cloudflare");
+  assert.throws(() => windowsRuntimeEnvironment("unknown-service"), /no \.ci icon environment mapping/);
+});
+
+test("CI visual plan maps Windows service data to runtime node properties", () => {
+  const runtime = createCiVisualPlan(designModel()).sections
+    .find((section) => section.target === "ci.windowsRuntime")!;
+
+  assert.equal(runtime.name, "Windows Service Runtime");
+  assert.deepEqual(runtime.connections, []);
+  assert.deepEqual(
+    runtime.nodes.map((node) => ({
+      name: node.name,
+      environment: node.environment,
+      runtime: node.runtime,
+    })),
+    [
+      {
+        name: "TeamCity Server",
+        environment: "teamcity",
+        runtime: {
+          platform: "Windows",
+          service: "TeamCity",
+          startup: "Automatic",
+          identity: "NT SERVICE\\TeamCity",
+        },
+      },
+      {
+        name: "TeamCity Build Agent",
+        environment: "teamcity",
+        runtime: {
+          platform: "Windows",
+          service: "TCBuildAgent",
+          startup: "Automatic",
+          identity: "NT SERVICE\\TCBuildAgent",
+        },
+      },
+      {
+        name: "Cloudflared Agent",
+        environment: "cloudflare",
+        runtime: {
+          platform: "Windows",
+          service: "Cloudflared",
+          startup: "Automatic",
+          identity: "LocalSystem",
+        },
+      },
+    ]
+  );
 });
 
 test("CI overview labels trigger, check, gate, merge, and model verification connections", () => {
@@ -330,6 +431,35 @@ function designModel() {
           ],
           connections: [
             { id: "operator-access", source: "operator", target: "cloudflare-access", label: "Open TeamCity" },
+          ],
+        },
+        windowsRuntime: {
+          platform: "Windows",
+          services: [
+            {
+              id: "teamcity-server",
+              name: "TeamCity Server",
+              description: "Hosts TeamCity.",
+              service: "TeamCity",
+              startup: "Automatic",
+              identity: "NT SERVICE\\TeamCity",
+            },
+            {
+              id: "teamcity-build-agent",
+              name: "TeamCity Build Agent",
+              description: "Runs builds.",
+              service: "TCBuildAgent",
+              startup: "Automatic",
+              identity: "NT SERVICE\\TCBuildAgent",
+            },
+            {
+              id: "cloudflared-agent",
+              name: "Cloudflared Agent",
+              description: "Publishes TeamCity through Cloudflare Tunnel.",
+              service: "Cloudflared",
+              startup: "Automatic",
+              identity: "LocalSystem",
+            },
           ],
         },
         teamCity: {

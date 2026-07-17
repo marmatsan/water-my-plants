@@ -10,6 +10,7 @@ Feature: Figma design model generation
     And repository project modules are available
     And repository module dependencies are available
     And the external CI topology is available
+    And the Windows CI runtime is available
     And the effective TeamCity configuration is available
 
   @domain
@@ -25,7 +26,7 @@ Feature: Figma design model generation
       | ci                 |
     And the version keys are sorted
     And the version sections keep repository order
-    And the CI model contains external topology and effective TeamCity configuration
+    And the CI model contains external topology Windows runtime and effective TeamCity configuration
     And the model hash is stored in the generated model
 
   @domain

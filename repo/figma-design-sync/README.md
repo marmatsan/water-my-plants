@@ -58,6 +58,7 @@ The model is generated from repository source files, not from Figma:
 | Included-build `settings.gradle.kts` files | Included-build catalog and module discovery. |
 | Gradle build files | Module dependency edges and applied plugin usage. |
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
+| `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
 | `.teamcity/target/generated-configs` | Effective pipelines, jobs, triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
 
 The default included-build sources are configured by the `figmaDesignSync`
@@ -86,7 +87,7 @@ The stable `content` object contains:
 | `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
 | `modules` | Repository module paths discovered from the root project and included builds. |
 | `moduleDependencies` | Module dependency edges grouped by source build. |
-| `ci` | External CI topology and effective TeamCity configuration. |
+| `ci` | External CI topology, Windows service runtime, and effective TeamCity configuration. |
 
 Figma visual code must treat this JSON as the source of truth. Manual visual
 changes in Figma are acceptable only when they are component contract changes;
@@ -99,6 +100,7 @@ Run these from the repository root:
 ```powershell
 .\gradlew.bat checkFigmaVersionNaming
 .\gradlew.bat checkFigmaCatalogUsage
+.\gradlew.bat checkCiWindowsRuntimeFreshness
 ```
 
 Task responsibilities:
@@ -108,12 +110,14 @@ Task responsibilities:
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
+| `checkCiWindowsRuntimeFreshness` | Emits a non-blocking warning when the Windows service runtime has not been manually validated within its configured window. |
 | `generateFigmaDesignModel` | Generates the official JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
 | `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the official pipeline. |
 
-`checkFigmaVersionNaming`, `checkFigmaCatalogUsage`, and
-`checkCiExternalTopologyFreshness` are wired into the root Gradle `check`
-lifecycle, so the TeamCity `Verify` step runs them through:
+`checkFigmaVersionNaming`, `checkFigmaCatalogUsage`,
+`checkCiExternalTopologyFreshness`, and `checkCiWindowsRuntimeFreshness` are
+wired into the root Gradle `check` lifecycle, so the TeamCity `Verify` step
+runs them through:
 
 ```powershell
 .\gradlew.bat check

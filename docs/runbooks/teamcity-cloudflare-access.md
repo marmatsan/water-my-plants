@@ -37,6 +37,11 @@ credentials remain operator-managed state and must not be committed.
 
 ## Windows Service Runtime
 
+The reviewed service inventory is versioned in
+[`../ci/windows-runtime.yaml`](../ci/windows-runtime.yaml). Follow
+[`../ci/windows-runtime-validation.md`](../ci/windows-runtime-validation.md)
+before updating its validation date.
+
 The supported local runtime uses three automatic Windows services:
 
 | Service name | Display name | Service account | Responsibility |

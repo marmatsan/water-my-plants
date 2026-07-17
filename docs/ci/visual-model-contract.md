@@ -18,6 +18,7 @@ It contains two levels of detail:
 2. `Pull Request Integration`
 3. `Post-merge Design Documentation`
 4. `Infrastructure and Access`
+5. `Windows Service Runtime`
 
 All visual labels and descriptions use English.
 
@@ -33,12 +34,15 @@ The visual model aggregates sources without duplicating their ownership:
   are not represented by TeamCity DSL, including Cloudflare access and tunnel
   boundaries, user and CLI access, the GitHub webhook ingress, and the external
   MCP-operated Figma write.
-- The generated `design-model.json` aggregates both sources for the visual sync.
+- `docs/ci/windows-runtime.yaml` owns the reviewed Windows service inventory,
+  startup modes, and service identities for the local CI host.
+- The generated `design-model.json` aggregates these sources for the visual sync.
 - Figma is derived documentation and is not a source of CI configuration.
 
 The generated JSON stores this aggregate under `content.ci`:
 
 - `externalTopology` contains the versioned YAML topology;
+- `windowsRuntime` contains the versioned Windows service inventory;
 - `teamCity` contains the effective generated pipelines and VCS roots.
 
 The official TeamCity jobs must run `teamcity-configs:generate` before Gradle
@@ -48,6 +52,9 @@ as a declared input; it does not invoke Maven implicitly.
 The external topology YAML must not duplicate TeamCity pipeline or job
 definitions. It must not contain tokens, secrets, credential references,
 account identifiers, personal names, or visual layout coordinates.
+The Windows runtime YAML must not contain service command lines, credentials,
+or tunnel configuration. In particular, it must never record the Cloudflared
+service command line because it can contain the tunnel credential.
 
 ## Visual Reading Levels
 
@@ -63,6 +70,12 @@ The overview contains two distinct journeys:
 
 Cloudflare appears as a simplified boundary in the overview. Its policies and
 authentication paths belong in `Infrastructure and Access`.
+
+`Windows Service Runtime` is a connector-free inventory. It shows TeamCity
+Server, TeamCity Build Agent, and Cloudflared as independent service nodes with
+their platform, Windows service name, startup mode, and service identity. The
+operational recovery order remains in the linked runbook and is not modeled as
+a dependency between services.
 
 ### Operational Detail
 
@@ -174,6 +187,10 @@ external connection before updating that date.
 The executable warning is `checkCiExternalTopologyFreshness`, wired into the
 root Gradle `check` lifecycle.
 
+The Windows runtime follows the same 90-day manual validation contract through
+`checkCiWindowsRuntimeFreshness`. Its validation procedure is documented in
+`docs/ci/windows-runtime-validation.md`.
+
 ## Excluded Content
 
 The visual model excludes:
@@ -184,3 +201,4 @@ The visual model excludes:
 - raw tokens, secrets, IDs, account details, and personal names;
 - Figma coordinates, colors, dimensions, and component property bindings;
 - manually duplicated TeamCity pipelines or jobs in the external topology.
+- Windows service command lines or credentials.
