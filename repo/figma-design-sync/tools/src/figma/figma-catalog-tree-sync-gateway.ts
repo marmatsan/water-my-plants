@@ -81,6 +81,10 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     }
 
     const rootFilter = options.rootFilters?.[target.name];
+    const cleanupOnly = options.cleanupOnlyTargetNames?.includes(target.name) === true;
+    if (cleanupOnly && rootFilter && rootFilter.length > 0) {
+      throw new Error(`Catalog cleanup for ${target.name} cannot be combined with root filters.`);
+    }
     const isPartialRootSync = Boolean(rootFilter && rootFilter.length > 0);
     const modelRootLabels = modelNodes.map((node) => rootLabel(target, node));
     const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
@@ -108,6 +112,21 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     showCatalogTreeSection(section, mutatedNodeIds);
     const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type);
     let connectors = collectTreeConnectors(section);
+
+    if (cleanupOnly) {
+      const cleanupResult = cleanupCatalogTreeTarget({
+        target,
+        section,
+        modelNodes,
+        instancesByLabel,
+        connectors,
+        outlineVariable,
+        mutatedNodeIds,
+      });
+      removedCatalogNodes.push(...cleanupResult.removedCatalogNodes);
+      removedCatalogConnectors.push(...cleanupResult.removedCatalogConnectors);
+      continue;
+    }
 
     if (!isPartialRootSync) {
       const disconnectedConnectors = connectors.filter((connector) =>
@@ -212,6 +231,61 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     mutatedNodeIds,
   };
   }
+}
+
+function cleanupCatalogTreeTarget({
+  target,
+  section,
+  modelNodes,
+  instancesByLabel,
+  connectors,
+  outlineVariable,
+  mutatedNodeIds,
+}) {
+  const expectedNodes = flattenCatalogNodes(modelNodes, target.type);
+  requireUniqueLabels(target, expectedNodes);
+  const disconnectedConnectors = connectors.filter((connector) =>
+    !connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) &&
+      (!connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId)
+  );
+  for (const connector of disconnectedConnectors) {
+    connector.remove();
+  }
+  connectors = connectors.filter((connector) => !disconnectedConnectors.includes(connector));
+
+  const staleResult = removeStaleCatalogNodes(
+    target,
+    expectedNodes,
+    instancesByLabel,
+    connectors,
+    undefined
+  );
+  const removedRootSections = removeEmptyStaleCatalogRootSections(
+    target,
+    section,
+    modelNodes.map((node) => rootLabel(target, node)),
+    mutatedNodeIds
+  );
+
+  resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+  stackDescendantSectionsWithGap(section, mutatedNodeIds);
+  stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
+  resizeAncestorSectionsToFit(section, mutatedNodeIds);
+  removeCatalogTreeSectionFills(section, mutatedNodeIds);
+  applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
+  applyAncestorSectionStrokeContract(section, outlineVariable, mutatedNodeIds);
+  lockOnlyRootSection(section, mutatedNodeIds);
+
+  return {
+    removedCatalogNodes: [
+      ...staleResult.removedCatalogNodes,
+      ...removedRootSections,
+    ],
+    removedCatalogConnectors: [
+      ...disconnectedConnectors.map((connector) => `${target.name}/${connector.id}`),
+      ...staleResult.removedCatalogConnectors,
+    ],
+  };
 }
 
 export function filterModelRoots(target, modelNodes, rootFilter) {

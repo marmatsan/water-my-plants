@@ -75,7 +75,8 @@ intentionally non-authoritative and must not write official metadata.
 6. Generate the complete official visual runner without specifying a target,
    then execute every generated MCP file in lexical order. The sequence runs
    `preflight` and every visual target as bounded calls in the order defined by
-   [target-scopes.md](target-scopes.md), with `writeMetadata=false`.
+   [target-scopes.md](target-scopes.md). Catalog targets run root by root and
+   finish with cleanup-only calls. Every call uses `writeMetadata=false`.
 7. Check every managed Figma section against
    [visual-sync-contract.md](visual-sync-contract.md).
 8. After all visual targets are correct, run only the `metadata` target with

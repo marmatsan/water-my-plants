@@ -32,6 +32,7 @@ export type CatalogTreeSyncOptions = {
   targetNames?: string[];
   sectionNodeOverrides?: Record<string, string>;
   rootFilters?: Record<string, string[]>;
+  cleanupOnlyTargetNames?: string[];
 };
 
 export type MetadataSyncResult = {

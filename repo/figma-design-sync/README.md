@@ -144,10 +144,11 @@ trunk metadata. A partial run never completes the official synchronization.
 The official MCP runner uses PNG payload transport by default: the generated
 runner writes `10-official-sync-payload.png`, that image is uploaded to Figma,
 and the staging runner extracts and validates the model plus MCP script before
-running each visual target in a separate, lexically ordered MCP call. This
-keeps the complete synchronization mandatory without exceeding the MCP timeout
-with one monolithic call. Chunked staging remains a fallback for oversized or
-blocked asset uploads.
+running each visual target in a separate, lexically ordered MCP call. Catalog
+targets are further split by declared root and end with a cleanup-only call.
+This keeps the complete synchronization mandatory without exceeding the MCP
+timeout with one monolithic call. Chunked staging remains a fallback for
+oversized or blocked asset uploads.
 
 ## Human Workflow
 

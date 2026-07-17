@@ -97,6 +97,32 @@ test("preflight runs before a requested visual target and scopes the contract ch
   assert.deepEqual(result.updatedCatalogNodes, ["waterMyPlants.libraries/androidx"]);
 });
 
+test("catalog cleanup-only execution is forwarded independently from root filters", async () => {
+  const calls: string[] = [];
+  const dependencies = fakeDependencies(calls);
+  let receivedOptions;
+  dependencies.catalogTreeSyncGateway.syncCatalogTrees = async (_designModel, options) => {
+    receivedOptions = options;
+    return {
+      updatedCatalogNodes: [],
+      createdCatalogNodes: [],
+      createdCatalogConnectors: [],
+      removedCatalogNodes: [],
+      removedCatalogConnectors: [],
+      mutatedNodeIds: [],
+    };
+  };
+
+  await syncFigmaDesignModel(mainDesignModel(), dependencies, {
+    targets: ["waterMyPlants.libraries"],
+    writeMetadata: false,
+    catalogCleanupOnlyTargets: ["waterMyPlants.libraries"],
+  });
+
+  assert.deepEqual(receivedOptions.cleanupOnlyTargetNames, ["waterMyPlants.libraries"]);
+  assert.equal(receivedOptions.rootFilters, undefined);
+});
+
 test("headers can be synchronized as an independent visual target", async () => {
   const calls: string[] = [];
   const result = await syncFigmaDesignModel(
