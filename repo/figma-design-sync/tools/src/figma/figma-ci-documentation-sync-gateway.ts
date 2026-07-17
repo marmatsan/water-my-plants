@@ -276,9 +276,18 @@ async function syncSectionContent(
     mutatedNodeIds.push(label.id);
   }
 
+  await waitForStableCiLayout(groups.map(({ group }) => group));
   layoutNodeGroups(groups, plan.orientation, plan.connections, connectorLabelsByModelId);
+  await waitForStableCiLayout(groups.map(({ group }) => group));
   const positionedLabels: GroupNode[] = [];
   const parallelConnections = parallelConnectionInfo(plan.connections);
+  const connectorRecords: Array<{
+    source: GroupNode;
+    target: GroupNode;
+    label: GroupNode;
+    connector: ConnectorNode;
+    magnets: { start: string; end: string };
+  }> = [];
 
   for (const edge of plan.connections) {
     const source = groupsByModelId.get(edge.source);
@@ -310,6 +319,13 @@ async function syncSectionContent(
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, edge.id);
     section.insertChild(0, connector);
     await clearNativeConnectorLabel(connector);
+    connectorRecords.push({ source, target, label, connector, magnets });
+    createdCiConnectors.push(connector.id);
+    mutatedNodeIds.push(connector.id);
+  }
+
+  await waitForStableCiLayout(connectorRecords.map(({ connector }) => connector));
+  for (const { source, target, label, connector, magnets } of connectorRecords) {
     const connectorBounds = connector.absoluteBoundingBox;
     const sectionBounds = section.absoluteBoundingBox;
     const position = centersLabelOnConnector(magnets) && connectorBounds && sectionBounds
@@ -331,8 +347,6 @@ async function syncSectionContent(
     label.x = position.x;
     label.y = position.y;
     positionedLabels.push(label);
-    createdCiConnectors.push(connector.id);
-    mutatedNodeIds.push(connector.id);
   }
 
   resizeChildSection(
@@ -361,6 +375,9 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   const icon = requireSingleNestedInstance(instance, CI_ICON_INSTANCE_NAME);
   setComponentVariantProperty(icon, CI_ICON_ENVIRONMENT_PROPERTY, nodePlan.environment);
   const properties = ciNodePropertyValues(nodePlan);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, properties.showSteps);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, properties.showSource);
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showRuntime, properties.showRuntime);
   setComponentTextProperty(instance, CI_NODE_PROPS.name, properties.name);
   setComponentTextProperty(instance, CI_NODE_PROPS.description, properties.description);
   setComponentTextProperty(instance, CI_NODE_PROPS.steps, properties.steps);
@@ -369,9 +386,6 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeService, properties.runtimeService);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeStartup, properties.runtimeStartup);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeIdentity, properties.runtimeIdentity);
-  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, properties.showSteps);
-  setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, properties.showSource);
-  setComponentBooleanProperty(instance, CI_NODE_PROPS.showRuntime, properties.showRuntime);
   await applyTextLinks(
     instance,
     "File",
@@ -491,6 +505,29 @@ function requiredHorizontalColumnGaps(
 
 export function centeredRowY(rowTop: number, rowHeight: number, itemHeight: number) {
   return rowTop + (rowHeight - itemHeight) / 2;
+}
+
+export async function waitForStableCiLayout(
+  nodes: Array<Pick<SceneNode, "x" | "y" | "width" | "height">>,
+  yieldLayout: () => Promise<void> = yieldToFigmaLayout,
+  maxAttempts = 5
+) {
+  let previous = ciLayoutSignature(nodes);
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    await yieldLayout();
+    const current = ciLayoutSignature(nodes);
+    if (current === previous) return;
+    previous = current;
+  }
+  throw new Error(`CI layout did not stabilize after ${maxAttempts} attempts.`);
+}
+
+function ciLayoutSignature(nodes: Array<Pick<SceneNode, "x" | "y" | "width" | "height">>) {
+  return nodes.map(({ x, y, width, height }) => `${x}:${y}:${width}:${height}`).join("|");
+}
+
+async function yieldToFigmaLayout() {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 export function horizontalConnectorGap(labelWidth: number) {
