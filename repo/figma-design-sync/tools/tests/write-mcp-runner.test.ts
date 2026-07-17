@@ -160,7 +160,12 @@ test("official runner supports an explicitly partial diagnostic target", async (
     );
     assert.ok(files.includes("10-official-sync-payload.png"));
 
+    const stageSource = readFileSync(join(runDir, "10-stage-payload-from-png.mcp.js"), "utf8");
     const runTargetSource = readFileSync(join(runDir, "99-run-target.mcp.js"), "utf8");
+    assert.match(stageSource, /setSharedPluginData\(namespace, "script", payload\.script\)/);
+    assert.doesNotMatch(stageSource, /setSharedPluginData\(namespace, "scriptBase64"/);
+    assert.match(runTargetSource, /getSharedPluginData\(namespace, "script"\)/);
+    assert.doesNotMatch(runTargetSource, /getSharedPluginData\(namespace, "scriptBase64"\)/);
     assert.match(runTargetSource, /"targets":\["preflight","waterMyPlants\.libraries"\]/);
     assert.doesNotMatch(runTargetSource, /writeMetadata":true/);
   } finally {
@@ -272,7 +277,29 @@ test("official runner can explicitly use chunk transport fallback", async () => 
     assert.equal(manifest.transport, "chunks");
     assert.equal(manifest.payloadImage, null);
     assert.ok(files.some((fileName) => fileName.startsWith("10-designModelJson-")));
-    assert.ok(files.some((fileName) => fileName.startsWith("20-scriptBase64-")));
+    assert.ok(files.some((fileName) => fileName.startsWith("20-script-")));
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
+test("runner rejects staging entries that exceed Figma shared plugin data limits", async () => {
+  const workspace = createRunnerFixture();
+
+  try {
+    writeFileSync(workspace.scriptPath, "x".repeat(100_001), "utf8");
+
+    assert.throws(
+      () => runRunner([
+        "--mode=official",
+        `--model=${workspace.modelPath}`,
+        `--script=${workspace.scriptPath}`,
+        "--target=preflight",
+        "--allow-partial=true",
+        `--out-dir=${workspace.outDir}`,
+      ]),
+      /script is 100001 characters and exceeds the 100000-character sharedPluginData staging limit/
+    );
   } finally {
     await rm(workspace.root, { recursive: true, force: true });
   }

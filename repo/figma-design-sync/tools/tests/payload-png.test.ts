@@ -26,12 +26,10 @@ test("createPayloadPng stores the official sync payload as a PNG text chunk", ()
   };
   const modelJson = JSON.stringify(designModel);
   const script = "const value = 'sync';";
-  const scriptBase64 = Buffer.from(script, "utf8").toString("base64");
   const payload = buildOfficialSyncPayload({
     designModel,
     modelJson,
     script,
-    scriptBase64,
   });
   const payloadJson = stringifyAsciiJson(payload);
 
@@ -43,6 +41,8 @@ test("createPayloadPng stores the official sync payload as a PNG text chunk", ()
     JSON.parse(Buffer.from(encodedPayload, "base64").toString("utf8")),
     payload
   );
+  assert.equal(payload.script, script);
+  assert.equal(payload.scriptLength, script.length);
 });
 
 function readPayloadFromPngText(bytes: Buffer, keyword: string): string | null {

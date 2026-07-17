@@ -84,7 +84,7 @@ Run the generated `.mcp.js` files with Figma MCP in lexical order:
 
 1. `00-clear-staging.mcp.js`
 2. `10-designModelJson-*.mcp.js`
-3. `20-scriptBase64-*.mcp.js`
+3. `20-script-*.mcp.js`
 4. `90-finalize-staging.mcp.js`
 5. `99-run-target.mcp.js`
 
