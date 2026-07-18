@@ -8,7 +8,6 @@ project {
     vcsRoot(GitHub)
 
     params {
-        param("android.sdk.path", "C:\\Users\\mmate\\AppData\\Local\\Android\\Sdk")
         param("teamcity.activeBuildBranch.age.hours", "0")
         password("figma.file.content.access.token", "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a")
     }
@@ -20,10 +19,29 @@ project {
             all(days = 30)
             preventDependencyCleanup = false
         }
+        keepRule {
+            id = "KeepOfficialFigmaArtifacts"
+            keepAtLeast = days(30) {
+                since = today()
+            }
+            dataToKeep = artifacts(
+                "+:build/reports/figma-sync/**",
+                "+:.teamcity/target/generated-configs/**"
+            )
+            applyToBuilds {
+                inPersonalBuilds = nonPersonal()
+                inBranches {
+                    branchFilter = patterns("+:<default>")
+                }
+                withStatus = successful()
+            }
+            preserveArtifactsDependencies = true
+        }
     }
 
     pipeline(WaterMyPlantsCi)
     pipeline(WaterMyPlantsFigmaSync)
+    pipeline(WaterMyPlantsInfrastructureHealth)
 }
 
 /**
@@ -52,11 +70,6 @@ object WaterMyPlantsCi : Pipeline({
         })
     }
 
-    params {
-        param("env.ANDROID_HOME", "%android.sdk.path%")
-        param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
-    }
-
     job {
         id("verify")
         name = "Verify"
@@ -68,9 +81,17 @@ object WaterMyPlantsCi : Pipeline({
 
         steps {
             step(PipelineScriptStep {
+                name = "Validate agent capabilities"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
+            })
+            step(PipelineScriptStep {
                 name = "Verify change scope"
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1"""
             })
+        }
+
+        requirements {
+            contains("teamcity.agent.jvm.os.name", "Windows")
         }
 
         features {
@@ -109,8 +130,6 @@ object WaterMyPlantsFigmaSync : Pipeline({
     }
 
     params {
-        param("env.ANDROID_HOME", "%android.sdk.path%")
-        param("env.ANDROID_SDK_ROOT", "%android.sdk.path%")
         param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
         param("env.FIGMA_DESIGN_SYNC_OFFICIAL", "true")
         param("env.FIGMA_DESIGN_SYNC_BRANCH", "%teamcity.build.branch%")
@@ -127,9 +146,17 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
         steps {
             step(PipelineScriptStep {
+                name = "Validate agent capabilities"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -RequireNode -ExportTeamCityParameters"""
+            })
+            step(PipelineScriptStep {
                 name = "Prepare Figma Sync"
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\prepare-figma-sync.ps1"""
             })
+        }
+
+        requirements {
+            contains("teamcity.agent.jvm.os.name", "Windows")
         }
 
         outputFiles {
@@ -152,9 +179,17 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
         steps {
             step(PipelineScriptStep {
+                name = "Validate agent capabilities"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
+            })
+            step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\verify-figma-trunk-sync.ps1"""
             })
+        }
+
+        requirements {
+            contains("teamcity.agent.jvm.os.name", "Windows")
         }
 
         features {
@@ -165,6 +200,64 @@ object WaterMyPlantsFigmaSync : Pipeline({
             "figma_sync_generate_design_model",
             listOf("build/reports/figma-sync", ".teamcity/target/generated-configs")
         )
+    }
+})
+
+/**
+ * Scheduled infrastructure health pipeline.
+ *
+ * This pipeline checks the build-agent toolchain and the observable TeamCity
+ * HTTPS boundaries. It is intentionally independent from pull request status
+ * publishing so an infrastructure incident is visible without blocking an
+ * unrelated source change.
+ */
+object WaterMyPlantsInfrastructureHealth : Pipeline({
+    id("WaterMyPlantsInfrastructureHealth")
+    name = "Infrastructure Health"
+
+    repositories {
+        repository(GitHub, enabledByDefault = true)
+    }
+
+    triggers {
+        trigger(PipelineDailyScheduleTrigger {
+            hour = 6
+            minute = 0
+            branchFilter = "+:<default>"
+        })
+    }
+
+    params {
+        param("env.TEAMCITY_SERVER_URL", "%teamcity.serverUrl%")
+    }
+
+    job {
+        id("infrastructure_health")
+        name = "Check infrastructure health"
+        allowReuse = false
+
+        repositories {
+            repository(GitHub)
+        }
+
+        steps {
+            step(PipelineScriptStep {
+                name = "Validate agent capabilities"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -RequireNode -ExportTeamCityParameters"""
+            })
+            step(PipelineScriptStep {
+                name = "Probe TeamCity boundaries"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-ci-infrastructure-health.ps1"""
+            })
+        }
+
+        requirements {
+            contains("teamcity.agent.jvm.os.name", "Windows")
+        }
+
+        outputFiles {
+            pipelineArtifacts("build/reports/ci-health")
+        }
     }
 })
 
@@ -314,6 +407,49 @@ open class PipelineFinishBuildTrigger(
     private companion object {
         const val BUILD_TYPE_PARAM = "dependsOn"
         const val SUCCESSFUL_ONLY_PARAM = "afterSuccessfulBuildOnly"
+        const val BRANCH_FILTER_PARAM = "branchFilter"
+    }
+}
+
+/**
+ * Pipeline-compatible daily schedule trigger.
+ *
+ * The current Pipeline DSL exposes only the generic trigger boundary. These
+ * parameters are the versioned TeamCity scheduling trigger contract for a
+ * daily run in the server time zone.
+ */
+open class PipelineDailyScheduleTrigger(
+    init: PipelineDailyScheduleTrigger.() -> Unit = {}
+) : Trigger(), PipelineCompatible {
+    var hour: Int = 0
+        set(value) {
+            require(value in 0..23) { "Schedule hour must be between 0 and 23." }
+            field = value
+            param("hour", value.toString())
+        }
+
+    var minute: Int = 0
+        set(value) {
+            require(value in 0..59) { "Schedule minute must be between 0 and 59." }
+            field = value
+            param("minute", value.toString())
+        }
+
+    var branchFilter: String
+        get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
+        set(value) {
+            param(BRANCH_FILTER_PARAM, value)
+        }
+
+    init {
+        type = "schedulingTrigger"
+        param("schedulingPolicy", "daily")
+        param("timezone", "SERVER")
+        param("triggerBuildWithPendingChangesOnly", "false")
+        init()
+    }
+
+    private companion object {
         const val BRANCH_FILTER_PARAM = "branchFilter"
     }
 }
