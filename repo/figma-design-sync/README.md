@@ -27,13 +27,15 @@ model, but they do not affect `modelHash`.
 ## Included Build Shape
 
 This directory is an included Gradle build with three portable Kotlin modules,
-one project adapter, and one portable TypeScript tooling package:
+one CI-system adapter, one project adapter, and one portable TypeScript tooling
+package:
 
 | Path | Role |
 |------|------|
 | `domain/` | Pure model and port definitions for versions, catalogs, modules, and module dependency edges. |
 | `data/` | File, Gradle, dependency-catalog, and Figma API adapters that implement domain ports. |
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
+| `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML into the portable CI model. |
 | `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, and optional CI commands. |
 | `tools/` | TypeScript MCP/Figma scripts and visual sync tests that consume `design-model.json`. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
@@ -42,14 +44,16 @@ Dependency direction is intentional:
 
 ```text
 project-config -> plugin -> data -> domain
+project-config -> teamcity-adapter -> data -> domain
 project-config -> water-my-plants-catalog
 tools -> project-config/water-my-plants/figma-config.ts
 ```
 
 `domain` must stay independent from Gradle, files, Figma clients, and plugin
 composition. `plugin` wires portable Gradle tasks to domain ports through
-`data`; `project-config` applies that plugin with one repository's concrete
-catalog, layout, Figma document, and CI adapter.
+`data`; `teamcity-adapter` owns the vendor-specific parser; `project-config`
+applies the plugin and selects one repository's concrete catalog, layout,
+Figma document, and CI adapter.
 
 ## Inputs
 
@@ -65,7 +69,7 @@ The model is generated from repository source files, not from Figma:
 | Gradle build files | Module dependency edges and applied plugin usage. |
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
 | `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
-| `.teamcity/target/generated-configs` | Effective pipelines, jobs, VCS, pipeline-finish and scheduled triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
+| `.teamcity/target/generated-configs` | Water My Plants effective CI configuration. `TeamCityCiConfigurationProvider` translates its generated YAML/XML into the portable pipeline model. |
 | `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json` | Water My Plants path policy used to classify whether a change can affect the model or visual writer. |
 
 The Water My Plants included-build sources are configured by the
@@ -101,8 +105,10 @@ The stable `content` object contains:
 | `ci` | Optional CI topology, runtime, and generated CI configuration selected by the project adapter. |
 
 The portable plugin leaves `ciDocumentationEnabled` disabled. Water My Plants
-enables it in `project-config`; a new repository can generate and publish the
-rest of the contract without TeamCity, CI topology YAML, or PowerShell.
+enables it in `project-config` with the JSON key `teamCity` and the Kotlin
+`TeamCityCiConfigurationProvider`. A new repository can omit CI entirely or
+select another `CiConfigurationProvider` without changing `domain`, `data`, or
+`plugin`; it needs no TeamCity, CI topology YAML, or PowerShell.
 
 Figma visual code must treat this JSON as the source of truth. Manual visual
 changes in Figma are acceptable only when they are component contract changes;
@@ -196,6 +202,7 @@ For code changes in this module:
 ```powershell
 .\gradlew.bat :figma-design-sync:domain:check `
     :figma-design-sync:data:check `
+    :figma-design-sync:teamcity-adapter:check `
     :figma-design-sync:plugin:check `
     :figma-design-sync:project-config:check
 ```

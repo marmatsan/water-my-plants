@@ -10,6 +10,8 @@ used by CI.
   - `domain` must not depend on `data`, `plugin`, Gradle APIs, or
     `java.io.File`.
   - `data` depends on `domain` and implements domain ports.
+  - `teamcity-adapter` depends on `data` and `domain`; portable modules must
+    not depend on it.
   - `plugin` is the Gradle adapter and composition root; it may know about
     `data` only for dependency injection bindings.
 - Keep one top-level class, interface, object, or data class per Kotlin file.
@@ -26,8 +28,8 @@ used by CI.
 ## Package Layout
 
 - `domain/model/catalog`: catalog tree, node, entry, and version models.
-- `domain/model/ci`: external topology, Windows service runtime, and effective
-  TeamCity configuration models used by CI documentation.
+- `domain/model/ci`: external topology, Windows service runtime, and generic
+  effective CI configuration models used by CI documentation.
 - `domain/model/figma`: Figma references used by domain requests.
 - `domain/model/modules`: module dependency models included in the generated
   design model.
@@ -40,13 +42,15 @@ used by CI.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
 - `domain/port/ci`: path-based sources and ports for external topology,
-  Windows service runtime, and effective TeamCity configuration.
+  Windows service runtime, and project-selected effective CI configuration.
 - `domain/port/impact`: policy and Git change-set source boundaries used by
   Figma impact classification.
 - `data/datasource/catalog`, `data/datasource/modules`, and
   `data/datasource/versions`: implementations of domain ports grouped by
   capability.
 - `data/datasource/ci`: filesystem adapters for CI documentation sources.
+- `data/ci/configuration`: portable provider contract and reflective provider
+  selection used by project configuration.
 - `data/datasource/impact`: JSON policy and Git adapters for change-impact
   classification.
 - `data/figma/client`: Figma API client and client exceptions.
@@ -63,7 +67,8 @@ used by CI.
   domain catalog models. Concrete repository catalogs belong in
   `project-config`.
 - `data/properties/versions`: readers for version properties files.
-- `data/teamcity/configuration`: readers for TeamCity generated YAML and XML.
+- `teamcity-adapter/configuration`: optional reader for TeamCity generated YAML
+  and XML. Keep TeamCity-specific parsing out of portable modules.
 - `data/yaml/ci`: YAML 1.2 readers for the versioned external topology and
   Windows service runtime.
 - `plugin/generator`: design model JSON generation and hash calculation.
@@ -86,9 +91,9 @@ used by CI.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 - `project-config`: repository adapter that owns Water My Plants paths,
-  dependency catalog provider, Figma identities, visual targets, and optional
-  CI commands. Portable modules must depend on adapter contracts, never on this
-  concrete implementation.
+  dependency catalog provider, Figma identities, visual targets, CI provider
+  selection, branch aliases, and optional CI commands. Portable modules must
+  depend on adapter contracts, never on this concrete implementation.
 - `tools`: portable TypeScript writer and MCP transport. Project-specific
   constants are selected through `@figma-design-sync/project-config` and must
   not be added under `tools/src` or `tools/scripts`.
@@ -239,6 +244,7 @@ used by CI.
 ```powershell
 .\gradlew.bat :figma-design-sync:domain:check `
     :figma-design-sync:data:check `
+    :figma-design-sync:teamcity-adapter:check `
     :figma-design-sync:plugin:check `
     :figma-design-sync:project-config:check
 ```
