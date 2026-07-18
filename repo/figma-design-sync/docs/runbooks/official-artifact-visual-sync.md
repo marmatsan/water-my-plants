@@ -9,6 +9,7 @@ review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - tools/teamcity/prepare-figma-sync-handoff.ps1
 ---
 
 # Official Artifact Visual Sync Runbook
@@ -187,6 +188,40 @@ Important generation details:
 - TeamCity generated and published the Figma report for that exact revision.
 - The artifact hashes and visual plan are available together.
 
+## Assisted Handoff
+
+Use the child run id for `Figma Sync > Generate main design model`. The
+repository wrapper queries that build, requires a successful `main` revision,
+downloads its shared artifact package, selects the Figma report within it, and
+validates the model, scope, visual plan, and both runner manifests before
+showing any MCP work:
+
+```powershell
+pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 -BuildId <job-run-id>
+```
+
+Run this command from the normal PowerShell profile used by the TeamCity CLI
+wrapper. That profile injects Cloudflare Service Auth headers without exposing
+their values; `pwsh -NoProfile` cannot reach the protected artifact endpoint.
+
+The result is written below `tmp/teamcity/` as
+`figma-sync-handoff.json`. Use its `nextUnit` and commands to execute one
+Codex-operated Figma MCP unit at a time, then record success or failure through
+the existing checkpoint executor. The wrapper never writes to Figma and never
+records a unit automatically.
+
+When artifacts were downloaded through another authorized route, validate them
+without a second download:
+
+```powershell
+pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 `
+    -ArtifactDirectory <downloaded-figma-sync-directory>
+```
+
+After all selected visual units and metadata complete, use the handoff's
+`rerun` command. A successful rerun is the final proof; the local handoff JSON
+is only operator state and must not be committed.
+
 ## Verification
 
 Verify the artifact revision, model hash, writer hash, transport hash, and
@@ -210,3 +245,4 @@ official artifact from the authoritative `main` run.
 - `.teamcity/settings.kts`
 - `.teamcity/scripts/prepare-figma-sync.ps1`
 - `tools/scripts/write-mcp-runner.ts`
+- `tools/teamcity/prepare-figma-sync-handoff.ps1`
