@@ -3,6 +3,8 @@ package com.marmatsan.figmaDesignSync.projectConfig
 import com.marmatsan.figmaDesignSync.data.json.writer.FigmaWriterProjectConfigJson
 import com.marmatsan.figmaDesignSync.plugin.gradle.figmaDesignSyncExtension
 import com.marmatsan.figmaDesignSync.plugin.task.config.WriteFigmaWriterProjectConfigTask
+import com.marmatsan.figmaDesignSync.plugin.task.mcp.ProbeFigmaMcpTask
+import com.marmatsan.figmaDesignSync.plugin.task.mcp.RunFigmaMcpTask
 import com.marmatsan.figmaDesignSync.plugin.task.official.PrepareOfficialFigmaSyncTask
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
@@ -92,6 +94,16 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
             writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
         }
 
+        project.tasks.named<RunFigmaMcpTask>("runFigmaMcp") {
+            dependsOn(writeWriterProjectConfig)
+            writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
+        }
+
+        project.tasks.named<ProbeFigmaMcpTask>("probeFigmaMcp") {
+            dependsOn(writeWriterProjectConfig)
+            writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
+        }
+
         project.tasks.register<PrepareTeamCityFigmaSyncHandoffTask>("prepareTeamCityFigmaSyncHandoff") {
             group = "documentation"
             description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
@@ -107,11 +119,6 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
                 project.layout.dir(
                     project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
                 ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
-            )
-            projectRootDirectory.set(project.layout.projectDirectory)
-            toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-design-sync/tools"))
-            skipExecutorBuild.convention(
-                project.providers.gradleProperty("figmaSkipExecutorBuild").map(String::toBoolean).orElse(false)
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
             mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))

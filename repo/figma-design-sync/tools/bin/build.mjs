@@ -28,7 +28,6 @@ await bundleFigmaEntrypoint(
 for (const [entrypoint, output] of [
   ["scripts/write-mcp-js.ts", "write-mcp-js.mjs"],
   ["scripts/write-mcp-runner.ts", "write-mcp-runner.mjs"],
-  ["scripts/execute-mcp-runner.ts", "execute-mcp-runner.mjs"],
 ]) {
   await build({
     absWorkingDir: packageRoot,

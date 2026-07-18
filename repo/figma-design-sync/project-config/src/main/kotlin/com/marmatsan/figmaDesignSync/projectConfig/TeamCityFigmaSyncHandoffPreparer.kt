@@ -1,10 +1,10 @@
 package com.marmatsan.figmaDesignSync.projectConfig
 
 import com.marmatsan.figmaDesignSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDesignSync.data.mcp.McpRunnerExecutor
 import com.marmatsan.figmaDesignSync.domain.service.artifact.OfficialFigmaArtifactContractValidator
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityBuildArtifactClient
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCliClient
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -13,6 +13,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipInputStream
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -26,9 +27,7 @@ class TeamCityFigmaSyncHandoffPreparer(
     private val artifactValidator: OfficialFigmaArtifactContractValidator =
         OfficialFigmaArtifactContractValidator(),
     private val clock: Clock = Clock.systemUTC(),
-    private val execute: (File, List<String>) -> CommandResult = { directory, arguments ->
-        executeProcess(directory, arguments)
-    }
+    private val executor: McpRunnerExecutor = McpRunnerExecutor()
 ) {
     fun prepare(request: Request): Result {
         val artifactDirectory = resolveArtifactDirectory(request)
@@ -44,31 +43,23 @@ class TeamCityFigmaSyncHandoffPreparer(
             "Official artifact set does not contain one metadata manifest."
         }
 
-        val executor = request.toolsDirectory.resolve("dist/execute-mcp-runner.mjs")
-        if (!request.skipExecutorBuild) {
-            run(request.toolsDirectory, npmExecutable(), "ci")
-            run(request.toolsDirectory, npmExecutable(), "run", "build")
-        }
-
-        val dryRun: String?
-        val nextUnit: String?
-        if (executor.isFile) {
-            val arguments = listOf(
-                "node",
-                executor.absolutePath,
-                "--manifest=${visualManifest}",
-                "--plan=${artifacts.planPath}"
+        val inspection = executor.inspect(
+            McpRunnerExecutor.Request(
+                manifestPath = visualManifest.toString(),
+                planPath = artifacts.planPath.toString()
             )
-            dryRun = capture(request.projectRootDirectory, arguments + "--dry-run")
-            nextUnit = capture(request.projectRootDirectory, arguments + "--next")
-        } else {
-            require(request.skipExecutorBuild) { "Missing built Figma executor: ${executor.path}" }
-            dryRun = null
-            nextUnit = null
+        )
+        val dryRun = buildJsonObject {
+            put("manifestHash", inspection.manifestHash)
+            put("statePath", inspection.statePath)
+            put("reuseStaging", inspection.reuseStaging)
+            putNullable("decision", inspection.decision?.let(::JsonPrimitive))
+            put("executionFiles", JsonArray(inspection.executionFiles.map(::JsonPrimitive)))
         }
-
+        val nextUnit = inspection.executionFiles.firstOrNull() ?: "COMPLETE"
         val commandPrefix =
-            "node \"${executor.absolutePath}\" --manifest=\"$visualManifest\" --plan=\"${artifacts.planPath}\""
+            ".\\gradlew.bat runFigmaMcp " +
+                "-PfigmaMcpManifest=\"$visualManifest\" -PfigmaMcpPlan=\"${artifacts.planPath}\""
         val summary = buildJsonObject {
             put("schemaVersion", 1)
             put("preparedAt", clock.instant().toString())
@@ -76,25 +67,28 @@ class TeamCityFigmaSyncHandoffPreparer(
             put("gitSha", validated.gitSha)
             put("modelHash", validated.modelHash)
             put("decision", validated.decision.wireValue)
-            putNullable("nextUnit", nextUnit?.let(::JsonPrimitive))
+            put("nextUnit", nextUnit)
             put("artifactDirectory", artifacts.artifactDirectory.toString())
             put("visualManifest", visualManifest.toString())
             put("metadataManifest", artifacts.metadataManifestPath.toString())
             put("plan", artifacts.planPath.toString())
-            putNullable("dryRun", dryRun?.let(::JsonPrimitive))
+            put("dryRun", dryRun)
             put(
                 "commands",
                 buildJsonObject {
-                    put("inspect", "$commandPrefix --dry-run")
-                    put("next", "$commandPrefix --next")
+                    put("inspect", "$commandPrefix -PfigmaMcpDryRun=true")
+                    put("next", "$commandPrefix -PfigmaMcpNext=true")
                     put(
                         "recordSuccess",
-                        "$commandPrefix --record-success=\"RUNNER_FILE.mcp.js\" --summary=\"SHORT_RESULT\""
+                        "$commandPrefix -PfigmaMcpRecordSuccess=\"RUNNER_FILE.mcp.js\" " +
+                            "-PfigmaMcpSummary=\"SHORT_RESULT\""
                     )
                     put(
                         "recordFailure",
-                        "$commandPrefix --record-failure=\"RUNNER_FILE.mcp.js\" --summary=\"SHORT_ERROR\""
+                        "$commandPrefix -PfigmaMcpRecordFailure=\"RUNNER_FILE.mcp.js\" " +
+                            "-PfigmaMcpSummary=\"SHORT_ERROR\""
                     )
+                    put("execute", commandPrefix)
                     put("rerun", ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true")
                 }
             )
@@ -176,42 +170,10 @@ class TeamCityFigmaSyncHandoffPreparer(
         }
     }
 
-    private fun run(directory: File, vararg arguments: String) {
-        val result = execute(directory, platformCommand(arguments.toList()))
-        require(result.exitCode == 0) {
-            "Command '${arguments.joinToString(" ")}' failed with exit code ${result.exitCode}: " +
-                result.error.trim()
-        }
-    }
-
-    private fun capture(directory: File, arguments: List<String>): String {
-        val result = execute(directory, platformCommand(arguments))
-        require(result.exitCode == 0) {
-            "Command '${arguments.joinToString(" ")}' failed with exit code ${result.exitCode}: " +
-                result.error.trim()
-        }
-        return result.output.trim()
-    }
-
-    private fun platformCommand(arguments: List<String>): List<String> =
-        if (isWindows() && arguments.first().endsWith(".cmd", ignoreCase = true)) {
-            listOf("cmd.exe", "/d", "/c") + arguments
-        } else {
-            arguments
-        }
-
-    private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
-
-    private fun isWindows(): Boolean =
-        System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
-
     data class Request(
         val buildId: Long?,
         val artifactDirectory: File?,
         val destinationRoot: File,
-        val projectRootDirectory: File,
-        val toolsDirectory: File,
-        val skipExecutorBuild: Boolean,
         val expectedGitSha: String? = null,
         val mainBranchAliases: Set<String> = setOf("main", "<default>", "refs/heads/main"),
         val requiredBuildTypeName: String = "Generate main design model"
@@ -223,29 +185,11 @@ class TeamCityFigmaSyncHandoffPreparer(
         val summary: JsonObject
     )
 
-    data class CommandResult(
-        val exitCode: Int,
-        val output: String,
-        val error: String
-    )
-
     private companion object {
         val prettyJson = Json { prettyPrint = true }
         val downloadTimestamp: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneOffset.UTC)
 
-        fun executeProcess(directory: File, arguments: List<String>): CommandResult {
-            val process = ProcessBuilder(arguments).directory(directory).start()
-            val output = ByteArrayOutputStream()
-            val error = ByteArrayOutputStream()
-            process.inputStream.use { input -> input.copyTo(output) }
-            process.errorStream.use { input -> input.copyTo(error) }
-            return CommandResult(
-                exitCode = process.waitFor(),
-                output = output.toString(),
-                error = error.toString()
-            )
-        }
     }
 }
 

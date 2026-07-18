@@ -12,7 +12,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for preparing an official TeamCity Figma Sync handoff. */
-@DisableCachingByDefault(because = "Downloads artifacts and runs the local Node toolchain")
+@DisableCachingByDefault(because = "Downloads and inspects official TeamCity artifacts")
 abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
     @get:Input
     @get:Optional
@@ -24,15 +24,6 @@ abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
 
     @get:Internal
     abstract val destinationRoot: DirectoryProperty
-
-    @get:Internal
-    abstract val projectRootDirectory: DirectoryProperty
-
-    @get:Internal
-    abstract val toolsDirectory: DirectoryProperty
-
-    @get:Input
-    abstract val skipExecutorBuild: Property<Boolean>
 
     @get:Input
     @get:Optional
@@ -51,9 +42,6 @@ abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
                 buildId = buildId.orNull,
                 artifactDirectory = artifactDirectory.orNull?.asFile,
                 destinationRoot = destinationRoot.get().asFile,
-                projectRootDirectory = projectRootDirectory.get().asFile,
-                toolsDirectory = toolsDirectory.get().asFile,
-                skipExecutorBuild = skipExecutorBuild.get(),
                 expectedGitSha = expectedGitSha.orNull,
                 mainBranchAliases = mainBranchAliases.get().toSet(),
                 requiredBuildTypeName = requiredBuildTypeName.get()

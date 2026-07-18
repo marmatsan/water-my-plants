@@ -1,0 +1,32 @@
+const page = await figma.getNodeByIdAsync(@@METADATA_PAGE_ID@@);
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page " + @@METADATA_PAGE_ID@@ + " to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+const namespace = @@NAMESPACE@@;
+const key = @@KEY@@;
+const chunk = @@CHUNK@@;
+const expectedChunkLength = @@CHUNK_LENGTH@@;
+const expectedPreviousLength = @@PREVIOUS_LENGTH@@;
+const previous = page.getSharedPluginData(namespace, key);
+
+if (chunk.length !== expectedChunkLength) {
+  throw new Error("Unexpected staged " + key + " chunk length: " + chunk.length + " != " + expectedChunkLength);
+}
+
+if (previous.length !== expectedPreviousLength) {
+  throw new Error("Unexpected staged " + key + " length: " + previous.length + " != " + expectedPreviousLength);
+}
+
+page.setSharedPluginData(namespace, key, previous + chunk);
+
+return {
+  namespace,
+  key,
+  chunkIndex: @@CHUNK_INDEX@@,
+  chunkCount: @@CHUNK_COUNT@@,
+  currentLength: page.getSharedPluginData(namespace, key).length
+};

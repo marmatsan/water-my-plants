@@ -1,0 +1,25 @@
+const page = await figma.getNodeByIdAsync(@@METADATA_PAGE_ID@@);
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page " + @@METADATA_PAGE_ID@@ + " to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+const namespace = @@NAMESPACE@@;
+const keys = [
+  "designModelJson",
+  "script",
+  "designModelHash",
+  "designModelGitSha",
+  "designModelLength",
+  "scriptLength",
+  "writerHash",
+  "transportHash"
+];
+
+for (const key of keys) {
+  page.setSharedPluginData(namespace, key, "");
+}
+
+return { namespace, clearedKeys: keys };

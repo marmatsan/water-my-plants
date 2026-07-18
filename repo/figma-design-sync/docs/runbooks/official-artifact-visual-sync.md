@@ -209,7 +209,7 @@ for the protected artifact endpoint.
 The result is written below `tmp/teamcity/` as
 `figma-sync-handoff.json`. Use its `nextUnit` and commands to execute one
 Codex-operated Figma MCP unit at a time, then record success or failure through
-the existing checkpoint executor. The task never writes to Figma and never
+the Kotlin checkpoint executor. The task never writes to Figma and never
 records a unit automatically.
 
 When artifacts were downloaded through another authorized route, validate them

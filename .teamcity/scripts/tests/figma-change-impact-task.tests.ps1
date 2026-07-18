@@ -31,7 +31,7 @@ try {
     $documentation = Invoke-Impact @("docs/documentation.md")
     Assert-Equal $documentation.scope "documentation-only" "Documentation must be a Figma no-op"
 
-    $transport = Invoke-Impact @("repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts")
+    $transport = Invoke-Impact @("repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt")
     Assert-Equal $transport.scope "transport-only" "MCP transport must not rewrite Figma"
 
     $modelNeutral = Invoke-Impact @(".teamcity/scripts/validate-documentation.ps1")

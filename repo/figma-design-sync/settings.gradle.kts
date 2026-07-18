@@ -88,6 +88,12 @@ dependencyResolutionManagement {
             ).version(version("snakeYamlLibraryVersion"))
 
             library(
+                alias = "io.modelcontextprotocol.kotlin.sdk.client",
+                group = "io.modelcontextprotocol",
+                artifact = "kotlin-sdk-client"
+            ).version(version("mcpKotlinSdkLibraryVersion"))
+
+            library(
                 alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
                 group = "me.tatarka.inject",
                 artifact = "kotlin-inject-compiler-ksp"

@@ -25,7 +25,7 @@ internal class FigmaChangeImpactClassifierTest : FunSpec({
     test("transport changes do not request a visual rewrite") {
         val result = classifier.classify(
             changeSet(
-                "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts",
+                "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt",
                 "repo/figma-design-sync/docs/runbooks/mcp-chunk-transport.md"
             ),
             policy()
@@ -91,7 +91,9 @@ private fun changeSet(vararg paths: String) = RepositoryChangeSet(
 
 private fun policy() = FigmaChangeImpactPolicy(
     documentationOnlyPaths = listOf("docs/*.md", "*/docs/*.md", "*/*/docs/*.md"),
-    transportOnlyPaths = listOf("repo/figma-design-sync/tools/scripts/*"),
+    transportOnlyPaths = listOf(
+        "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/*"
+    ),
     modelNeutralPaths = listOf(".teamcity/scripts/validate-documentation.ps1"),
     modelContentPaths = listOf("*/build.gradle.kts"),
     visualWriterPaths = listOf("repo/figma-design-sync/tools/src/*"),

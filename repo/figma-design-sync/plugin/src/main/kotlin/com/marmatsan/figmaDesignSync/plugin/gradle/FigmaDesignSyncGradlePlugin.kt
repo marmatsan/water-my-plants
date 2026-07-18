@@ -10,6 +10,8 @@ import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiExternalTopologyFresh
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
 import com.marmatsan.figmaDesignSync.plugin.task.impact.ClassifyFigmaChangeImpactTask
+import com.marmatsan.figmaDesignSync.plugin.task.mcp.ProbeFigmaMcpTask
+import com.marmatsan.figmaDesignSync.plugin.task.mcp.RunFigmaMcpTask
 import com.marmatsan.figmaDesignSync.plugin.task.official.PrepareOfficialFigmaSyncTask
 import com.marmatsan.figmaDesignSync.plugin.task.official.ValidateOfficialFigmaSyncScopeTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
@@ -76,6 +78,43 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 project.layout.file(
                     project.providers.gradleProperty("figmaArtifactValidationOutput").map(::File)
                 ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json"))
+            )
+        }
+
+        project.tasks.register<RunFigmaMcpTask>("runFigmaMcp") {
+            group = "documentation"
+            description = "Inspects, records, or executes a generated runner through the Kotlin MCP client."
+
+            manifestPath.convention(project.providers.gradleProperty("figmaMcpManifest"))
+            planPath.convention(project.providers.gradleProperty("figmaMcpPlan"))
+            statePath.convention(project.providers.gradleProperty("figmaMcpState"))
+            visualStatePath.convention(project.providers.gradleProperty("figmaMcpVisualState"))
+            endpoint.convention(
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp")
+            )
+            resume.convention(booleanProperty(project, "figmaMcpResume"))
+            retryFailed.convention(booleanProperty(project, "figmaMcpRetryFailed"))
+            reuseStaging.convention(booleanProperty(project, "figmaMcpReuseStaging"))
+            dryRun.convention(booleanProperty(project, "figmaMcpDryRun"))
+            next.convention(booleanProperty(project, "figmaMcpNext"))
+            from.convention(project.providers.gradleProperty("figmaMcpFrom"))
+            recordSuccess.convention(project.providers.gradleProperty("figmaMcpRecordSuccess"))
+            recordFailure.convention(project.providers.gradleProperty("figmaMcpRecordFailure"))
+            summary.convention(project.providers.gradleProperty("figmaMcpSummary"))
+            writerProjectConfigFile.set(
+                project.layout.file(project.providers.gradleProperty("figmaWriterProjectConfig").map(::File))
+            )
+        }
+
+        project.tasks.register<ProbeFigmaMcpTask>("probeFigmaMcp") {
+            group = "verification"
+            description = "Probes the local MCP endpoint with the official Kotlin SDK client."
+
+            endpoint.convention(
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp")
+            )
+            writerProjectConfigFile.set(
+                project.layout.file(project.providers.gradleProperty("figmaWriterProjectConfig").map(::File))
             )
         }
 
@@ -298,6 +337,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             dependsOn(generateOfficialFigmaSyncModel)
 
             changeImpactFile.set(extension.changeImpactFile)
+            changeImpactPolicyFile.set(extension.changeImpactPolicyFile)
             designModelFile.set(extension.designModelFile)
             metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
             metadataNamespace.set(extension.metadataNamespace)
@@ -306,6 +346,12 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             runnerOutputDirectory.set(project.layout.buildDirectory.dir("reports/figma-sync/mcp-runners"))
             visualSyncPlanFile.set(project.layout.buildDirectory.file("reports/figma-sync/visual-sync-plan.json"))
             scopeFile.set(project.layout.buildDirectory.file("reports/figma-sync/sync-scope.json"))
+            runnerTransport.convention(
+                project.providers.gradleProperty("figmaMcpTransport").orElse("png")
+            )
+            runnerChunkSize.convention(
+                project.providers.gradleProperty("figmaMcpChunkSize").map(String::toInt).orElse(12_000)
+            )
             outputs.upToDateWhen { false }
         }
 
@@ -377,6 +423,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
         figmaDesignSyncComponent::class.create().officialFigmaSyncScopeJson
             .readChangeImpact(changeImpactFile.absolutePath)
             .scope == FigmaVerificationScope.FULL_VERIFICATION
+
+    private fun booleanProperty(project: Project, name: String) =
+        project.providers.gradleProperty(name).map(String::toBoolean).orElse(false)
 
 }
 

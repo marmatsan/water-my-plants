@@ -1,5 +1,13 @@
 package com.marmatsan.figmaDesignSync.projectConfig
 
+import com.marmatsan.figmaDesignSync.data.hash.Sha256Hash
+import com.marmatsan.figmaDesignSync.data.json.writer.ExecutableRunnerManifestJson
+import com.marmatsan.figmaDesignSync.data.json.writer.VisualSyncPlanJson
+import com.marmatsan.figmaDesignSync.domain.model.writer.ExecutableRunnerManifest
+import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncDecision
+import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncIdentity
+import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncPlan
+import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncPlanBody
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityBuild
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityBuildArtifactClient
 import io.kotest.assertions.throwables.shouldThrow
@@ -11,7 +19,7 @@ import java.nio.file.Files
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
-import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
@@ -21,7 +29,6 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
             mkdirs()
             writeArtifactFixture()
         }
-        val tools = root.resolve("tools").apply { mkdirs() }
         val client = object : TeamCityBuildArtifactClient {
             override fun readBuild(buildId: Long): TeamCityBuild = error("TeamCity must not be called")
 
@@ -30,8 +37,7 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
         }
         val preparer = TeamCityFigmaSyncHandoffPreparer(
             teamCityClient = client,
-            clock = Clock.fixed(Instant.parse("2026-07-18T18:00:00Z"), ZoneOffset.UTC),
-            execute = { _, _ -> error("Node must not run when the executor build is skipped") }
+            clock = Clock.fixed(Instant.parse("2026-07-18T18:00:00Z"), ZoneOffset.UTC)
         )
 
         val result = preparer.prepare(
@@ -39,9 +45,6 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
                 buildId = null,
                 artifactDirectory = artifacts,
                 destinationRoot = root.resolve("downloads"),
-                projectRootDirectory = root,
-                toolsDirectory = tools,
-                skipExecutorBuild = true,
                 expectedGitSha = "abc123"
             )
         )
@@ -52,8 +55,9 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
         result.summary["gitSha"]?.jsonPrimitive?.content shouldBe "abc123"
         result.summary["modelHash"]?.jsonPrimitive?.content shouldBe "model-hash"
         result.summary["decision"]?.jsonPrimitive?.content shouldBe "partial"
-        result.summary["teamCityBuildId"] shouldBe JsonNull
-        result.summary["dryRun"] shouldBe JsonNull
+        result.summary["teamCityBuildId"]?.toString() shouldBe "null"
+        result.summary["dryRun"]?.jsonObject?.get("decision")?.jsonPrimitive?.content shouldBe "partial"
+        result.summary["nextUnit"]?.jsonPrimitive?.content shouldBe "00-clear-staging.mcp.js"
         root.deleteRecursively()
     }
 
@@ -79,10 +83,7 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
                 TeamCityFigmaSyncHandoffPreparer.Request(
                     buildId = 1573,
                     artifactDirectory = null,
-                    destinationRoot = root.resolve("downloads"),
-                    projectRootDirectory = root,
-                    toolsDirectory = root.resolve("tools"),
-                    skipExecutorBuild = true
+                    destinationRoot = root.resolve("downloads")
                 )
             )
         }
@@ -97,6 +98,39 @@ private fun File.writeArtifactFixture() {
     resolve("design-model.json").writeText(
         """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}"""
     )
+    val visual = resolve("mcp-runners/visual").apply { mkdirs() }
+    val metadata = resolve("mcp-runners/metadata").apply { mkdirs() }
+    val visualManifest = visual.writeManifest(
+        targets = listOf("preflight"),
+        fullVisualSync = true,
+        writeMetadata = false
+    )
+    val metadataManifest = metadata.writeManifest(
+        targets = listOf("metadata"),
+        fullVisualSync = false,
+        writeMetadata = true
+    )
+    VisualSyncPlanJson().run {
+        val body = VisualSyncPlanBody(
+            schemaVersion = 1,
+            decision = VisualSyncDecision.PARTIAL,
+            reason = "target-model-fingerprints-changed",
+            requiresVisualWrite = true,
+            requiresMetadataWrite = true,
+            executionScopes = listOf("preflight"),
+            identity = VisualSyncIdentity(
+                modelHash = "model-hash",
+                writerHash = "writer-hash",
+                transportHash = "transport-hash",
+                writerScopeFingerprintSchemaVersion = 1
+            ),
+            manifestHash = visualManifest.manifestHash
+        )
+        write(
+            VisualSyncPlan(body = body, planHash = hash(body)),
+            resolve("visual-sync-plan.json").absolutePath
+        )
+    }
     resolve("sync-scope.json").writeText(
         """
         {
@@ -105,49 +139,60 @@ private fun File.writeArtifactFixture() {
           "modelHash":"model-hash",
           "writerHash":"writer-hash",
           "transportHash":"transport-hash",
-          "visualRunnerManifestHash":"visual-hash",
-          "metadataRunnerManifestHash":"metadata-hash",
+          "visualRunnerManifestHash":"${visualManifest.manifestHash}",
+          "metadataRunnerManifestHash":"${metadataManifest.manifestHash}",
           "visualSyncDecision":"partial"
         }
         """.trimIndent()
     )
-    resolve("visual-sync-plan.json").writeText(
-        """
-        {
-          "decision":"partial",
-          "manifestHash":"visual-hash",
-          "identity":{
-            "modelHash":"model-hash",
-            "writerHash":"writer-hash",
-            "transportHash":"transport-hash"
-          }
-        }
-        """.trimIndent()
-    )
-    val visual = resolve("mcp-runners/visual").apply { mkdirs() }
-    val metadata = resolve("mcp-runners/metadata").apply { mkdirs() }
-    visual.resolve("manifest.json").writeText(
-        artifactManifest(fullVisualSync = true, writeMetadata = false, manifestHash = "visual-hash")
-    )
-    metadata.resolve("manifest.json").writeText(
-        artifactManifest(fullVisualSync = false, writeMetadata = true, manifestHash = "metadata-hash")
-    )
 }
 
-private fun artifactManifest(
+private fun File.writeManifest(
+    targets: List<String>,
     fullVisualSync: Boolean,
-    writeMetadata: Boolean,
-    manifestHash: String
-): String =
-    """
-    {
-      "mode":"official",
-      "gitSha":"abc123",
-      "modelHash":"model-hash",
-      "manifestHash":"$manifestHash",
-      "writerHash":"writer-hash",
-      "transportHash":"transport-hash",
-      "fullVisualSync":$fullVisualSync,
-      "writeMetadata":$writeMetadata
-    }
-    """.trimIndent()
+    writeMetadata: Boolean
+): ExecutableRunnerManifest {
+    val fileName = if (writeMetadata) "99-run-target.mcp.js" else "99-00-preflight.mcp.js"
+    val source = "return { target: '${targets.single()}' };\n"
+    resolve("00-clear-staging.mcp.js").writeText("return { cleared: true };\n")
+    resolve(fileName).writeText(source)
+    val files = listOf("00-clear-staging.mcp.js", fileName)
+    val fileHashes = files.associateWith { name -> Sha256Hash.of(resolve(name).readBytes()) }
+    val draft = ExecutableRunnerManifest(
+        path = resolve("manifest.json").absolutePath,
+        schemaVersion = 3,
+        mode = "official",
+        entrypoint = "trunk-sync",
+        target = targets.first(),
+        targets = targets,
+        writeMetadata = writeMetadata,
+        transport = "chunks",
+        namespace = "test_staging",
+        sectionNodeId = null,
+        roots = emptyList(),
+        allowOfficialSections = false,
+        fullVisualSync = fullVisualSync,
+        allowPartial = false,
+        metadataPageId = "1:2",
+        modelPath = "design-model.json",
+        scriptPath = "writer.mcp.js",
+        modelHash = "model-hash",
+        gitSha = "abc123",
+        designModelLength = 10,
+        scriptLength = 20,
+        writerHash = "writer-hash",
+        transportHash = "transport-hash",
+        targetFingerprints = mapOf("preflight" to "model-target-hash"),
+        writerScopeFingerprints = mapOf(
+            "preflight" to "writer-preflight-hash",
+            "metadata" to "writer-metadata-hash"
+        ),
+        writerScopeFingerprintSchemaVersion = 1,
+        executionScopes = mapOf(fileName to targets.single()),
+        payloadImage = null,
+        files = files,
+        fileHashes = fileHashes,
+        manifestHash = ""
+    )
+    return ExecutableRunnerManifestJson().finalizeAndWrite(draft, resolve("manifest.json").absolutePath)
+}

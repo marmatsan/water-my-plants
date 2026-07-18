@@ -1,0 +1,41 @@
+const page = await figma.getNodeByIdAsync(@@METADATA_PAGE_ID@@);
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page " + @@METADATA_PAGE_ID@@ + " to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+const namespace = @@NAMESPACE@@;
+const expected = @@EXPECTED_IDENTITY@@;
+const stagedModelJson = page.getSharedPluginData(namespace, "designModelJson");
+const stagedScript = page.getSharedPluginData(namespace, "script");
+
+if (String(stagedModelJson.length) !== expected.designModelLength) {
+  throw new Error("Staged model length mismatch: " + stagedModelJson.length + " != " + expected.designModelLength);
+}
+if (String(stagedScript.length) !== expected.scriptLength) {
+  throw new Error("Staged script length mismatch: " + stagedScript.length + " != " + expected.scriptLength);
+}
+
+const parsedModel = JSON.parse(stagedModelJson);
+if (parsedModel.modelHash !== expected.designModelHash) throw new Error("Staged modelHash mismatch.");
+if (parsedModel.gitSha !== expected.designModelGitSha) throw new Error("Staged gitSha mismatch.");
+
+page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash);
+page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
+page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
+page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
+page.setSharedPluginData(namespace, "writerHash", expected.writerHash);
+page.setSharedPluginData(namespace, "transportHash", expected.transportHash);
+
+return {
+  namespace,
+  mode: "official",
+  modelHash: expected.designModelHash,
+  gitSha: expected.designModelGitSha,
+  designModelLength: expected.designModelLength,
+  scriptLength: expected.scriptLength,
+  writerHash: expected.writerHash,
+  transportHash: expected.transportHash
+};

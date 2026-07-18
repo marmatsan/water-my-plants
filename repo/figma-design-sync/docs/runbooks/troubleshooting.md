@@ -122,18 +122,13 @@ return {
 `designModelJsonLength: 0` after `00-clear-staging.mcp.js` means the payload was
 not staged. In PNG transport, confirm that `10-official-sync-payload.png` was
 uploaded to Figma and that `10-stage-payload-from-png.mcp.js` completed. If PNG
-asset upload is blocked, regenerate with chunk transport:
-
-```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks
-```
+asset upload is blocked, rerun the authorized official TeamCity generation with
+`-PfigmaMcpTransport=chunks`.
 
 If a chunk call is too large and never reaches Figma, regenerate the chunk
 runner with a smaller chunk size and rerun the files in lexical order:
 
-```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks --chunk-size=8000
-```
+Set `-PfigmaMcpChunkSize=8000` on that authorized generation.
 
 For chunk transport, stage base64 chunks in temporary shared plugin data:
 
@@ -155,13 +150,12 @@ generated staging code must inspect only direct children of each document page.
 the upload lands on a different page from the metadata page, so neither API is
 required.
 
-The tools package can generate PNG-based official runner files and chunked
-visual preview runner files:
+The tools package can generate visual preview runner files. Official runners
+are generated in Kotlin only as part of the authorized TeamCity artifact:
 
 ```powershell
 cd repo\figma-design-sync\tools
 npm run build
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.plugins --allow-partial=true
 node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
@@ -435,20 +429,19 @@ contract.
 The deterministic executor can probe the Figma Desktop endpoint:
 
 ```powershell
-cd repo\figma-design-sync\tools
-npm run mcp:probe
+.\gradlew.bat probeFigmaMcp
 ```
 
 At the time this contract was implemented, `http://127.0.0.1:3845/mcp`
 advertised metadata, screenshot, design-context, and Code Connect tools but did
 not advertise `use_figma` or `upload_assets`. That is a capability result, not a
-TeamCity authentication failure. `mcp:execute` must stop before mutation and
+TeamCity authentication failure. `runFigmaMcp` must stop before mutation and
 report the missing tools.
 
 Continue with the Codex-operated official Figma MCP writer and record each
 successful or failed generated unit in `execution-state.json` as described in
 [visual-sync-efficiency.md](visual-sync-efficiency.md). Re-test the endpoint
-with `mcp:probe` before enabling direct execution; do not infer write support
+with `probeFigmaMcp` before enabling direct execution; do not infer write support
 from a successful MCP handshake.
 
 ## Prerequisites

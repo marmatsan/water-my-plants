@@ -7,7 +7,8 @@ status: active
 last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
-  - repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt
+  - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/McpExecutionPlanner.kt
   - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/VisualSyncPlanner.kt
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/VisualSyncPlanJson.kt
 ---
@@ -70,18 +71,16 @@ establishes the baseline used by later partial plans.
 
 ## Local Capability Probe
 
-Build the tools and probe the configured local endpoint:
+Probe the configured local endpoint through the Kotlin MCP SDK client:
 
 ```powershell
-cd repo\figma-design-sync\tools
-npm run build
-npm run mcp:probe
+.\gradlew.bat probeFigmaMcp
 ```
 
 The current Figma Desktop endpoint at `http://127.0.0.1:3845/mcp` advertises
 read-oriented tools but not the `use_figma` and `upload_assets` write tools
-required by the runner. In that state the probe exits non-zero intentionally
-and `mcp:execute` refuses to mutate Figma. Keep using the official
+required by the runner. In that state `runFigmaMcp` refuses to mutate Figma.
+Keep using the official
 Codex-operated Figma MCP write path until the endpoint advertises the required
 capabilities.
 
@@ -97,19 +96,20 @@ TeamCity path. Do not bypass either failure with direct REST mutations.
 Inspect a runner without executing it:
 
 ```powershell
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --dry-run
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --next
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpDryRun=true
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpNext=true
 ```
 
 When Codex executes a generated file through the supported Figma MCP writer,
 record the result in the same checkpoint used by the deterministic executor:
 
 ```powershell
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --record-success=99-00-preflight.mcp.js --summary="Preflight passed"
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --record-failure=99-01-versions.mcp.js --summary="Figma component contract failed"
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpRecordSuccess="99-00-preflight.mcp.js" -PfigmaMcpSummary="Preflight passed"
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpRecordFailure="99-01-versions.mcp.js" -PfigmaMcpSummary="Figma component contract failed"
 ```
 
-Continue from the checkpoint with `--resume`; use `--retry-failed` to select
+Continue from the checkpoint with `-PfigmaMcpResume=true`; use
+`-PfigmaMcpRetryFailed=true` to select
 only the failed execution unit. Resume is rejected when `modelHash`, `gitSha`,
 `writerHash`, `transportHash`, or `manifestHash` differs from the checkpoint.
 
@@ -117,7 +117,7 @@ For metadata, reuse staging only after the completed visual checkpoint matches
 the metadata runner identity:
 
 ```powershell
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\metadata\manifest.json" -PfigmaMcpReuseStaging=true -PfigmaMcpVisualState="PATH\TO\visual\execution-state.json" -PfigmaMcpDryRun=true
 ```
 
 Never record metadata success before every execution scope selected by the
@@ -136,7 +136,8 @@ evidence, batching makes retries more expensive and less diagnosable.
 
 ## Token And Output Budget
 
-- Prefer `visual-sync-plan.json` and `--next` over pasting complete manifests.
+- Prefer `visual-sync-plan.json` and `-PfigmaMcpNext=true` over pasting complete
+  manifests.
 - Pass one generated runner file to `use_figma`; do not paste the compiled
   writer, model, or previous tool responses into chat.
 - Record a short result summary and duration in `execution-state.json`.
@@ -174,7 +175,8 @@ chunks only for a verified transport limitation.
 
 ## Sources
 
-- `tools/scripts/execute-mcp-runner.ts`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt`
+- `domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/McpExecutionPlanner.kt`
 - `domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/VisualSyncPlanner.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/VisualSyncPlanJson.kt`
-- `tools/scripts/write-mcp-runner.ts`
+- `plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/mcp/RunFigmaMcpTask.kt`
