@@ -1,0 +1,51 @@
+const page = await figma.getNodeByIdAsync(@@METADATA_PAGE_ID@@);
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page " + @@METADATA_PAGE_ID@@ + " to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+const namespace = @@NAMESPACE@@;
+const syncOptions = @@SYNC_OPTIONS@@;
+const stagedModelJson = page.getSharedPluginData(namespace, "designModelJson");
+let script = page.getSharedPluginData(namespace, "script");
+
+if (!stagedModelJson || !script) throw new Error("Missing staged model or script.");
+
+const stagedModel = JSON.parse(stagedModelJson);
+const stagedModelHash = page.getSharedPluginData(namespace, "designModelHash");
+const stagedModelGitSha = page.getSharedPluginData(namespace, "designModelGitSha");
+const stagedModelLength = page.getSharedPluginData(namespace, "designModelLength");
+const scriptLength = page.getSharedPluginData(namespace, "scriptLength");
+const writerHash = page.getSharedPluginData(namespace, "writerHash");
+const transportHash = page.getSharedPluginData(namespace, "transportHash");
+
+for (const [key, value] of Object.entries({
+  designModelHash: stagedModelHash,
+  designModelGitSha: stagedModelGitSha,
+  designModelLength: stagedModelLength,
+  scriptLength,
+  writerHash,
+  transportHash
+})) {
+  if (!value) throw new Error("Missing staged " + key + ".");
+}
+
+if (stagedModelHash !== stagedModel.modelHash) throw new Error("Staged modelHash mismatch.");
+if (stagedModelGitSha !== stagedModel.gitSha) throw new Error("Staged gitSha mismatch.");
+if (Number(stagedModelLength) !== stagedModelJson.length) throw new Error("Staged model length mismatch.");
+if (Number(scriptLength) !== script.length) throw new Error("Staged script length mismatch.");
+if (writerHash !== syncOptions.executionMetadata.writerHash) throw new Error("Staged writerHash mismatch.");
+if (transportHash !== syncOptions.executionMetadata.transportHash) throw new Error("Staged transportHash mismatch.");
+
+script = script.replace("const DESIGN_MODEL = undefined;", "const DESIGN_MODEL = stagedModel;");
+script = script.replace(
+  "const SYNC_OPTIONS = undefined;",
+  "const SYNC_OPTIONS = " + JSON.stringify(syncOptions) + ";"
+);
+
+const AsyncFunction = Object.getPrototypeOf(async function() {}).constructor;
+const run = new AsyncFunction("figma", "stagedModel", script);
+const result = await run(figma, stagedModel);
+return { ...result, executionScope: @@EXECUTION_SCOPE@@, modelTarget: @@MODEL_TARGET@@ };

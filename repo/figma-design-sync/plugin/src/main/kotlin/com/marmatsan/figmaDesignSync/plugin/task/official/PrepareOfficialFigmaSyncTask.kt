@@ -3,7 +3,9 @@ package com.marmatsan.figmaDesignSync.plugin.task.official
 import com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient
 import com.marmatsan.figmaDesignSync.data.figma.common.FigmaNodeUrl
 import com.marmatsan.figmaDesignSync.data.json.writer.FigmaSyncMetadataJson
+import com.marmatsan.figmaDesignSync.data.json.writer.FigmaWriterRuntimeConfigJson
 import com.marmatsan.figmaDesignSync.data.json.writer.VisualSyncPlanJson
+import com.marmatsan.figmaDesignSync.data.writer.OfficialMcpRunnerGenerator
 import com.marmatsan.figmaDesignSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDesignSync.domain.model.sync.OfficialFigmaSyncScope
 import com.marmatsan.figmaDesignSync.domain.model.writer.FigmaSyncMetadata
@@ -29,11 +31,15 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Builds the official MCP runner artifacts and writes their shared sync scope. */
-@DisableCachingByDefault(because = "Runs npm and Node against the official model artifact")
+@DisableCachingByDefault(because = "Builds the TypeScript Figma boundary and generates official runner artifacts")
 abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val changeImpactFile: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val changeImpactPolicyFile: RegularFileProperty
 
     @get:Internal
     abstract val designModelFile: RegularFileProperty
@@ -66,6 +72,12 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     @get:OutputFile
     abstract val scopeFile: RegularFileProperty
 
+    @get:Input
+    abstract val runnerTransport: Property<String>
+
+    @get:Input
+    abstract val runnerChunkSize: Property<Int>
+
     /** Runs the writer toolchain only for a full verification, then writes `sync-scope.json`. */
     @TaskAction
     fun prepare() {
@@ -85,22 +97,25 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             buildWriter(tools)
 
             val runnerDirectory = runnerOutputDirectory.get().asFile
-            run(
-                tools,
-                "node",
-                "dist/write-mcp-runner.mjs",
-                "--mode=official",
-                "--model=${model.absolutePath}",
-                "--out-dir=${runnerDirectory.absolutePath}"
-            )
-            run(
-                tools,
-                "node",
-                "dist/write-mcp-runner.mjs",
-                "--mode=official",
-                "--model=${model.absolutePath}",
-                "--target=metadata",
-                "--out-dir=${runnerDirectory.absolutePath}"
+            val projectConfig = writerProjectConfigFile.orNull?.asFile
+                ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
+            val writerScript = tools.resolve("sync-trunk-design-model.mcp.js")
+            if (!writerScript.isFile) {
+                throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
+            }
+            OfficialMcpRunnerGenerator().generate(
+                OfficialMcpRunnerGenerator.Request(
+                    modelPath = model.absolutePath,
+                    scriptPath = writerScript.absolutePath,
+                    outputDirectory = runnerDirectory.absolutePath,
+                    toolsDirectory = tools.absolutePath,
+                    writerSourceDirectory = tools.resolve("src").absolutePath,
+                    repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
+                    changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
+                    config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
+                    transport = runnerTransport.get(),
+                    chunkSize = runnerChunkSize.get()
+                )
             )
 
             val manifests = scopeJson.readRunnerManifests(runnerDirectory.absolutePath)

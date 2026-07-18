@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.io.ktor.client.cio)
     implementation(libs.io.ktor.client.content.negotiation)
     implementation(libs.io.ktor.serialization.kotlinx.json)
+    implementation(libs.io.modelcontextprotocol.kotlin.sdk.client)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
     implementation(libs.org.snakeyaml.engine)
 

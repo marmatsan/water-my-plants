@@ -1,0 +1,153 @@
+package com.marmatsan.figmaDesignSync.plugin.task.mcp
+
+import com.marmatsan.figmaDesignSync.data.json.writer.FigmaWriterRuntimeConfigJson
+import com.marmatsan.figmaDesignSync.data.mcp.McpRunnerExecutor
+import com.marmatsan.figmaDesignSync.domain.model.writer.McpExecutionOptions
+import javax.inject.Inject
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
+
+/** Inspects, records, or executes an official checkpointed runner through the Kotlin MCP client. */
+@DisableCachingByDefault(because = "May invoke a local write-capable MCP endpoint")
+abstract class RunFigmaMcpTask @Inject constructor() : DefaultTask() {
+    @get:Input
+    abstract val manifestPath: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val planPath: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val statePath: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val visualStatePath: Property<String>
+
+    @get:Input
+    abstract val endpoint: Property<String>
+
+    @get:Input
+    abstract val resume: Property<Boolean>
+
+    @get:Input
+    abstract val retryFailed: Property<Boolean>
+
+    @get:Input
+    abstract val reuseStaging: Property<Boolean>
+
+    @get:Input
+    abstract val dryRun: Property<Boolean>
+
+    @get:Input
+    abstract val next: Property<Boolean>
+
+    @get:Input
+    @get:Optional
+    abstract val from: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val recordSuccess: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val recordFailure: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val summary: Property<String>
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val writerProjectConfigFile: RegularFileProperty
+
+    @TaskAction
+    fun runMcp() {
+        val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)
+        val options = McpExecutionOptions(
+            resume = resume.get(),
+            retryFailed = retryFailed.get(),
+            reuseStaging = reuseStaging.get(),
+            from = from.orNull
+        )
+        val request = McpRunnerExecutor.Request(
+            manifestPath = manifestPath.get(),
+            endpoint = endpoint.get(),
+            fileKey = config.figmaFileKey,
+            clientName = config.mcpClientName,
+            projectDisplayName = config.projectDisplayName,
+            statePath = statePath.orNull,
+            visualStatePath = visualStatePath.orNull,
+            planPath = planPath.orNull,
+            options = options
+        )
+        val executor = McpRunnerExecutor()
+        require(recordSuccess.orNull == null || recordFailure.orNull == null) {
+            "Use only one of figmaMcpRecordSuccess or figmaMcpRecordFailure."
+        }
+
+        when {
+            dryRun.get() || next.get() -> {
+                val inspection = executor.inspect(request)
+                if (next.get()) {
+                    logger.lifecycle(inspection.executionFiles.firstOrNull() ?: "COMPLETE")
+                } else {
+                    val output = buildJsonObject {
+                        put("manifestHash", inspection.manifestHash)
+                        put("statePath", inspection.statePath)
+                        put("reuseStaging", inspection.reuseStaging)
+                        put("decision", inspection.decision?.let(::JsonPrimitive) ?: JsonNull)
+                        put(
+                            "executionScopes",
+                            inspection.executionScopes
+                                ?.map(::JsonPrimitive)
+                                ?.let(::JsonArray)
+                                ?: JsonNull
+                        )
+                        put("executionFiles", JsonArray(inspection.executionFiles.map(::JsonPrimitive)))
+                    }
+                    logger.lifecycle(prettyJson.encodeToString(JsonObject.serializer(), output))
+                }
+            }
+            recordSuccess.orNull != null || recordFailure.orNull != null -> {
+                val successFile = recordSuccess.orNull
+                val file = successFile ?: recordFailure.get()
+                executor.record(
+                    request = request,
+                    file = file,
+                    success = successFile != null,
+                    summary = summary.orNull ?: "Recorded by MCP operator"
+                )
+                logger.lifecycle("${if (successFile != null) "Completed" else "Failed"}: $file")
+            }
+            else -> {
+                val result = executor.execute(request)
+                logger.lifecycle(
+                    "Figma MCP complete: ${result.executionFiles.size} unit(s); " +
+                        "${result.toolNames.size} advertised tool(s)."
+                )
+            }
+        }
+    }
+
+    private companion object {
+        val prettyJson = Json { prettyPrint = true }
+    }
+}

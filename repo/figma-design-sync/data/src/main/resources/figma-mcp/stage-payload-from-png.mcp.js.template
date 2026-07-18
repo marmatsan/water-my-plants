@@ -1,0 +1,160 @@
+const page = await figma.getNodeByIdAsync(@@METADATA_PAGE_ID@@);
+
+if (!page || page.type !== "PAGE") {
+  throw new Error("Expected sync page " + @@METADATA_PAGE_ID@@ + " to be a PAGE");
+}
+
+await figma.setCurrentPageAsync(page);
+
+const namespace = @@NAMESPACE@@;
+const payloadKeyword = @@PAYLOAD_KEYWORD@@;
+const payloadFileName = @@PAYLOAD_FILE_NAME@@;
+const expected = @@EXPECTED_IDENTITY@@;
+const candidates = [];
+const imageHashes = new Set();
+const imageNodes = [];
+
+for (const documentPage of figma.root.children) {
+  if (documentPage.type !== "PAGE") continue;
+  for (const node of documentPage.children) {
+    const fills = "fills" in node ? node.fills : undefined;
+    if (!Array.isArray(fills)) continue;
+    let hasPayloadCandidate = false;
+    for (const fill of fills) {
+      if (fill?.type === "IMAGE" && fill.imageHash) {
+        hasPayloadCandidate = true;
+        imageHashes.add(fill.imageHash);
+      }
+    }
+    if (hasPayloadCandidate) imageNodes.push(node);
+  }
+}
+
+for (const imageHash of imageHashes) {
+  const image = figma.getImageByHash(imageHash);
+  if (!image) continue;
+  const bytes = await image.getBytesAsync();
+  const encodedPayload = readPayloadFromPngText(bytes, payloadKeyword);
+  if (!encodedPayload) continue;
+  const payload = JSON.parse(atob(encodedPayload));
+  if (
+    payload.payloadSchemaVersion === expected.payloadSchemaVersion &&
+    payload.designModelHash === expected.designModelHash &&
+    String(payload.designModelLength) === expected.designModelLength &&
+    String(payload.scriptLength) === expected.scriptLength &&
+    payload.writerHash === expected.writerHash &&
+    payload.transportHash === expected.transportHash
+  ) {
+    candidates.push({ imageHash, payload });
+  }
+}
+
+if (candidates.length === 0) {
+  throw new Error(
+    "Could not find official sync payload PNG for model " + expected.designModelHash + ". " +
+      "Upload " + payloadFileName + " with Figma upload_assets before this step."
+  );
+}
+
+const { imageHash, payload } = candidates[0];
+validatePayload(payload, expected);
+page.setSharedPluginData(namespace, "designModelJson", payload.designModelJson);
+page.setSharedPluginData(namespace, "script", payload.script);
+page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash);
+page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
+page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
+page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
+page.setSharedPluginData(namespace, "writerHash", expected.writerHash);
+page.setSharedPluginData(namespace, "transportHash", expected.transportHash);
+
+let payloadNodesRemoved = 0;
+for (const node of imageNodes) {
+  const fills = Array.isArray(node.fills) ? node.fills : [];
+  if (fills.some((fill) => fill?.type === "IMAGE" && fill.imageHash === imageHash)) {
+    node.remove();
+    payloadNodesRemoved += 1;
+  }
+}
+
+return {
+  namespace,
+  transport: "png",
+  payloadSchemaVersion: expected.payloadSchemaVersion,
+  payloadNodesRemoved,
+  modelHash: expected.designModelHash,
+  gitSha: expected.designModelGitSha,
+  designModelLength: expected.designModelLength,
+  scriptLength: expected.scriptLength,
+  writerHash: expected.writerHash,
+  transportHash: expected.transportHash
+};
+
+function validatePayload(payload, expected) {
+  for (const [key, value] of Object.entries({
+    designModelJson: payload.designModelJson,
+    script: payload.script,
+    designModelHash: payload.designModelHash,
+    designModelGitSha: payload.designModelGitSha,
+    writerHash: payload.writerHash,
+    transportHash: payload.transportHash
+  })) {
+    if (!value) throw new Error("Payload is missing " + key + ".");
+  }
+  if (payload.payloadSchemaVersion !== expected.payloadSchemaVersion) {
+    throw new Error("Payload schema version mismatch.");
+  }
+  if (payload.designModelHash !== expected.designModelHash) throw new Error("Payload modelHash mismatch.");
+  if (payload.designModelGitSha !== expected.designModelGitSha) throw new Error("Payload gitSha mismatch.");
+  if (payload.designModelJson.length !== Number(expected.designModelLength)) {
+    throw new Error("Payload model JSON length mismatch.");
+  }
+  if (payload.script.length !== Number(expected.scriptLength)) throw new Error("Payload script length mismatch.");
+  if (payload.writerHash !== expected.writerHash) throw new Error("Payload writerHash mismatch.");
+  if (payload.transportHash !== expected.transportHash) throw new Error("Payload transportHash mismatch.");
+  const parsedModel = JSON.parse(payload.designModelJson);
+  if (parsedModel.modelHash !== expected.designModelHash) throw new Error("Payload model JSON hash mismatch.");
+  if (parsedModel.gitSha !== expected.designModelGitSha) throw new Error("Payload model JSON gitSha mismatch.");
+}
+
+function readPayloadFromPngText(bytes, keyword) {
+  const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  for (let index = 0; index < pngSignature.length; index += 1) {
+    if (bytes[index] !== pngSignature[index]) return null;
+  }
+  let offset = 8;
+  while (offset + 12 <= bytes.length) {
+    const length = readUint32(bytes, offset);
+    const type = readLatin1(bytes, offset + 4, offset + 8);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    const nextOffset = dataEnd + 4;
+    if (dataEnd > bytes.length || nextOffset > bytes.length) return null;
+    if (type === "tEXt") {
+      const text = readLatin1(bytes, dataStart, dataEnd);
+      const separatorIndex = text.indexOf("\0");
+      if (separatorIndex > -1 && text.slice(0, separatorIndex) === keyword) {
+        return text.slice(separatorIndex + 1);
+      }
+    }
+    offset = nextOffset;
+  }
+  return null;
+}
+
+function readUint32(bytes, offset) {
+  return (
+    (bytes[offset] * 0x1000000) +
+    ((bytes[offset + 1] << 16) >>> 0) +
+    ((bytes[offset + 2] << 8) >>> 0) +
+    bytes[offset + 3]
+  ) >>> 0;
+}
+
+function readLatin1(bytes, start, end) {
+  let text = "";
+  for (let index = start; index < end; index += 8192) {
+    const chunk = bytes.slice(index, Math.min(index + 8192, end));
+    text += String.fromCharCode(...chunk);
+  }
+  return text;
+}
