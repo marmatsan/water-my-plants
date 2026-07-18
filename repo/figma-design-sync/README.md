@@ -63,6 +63,12 @@ Figma nodes. Kotlin
 planner sources participate in target-scoped writer fingerprints, so a CI-only
 planning change does not invalidate catalog or version targets.
 
+Kotlin/JS was evaluated for measured runtime geometry and is intentionally not
+part of the production toolchain. The Figma adapter remains TypeScript while
+pure planning continues moving to Kotlin/JVM. See
+[ADR-0003](../../docs/decisions/adr-0003-keep-figma-runtime-boundary-in-typescript.md)
+for the measured trade-off and reconsideration criteria.
+
 ## Inputs
 
 The model is generated from repository source files, not from Figma:
