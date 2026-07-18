@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  artifactPathContains,
   createCiVisualPlan,
   externalEnvironment,
   windowsRuntimeEnvironment,
@@ -60,6 +61,38 @@ test("CI visual plan summarizes commands and keeps exact operational names", () 
       { source: "job-generate", target: "design-model" },
       { source: "design-model", target: "job-check" },
     ]
+  );
+
+  const connectedNodeIds = new Set(
+    postMerge.connections.flatMap(({ source, target }) => [source, target])
+  );
+  assert.deepEqual(
+    postMerge.nodes.filter(({ id }) => !connectedNodeIds.has(id)).map(({ name }) => name),
+    []
+  );
+});
+
+test("CI visual plan resolves the design model inside TeamCity artifact directories", () => {
+  assert.equal(
+    artifactPathContains(
+      "build/reports/figma-sync",
+      "build/reports/figma-sync/design-model.json"
+    ),
+    true
+  );
+  assert.equal(
+    artifactPathContains(
+      "build\\reports\\figma-sync\\** => figma-sync",
+      "build/reports/figma-sync/design-model.json"
+    ),
+    true
+  );
+  assert.equal(
+    artifactPathContains(
+      "build/reports/unrelated",
+      "build/reports/figma-sync/design-model.json"
+    ),
+    false
   );
 });
 
@@ -524,7 +557,7 @@ function designModel() {
                   name: "Check Figma trunk sync",
                   steps: [{ id: "RUNNER_1", name: "Check", command: ".\\gradlew.bat checkFigmaTrunkSync" }],
                   artifacts: [],
-                  dependencies: [{ jobId: "generate", artifactPaths: ["build/reports/figma-sync/design-model.json"] }],
+                  dependencies: [{ jobId: "generate", artifactPaths: ["build/reports/figma-sync"] }],
                   publishedChecks: [{ name: "TeamCity Figma Sync" }],
                 },
                 {
@@ -534,7 +567,7 @@ function designModel() {
                     { id: "RUNNER_1", name: "Generate config", command: ".\\mvnw.cmd teamcity-configs:generate" },
                     { id: "RUNNER_2", name: "Generate model", command: ".\\gradlew.bat generateFigmaDesignModel" },
                   ],
-                  artifacts: [{ path: "build/reports/figma-sync/design-model.json" }],
+                  artifacts: [{ path: "build/reports/figma-sync" }],
                   dependencies: [],
                   publishedChecks: [],
                 },

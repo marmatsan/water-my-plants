@@ -1,0 +1,127 @@
+# Efficient Visual Sync Runbook
+
+## Purpose
+
+Use this runbook to execute the smallest safe Figma synchronization without
+losing the strict `main` artifact, preflight, checkpoint, and metadata
+contracts. The optimization target is MCP work and operator context, not a
+weaker visual result.
+
+The official `design-model.json` still comes only from TeamCity `Figma Sync` on
+`main`. A partial plan narrows execution units from that official model; it does
+not authorize a branch-local model or an early metadata write.
+
+## Execution Identity
+
+Generated runner manifests use four independent identity fields:
+
+| Field | Meaning | Invalidates |
+|-------|---------|-------------|
+| `modelHash` | Stable hash of the visual model content. | Targets whose model fingerprints changed. |
+| `writerHash` | Hash of the compiled visual writer. | The complete visual target set. |
+| `transportHash` | Hash of PNG/chunk staging behavior. | Staging only; it does not make unchanged visuals stale. |
+| `gitSha` | Revision that produced the official artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
+
+`manifestHash` binds those values to the exact generated files. Each visual
+scope also has a `targetFingerprint`, so model changes can produce a partial
+plan without guessing from file names.
+
+## TeamCity Artifacts
+
+For a model-affecting `main` revision, `Generate main design model` publishes:
+
+- `design-model.json`;
+- `sync-scope.json` with repository change impact and runner identities;
+- `visual-sync-plan.json`;
+- the complete visual runner and its `manifest.json`;
+- the metadata-only runner and its `manifest.json`;
+- the effective TeamCity configuration used to build the CI visual model.
+
+`visual-sync-plan.json` has one of these decisions:
+
+| Decision | Meaning |
+|----------|---------|
+| `none` | `modelHash` and `writerHash` already match Figma; skip visual and metadata writes. |
+| `partial` | The writer is unchanged and only known target fingerprints changed; execute `preflight` plus those scopes. |
+| `full` | Metadata is unavailable or legacy, the writer changed, or the model difference cannot be mapped safely. |
+
+Metadata read failures fail closed to `full`. A plan never turns an unknown
+change into a no-op.
+
+## Local Capability Probe
+
+Build the tools and probe the configured local endpoint:
+
+```powershell
+cd repo\figma-design-sync\tools
+npm run build
+npm run mcp:probe
+```
+
+The current Figma Desktop endpoint at `http://127.0.0.1:3845/mcp` advertises
+read-oriented tools but not the `use_figma` and `upload_assets` write tools
+required by the runner. In that state the probe exits non-zero intentionally
+and `mcp:execute` refuses to mutate Figma. Keep using the official
+Codex-operated Figma MCP write path until the endpoint advertises the required
+capabilities.
+
+When an endpoint becomes write-capable, the executor must also load
+`skill://figma/figma-use/SKILL.md` before its first `use_figma` call. Missing
+guidance is a hard failure, not a reason to execute without the Figma contract.
+
+This capability gate is separate from the older unsupported remote headless
+TeamCity path. Do not bypass either failure with direct REST mutations.
+
+## Checkpointed Execution
+
+Inspect a runner without executing it:
+
+```powershell
+npm run mcp:execute -- --manifest=PATH\TO\manifest.json --dry-run
+npm run mcp:execute -- --manifest=PATH\TO\manifest.json --next
+```
+
+When Codex executes a generated file through the supported Figma MCP writer,
+record the result in the same checkpoint used by the deterministic executor:
+
+```powershell
+npm run mcp:execute -- --manifest=PATH\TO\manifest.json --record-success=99-00-preflight.mcp.js --summary="Preflight passed"
+npm run mcp:execute -- --manifest=PATH\TO\manifest.json --record-failure=99-01-versions.mcp.js --summary="Figma component contract failed"
+```
+
+Continue from the checkpoint with `--resume`; use `--retry-failed` to select
+only the failed execution unit. Resume is rejected when `modelHash`, `gitSha`,
+`writerHash`, `transportHash`, or `manifestHash` differs from the checkpoint.
+
+For metadata, reuse staging only after the completed visual checkpoint matches
+the metadata runner identity:
+
+```powershell
+npm run mcp:execute -- --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
+```
+
+Never record metadata success before every execution scope selected by the
+visual plan has completed.
+
+## Batching Policy
+
+Keep one checkpoint unit per generated target/root/cleanup file. Do not merge
+catalog roots merely to reduce call count: root-level units are the established
+timeout and recovery boundary.
+
+Only introduce batching after checkpoint durations show that several adjacent,
+non-catalog units are consistently small. A batch must preserve lexical order,
+preflight first, metadata last, and exact failed-unit reporting. Without that
+evidence, batching makes retries more expensive and less diagnosable.
+
+## Token And Output Budget
+
+- Prefer `visual-sync-plan.json` and `--next` over pasting complete manifests.
+- Pass one generated runner file to `use_figma`; do not paste the compiled
+  writer, model, or previous tool responses into chat.
+- Record a short result summary and duration in `execution-state.json`.
+- Inspect only the failed target and its Figma section during recovery.
+- Keep PNG as the default staging transport and chunks as a fallback.
+
+These rules reduce repeated context while keeping the official full/partial
+decision and every successful execution unit auditable.

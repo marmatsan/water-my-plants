@@ -160,6 +160,12 @@ Generate main design model
   -> Check Figma trunk sync
 ```
 
+The first three nodes are derived from TeamCity artifact publication and job
+dependency data. A published directory such as `build/reports/figma-sync`
+contains `design-model.json` and must create the same visual edge as publishing
+the file explicitly. None of these generation, artifact, or verification nodes
+may remain isolated.
+
 The rerun uses the repository-owned HTTPS client. It performs active-run checks
 in a read session, then queues the complete `Figma Sync` pipeline with a fresh
 cookie-free session, Cloudflare's raw `cf-access-token`, and TeamCity Bearer

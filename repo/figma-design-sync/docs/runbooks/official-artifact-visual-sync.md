@@ -72,7 +72,8 @@ Do not rerun TeamCity only to regenerate the JSON for those visual-only changes.
 Keep the official artifact as the stable input, build the MCP bundle from the
 branch, and use `--allow-partial=true` only for focused visual diagnosis. Do not
 write official metadata from the branch. After merging the tooling change, the
-official integration must rerun the complete visual target set.
+changed `writerHash` makes the official visual plan fail closed to `full`, so
+the integration reruns the complete visual target set.
 
 Regenerate through TeamCity on `main` when the change affects model content:
 catalog extraction, module or plugin paths, usage data such as

@@ -16,8 +16,8 @@ try {
         throw "Figma Sync scope artifact belongs to '$($scope.gitSha)', not '$currentSha'."
     }
 
-    if ($scope.scope -eq "documentation-only") {
-        Write-Host "Documentation-only main change; Figma model and metadata are unchanged."
+    if ($scope.scope -ne "full-verification") {
+        Write-Host "$($scope.scope) main change; Figma model and metadata are unchanged."
         exit 0
     }
 

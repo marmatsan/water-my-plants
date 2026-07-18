@@ -16,7 +16,8 @@ It does that in two stages:
 1. Gradle code reads repository sources and generates
    `build/reports/figma-sync/design-model.json`.
 2. Figma sync tooling consumes that model, updates visual sections, and writes
-   Figma shared plugin metadata containing the generated `modelHash`.
+   Figma shared plugin metadata containing `modelHash`, `writerHash`,
+   `transportHash`, and per-target fingerprints.
 
 The generated hash is based on `schemaVersion` and stable `content`. Traceability
 fields such as branch, Git SHA, and generation timestamp are written to the
@@ -152,6 +153,12 @@ This keeps the complete synchronization mandatory without exceeding the MCP
 timeout with one monolithic call. Chunked staging remains a fallback for
 oversized or blocked asset uploads.
 
+TeamCity also publishes a `visual-sync-plan.json`. It selects `none`, `partial`,
+or `full` from the official model, compiled writer, and per-target fingerprints.
+Execution checkpoints allow the supported MCP operator to resume at the first
+unfinished unit without repeating successful targets. See
+`docs/runbooks/visual-sync-efficiency.md` for the identity and recovery rules.
+
 ## Human Workflow
 
 For code changes in this module:
@@ -189,5 +196,6 @@ High-signal entry points:
 | `docs/runbooks/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
 | `docs/runbooks/trunk-sync.md` | Running the official trunk sync workflow. |
 | `docs/runbooks/official-artifact-visual-sync.md` | Deciding whether a `design-model.json` is official enough for sync. |
+| `docs/runbooks/visual-sync-efficiency.md` | Executing the smallest safe target set and resuming from checkpoints. |
 | `docs/runbooks/target-scopes.md` | Updating the smallest possible Figma section. |
 | `docs/runbooks/troubleshooting.md` | Diagnosing broken sync output or metadata mismatches. |

@@ -10,6 +10,7 @@ Use this directory as the module documentation index:
 | `runbooks/trunk-sync.md` | Runbook | Execute the official Figma trunk sync path and route to the detailed runbooks. |
 | `runbooks/official-artifact-visual-sync.md` | Runbook | Validate the TeamCity `main` artifact and decide when branch-local visual iteration may reuse it. |
 | `runbooks/mcp-chunk-transport.md` | Runbook | Build the MCP bundle, stage official payloads through PNG or chunk fallback, run targets, and write metadata. |
+| `runbooks/visual-sync-efficiency.md` | Runbook | Use visual plans, capability gates, checkpoints, and staging reuse to minimize safe MCP work. |
 | `runbooks/target-scopes.md` | Reference | Choose the smallest visual target and Figma section for a sync operation. |
 | `runbooks/dependency-version-naming.md` | Reference | Define the repository version key format enforced by CI and rendered in Figma. |
 | `runbooks/visual-preview.md` | Runbook | Iterate on Figma visual sync behavior with fixtures and sandbox sections without writing official metadata. |

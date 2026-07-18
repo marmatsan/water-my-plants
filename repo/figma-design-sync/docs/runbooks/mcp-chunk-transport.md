@@ -71,6 +71,12 @@ Official mode defaults to `--transport=png` and writes:
 - `99-00-preflight.mcp.js` through the final ordered visual execution unit
 - `manifest.json`
 
+Manifest schema 2 records `modelHash`, `gitSha`, `writerHash`, `transportHash`,
+`manifestHash`, per-file hashes, execution scopes, and per-target
+fingerprints. The executor uses this identity to reject stale checkpoints and
+the visual planner uses the fingerprints to select `none`, `partial`, or
+`full` execution without parsing generated source.
+
 Upload `10-official-sync-payload.png` to the Figma file before running
 `10-stage-payload-from-png.mcp.js`. Then run every generated `.mcp.js` snippet
 in lexical order. Full official runners use one `99-*.mcp.js` call per bounded
@@ -80,9 +86,10 @@ transport artifact only; the staging runner removes the uploaded image node
 after extracting the payload.
 
 `upload_assets` returns a single-use URL under `https://mcp.figma.com`. Upload
-the PNG as multipart form data with an explicit `image/png` content type.
-Sending it as the default `application/octet-stream` is rejected. Request a new
-URL after any failed or consumed upload attempt; do not reuse an old URL.
+the raw PNG bytes with an explicit `Content-Type: image/png` header. Sending it
+as multipart form data or the default `application/octet-stream` is rejected.
+Request a new URL after any failed or consumed upload attempt; do not reuse an
+old URL.
 
 `upload_assets` may place the temporary image on the current Figma page, which
 does not have to be the metadata page. Uploaded assets are direct page children,
@@ -152,13 +159,15 @@ all of these values remain identical:
 - `designModelGitSha`;
 - `designModelLength`;
 - `scriptLength`.
+- `writerHash`;
+- `transportHash`.
 
-Restage from `00-clear-staging.mcp.js` whenever the TeamCity artifact or the
-generated MCP bundle changes. A stable `modelHash` is not sufficient: a
-visual-only TypeScript fix changes the generated script lengths even when the
-model content is unchanged. After that fix reaches `main`, the next official
-TeamCity artifact also has a new `gitSha`, so restage again before writing
-metadata.
+Restage from `00-clear-staging.mcp.js` whenever the TeamCity artifact, compiled
+writer, or staging transport changes. `writerHash` identifies visual behavior;
+`transportHash` identifies only the staging protocol. A stable `modelHash` is
+not sufficient to reuse a different writer, while a new `gitSha` alone does not
+make unchanged visuals stale. Follow the generated `visual-sync-plan.json` and
+the checkpoint rules in [visual-sync-efficiency.md](visual-sync-efficiency.md).
 
 Stage these keys on page `62934:908` under
 `water_my_plants_sync_staging`:
@@ -171,9 +180,12 @@ Stage these keys on page `62934:908` under
 | `designModelLength` | Character length of `designModelJson`, used to catch truncated staging writes. |
 | `script` | Generated `sync-trunk-design-model.mcp.js` content in plain text. |
 | `scriptLength` | Character length of `script`, used to catch truncated staging writes. |
+| `writerHash` | Hash of the compiled visual writer staged for execution. |
+| `transportHash` | Hash of the staging contract used to deliver the payload. |
 
 The PNG transport writes all keys in one staging step after validating the
-payload hash, Git SHA, model length, and script length.
+payload hash, Git SHA, model length, script length, writer hash, and transport
+hash.
 Chunk transport writes the same keys incrementally.
 
 The PNG payload also carries a `payloadSchemaVersion`. Candidate discovery must
@@ -235,18 +247,19 @@ return {
 };
 ```
 
-## Run The Complete Visual Sync
+## Run The Planned Visual Sync
 
-Execute every generated `99-*.mcp.js` file in lexical order without editing its
-target or root. The official runner contains bounded calls for `preflight` and
-every visual target from [target-scopes.md](target-scopes.md). Catalog calls are
-split by roots from the official model and finish with stale-node cleanup. All
-calls use `writeMetadata=false`.
+The official runner contains bounded calls for `preflight` and every visual
+target from [target-scopes.md](target-scopes.md). Apply
+`visual-sync-plan.json`, then execute every selected `99-*.mcp.js` file in
+lexical order without editing its target or root. Catalog calls are split by
+roots from the official model and finish with stale-node cleanup. All calls use
+`writeMetadata=false`.
 
 If a focused diagnostic is necessary, regenerate the runner with the target
 and `--allow-partial=true`. A partial runner may confirm a repair, but it cannot
-authorize metadata. Regenerate and execute the complete runner before closing
-the official synchronization.
+authorize metadata. Regenerate the official artifact and complete its generated
+visual plan before closing the synchronization.
 
 ## Write Metadata
 
@@ -254,52 +267,31 @@ Metadata must be written last. `checkFigmaTrunkSync` trusts the metadata hash, s
 writing it before visuals are reconciled can make CI pass while Figma is still
 visually stale.
 
-Read these values from `design-model.json`:
+The generated metadata runner combines these values from `design-model.json`:
 
 - `schemaVersion`
 - `branch`
 - `gitSha`
 - `modelHash`
 
-Write them to page `62934:908` under namespace `water_my_plants_sync`, plus
-`syncedAt`. Figma shared plugin data namespaces accept only alphanumeric
-characters, `_`, and `.`.
-
-```javascript
-const namespace = "water_my_plants_sync";
-const page = await figma.getNodeByIdAsync("62934:908");
-
-if (!page || page.type !== "PAGE") {
-  throw new Error("Expected node 62934:908 to be a PAGE");
-}
-
-await figma.setCurrentPageAsync(page);
-
-page.setSharedPluginData(namespace, "schemaVersion", String(SCHEMA_VERSION_FROM_JSON));
-page.setSharedPluginData(namespace, "branch", BRANCH_FROM_JSON);
-page.setSharedPluginData(namespace, "gitSha", GIT_SHA_FROM_JSON);
-page.setSharedPluginData(namespace, "modelHash", MODEL_HASH_FROM_JSON);
-page.setSharedPluginData(namespace, "syncedAt", new Date().toISOString());
-
-return {
-  mutatedNodeIds: [page.id],
-  pageName: page.name,
-  namespace,
-  modelHash: page.getSharedPluginData(namespace, "modelHash"),
-  gitSha: page.getSharedPluginData(namespace, "gitSha")
-};
-```
+It also reads `writerHash`, `transportHash`, and `targetFingerprints` from the
+runner manifest. It writes all of them plus `syncedAt` to page `62934:908`
+under namespace `water_my_plants_sync`. Figma shared plugin data namespaces
+accept only alphanumeric characters, `_`, and `.`.
 
 A metadata-only write is acceptable only when the visual model is already known
 to match `design-model.json` and the only mismatch is stale shared plugin
 metadata.
 
-When using the staged MCP runner above, write metadata by changing
-`SYNC_OPTIONS` to:
+Generate metadata independently and reuse staging only with a matching
+completed visual checkpoint:
 
-```javascript
-"const SYNC_OPTIONS = {\"targets\":[\"metadata\"],\"writeMetadata\":true};"
+```powershell
+node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=metadata
+npm run mcp:execute -- --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
 ```
+
+Do not edit `SYNC_OPTIONS` or manifest identity fields by hand.
 
 Then verify the stored metadata before rerunning TeamCity:
 
@@ -317,6 +309,9 @@ return {
   branch: page.getSharedPluginData(namespace, "branch"),
   gitSha: page.getSharedPluginData(namespace, "gitSha"),
   modelHash: page.getSharedPluginData(namespace, "modelHash"),
+  writerHash: page.getSharedPluginData(namespace, "writerHash"),
+  transportHash: page.getSharedPluginData(namespace, "transportHash"),
+  targetFingerprints: page.getSharedPluginData(namespace, "targetFingerprints"),
   syncedAt: page.getSharedPluginData(namespace, "syncedAt")
 };
 ```

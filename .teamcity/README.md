@@ -108,6 +108,11 @@ The pipeline:
   once and shares it with the verification job;
 - generates `build/reports/figma-sync/design-model.json` from `main` only for a
   model-affecting revision;
+- builds the compatible MCP writer and publishes visual plus metadata runner
+  manifests with independent model, writer, and transport hashes;
+- compares their target fingerprints with Figma metadata and publishes
+  `visual-sync-plan.json` with a fail-closed `none`, `partial`, or `full`
+  decision;
 - sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the
   Gradle task can verify it is running under the official Figma Sync pipeline;
 - publishes the Figma report directory and effective TeamCity configuration as
@@ -116,10 +121,16 @@ The pipeline:
   only when the model can change;
 - publishes the optional `TeamCity Figma Sync` GitHub status on `main`.
 
-For a documentation-only `main` revision, the first Figma job publishes only a
-`sync-scope.json` artifact and the final job exits successfully without Maven,
-Gradle, model generation, metadata validation, or an MCP write. The previous
-official Figma metadata remains authoritative because the model is unchanged.
+For a documentation-only or transport-only `main` revision, the first Figma job
+publishes only a `sync-scope.json` artifact and the final job exits successfully
+without Maven, Gradle, model generation, metadata validation, or an MCP write.
+The previous official Figma metadata remains authoritative because neither the
+model nor the compiled visual writer changed.
+
+`prepare-figma-sync.ps1` removes the previous
+`build/reports/figma-sync` directory before preparing any scope. This prevents a
+persistent agent checkout from republishing a stale model or runner during a
+documentation-only or transport-only no-op.
 
 Gradle configuration cache and local build cache are enabled in
 [`gradle.properties`](../gradle.properties). The current checked-in Pipeline DSL
@@ -134,6 +145,13 @@ the `design-model.json` artifact from `Figma Sync > Generate main design model`;
 branch-local models and locally regenerated models are not authorized
 publication inputs. After the MCP sync writes the latest metadata, rerun
 `Figma Sync` on `main` to verify the result.
+
+The generated executor and checkpoint contract are ready for a write-capable
+MCP endpoint, but the current local Figma Desktop endpoint is capability-gated:
+it does not advertise `use_figma` or `upload_assets`. TeamCity therefore
+publishes the deterministic plan and runners but does not attempt a speculative
+headless visual write. See
+[`visual-sync-efficiency.md`](../repo/figma-design-sync/docs/runbooks/visual-sync-efficiency.md).
 
 Use a Finish Build Trigger for this chain, not a direct VCS trigger on
 `Figma Sync`. The trigger watches `CI`, requires a successful watched build, and

@@ -49,6 +49,11 @@ test("metadata writes after being requested as the only target", async () => {
 
   const result = await syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
     targets: ["metadata"],
+    executionMetadata: {
+      writerHash: "sha256:writer",
+      transportHash: "sha256:transport",
+      targetFingerprints: { versions: "sha256:versions" },
+    },
   });
 
   assert.deepEqual(calls, ["metadata"]);
@@ -220,6 +225,8 @@ function fakeDependencies(calls: string[]) {
             namespace: "namespace",
             gitSha: "sha",
             modelHash: "hash",
+            writerHash: "sha256:writer",
+            transportHash: "sha256:transport",
           },
           mutatedNodeIds: ["metadata"],
         };

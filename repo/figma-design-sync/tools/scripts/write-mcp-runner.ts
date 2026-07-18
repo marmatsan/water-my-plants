@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,6 +22,8 @@ const METADATA_PAGE_ID = "62934:908";
 const DEFAULT_CHUNK_SIZE = 30_000;
 const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
 const MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH = 100_000;
+const MANIFEST_SCHEMA_VERSION = 2;
+const TRANSPORT_CONTRACT_VERSION = 1;
 
 const KNOWN_TARGETS = [
   "preflight",
@@ -288,6 +291,9 @@ async function writeRunnerFiles(options) {
   const designModel = JSON.parse(minifiedModelJson);
   const script = await readFile(options.scriptPath, "utf8");
   validateDesignModel(designModel, options);
+  const writerHash = sha256(script);
+  const transportHash = createTransportHash(options);
+  const targetFingerprints = createTargetFingerprints(designModel);
 
   validateStagingEntryLength("designModelJson", minifiedModelJson);
   validateStagingEntryLength("script", script);
@@ -306,6 +312,8 @@ async function writeRunnerFiles(options) {
       designModel,
       modelJson: minifiedModelJson,
       script,
+      writerHash,
+      transportHash,
     });
     const payloadJson = stringifyAsciiJson(payload);
     const payloadPng = createPayloadPng(payloadJson);
@@ -320,6 +328,7 @@ async function writeRunnerFiles(options) {
     payloadImage = {
       fileName: PAYLOAD_PNG_FILE_NAME,
       byteLength: payloadPng.length,
+      sha256: sha256(payloadPng),
       textKeyword: PAYLOAD_PNG_TEXT_KEYWORD,
     };
     files.push(await writeFileIn(outDir, "10-stage-payload-from-png.mcp.js", stagePayloadFromPngSource(
@@ -327,16 +336,41 @@ async function writeRunnerFiles(options) {
       designModel,
       minifiedModelJson,
       script,
-      PAYLOAD_PNG_FILE_NAME
+      PAYLOAD_PNG_FILE_NAME,
+      writerHash,
+      transportHash
     )));
   } else {
     files.push(...await writeChunkSources(outDir, "designModelJson", minifiedModelJson, options));
     files.push(...await writeChunkSources(outDir, "script", script, options));
   }
 
-  files.push(await writeFileIn(outDir, "90-finalize-staging.mcp.js", finalizeStagingSource(options, designModel, minifiedModelJson, script)));
-  files.push(...await writeTargetRunnerFiles(outDir, options, designModel));
-  files.push(await writeManifest(outDir, files, options, designModel, minifiedModelJson, script, payloadImage));
+  files.push(await writeFileIn(
+    outDir,
+    "90-finalize-staging.mcp.js",
+    finalizeStagingSource(options, designModel, minifiedModelJson, script, writerHash, transportHash)
+  ));
+  const targetRunner = await writeTargetRunnerFiles(outDir, options, designModel, {
+    writerHash,
+    transportHash,
+    targetFingerprints,
+  });
+  files.push(...targetRunner.files);
+  files.push(await writeManifest(
+    outDir,
+    files,
+    options,
+    designModel,
+    minifiedModelJson,
+    script,
+    payloadImage,
+    {
+      writerHash,
+      transportHash,
+      targetFingerprints,
+      executionScopes: targetRunner.executionScopes,
+    }
+  ));
 
   console.log(`Wrote ${files.length} MCP runner files to ${outDir}`);
   if (payloadImage) {
@@ -345,18 +379,32 @@ async function writeRunnerFiles(options) {
   console.log("Run every generated .mcp.js file in lexical order.");
 }
 
-async function writeTargetRunnerFiles(outDir, options, designModel) {
+async function writeTargetRunnerFiles(outDir, options, designModel, executionMetadata) {
   if (!options.fullVisualSync) {
-    return [await writeFileIn(outDir, "99-run-target.mcp.js", runTargetSource(options))];
+    const file = await writeFileIn(
+      outDir,
+      "99-run-target.mcp.js",
+      runTargetSource(options, options.targets, {}, executionMetadata)
+    );
+    return {
+      files: [file],
+      executionScopes: { [file]: options.requestedTargets.join(",") },
+    };
   }
 
   const files = [];
+  const executionScopes = {};
   for (let index = 0; index < options.targets.length; index += 1) {
     const target = options.targets[index];
     const roots = catalogRoots(designModel, target);
     if (roots.length === 0) {
       const fileName = `99-${String(index).padStart(2, "0")}-${safeName(target)}.mcp.js`;
-      files.push(await writeFileIn(outDir, fileName, runTargetSource(options, [target], { executionScope: target })));
+      files.push(await writeFileIn(
+        outDir,
+        fileName,
+        runTargetSource(options, [target], { executionScope: target }, executionMetadata)
+      ));
+      executionScopes[fileName] = target;
       continue;
     }
 
@@ -366,18 +414,30 @@ async function writeTargetRunnerFiles(outDir, options, designModel) {
       files.push(await writeFileIn(
         outDir,
         fileName,
-        runTargetSource(options, [target], { roots: [root], executionScope: `${target}.${root}` })
+        runTargetSource(
+          options,
+          [target],
+          { roots: [root], executionScope: `${target}.${root}` },
+          executionMetadata
+        )
       ));
+      executionScopes[fileName] = `${target}.${root}`;
     }
 
     const cleanupFileName = `99-${String(index).padStart(2, "0")}-99-${safeName(target)}-cleanup.mcp.js`;
     files.push(await writeFileIn(
       outDir,
       cleanupFileName,
-      runTargetSource(options, [target], { cleanupOnly: true, executionScope: `${target}.cleanup` })
+      runTargetSource(
+        options,
+        [target],
+        { cleanupOnly: true, executionScope: `${target}.cleanup` },
+        executionMetadata
+      )
     ));
+    executionScopes[cleanupFileName] = `${target}.cleanup`;
   }
-  return files;
+  return { files, executionScopes };
 }
 
 function catalogRoots(designModel, target) {
@@ -421,34 +481,54 @@ async function writeChunkSources(outDir, key, value, options) {
   return files;
 }
 
-async function writeManifest(outDir, files, options, designModel, modelJson, script, payloadImage) {
+async function writeManifest(
+  outDir,
+  files,
+  options,
+  designModel,
+  modelJson,
+  script,
+  payloadImage,
+  executionMetadata
+) {
+  const fileHashes = Object.fromEntries(await Promise.all(
+    files.map(async (file) => [file, sha256(await readFile(join(outDir, file)))])
+  ));
+  const manifestBody = {
+    schemaVersion: MANIFEST_SCHEMA_VERSION,
+    mode: options.mode,
+    entrypoint: options.entrypoint,
+    target: options.target,
+    targets: options.targets,
+    writeMetadata: options.writeMetadata,
+    transport: options.transport,
+    namespace: options.namespace,
+    sectionNodeId: options.sectionNodeId || null,
+    roots: options.roots,
+    allowOfficialSections: options.allowOfficialSections,
+    allowPartial: options.allowPartial,
+    fullVisualSync: options.fullVisualSync,
+    metadataPageId: METADATA_PAGE_ID,
+    modelPath: relativeToToolRoot(options.modelPath),
+    scriptPath: relativeToToolRoot(options.scriptPath),
+    modelHash: designModel.modelHash,
+    gitSha: designModel.gitSha,
+    designModelLength: modelJson.length,
+    scriptLength: script.length,
+    writerHash: executionMetadata.writerHash,
+    transportHash: executionMetadata.transportHash,
+    targetFingerprints: executionMetadata.targetFingerprints,
+    executionScopes: executionMetadata.executionScopes,
+    payloadImage,
+    files,
+    fileHashes,
+  };
+  const manifestHash = sha256(stableJson(manifestBody));
   return writeFileIn(
     outDir,
     "manifest.json",
     JSON.stringify(
-      {
-        mode: options.mode,
-        entrypoint: options.entrypoint,
-        target: options.target,
-        targets: options.targets,
-        writeMetadata: options.writeMetadata,
-        transport: options.transport,
-        namespace: options.namespace,
-        sectionNodeId: options.sectionNodeId || null,
-        roots: options.roots,
-        allowOfficialSections: options.allowOfficialSections,
-        allowPartial: options.allowPartial,
-        fullVisualSync: options.fullVisualSync,
-        metadataPageId: METADATA_PAGE_ID,
-        modelPath: relativeToToolRoot(options.modelPath),
-        scriptPath: relativeToToolRoot(options.scriptPath),
-        modelHash: designModel.modelHash,
-        gitSha: designModel.gitSha,
-        designModelLength: modelJson.length,
-        scriptLength: script.length,
-        payloadImage,
-        files,
-      },
+      { ...manifestBody, manifestHash },
       null,
       2
     )
@@ -494,8 +574,10 @@ const keys = [
   "designModelLength",
   "script",
   "scriptBase64",
-  "scriptLength",
-  "scriptBase64Length"
+    "scriptLength",
+    "scriptBase64Length",
+    "writerHash",
+    "transportHash"
 ];
 
 for (const key of keys) {
@@ -535,7 +617,15 @@ return {
 `;
 }
 
-function stagePayloadFromPngSource(options, designModel, modelJson, script, payloadFileName) {
+function stagePayloadFromPngSource(
+  options,
+  designModel,
+  modelJson,
+  script,
+  payloadFileName,
+  writerHash,
+  transportHash
+) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
 const payloadKeyword = ${JSON.stringify(PAYLOAD_PNG_TEXT_KEYWORD)};
@@ -545,7 +635,9 @@ const expected = {
   designModelHash: ${JSON.stringify(designModel.modelHash)},
   designModelGitSha: ${JSON.stringify(designModel.gitSha)},
   designModelLength: ${JSON.stringify(String(modelJson.length))},
-  scriptLength: ${JSON.stringify(String(script.length))}
+  scriptLength: ${JSON.stringify(String(script.length))},
+  writerHash: ${JSON.stringify(writerHash)},
+  transportHash: ${JSON.stringify(transportHash)}
 };
 
 const candidates = [];
@@ -587,6 +679,8 @@ for (const imageHash of imageHashes) {
     payload.designModelHash === expected.designModelHash &&
     String(payload.designModelLength) === expected.designModelLength &&
     String(payload.scriptLength) === expected.scriptLength
+    && payload.writerHash === expected.writerHash
+    && payload.transportHash === expected.transportHash
   ) {
     candidates.push({ imageHash, payload });
   }
@@ -608,6 +702,8 @@ page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash)
 page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
 page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
 page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
+page.setSharedPluginData(namespace, "writerHash", expected.writerHash);
+page.setSharedPluginData(namespace, "transportHash", expected.transportHash);
 
 let payloadNodesRemoved = 0;
 for (const node of imageNodes) {
@@ -626,7 +722,9 @@ return {
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
   designModelLength: expected.designModelLength,
-  scriptLength: expected.scriptLength
+  scriptLength: expected.scriptLength,
+  writerHash: expected.writerHash,
+  transportHash: expected.transportHash
 };
 
 function validatePayload(payload, expected) {
@@ -634,7 +732,9 @@ function validatePayload(payload, expected) {
     designModelJson: payload.designModelJson,
     script: payload.script,
     designModelHash: payload.designModelHash,
-    designModelGitSha: payload.designModelGitSha
+    designModelGitSha: payload.designModelGitSha,
+    writerHash: payload.writerHash,
+    transportHash: payload.transportHash
   })) {
     if (!value) {
       throw new Error(\`Payload is missing \${key}.\`);
@@ -661,6 +761,12 @@ function validatePayload(payload, expected) {
   }
   if (payload.script.length !== Number(expected.scriptLength)) {
     throw new Error(\`Payload script length mismatch: \${payload.script.length} != \${expected.scriptLength}\`);
+  }
+  if (payload.writerHash !== expected.writerHash) {
+    throw new Error(\`Payload writerHash mismatch: \${payload.writerHash} != \${expected.writerHash}\`);
+  }
+  if (payload.transportHash !== expected.transportHash) {
+    throw new Error(\`Payload transportHash mismatch: \${payload.transportHash} != \${expected.transportHash}\`);
   }
 
   const parsedModel = JSON.parse(payload.designModelJson);
@@ -726,14 +832,16 @@ function readLatin1(bytes, start, end) {
 `;
 }
 
-function finalizeStagingSource(options, designModel, modelJson, script) {
+function finalizeStagingSource(options, designModel, modelJson, script, writerHash, transportHash) {
   return `${runtimeHeader()}
 const namespace = ${JSON.stringify(options.namespace)};
 const expected = {
   designModelHash: ${JSON.stringify(designModel.modelHash)},
   designModelGitSha: ${JSON.stringify(designModel.gitSha)},
   designModelLength: ${JSON.stringify(String(modelJson.length))},
-  scriptLength: ${JSON.stringify(String(script.length))}
+  scriptLength: ${JSON.stringify(String(script.length))},
+  writerHash: ${JSON.stringify(writerHash)},
+  transportHash: ${JSON.stringify(transportHash)}
 };
 
 const stagedModelJson = page.getSharedPluginData(namespace, "designModelJson");
@@ -759,6 +867,8 @@ page.setSharedPluginData(namespace, "designModelHash", expected.designModelHash)
 page.setSharedPluginData(namespace, "designModelGitSha", expected.designModelGitSha);
 page.setSharedPluginData(namespace, "designModelLength", expected.designModelLength);
 page.setSharedPluginData(namespace, "scriptLength", expected.scriptLength);
+page.setSharedPluginData(namespace, "writerHash", expected.writerHash);
+page.setSharedPluginData(namespace, "transportHash", expected.transportHash);
 
 return {
   namespace,
@@ -767,12 +877,14 @@ return {
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
   designModelLength: expected.designModelLength,
-  scriptLength: expected.scriptLength
+  scriptLength: expected.scriptLength,
+  writerHash: expected.writerHash,
+  transportHash: expected.transportHash
 };
 `;
 }
 
-function runTargetSource(options, targets = options.targets, runOptions = {}) {
+function runTargetSource(options, targets = options.targets, runOptions = {}, executionMetadata = {}) {
   const target = targets[0];
   const roots = runOptions.roots || options.roots;
   const syncOptions = {
@@ -781,6 +893,7 @@ function runTargetSource(options, targets = options.targets, runOptions = {}) {
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
     ...(roots.length > 0 ? { catalogRootFilters: { [target]: roots } } : {}),
     ...(runOptions.cleanupOnly ? { catalogCleanupOnlyTargets: [target] } : {}),
+    executionMetadata,
   };
   const executionScope = runOptions.executionScope || options.requestedTargets?.[0] || target;
 
@@ -819,12 +932,16 @@ const stagedModelHash = page.getSharedPluginData(namespace, "designModelHash");
 const stagedModelGitSha = page.getSharedPluginData(namespace, "designModelGitSha");
 const stagedModelLength = page.getSharedPluginData(namespace, "designModelLength");
 const scriptLength = page.getSharedPluginData(namespace, "scriptLength");
+const writerHash = page.getSharedPluginData(namespace, "writerHash");
+const transportHash = page.getSharedPluginData(namespace, "transportHash");
 
 for (const [key, value] of Object.entries({
   designModelHash: stagedModelHash,
   designModelGitSha: stagedModelGitSha,
   designModelLength: stagedModelLength,
-  scriptLength
+  scriptLength,
+  writerHash,
+  transportHash
 })) {
   if (!value) {
     throw new Error(\`Missing staged \${key}.\`);
@@ -845,6 +962,14 @@ if (Number(stagedModelLength) !== stagedModelJson.length) {
 
 if (Number(scriptLength) !== script.length) {
   throw new Error(\`Staged script length mismatch: \${scriptLength} != \${script.length}\`);
+}
+
+if (writerHash !== syncOptions.executionMetadata.writerHash) {
+  throw new Error(\`Staged writerHash mismatch: \${writerHash} != \${syncOptions.executionMetadata.writerHash}\`);
+}
+
+if (transportHash !== syncOptions.executionMetadata.transportHash) {
+  throw new Error(\`Staged transportHash mismatch: \${transportHash} != \${syncOptions.executionMetadata.transportHash}\`);
 }
 
 ${invokeScript}
@@ -914,6 +1039,86 @@ function chunkString(value, chunkSize) {
     chunks.push(value.slice(index, index + chunkSize));
   }
   return chunks.length > 0 ? chunks : [""];
+}
+
+function createTransportHash(options) {
+  return sha256(stableJson({
+    contractVersion: TRANSPORT_CONTRACT_VERSION,
+    transport: options.transport,
+    chunkSize: options.transport === "chunks" ? options.chunkSize : null,
+    payloadSchemaVersion: options.transport === "png" ? PAYLOAD_PNG_SCHEMA_VERSION : null,
+    clearStagingSource: clearStagingSource.toString(),
+    appendChunkSource: appendChunkSource.toString(),
+    stagePayloadFromPngSource: stagePayloadFromPngSource.toString(),
+    finalizeStagingSource: finalizeStagingSource.toString(),
+  }));
+}
+
+function createTargetFingerprints(designModel) {
+  const fingerprints = {};
+  for (const target of FULL_VISUAL_TARGETS) {
+    const slice = modelSliceForTarget(designModel, target);
+    fingerprints[target] = sha256(stableJson(slice));
+
+    if (!CATALOG_TARGETS.includes(target)) {
+      continue;
+    }
+
+    const roots = catalogRoots(designModel, target);
+    const [catalogName, treeName] = target.split(".");
+    const nodes = designModel.content?.catalogs?.[catalogName]?.[treeName] || [];
+    const rootKey = treeName === "libraries" ? "group" : "id";
+    for (const root of roots) {
+      fingerprints[`${target}.${root}`] = sha256(stableJson(
+        nodes.filter((node) => node?.[rootKey] === root)
+      ));
+    }
+    fingerprints[`${target}.cleanup`] = sha256(stableJson({ roots }));
+  }
+  return fingerprints;
+}
+
+function modelSliceForTarget(designModel, target) {
+  if (target === "preflight") {
+    return designModel.content;
+  }
+  if (target === "headers") {
+    return { target };
+  }
+  if (target === "versions") {
+    return {
+      versions: designModel.content?.versions,
+      versionSections: designModel.content?.versionSections,
+    };
+  }
+  if (target.startsWith("ci.")) {
+    return designModel.content?.ci;
+  }
+  if (CATALOG_TARGETS.includes(target)) {
+    const [catalogName, treeName] = target.split(".");
+    return designModel.content?.catalogs?.[catalogName]?.[treeName] || [];
+  }
+  return null;
+}
+
+function sha256(value) {
+  return `sha256:${createHash("sha256").update(value).digest("hex")}`;
+}
+
+function stableJson(value) {
+  return JSON.stringify(sortJson(value ?? null));
+}
+
+function sortJson(value) {
+  if (Array.isArray(value)) {
+    return value.map(sortJson);
+  }
+  if (value && typeof value === "object" && !Buffer.isBuffer(value)) {
+    return Object.fromEntries(
+      Object.keys(value).sort().map((key) => [key, sortJson(value[key])])
+    );
+  }
+  return value;
 }
 
 function parseRoots(value) {

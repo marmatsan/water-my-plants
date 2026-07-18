@@ -49,4 +49,11 @@ export type SyncFigmaDesignModelOptions = {
   sectionNodeOverrides?: Record<string, string>;
   catalogRootFilters?: Partial<Record<SyncTargetName, string[]>>;
   catalogCleanupOnlyTargets?: SyncTargetName[];
+  executionMetadata?: SyncExecutionMetadata;
+};
+
+export type SyncExecutionMetadata = {
+  writerHash: string;
+  transportHash: string;
+  targetFingerprints: Record<string, string>;
 };

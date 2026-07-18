@@ -416,3 +416,24 @@ Do not reintroduce speculative headless TeamCity write automation based on the
 unsupported remote Figma MCP path that returned `403 Forbidden`. If Figma's MCP
 support model changes, document the new supported path before changing the CI
 contract.
+
+## Local MCP Endpoint Is Read-only
+
+The deterministic executor can probe the Figma Desktop endpoint:
+
+```powershell
+cd repo\figma-design-sync\tools
+npm run mcp:probe
+```
+
+At the time this contract was implemented, `http://127.0.0.1:3845/mcp`
+advertised metadata, screenshot, design-context, and Code Connect tools but did
+not advertise `use_figma` or `upload_assets`. That is a capability result, not a
+TeamCity authentication failure. `mcp:execute` must stop before mutation and
+report the missing tools.
+
+Continue with the Codex-operated official Figma MCP writer and record each
+successful or failed generated unit in `execution-state.json` as described in
+[visual-sync-efficiency.md](visual-sync-efficiency.md). Re-test the endpoint
+with `mcp:probe` before enabling direct execution; do not infer write support
+from a successful MCP handshake.

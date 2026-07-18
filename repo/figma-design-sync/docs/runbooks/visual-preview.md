@@ -167,9 +167,9 @@ node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
 
 Official mode stages data under `water_my_plants_sync_staging`. Only the
 `metadata` target writes to the authoritative namespace, and it should be run
-after the complete visual target set has completed successfully. Add
-`--allow-partial=true` only for supervised diagnosis; partial runs do not
-authorize a metadata write.
+after every scope in the TeamCity-generated visual plan has completed
+successfully. Add `--allow-partial=true` only for supervised diagnosis; an ad
+hoc partial runner does not authorize a metadata write.
 
 ## Verification
 
