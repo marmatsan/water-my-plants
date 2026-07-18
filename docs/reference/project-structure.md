@@ -84,6 +84,21 @@ Repository tooling consumes the stable coordinates
 `com.marmatsan.repo:water-my-plants-catalog`. The included-build root does not
 publish a compatibility artifact.
 
+`repo/figma-design-sync` separates its portable engine from this repository's
+configuration:
+
+| Path | Gradle module | Purpose |
+|------|---------------|---------|
+| `repo/figma-design-sync/domain/` | `:domain` | Portable design-model types and ports. |
+| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, and Figma adapters. It does not depend on `water-my-plants-catalog` in production. |
+| `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
+| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog provider, Figma identities, visual targets, and optional TeamCity command. |
+| `repo/figma-design-sync/tools/` | not a Gradle module | Reusable TypeScript writer selected through the active project configuration. |
+
+The root build applies the Water My Plants project adapter. That adapter applies
+the portable plugin; another repository replaces `project-config` without
+changing `domain`, `data`, `plugin`, or the writer implementation.
+
 ## Documentation
 
 | Path | Purpose |
