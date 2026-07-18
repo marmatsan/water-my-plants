@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { CiVisualPlan } from "../src/domain/ci/ci-visual-plan";
 import { syncFigmaDesignModel } from "../src/usecases/sync-figma-design-model";
 
 const FULL_VISUAL_TARGETS = [
@@ -24,7 +25,9 @@ const FULL_VISUAL_TARGETS = [
 test("default sync executes the complete visual contract without metadata", async () => {
   const calls: string[] = [];
 
-  const result = await syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls));
+  const result = await syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+    ciVisualPlan: ciVisualPlan(...FULL_VISUAL_TARGETS.filter((target) => target.startsWith("ci."))),
+  });
 
   assert.deepEqual(calls, ["preflight", "headers", "versions", "catalog", "ci"]);
   assert.deepEqual(result.requestedTargets, FULL_VISUAL_TARGETS);
@@ -157,6 +160,7 @@ test("preflight validates and synchronizes a granular CI documentation target", 
     {
       targets: ["preflight", "ci.overview"],
       writeMetadata: false,
+      ciVisualPlan: ciVisualPlan("ci.overview"),
     }
   );
 
@@ -170,7 +174,7 @@ test("forwards the Kotlin-precomputed CI visual plan to the Figma boundary", asy
   const calls: string[] = [];
   const dependencies = fakeDependencies(calls);
   let receivedPlan;
-  dependencies.ciDocumentationSyncGateway.syncCiDocumentation = async (_model, targets, visualPlan) => {
+  dependencies.ciDocumentationSyncGateway.syncCiDocumentation = async (targets, visualPlan) => {
     receivedPlan = visualPlan;
     return {
       updatedCiSections: targets,
@@ -190,6 +194,15 @@ test("forwards the Kotlin-precomputed CI visual plan to the Figma boundary", asy
   });
 
   assert.equal(receivedPlan, ciVisualPlan);
+});
+
+test("rejects CI sync without a Kotlin-generated visual plan", async () => {
+  await assert.rejects(
+    syncFigmaDesignModel(mainDesignModel(), fakeDependencies([]), {
+      targets: ["ci.overview"],
+    }),
+    /requires a Kotlin-generated ciVisualPlan/
+  );
 });
 
 function mainDesignModel() {
@@ -237,7 +250,7 @@ function fakeDependencies(calls: string[]) {
       },
     },
     ciDocumentationSyncGateway: {
-      async syncCiDocumentation(_designModel, targetNames, _visualPlan?) {
+      async syncCiDocumentation(targetNames, _visualPlan) {
         calls.push("ci");
         return {
           updatedCiSections: targetNames,
@@ -275,5 +288,20 @@ function fakeDependencies(calls: string[]) {
         };
       },
     },
+  };
+}
+
+function ciVisualPlan(...targets: string[]): CiVisualPlan {
+  return {
+    parentName: "Continuous Integration and Design Documentation",
+    sections: targets.map((target) => ({
+      target,
+      name: target,
+      description: target,
+      orientation: "horizontal",
+      headerSources: [],
+      nodes: [],
+      connections: [],
+    })),
   };
 }

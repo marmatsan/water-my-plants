@@ -75,9 +75,8 @@ export type CatalogTreeSyncGateway = {
 
 export type CiDocumentationSyncGateway = {
   syncCiDocumentation(
-    designModel: DesignModel,
     targetNames: string[],
-    visualPlan?: import("../domain/ci/create-ci-visual-plan").CiVisualPlan
+    visualPlan: import("../domain/ci/ci-visual-plan").CiVisualPlan
   ): Promise<CiDocumentationSyncResult>;
 };
 

@@ -17,6 +17,7 @@ import {
 import {
   CATALOG_TARGET_NAMES,
   CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY,
+  CI_VISUAL_TARGET_NAMES,
   DEFAULT_FIXTURE_TARGETS,
   METADATA_PAGE_ID,
   OFFICIAL_STAGING_NAMESPACE,
@@ -91,6 +92,7 @@ function readNpmConfigArgs() {
     "out-dir": "npm_config_out_dir",
     "chunk-size": "npm_config_chunk_size",
     transport: "npm_config_transport",
+    "ci-visual-plan": "npm_config_ci_visual_plan",
     "section-node-id": "npm_config_section_node_id",
     roots: "npm_config_roots",
     "allow-official-sections": "npm_config_allow_official_sections",
@@ -225,6 +227,16 @@ function resolveOptions(args) {
   }
   const roots = scopedRoots.length > 0 ? scopedRoots : parseRoots(args.roots);
   const allowOfficialSections = args["allow-official-sections"] === "true";
+  const ciTargets = targets.filter((name) => CI_VISUAL_TARGET_NAMES.includes(name));
+  const ciVisualPlanPath = args["ci-visual-plan"]
+    ? resolve(TOOL_ROOT, args["ci-visual-plan"])
+    : undefined;
+
+  if (ciTargets.length > 0 && !ciVisualPlanPath) {
+    throw new Error(
+      "CI targets require --ci-visual-plan with output from the generateFigmaCiVisualPlan Gradle task."
+    );
+  }
 
   if ((sectionNodeId || roots.length > 0) && targets.length !== 1) {
     throw new Error("--section-node-id and --roots can only be used with a single target.");
@@ -261,6 +273,7 @@ function resolveOptions(args) {
     allowOfficialSections,
     allowPartial,
     fullVisualSync,
+    ciVisualPlanPath,
   };
 }
 
@@ -268,8 +281,12 @@ async function writeRunnerFiles(options) {
   const modelJson = await readFile(options.modelPath, "utf8");
   const minifiedModelJson = JSON.stringify(JSON.parse(modelJson));
   const designModel = JSON.parse(minifiedModelJson);
+  const ciVisualPlan = options.ciVisualPlanPath
+    ? JSON.parse(await readFile(options.ciVisualPlanPath, "utf8"))
+    : undefined;
   const script = await readFile(options.scriptPath, "utf8");
   validateDesignModel(designModel, options);
+  validateCiVisualPlan(ciVisualPlan, options.targets);
   const writerHash = sha256(script);
   const transportHash = createTransportHash(options);
   const targetFingerprints = createTargetFingerprints(designModel);
@@ -339,7 +356,7 @@ async function writeRunnerFiles(options) {
     "90-finalize-staging.mcp.js",
     finalizeStagingSource(options, designModel, minifiedModelJson, script, writerHash, transportHash)
   ));
-  const targetRunner = await writeTargetRunnerFiles(outDir, options, designModel, {
+  const targetRunner = await writeTargetRunnerFiles(outDir, { ...options, ciVisualPlan }, designModel, {
     writerHash,
     transportHash,
     targetFingerprints,
@@ -882,12 +899,14 @@ return {
 function runTargetSource(options, targets = options.targets, runOptions = {}, executionMetadata = {}) {
   const target = targets[0];
   const roots = runOptions.roots || options.roots;
+  const ciVisualPlan = targetCiVisualPlan(options.ciVisualPlan, targets);
   const syncOptions = {
     targets,
     writeMetadata: options.writeMetadata,
     ...(options.sectionNodeId ? { sectionNodeOverrides: { [options.target]: options.sectionNodeId } } : {}),
     ...(roots.length > 0 ? { catalogRootFilters: { [target]: roots } } : {}),
     ...(runOptions.cleanupOnly ? { catalogCleanupOnlyTargets: [target] } : {}),
+    ...(ciVisualPlan ? { ciVisualPlan } : {}),
     executionMetadata,
   };
   const executionScope = runOptions.executionScope || options.requestedTargets?.[0] || target;
@@ -969,6 +988,30 @@ if (transportHash !== syncOptions.executionMetadata.transportHash) {
 
 ${invokeScript}
 `;
+}
+
+function validateCiVisualPlan(plan, targets) {
+  const ciTargets = targets.filter((target) => CI_VISUAL_TARGET_NAMES.includes(target));
+  if (ciTargets.length === 0) return;
+  if (!plan || typeof plan.parentName !== "string" || !Array.isArray(plan.sections)) {
+    throw new Error("The Kotlin CI visual plan must contain parentName and sections.");
+  }
+
+  for (const target of ciTargets) {
+    const matches = plan.sections.filter((section) => section?.target === target);
+    if (matches.length !== 1) {
+      throw new Error(`The Kotlin CI visual plan must contain exactly one section for '${target}'.`);
+    }
+  }
+}
+
+function targetCiVisualPlan(plan, targets) {
+  const ciTargets = targets.filter((target) => CI_VISUAL_TARGET_NAMES.includes(target));
+  if (ciTargets.length === 0) return undefined;
+  return {
+    parentName: plan.parentName,
+    sections: plan.sections.filter((section) => ciTargets.includes(section.target)),
+  };
 }
 
 function trunkSyncInvocationSource(executionScope, target) {

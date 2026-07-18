@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import test from "node:test";
 
 const runnerPath = join(process.cwd(), "dist", "write-mcp-runner.mjs");
@@ -88,6 +88,8 @@ test("official runner defaults to the complete visual sync without metadata", as
       /"catalogCleanupOnlyTargets":\["waterMyPlants\.libraries"\]/
     );
     assert.match(runtimeSource, /"targets":\["ci\.windowsRuntime"\]/);
+    assert.match(runtimeSource, /"ciVisualPlan":\{"parentName":/);
+    assert.doesNotMatch(runtimeSource, /"target":"ci\.overview"/);
     assert.doesNotMatch(runtimeSource, /writeMetadata":true/);
   } finally {
     await rm(workspace.root, { recursive: true, force: true });
@@ -254,6 +256,25 @@ test("official runner accepts preflight plus a granular CI documentation target"
   }
 });
 
+test("CI runner requires the Kotlin-generated visual plan", async () => {
+  const workspace = createRunnerFixture();
+  try {
+    assert.throws(
+      () => runRunner([
+        "--mode=official",
+        `--model=${workspace.modelPath}`,
+        `--script=${workspace.scriptPath}`,
+        "--targets=preflight,ci.overview",
+        "--allow-partial=true",
+        `--out-dir=${workspace.outDir}`,
+      ], false),
+      /CI targets require --ci-visual-plan/
+    );
+  } finally {
+    await rm(workspace.root, { recursive: true, force: true });
+  }
+});
+
 test("official runner accepts the granular Windows runtime target", async () => {
   const workspace = createRunnerFixture();
   try {
@@ -349,8 +370,12 @@ test("runner rejects staging entries that exceed Figma shared plugin data limits
   }
 });
 
-function runRunner(args: string[]) {
-  return execFileSync(process.execPath, [runnerPath, ...args], {
+function runRunner(args: string[], includeCiVisualPlan = true) {
+  const modelArgument = args.find((argument) => argument.startsWith("--model="));
+  const ciVisualPlanArgument = includeCiVisualPlan && modelArgument
+    ? `--ci-visual-plan=${join(dirname(modelArgument.slice("--model=".length)), "ci-visual-plan.json")}`
+    : undefined;
+  return execFileSync(process.execPath, [runnerPath, ...args, ...(ciVisualPlanArgument ? [ciVisualPlanArgument] : [])], {
     cwd: process.cwd(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
@@ -361,6 +386,7 @@ function createRunnerFixture() {
   const root = mkdtempSync(join(tmpdir(), "figma-runner-test-"));
   const modelPath = join(root, "design-model.json");
   const scriptPath = join(root, "sync-script.mcp.js");
+  const ciVisualPlanPath = join(root, "ci-visual-plan.json");
   const outDir = join(root, "out");
 
   writeFileSync(
@@ -390,6 +416,24 @@ function createRunnerFixture() {
     "utf8"
   );
   writeFileSync(
+    ciVisualPlanPath,
+    JSON.stringify({
+      parentName: "Continuous Integration and Design Documentation",
+      sections: FULL_VISUAL_TARGETS
+        .filter((target) => target.startsWith("ci."))
+        .map((target) => ({
+          target,
+          name: target,
+          description: target,
+          orientation: "horizontal",
+          headerSources: [],
+          nodes: [],
+          connections: [],
+        })),
+    }),
+    "utf8"
+  );
+  writeFileSync(
     scriptPath,
     [
       "const DESIGN_MODEL = undefined;",
@@ -403,6 +447,7 @@ function createRunnerFixture() {
     root,
     modelPath,
     scriptPath,
+    ciVisualPlanPath,
     outDir,
   };
 }

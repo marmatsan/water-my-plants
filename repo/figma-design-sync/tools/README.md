@@ -28,4 +28,6 @@ implementation is removed.
 
 Use the root `probeFigmaMcp` and `runFigmaMcp` Gradle tasks for MCP operations.
 The TypeScript `mcp:runner` command remains only as a preview and compatibility
-generator during the gradual migration.
+packager during the gradual migration. It does not calculate CI visual
+structure. A CI target must receive `--ci-visual-plan=PATH` pointing to output
+from the Kotlin `generateFigmaCiVisualPlan` Gradle task.

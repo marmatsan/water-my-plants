@@ -4,13 +4,14 @@ type: reference
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/src
   - repo/figma-design-sync/tools/tests
   - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/visual
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/visual
+  - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/visual
 ---
 
 # Figma Visual Sync Contract
@@ -34,7 +35,8 @@ The tool source follows the same dependency direction as the Gradle sync code:
 - Kotlin `domain` contains portable models and pure visual rules.
 - Kotlin `data` translates language-neutral JSON into those models and emits
   target-scoped plan JSON.
-- TypeScript `domain` retains boundary types and transitional preview rules.
+- TypeScript `domain` retains only the language-neutral visual-plan boundary
+  types required by the Figma adapter.
 - `ports` contains gateway contracts.
 - `usecases` coordinates sync behavior through those contracts.
 - `figma` contains the Figma MCP API adapters.
@@ -87,12 +89,19 @@ runner does not authorize metadata.
 
 ## CI Documentation Visual Sync
 
-The Kotlin `CiVisualPlanner` reads only `content.ci` from the official `main`
-`design-model.json` through `CiVisualPlanJson`. The official runner generator
-embeds one target-scoped `ciVisualPlan` in `SYNC_OPTIONS`; the TypeScript Figma
-gateway consumes that plan and does not decide CI section structure during an
-official sync. Transitional preview runners may still calculate the same plan
-in TypeScript until preview generation is moved behind the Kotlin contract.
+The Kotlin `CiVisualPlanner` reads only `content.ci` from a `design-model.json`
+through `CiVisualPlanJson`. The official runner generator embeds one
+target-scoped `ciVisualPlan` in `SYNC_OPTIONS`; the TypeScript Figma gateway
+consumes that plan and never decides CI section structure. Preview and
+compatibility runners must receive the same contract through
+`--ci-visual-plan=PATH`. Generate complete or target-scoped preview input with
+the portable `generateFigmaCiVisualPlan` Gradle task.
+
+The TypeScript use case fails before reaching Figma when a requested `ci.*`
+target has no Kotlin-generated plan. This is an architectural boundary, not a
+fallback condition: planning rules, environment mapping, source selection, and
+CI graph construction belong to Kotlin; measured node geometry, fonts,
+components, variables, connectors, and mutations remain in the Figma adapter.
 
 The Figma gateway creates or updates one parent section named
 `Continuous Integration and Design Documentation` on Figma page `63153:2876`

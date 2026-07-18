@@ -6,6 +6,7 @@ import com.marmatsan.figmaDesignSync.plugin.task.config.WriteFigmaWriterProjectC
 import com.marmatsan.figmaDesignSync.plugin.task.mcp.ProbeFigmaMcpTask
 import com.marmatsan.figmaDesignSync.plugin.task.mcp.RunFigmaMcpTask
 import com.marmatsan.figmaDesignSync.plugin.task.official.PrepareOfficialFigmaSyncTask
+import com.marmatsan.figmaDesignSync.plugin.task.visual.GenerateCiVisualPlanTask
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -90,6 +91,11 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
             }
 
         project.tasks.named<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
+            dependsOn(writeWriterProjectConfig)
+            writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
+        }
+
+        project.tasks.named<GenerateCiVisualPlanTask>("generateFigmaCiVisualPlan") {
             dependsOn(writeWriterProjectConfig)
             writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
         }
