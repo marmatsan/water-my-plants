@@ -11,6 +11,7 @@ sources:
   - repo/figma-design-sync/build.gradle.kts
   - repo/figma-design-sync/plugin/build.gradle.kts
   - repo/figma-design-sync/tools/package.json
+  - repo/figma-design-sync/tools/fixtures/contracts/writer-runtime-contract.json
   - repo/figma-design-sync/samples/standalone-consumer
 ---
 
@@ -61,6 +62,13 @@ The materialized directory contains the compiled writer, checkpoint executor,
 runner generator, portable writer sources used for fingerprints, and visual
 fixtures. `figmaDesignSync.toolsDirectory` points to this directory.
 
+The language-neutral
+`tools/fixtures/contracts/writer-runtime-contract.json` fixture defines the
+observable runner manifest, target, transport, hash, and execution-scope
+contract. Replacement implementations, including gradual Kotlin migrations,
+must satisfy this executable baseline before the corresponding TypeScript
+implementation is removed.
+
 The project config owns both
 `REPOSITORY_ROOT_RELATIVE_TO_TOOLS` and
 `CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY`. This prevents the portable
@@ -92,5 +100,6 @@ package from assuming the Water My Plants directory structure.
 - [`../../plugin/build.gradle.kts`](../../plugin/build.gradle.kts)
 - [`../../tools/package.json`](../../tools/package.json)
 - [`../../tools/bin/build.mjs`](../../tools/bin/build.mjs)
+- [`../../tools/fixtures/contracts/writer-runtime-contract.json`](../../tools/fixtures/contracts/writer-runtime-contract.json)
 - [`../../samples/standalone-consumer`](../../samples/standalone-consumer)
 - [`../../project-config/water-my-plants/figma-config.ts`](../../project-config/water-my-plants/figma-config.ts)
