@@ -114,6 +114,8 @@ Task responsibilities:
 | Task | Responsibility |
 |------|----------------|
 | `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
+| `prepareOfficialFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
+| `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |

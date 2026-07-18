@@ -151,7 +151,7 @@ object WaterMyPlantsFigmaSync : Pipeline({
             })
             step(PipelineScriptStep {
                 name = "Prepare Figma Sync"
-                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\prepare-figma-sync.ps1"""
+                scriptContent = """.\gradlew.bat prepareOfficialFigmaSync --stacktrace"""
             })
         }
 
@@ -184,7 +184,7 @@ object WaterMyPlantsFigmaSync : Pipeline({
             })
             step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\verify-figma-trunk-sync.ps1"""
+                scriptContent = """.\gradlew.bat verifyOfficialFigmaSync --stacktrace"""
             })
         }
 

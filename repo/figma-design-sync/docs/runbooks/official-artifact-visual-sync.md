@@ -244,6 +244,6 @@ official artifact from the authoritative `main` run.
 ## Sources
 
 - `.teamcity/settings.kts`
-- `.teamcity/scripts/prepare-figma-sync.ps1`
+- `plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/official/PrepareOfficialFigmaSyncTask.kt`
 - `tools/scripts/write-mcp-runner.ts`
 - `tools/teamcity/prepare-figma-sync-handoff.ps1`

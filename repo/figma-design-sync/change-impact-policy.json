@@ -32,7 +32,11 @@
     "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/datasource/impact/*",
     "repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/*",
     "repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/impact/*",
-    "repo/figma-design-sync/plugin/src/test/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/*"
+    "repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/official/*",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/sync/*",
+    "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/figma/sync/*",
+    "repo/figma-design-sync/plugin/src/test/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/*",
+    "repo/figma-design-sync/data/src/test/kotlin/com/marmatsan/figmaDesignSync/data/figma/sync/*"
   ],
   "figmaModelContentPaths": [
     ".teamcity/settings.kts",
