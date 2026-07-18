@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/src
@@ -154,8 +154,8 @@ The tools package can generate visual preview runner files. Official runners
 are generated in Kotlin only as part of the authorized TeamCity artifact:
 
 ```powershell
+.\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-npm run build
 node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
@@ -385,9 +385,9 @@ If the MCP execution fails with a missing component property such as:
 Could not find a component property with name: 'Show is a gradle convention plugin#63112:4'
 ```
 
-inspect the `.tree node` component set and update `TREE_NODE_PROPS` in
-`repo/figma-design-sync/project-config/water-my-plants/figma-config.ts` to match the actual
-Figma component property name before rerunning the sync.
+inspect the `.tree node` component set and update `treeNodeProps` in
+`repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`
+to match the actual Figma component property name before rerunning the sync.
 
 Do not work around this by writing metadata only; the visual update did not
 complete. The current property name is:

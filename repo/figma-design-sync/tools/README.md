@@ -14,9 +14,16 @@ npx figma-design-sync-build `
     --output-dir=build\figma-design-sync-tools
 ```
 
-The JSON input is the Kotlin-first path and uses schema version `1`. During the
-gradual migration, `--project-config=path\to\figma-config.ts` remains available
-as a compatibility input. Exactly one project-config argument is required.
+The JSON input uses schema version `1` and is the only public project-config
+format. `FIGMA_DESIGN_SYNC_PROJECT_CONFIG` may supply the same path when the
+command is invoked through npm; an explicit command-line path takes precedence.
+
+Water My Plants generates the JSON and runs the package through Kotlin-owned
+Gradle tasks:
+
+```powershell
+.\gradlew.bat testFigmaDesignSyncTools buildFigmaDesignSyncTools
+```
 
 The package remains `private` until a release is explicitly authorized. The
 publication runbook describes the release gate and version alignment contract.

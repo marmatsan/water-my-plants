@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
@@ -36,9 +36,7 @@ performing node mutations. JavaScript is only the generated runtime artifact
 executed by Figma MCP.
 
 ```powershell
-cd repo\figma-design-sync\tools
-npm ci
-npm run build
+.\gradlew.bat buildFigmaDesignSyncTools
 ```
 
 The generated script is:

@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/gradle.properties
@@ -62,9 +62,9 @@ set without changing the Figma official model.
        :figma-design-sync:plugin:check `
        :figma-design-sync:project-config:check
 
+   .\gradlew.bat testFigmaDesignSyncTools buildFigmaDesignSyncTools
+
    Push-Location repo\figma-design-sync\tools
-   npm test
-   npm run build
    $env:npm_config_cache = "..\..\..\build\npm-cache"
    npm pack --dry-run
    Remove-Item Env:npm_config_cache

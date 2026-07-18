@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { cp, mkdir, readFile } from "node:fs/promises";
+import { cp, mkdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { build } from "esbuild";
+import { createProjectConfigBuildOptions } from "./project-config-build-options.mjs";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const options = parseOptions(process.argv.slice(2));
 const outputRoot = resolve(process.cwd(), options.outputDirectory);
 const outputDist = join(outputRoot, "dist");
-const projectConfigBuildOptions = await createProjectConfigBuildOptions(options);
+const projectConfigBuildOptions = await createProjectConfigBuildOptions(options.projectConfigJson);
 
 await mkdir(outputDist, { recursive: true });
 await copyRuntimeSources(outputRoot);
@@ -75,82 +76,29 @@ async function copyRuntimeSources(targetRoot) {
 }
 
 function parseOptions(args) {
+  const supportedOptions = new Set(["project-config-json", "output-dir"]);
   const values = {};
   for (const argument of args) {
     const [key, value] = argument.replace(/^--/, "").split("=", 2);
     if (!argument.startsWith("--") || !key || !value) {
       throw new Error(`Expected --name=value, received '${argument}'.`);
     }
+    if (!supportedOptions.has(key)) {
+      throw new Error(`Unsupported option '--${key}'.`);
+    }
     values[key] = value;
   }
 
-  const projectConfigInputs = [values["project-config"], values["project-config-json"]].filter(Boolean);
-  if (projectConfigInputs.length !== 1) {
-    throw new Error("Provide exactly one of --project-config=PATH or --project-config-json=PATH.");
-  }
-
-  return {
-    projectConfig: values["project-config"] || null,
-    projectConfigJson: values["project-config-json"] || null,
-    outputDirectory: values["output-dir"] || ".",
-  };
-}
-
-async function createProjectConfigBuildOptions(options) {
-  if (options.projectConfig) {
-    return {
-      alias: {
-        "@figma-design-sync/project-config": resolve(process.cwd(), options.projectConfig),
-      },
-    };
-  }
-
-  const projectConfigPath = resolve(process.cwd(), options.projectConfigJson);
-  const projectConfig = JSON.parse(await readFile(projectConfigPath, "utf8"));
-  if (projectConfig.schemaVersion !== 1) {
+  const projectConfigJson = values["project-config-json"]
+    || process.env.FIGMA_DESIGN_SYNC_PROJECT_CONFIG;
+  if (!projectConfigJson) {
     throw new Error(
-      `Unsupported project config schema '${projectConfig.schemaVersion}' in ${projectConfigPath}.`
+      "Provide --project-config-json=PATH or FIGMA_DESIGN_SYNC_PROJECT_CONFIG."
     );
   }
-  if (!Array.isArray(projectConfig.CATALOG_TREE_TARGETS)) {
-    throw new Error(`Missing CATALOG_TREE_TARGETS in ${projectConfigPath}.`);
-  }
-  for (const target of projectConfig.CATALOG_TREE_TARGETS) {
-    if (!Array.isArray(target.nodesPath) || target.nodesPath.length === 0) {
-      throw new Error(`Catalog target '${target.name}' has no nodesPath in ${projectConfigPath}.`);
-    }
-  }
 
   return {
-    plugins: [createJsonProjectConfigPlugin(projectConfig, projectConfigPath)],
-  };
-}
-
-function createJsonProjectConfigPlugin(projectConfig, projectConfigPath) {
-  const exportNames = Object.keys(projectConfig)
-    .filter((name) => /^[A-Z][A-Z0-9_]+$/.test(name) && name !== "CATALOG_TREE_TARGETS");
-  const moduleContents = [
-    `const config = ${JSON.stringify(projectConfig)};`,
-    "const valueAtPath = (root, path) => path.reduce((value, key) => value?.[key], root);",
-    ...exportNames.map((name) => `export const ${name} = config.${name};`),
-    "export const CATALOG_TREE_TARGETS = config.CATALOG_TREE_TARGETS.map(" +
-      "({ nodesPath, ...target }) => ({ " +
-      "...target, nodes: (designModel) => valueAtPath(designModel, nodesPath) " +
-      "})" +
-      ");",
-  ].join("\n");
-
-  return {
-    name: "figma-design-sync-json-project-config",
-    setup(buildContext) {
-      buildContext.onResolve(
-        { filter: /^@figma-design-sync\/project-config$/ },
-        () => ({ path: projectConfigPath, namespace: "figma-project-config" })
-      );
-      buildContext.onLoad(
-        { filter: /.*/, namespace: "figma-project-config" },
-        () => ({ contents: moduleContents, loader: "js", resolveDir: dirname(projectConfigPath) })
-      );
-    },
+    projectConfigJson,
+    outputDirectory: values["output-dir"] || ".",
   };
 }

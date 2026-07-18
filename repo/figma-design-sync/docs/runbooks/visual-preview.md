@@ -74,9 +74,8 @@ as authoritative repository state.
 Build the MCP bundle and generate runner snippets from the tools directory:
 
 ```powershell
+.\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-npm ci
-npm run build
 node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
@@ -220,8 +219,8 @@ write.
 For tooling changes:
 
 ```powershell
+.\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-npm run build
 node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 

@@ -46,7 +46,7 @@ Dependency direction is intentional:
 project-config -> plugin -> data -> domain
 project-config -> teamcity-adapter -> data -> domain
 project-config -> water-my-plants-catalog
-tools -> project-config/water-my-plants/figma-config.ts
+tools <- transient writer-project-config.json <- project-config
 ```
 
 `domain` must stay independent from Gradle, files, Figma clients, and plugin
@@ -109,8 +109,9 @@ Plants `project-config` is deliberately excluded.
 
 The TypeScript writer is prepared as
 `@marmatsan/figma-design-sync-tools`. Its build executable injects a
-repository-owned `figma-config.ts`, so the published package does not own Figma
-node ids or repository paths. Maven and npm versions must remain aligned.
+Kotlin-generated, repository-owned JSON projection, so the published package
+does not own Figma node ids or repository paths. Maven and npm versions must
+remain aligned.
 
 Validate the complete staged distribution without publishing externally:
 
@@ -259,9 +260,7 @@ For code changes in this module:
 For visual tooling changes:
 
 ```powershell
-cd repo\figma-design-sync\tools
-npm test
-npm run build
+.\gradlew.bat testFigmaDesignSyncTools buildFigmaDesignSyncTools
 ```
 
 For dependency catalog changes that affect Figma:

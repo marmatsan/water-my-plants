@@ -47,8 +47,9 @@ be committed.
 
 Preview runners may pass `sectionNodeOverrides` so a catalog target mutates a
 sandbox section instead of the configured official section. Official sync runs
-must use the configured section ids from `figma-config.ts` unless a documented
-manual repair explicitly overrides one target.
+must use the configured section ids from
+`WaterMyPlantsFigmaWriterProjectConfig.kt` unless a documented manual repair
+explicitly overrides one target.
 
 The `preflight` target validates the visual contract without mutating Figma.
 Run it after staging the official model and before visual targets when component
@@ -215,8 +216,9 @@ For each repository version:
   `Main project dependencies`, `Libraries`, and `Plugins`.
 - Map those semantic sections to the visual subsections named `main versions`,
   `library versions`, and `plugin versions` in Figma. These subsection node ids
-  are part of `figma-config.ts`; update them whenever the `.dependency version`
-  component area is rebuilt manually. The version visual containers may be
+  are part of `WaterMyPlantsFigmaWriterProjectConfig.kt`; update them whenever
+  the `.dependency version` component area is rebuilt manually. The version
+  visual containers may be
   Figma `SECTION` nodes or `FRAME` nodes as long as they own the direct
   `.dependency version` instances.
 - Keep `androidGradlePluginVersion` and `kotlinVersion` in

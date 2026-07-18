@@ -10,6 +10,7 @@ import com.marmatsan.figmaDesignSync.plugin.task.visual.GenerateCiVisualPlanTask
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
@@ -90,9 +91,43 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
                 )
             }
 
+        val generatedWriterProjectConfigFile = writeWriterProjectConfig.flatMap { task -> task.outputFile }
+        val toolsDirectory = project.layout.projectDirectory.dir("repo/figma-design-sync/tools")
+
+        project.tasks.register<Exec>("buildFigmaDesignSyncTools") {
+            group = "figma design sync"
+            description = "Builds the TypeScript Figma boundary from the Kotlin project configuration."
+            dependsOn(writeWriterProjectConfig)
+            inputs.file(generatedWriterProjectConfigFile)
+            workingDir(toolsDirectory)
+            doFirst {
+                commandLine(
+                    "node",
+                    "bin/build.mjs",
+                    "--project-config-json=${generatedWriterProjectConfigFile.get().asFile.absolutePath}",
+                    "--output-dir=."
+                )
+            }
+        }
+
+        project.tasks.register<Exec>("testFigmaDesignSyncTools") {
+            group = "verification"
+            description = "Tests the TypeScript Figma boundary against the Kotlin project configuration."
+            dependsOn(writeWriterProjectConfig)
+            inputs.file(generatedWriterProjectConfigFile)
+            workingDir(toolsDirectory)
+            commandLine(npmExecutable(), "test")
+            doFirst {
+                environment(
+                    "FIGMA_DESIGN_SYNC_PROJECT_CONFIG",
+                    generatedWriterProjectConfigFile.get().asFile.absolutePath
+                )
+            }
+        }
+
         project.tasks.named<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
             dependsOn(writeWriterProjectConfig)
-            writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
+            writerProjectConfigFile.set(generatedWriterProjectConfigFile)
         }
 
         project.tasks.named<GenerateCiVisualPlanTask>("generateFigmaCiVisualPlan") {
@@ -180,4 +215,6 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
 
     private fun isWindows(): Boolean =
         System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+
+    private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
 }
