@@ -169,5 +169,6 @@ dependencyResolutionManagement {
 include(
     ":data",
     ":domain",
-    ":plugin"
+    ":plugin",
+    ":project-config"
 )

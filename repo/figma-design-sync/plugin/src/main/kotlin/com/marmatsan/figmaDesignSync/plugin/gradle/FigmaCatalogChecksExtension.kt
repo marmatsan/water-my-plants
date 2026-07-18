@@ -7,6 +7,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ListProperty
 import org.gradle.kotlin.dsl.register
 import javax.inject.Inject
 
@@ -59,9 +60,9 @@ abstract class FigmaDesignSyncIncludedBuild @Inject constructor(
 /**
  * Gradle extension for configuring the Figma design sync plugin.
  *
- * Defaults assume the plugin is applied to the repository root project. A build
- * can override these properties when the repository layout or Figma metadata
- * node changes.
+ * Portable defaults cover only conventional root and output locations.
+ * Repository identity, catalog adapters, Figma nodes, visual tooling, CI
+ * adapters, and included builds must be supplied by a project-config plugin.
  */
 abstract class figmaDesignSyncExtension @Inject constructor(
     objects: ObjectFactory,
@@ -72,6 +73,20 @@ abstract class figmaDesignSyncExtension @Inject constructor(
      * data such as `modelHash`.
      */
     val designModelMetadataNodeUrl: Property<String> = objects.property(String::class.java)
+
+    /** Shared plugin-data namespace used for Figma sync metadata. */
+    val metadataNamespace: Property<String> = objects.property(String::class.java)
+
+    /** JSON key used for the repository's primary dependency catalog. */
+    val primaryCatalogModelName: Property<String> = objects.property(String::class.java)
+
+    /** Project adapter implementing the portable dependency catalog contract. */
+    val dependencyCatalogProviderClassName: Property<String> = objects.property(String::class.java)
+
+    /** Whether this project publishes the optional CI documentation model. */
+    val ciDocumentationEnabled: Property<Boolean> = objects
+        .property(Boolean::class.javaObjectType)
+        .convention(false)
 
     /**
      * Version declarations used by the generated model.
@@ -98,6 +113,15 @@ abstract class figmaDesignSyncExtension @Inject constructor(
      */
     val teamCityGeneratedConfigurationDirectory: DirectoryProperty = objects.directoryProperty()
 
+    /** Optional CI adapter command that materializes effective configuration. */
+    val ciConfigurationCommand: ListProperty<String> = objects.listProperty(String::class.java)
+
+    /** Working directory used by [ciConfigurationCommand]. */
+    val ciConfigurationWorkingDirectory: DirectoryProperty = objects.directoryProperty()
+
+    /** TypeScript package containing the portable Figma writer. */
+    val toolsDirectory: DirectoryProperty = objects.directoryProperty()
+
     /**
      * Included builds that contribute repository model data.
      */
@@ -122,40 +146,10 @@ abstract class figmaDesignSyncExtension @Inject constructor(
     val changeImpactFile: RegularFileProperty = objects.fileProperty()
 
     init {
-        versionsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
         rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
-        ciExternalTopologyFile.convention(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
-        ciWindowsRuntimeFile.convention(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
-        teamCityGeneratedConfigurationDirectory.convention(
-            layout.projectDirectory.dir(".teamcity/target/generated-configs")
-        )
         designModelFile.convention(layout.buildDirectory.file("reports/figma-sync/design-model.json"))
-        changeImpactPolicyFile.convention(
-            layout.projectDirectory.file("repo/figma-design-sync/change-impact-policy.json")
-        )
         changeImpactFile.convention(layout.buildDirectory.file("reports/figma-sync/change-impact.json"))
-
-        includedBuilds.register("dependency-catalog") {
-            modelName.convention("dependencyCatalog")
-            settingsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/settings.gradle.kts"))
-            rootDirectory.convention(layout.projectDirectory.dir("repo/dependency-catalog"))
-            modulePathPrefix.convention(":dependency-catalog")
-            publishesCatalogs.convention(false)
-        }
-
-        includedBuilds.register("figma-design-sync") {
-            modelName.convention("figmaDesignSync")
-            settingsFile.convention(layout.projectDirectory.file("repo/figma-design-sync/settings.gradle.kts"))
-            rootDirectory.convention(layout.projectDirectory.dir("repo/figma-design-sync"))
-            modulePathPrefix.convention(":figma-design-sync")
-        }
-
-        includedBuilds.register("gradle-plugins") {
-            modelName.convention("gradlePlugins")
-            settingsFile.convention(layout.projectDirectory.file("repo/gradle-plugins/settings.gradle.kts"))
-            rootDirectory.convention(layout.projectDirectory.dir("repo/gradle-plugins"))
-            modulePathPrefix.convention(":gradle-plugins")
-            publishesConventionPlugins.convention(true)
-        }
+        ciConfigurationCommand.convention(emptyList())
+        ciConfigurationWorkingDirectory.convention(layout.projectDirectory)
     }
 }

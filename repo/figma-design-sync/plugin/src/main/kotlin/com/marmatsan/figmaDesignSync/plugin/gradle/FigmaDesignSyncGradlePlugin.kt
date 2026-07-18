@@ -44,7 +44,6 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
 
         val extension = project.extensions.create<figmaDesignSyncExtension>("figmaDesignSync")
 
-        extension.designModelMetadataNodeUrl.convention(FIGMA_PAGE_URL)
         val includedBuildSources = extension.includedBuildSources(project)
 
         project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyFigmaChangeImpact") {
@@ -84,6 +83,8 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             group = "verification"
             description = "Checks that dependency catalog entries rendered in Figma are used by the repository."
 
+            primaryCatalogModelName.set(extension.primaryCatalogModelName)
+            dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
             rootSettingsFile.set(extension.rootSettingsFile)
             includedBuildSettingsFiles.from(
                 includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
@@ -115,6 +116,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 description = "Warns when the external CI topology has not been validated recently."
 
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
+                onlyIf("CI documentation adapter is enabled") {
+                    extension.ciDocumentationEnabled.get()
+                }
             }
         val checkCiWindowsRuntimeFreshness =
             project.tasks.register<CheckCiWindowsRuntimeFreshnessTask>("checkCiWindowsRuntimeFreshness") {
@@ -122,6 +126,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 description = "Warns when the Windows CI runtime has not been validated recently."
 
                 ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
+                onlyIf("CI documentation adapter is enabled") {
+                    extension.ciDocumentationEnabled.get()
+                }
             }
 
         project.tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
@@ -135,6 +142,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Generates the design model JSON consumed by the Figma MCP sync step."
 
+            primaryCatalogModelName.set(extension.primaryCatalogModelName)
+            dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+            ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
@@ -165,6 +175,10 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             description = "Checks that Figma sync metadata matches the design model generated from the current checkout."
 
             metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
+            metadataNamespace.set(extension.metadataNamespace)
+            primaryCatalogModelName.set(extension.primaryCatalogModelName)
+            dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+            ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
@@ -215,25 +229,20 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 outputs.upToDateWhen { false }
             }
 
-        val generateFigmaSyncTeamCityConfiguration =
-            project.tasks.register<Exec>("generateFigmaSyncTeamCityConfiguration") {
+        val materializeFigmaSyncCiConfiguration =
+            project.tasks.register<Exec>("materializeFigmaSyncCiConfiguration") {
                 group = "documentation"
-                description = "Generates effective TeamCity configuration when the Figma model can change."
+                description = "Runs the optional CI adapter when the Figma model can change."
                 dependsOn(classifyOfficialFigmaSyncChangeImpact)
-                onlyIf("Figma change impact requires full verification") {
-                    isFullVerification(extension.changeImpactFile.get().asFile)
+                onlyIf("CI documentation adapter is enabled and Figma impact requires full verification") {
+                    extension.ciDocumentationEnabled.get() &&
+                        extension.ciConfigurationCommand.get().isNotEmpty() &&
+                        isFullVerification(extension.changeImpactFile.get().asFile)
                 }
-                workingDir(project.layout.projectDirectory)
-                val wrapper = project.layout.projectDirectory.file(
-                    if (isWindows()) "mvnw.cmd" else "mvnw"
-                ).asFile.absolutePath
-                val arguments = listOf(
-                    wrapper,
-                    "-f",
-                    project.layout.projectDirectory.file(".teamcity/pom.xml").asFile.absolutePath,
-                    "teamcity-configs:generate"
-                )
-                commandLine(if (isWindows()) listOf("cmd.exe", "/d", "/c") + arguments else arguments)
+                workingDir(extension.ciConfigurationWorkingDirectory)
+                doFirst {
+                    commandLine(extension.ciConfigurationCommand.get())
+                }
                 outputs.dir(extension.teamCityGeneratedConfigurationDirectory)
                 outputs.upToDateWhen { false }
             }
@@ -242,11 +251,14 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             project.tasks.register<GenerateFigmaDesignModelTask>("generateOfficialFigmaSyncModel") {
                 group = "documentation"
                 description = "Generates the model required by the prepared official Figma Sync scope."
-                dependsOn(generateFigmaSyncTeamCityConfiguration)
+                dependsOn(materializeFigmaSyncCiConfiguration)
                 onlyIf("Figma change impact requires full verification") {
                     isFullVerification(extension.changeImpactFile.get().asFile)
                 }
 
+                primaryCatalogModelName.set(extension.primaryCatalogModelName)
+                dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+                ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
                 versionsFile.set(extension.versionsFile)
                 rootSettingsFile.set(extension.rootSettingsFile)
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
@@ -280,7 +292,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             changeImpactFile.set(extension.changeImpactFile)
             designModelFile.set(extension.designModelFile)
             projectRootDirectory.set(project.layout.projectDirectory)
-            toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-design-sync/tools"))
+            toolsDirectory.set(extension.toolsDirectory)
             runnerOutputDirectory.set(project.layout.buildDirectory.dir("reports/figma-sync/mcp-runners"))
             visualSyncPlanFile.set(project.layout.buildDirectory.file("reports/figma-sync/visual-sync-plan.json"))
             scopeFile.set(project.layout.buildDirectory.file("reports/figma-sync/sync-scope.json"))
@@ -313,6 +325,10 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 }
 
                 metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
+                metadataNamespace.set(extension.metadataNamespace)
+                primaryCatalogModelName.set(extension.primaryCatalogModelName)
+                dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+                ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
                 versionsFile.set(extension.versionsFile)
                 rootSettingsFile.set(extension.rootSettingsFile)
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
@@ -350,13 +366,6 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             .readChangeImpact(changeImpactFile.absolutePath)
             .scope == FigmaVerificationScope.FULL_VERIFICATION
 
-    private fun isWindows(): Boolean =
-        System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
-
-    private companion object {
-        const val FIGMA_PAGE_URL =
-            "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908"
-    }
 }
 
 private fun figmaDesignSyncExtension.includedBuildSources(project: Project) =

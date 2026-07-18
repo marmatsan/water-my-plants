@@ -89,6 +89,23 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             )
     }
 
+    test("generate omits CI content when the project adapter disables it") {
+        // GIVEN
+        val generator = generator()
+        val request = request().copy(
+            ciDocumentationEnabled = false,
+            ciExternalTopologyFile = null,
+            ciWindowsRuntimeFile = null,
+            teamCityGeneratedConfigurationDirectory = null
+        )
+
+        // WHEN
+        val result = generator.generate(request)
+
+        // THEN
+        result.model["content"]?.jsonObject?.get("ci") shouldBe null
+    }
+
     test("generate writes version sections in repository order") {
         // GIVEN
         val generator = generator()
@@ -283,6 +300,9 @@ private fun request(
         branch = "main",
         gitSha = gitSha,
         generatedAt = generatedAt,
+        primaryCatalogModelName = "waterMyPlants",
+        dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
+        ciDocumentationEnabled = true,
         versionsFile = File("versions.properties"),
         rootSettingsFile = File("settings.gradle.kts"),
         ciExternalTopologyFile = File("docs/ci/external-topology.yaml"),

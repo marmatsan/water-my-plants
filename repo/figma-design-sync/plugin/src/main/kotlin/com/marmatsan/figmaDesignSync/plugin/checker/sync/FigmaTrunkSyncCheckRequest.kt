@@ -15,14 +15,18 @@ import java.time.Instant
 internal data class FigmaTrunkSyncCheckRequest(
     val metadataNodeUrl: String,
     val token: String,
+    val metadataNamespace: String,
     val branch: String,
     val gitSha: String,
     val generatedAt: Instant,
+    val primaryCatalogModelName: String,
+    val dependencyCatalogProviderClassName: String,
+    val ciDocumentationEnabled: Boolean,
     val versionsFile: File,
     val rootSettingsFile: File,
-    val ciExternalTopologyFile: File,
-    val ciWindowsRuntimeFile: File,
-    val teamCityGeneratedConfigurationDirectory: File,
+    val ciExternalTopologyFile: File?,
+    val ciWindowsRuntimeFile: File?,
+    val teamCityGeneratedConfigurationDirectory: File?,
     val projectRootDirectory: File,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )

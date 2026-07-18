@@ -19,6 +19,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -34,11 +35,25 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val metadataNodeUrl: Property<String>
 
+    @get:Input
+    abstract val metadataNamespace: Property<String>
+
+    @get:Input
+    abstract val primaryCatalogModelName: Property<String>
+
+    @get:Input
+    abstract val dependencyCatalogProviderClassName: Property<String>
+
+    @get:Input
+    abstract val ciDocumentationEnabled: Property<Boolean>
+
     @get:InputFile
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
 
     @get:InputFile
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val rootSettingsFile: RegularFileProperty
 
@@ -51,6 +66,7 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
     @get:InputDirectory
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val teamCityGeneratedConfigurationDirectory: DirectoryProperty
 
@@ -91,14 +107,18 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
             FigmaTrunkSyncCheckRequest(
                 metadataNodeUrl = metadataNodeUrl.get(),
                 token = token,
+                metadataNamespace = metadataNamespace.get(),
                 branch = git("rev-parse", "--abbrev-ref", "HEAD"),
                 gitSha = git("rev-parse", "HEAD"),
                 generatedAt = Instant.now(),
+                primaryCatalogModelName = primaryCatalogModelName.get(),
+                dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                ciDocumentationEnabled = ciDocumentationEnabled.get(),
                 versionsFile = versionsFile.get().asFile,
                 rootSettingsFile = rootSettingsFile.get().asFile,
-                ciExternalTopologyFile = ciExternalTopologyFile.get().asFile,
-                ciWindowsRuntimeFile = ciWindowsRuntimeFile.get().asFile,
-                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.get().asFile,
+                ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
+                ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
+                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.orNull?.asFile,
                 projectRootDirectory = projectRootDirectory.get().asFile,
                 includedBuilds = includedBuildSources()
             )

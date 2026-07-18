@@ -98,7 +98,9 @@ internal class FigmaDesignModelGenerator(
                     .toSortedJsonArray()
             )
             put("moduleDependencies", buildModuleDependencies(request))
-            put("ci", buildCi(request))
+            if (request.ciDocumentationEnabled) {
+                put("ci", buildCi(request))
+            }
         }
 
     private fun buildCi(request: FigmaDesignModelGenerationRequest) =
@@ -106,13 +108,21 @@ internal class FigmaDesignModelGenerator(
             put(
                 "externalTopology",
                 ciExternalTopologyPort
-                    .readTopology(CiExternalTopologySource(request.ciExternalTopologyFile.absolutePath))
+                    .readTopology(
+                        CiExternalTopologySource(
+                            request.ciExternalTopologyFile.requireCiInput("external topology").absolutePath
+                        )
+                    )
                     .toDesignJson()
             )
             put(
                 "windowsRuntime",
                 ciWindowsRuntimePort
-                    .readRuntime(CiWindowsRuntimeSource(request.ciWindowsRuntimeFile.absolutePath))
+                    .readRuntime(
+                        CiWindowsRuntimeSource(
+                            request.ciWindowsRuntimeFile.requireCiInput("Windows runtime").absolutePath
+                        )
+                    )
                     .toDesignJson()
             )
             put(
@@ -120,7 +130,9 @@ internal class FigmaDesignModelGenerator(
                 teamCityConfigurationPort
                     .readConfiguration(
                         TeamCityGeneratedConfigurationSource(
-                            request.teamCityGeneratedConfigurationDirectory.absolutePath
+                            request.teamCityGeneratedConfigurationDirectory
+                                .requireCiInput("TeamCity generated configuration")
+                                .absolutePath
                         )
                     )
                     .toDesignJson()
@@ -133,7 +145,7 @@ internal class FigmaDesignModelGenerator(
                 .map(FigmaDesignModelIncludedBuildSource::toDomainSource)
                 .filter(IncludedBuildSource::publishesConventionPlugins)
             put(
-                "waterMyPlants",
+                request.primaryCatalogModelName,
                 buildJsonObject {
                     put(
                         "libraries",
@@ -141,6 +153,7 @@ internal class FigmaDesignModelGenerator(
                             .readLibraryTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
                                     rootDirPath = request.projectRootDirectory.absolutePath,
+                                    providerClassName = request.dependencyCatalogProviderClassName,
                                     conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
                                 )
                             )
@@ -152,6 +165,7 @@ internal class FigmaDesignModelGenerator(
                             .readPluginTree(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
                                     rootDirPath = request.projectRootDirectory.absolutePath,
+                                    providerClassName = request.dependencyCatalogProviderClassName,
                                     conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
                                 )
                             )
@@ -237,3 +251,8 @@ internal class FigmaDesignModelGenerator(
         const val SCHEMA_VERSION = 4
     }
 }
+
+private fun java.io.File?.requireCiInput(name: String): java.io.File =
+    requireNotNull(this) {
+        "CI documentation is enabled, but its $name input is not configured."
+    }

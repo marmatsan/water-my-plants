@@ -1,5 +1,7 @@
 package com.marmatsan.figmaDesignSync.data.dependencies.catalog
 
+import com.marmatsan.dependencies.WaterMyPlantsCatalog
+import com.marmatsan.dependencies.catalog.DependencyCatalogTrees
 import com.marmatsan.dependencies.tree.dsl.library.libraryTree
 import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
@@ -533,7 +535,14 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
 private fun dependenciesCatalogTreesReader() =
     DependenciesCatalogTreesReader(
-        gradleCatalogUsageReader = GradleCatalogUsageReader()
+        gradleCatalogUsageReader = GradleCatalogUsageReader(),
+        dependencyCatalogProvider = object : DependencyCatalogProvider {
+            override fun resolved(rootDir: File): DependencyCatalogTrees =
+                WaterMyPlantsCatalog.resolved(rootDir)
+
+            override fun withVersionAliases(): DependencyCatalogTrees =
+                WaterMyPlantsCatalog.withVersionAliases()
+        }
     )
 
 private fun LibraryCatalogTree.findArtifact(

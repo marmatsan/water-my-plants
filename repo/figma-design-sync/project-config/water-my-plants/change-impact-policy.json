@@ -26,7 +26,7 @@
     ".teamcity/scripts/invoke-ci-verification.ps1",
     ".teamcity/scripts/validate-documentation.ps1",
     ".teamcity/scripts/tests/*",
-    "repo/figma-design-sync/change-impact-policy.json",
+    "repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json",
     "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/impact/*",
     "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/port/impact/*",
     "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/datasource/impact/*",
@@ -44,13 +44,15 @@
     "repo/dependency-catalog/*",
     "repo/gradle-plugins/settings.gradle.kts",
     "repo/figma-design-sync/settings.gradle.kts",
+    "repo/figma-design-sync/project-config/src/*",
     "settings.gradle.kts",
     "build.gradle.kts",
     "*/build.gradle.kts",
     "*/*/build.gradle.kts"
   ],
   "figmaVisualWriterPaths": [
-    "repo/figma-design-sync/tools/src/*"
+    "repo/figma-design-sync/tools/src/*",
+    "repo/figma-design-sync/project-config/water-my-plants/figma-config.ts"
   ],
   "figmaVisualTargetRules": [
     {

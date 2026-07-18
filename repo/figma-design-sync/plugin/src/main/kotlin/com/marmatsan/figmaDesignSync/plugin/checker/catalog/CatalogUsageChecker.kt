@@ -30,14 +30,15 @@ internal class CatalogUsageChecker(
 
         val dependencyDslSource = ProjectCatalogTreeSource.DependenciesDslVersionAliases(
             rootDirPath = request.projectRootDirectory.absolutePath,
+            providerClassName = request.dependencyCatalogProviderClassName,
             conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
         )
         unusedEntries += projectCatalogTreesPort
             .readLibraryTree(dependencyDslSource)
-            .unusedEntries(catalogName = "waterMyPlants.libraries")
+            .unusedEntries(catalogName = "${request.primaryCatalogModelName}.libraries")
         unusedEntries += projectCatalogTreesPort
             .readPluginTree(dependencyDslSource)
-            .unusedEntries(catalogName = "waterMyPlants.plugins")
+            .unusedEntries(catalogName = "${request.primaryCatalogModelName}.plugins")
 
         request.includedBuilds
             .filter(FigmaDesignModelIncludedBuildSource::publishesCatalogs)

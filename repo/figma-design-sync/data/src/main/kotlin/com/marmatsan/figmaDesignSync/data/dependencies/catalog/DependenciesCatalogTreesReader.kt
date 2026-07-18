@@ -1,6 +1,5 @@
 package com.marmatsan.figmaDesignSync.data.dependencies.catalog
 
-import com.marmatsan.dependencies.WaterMyPlantsCatalog
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
@@ -15,7 +14,6 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import java.io.File
-import me.tatarka.inject.annotations.Inject
 
 /**
  * Reads the repository dependency DSL and converts it into domain catalog
@@ -26,21 +24,21 @@ import me.tatarka.inject.annotations.Inject
  * [PluginCatalogTree], then enriches entries with Gradle usage information
  * from [GradleCatalogUsageReader].
  */
-@Inject
 class DependenciesCatalogTreesReader(
-    private val gradleCatalogUsageReader: GradleCatalogUsageReader
+    private val gradleCatalogUsageReader: GradleCatalogUsageReader,
+    private val dependencyCatalogProvider: DependencyCatalogProvider
 ) {
     /**
      * Reads concrete library versions from `versions.properties`.
      */
     fun readLibraryTree(rootDir: File): LibraryCatalogTree =
-        readLibraryTree(WaterMyPlantsCatalog.resolved(rootDir).libraries)
+        readLibraryTree(dependencyCatalogProvider.resolved(rootDir).libraries)
 
     /**
      * Reads concrete plugin versions from `versions.properties`.
      */
     fun readPluginTree(rootDir: File): PluginCatalogTree =
-        readPluginTree(WaterMyPlantsCatalog.resolved(rootDir).plugins)
+        readPluginTree(dependencyCatalogProvider.resolved(rootDir).plugins)
 
     /**
      * Reads a library tree using version aliases instead of resolved versions.
@@ -52,7 +50,7 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): LibraryCatalogTree =
-        readLibraryTree(WaterMyPlantsCatalog.withVersionAliases().libraries)
+        readLibraryTree(dependencyCatalogProvider.withVersionAliases().libraries)
             .withLibraryUsages(
                 gradleCatalogUsageReader.readMainLibraryUsages(rootDir)
             )
@@ -70,7 +68,7 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): PluginCatalogTree =
-        readPluginTree(WaterMyPlantsCatalog.withVersionAliases().plugins)
+        readPluginTree(dependencyCatalogProvider.withVersionAliases().plugins)
             .withPluginUsages(
                 gradleCatalogUsageReader.readMainPluginUsages(rootDir)
             )

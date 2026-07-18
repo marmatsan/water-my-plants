@@ -1,6 +1,7 @@
 package com.marmatsan.figmaDesignSync.data.datasource.catalog
 
 import com.marmatsan.figmaDesignSync.data.dependencies.catalog.DependenciesCatalogTreesReader
+import com.marmatsan.figmaDesignSync.data.dependencies.catalog.DependencyCatalogProviderFactory
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradleConventionPluginTreeReader
 import com.marmatsan.figmaDesignSync.data.gradle.catalog.GradlePluginTreeReader
@@ -30,7 +31,6 @@ import me.tatarka.inject.annotations.Inject
 @Inject
 class ProjectCatalogTreesDataSource(
     private val includedBuildSettingsCatalogReader: IncludedBuildSettingsCatalogReader,
-    private val dependenciesCatalogTreesReader: DependenciesCatalogTreesReader,
     private val gradleCatalogUsageReader: GradleCatalogUsageReader,
     private val gradleConventionPluginTreeReader: GradleConventionPluginTreeReader,
     private val gradlePluginTreeReader: GradlePluginTreeReader
@@ -41,7 +41,7 @@ class ProjectCatalogTreesDataSource(
     override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                dependenciesCatalogTreesReader.readLibraryTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readLibraryTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -69,7 +69,7 @@ class ProjectCatalogTreesDataSource(
     override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                dependenciesCatalogTreesReader.readPluginTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readPluginTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -108,6 +108,14 @@ class ProjectCatalogTreesDataSource(
                 )
         }
 }
+
+private fun ProjectCatalogTreeSource.DependenciesDslVersionAliases.dependenciesCatalogTreesReader(
+    gradleCatalogUsageReader: GradleCatalogUsageReader
+) =
+    DependenciesCatalogTreesReader(
+        gradleCatalogUsageReader = gradleCatalogUsageReader,
+        dependencyCatalogProvider = DependencyCatalogProviderFactory.create(providerClassName)
+    )
 
 private fun List<PluginCatalogTree>.mergePluginTrees(): PluginCatalogTree =
     fold(PluginCatalogTree(roots = emptyList())) { mergedTree, tree -> mergedTree.merge(tree) }

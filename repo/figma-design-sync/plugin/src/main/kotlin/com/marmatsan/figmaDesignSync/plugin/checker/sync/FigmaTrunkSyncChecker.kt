@@ -33,6 +33,9 @@ internal class FigmaTrunkSyncChecker(
                 branch = request.branch,
                 gitSha = request.gitSha,
                 generatedAt = request.generatedAt,
+                primaryCatalogModelName = request.primaryCatalogModelName,
+                dependencyCatalogProviderClassName = request.dependencyCatalogProviderClassName,
+                ciDocumentationEnabled = request.ciDocumentationEnabled,
                 versionsFile = request.versionsFile,
                 rootSettingsFile = request.rootSettingsFile,
                 ciExternalTopologyFile = request.ciExternalTopologyFile,
@@ -50,8 +53,10 @@ internal class FigmaTrunkSyncChecker(
                 nodeId = metadataNode.nodeId,
                 pluginData = "shared"
             )
-            .sharedPluginData[NAMESPACE]
-            ?: throw GradleException("Figma sync metadata namespace '$NAMESPACE' was not found.")
+            .sharedPluginData[request.metadataNamespace]
+            ?: throw GradleException(
+                "Figma sync metadata namespace '${request.metadataNamespace}' was not found."
+            )
 
         val figmaModelHash = figmaMetadata[MODEL_HASH_KEY]
             ?: throw GradleException("Figma sync metadata key '$MODEL_HASH_KEY' was not found.")
@@ -73,7 +78,6 @@ internal class FigmaTrunkSyncChecker(
     }
 
     private companion object {
-        const val NAMESPACE = "water_my_plants_sync"
         const val MODEL_HASH_KEY = "modelHash"
         const val GIT_SHA_KEY = "gitSha"
     }

@@ -9,5 +9,7 @@ import java.io.File
  */
 internal data class CatalogUsageCheckRequest(
     val projectRootDirectory: File,
+    val primaryCatalogModelName: String,
+    val dependencyCatalogProviderClassName: String,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )
