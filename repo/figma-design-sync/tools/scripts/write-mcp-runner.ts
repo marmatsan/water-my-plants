@@ -548,32 +548,26 @@ const expected = {
   scriptLength: ${JSON.stringify(String(script.length))}
 };
 
-if (typeof figma.loadAllPagesAsync === "function") {
-  try {
-    await figma.loadAllPagesAsync();
-  } catch (error) {
-    // Some MCP runtimes expose this method but reject it at execution time.
-    // Document-level traversal still sees uploaded image nodes in this file.
-  }
-}
-
 const candidates = [];
 const imageHashes = new Set();
-const imageNodes = figma.root.findAll((node) => {
-  const fills = "fills" in node ? node.fills : undefined;
-  if (!Array.isArray(fills)) {
-    return false;
-  }
+const imageNodes = [];
+for (const documentPage of figma.root.children) {
+  if (documentPage.type !== "PAGE") continue;
 
-  let hasPayloadCandidate = false;
-  for (const fill of fills) {
-    if (fill?.type === "IMAGE" && fill.imageHash) {
-      hasPayloadCandidate = true;
-      imageHashes.add(fill.imageHash);
+  for (const node of documentPage.children) {
+    const fills = "fills" in node ? node.fills : undefined;
+    if (!Array.isArray(fills)) continue;
+
+    let hasPayloadCandidate = false;
+    for (const fill of fills) {
+      if (fill?.type === "IMAGE" && fill.imageHash) {
+        hasPayloadCandidate = true;
+        imageHashes.add(fill.imageHash);
+      }
     }
+    if (hasPayloadCandidate) imageNodes.push(node);
   }
-  return hasPayloadCandidate;
-});
+}
 
 for (const imageHash of imageHashes) {
   const image = figma.getImageByHash(imageHash);

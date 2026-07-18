@@ -135,11 +135,12 @@ For chunk transport, stage base64 chunks in temporary shared plugin data:
 
 Do not copy long base64 payloads manually from terminal output.
 
-If PNG staging fails with `loadAllPagesAsync is not a supported API`, treat it
-as a runner bug, not a bad payload. The generated staging code must tolerate
-that API being present but rejected by the MCP runtime. Document-level traversal
-can still find uploaded image fills in this file, even when the upload landed
-on a different page from the metadata page.
+If PNG staging fails with `loadAllPagesAsync is not a supported API` or
+`findAll: Out of memory`, treat it as a runner bug, not a bad payload. The
+generated staging code must inspect only direct children of each document page.
+`upload_assets` creates the temporary image as a direct page child, even when
+the upload lands on a different page from the metadata page, so neither API is
+required.
 
 The tools package can generate PNG-based official runner files and chunked
 visual preview runner files:

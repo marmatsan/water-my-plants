@@ -85,9 +85,10 @@ Sending it as the default `application/octet-stream` is rejected. Request a new
 URL after any failed or consumed upload attempt; do not reuse an old URL.
 
 `upload_assets` may place the temporary image on the current Figma page, which
-does not have to be the metadata page. The staging runner searches document
-image fills and does not rely on `loadAllPagesAsync`; this MCP runtime may
-expose that API while rejecting it at execution time.
+does not have to be the metadata page. Uploaded assets are direct page children,
+so the staging runner inspects only direct children of each document page. It
+must not call `figma.root.findAll`, which traverses the complete design and can
+exhaust the plugin runtime, or rely on unsupported `loadAllPagesAsync`.
 
 To run only one top-level catalog root, use its explicit execution scope:
 
