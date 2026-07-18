@@ -2,6 +2,8 @@ package com.marmatsan.figmaDesignSync.plugin.task.ci
 
 import com.marmatsan.figmaDesignSync.plugin.di.create
 import com.marmatsan.figmaDesignSync.plugin.di.figmaDesignSyncComponent
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -9,12 +11,12 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.time.LocalDate
-import java.time.ZoneOffset
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Emits a non-blocking warning when Windows CI runtime validation is stale.
  */
+@DisableCachingByDefault(because = "The warning depends on the current UTC date")
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
     @get:InputFile
     @get:Optional

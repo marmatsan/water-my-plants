@@ -19,11 +19,13 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Gradle verification task that fails when dependency catalogs declare entries
  * not used by any module, convention plugin, or tool configuration.
  */
+@DisableCachingByDefault(because = "The check inspects repository sources outside its declared settings inputs")
 abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     @get:Input
     abstract val primaryCatalogModelName: Property<String>

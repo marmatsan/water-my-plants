@@ -94,8 +94,9 @@ export const BRANCH_PROTECTION_SOURCE = "docs/ci/main-branch-protection.md";
 export const OFFICIAL_SYNC_SOURCE =
   "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md";
 export const OFFICIAL_DESIGN_MODEL_PATH = "build/reports/figma-sync/design-model.json";
-export const CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE =
-  "project-config/water-my-plants/change-impact-policy.json";
+export const REPOSITORY_ROOT_RELATIVE_TO_TOOLS = "../../..";
+export const CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY =
+  "repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json";
 
 export const HEADER_SECTION_TARGETS = [
   {

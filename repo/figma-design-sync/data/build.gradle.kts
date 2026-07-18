@@ -1,11 +1,13 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import java.net.URI
+import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     alias(plugins.plugins.org.jetbrains.dokka)
+    `maven-publish`
 }
 
 repositories {
@@ -18,9 +20,13 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+java {
+    withSourcesJar()
+}
+
 dependencies {
     implementation(projects.domain)
-    implementation("com.marmatsan.repo:catalog-core")
+    implementation("com.marmatsan.repo:catalog-core:${project.version}")
     testImplementation("com.marmatsan.repo:water-my-plants-catalog")
 
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
@@ -38,6 +44,35 @@ dependencies {
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            artifactId = "figma-design-sync-data"
+
+            pom {
+                name.set("Figma Design Sync Data")
+                description.set("Portable filesystem, Gradle, catalog, and Figma adapters.")
+                url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/figma-design-sync")
+                scm {
+                    connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                    url.set("https://github.com/marmatsan/water-my-plants")
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "staging"
+            url = uri(
+                providers.gradleProperty("figmaDesignSyncPublicationRepository").orNull
+                    ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
+            )
+        }
+    }
 }
 
 dokka {

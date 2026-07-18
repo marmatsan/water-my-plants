@@ -26,6 +26,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Gradle task that writes the official `main` branch `design-model.json` artifact.
@@ -36,6 +37,7 @@ import org.gradle.api.tasks.TaskAction
  * the configured CI Figma Sync adapter on `main` so local or short-lived
  * branch models cannot be mistaken for the official Figma publication input.
  */
+@DisableCachingByDefault(because = "Generation records Git, environment, and current-time runtime state")
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
