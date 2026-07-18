@@ -94,6 +94,37 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
             mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))
             requiredBuildTypeName.set("Generate main design model")
         }
+
+        project.tasks.register<RerunTeamCityFigmaSyncTask>("rerunTeamCityFigmaSync") {
+            group = "documentation"
+            description = "Validates or reruns the official TeamCity Figma Sync pipeline."
+            serverUrl.convention(
+                project.providers.gradleProperty("figmaTeamCityServerUrl")
+                    .orElse("https://teamcity.marmatsan.dev")
+            )
+            validateOnly.convention(
+                project.providers.gradleProperty("figmaTeamCityValidateOnly")
+                    .map(String::toBoolean)
+                    .orElse(false)
+            )
+            waitForCompletion.convention(
+                project.providers.gradleProperty("figmaTeamCityWait")
+                    .map(String::toBoolean)
+                    .orElse(false)
+            )
+            pollIntervalSeconds.convention(
+                project.providers.gradleProperty("figmaTeamCityPollIntervalSeconds")
+                    .map(String::toInt)
+                    .orElse(10)
+            )
+            timeoutMinutes.convention(
+                project.providers.gradleProperty("figmaTeamCityTimeoutMinutes")
+                    .map(String::toInt)
+                    .orElse(60)
+            )
+            buildTypeId.set("WaterMyPlants_WaterMyPlantsFigmaSync")
+            branch.set("main")
+        }
     }
 
     private fun teamCityConfigurationCommand(project: Project): List<String> {
