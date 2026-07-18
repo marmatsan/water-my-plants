@@ -33,6 +33,8 @@ used by CI.
   design model.
 - `domain/model/impact`: portable Figma verification scopes, impacts, policy,
   and repository change-set models.
+- `domain/model/sync`: portable identity shared by official preparation and
+  verification jobs.
 - `domain/model/artifact` and `domain/service/artifact`: pure official artifact
   identities and cross-file validation rules used by the MCP handoff.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
@@ -52,6 +54,8 @@ used by CI.
 - `data/figma/common`: shared Figma URL helpers.
 - `data/figma/artifact`: filesystem and JSON readers for official TeamCity
   artifact sets.
+- `data/figma/sync`: JSON adapters for the official preparation scope, runner
+  identities, and visual sync plan.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
 - `data/dependencies/catalog`: adapters from the reusable `catalog-core` tree
@@ -76,6 +80,8 @@ used by CI.
   `build/reports/figma-sync/change-impact.json`.
 - `plugin/task/artifact`: Gradle adapter that validates an official artifact
   set and writes its typed handoff identity.
+- `plugin/task/official`: Gradle adapters that prepare and validate the scope
+  shared by the official TeamCity Figma Sync jobs.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 
@@ -86,6 +92,11 @@ used by CI.
 - `classifyFigmaChangeImpact`: classifies the Git diff using
   `repo/figma-design-sync/change-impact-policy.json`. Keep the classifier in
   Kotlin and do not duplicate its rules in TeamCity scripts.
+- `prepareOfficialFigmaSync`: cleans stale reports, classifies the change,
+  conditionally generates TeamCity configuration and the official model, then
+  builds the MCP runner artifacts and `sync-scope.json`.
+- `verifyOfficialFigmaSync`: validates the downloaded scope identity and
+  invokes the Kotlin trunk checker only for `full-verification`.
 - `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
   plugin entries that are not used by a module, convention plugin, or tool
   configuration. This task is wired into the root `check` lifecycle.

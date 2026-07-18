@@ -11,6 +11,7 @@ import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModulesDataS
 import com.marmatsan.figmaDesignSync.data.datasource.versions.RepositoryVersionsDataSource
 import com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient
 import com.marmatsan.figmaDesignSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDesignSync.data.figma.sync.OfficialFigmaSyncScopeJson
 import com.marmatsan.figmaDesignSync.domain.service.artifact.OfficialFigmaArtifactContractValidator
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
@@ -90,6 +91,9 @@ internal abstract class figmaDesignSyncComponent {
 
     /** Validates the cross-file identity of an official main artifact set. */
     abstract val officialFigmaArtifactContractValidator: OfficialFigmaArtifactContractValidator
+
+    /** Reads and writes the scope shared by official Figma Sync jobs. */
+    abstract val officialFigmaSyncScopeJson: OfficialFigmaSyncScopeJson
 
     /**
      * Provides the narrow Figma API client used only by the sync checker.

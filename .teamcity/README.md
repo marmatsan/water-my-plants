@@ -151,11 +151,15 @@ validation scripts and their coverage manifest. Unlike documentation-only
 changes, these revisions still run the normal Gradle CI verification before
 merge.
 
-`prepare-figma-sync.ps1` consumes the Kotlin-generated
-`build/reports/figma-sync/change-impact.json` and removes the previous
-`build/reports/figma-sync` directory before preparing any scope. This prevents a
-persistent agent checkout from republishing a stale model or runner during a
-documentation-only or transport-only no-op.
+`prepareOfficialFigmaSync` owns the complete preparation chain in the
+`figma-design-sync` Gradle plugin. It removes the previous report directory,
+classifies the change, conditionally generates TeamCity configuration and the
+official model, builds the MCP runners and plan, and writes `sync-scope.json`.
+`verifyOfficialFigmaSync` validates that downloaded scope against the current
+checkout and delegates to the Kotlin trunk checker only for
+`full-verification`. This prevents a persistent agent checkout from
+republishing a stale model or runner without keeping CI orchestration in
+PowerShell.
 
 Gradle configuration cache and local build cache are enabled in
 [`gradle.properties`](../gradle.properties). The current checked-in Pipeline DSL
