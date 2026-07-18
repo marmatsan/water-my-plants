@@ -60,7 +60,8 @@ test("official runner defaults to the complete visual sync without metadata", as
     assert.equal(manifest.fullVisualSync, true);
     assert.equal(manifest.allowPartial, false);
     assert.equal(manifest.writeMetadata, false);
-    assert.equal(manifest.schemaVersion, 2);
+    assert.equal(manifest.schemaVersion, 3);
+    assert.equal(manifest.writerScopeFingerprintSchemaVersion, 1);
     assert.match(manifest.writerHash, /^sha256:[a-f0-9]{64}$/);
     assert.match(manifest.transportHash, /^sha256:[a-f0-9]{64}$/);
     assert.match(manifest.manifestHash, /^sha256:[a-f0-9]{64}$/);
@@ -68,6 +69,12 @@ test("official runner defaults to the complete visual sync without metadata", as
     assert.match(manifest.fileHashes["99-00-preflight.mcp.js"], /^sha256:[a-f0-9]{64}$/);
     assert.match(manifest.targetFingerprints["waterMyPlants.libraries.androidx"], /^sha256:[a-f0-9]{64}$/);
     assert.match(manifest.targetFingerprints["waterMyPlants.libraries.cleanup"], /^sha256:[a-f0-9]{64}$/);
+    assert.match(manifest.writerScopeFingerprints["waterMyPlants.libraries.androidx"], /^sha256:[a-f0-9]{64}$/);
+    assert.equal(
+      manifest.writerScopeFingerprints["waterMyPlants.libraries.androidx"],
+      manifest.writerScopeFingerprints["waterMyPlants.libraries.cleanup"]
+    );
+    assert.match(manifest.writerScopeFingerprints.metadata, /^sha256:[a-f0-9]{64}$/);
     assert.ok(!files.includes("99-run-target.mcp.js"));
     assert.equal(files.filter((fileName) => fileName.startsWith("99-")).length, 24);
     assert.match(preflightSource, /"targets":\["preflight"\]/);

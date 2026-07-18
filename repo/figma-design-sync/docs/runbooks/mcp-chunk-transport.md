@@ -84,11 +84,13 @@ Official mode defaults to `--transport=png` and writes:
 - `99-00-preflight.mcp.js` through the final ordered visual execution unit
 - `manifest.json`
 
-Manifest schema 2 records `modelHash`, `gitSha`, `writerHash`, `transportHash`,
-`manifestHash`, per-file hashes, execution scopes, and per-target
-fingerprints. The executor uses this identity to reject stale checkpoints and
-the visual planner uses the fingerprints to select `none`, `partial`, or
-`full` execution without parsing generated source.
+Manifest schema 3 records `modelHash`, `gitSha`, `writerHash`, `transportHash`,
+`manifestHash`, per-file hashes, execution scopes, per-target model
+fingerprints, per-scope writer fingerprints, and their schema version. The
+executor uses this identity to reject stale checkpoints and the visual planner
+uses both fingerprint maps to select `none`, `partial`, or `full` execution
+without parsing generated source. Schema 2 manifests remain executable for
+recovery, but their legacy metadata cannot authorize a partial new plan.
 
 Upload `10-official-sync-payload.png` to the Figma file before running
 `10-stage-payload-from-png.mcp.js`. Then run every generated `.mcp.js` snippet
@@ -318,7 +320,8 @@ The generated metadata runner combines these values from `design-model.json`:
 - `gitSha`
 - `modelHash`
 
-It also reads `writerHash`, `transportHash`, and `targetFingerprints` from the
+It also reads `writerHash`, `transportHash`, `targetFingerprints`,
+`writerScopeFingerprints`, and `writerScopeFingerprintSchemaVersion` from the
 runner manifest. It writes all of them plus `syncedAt` to page `62934:908`
 under namespace `water_my_plants_sync`. Figma shared plugin data namespaces
 accept only alphanumeric characters, `_`, and `.`.
@@ -356,6 +359,11 @@ return {
   writerHash: page.getSharedPluginData(namespace, "writerHash"),
   transportHash: page.getSharedPluginData(namespace, "transportHash"),
   targetFingerprints: page.getSharedPluginData(namespace, "targetFingerprints"),
+  writerScopeFingerprints: page.getSharedPluginData(namespace, "writerScopeFingerprints"),
+  writerScopeFingerprintSchemaVersion: page.getSharedPluginData(
+    namespace,
+    "writerScopeFingerprintSchemaVersion"
+  ),
   syncedAt: page.getSharedPluginData(namespace, "syncedAt")
 };
 ```

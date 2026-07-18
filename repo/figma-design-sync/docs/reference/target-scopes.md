@@ -102,7 +102,9 @@ is intended.
 
 If the preflight fails, visual targets are not executed. An ad hoc partial
 repair can diagnose the issue, but afterward the TeamCity-generated plan must
-complete. A writer change produces a `full` plan automatically.
+complete. A mapped target-specific writer change selects only its affected
+scope family plus `preflight`; shared, unmapped, or unexplained writer changes
+produce a `full` plan automatically.
 
 | Order | Target | Scope | Typical failure | Quick check |
 |-------|--------|-------|-----------------|-------------|

@@ -15,8 +15,10 @@
   "figmaTransportOnlyPaths": [
     "repo/figma-design-sync/tools/scripts/payload-png.ts",
     "repo/figma-design-sync/tools/scripts/write-mcp-runner.ts",
+    "repo/figma-design-sync/tools/scripts/writer-scope-fingerprints.ts",
     "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts",
     "repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts",
+    "repo/figma-design-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts",
     "repo/figma-design-sync/tools/tests/*"
   ],
   "figmaModelNeutralPaths": [
@@ -48,6 +50,14 @@
   ],
   "figmaVisualTargetRules": [
     {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-visual-contract-*"],
+      "targets": ["preflight"]
+    },
+    {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-metadata-*"],
+      "targets": ["metadata"]
+    },
+    {
       "paths": ["repo/figma-design-sync/tools/src/figma/figma-version-*", "repo/figma-design-sync/tools/src/domain/version/*"],
       "targets": ["versions"]
     },
@@ -60,8 +70,14 @@
       "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
     },
     {
-      "paths": ["repo/figma-design-sync/tools/src/figma/figma-catalog-*", "repo/figma-design-sync/tools/src/domain/catalog/*"],
-      "targets": ["waterMyPlants.libraries", "waterMyPlants.plugins", "waterMyPlants.customGradleConventionPlugins", "waterMyPlants.customGradlePlugins", "gradlePlugins.libraries", "gradlePlugins.plugins", "figmaDesignSync.libraries", "figmaDesignSync.plugins"]
+      "paths": [
+        "repo/figma-design-sync/tools/src/figma/figma-catalog-*",
+        "repo/figma-design-sync/tools/src/figma/figma-connector-*",
+        "repo/figma-design-sync/tools/src/figma/figma-consumer-modules-*",
+        "repo/figma-design-sync/tools/src/figma/figma-tree-node-*",
+        "repo/figma-design-sync/tools/src/domain/catalog/*"
+      ],
+      "targets": ["preflight", "waterMyPlants.libraries", "waterMyPlants.plugins", "waterMyPlants.customGradleConventionPlugins", "waterMyPlants.customGradlePlugins", "gradlePlugins.libraries", "gradlePlugins.plugins", "figmaDesignSync.libraries", "figmaDesignSync.plugins"]
     }
   ]
 }

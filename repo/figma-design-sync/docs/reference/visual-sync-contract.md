@@ -71,8 +71,9 @@ even during a partial root sync so visual cleanup is not blocked by repair
 granularity.
 
 Partial root sync is a repair/execution granularity, not a completion signal.
-The official metadata (`gitSha`, `modelHash`, `writerHash`, `transportHash`, and
-target fingerprints) must be written only after all scopes required by the
+The official metadata (`gitSha`, `modelHash`, `writerHash`, `transportHash`,
+model target fingerprints, writer scope fingerprints, and writer fingerprint
+schema version) must be written only after all scopes required by the
 TeamCity-generated visual plan have completed successfully. An ad hoc partial
 runner does not authorize metadata.
 

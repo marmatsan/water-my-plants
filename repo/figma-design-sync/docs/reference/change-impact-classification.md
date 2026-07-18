@@ -8,6 +8,7 @@ last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/change-impact-policy.json
+  - repo/figma-design-sync/tools/scripts/writer-scope-fingerprints.ts
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/FigmaChangeImpactClassifier.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/impact/ClassifyFigmaChangeImpactTask.kt
 ---
@@ -72,6 +73,28 @@ The classifier applies these outcomes in order:
 scopes. `unknown` always keeps `full-verification`. An unmapped visual writer
 uses target `all`; classification must fail closed rather than infer a smaller
 scope.
+
+## Writer Scope Fingerprints
+
+The same `figmaVisualTargetRules` also classify TypeScript writer sources when
+the MCP manifest is generated. Each mapped source contributes only to the
+listed writer target fingerprints. An unmapped source under `tools/src` is
+treated as shared and contributes to every target, so changing shared node,
+text, configuration, port, or orchestration code still forces a full visual
+sync.
+
+Sources explicitly classified as `figmaTransportOnlyPaths`, including the
+sandbox catalog preview entrypoint, do not contribute to official writer
+fingerprints because they cannot alter the trunk writer.
+
+Catalog roots and cleanup execution scopes inherit their catalog target
+fingerprint. The global compiled `writerHash` remains the guard that detects an
+actual runtime change. If that hash changes but the scoped source fingerprints
+cannot explain it, planning fails closed to `full`.
+
+Increment `WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION` whenever classification
+semantics change incompatibly. The resulting full migration sync writes a new
+baseline before partial planning is allowed again.
 
 ## Platform Contract
 

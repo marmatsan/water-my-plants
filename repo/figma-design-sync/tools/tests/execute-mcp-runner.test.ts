@@ -95,6 +95,48 @@ test("manifest validation requires cryptographic execution identity", () => {
   );
 });
 
+test("manifest schema 3 requires scoped writer fingerprint identity", () => {
+  const schema3Body = {
+    ...manifestBody,
+    schemaVersion: 3,
+    writerScopeFingerprints: {
+      preflight: "sha256:preflight-writer",
+      versions: "sha256:versions-writer",
+      metadata: "sha256:metadata-writer",
+    },
+    writerScopeFingerprintSchemaVersion: 1,
+    targetFingerprints: {
+      preflight: "sha256:model-preflight",
+      versions: "sha256:model-versions",
+    },
+    executionScopes: {
+      "99-00-preflight.mcp.js": "preflight",
+      "99-01-versions.mcp.js": "versions",
+    },
+  };
+  const schema3Manifest = {
+    ...schema3Body,
+    manifestHash: calculateManifestHash(schema3Body),
+  };
+
+  assert.equal(validateManifest(schema3Manifest), schema3Manifest);
+  assert.throws(
+    () => validateManifest({ ...schema3Manifest, writerScopeFingerprints: undefined }),
+    /missing 'writerScopeFingerprints'/
+  );
+  const incompleteBody = {
+    ...schema3Body,
+    writerScopeFingerprints: { ...schema3Body.writerScopeFingerprints, versions: undefined },
+  };
+  assert.throws(
+    () => validateManifest({
+      ...incompleteBody,
+      manifestHash: calculateManifestHash(incompleteBody),
+    }),
+    /missing the writer fingerprint for scope 'versions'/
+  );
+});
+
 test("resume skips completed files with the same execution identity", () => {
   let state = createOrResumeState(manifest, null, defaultOptions);
   state = recordSuccess(state, manifest, "00-clear-staging.mcp.js", 10, "ok");

@@ -17,7 +17,8 @@ It does that in two stages:
    `build/reports/figma-sync/design-model.json`.
 2. Figma sync tooling consumes that model, updates visual sections, and writes
    Figma shared plugin metadata containing `modelHash`, `writerHash`,
-   `transportHash`, and per-target fingerprints.
+   `transportHash`, per-target model fingerprints, and per-scope writer
+   fingerprints.
 
 The generated hash is based on `schemaVersion` and stable `content`. Traceability
 fields such as branch, Git SHA, and generation timestamp are written to the
@@ -162,7 +163,10 @@ timeout with one monolithic call. Chunked staging remains a fallback for
 oversized or blocked asset uploads.
 
 TeamCity also publishes a `visual-sync-plan.json`. It selects `none`, `partial`,
-or `full` from the official model, compiled writer, and per-target fingerprints.
+or `full` from the official model, compiled writer, per-target model
+fingerprints, and per-scope writer fingerprints. A target-specific writer
+change reruns only that target family plus preflight; shared or unmapped writer
+code still fails closed to a full sync.
 Execution checkpoints allow the supported MCP operator to resume at the first
 unfinished unit without repeating successful targets. See
 `docs/runbooks/visual-sync-efficiency.md` for the identity and recovery rules.

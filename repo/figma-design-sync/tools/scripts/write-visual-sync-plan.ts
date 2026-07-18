@@ -18,34 +18,93 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
 
 export function createVisualSyncPlan(manifest, previousMetadata) {
   const allScopes = Object.values(manifest.executionScopes || {});
+  const requiredWriterScopes = [...new Set([...allScopes, "metadata"])];
+  if (
+    !manifest.targetFingerprints ||
+    !manifest.writerScopeFingerprintSchemaVersion ||
+    !hasFingerprintEntries(manifest.writerScopeFingerprints, requiredWriterScopes)
+  ) {
+    throw new Error(
+      "Current MCP manifest is missing complete model-target or writer-scope fingerprints."
+    );
+  }
   const identity = {
     modelHash: manifest.modelHash,
     writerHash: manifest.writerHash,
     transportHash: manifest.transportHash,
+    writerScopeFingerprintSchemaVersion: manifest.writerScopeFingerprintSchemaVersion,
   };
 
   if (!previousMetadata) {
     return plan("full", "figma-metadata-unavailable", identity, allScopes, manifest);
   }
-  if (!previousMetadata.writerHash || !previousMetadata.targetFingerprints) {
+  if (
+    !previousMetadata.writerHash ||
+    !previousMetadata.targetFingerprints ||
+    !previousMetadata.writerScopeFingerprintSchemaVersion ||
+    !hasFingerprintEntries(previousMetadata.writerScopeFingerprints, requiredWriterScopes)
+  ) {
     return plan("full", "legacy-metadata-without-execution-fingerprints", identity, allScopes, manifest);
   }
-  if (previousMetadata.writerHash !== manifest.writerHash) {
-    return plan("full", "visual-writer-changed", identity, allScopes, manifest);
+  if (
+    previousMetadata.writerScopeFingerprintSchemaVersion !==
+    manifest.writerScopeFingerprintSchemaVersion
+  ) {
+    return plan("full", "writer-scope-fingerprint-schema-changed", identity, allScopes, manifest);
   }
-  if (previousMetadata.modelHash === manifest.modelHash) {
+  const modelChanged = previousMetadata.modelHash !== manifest.modelHash;
+  const writerChanged = previousMetadata.writerHash !== manifest.writerHash;
+  if (!modelChanged && !writerChanged) {
     return plan("none", "visual-input-unchanged", identity, [], manifest);
   }
 
-  const changedScopes = allScopes.filter((scope) =>
-    manifest.targetFingerprints?.[scope] !== previousMetadata.targetFingerprints?.[scope]
-  );
-  if (changedScopes.length === 0) {
-    return plan("full", "model-changed-outside-known-target-fingerprints", identity, allScopes, manifest);
+  const modelChangedScopes = modelChanged
+    ? allScopes.filter((scope) =>
+        scope !== "preflight" &&
+        manifest.targetFingerprints?.[scope] !== previousMetadata.targetFingerprints?.[scope]
+      )
+    : [];
+  if (modelChanged && modelChangedScopes.length === 0) {
+    return plan(
+      "full",
+      "model-changed-outside-known-target-fingerprints",
+      identity,
+      allScopes,
+      manifest
+    );
   }
 
-  const scopes = ["preflight", ...changedScopes.filter((scope) => scope !== "preflight")];
-  return plan("partial", "target-model-fingerprints-changed", identity, [...new Set(scopes)], manifest);
+  const writerChangedScopes = writerChanged
+    ? allScopes.filter((scope) =>
+        manifest.writerScopeFingerprints?.[scope] !==
+        previousMetadata.writerScopeFingerprints?.[scope]
+      )
+    : [];
+  const metadataWriterChanged = writerChanged &&
+    manifest.writerScopeFingerprints?.metadata !==
+      previousMetadata.writerScopeFingerprints?.metadata;
+  if (writerChanged && writerChangedScopes.length === 0 && !metadataWriterChanged) {
+    return plan(
+      "full",
+      "writer-changed-outside-known-scope-fingerprints",
+      identity,
+      allScopes,
+      manifest
+    );
+  }
+  if (writerChangedScopes.length === allScopes.length) {
+    return plan("full", "shared-visual-writer-changed", identity, allScopes, manifest);
+  }
+
+  const scopes = [...new Set(["preflight", ...modelChangedScopes, ...writerChangedScopes])];
+  const reason = modelChanged && writerChanged
+    ? "target-model-and-writer-fingerprints-changed"
+    : writerChanged
+      ? metadataWriterChanged && writerChangedScopes.length === 0
+        ? "metadata-writer-fingerprint-changed"
+        : "writer-scope-fingerprints-changed"
+      : "target-model-fingerprints-changed";
+  return plan("partial", reason, identity, scopes, manifest);
 }
 
 function plan(decision, reason, identity, executionScopes, manifest) {
@@ -85,15 +144,32 @@ async function readPreviousMetadata(options, fetchFn) {
 
 function normalizeMetadata(metadata) {
   if (!metadata) return null;
-  let targetFingerprints = metadata.targetFingerprints;
-  if (typeof targetFingerprints === "string") {
-    try {
-      targetFingerprints = JSON.parse(targetFingerprints);
-    } catch {
-      targetFingerprints = null;
-    }
+  return {
+    ...metadata,
+    targetFingerprints: parseJsonObject(metadata.targetFingerprints),
+    writerScopeFingerprints: parseJsonObject(metadata.writerScopeFingerprints),
+    writerScopeFingerprintSchemaVersion: Number(
+      metadata.writerScopeFingerprintSchemaVersion
+    ) || null,
+  };
+}
+
+function parseJsonObject(value) {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
   }
-  return { ...metadata, targetFingerprints };
+}
+
+function hasFingerprintEntries(fingerprints, scopes) {
+  return Boolean(
+    fingerprints &&
+    typeof fingerprints === "object" &&
+    !Array.isArray(fingerprints) &&
+    scopes.every((scope) => typeof fingerprints[scope] === "string" && fingerprints[scope])
+  );
 }
 
 function parseArgs(argv) {
