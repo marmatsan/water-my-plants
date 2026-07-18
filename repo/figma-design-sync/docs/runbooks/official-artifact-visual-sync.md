@@ -9,7 +9,8 @@ review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
-  - tools/teamcity/prepare-figma-sync-handoff.ps1
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/artifact/ValidateOfficialFigmaArtifactSetTask.kt
 ---
 
@@ -191,32 +192,32 @@ Important generation details:
 
 ## Assisted Handoff
 
-Use the child run id for `Figma Sync > Generate main design model`. The
-repository wrapper queries that build, requires a successful `main` revision,
+Use the child run id for `Figma Sync > Generate main design model`. The Kotlin
+task queries that build, requires a successful `main` revision,
 downloads its shared artifact package, selects the Figma report within it, and
 validates the model, scope, visual plan, and both runner manifests before
 showing any MCP work:
 
 ```powershell
-pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 -BuildId <job-run-id>
+.\gradlew.bat prepareTeamCityFigmaSyncHandoff `
+    -PfigmaTeamCityBuildId=<job-run-id>
 ```
 
-Run this command from the normal PowerShell profile used by the TeamCity CLI
-wrapper. That profile injects Cloudflare Service Auth headers without exposing
-their values; `pwsh -NoProfile` cannot reach the protected artifact endpoint.
+Run this command from an environment where the TeamCity CLI is authenticated
+for the protected artifact endpoint.
 
 The result is written below `tmp/teamcity/` as
 `figma-sync-handoff.json`. Use its `nextUnit` and commands to execute one
 Codex-operated Figma MCP unit at a time, then record success or failure through
-the existing checkpoint executor. The wrapper never writes to Figma and never
+the existing checkpoint executor. The task never writes to Figma and never
 records a unit automatically.
 
 When artifacts were downloaded through another authorized route, validate them
 without a second download:
 
 ```powershell
-pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 `
-    -ArtifactDirectory <downloaded-figma-sync-directory>
+.\gradlew.bat prepareTeamCityFigmaSyncHandoff `
+    -PfigmaArtifactDirectory=<downloaded-figma-sync-directory>
 ```
 
 After all selected visual units and metadata complete, use the handoff's
@@ -246,4 +247,5 @@ official artifact from the authoritative `main` run.
 - `.teamcity/settings.kts`
 - `plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/official/PrepareOfficialFigmaSyncTask.kt`
 - `tools/scripts/write-mcp-runner.ts`
-- `tools/teamcity/prepare-figma-sync-handoff.ps1`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt`
