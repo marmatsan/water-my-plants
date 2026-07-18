@@ -75,18 +75,19 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
-- validates typed documentation before scope classification: canonical
+- validates typed documentation and change coverage before scope classification: canonical
   placement, frontmatter, review dates, runbook and ADR sections, canonical
   sources, and local Markdown links are checked by
   `.teamcity/scripts/validate-documentation.ps1`;
-- validates documentation coverage before Gradle: changes to TeamCity,
+- validates documentation coverage before full Gradle verification: changes to TeamCity,
   Figma-sync implementation, dependency-catalog model, or CI topology must
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
-- uses `Verify change scope` to run `git diff --check` for documentation-only
-  changes after the repository-wide documentation validator; every other change runs
-  `.\gradlew.bat check --stacktrace` so Gradle failures retain their diagnostic
-  context in the TeamCity build log;
+- uses the portable `classifyFigmaChangeImpact` Gradle task and the policy in
+  `repo/figma-design-sync/change-impact-policy.json` as the only change-scope
+  decision; documentation-only changes then run `git diff --check`, while every
+  other change runs `.\gradlew.bat check --stacktrace` so Gradle failures retain
+  their diagnostic context in the TeamCity build log;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
@@ -131,7 +132,9 @@ The pipeline:
 
 For a documentation-only or transport-only `main` revision, the first Figma job
 publishes only a `sync-scope.json` artifact and the final job exits successfully
-without Maven, Gradle, model generation, metadata validation, or an MCP write.
+without Maven, full Gradle verification, model generation, metadata validation,
+or an MCP write. The lightweight Gradle classifier still writes the scope
+contract consumed by both jobs.
 The previous official Figma metadata remains authoritative because neither the
 model nor the compiled visual writer changed.
 
@@ -140,7 +143,8 @@ validation scripts and their coverage manifest. Unlike documentation-only
 changes, these revisions still run the normal Gradle CI verification before
 merge.
 
-`prepare-figma-sync.ps1` removes the previous
+`prepare-figma-sync.ps1` consumes the Kotlin-generated
+`build/reports/figma-sync/change-impact.json` and removes the previous
 `build/reports/figma-sync` directory before preparing any scope. This prevents a
 persistent agent checkout from republishing a stale model or runner during a
 documentation-only or transport-only no-op.

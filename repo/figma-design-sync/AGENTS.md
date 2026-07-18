@@ -31,14 +31,20 @@ used by CI.
 - `domain/model/figma`: Figma references used by domain requests.
 - `domain/model/modules`: module dependency models included in the generated
   design model.
+- `domain/model/impact`: portable Figma verification scopes, impacts, policy,
+  and repository change-set models.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
 - `domain/port/ci`: path-based sources and ports for external topology,
   Windows service runtime, and effective TeamCity configuration.
+- `domain/port/impact`: policy and Git change-set source boundaries used by
+  Figma impact classification.
 - `data/datasource/catalog`, `data/datasource/modules`, and
   `data/datasource/versions`: implementations of domain ports grouped by
   capability.
 - `data/datasource/ci`: filesystem adapters for CI documentation sources.
+- `data/datasource/impact`: JSON policy and Git adapters for change-impact
+  classification.
 - `data/figma/client`: Figma API client and client exceptions.
 - `data/figma/dto`: serializable Figma API response and node DTOs.
 - `data/figma/common`: shared Figma URL helpers.
@@ -58,8 +64,12 @@ used by CI.
   dependency catalog entries before CI can merge catalog changes.
 - `plugin/checker/sync`: Gradle-facing adapter that compares generated model
   metadata with Figma shared plugin data.
+- `plugin/checker/impact`: pure classifier for repository paths that can affect
+  the Figma model or visual writer.
 - `plugin/task/generate` and `plugin/task/sync`: Gradle task classes for model
   generation and sync verification.
+- `plugin/task/impact`: portable Gradle task that writes
+  `build/reports/figma-sync/change-impact.json`.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 
@@ -67,6 +77,9 @@ used by CI.
 
 - `generateFigmaDesignModel`: generates
   `build/reports/figma-sync/design-model.json`.
+- `classifyFigmaChangeImpact`: classifies the Git diff using
+  `repo/figma-design-sync/change-impact-policy.json`. Keep the classifier in
+  Kotlin and do not duplicate its rules in TeamCity scripts.
 - `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
   plugin entries that are not used by a module, convention plugin, or tool
   configuration. This task is wired into the root `check` lifecycle.

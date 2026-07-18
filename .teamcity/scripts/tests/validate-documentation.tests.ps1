@@ -90,6 +90,35 @@ try {
 
     Write-Fixture "docs/standards/broken-link.md" ($validStandard + "`n[Missing](missing.md)`n")
     Assert-Fails { & $validator -RepositoryRoot $fixtureRoot } "Broken local Markdown link"
+    Remove-Item -LiteralPath (Join-Path $fixtureRoot "docs/standards/broken-link.md")
+
+    Write-Fixture "src/feature.kt" "class Feature"
+    Write-Fixture ".teamcity/documentation-coverage.json" @'
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "example-rule",
+      "sourcePaths": ["src/*"],
+      "documentationPaths": ["docs/standards/example.md"]
+    }
+  ]
+}
+'@
+    $coverageManifest = Join-Path $fixtureRoot ".teamcity/documentation-coverage.json"
+    Assert-Fails {
+        & $validator `
+            -RepositoryRoot $fixtureRoot `
+            -CoverageManifestPath $coverageManifest `
+            -ChangedPath @("src/feature.kt") `
+            -FailOnCoverageGap
+    } "example-rule"
+    & $validator `
+        -RepositoryRoot $fixtureRoot `
+        -CoverageManifestPath $coverageManifest `
+        -ChangedPath @("src/feature.kt", "docs/standards/example.md") `
+        -FailOnCoverageGap |
+        Out-Null
 
     Write-Host "validate-documentation tests passed"
 } finally {

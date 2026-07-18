@@ -68,10 +68,6 @@ object WaterMyPlantsCi : Pipeline({
 
         steps {
             step(PipelineScriptStep {
-                name = "Validate documentation coverage"
-                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\get-change-impact.ps1 -FailOnDocumentationGap"""
-            })
-            step(PipelineScriptStep {
                 name = "Verify change scope"
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1"""
             })

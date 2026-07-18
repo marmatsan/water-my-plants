@@ -10,10 +10,22 @@ $runnerOutputDirectory = Join-Path $reportDirectory "mcp-runners"
 $visualRunnerManifest = $null
 $metadataRunnerManifest = $null
 $visualSyncPlan = $null
+$impactFile = Join-Path $reportDirectory "change-impact.json"
+$isWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+$gradleWrapper = Join-Path $repositoryRoot $(if ($isWindows) { "gradlew.bat" } else { "gradlew" })
+$mavenWrapper = Join-Path $repositoryRoot $(if ($isWindows) { "mvnw.cmd" } else { "mvnw" })
+$npmExecutable = if ($isWindows) { "npm.cmd" } else { "npm" }
+$teamCityPom = Join-Path $repositoryRoot ".teamcity/pom.xml"
 Push-Location $repositoryRoot
 try {
-    $impact = & (Join-Path $PSScriptRoot "get-change-impact.ps1") -FailOnDocumentationGap -AsJson |
-        ConvertFrom-Json
+    & $gradleWrapper classifyFigmaChangeImpact --stacktrace
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+    if (-not (Test-Path -LiteralPath $impactFile)) {
+        throw "Missing Figma change-impact report: $impactFile"
+    }
+    $impact = Get-Content -LiteralPath $impactFile -Raw | ConvertFrom-Json
 
     $normalizedRepositoryRoot = [System.IO.Path]::GetFullPath($repositoryRoot).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
     $normalizedReportDirectory = [System.IO.Path]::GetFullPath($reportDirectory)
@@ -28,23 +40,23 @@ try {
     New-Item -ItemType Directory -Path $generatedConfigurationDirectory -Force | Out-Null
 
     if ($impact.scope -eq "full-verification") {
-        & .\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate
+        & $mavenWrapper -f $teamCityPom teamcity-configs:generate
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
 
-        & .\gradlew.bat generateFigmaDesignModel
+        & $gradleWrapper generateFigmaDesignModel
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
 
         Push-Location $toolsDirectory
         try {
-            & npm.cmd ci
+            & $npmExecutable ci
             if ($LASTEXITCODE -ne 0) {
                 exit $LASTEXITCODE
             }
-            & npm.cmd run build
+            & $npmExecutable run build
             if ($LASTEXITCODE -ne 0) {
                 exit $LASTEXITCODE
             }

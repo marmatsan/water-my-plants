@@ -12,6 +12,7 @@ Use this directory as the module documentation index:
 | `runbooks/mcp-chunk-transport.md` | Runbook | Build the MCP bundle, stage official payloads through PNG or chunk fallback, run targets, and write metadata. |
 | `runbooks/visual-sync-efficiency.md` | Runbook | Use visual plans, capability gates, checkpoints, and staging reuse to minimize safe MCP work. |
 | `reference/target-scopes.md` | Reference | Choose the smallest visual target and Figma section for a sync operation. |
+| `reference/change-impact-classification.md` | Reference | Define how changed repository paths select Figma verification scope and visual targets. |
 | `standards/dependency-version-naming.md` | Standard | Define the repository version key format enforced by CI and rendered in Figma. |
 | `runbooks/visual-preview.md` | Runbook | Iterate on Figma visual sync behavior with fixtures and sandbox sections without writing official metadata. |
 | `reference/visual-sync-contract.md` | Reference | Define the Figma visual contract used by the MCP sync, including catalog trees, connectors, layout, and locking. |

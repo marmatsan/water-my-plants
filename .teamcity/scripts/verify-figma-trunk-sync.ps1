@@ -4,6 +4,11 @@ param()
 $ErrorActionPreference = "Stop"
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "../..")).Path
 $scopeFile = Join-Path $repositoryRoot "build/reports/figma-sync/sync-scope.json"
+$gradleWrapper = if ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) {
+    Join-Path $repositoryRoot "gradlew.bat"
+} else {
+    Join-Path $repositoryRoot "gradlew"
+}
 Push-Location $repositoryRoot
 try {
     if (-not (Test-Path -LiteralPath $scopeFile)) {
@@ -26,7 +31,7 @@ try {
         throw "Missing official Figma design model artifact: $modelFile"
     }
 
-    & .\gradlew.bat checkFigmaTrunkSync
+    & $gradleWrapper checkFigmaTrunkSync
     exit $LASTEXITCODE
 } finally {
     Pop-Location
