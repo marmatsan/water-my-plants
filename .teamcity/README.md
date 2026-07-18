@@ -8,6 +8,8 @@ is documented in
 Public HTTPS access, Cloudflare policies, CLI service authentication, webhook
 validation, and CSRF recovery are documented in
 [`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md).
+Backup, off-host artifact retention, and isolated restore drills are documented
+in [`docs/runbooks/teamcity-backup-recovery.md`](../docs/runbooks/teamcity-backup-recovery.md).
 The Windows services that host this configuration are versioned in
 [`docs/ci/windows-runtime.yaml`](../docs/ci/windows-runtime.yaml).
 
@@ -75,6 +77,9 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
+- discovers and validates the Windows agent toolchain and Android SDK before
+  running repository verification, then exports the discovered SDK path only
+  to later steps in the same TeamCity build;
 - validates typed documentation and change coverage before scope classification: canonical
   placement, frontmatter, review dates, runbook and ADR sections, canonical
   sources, and local Markdown links are checked by
@@ -112,6 +117,8 @@ requests.
 The pipeline:
 
 - triggers after `CI` finishes successfully on `<default>`;
+- validates Git, Java, Node, npm, and the discovered Android SDK before model
+  preparation, with metadata verification using the same fail-fast preflight;
 - classifies the merged `main` revision before doing expensive work;
 - for a model-affecting revision, generates `.teamcity/target/generated-configs`
   once and shares it with the verification job;
@@ -185,6 +192,20 @@ allowReuse = false
 This prevents TeamCity from satisfying a branch or pull request pipeline with a
 previously successful job from another branch. The generated design model must
 belong to the same branch revision as the pipeline chain being validated.
+
+### Infrastructure Health
+
+`Infrastructure Health` is a daily, non-gating pipeline scheduled at 06:00 in
+the TeamCity server time zone. It validates the Windows agent toolchain, SDK,
+free disk space, the private TeamCity readiness endpoint, the public HTTPS
+route, and the GitHub App webhook boundary. It publishes machine-readable JSON
+under `build/reports/ci-health` and deliberately does not publish a GitHub
+commit status.
+
+This pipeline cannot report that the TeamCity server, its scheduler, or its
+only agent is completely unavailable because none of its steps would start.
+Use an external availability monitor for the public hostname and Cloudflare
+Tunnel when an independent outage signal is required.
 
 ### Queue And Cache Behaviour
 
@@ -347,6 +368,7 @@ Validate TeamCity settings before pushing:
 
 ```powershell
 .\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate
+pwsh -File .teamcity\scripts\tests\ci-infrastructure-health.tests.ps1
 ```
 
 Generated files are written to:
@@ -369,7 +391,11 @@ For this project, the generated pipeline should:
 - keep `Figma Sync` as a separate default-branch pipeline;
 - set the official Figma design model environment guard only on `Figma Sync`;
 - emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI`, with
-  `afterSuccessfulBuildOnly=true`.
+  `afterSuccessfulBuildOnly=true`;
+- emit a daily trigger and Windows-agent requirement for
+  `Infrastructure Health`;
+- run the agent-capability preflight before every Gradle or infrastructure
+  health operation.
 
 ## TeamCity CLI
 
@@ -404,6 +430,19 @@ require CSRF:
 ```powershell
 pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
 ```
+
+Prepare the MCP-operated handoff from the successful `Generate main design
+model` child run before opening any runner file:
+
+```powershell
+pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 -BuildId <job-run-id>
+```
+
+The wrapper validates TeamCity job identity, `main`, source-revision
+consistency across the artifact set, model hash, sync decision, and both runner
+manifests. It writes an ignored
+`figma-sync-handoff.json` with `dry-run`, `next`, checkpoint, and rerun commands;
+it does not mutate Figma.
 
 Bind the current checkout to the TeamCity project and default pipeline if the
 local `teamcity.toml` is missing:
@@ -483,6 +522,15 @@ directory when the installed patch version changes:
 env.JAVA_HOME=C\:\\Program Files\\Eclipse Adoptium\\jdk-21.0.11.10-hotspot
 env.GRADLE_USER_HOME=C\:\\TeamCity\\buildAgent\\.gradle
 ```
+
+Do not store a developer-specific Android SDK path in Kotlin DSL. The first
+step of every pipeline calls `test-agent-capabilities.ps1`, which checks
+`ANDROID_HOME`, `ANDROID_SDK_ROOT`, normal profile locations, and installed
+user SDK locations. After validating `build-tools` and `platforms`, it emits
+TeamCity `setParameter` messages for `env.ANDROID_HOME` and
+`env.ANDROID_SDK_ROOT`; subsequent steps therefore use the SDK discovered on
+the selected host. A newly provisioned Windows agent must still install the
+required toolchain before it can pass the preflight.
 
 `NT SERVICE\TCBuildAgent` needs `Modify` on its mutable directories. It also
 needs non-inherited `ReadAndExecute` on `C:\TeamCity` so Java
@@ -572,6 +620,12 @@ cleanup {
     }
 }
 ```
+
+An additional keep rule retains successful default-branch Figma Sync reports
+and generated TeamCity configuration artifacts for 30 days. This preserves the
+official model/runner evidence needed for assisted Figma publication without
+keeping all artifacts longer than the base seven-day policy. Off-host TeamCity
+backup remains a separate operation; cleanup retention is not a backup.
 
 The project also sets:
 

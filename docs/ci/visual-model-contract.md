@@ -60,13 +60,16 @@ service command line because it can contain the tunnel credential.
 
 ### Overview
 
-The overview contains two distinct journeys:
+The overview contains three distinct journeys:
 
 - Pull request integration: branch push, pull request, CI verification, GitHub
   check, merge gate, and merge to `main`.
 - Post-merge design documentation: successful CI on `main`, Figma Sync model
   generation and verification, the external operator and Codex/MCP write, and
   the verification rerun.
+- Infrastructure health: the daily TeamCity schedule, agent capability and
+  disk checks, HTTPS boundary probes, and the published `ci-health` report.
+  This is an internal scheduled signal, not an independent uptime monitor.
 
 Cloudflare appears as a simplified boundary in the overview. Its policies and
 authentication paths belong in `Infrastructure and Access`.
@@ -171,9 +174,9 @@ in a read session, then queues the complete `Figma Sync` pipeline with a fresh
 cookie-free session, Cloudflare's raw `cf-access-token`, and TeamCity Bearer
 authentication. This avoids forwarding Cloudflare's session cookie into
 TeamCity's CSRF check. The TeamCity UI remains the recovery interface. The
-current temporary transport mechanism used to stage the official artifact for
-MCP is represented as a technical annotation on the handoff connection, not as
-another domain artifact.
+repository-owned handoff downloads and validates the official artifact, then
+selects the next checkpoint unit without writing Figma. It is represented as a
+technical annotation on the handoff connection, not as another domain artifact.
 
 `TeamCity CI` participates in the pull request merge gate. `TeamCity Figma
 Sync` is a post-merge documentation status and must not be represented as a pull

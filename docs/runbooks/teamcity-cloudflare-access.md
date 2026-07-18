@@ -300,6 +300,14 @@ After configuration or recovery:
    pipeline and publish its repository check.
 6. Run the manual validation in
    [`../ci/external-topology-validation.md`](../ci/external-topology-validation.md).
+7. Run `Infrastructure Health` once and inspect
+   `build/reports/ci-health/infrastructure-health.json`. Its scheduled runs
+   validate the observable boundaries daily, but an external monitor is still
+   required to detect that TeamCity itself could not schedule the check.
+
+Server-state and artifact recovery are separate from access recovery. Follow
+[`teamcity-backup-recovery.md`](teamcity-backup-recovery.md) for backup capture
+and isolated restore drills.
 
 ## Secret Rotation
 
@@ -334,3 +342,4 @@ replacement is verified.
 - `.teamcity/settings.kts`
 - `docs/ci/external-topology.yaml`
 - `docs/ci/windows-runtime.yaml`
+- `docs/runbooks/teamcity-backup-recovery.md`
