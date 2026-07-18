@@ -21,8 +21,6 @@ The active adapter consists of:
 - `src/main/kotlin/.../WaterMyPlantsFigmaWriterProjectConfig.kt`, which owns
   Figma file identity, node ids, component properties, GitHub links, visual
   targets, and MCP namespaces as a typed Kotlin value;
-- `water-my-plants/figma-config.ts`, retained temporarily as the executable
-  parity oracle while the remaining writer implementation is migrated;
 - `water-my-plants/change-impact-policy.json`, which owns path classification
   for this repository layout.
 
@@ -67,19 +65,15 @@ portable content is present while `content.ci` is absent. Production source and
 KDoc outside `project-config` describe the host repository through adapter
 contracts rather than Water My Plants paths or identities.
 
-The preferred writer selection boundary is the `--project-config-json` input
+The writer selection boundary is the `--project-config-json` input
 of `figma-design-sync-build`. `WriteFigmaWriterProjectConfigTask` serializes the
 portable Kotlin model through `FigmaWriterProjectConfigJson` to
 `build/generated/figma-design-sync/writer-project-config.json`; the official
 Gradle task consumes that transient file automatically. The config declares
 its repository root and change-impact policy paths explicitly, so a published
-package does not assume the Water My Plants layout. `--project-config` remains
-available only as a transitional TypeScript compatibility input.
-
-The `test:project-config-parity` test generates the Kotlin JSON and compares
-every projected export with `water-my-plants/figma-config.ts`, including the
-catalog target model paths. A TypeScript config value cannot drift silently
-while both representations coexist.
+package does not assume the Water My Plants layout. The TypeScript build
+materializes an internal module from this JSON; there is no second editable
+Water My Plants configuration.
 
 After publication, repositories consume the engine through the versioned
 `com.marmatsan.figmaDesignSync` plugin and keep only their adapter in source.
@@ -129,10 +123,5 @@ From the repository root:
     :figma-design-sync:plugin:check `
     :figma-design-sync:project-config:check
 
-.\gradlew.bat writeFigmaWriterProjectConfig
-
-Push-Location repo\figma-design-sync\tools
-npm test
-npm run build
-Pop-Location
+.\gradlew.bat testFigmaDesignSyncTools buildFigmaDesignSyncTools
 ```

@@ -4,7 +4,7 @@ type: adr
 scope: repository
 owner: figma-design-sync
 status: accepted
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 365
 sources:
   - repo/figma-design-sync/build.gradle.kts
@@ -75,4 +75,6 @@ release authorization.
 
 ## Supersession
 
-None.
+The TypeScript project-configuration input is partially superseded by
+[ADR-0004](adr-0004-use-json-for-figma-writer-project-configuration.md). The
+Gradle plugin plus npm writer distribution decision remains active.

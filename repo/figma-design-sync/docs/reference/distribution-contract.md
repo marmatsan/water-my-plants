@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 180
 sources:
   - repo/figma-design-sync/gradle.properties
@@ -57,11 +57,11 @@ Its `figma-design-sync-build` executable accepts:
 
 | Argument | Required | Meaning |
 |----------|----------|---------|
-| `--project-config-json=PATH` | One project-config input | Schema-versioned JSON projection of the typed Kotlin writer configuration. This is the preferred input. |
-| `--project-config=PATH` | One project-config input | Transitional TypeScript module exporting the same repository configuration. |
+| `--project-config-json=PATH` | One project-config input | Schema-versioned JSON projection of the typed Kotlin writer configuration. |
 | `--output-dir=PATH` | No | Materialized tool workspace; defaults to the current directory. |
 
-Exactly one of `--project-config-json` or `--project-config` is required. The
+`FIGMA_DESIGN_SYNC_PROJECT_CONFIG` may provide the JSON path instead of the
+command-line argument; an explicit argument takes precedence. The
 portable `FigmaWriterProjectConfig` model and `FigmaWriterProjectConfigJson`
 adapter define JSON schema version `1`. Repository adapters own the model
 values; generated JSON is a transient build input rather than a reviewed

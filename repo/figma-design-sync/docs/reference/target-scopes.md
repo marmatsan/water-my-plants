@@ -4,10 +4,10 @@ type: reference
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
-  - repo/figma-design-sync/project-config/water-my-plants/figma-config.ts
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
 ---
 

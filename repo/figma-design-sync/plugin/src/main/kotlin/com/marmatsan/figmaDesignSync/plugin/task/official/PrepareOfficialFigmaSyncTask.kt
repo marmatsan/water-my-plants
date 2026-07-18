@@ -93,12 +93,12 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             }
 
             val tools = toolsDirectory.get().asFile
-            run(tools, npmExecutable(), "ci")
-            buildWriter(tools)
-
-            val runnerDirectory = runnerOutputDirectory.get().asFile
             val projectConfig = writerProjectConfigFile.orNull?.asFile
                 ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
+            run(tools, npmExecutable(), "ci")
+            buildWriter(tools, projectConfig)
+
+            val runnerDirectory = runnerOutputDirectory.get().asFile
             val writerScript = tools.resolve("sync-trunk-design-model.mcp.js")
             if (!writerScript.isFile) {
                 throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
@@ -187,12 +187,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         return FigmaSyncMetadataJson.read(node.sharedPluginData, namespace)
     }
 
-    private fun buildWriter(tools: File) {
-        val projectConfig = writerProjectConfigFile.orNull?.asFile
-        if (projectConfig == null) {
-            run(tools, npmExecutable(), "run", "build")
-            return
-        }
+    private fun buildWriter(tools: File, projectConfig: File) {
         run(
             tools,
             "node",

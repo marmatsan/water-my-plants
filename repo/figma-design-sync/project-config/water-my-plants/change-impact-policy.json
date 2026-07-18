@@ -64,7 +64,7 @@
     "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/visual/*",
     "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/visual/*",
     "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/visual/*",
-    "repo/figma-design-sync/project-config/water-my-plants/figma-config.ts"
+    "repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt"
   ],
   "figmaVisualTargetRules": [
     {
