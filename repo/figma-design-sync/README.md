@@ -32,12 +32,12 @@ Plugin API boundary:
 
 | Path | Role |
 |------|------|
-| `domain/` | Pure model and port definitions for versions, catalogs, modules, and module dependency edges. |
-| `data/` | File, Gradle, dependency-catalog, and Figma API adapters that implement domain ports. |
+| `domain/` | Pure model, port, and visual-planning definitions for versions, catalogs, modules, CI, and writer execution. |
+| `data/` | File, Gradle, dependency-catalog, JSON, MCP, and Figma API adapters that implement domain ports. |
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
 | `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
 | `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, credentials, and optional CI operations. |
-| `tools/` | TypeScript executed inside the Figma Plugin API runtime plus preview tooling and visual sync tests. |
+| `tools/` | Thin TypeScript Figma Plugin API boundary plus transitional preview tooling and adapter tests. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
 Dependency direction is intentional:
@@ -54,6 +54,12 @@ composition. `plugin` wires portable Gradle tasks to domain ports through
 `data`; `teamcity-adapter` owns the vendor-specific parser; `project-config`
 applies the plugin and selects one repository's concrete catalog, layout,
 Figma document, and CI adapter.
+
+Pure CI section planning is Kotlin-owned. `CiVisualPlanner` produces a portable
+plan, `CiVisualPlanJson` projects one requested target into the official runner,
+and TypeScript consumes that plan while interacting with Figma nodes. Kotlin
+planner sources participate in target-scoped writer fingerprints, so a CI-only
+planning change does not invalidate catalog or version targets.
 
 ## Inputs
 
