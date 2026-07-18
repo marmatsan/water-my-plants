@@ -61,7 +61,7 @@ The model is generated from repository source files, not from Figma:
 | Gradle build files | Module dependency edges and applied plugin usage. |
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
 | `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
-| `.teamcity/target/generated-configs` | Effective pipelines, jobs, triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
+| `.teamcity/target/generated-configs` | Effective pipelines, jobs, VCS, pipeline-finish and scheduled triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
 | `repo/figma-design-sync/change-impact-policy.json` | Path policy used to classify whether a change can affect the model or visual writer. |
 
 The default included-build sources are configured by the `figmaDesignSync`

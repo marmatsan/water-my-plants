@@ -95,6 +95,13 @@ class TeamCityGeneratedConfigurationReader {
                     afterSuccessfulBuildOnly = parameters[AFTER_SUCCESS_PARAMETER]?.toBooleanStrict()
                 )
 
+                SCHEDULING_TRIGGER_TYPE -> TeamCityTrigger(
+                    type = TeamCityTrigger.Type.Schedule,
+                    branchFilter = parameters[BRANCH_FILTER_PARAMETER],
+                    dependencyPipelineId = null,
+                    afterSuccessfulBuildOnly = null
+                )
+
                 else -> error("Unsupported TeamCity trigger type '$type'")
             }
         }
@@ -244,6 +251,7 @@ class TeamCityGeneratedConfigurationReader {
         const val TYPE_ATTRIBUTE = "type"
         const val VCS_TRIGGER_TYPE = "vcsTrigger"
         const val BUILD_DEPENDENCY_TRIGGER_TYPE = "buildDependencyTrigger"
+        const val SCHEDULING_TRIGGER_TYPE = "schedulingTrigger"
         const val BRANCH_FILTER_PARAMETER = "branchFilter"
         const val DEPENDS_ON_PARAMETER = "dependsOn"
         const val AFTER_SUCCESS_PARAMETER = "afterSuccessfulBuildOnly"

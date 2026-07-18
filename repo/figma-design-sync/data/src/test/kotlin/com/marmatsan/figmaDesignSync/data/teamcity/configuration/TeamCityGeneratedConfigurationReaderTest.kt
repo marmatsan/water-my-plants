@@ -58,6 +58,14 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
                       <param name="branchFilter" value="+:*" />
                     </parameters>
                   </build-trigger>
+                  <build-trigger id="TRIGGER_2" type="schedulingTrigger">
+                    <parameters>
+                      <param name="branchFilter" value="+:&lt;default&gt;" />
+                      <param name="hour" value="6" />
+                      <param name="minute" value="0" />
+                      <param name="schedulingPolicy" value="daily" />
+                    </parameters>
+                  </build-trigger>
                 </build-triggers>
               </settings>
             </build-type>
@@ -72,9 +80,15 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         val actualPipeline = configuration.pipelines.single()
         actualPipeline.id shouldBe "Root_Ci"
         actualPipeline.name shouldBe "CI"
-        actualPipeline.triggers.single() shouldBe TeamCityTrigger(
+        actualPipeline.triggers[0] shouldBe TeamCityTrigger(
             type = TeamCityTrigger.Type.Vcs,
             branchFilter = "+:*",
+            dependencyPipelineId = null,
+            afterSuccessfulBuildOnly = null
+        )
+        actualPipeline.triggers[1] shouldBe TeamCityTrigger(
+            type = TeamCityTrigger.Type.Schedule,
+            branchFilter = "+:<default>",
             dependencyPipelineId = null,
             afterSuccessfulBuildOnly = null
         )
