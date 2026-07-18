@@ -57,6 +57,19 @@ Feature: Figma design model generation
     And the written design model contains a model hash
 
   @gradle @integration
+  Scenario: generateFigmaDesignModel writes a portable model without a CI adapter
+    Given a temporary Gradle project exists
+    And the temporary Gradle project has repository model files
+    And the temporary Gradle project has no CI documentation inputs
+    And the temporary Gradle project applies the figmaDesignSync plugin without CI documentation
+    And the temporary Gradle project is a git repository
+    And official Figma Sync model generation is authorized
+    When generateFigmaDesignModel runs in the temporary project
+    Then the design model report is written in the temporary project
+    And the written design model contains portable content without CI
+    And the written design model contains a model hash
+
+  @gradle @integration
   Scenario: generateFigmaDesignModel rejects unofficial model generation
     Given a temporary Gradle project exists
     And the temporary Gradle project has repository model files
