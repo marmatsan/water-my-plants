@@ -36,54 +36,16 @@ class GradleTaskSteps : En {
         }
 
         Given("the temporary Gradle project applies the figmaDesignSync plugin") {
-            projectDir.resolve("build.gradle.kts").writeText(
-                """
-                import com.marmatsan.figmaDesignSync.data.dependencies.catalog.EmptyDependencyCatalogProvider
+            projectDir.writeBuildFile(ciDocumentationEnabled = true)
+        }
 
-                plugins {
-                    id("com.marmatsan.figmaDesignSync")
-                }
+        Given("the temporary Gradle project applies the figmaDesignSync plugin without CI documentation") {
+            projectDir.writeBuildFile(ciDocumentationEnabled = false)
+        }
 
-                figmaDesignSync {
-                    primaryCatalogModelName.set("fixture")
-                    dependencyCatalogProviderClassName.set(EmptyDependencyCatalogProvider::class.java.name)
-                    versionsFile.set(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
-                    ciDocumentationEnabled.set(true)
-                    ciExternalTopologyFile.set(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
-                    ciWindowsRuntimeFile.set(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
-                    teamCityGeneratedConfigurationDirectory.set(
-                        layout.projectDirectory.dir(".teamcity/target/generated-configs")
-                    )
-
-                    includedBuilds.register("dependency-catalog") {
-                        modelName.set("dependencyCatalog")
-                        settingsFile.set(
-                            layout.projectDirectory.file("repo/dependency-catalog/settings.gradle.kts")
-                        )
-                        rootDirectory.set(layout.projectDirectory.dir("repo/dependency-catalog"))
-                        modulePathPrefix.set(":dependency-catalog")
-                        publishesCatalogs.set(false)
-                    }
-                    includedBuilds.register("figma-design-sync") {
-                        modelName.set("figmaDesignSync")
-                        settingsFile.set(
-                            layout.projectDirectory.file("repo/figma-design-sync/settings.gradle.kts")
-                        )
-                        rootDirectory.set(layout.projectDirectory.dir("repo/figma-design-sync"))
-                        modulePathPrefix.set(":figma-design-sync")
-                    }
-                    includedBuilds.register("gradle-plugins") {
-                        modelName.set("gradlePlugins")
-                        settingsFile.set(
-                            layout.projectDirectory.file("repo/gradle-plugins/settings.gradle.kts")
-                        )
-                        rootDirectory.set(layout.projectDirectory.dir("repo/gradle-plugins"))
-                        modulePathPrefix.set(":gradle-plugins")
-                        publishesConventionPlugins.set(true)
-                    }
-                }
-                """.trimIndent()
-            )
+        Given("the temporary Gradle project has no CI documentation inputs") {
+            projectDir.resolve("docs/ci").deleteRecursively()
+            projectDir.resolve(".teamcity").deleteRecursively()
         }
 
         Given("the temporary Gradle project is a git repository") {
@@ -129,6 +91,19 @@ class GradleTaskSteps : En {
                 "moduleDependencies",
                 "ci"
             )
+        }
+
+        Then("the written design model contains portable content without CI") {
+            val contentKeys = writtenDesignModel()["content"]!!.jsonObject.keys
+
+            contentKeys shouldContainAll listOf(
+                "versions",
+                "versionSections",
+                "catalogs",
+                "modules",
+                "moduleDependencies"
+            )
+            contentKeys.contains("ci") shouldBe false
         }
 
         Then("the written design model contains repository infrastructure modules") {
@@ -196,6 +171,65 @@ class GradleTaskSteps : En {
                 remove("FIGMA_DESIGN_SYNC_BRANCH")
             }
         }
+
+    private fun File.writeBuildFile(ciDocumentationEnabled: Boolean) {
+        val ciDocumentationConfiguration = if (ciDocumentationEnabled) {
+            """
+            ciDocumentationEnabled.set(true)
+            ciExternalTopologyFile.set(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
+            ciWindowsRuntimeFile.set(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
+            teamCityGeneratedConfigurationDirectory.set(
+                layout.projectDirectory.dir(".teamcity/target/generated-configs")
+            )
+            """.trimIndent()
+        } else {
+            ""
+        }
+
+        resolve("build.gradle.kts").writeText(
+            """
+            import com.marmatsan.figmaDesignSync.data.dependencies.catalog.EmptyDependencyCatalogProvider
+
+            plugins {
+                id("com.marmatsan.figmaDesignSync")
+            }
+
+            figmaDesignSync {
+                primaryCatalogModelName.set("fixture")
+                dependencyCatalogProviderClassName.set(EmptyDependencyCatalogProvider::class.java.name)
+                versionsFile.set(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
+                $ciDocumentationConfiguration
+
+                includedBuilds.register("dependency-catalog") {
+                    modelName.set("dependencyCatalog")
+                    settingsFile.set(
+                        layout.projectDirectory.file("repo/dependency-catalog/settings.gradle.kts")
+                    )
+                    rootDirectory.set(layout.projectDirectory.dir("repo/dependency-catalog"))
+                    modulePathPrefix.set(":dependency-catalog")
+                    publishesCatalogs.set(false)
+                }
+                includedBuilds.register("figma-design-sync") {
+                    modelName.set("figmaDesignSync")
+                    settingsFile.set(
+                        layout.projectDirectory.file("repo/figma-design-sync/settings.gradle.kts")
+                    )
+                    rootDirectory.set(layout.projectDirectory.dir("repo/figma-design-sync"))
+                    modulePathPrefix.set(":figma-design-sync")
+                }
+                includedBuilds.register("gradle-plugins") {
+                    modelName.set("gradlePlugins")
+                    settingsFile.set(
+                        layout.projectDirectory.file("repo/gradle-plugins/settings.gradle.kts")
+                    )
+                    rootDirectory.set(layout.projectDirectory.dir("repo/gradle-plugins"))
+                    modulePathPrefix.set(":gradle-plugins")
+                    publishesConventionPlugins.set(true)
+                }
+            }
+            """.trimIndent()
+        )
+    }
 
     private fun File.writeRepositoryModelFiles() {
         resolve("settings.gradle.kts").writeText(

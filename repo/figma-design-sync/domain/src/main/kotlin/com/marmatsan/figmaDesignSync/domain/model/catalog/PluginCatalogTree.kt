@@ -3,9 +3,9 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
 /**
  * Root container for the plugin catalog tree rendered into Figma.
  *
- * Plugin trees can come from configured included-build settings files,
- * `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt`,
- * custom convention plugins, and plugins applied by project modules.
+ * Plugin trees can come from the dependency catalog provider selected by the
+ * host project, configured included-build settings files, custom convention
+ * plugins, and plugins applied by project modules.
  *
  * Example:
  * ```

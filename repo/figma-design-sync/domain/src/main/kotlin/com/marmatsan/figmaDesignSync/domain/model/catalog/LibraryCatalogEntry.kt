@@ -3,10 +3,9 @@ package com.marmatsan.figmaDesignSync.domain.model.catalog
 /**
  * Domain entry that can be rendered under a library catalog node in Figma.
  *
- * Entries are produced from catalog sources such as
- * `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt`
- * and configured included-build settings files, then serialized into
- * `design-model.json`.
+ * Entries are produced from the dependency catalog provider selected by the
+ * host project and from configured included-build settings files, then
+ * serialized into `design-model.json`.
  *
  * @sample com.marmatsan.figmaDesignSync.domain.samples.DomainKDocSamples.libraryCatalogEntrySample
  */
