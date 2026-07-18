@@ -75,9 +75,11 @@ TeamCity is not required by the portable Kotlin plugin or writer. Water My
 Plants supplies its TeamCity command through the Kotlin project-config plugin
 and invokes the portable Gradle tasks from `.teamcity/settings.kts`.
 
-The PowerShell files under `tools/teamcity/` are local Windows adapters for
-secret retrieval, TeamCity CLI access, artifact download, and reruns. Neither
-the Kotlin modules nor the TypeScript writer imports or invokes them.
+The Kotlin `prepareTeamCityFigmaSyncHandoff` task owns TeamCity artifact
+inspection, download, contract validation, and executor preparation. The
+remaining PowerShell file under `tools/teamcity/` is temporarily limited to
+SecretManagement-backed Cloudflare authentication and reruns; neither the
+portable Kotlin modules nor the TypeScript writer imports or invokes it.
 
 ## Verification
 

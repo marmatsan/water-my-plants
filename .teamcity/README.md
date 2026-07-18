@@ -441,10 +441,11 @@ Prepare the MCP-operated handoff from the successful `Generate main design
 model` child run before opening any runner file:
 
 ```powershell
-pwsh -File tools/teamcity/prepare-figma-sync-handoff.ps1 -BuildId <job-run-id>
+.\gradlew.bat prepareTeamCityFigmaSyncHandoff `
+    -PfigmaTeamCityBuildId=<job-run-id>
 ```
 
-The wrapper validates TeamCity job identity, `main`, source-revision
+The Kotlin task validates TeamCity job identity, `main`, source-revision
 consistency across the artifact set, model hash, sync decision, and both runner
 manifests. It writes an ignored
 `figma-sync-handoff.json` with `dry-run`, `next`, checkpoint, and rerun commands;

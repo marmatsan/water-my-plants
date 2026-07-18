@@ -5,6 +5,10 @@ configuration and the portable `figma-design-sync` CI model. It owns every
 TeamCity YAML/XML parsing rule required to populate pipelines, jobs, triggers,
 artifacts, published checks, dependencies, and VCS roots.
 
+It also exposes `TeamCityCliClient`, the typed CLI boundary used by
+project-config operational tasks to inspect and download successful TeamCity
+artifact sets without PowerShell orchestration.
+
 The public entry point is `TeamCityCiConfigurationProvider`. A project selects
 that class through `figmaDesignSync.ciConfigurationProviderClassName`, supplies
 the generated configuration directory, and chooses the stable JSON key used

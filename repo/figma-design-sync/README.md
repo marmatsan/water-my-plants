@@ -136,6 +136,7 @@ Task responsibilities:
 | `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
 | `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
+| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, builds the executor, and writes `figma-sync-handoff.json`. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |

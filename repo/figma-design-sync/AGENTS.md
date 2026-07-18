@@ -129,6 +129,9 @@ used by CI.
   plugin data.
 - `validateOfficialFigmaArtifactSet`: validates the downloaded main model,
   scope, plan, and runner manifests before MCP-operated publication.
+- `prepareTeamCityFigmaSyncHandoff`: Water My Plants project adapter that
+  prepares a validated local handoff from a TeamCity build id or existing
+  artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it
   locally for diagnosis, but CI is the source of truth before merging into
   `main`.

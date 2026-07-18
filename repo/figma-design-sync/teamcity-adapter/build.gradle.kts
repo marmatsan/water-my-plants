@@ -17,6 +17,7 @@ tasks.withType<Test> {
 dependencies {
     implementation(projects.domain)
     implementation(projects.data)
+    implementation(libs.org.jetbrains.kotlinx.serialization.json)
     implementation(libs.org.snakeyaml.engine)
 
     testImplementation(libs.io.kotest.runner.junit5)
