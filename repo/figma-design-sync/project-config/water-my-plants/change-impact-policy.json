@@ -17,7 +17,12 @@
     "repo/figma-design-sync/tools/scripts/write-mcp-runner.ts",
     "repo/figma-design-sync/tools/scripts/writer-scope-fingerprints.ts",
     "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts",
-    "repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/writer/*",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/port/writer/*",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/*",
+    "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/hash/*",
+    "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/CanonicalJson.kt",
+    "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/*",
     "repo/figma-design-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts",
     "repo/figma-design-sync/tools/tests/*"
   ],

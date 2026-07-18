@@ -4,6 +4,8 @@ import com.marmatsan.figmaDesignSync.domain.model.impact.FigmaChangeImpact
 import com.marmatsan.figmaDesignSync.domain.model.impact.FigmaImpact
 import com.marmatsan.figmaDesignSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDesignSync.domain.model.sync.OfficialFigmaSyncScope
+import com.marmatsan.figmaDesignSync.domain.model.writer.RunnerManifest
+import com.marmatsan.figmaDesignSync.data.json.writer.RunnerManifestJson
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
@@ -13,7 +15,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -65,55 +66,8 @@ class OfficialFigmaSyncScopeJson {
     }
 
     fun readRunnerManifests(rootPath: String): List<RunnerManifest> {
-        val root = Path.of(rootPath)
-        if (!Files.isDirectory(root)) return emptyList()
-        return Files.walk(root).use { paths ->
-            paths.filter { path -> path.isRegularFile() && path.fileName.toString() == MANIFEST_FILE_NAME }
-                .sorted()
-                .map { path ->
-                    val source = readObject(path, "MCP runner manifest")
-                    RunnerManifest(
-                        path = path.toAbsolutePath().normalize().toString(),
-                        fullVisualSync = source.requiredBoolean("fullVisualSync"),
-                        writeMetadata = source.requiredBoolean("writeMetadata"),
-                        modelHash = source.requiredString("modelHash"),
-                        writerHash = source.requiredString("writerHash"),
-                        transportHash = source.requiredString("transportHash"),
-                        targetFingerprints = source.requiredStringMap("targetFingerprints"),
-                        writerScopeFingerprints = source.requiredStringMap("writerScopeFingerprints"),
-                        writerScopeFingerprintSchemaVersion = source.requiredInt("writerScopeFingerprintSchemaVersion"),
-                        manifestHash = source.requiredString("manifestHash")
-                    )
-                }
-                .toList()
-        }
+        return RunnerManifestJson().readAll(rootPath)
     }
-
-    fun readVisualSyncPlan(sourcePath: String): VisualSyncPlan {
-        val source = readObject(Path.of(sourcePath), "visual sync plan")
-        return VisualSyncPlan(
-            decision = source.requiredString("decision"),
-            planHash = source.requiredString("planHash")
-        )
-    }
-
-    data class RunnerManifest(
-        val path: String,
-        val fullVisualSync: Boolean,
-        val writeMetadata: Boolean,
-        val modelHash: String,
-        val writerHash: String,
-        val transportHash: String,
-        val targetFingerprints: Map<String, String>,
-        val writerScopeFingerprints: Map<String, String>,
-        val writerScopeFingerprintSchemaVersion: Int,
-        val manifestHash: String
-    )
-
-    data class VisualSyncPlan(
-        val decision: String,
-        val planHash: String
-    )
 
     private fun OfficialFigmaSyncScope.toJson() = JsonObject(
         linkedMapOf(
@@ -149,23 +103,11 @@ class OfficialFigmaSyncScopeJson {
     private fun JsonObject.optionalString(name: String): String? =
         this[name]?.takeUnless { it is JsonNull }?.jsonPrimitive?.content
 
-    private fun JsonObject.requiredBoolean(name: String): Boolean =
-        this[name]?.jsonPrimitive?.boolean
-            ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
-
-    private fun JsonObject.requiredInt(name: String): Int =
-        this[name]?.jsonPrimitive?.int
-            ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
-
     private fun JsonObject.optionalInt(name: String): Int? =
         this[name]?.takeUnless { it is JsonNull }?.jsonPrimitive?.int
 
     private fun JsonObject.requiredStringList(name: String): List<String> =
         this[name]?.jsonArray?.map { it.jsonPrimitive.content }
-            ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
-
-    private fun JsonObject.requiredStringMap(name: String): Map<String, String> =
-        this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
     private fun JsonObject.optionalStringMap(name: String): Map<String, String>? =
@@ -190,7 +132,6 @@ class OfficialFigmaSyncScopeJson {
     } ?: JsonNull
 
     private companion object {
-        const val MANIFEST_FILE_NAME = "manifest.json"
         const val UTF8_BOM = "\uFEFF"
 
         val prettyJson = Json {

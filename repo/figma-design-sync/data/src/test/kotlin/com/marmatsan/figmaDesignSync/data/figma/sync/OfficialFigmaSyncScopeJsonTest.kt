@@ -76,6 +76,7 @@ private fun manifest(
       "targetFingerprints": {"versions": "target-hash"},
       "writerScopeFingerprints": {"versions": "scope-hash"},
       "writerScopeFingerprintSchemaVersion": 1,
+      "executionScopes": {"99-run-target.mcp.js": "versions"},
       "manifestHash": "$hash"
     }
     """.trimIndent()

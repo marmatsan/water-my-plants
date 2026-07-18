@@ -1,0 +1,73 @@
+package com.marmatsan.figmaDesignSync.data.fingerprint
+
+import com.marmatsan.figmaDesignSync.data.hash.Sha256Hash
+import com.marmatsan.figmaDesignSync.data.json.CanonicalJson
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+
+/** Computes model hashes for visual targets and atomic catalog execution scopes. */
+class FigmaTargetFingerprintCalculator {
+    fun create(
+        designModel: JsonObject,
+        visualTargets: List<String>,
+        catalogTargets: List<String>
+    ): Map<String, String> = buildMap {
+        visualTargets.forEach { target ->
+            put(target, hash(modelSlice(designModel, target, catalogTargets)))
+            if (target !in catalogTargets) return@forEach
+
+            val nodes = catalogNodes(designModel, target)
+            val rootKey = if (target.substringAfter('.') == "libraries") "group" else "id"
+            val roots = nodes.mapNotNull { node ->
+                node.jsonObject[rootKey]?.jsonPrimitive?.contentOrNull
+            }.distinct()
+            roots.forEach { root ->
+                put(
+                    "$target.$root",
+                    hash(JsonArray(nodes.filter { node -> node.jsonObject[rootKey]?.jsonPrimitive?.content == root }))
+                )
+            }
+            put("$target.cleanup", hash(buildJsonObject { put("roots", JsonArray(roots.map(::JsonPrimitive))) }))
+        }
+    }
+
+    private fun modelSlice(
+        designModel: JsonObject,
+        target: String,
+        catalogTargets: List<String>
+    ): JsonElement {
+        val content = designModel["content"]?.jsonObject
+        return when {
+            target == "preflight" -> content ?: JsonNull
+            target == "headers" -> buildJsonObject { put("target", target) }
+            target == "versions" -> buildJsonObject {
+                content?.get("versions")?.let { put("versions", it) }
+                content?.get("versionSections")?.let { put("versionSections", it) }
+            }
+            target.startsWith("ci.") -> content?.get("ci") ?: JsonNull
+            target in catalogTargets -> catalogNodes(designModel, target)
+            else -> JsonNull
+        }
+    }
+
+    private fun catalogNodes(designModel: JsonObject, target: String): JsonArray {
+        val catalogName = target.substringBefore('.')
+        val treeName = target.substringAfter('.')
+        return designModel["content"]?.jsonObject
+            ?.get("catalogs")?.jsonObject
+            ?.get(catalogName)?.jsonObject
+            ?.get(treeName)?.jsonArray
+            ?: JsonArray(emptyList())
+    }
+
+    private fun hash(value: JsonElement): String = Sha256Hash.of(CanonicalJson.stringify(value))
+}
