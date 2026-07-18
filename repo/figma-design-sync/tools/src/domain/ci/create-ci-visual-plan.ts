@@ -81,6 +81,7 @@ const WINDOWS_RUNTIME_RUNBOOK_SOURCE = "docs/runbooks/teamcity-cloudflare-access
 const VISUAL_CONTRACT_SOURCE = "docs/ci/visual-model-contract.md";
 const BRANCH_PROTECTION_SOURCE = "docs/ci/main-branch-protection.md";
 const OFFICIAL_SYNC_SOURCE = "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md";
+const OFFICIAL_DESIGN_MODEL_PATH = "build/reports/figma-sync/design-model.json";
 
 export function createCiVisualPlan(designModel: DesignModel): CiVisualPlan {
   const ci = requireCiContent(designModel);
@@ -202,12 +203,12 @@ function createPostMergeSection(ci, figmaPipeline): CiVisualSection {
   const codex = externalById.get("codex-mcp-client");
   const figmaDocument = externalById.get("figma-design-document");
   const artifactJob = figmaPipeline.jobs.find((job) =>
-    job.artifacts?.some((artifact) => artifact.path.endsWith("design-model.json"))
+    job.artifacts?.some((artifact) => artifactPathContains(artifact.path, OFFICIAL_DESIGN_MODEL_PATH))
   );
   const checkJob = artifactJob
     ? figmaPipeline.jobs.find((job) => job.dependencies?.some((dependency) =>
       dependency.jobId === artifactJob.id &&
-      dependency.artifactPaths?.some((path) => path.endsWith("design-model.json"))
+      dependency.artifactPaths?.some((path) => artifactPathContains(path, OFFICIAL_DESIGN_MODEL_PATH))
     ))
     : undefined;
   const remainingJobs = figmaPipeline.jobs.filter((job) =>
@@ -385,6 +386,22 @@ function connection(id, source, target, label): CiVisualConnection {
 
 function publishedChecks(pipeline): string[] {
   return pipeline.jobs.flatMap((job) => job.publishedChecks || []).map((check) => check.name);
+}
+
+export function artifactPathContains(publishedPath: string, requiredFile: string): boolean {
+  const normalizedPublishedPath = normalizeArtifactPath(publishedPath);
+  const normalizedRequiredFile = normalizeArtifactPath(requiredFile);
+  return normalizedPublishedPath === normalizedRequiredFile ||
+    normalizedRequiredFile.startsWith(`${normalizedPublishedPath}/`);
+}
+
+function normalizeArtifactPath(path: string): string {
+  return path
+    .split("=>", 1)[0]
+    .trim()
+    .replaceAll("\\", "/")
+    .replace(/\/(?:\*\*?|\*\.\*)$/, "")
+    .replace(/\/$/, "");
 }
 
 function requirePipeline(teamCity, name) {

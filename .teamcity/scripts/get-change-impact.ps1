@@ -78,9 +78,58 @@ foreach ($rule in @($manifest.rules)) {
 $documentationOnly = $changedPaths.Count -gt 0 -and @(
     $changedPaths | Where-Object { -not (Test-PathMatchesAny $_ @($manifest.documentationOnlyPaths)) }
 ).Count -eq 0
+$transportOnly = -not $documentationOnly -and $changedPaths.Count -gt 0 -and @(
+    $changedPaths | Where-Object {
+        -not (Test-PathMatchesAny $_ @($manifest.documentationOnlyPaths)) -and
+        -not (Test-PathMatchesAny $_ @($manifest.figmaTransportOnlyPaths))
+    }
+).Count -eq 0
+
+$modelContentChanged = @(
+    $changedPaths | Where-Object { Test-PathMatchesAny $_ @($manifest.figmaModelContentPaths) }
+).Count -gt 0
+$visualWriterPaths = @(
+    $changedPaths | Where-Object { Test-PathMatchesAny $_ @($manifest.figmaVisualWriterPaths) }
+)
+$visualWriterChanged = $visualWriterPaths.Count -gt 0
+$affectedVisualTargets = @()
+if ($visualWriterChanged) {
+    foreach ($rule in @($manifest.figmaVisualTargetRules)) {
+        if (@($visualWriterPaths | Where-Object { Test-PathMatchesAny $_ @($rule.paths) }).Count -gt 0) {
+            $affectedVisualTargets += @($rule.targets)
+        }
+    }
+    $unmappedVisualPaths = @($visualWriterPaths | Where-Object {
+        $path = $_
+        @($manifest.figmaVisualTargetRules | Where-Object { Test-PathMatchesAny $path @($_.paths) }).Count -eq 0
+    })
+    if ($unmappedVisualPaths.Count -gt 0) {
+        $affectedVisualTargets = @("all")
+    }
+}
+
+$figmaImpact = if ($documentationOnly) {
+    "documentation-only"
+} elseif ($transportOnly) {
+    "transport-only"
+} elseif ($modelContentChanged) {
+    "model-content"
+} elseif ($visualWriterChanged) {
+    "visual-targets"
+} else {
+    "unknown"
+}
 
 $result = [PSCustomObject]@{
-    scope = if ($documentationOnly) { "documentation-only" } else { "full-verification" }
+    scope = if ($documentationOnly) {
+        "documentation-only"
+    } elseif ($transportOnly) {
+        "transport-only"
+    } else {
+        "full-verification"
+    }
+    figmaImpact = $figmaImpact
+    affectedVisualTargets = @($affectedVisualTargets | Select-Object -Unique)
     comparisonBase = $changeSet.baseRevision
     changedPaths = $changedPaths
     affectedDocumentationRules = $affectedRules

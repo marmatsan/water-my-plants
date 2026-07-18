@@ -13,6 +13,7 @@ fine-grained runbooks:
 |---------|------------|
 | [official-artifact-visual-sync.md](official-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
 | [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging official payloads through PNG or chunk fallback, running targets, and writing metadata. |
+| [visual-sync-efficiency.md](visual-sync-efficiency.md) | Reading the visual plan, probing MCP capabilities, and resuming checkpointed execution without repeating completed work. |
 | [target-scopes.md](target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
 | [visual-sync-contract.md](visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
 | [troubleshooting.md](troubleshooting.md) | Diagnosing failed or visually incorrect sync runs. |
@@ -64,19 +65,23 @@ intentionally non-authoritative and must not write official metadata.
 ## Official Execution Path
 
 1. Let TeamCity run `Figma Sync` on `<default>` / `main`.
-2. Download `Figma Sync > Generate main design model >
-   build/reports/figma-sync/design-model.json`.
+2. Download the `build/reports/figma-sync` artifact from `Figma Sync > Generate
+   main design model`. Keep `design-model.json`, `visual-sync-plan.json`, and
+   both generated runner directories together.
 3. Validate the artifact with
    [official-artifact-visual-sync.md](official-artifact-visual-sync.md).
-4. Build the MCP bundle from code compatible with the artifact.
+4. Use the generated runner whose manifest identity matches the official
+   artifact. Rebuild only for branch-local writer diagnosis; a rebuilt runner
+   has a different `writerHash` and requires a full visual plan.
 5. Stage the official model and generated MCP script through the PNG payload
    transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
-6. Generate the complete official visual runner without specifying a target,
-   then execute every generated MCP file in lexical order. The sequence runs
-   `preflight` and every visual target as bounded calls in the order defined by
-   [target-scopes.md](target-scopes.md). Catalog targets run root by root and
-   finish with cleanup-only calls. Every call uses `writeMetadata=false`.
+6. Follow `visual-sync-plan.json`. A `full` plan executes every generated MCP
+   file; a `partial` plan executes `preflight` plus its listed scopes; `none`
+   skips visual and metadata writes. Within the selected plan, execute files in
+   lexical order and checkpoint each result. Catalog targets remain root by
+   root and finish with cleanup-only calls. Every visual call uses
+   `writeMetadata=false`.
 7. Check every managed Figma section against
    [visual-sync-contract.md](visual-sync-contract.md).
 8. After all visual targets are correct, run only the `metadata` target with
@@ -95,10 +100,11 @@ still visually stale.
 
 A successful standalone `Check Figma trunk sync` does not change the result of
 an earlier failed aggregate `Figma Sync` run. The complete pipeline must be
-rerun after the MCP write. If its generated artifact has the same `gitSha` and
-`modelHash` already stored in Figma, do not repeat the visual write. If either
-value changes, treat the new artifact as a new synchronization input and resume
-the visual flow before writing metadata again.
+rerun after the MCP write. Visual staleness is determined by `modelHash`,
+`writerHash`, and target fingerprints. `gitSha` identifies the official
+artifact and checkpoint but does not invalidate unchanged visuals by itself.
+Follow the generated plan and fail closed to a full visual run when its identity
+or previous Figma metadata cannot be validated.
 
 ## Failure Recovery
 
@@ -109,8 +115,9 @@ When a visual target fails:
   sync code used by TeamCity.
 - Regenerate the official TeamCity artifact when model content changes.
 - Use `--allow-partial=true` only to diagnose or verify the focused repair.
-- Rerun the complete visual target set before writing metadata; partial success
-  does not complete an official synchronization.
+- Complete every scope selected by the new TeamCity visual plan before writing
+  metadata. A writer change selects the complete target set; ad hoc partial
+  success does not complete an official synchronization.
 
 Branch-local visual iteration with an already-official artifact is allowed only
 for visual representation changes. The rules are in

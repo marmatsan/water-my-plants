@@ -32,6 +32,9 @@ export async function syncFigmaDesignModel(
   if (shouldWriteMetadata && requestedTargets.size > 1) {
     throw new Error("Figma sync metadata must run alone after the complete visual sync.");
   }
+  if (shouldWriteMetadata && !options.executionMetadata) {
+    throw new Error("Figma sync metadata requires writerHash, transportHash, and target fingerprints.");
+  }
   const completedTargets: SyncTargetName[] = [];
   const skippedTargets = ALL_SYNC_TARGETS.filter((target) => !requestedTargets.has(target));
   const visualTargets = [...requestedTargets].filter(
@@ -86,7 +89,7 @@ export async function syncFigmaDesignModel(
   completedTargets.push(...ciTargets);
 
   const metadataSyncResult = shouldWriteMetadata
-    ? await dependencies.metadataSyncGateway.writeMetadata(designModel)
+    ? await dependencies.metadataSyncGateway.writeMetadata(designModel, options.executionMetadata)
     : emptyMetadataSyncResult();
   if (shouldWriteMetadata) {
     completedTargets.push("metadata");

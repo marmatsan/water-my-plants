@@ -3,8 +3,10 @@
 ## Purpose
 
 Use this runbook to understand the ordered visual targets in the Figma model.
-An official integration always synchronizes the complete visual target set.
-Granular targets are reserved for supervised diagnosis and repair.
+TeamCity always generates the complete runner. The official visual plan then
+requires either all targets (`full`), only changed fingerprints plus preflight
+(`partial`), or no write (`none`). Ad hoc granular targets remain reserved for
+supervised diagnosis and repair.
 
 ## Included Builds
 
@@ -46,9 +48,10 @@ CI documentation visual targets:
 | `ci.windowsRuntime` | `docs/ci/windows-runtime.yaml` | `Windows Service Runtime` inside page `63153:2876` |
 
 The five targets share the parent section `Continuous Integration and Design
-Documentation`. A diagnostic target reuses the parent and only replaces nodes
-and connectors managed by the requested child section, but it does not complete
-an official integration.
+Documentation`. Both a generated partial plan and a diagnostic target reuse the
+parent and only replace nodes and connectors managed by the requested child
+section. Only the TeamCity-generated plan can authorize that subset as an
+official integration.
 
 ## Execution Order
 
@@ -61,9 +64,9 @@ targets are expanded into one file per declared root plus a final cleanup file:
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
 ```
 
-Do not run `metadata` until that complete visual execution has succeeded and
-all affected sections have been checked. Then generate a separate metadata
-runner.
+Apply the accompanying `visual-sync-plan.json` to that complete runner. Do not
+run `metadata` until every scope selected by the plan has succeeded and all
+affected sections have been checked. Then use the separate metadata runner.
 
 For supervised diagnosis only, an official-artifact runner may select one
 target by explicitly acknowledging that it is partial:
@@ -84,8 +87,9 @@ Do not reject a runner because `preflight` appears alongside the visual target.
 Generate `--target=preflight --allow-partial=true` only when no visual mutation
 is intended.
 
-If the preflight fails, visual targets are not executed. A partial preflight or
-repair can diagnose the issue, but the complete runner must pass afterward.
+If the preflight fails, visual targets are not executed. An ad hoc partial
+repair can diagnose the issue, but afterward the TeamCity-generated plan must
+complete. A writer change produces a `full` plan automatically.
 
 | Order | Target | Scope | Typical failure | Quick check |
 |-------|--------|-------|-----------------|-------------|
@@ -102,7 +106,7 @@ repair can diagnose the issue, but the complete runner must pass afterward.
 | 10 | `figmaDesignSync.plugins` | `repo/figma-design-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
 | 11 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
 | 12 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job or published check missing from Figma | Nodes and summarized steps match `content.ci.teamCity`. |
-| 13 | `ci.postMergeDesignDocumentation` | Official model generation and operator-assisted visual update loop | Automatic Figma write implied, artifact missing, or rerun loop absent | `design-model.json`, the operator/Codex handoff, and `Rerun via HTTPS client` are visible. |
+| 13 | `ci.postMergeDesignDocumentation` | Official model generation and operator-assisted visual update loop | Automatic Figma write implied, artifact missing, disconnected generation/check jobs, or rerun loop absent | `Generate main design model -> design-model.json -> Check Figma trunk sync` is connected, followed by the operator/Codex handoff and `Rerun via HTTPS client`. |
 | 14 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
 | 15 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
 | 16 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
@@ -165,5 +169,6 @@ not a different source of truth.
 When a target fails, use a partial runner only to diagnose and verify the local
 repair. Fix the component or TypeScript contract, merge the fix to `main`, and
 regenerate the official TeamCity artifact when model content changes. Before
-writing metadata, rerun the complete official visual target set from
-`preflight`; a successful partial repair never closes the integration.
+writing metadata, complete every scope selected by the new official visual plan
+from `preflight`; a successful ad hoc partial repair never closes the
+integration.

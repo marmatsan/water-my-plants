@@ -1,4 +1,4 @@
-import type { DesignModel } from "../domain/design-model";
+import type { DesignModel, SyncExecutionMetadata } from "../domain/design-model";
 
 export type VersionSyncResult = {
   updatedVersions: string[];
@@ -41,6 +41,8 @@ export type MetadataSyncResult = {
     namespace: string;
     gitSha: string;
     modelHash: string;
+    writerHash: string;
+    transportHash: string;
   };
   mutatedNodeIds: string[];
 };
@@ -76,7 +78,7 @@ export type CiDocumentationSyncGateway = {
 };
 
 export type MetadataSyncGateway = {
-  writeMetadata(designModel: DesignModel): Promise<MetadataSyncResult>;
+  writeMetadata(designModel: DesignModel, executionMetadata: SyncExecutionMetadata): Promise<MetadataSyncResult>;
 };
 
 export type VisualContractCheckGateway = {

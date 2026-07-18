@@ -19,6 +19,8 @@ function Invoke-Git([string[]]$Arguments) {
 try {
     New-Item -ItemType Directory -Path "$testRoot/.teamcity/scripts" -Force | Out-Null
     New-Item -ItemType Directory -Path "$testRoot/docs" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$testRoot/repo/figma-design-sync/tools/scripts" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$testRoot/repo/figma-design-sync/docs/runbooks" -Force | Out-Null
     Copy-Item -LiteralPath "$sourceRoot/.teamcity/documentation-coverage.json" -Destination "$testRoot/.teamcity/documentation-coverage.json"
     @("get-change-impact.ps1", "invoke-ci-verification.ps1", "prepare-figma-sync.ps1", "verify-figma-trunk-sync.ps1") |
         ForEach-Object {
@@ -44,6 +46,8 @@ try {
         & "$testRoot/.teamcity/scripts/invoke-ci-verification.ps1"
         Assert-Equal $LASTEXITCODE 0 "Documentation-only CI verification must succeed without Gradle"
 
+        New-Item -ItemType Directory -Path "build/reports/figma-sync" -Force | Out-Null
+        Set-Content -LiteralPath "build/reports/figma-sync/design-model.json" -Value '{"stale":true}'
         & "$testRoot/.teamcity/scripts/prepare-figma-sync.ps1"
         Assert-Equal $LASTEXITCODE 0 "Documentation-only Figma preparation must succeed"
         $scope = Get-Content -LiteralPath "build/reports/figma-sync/sync-scope.json" -Raw | ConvertFrom-Json
@@ -52,6 +56,20 @@ try {
 
         & "$testRoot/.teamcity/scripts/verify-figma-trunk-sync.ps1"
         Assert-Equal $LASTEXITCODE 0 "Documentation-only Figma verification must be a successful no-op"
+
+        Set-Content -LiteralPath "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts" -Value "// Transport-only test change."
+        Set-Content -LiteralPath "repo/figma-design-sync/docs/runbooks/visual-sync-efficiency.md" -Value "# Transport contract"
+        Invoke-Git @("add", "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts", "repo/figma-design-sync/docs/runbooks/visual-sync-efficiency.md")
+        Invoke-Git @("commit", "-m", "test: update MCP transport")
+
+        & "$testRoot/.teamcity/scripts/prepare-figma-sync.ps1"
+        Assert-Equal $LASTEXITCODE 0 "Transport-only Figma preparation must succeed"
+        $scope = Get-Content -LiteralPath "build/reports/figma-sync/sync-scope.json" -Raw | ConvertFrom-Json
+        Assert-Equal $scope.scope "transport-only" "Figma scope artifact must preserve transport-only classification"
+        Assert-Equal (Test-Path -LiteralPath "build/reports/figma-sync/design-model.json") $false "Transport-only Figma preparation must not generate a model"
+
+        & "$testRoot/.teamcity/scripts/verify-figma-trunk-sync.ps1"
+        Assert-Equal $LASTEXITCODE 0 "Transport-only Figma verification must be a successful no-op"
     } finally {
         Pop-Location
     }
@@ -61,4 +79,4 @@ try {
     }
 }
 
-Write-Host "documentation-only pipeline tests passed"
+Write-Host "documentation-only and transport-only pipeline tests passed"

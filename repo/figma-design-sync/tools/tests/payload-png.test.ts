@@ -31,6 +31,8 @@ test("createPayloadPng stores the official sync payload as a PNG text chunk", ()
     designModel,
     modelJson,
     script,
+    writerHash: "sha256:writer",
+    transportHash: "sha256:transport",
   });
   const payloadJson = stringifyAsciiJson(payload);
 
@@ -44,6 +46,8 @@ test("createPayloadPng stores the official sync payload as a PNG text chunk", ()
   );
   assert.equal(payload.script, script);
   assert.equal(payload.scriptLength, script.length);
+  assert.equal(payload.writerHash, "sha256:writer");
+  assert.equal(payload.transportHash, "sha256:transport");
   assert.equal(payload.payloadSchemaVersion, PAYLOAD_PNG_SCHEMA_VERSION);
 });
 

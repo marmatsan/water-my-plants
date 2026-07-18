@@ -1,11 +1,50 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "documentationOnlyPaths": [
     "README.md",
     "docs/*.md",
     ".teamcity/README.md",
     "repo/*/README.md",
     "repo/*/docs/*.md"
+  ],
+  "figmaTransportOnlyPaths": [
+    "repo/figma-design-sync/tools/scripts/payload-png.ts",
+    "repo/figma-design-sync/tools/scripts/write-mcp-runner.ts",
+    "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts",
+    "repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts",
+    "repo/figma-design-sync/tools/tests/*"
+  ],
+  "figmaModelContentPaths": [
+    ".teamcity/settings.kts",
+    "docs/ci/*.yaml",
+    "repo/dependency-catalog/*",
+    "repo/gradle-plugins/settings.gradle.kts",
+    "repo/figma-design-sync/settings.gradle.kts",
+    "settings.gradle.kts",
+    "build.gradle.kts",
+    "*/build.gradle.kts",
+    "*/*/build.gradle.kts"
+  ],
+  "figmaVisualWriterPaths": [
+    "repo/figma-design-sync/tools/src/*"
+  ],
+  "figmaVisualTargetRules": [
+    {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-version-*", "repo/figma-design-sync/tools/src/domain/version/*"],
+      "targets": ["versions"]
+    },
+    {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-header-*", "repo/figma-design-sync/tools/src/domain/header/*"],
+      "targets": ["headers"]
+    },
+    {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-ci-*", "repo/figma-design-sync/tools/src/domain/ci/*"],
+      "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
+    },
+    {
+      "paths": ["repo/figma-design-sync/tools/src/figma/figma-catalog-*", "repo/figma-design-sync/tools/src/domain/catalog/*"],
+      "targets": ["waterMyPlants.libraries", "waterMyPlants.plugins", "waterMyPlants.customGradleConventionPlugins", "waterMyPlants.customGradlePlugins", "gradlePlugins.libraries", "gradlePlugins.plugins", "figmaDesignSync.libraries", "figmaDesignSync.plugins"]
+    }
   ],
   "rules": [
     {

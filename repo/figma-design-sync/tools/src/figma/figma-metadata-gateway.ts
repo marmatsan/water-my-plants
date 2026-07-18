@@ -1,10 +1,10 @@
 import { METADATA_NAMESPACE, METADATA_PAGE_ID } from "../config/figma-config";
-import type { DesignModel } from "../domain/design-model";
+import type { DesignModel, SyncExecutionMetadata } from "../domain/design-model";
 import type { MetadataSyncGateway } from "../ports/sync-gateways";
 import { requirePage } from "./figma-node-gateway";
 
 export class FigmaMetadataGateway implements MetadataSyncGateway {
-  async writeMetadata(designModel: DesignModel) {
+  async writeMetadata(designModel: DesignModel, executionMetadata: SyncExecutionMetadata) {
     const page = await requirePage(METADATA_PAGE_ID);
     await figma.setCurrentPageAsync(page);
 
@@ -12,6 +12,13 @@ export class FigmaMetadataGateway implements MetadataSyncGateway {
     page.setSharedPluginData(METADATA_NAMESPACE, "branch", designModel.branch);
     page.setSharedPluginData(METADATA_NAMESPACE, "gitSha", designModel.gitSha);
     page.setSharedPluginData(METADATA_NAMESPACE, "modelHash", designModel.modelHash);
+    page.setSharedPluginData(METADATA_NAMESPACE, "writerHash", executionMetadata.writerHash);
+    page.setSharedPluginData(METADATA_NAMESPACE, "transportHash", executionMetadata.transportHash);
+    page.setSharedPluginData(
+      METADATA_NAMESPACE,
+      "targetFingerprints",
+      JSON.stringify(executionMetadata.targetFingerprints)
+    );
     page.setSharedPluginData(METADATA_NAMESPACE, "syncedAt", new Date().toISOString());
 
     return {
@@ -20,6 +27,8 @@ export class FigmaMetadataGateway implements MetadataSyncGateway {
         namespace: METADATA_NAMESPACE,
         gitSha: page.getSharedPluginData(METADATA_NAMESPACE, "gitSha"),
         modelHash: page.getSharedPluginData(METADATA_NAMESPACE, "modelHash"),
+        writerHash: page.getSharedPluginData(METADATA_NAMESPACE, "writerHash"),
+        transportHash: page.getSharedPluginData(METADATA_NAMESPACE, "transportHash"),
       },
       mutatedNodeIds: [page.id],
     };
