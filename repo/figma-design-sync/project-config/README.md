@@ -18,8 +18,11 @@ The active adapter consists of:
   which translates TeamCity's generated YAML/XML into the portable CI model;
 - `src/main/kotlin/.../WaterMyPlantsDependencyCatalogProvider.kt`, which adapts
   the concrete `WaterMyPlantsCatalog` to the portable catalog provider;
-- `water-my-plants/figma-config.ts`, which owns Figma file identity, node ids,
-  component properties, GitHub links, visual targets, and MCP namespaces;
+- `src/main/kotlin/.../WaterMyPlantsFigmaWriterProjectConfig.kt`, which owns
+  Figma file identity, node ids, component properties, GitHub links, visual
+  targets, and MCP namespaces as a typed Kotlin value;
+- `water-my-plants/figma-config.ts`, retained temporarily as the executable
+  parity oracle while the remaining writer implementation is migrated;
 - `water-my-plants/change-impact-policy.json`, which owns path classification
   for this repository layout.
 
@@ -42,7 +45,8 @@ and supplies a new project-config adapter that:
 1. implements `DependencyCatalogProvider` for its dependency source;
 2. applies and configures `com.marmatsan.figmaDesignSync`;
 3. declares its primary catalog model name and included builds;
-4. provides its Figma metadata URL, namespace, and TypeScript config module;
+4. provides its Figma metadata URL, namespace, and typed
+   `FigmaWriterProjectConfig`;
 5. provides a change-impact policy for its repository paths;
 6. optionally selects a `CiConfigurationProvider`, its stable JSON model key,
    generated configuration directory, default-branch alias, and materializing
@@ -63,14 +67,19 @@ portable content is present while `content.ci` is absent. Production source and
 KDoc outside `project-config` describe the host repository through adapter
 contracts rather than Water My Plants paths or identities.
 
-The TypeScript selection boundary is the `--project-config` input of
-`figma-design-sync-build`. The package build aliases
-`@figma-design-sync/project-config` to that repository-owned module and bundles
-it into the materialized writer. The config declares its repository root and
-change-impact policy paths explicitly, so a published package does not assume
-the Water My Plants layout. TypeScript remains necessary only for code bundled
-into the Figma plugin/MCP runtime; repository generation, classification, and
-artifact validation stay in Kotlin.
+The preferred writer selection boundary is the `--project-config-json` input
+of `figma-design-sync-build`. `WriteFigmaWriterProjectConfigTask` serializes the
+portable Kotlin model through `FigmaWriterProjectConfigJson` to
+`build/generated/figma-design-sync/writer-project-config.json`; the official
+Gradle task consumes that transient file automatically. The config declares
+its repository root and change-impact policy paths explicitly, so a published
+package does not assume the Water My Plants layout. `--project-config` remains
+available only as a transitional TypeScript compatibility input.
+
+The `test:project-config-parity` test generates the Kotlin JSON and compares
+every projected export with `water-my-plants/figma-config.ts`, including the
+catalog target model paths. A TypeScript config value cannot drift silently
+while both representations coexist.
 
 After publication, repositories consume the engine through the versioned
 `com.marmatsan.figmaDesignSync` plugin and keep only their adapter in source.
@@ -119,6 +128,8 @@ From the repository root:
     :figma-design-sync:teamcity-adapter:check `
     :figma-design-sync:plugin:check `
     :figma-design-sync:project-config:check
+
+.\gradlew.bat writeFigmaWriterProjectConfig
 
 Push-Location repo\figma-design-sync\tools
 npm test

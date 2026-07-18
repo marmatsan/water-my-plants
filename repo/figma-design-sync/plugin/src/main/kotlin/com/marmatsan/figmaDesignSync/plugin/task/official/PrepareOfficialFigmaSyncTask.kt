@@ -12,6 +12,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -34,6 +35,11 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
     @get:Internal
     abstract val toolsDirectory: DirectoryProperty
+
+    @get:InputFile
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val writerProjectConfigFile: RegularFileProperty
 
     @get:OutputDirectory
     abstract val runnerOutputDirectory: DirectoryProperty
@@ -60,7 +66,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
             val tools = toolsDirectory.get().asFile
             run(tools, npmExecutable(), "ci")
-            run(tools, npmExecutable(), "run", "build")
+            buildWriter(tools)
 
             val runnerDirectory = runnerOutputDirectory.get().asFile
             run(
@@ -135,6 +141,21 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
         scopeJson.write(scope, scopeFile.get().asFile.absolutePath)
         logger.lifecycle("Prepared official Figma Sync scope: ${scope.scope.wireValue}")
+    }
+
+    private fun buildWriter(tools: File) {
+        val projectConfig = writerProjectConfigFile.orNull?.asFile
+        if (projectConfig == null) {
+            run(tools, npmExecutable(), "run", "build")
+            return
+        }
+        run(
+            tools,
+            "node",
+            "bin/build.mjs",
+            "--project-config-json=${projectConfig.absolutePath}",
+            "--output-dir=."
+        )
     }
 
     private fun run(directory: File, vararg command: String) {

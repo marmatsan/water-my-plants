@@ -10,6 +10,8 @@ sources:
   - repo/figma-design-sync/gradle.properties
   - repo/figma-design-sync/build.gradle.kts
   - repo/figma-design-sync/plugin/build.gradle.kts
+  - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/writer/FigmaWriterProjectConfig.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/FigmaWriterProjectConfigJson.kt
   - repo/figma-design-sync/tools/package.json
   - repo/figma-design-sync/tools/fixtures/contracts/writer-runtime-contract.json
   - repo/figma-design-sync/samples/standalone-consumer
@@ -55,8 +57,15 @@ Its `figma-design-sync-build` executable accepts:
 
 | Argument | Required | Meaning |
 |----------|----------|---------|
-| `--project-config=PATH` | Yes | TypeScript module exporting the repository's Figma identities and visual target configuration. |
+| `--project-config-json=PATH` | One project-config input | Schema-versioned JSON projection of the typed Kotlin writer configuration. This is the preferred input. |
+| `--project-config=PATH` | One project-config input | Transitional TypeScript module exporting the same repository configuration. |
 | `--output-dir=PATH` | No | Materialized tool workspace; defaults to the current directory. |
+
+Exactly one of `--project-config-json` or `--project-config` is required. The
+portable `FigmaWriterProjectConfig` model and `FigmaWriterProjectConfigJson`
+adapter define JSON schema version `1`. Repository adapters own the model
+values; generated JSON is a transient build input rather than a reviewed
+source file.
 
 The materialized directory contains the compiled writer, checkpoint executor,
 runner generator, portable writer sources used for fingerprints, and visual
@@ -83,6 +92,8 @@ package from assuming the Water My Plants directory structure.
 - Consumers apply one Gradle plugin; they do not include or address the
   internal `domain`, `data`, or `plugin` projects.
 - `project-config` is never part of the portable publication set.
+- Repository identities enter the writer through a transient project-config
+  projection; generated JSON is not published as a source artifact.
 - The TeamCity adapter is never a transitive dependency of the portable
   Gradle plugin.
 - Maven artifacts, the plugin marker, `catalog-core`, and the npm package use
@@ -100,6 +111,8 @@ package from assuming the Water My Plants directory structure.
 - [`../../plugin/build.gradle.kts`](../../plugin/build.gradle.kts)
 - [`../../tools/package.json`](../../tools/package.json)
 - [`../../tools/bin/build.mjs`](../../tools/bin/build.mjs)
+- [`../../domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/writer/FigmaWriterProjectConfig.kt`](../../domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/writer/FigmaWriterProjectConfig.kt)
+- [`../../data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/FigmaWriterProjectConfigJson.kt`](../../data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/FigmaWriterProjectConfigJson.kt)
 - [`../../tools/fixtures/contracts/writer-runtime-contract.json`](../../tools/fixtures/contracts/writer-runtime-contract.json)
 - [`../../samples/standalone-consumer`](../../samples/standalone-consumer)
-- [`../../project-config/water-my-plants/figma-config.ts`](../../project-config/water-my-plants/figma-config.ts)
+- [`../../project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`](../../project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt)
