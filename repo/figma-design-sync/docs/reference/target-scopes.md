@@ -7,7 +7,7 @@ status: active
 last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
-  - repo/figma-design-sync/tools/src/config/figma-config.ts
+  - repo/figma-design-sync/project-config/water-my-plants/figma-config.ts
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
 ---
 

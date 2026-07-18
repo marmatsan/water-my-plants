@@ -392,7 +392,7 @@ Could not find a component property with name: 'Show is a gradle convention plug
 ```
 
 inspect the `.tree node` component set and update `TREE_NODE_PROPS` in
-`repo/figma-design-sync/tools/src/config/figma-config.ts` to match the actual
+`repo/figma-design-sync/project-config/water-my-plants/figma-config.ts` to match the actual
 Figma component property name before rerunning the sync.
 
 Do not work around this by writing metadata only; the visual update did not

@@ -89,7 +89,8 @@ The pipeline:
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
 - uses the portable `classifyFigmaChangeImpact` Gradle task and the policy in
-  `repo/figma-design-sync/change-impact-policy.json` as the only change-scope
+  `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`
+  as the only change-scope
   decision; documentation-only changes then run `git diff --check`, while every
   other change runs `.\gradlew.bat check --stacktrace` so Gradle failures retain
   their diagnostic context in the TeamCity build log;

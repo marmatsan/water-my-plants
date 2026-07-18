@@ -58,9 +58,10 @@ used by CI.
   identities, and visual sync plan.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
-- `data/dependencies/catalog`: adapters from the reusable `catalog-core` tree
-  types and the concrete `WaterMyPlantsCatalog` facade to domain catalog
-  models. Keep both module dependencies explicit.
+- `data/dependencies/catalog`: portable adapters from the reusable
+  `catalog-core` tree types and the `DependencyCatalogProvider` contract to
+  domain catalog models. Concrete repository catalogs belong in
+  `project-config`.
 - `data/properties/versions`: readers for version properties files.
 - `data/teamcity/configuration`: readers for TeamCity generated YAML and XML.
 - `data/yaml/ci`: YAML 1.2 readers for the versioned external topology and
@@ -84,16 +85,24 @@ used by CI.
   shared by the official TeamCity Figma Sync jobs.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
+- `project-config`: repository adapter that owns Water My Plants paths,
+  dependency catalog provider, Figma identities, visual targets, and optional
+  CI commands. Portable modules must depend on adapter contracts, never on this
+  concrete implementation.
+- `tools`: portable TypeScript writer and MCP transport. Project-specific
+  constants are selected through `@figma-design-sync/project-config` and must
+  not be added under `tools/src` or `tools/scripts`.
 
 ## Gradle Tasks
 
 - `generateFigmaDesignModel`: generates
   `build/reports/figma-sync/design-model.json`.
 - `classifyFigmaChangeImpact`: classifies the Git diff using
-  `repo/figma-design-sync/change-impact-policy.json`. Keep the classifier in
-  Kotlin and do not duplicate its rules in TeamCity scripts.
+  the policy selected by the project-config adapter. Water My Plants owns it at
+  `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`.
+  Keep the classifier in Kotlin and do not duplicate its rules in TeamCity scripts.
 - `prepareOfficialFigmaSync`: cleans stale reports, classifies the change,
-  conditionally generates TeamCity configuration and the official model, then
+  conditionally runs the configured CI adapter and generates the official model, then
   builds the MCP runner artifacts and `sync-scope.json`.
 - `verifyOfficialFigmaSync`: validates the downloaded scope identity and
   invokes the Kotlin trunk checker only for `full-verification`.
@@ -105,10 +114,12 @@ used by CI.
   naming contract. This task is wired into the root `check` lifecycle.
 - `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
   validation window in `docs/ci/external-topology.yaml` expires. This task is
-  wired into the root `check` lifecycle.
+  wired into the root `check` lifecycle and skips when the project adapter
+  disables CI documentation.
 - `checkCiWindowsRuntimeFreshness`: emits a non-blocking warning after the
   validation window in `docs/ci/windows-runtime.yaml` expires. This task is
-  wired into the root `check` lifecycle.
+  wired into the root `check` lifecycle and skips when the project adapter
+  disables CI documentation.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
 - `validateOfficialFigmaArtifactSet`: validates the downloaded main model,
@@ -226,7 +237,10 @@ used by CI.
 - Useful verification command:
 
 ```powershell
-.\gradlew.bat :figma-design-sync:domain:check :figma-design-sync:data:check :figma-design-sync:plugin:check
+.\gradlew.bat :figma-design-sync:domain:check `
+    :figma-design-sync:data:check `
+    :figma-design-sync:plugin:check `
+    :figma-design-sync:project-config:check
 ```
 
 - Useful root-project diagnostic command:

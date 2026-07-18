@@ -1,8 +1,8 @@
 
 # figma-design-sync
 
-`figma-design-sync` is the repository-owned bridge between the Gradle project
-model and the Figma documentation model. It is not application production code:
+`figma-design-sync` is a reusable bridge between a Gradle project model and a
+Figma documentation model. It is not application production code:
 it generates a deterministic `design-model.json`, validates repository catalog
 rules, and supports the Figma visual sync workflow used by CI.
 
@@ -26,26 +26,30 @@ model, but they do not affect `modelHash`.
 
 ## Included Build Shape
 
-This directory is an included Gradle build with three Kotlin modules and one
-TypeScript tooling package:
+This directory is an included Gradle build with three portable Kotlin modules,
+one project adapter, and one portable TypeScript tooling package:
 
 | Path | Role |
 |------|------|
 | `domain/` | Pure model and port definitions for versions, catalogs, modules, and module dependency edges. |
 | `data/` | File, Gradle, dependency-catalog, and Figma API adapters that implement domain ports. |
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
+| `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, and optional CI commands. |
 | `tools/` | TypeScript MCP/Figma scripts and visual sync tests that consume `design-model.json`. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
 Dependency direction is intentional:
 
 ```text
-domain <- data <- plugin
+project-config -> plugin -> data -> domain
+project-config -> water-my-plants-catalog
+tools -> project-config/water-my-plants/figma-config.ts
 ```
 
 `domain` must stay independent from Gradle, files, Figma clients, and plugin
-composition. `plugin` is the adapter layer that wires Gradle tasks to domain
-ports through `data` implementations.
+composition. `plugin` wires portable Gradle tasks to domain ports through
+`data`; `project-config` applies that plugin with one repository's concrete
+catalog, layout, Figma document, and CI adapter.
 
 ## Inputs
 
@@ -62,16 +66,20 @@ The model is generated from repository source files, not from Figma:
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
 | `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
 | `.teamcity/target/generated-configs` | Effective pipelines, jobs, VCS, pipeline-finish and scheduled triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
-| `repo/figma-design-sync/change-impact-policy.json` | Path policy used to classify whether a change can affect the model or visual writer. |
+| `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json` | Water My Plants path policy used to classify whether a change can affect the model or visual writer. |
 
-The default included-build sources are configured by the `figmaDesignSync`
-Gradle extension:
+The Water My Plants included-build sources are configured by the
+`com.marmatsan.waterMyPlantsFigmaDesignSync` project adapter:
 
 | Included build | Model name | Purpose |
 |----------------|------------|---------|
 | `repo/dependency-catalog` | `dependencyCatalog` | Hosts the reusable `catalog-core` DSL and the concrete `water-my-plants-catalog` definition. |
 | `repo/figma-design-sync` | `figmaDesignSync` | Describes this tooling build's own dependencies. |
 | `repo/gradle-plugins` | `gradlePlugins` | Describes repository Gradle plugin modules and convention plugins. |
+
+The portable plugin id is `com.marmatsan.figmaDesignSync`. It intentionally has
+no Water My Plants defaults. See [`project-config/README.md`](project-config/README.md)
+for the adapter contract required by another repository.
 
 ## Output Contract
 
@@ -90,7 +98,11 @@ The stable `content` object contains:
 | `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
 | `modules` | Repository module paths discovered from the root project and included builds. |
 | `moduleDependencies` | Module dependency edges grouped by source build. |
-| `ci` | External CI topology, Windows service runtime, and effective TeamCity configuration. |
+| `ci` | Optional CI topology, runtime, and generated CI configuration selected by the project adapter. |
+
+The portable plugin leaves `ciDocumentationEnabled` disabled. Water My Plants
+enables it in `project-config`; a new repository can generate and publish the
+rest of the contract without TeamCity, CI topology YAML, or PowerShell.
 
 Figma visual code must treat this JSON as the source of truth. Manual visual
 changes in Figma are acceptable only when they are component contract changes;
@@ -115,6 +127,7 @@ Task responsibilities:
 |------|----------------|
 | `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
 | `prepareOfficialFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
+| `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
 | `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
@@ -129,9 +142,9 @@ Windows, macOS, and Linux. See
 [`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md)
 for its policy, precedence, and output contract.
 
-`checkFigmaVersionNaming`, `checkFigmaCatalogUsage`,
-`checkCiExternalTopologyFreshness`, and `checkCiWindowsRuntimeFreshness` are
-wired into the root Gradle `check` lifecycle, so the TeamCity `Verify` step
+`checkFigmaVersionNaming` and `checkFigmaCatalogUsage` are wired into the root
+Gradle `check` lifecycle. The two CI freshness checks are also wired but skip
+themselves unless the project adapter enables CI documentation. Water My Plants
 runs them through:
 
 ```powershell
@@ -181,7 +194,10 @@ unfinished unit without repeating successful targets. See
 For code changes in this module:
 
 ```powershell
-.\gradlew.bat :figma-design-sync:domain:check :figma-design-sync:data:check :figma-design-sync:plugin:check
+.\gradlew.bat :figma-design-sync:domain:check `
+    :figma-design-sync:data:check `
+    :figma-design-sync:plugin:check `
+    :figma-design-sync:project-config:check
 ```
 
 For visual tooling changes:
