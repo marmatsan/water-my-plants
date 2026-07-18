@@ -13,10 +13,20 @@ repositories {
 
 dependencies {
     implementation(projects.data)
+    implementation(projects.domain)
     implementation(projects.plugin)
     implementation(projects.teamcityAdapter)
+    implementation(libs.org.jetbrains.kotlinx.serialization.json)
     implementation("com.marmatsan.repo:catalog-core")
     implementation("com.marmatsan.repo:water-my-plants-catalog")
+
+    testImplementation(libs.io.kotest.runner.junit5)
+    testImplementation(libs.io.kotest.assertions.core)
+    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 gradlePlugin {

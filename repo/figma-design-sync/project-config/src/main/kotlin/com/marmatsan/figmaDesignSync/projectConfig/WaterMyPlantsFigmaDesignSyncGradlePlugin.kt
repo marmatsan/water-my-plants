@@ -6,6 +6,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
+import java.io.File
 
 /**
  * Water My Plants adapter for the portable Figma design-sync Gradle plugin.
@@ -66,6 +67,32 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
                 modulePathPrefix.set(":gradle-plugins")
                 publishesConventionPlugins.set(true)
             }
+        }
+
+        project.tasks.register<PrepareTeamCityFigmaSyncHandoffTask>("prepareTeamCityFigmaSyncHandoff") {
+            group = "documentation"
+            description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
+            buildId.convention(
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+            )
+            artifactDirectory.set(
+                project.layout.dir(
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                )
+            )
+            destinationRoot.convention(
+                project.layout.dir(
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
+            )
+            projectRootDirectory.set(project.layout.projectDirectory)
+            toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-design-sync/tools"))
+            skipExecutorBuild.convention(
+                project.providers.gradleProperty("figmaSkipExecutorBuild").map(String::toBoolean).orElse(false)
+            )
+            expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
+            mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))
+            requiredBuildTypeName.set("Generate main design model")
         }
     }
 
