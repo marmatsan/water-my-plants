@@ -299,6 +299,8 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
 
             changeImpactFile.set(extension.changeImpactFile)
             designModelFile.set(extension.designModelFile)
+            metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
+            metadataNamespace.set(extension.metadataNamespace)
             projectRootDirectory.set(project.layout.projectDirectory)
             toolsDirectory.set(extension.toolsDirectory)
             runnerOutputDirectory.set(project.layout.buildDirectory.dir("reports/figma-sync/mcp-runners"))

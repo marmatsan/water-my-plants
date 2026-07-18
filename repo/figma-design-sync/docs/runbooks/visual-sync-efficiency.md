@@ -8,7 +8,8 @@ last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts
-  - repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts
+  - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/VisualSyncPlanner.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/VisualSyncPlanJson.kt
 ---
 
 # Efficient Visual Sync Runbook
@@ -174,5 +175,6 @@ chunks only for a verified transport limitation.
 ## Sources
 
 - `tools/scripts/execute-mcp-runner.ts`
-- `tools/scripts/write-visual-sync-plan.ts`
+- `domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/writer/VisualSyncPlanner.kt`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/VisualSyncPlanJson.kt`
 - `tools/scripts/write-mcp-runner.ts`

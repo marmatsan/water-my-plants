@@ -1,7 +1,13 @@
 package com.marmatsan.figmaDesignSync.plugin.task.official
 
+import com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient
+import com.marmatsan.figmaDesignSync.data.figma.common.FigmaNodeUrl
+import com.marmatsan.figmaDesignSync.data.json.writer.FigmaSyncMetadataJson
+import com.marmatsan.figmaDesignSync.data.json.writer.VisualSyncPlanJson
 import com.marmatsan.figmaDesignSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDesignSync.domain.model.sync.OfficialFigmaSyncScope
+import com.marmatsan.figmaDesignSync.domain.model.writer.FigmaSyncMetadata
+import com.marmatsan.figmaDesignSync.domain.service.writer.VisualSyncPlanner
 import com.marmatsan.figmaDesignSync.plugin.di.create
 import com.marmatsan.figmaDesignSync.plugin.di.figmaDesignSyncComponent
 import java.io.ByteArrayOutputStream
@@ -10,6 +16,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -32,6 +40,14 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
+
+    @get:Input
+    @get:Optional
+    abstract val metadataNodeUrl: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val metadataNamespace: Property<String>
 
     @get:Internal
     abstract val toolsDirectory: DirectoryProperty
@@ -93,14 +109,9 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             val metadataManifest = manifests.singleOrNull { manifest -> manifest.writeMetadata }
                 ?: throw GradleException("Official metadata MCP runner manifest was not generated exactly once.")
             val plan = visualSyncPlanFile.get().asFile
-            run(
-                projectRootDirectory.get().asFile,
-                "node",
-                tools.resolve("dist/write-visual-sync-plan.mjs").absolutePath,
-                "--manifest=${visualManifest.path}",
-                "--out=${plan.absolutePath}"
-            )
-            val visualPlan = scopeJson.readVisualSyncPlan(plan.absolutePath)
+            val planJson = VisualSyncPlanJson()
+            val visualPlan = VisualSyncPlanner(planJson).create(visualManifest, readPreviousMetadata())
+            planJson.write(visualPlan, plan.absolutePath)
 
             OfficialFigmaSyncScope(
                 scope = impact.scope,
@@ -116,7 +127,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                 writerScopeFingerprintSchemaVersion = visualManifest.writerScopeFingerprintSchemaVersion,
                 visualRunnerManifestHash = visualManifest.manifestHash,
                 metadataRunnerManifestHash = metadataManifest.manifestHash,
-                visualSyncDecision = visualPlan.decision,
+                visualSyncDecision = visualPlan.body.decision.wireValue,
                 visualSyncPlanHash = visualPlan.planHash
             )
         } else {
@@ -141,6 +152,24 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
         scopeJson.write(scope, scopeFile.get().asFile.absolutePath)
         logger.lifecycle("Prepared official Figma Sync scope: ${scope.scope.wireValue}")
+    }
+
+    private fun readPreviousMetadata(): FigmaSyncMetadata? {
+        val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
+        val nodeUrl = metadataNodeUrl.orNull ?: return null
+        val namespace = metadataNamespace.orNull ?: return null
+        val reference = FigmaNodeUrl.parse(nodeUrl)
+        val node = runCatching {
+            FigmaFileContentClient().getNodeContent(
+                fileKey = reference.fileKey,
+                token = token,
+                nodeId = reference.nodeId,
+                pluginData = "shared"
+            )
+        }.onFailure { failure ->
+            logger.warn("Figma metadata is unavailable; selecting a full visual sync: ${failure.message}")
+        }.getOrNull() ?: return null
+        return FigmaSyncMetadataJson.read(node.sharedPluginData, namespace)
     }
 
     private fun buildWriter(tools: File) {
@@ -196,4 +225,8 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
 
     private fun isWindows(): Boolean = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+
+    private companion object {
+        const val FIGMA_TOKEN_ENVIRONMENT_VARIABLE = "FIGMA_FILE_CONTENT_ACCESS_TOKEN"
+    }
 }
