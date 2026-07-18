@@ -7,6 +7,9 @@ Use this directory as the module documentation index:
 
 | Path | Role | Purpose |
 |------|------|---------|
+| `guides/adopting-figma-design-sync.md` | Guide | Consume the versioned Gradle plugin and configure a repository adapter without copying the source modules. |
+| `reference/distribution-contract.md` | Reference | Define public coordinates, version alignment, artifact boundaries, and the standalone-consumer gate. |
+| `runbooks/publishing-release.md` | Runbook | Stage, inspect, authorize, and publish a coordinated Maven and npm release. |
 | `runbooks/trunk-sync.md` | Runbook | Execute the official Figma trunk sync path and route to the detailed runbooks. |
 | `runbooks/official-artifact-visual-sync.md` | Runbook | Validate the TeamCity `main` artifact and decide when branch-local visual iteration may reuse it. |
 | `runbooks/mcp-chunk-transport.md` | Runbook | Build the MCP bundle, stage official payloads through PNG or chunk fallback, run targets, and write metadata. |

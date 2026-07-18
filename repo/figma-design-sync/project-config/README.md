@@ -63,11 +63,20 @@ portable content is present while `content.ci` is absent. Production source and
 KDoc outside `project-config` describe the host repository through adapter
 contracts rather than Water My Plants paths or identities.
 
-The TypeScript selection boundary is the
-`@figma-design-sync/project-config` path in `tools/tsconfig.json`. Point that
-alias at the new repository's config module. TypeScript remains necessary only
-for code bundled into the Figma plugin/MCP runtime; repository generation,
-classification, and artifact validation stay in Kotlin.
+The TypeScript selection boundary is the `--project-config` input of
+`figma-design-sync-build`. The package build aliases
+`@figma-design-sync/project-config` to that repository-owned module and bundles
+it into the materialized writer. The config declares its repository root and
+change-impact policy paths explicitly, so a published package does not assume
+the Water My Plants layout. TypeScript remains necessary only for code bundled
+into the Figma plugin/MCP runtime; repository generation, classification, and
+artifact validation stay in Kotlin.
+
+After publication, repositories consume the engine through the versioned
+`com.marmatsan.figmaDesignSync` plugin and keep only their adapter in source.
+See the [adoption guide](../docs/guides/adopting-figma-design-sync.md) for that
+workflow. The current Water My Plants build continues to use `includeBuild`
+while developing the engine itself.
 
 ## Optional Operational Adapters
 

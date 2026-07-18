@@ -39,12 +39,15 @@
       "id": "figma-sync-implementation",
       "sourcePaths": [
         "repo/figma-design-sync/tools/*",
+        "repo/figma-design-sync/tools/bin/*",
         "repo/figma-design-sync/data/src/*",
         "repo/figma-design-sync/domain/src/*",
         "repo/figma-design-sync/plugin/src/*",
         "repo/figma-design-sync/teamcity-adapter/src/*",
         "repo/figma-design-sync/project-config/src/*",
         "repo/figma-design-sync/project-config/water-my-plants/*",
+        "repo/figma-design-sync/samples/*",
+        "repo/figma-design-sync/gradle.properties",
         "repo/figma-design-sync/*/build.gradle.kts",
         "repo/figma-design-sync/settings.gradle.kts"
       ],
@@ -52,6 +55,7 @@
         "repo/figma-design-sync/README.md",
         "repo/figma-design-sync/project-config/README.md",
         "repo/figma-design-sync/teamcity-adapter/README.md",
+        "repo/figma-design-sync/docs/guides/*.md",
         "repo/figma-design-sync/docs/runbooks/*.md",
         "repo/figma-design-sync/docs/reference/*.md",
         "repo/figma-design-sync/docs/standards/*.md"
