@@ -240,13 +240,15 @@ this route. Two consecutive CSRF reads therefore return different values, even
 when the HTTP client reuses one cookie container.
 
 TeamCity recommends clearing session cookies for unsafe requests authenticated
-with a Bearer token. The repository client follows that contract:
+with a Bearer token. The repository wrapper follows that contract while
+delegating TeamCity operations to the official CLI:
 
-1. It performs read-only idempotency checks with the Cloudflare service-token
-   headers.
-2. It captures the short-lived Access JWT returned in `CF_Authorization`.
-3. It sends the queue POST in a new cookie-free session using
-   `cf-access-token` and the TeamCity Bearer token.
+1. It exchanges the Cloudflare service-token headers for the short-lived Access
+   JWT returned in `CF_Authorization`.
+2. It removes the service-token headers from the child process environment.
+3. It invokes `teamcity.exe` with temporary `TEAMCITY_TOKEN` and
+   `TEAMCITY_HEADER_CF_ACCESS_TOKEN` values for active-run checks, queueing, and
+   waiting.
 
 The POST does not resend the service-token pair because that would cause
 Cloudflare to inject a new `CF_Authorization` cookie into the request seen by
@@ -254,35 +256,28 @@ TeamCity. Do not remove the application's `Allow` policy while this transport
 is in use; Cloudflare requires service-token headers on every request when an
 application has only `Service Auth` policies.
 
-Use the repository-owned HTTPS client for the supported rerun path:
+Use the repository-owned TeamCity CLI wrapper for the supported rerun path:
 
 ```powershell
 pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -ValidateOnly
 pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
 ```
 
-The client:
+The wrapper:
 
 - accepts only the public HTTPS TeamCity URL;
 - is fixed to `WaterMyPlants_WaterMyPlantsFigmaSync` on `main`;
-- loads Cloudflare and TeamCity credentials from SecretStore;
-- uses one session for read-only active-run checks and a separate cookie-free
-  session for the queue POST;
+- loads the Cloudflare and dedicated TeamCity credentials from SecretStore;
 - converts the Cloudflare authorization cookie into the raw
-  `cf-access-token` header for the cookie-free POST;
-- reuses a recently queued or running `Figma Sync` instead of creating a
-  duplicate, while ignoring stale runs that TeamCity has left active;
-- never retries an uncertain POST before checking whether TeamCity accepted it;
+  `cf-access-token` header used only by the child CLI process;
+- delegates active-run queries, queueing, and waiting to TeamCity CLI;
+- reuses a queued or running `Figma Sync` instead of creating a duplicate;
+- checks for an accepted active run before treating an uncertain start as a
+  failure;
 - does not print either secret.
 
-Run its offline contract tests after changing the client:
-
-```powershell
-pwsh -File tools/teamcity/tests/test-teamcity-https-client.ps1
-```
-
-The TeamCity UI remains the fallback when the local secret provider or HTTPS
-client is unavailable. Do not disable CSRF, copy session cookies, expose
+The TeamCity UI remains the fallback when the local secret provider or CLI
+wrapper is unavailable. Do not disable CSRF, copy session cookies, expose
 `localhost:8111`, or bypass Cloudflare for the public REST API.
 
 ## Verification

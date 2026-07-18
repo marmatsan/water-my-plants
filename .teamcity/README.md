@@ -420,11 +420,12 @@ for the duration of each CLI command. Follow
 for the wrapper, verification procedure, webhook boundary, and the known CSRF
 contract for mutating requests.
 
-Read-only diagnostics continue to use TeamCity CLI. Queue the post-MCP
-verification rerun through the repository-owned HTTPS client. It performs
-read-only idempotency checks in one session and sends the Bearer-authenticated
-POST in a separate cookie-free session. The Cloudflare JWT is sent through
-`cf-access-token`, so TeamCity does not receive `CF_Authorization` and does not
+Read-only diagnostics and the post-MCP verification rerun use TeamCity CLI.
+The repository wrapper exchanges the Cloudflare service credential for a
+short-lived Access JWT, then invokes `teamcity.exe` with the raw
+`cf-access-token` and the dedicated TeamCity automation token. This prevents
+Cloudflare from injecting `CF_Authorization` into the mutating request, so
+TeamCity keeps treating the CLI POST as Bearer-authenticated and does not
 require CSRF:
 
 ```powershell

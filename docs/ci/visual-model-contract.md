@@ -159,7 +159,7 @@ Generate main design model
   -> Operator
   -> Codex/MCP client
   -> Figma Design Document
-  -> HTTPS rerun client
+  -> TeamCity CLI rerun wrapper
   -> Check Figma trunk sync
 ```
 
@@ -169,11 +169,12 @@ contains `design-model.json` and must create the same visual edge as publishing
 the file explicitly. None of these generation, artifact, or verification nodes
 may remain isolated.
 
-The rerun uses the repository-owned HTTPS client. It performs active-run checks
-in a read session, then queues the complete `Figma Sync` pipeline with a fresh
-cookie-free session, Cloudflare's raw `cf-access-token`, and TeamCity Bearer
-authentication. This avoids forwarding Cloudflare's session cookie into
-TeamCity's CSRF check. The TeamCity UI remains the recovery interface. The
+The rerun uses the repository-owned TeamCity CLI wrapper. It exchanges the
+Cloudflare service credential for a short-lived raw `cf-access-token`, removes
+the service-token headers, and delegates active-run checks, queueing, and
+waiting to `teamcity.exe` with dedicated Bearer authentication. This avoids
+forwarding Cloudflare's session cookie into TeamCity's CSRF check. The TeamCity
+UI remains the recovery interface. The
 repository-owned handoff downloads and validates the official artifact, then
 selects the next checkpoint unit without writing Figma. It is represented as a
 technical annotation on the handoff connection, not as another domain artifact.
