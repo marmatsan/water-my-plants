@@ -1,4 +1,4 @@
-import { CONNECTOR_TEMPLATE_NAME, METADATA_NAMESPACE } from "../config/figma-config";
+import { CONNECTOR_TEMPLATE_NAME, METADATA_NAMESPACE } from "@figma-design-sync/project-config";
 
 export function collectTreeConnectors(section, traversalRoots = [section]) {
   const scopedTraversal = traversalRoots.length !== 1 || traversalRoots[0].id !== section.id;

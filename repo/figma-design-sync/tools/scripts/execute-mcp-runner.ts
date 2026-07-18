@@ -3,9 +3,14 @@ import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import {
+  FIGMA_FILE_KEY,
+  MCP_CLIENT_NAME,
+  PROJECT_DISPLAY_NAME,
+} from "@figma-design-sync/project-config";
 
 const DEFAULT_ENDPOINT = "http://127.0.0.1:3845/mcp";
-const DEFAULT_FILE_KEY = "YBZXsd8oyGLbcI2KWxJvRK";
+const DEFAULT_FILE_KEY = FIGMA_FILE_KEY;
 const STATE_SCHEMA_VERSION = 1;
 const REQUIRED_WRITE_TOOL = "use_figma";
 const REQUIRED_UPLOAD_TOOL = "upload_assets";
@@ -94,7 +99,7 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
         const result = await client.callTool(REQUIRED_WRITE_TOOL, {
           fileKey: options.fileKey,
           code: source,
-          description: `Water My Plants Figma Sync: ${file}`,
+          description: `${PROJECT_DISPLAY_NAME} Figma Sync: ${file}`,
           skillNames: "resource:figma-use",
         });
         if (result?.isError === true) {
@@ -398,7 +403,7 @@ function toCamelCase(value) {
 }
 
 async function createSdkClient(endpoint) {
-  const client = new Client({ name: "water-my-plants-figma-sync", version: "1.0.0" });
+  const client = new Client({ name: MCP_CLIENT_NAME, version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(endpoint));
   await client.connect(transport);
   return {

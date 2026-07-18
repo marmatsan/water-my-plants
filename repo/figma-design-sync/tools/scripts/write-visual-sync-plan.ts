@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import {
+  FIGMA_FILE_KEY,
+  METADATA_NAMESPACE,
+  METADATA_PAGE_ID,
+} from "@figma-design-sync/project-config";
 
-const FIGMA_FILE_KEY = "YBZXsd8oyGLbcI2KWxJvRK";
-const METADATA_PAGE_ID = "62934:908";
-const METADATA_NAMESPACE = "water_my_plants_sync";
 
 export async function main(argv = process.argv.slice(2), dependencies = {}) {
   const options = parseArgs(argv);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { METADATA_NAMESPACE, METADATA_PAGE_ID } from "../src/config/figma-config";
+import { METADATA_NAMESPACE, METADATA_PAGE_ID } from "@figma-design-sync/project-config";
 import { FigmaMetadataGateway } from "../src/figma/figma-metadata-gateway";
 
 test("metadata sync persists model and scoped writer fingerprints", async () => {

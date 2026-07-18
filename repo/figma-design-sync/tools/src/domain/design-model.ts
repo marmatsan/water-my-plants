@@ -28,20 +28,8 @@ export type SyncTargetName =
   | "preflight"
   | "headers"
   | "versions"
-  | "waterMyPlants.libraries"
-  | "waterMyPlants.plugins"
-  | "waterMyPlants.customGradleConventionPlugins"
-  | "waterMyPlants.customGradlePlugins"
-  | "gradlePlugins.libraries"
-  | "gradlePlugins.plugins"
-  | "figmaDesignSync.libraries"
-  | "figmaDesignSync.plugins"
-  | "ci.overview"
-  | "ci.pullRequestIntegration"
-  | "ci.postMergeDesignDocumentation"
-  | "ci.infrastructureAndAccess"
-  | "ci.windowsRuntime"
-  | "metadata";
+  | "metadata"
+  | (string & {});
 
 export type SyncFigmaDesignModelOptions = {
   targets?: SyncTargetName[];

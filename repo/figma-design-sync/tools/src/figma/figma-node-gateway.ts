@@ -4,7 +4,7 @@ import {
   PARENT_SECTION_NODE_IDS,
   PARENT_SECTION_SIBLING_GAP,
   SECTION_SIBLING_GAP,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 
 const SECTION_STROKE_WEIGHT = 2;
 const SECTION_STROKE_ALIGN = "INSIDE";

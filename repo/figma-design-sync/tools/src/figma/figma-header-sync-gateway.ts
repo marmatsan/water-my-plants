@@ -2,7 +2,7 @@ import {
   HEADER_INSTANCE_NAME,
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 import type { HeaderSyncGateway } from "../ports/sync-gateways";
 import {
   applySectionStrokeContractTree,

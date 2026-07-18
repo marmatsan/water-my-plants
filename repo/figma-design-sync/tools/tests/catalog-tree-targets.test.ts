@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { CATALOG_TREE_TARGETS } from "../src/config/figma-config";
+import { CATALOG_TREE_TARGETS } from "@figma-design-sync/project-config";
 
 test("custom Gradle convention plugin target warns when leaf plugins are not applied by any module", () => {
   const target = CATALOG_TREE_TARGETS.find((candidate) =>

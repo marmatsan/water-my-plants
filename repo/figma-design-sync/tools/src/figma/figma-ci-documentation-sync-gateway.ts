@@ -8,14 +8,15 @@ import {
   CI_NODE_COMPONENT_ID,
   CI_NODE_INSTANCE_NAME,
   CI_NODE_PROPS,
+  CI_VISUAL_TARGET_NAMES,
   CI_VARIABLE_COLLECTION_NAME,
   CONNECTOR_TEMPLATE_NAME,
+  GITHUB_MAIN_BLOB_URL,
   HEADER_INSTANCE_NAME,
   HEADER_SECTION_TARGETS,
   METADATA_NAMESPACE,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 import {
-  CI_VISUAL_TARGET_NAMES,
   createCiVisualPlan,
   type CiVisualConnection,
   type CiVisualNode,
@@ -985,7 +986,7 @@ function rectanglesOverlap(position, size, bounds, gap) {
 function sourceLink(path) {
   return {
     label: path,
-    url: `https://github.com/marmatsan/water-my-plants/blob/main/${path}`,
+    url: `${GITHUB_MAIN_BLOB_URL}/${path}`,
   };
 }
 

@@ -6,7 +6,7 @@ import {
   VERSION_NUMBER_MODE_NAME,
   VERSION_SECTION_TARGETS,
   VERSIONS_COLLECTION_NAMES,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 import type { DesignModel } from "../domain/design-model";
 import type { VersionSyncGateway } from "../ports/sync-gateways";
 import {

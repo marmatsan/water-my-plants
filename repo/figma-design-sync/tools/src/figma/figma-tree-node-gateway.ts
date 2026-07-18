@@ -1,7 +1,7 @@
 import {
   TREE_NODE_COMPONENT_IDS,
   TREE_NODE_PROPS,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 import { updateLibraryArtifactConsumerModules, updateLibraryBundleConsumerModules, updatePluginUsageBlocks } from "./figma-consumer-modules-gateway";
 import type { FlattenedCatalogNode } from "../domain/design-model";
 import { getComponentPropertyValue, requireTreeNodeComponent } from "./figma-node-gateway";

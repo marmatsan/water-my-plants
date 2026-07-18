@@ -10,7 +10,7 @@ import {
   USAGE_CHIP_INSTANCE_NAME,
   USAGE_CHIP_KINDS,
   USAGE_CHIP_PROPS,
-} from "../config/figma-config";
+} from "@figma-design-sync/project-config";
 import { sortedUnique } from "../domain/catalog/library-catalog-entries";
 import { loadTextNodeFonts } from "./figma-text-gateway";
 

@@ -1,4 +1,8 @@
 import type { DesignModel, SyncFigmaDesignModelOptions, SyncTargetName } from "../domain/design-model";
+import {
+  CATALOG_TREE_TARGETS,
+  CI_VISUAL_TARGET_NAMES,
+} from "@figma-design-sync/project-config";
 import type {
   CatalogTreeSyncGateway,
   CiDocumentationSyncGateway,
@@ -220,24 +224,9 @@ function emptyVisualContractCheckResult() {
   };
 }
 
-const CATALOG_SYNC_TARGETS: SyncTargetName[] = [
-  "waterMyPlants.libraries",
-  "waterMyPlants.plugins",
-  "waterMyPlants.customGradleConventionPlugins",
-  "waterMyPlants.customGradlePlugins",
-  "gradlePlugins.libraries",
-  "gradlePlugins.plugins",
-  "figmaDesignSync.libraries",
-  "figmaDesignSync.plugins",
-];
+const CATALOG_SYNC_TARGETS: SyncTargetName[] = CATALOG_TREE_TARGETS.map((target) => target.name);
 
-const CI_SYNC_TARGETS: SyncTargetName[] = [
-  "ci.overview",
-  "ci.pullRequestIntegration",
-  "ci.postMergeDesignDocumentation",
-  "ci.infrastructureAndAccess",
-  "ci.windowsRuntime",
-];
+const CI_SYNC_TARGETS: SyncTargetName[] = [...CI_VISUAL_TARGET_NAMES];
 
 const VISUAL_SYNC_TARGETS: SyncTargetName[] = [
   "headers",

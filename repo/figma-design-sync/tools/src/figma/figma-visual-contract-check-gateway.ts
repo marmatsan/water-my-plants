@@ -12,6 +12,7 @@ import {
   CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
   CI_NODE_PROPS,
+  CI_VISUAL_TARGET_NAMES,
   CI_VARIABLE_COLLECTION_NAME,
   CI_VARIABLE_MODE_NAMES,
   CONNECTOR_TEMPLATE_NAME,
@@ -32,8 +33,7 @@ import {
   VERSION_NUMBER_MODE_NAME,
   VERSION_SECTION_TARGETS,
   VERSIONS_COLLECTION_NAMES,
-} from "../config/figma-config";
-import { CI_VISUAL_TARGET_NAMES } from "../domain/ci/create-ci-visual-plan";
+} from "@figma-design-sync/project-config";
 import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
 import {
   libraryArtifacts,
