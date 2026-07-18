@@ -4,11 +4,12 @@ type: runbook
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/visual/GenerateCiVisualPlanTask.kt
 ---
 
 # Figma Visual Preview Runbook
@@ -116,6 +117,37 @@ After any staging failure, rerun `00-clear-staging.mcp.js` before trying again.
 
 The preview catalog entrypoint refuses `versions`, `metadata`, and catalog
 targets without a sandbox section id.
+
+## CI Documentation Preview
+
+CI previews use the Kotlin planner even though the compatibility runner is
+packaged by TypeScript. Start from an explicitly supplied TeamCity `main`
+artifact or another non-authoritative preview model that already contains
+`content.ci`; do not generate the official model locally on a feature branch.
+
+From the repository root, generate a plan for the target being inspected:
+
+```powershell
+.\gradlew.bat generateFigmaCiVisualPlan `
+  -PfigmaCiVisualDesignModel="PATH\TO\design-model.json" `
+  -PfigmaCiVisualTarget=ci.overview `
+  -PfigmaCiVisualPlanOutput="build\tmp\figma-preview\ci-visual-plan.json"
+```
+
+Then package the preview runner from the tools directory:
+
+```powershell
+node dist\write-mcp-runner.mjs `
+  --mode=preview `
+  --model="PATH\TO\design-model.json" `
+  --target=ci.overview `
+  --ci-visual-plan="..\..\..\build\tmp\figma-preview\ci-visual-plan.json"
+```
+
+The runner rejects a missing plan, a plan without the requested target, or
+duplicate sections for that target. It embeds only the requested section in
+`SYNC_OPTIONS`, leaving TypeScript responsible solely for the Figma Plugin API
+adapter and measured runtime layout.
 
 ## Catalog Tree Preview
 
