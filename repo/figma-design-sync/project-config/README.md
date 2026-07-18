@@ -50,6 +50,13 @@ files, or materialization command; its generated model simply omits
 `content.ci`. Water My Plants enables the flag and supplies those inputs from
 its Kotlin adapter.
 
+This portability boundary is executable. The Gradle integration suite applies
+the reusable plugin with its default CI setting, removes both `docs/ci` and
+`.teamcity` from the fixture, generates the design model, and verifies that the
+portable content is present while `content.ci` is absent. Production source and
+KDoc outside `project-config` describe the host repository through adapter
+contracts rather than Water My Plants paths or identities.
+
 The TypeScript selection boundary is the
 `@figma-design-sync/project-config` path in `tools/tsconfig.json`. Point that
 alias at the new repository's config module. TypeScript remains necessary only
