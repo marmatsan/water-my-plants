@@ -11,6 +11,7 @@ sources:
   - repo/dependency-catalog/settings.gradle.kts
   - repo/gradle-plugins/settings.gradle.kts
   - repo/figma-design-sync/settings.gradle.kts
+  - repo/figma-design-sync/data/build.gradle.kts
 ---
 
 # Project Structure
@@ -66,7 +67,7 @@ modules support the repository and CI; they are not production app modules.
 |------|----------------|---------|
 | `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
-| `repo/figma-design-sync/` | `figma-design-sync` | CI-oriented Gradle plugin and TypeScript tooling that generate and sync the Figma design model. |
+| `repo/figma-design-sync/` | `figma-design-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
 
 The root build includes `repo/gradle-plugins` and `repo/figma-design-sync`
 through `pluginManagement.includeBuild(...)`. Both included builds consume
@@ -90,11 +91,11 @@ configuration:
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/figma-design-sync/domain/` | `:domain` | Portable design-model types and ports. |
-| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, and Figma adapters. It does not depend on `water-my-plants-catalog` in production. |
+| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
 | `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
 | `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, and repository-specific TeamCity orchestration. |
-| `repo/figma-design-sync/tools/` | not a Gradle module | Reusable TypeScript writer selected through the active project configuration. |
+| `repo/figma-design-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
 the portable plugin; another repository replaces `project-config` without
