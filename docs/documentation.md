@@ -142,6 +142,15 @@ Product modules keep `<module>/docs/README.md` as their local entry point. The
 module README MUST link to shared standards and describe only module purpose,
 public boundaries, dependencies, and focused verification.
 
+Production standards evolve incrementally with the implementation. When
+product work introduces a new recurring concern, such as coroutine usage,
+database access, `data`/`domain`/`ui` layer responsibilities, ViewModels, or
+dependency injection, the same change MUST add or refine the applicable
+standard and link it from the relevant module documentation. Do not create
+speculative rules before a concrete need exists; derive them from reviewed
+code, tests, and architectural decisions, then use the documented contract for
+subsequent work.
+
 ## Derived Visual Documentation
 
 PlantUML source remains the reviewed UML source of truth. Figma contains the
