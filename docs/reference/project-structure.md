@@ -92,8 +92,8 @@ configuration:
 | `repo/figma-design-sync/domain/` | `:domain` | Portable design-model types and ports. |
 | `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, and Figma adapters. It does not depend on `water-my-plants-catalog` in production. |
 | `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
-| `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model. |
-| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, and optional TeamCity command. |
+| `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for build artifacts. |
+| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, and repository-specific orchestration such as preparing the TeamCity handoff. |
 | `repo/figma-design-sync/tools/` | not a Gradle module | Reusable TypeScript writer selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
