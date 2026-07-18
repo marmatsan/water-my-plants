@@ -9,6 +9,8 @@ review-cycle-days: 180
 sources:
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/gradle/FigmaDesignSyncGradlePlugin.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/gradle/FigmaCatalogChecksExtension.kt
+  - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/writer/FigmaWriterProjectConfig.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/writer/FigmaWriterProjectConfigJson.kt
   - repo/figma-design-sync/tools/bin/build.mjs
   - repo/figma-design-sync/samples/standalone-consumer
 ---
@@ -20,7 +22,8 @@ sources:
 A Gradle repository consumes the versioned `com.marmatsan.figmaDesignSync`
 plugin without including this source build. The repository owns its Figma
 identities and catalog adapters, may select an optional CI adapter, and builds
-the portable TypeScript writer with its own `figma-config.ts`.
+the portable writer with a transient JSON projection of its typed Kotlin
+configuration.
 
 Until an external repository is selected, use the staged publication produced
 by `verifyStagedPublication`. Do not copy `domain`, `data`, or `plugin` into a
@@ -77,29 +80,35 @@ consumer repository.
    }
    ```
 
-3. Add `@marmatsan/figma-design-sync-tools` at the same version and materialize
-   a project-configured writer. The config module supplies repository paths,
-   Figma component identities, visual targets, and the relative repository
-   root used for writer fingerprints.
+3. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
+   `FigmaWriterProjectConfigJson`, and register
+   `WriteFigmaWriterProjectConfigTask`. Wire its output into
+   `PrepareOfficialFigmaSyncTask.writerProjectConfigFile`. The model supplies
+   repository paths, Figma component identities, visual targets, and the
+   relative repository root used for writer fingerprints. Keep the JSON under
+   `build/`; do not version it.
+
+4. Add `@marmatsan/figma-design-sync-tools` at the same version and materialize
+   the configured writer from that transient JSON.
 
    ```powershell
    npm install --save-dev @marmatsan/figma-design-sync-tools@<version>
    npx figma-design-sync-build `
-       --project-config=repo\figma-design-sync\project-config\figma-config.ts `
+       --project-config-json=build\generated\figma-design-sync\writer-project-config.json `
        --output-dir=build\figma-design-sync-tools
    ```
 
-4. Configure included builds through `figmaDesignSync.includedBuilds` only when
+5. Configure included builds through `figmaDesignSync.includedBuilds` only when
    they contribute catalogs, modules, or convention plugins to the generated
    model.
 
-5. For TeamCity, add the optional
+6. For TeamCity, add the optional
    `com.marmatsan.figma-design-sync:figma-design-sync-teamcity-adapter:<version>`
    dependency to the repository adapter and select
    `TeamCityCiConfigurationProvider`. Other repositories may supply a sibling
    `CiConfigurationProvider` or leave CI documentation disabled.
 
-6. Add the relevant verification tasks to CI. Treat the model generated on the
+7. Add the relevant verification tasks to CI. Treat the model generated on the
    default branch as the only official publication input.
 
 ## Verification

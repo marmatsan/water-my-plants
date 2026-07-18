@@ -1,16 +1,20 @@
 # Figma Design Sync Tools
 
 This package contains the portable TypeScript writer and the checkpointed MCP
-runner tooling. It is built with a repository-owned `figma-config.ts` so Figma
+runner tooling. It is built with a repository-owned configuration so Figma
 node identities and visual targets remain outside the reusable writer.
 
 Prepare a configured tool workspace with:
 
 ```powershell
 npx figma-design-sync-build `
-    --project-config=path\to\figma-config.ts `
+    --project-config-json=path\to\writer-project-config.json `
     --output-dir=build\figma-design-sync-tools
 ```
+
+The JSON input is the Kotlin-first path and uses schema version `1`. During the
+gradual migration, `--project-config=path\to\figma-config.ts` remains available
+as a compatibility input. Exactly one project-config argument is required.
 
 The package remains `private` until a release is explicitly authorized. The
 publication runbook describes the release gate and version alignment contract.

@@ -1,10 +1,14 @@
 package com.marmatsan.figmaDesignSync.projectConfig
 
+import com.marmatsan.figmaDesignSync.data.json.writer.FigmaWriterProjectConfigJson
 import com.marmatsan.figmaDesignSync.plugin.gradle.figmaDesignSyncExtension
+import com.marmatsan.figmaDesignSync.plugin.task.config.WriteFigmaWriterProjectConfigTask
+import com.marmatsan.figmaDesignSync.plugin.task.official.PrepareOfficialFigmaSyncTask
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import java.io.File
 
@@ -17,12 +21,14 @@ import java.io.File
 class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply("com.marmatsan.figmaDesignSync")
+        val writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
 
         project.extensions.configure<figmaDesignSyncExtension> {
             designModelMetadataNodeUrl.set(
-                "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908"
+                "https://www.figma.com/design/${writerConfig.figmaFileKey}/Water-My-Plants" +
+                    "?node-id=${writerConfig.metadataPageId.replace(':', '-')}"
             )
-            metadataNamespace.set("water_my_plants_sync")
+            metadataNamespace.set(writerConfig.metadataNamespace)
             primaryCatalogModelName.set("waterMyPlants")
             dependencyCatalogProviderClassName.set(
                 WaterMyPlantsDependencyCatalogProvider::class.java.name
@@ -67,6 +73,23 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
                 modulePathPrefix.set(":gradle-plugins")
                 publishesConventionPlugins.set(true)
             }
+        }
+
+        val writeWriterProjectConfig =
+            project.tasks.register<WriteFigmaWriterProjectConfigTask>("writeFigmaWriterProjectConfig") {
+                group = "figma design sync"
+                description = "Writes the Water My Plants Figma writer configuration as transient JSON."
+                configurationJson.set(FigmaWriterProjectConfigJson.encode(writerConfig))
+                outputFile.set(
+                    project.layout.buildDirectory.file(
+                        "generated/figma-design-sync/writer-project-config.json"
+                    )
+                )
+            }
+
+        project.tasks.named<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
+            dependsOn(writeWriterProjectConfig)
+            writerProjectConfigFile.set(writeWriterProjectConfig.flatMap { task -> task.outputFile })
         }
 
         project.tasks.register<PrepareTeamCityFigmaSyncHandoffTask>("prepareTeamCityFigmaSyncHandoff") {
