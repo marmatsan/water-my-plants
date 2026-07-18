@@ -1,6 +1,7 @@
 package com.marmatsan.figmaDesignSync.projectConfig
 
 import com.marmatsan.figmaDesignSync.plugin.gradle.figmaDesignSyncExtension
+import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
@@ -26,10 +27,13 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
                 WaterMyPlantsDependencyCatalogProvider::class.java.name
             )
             ciDocumentationEnabled.set(true)
+            ciConfigurationModelName.set("teamCity")
+            ciConfigurationProviderClassName.set(TeamCityCiConfigurationProvider::class.java.name)
+            ciDefaultBranchAlias.set("<default>")
             versionsFile.set(project.layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
             ciExternalTopologyFile.set(project.layout.projectDirectory.file("docs/ci/external-topology.yaml"))
             ciWindowsRuntimeFile.set(project.layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
-            teamCityGeneratedConfigurationDirectory.set(
+            ciGeneratedConfigurationDirectory.set(
                 project.layout.projectDirectory.dir(".teamcity/target/generated-configs")
             )
             changeImpactPolicyFile.set(

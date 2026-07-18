@@ -46,6 +46,18 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:Input
     abstract val ciDocumentationEnabled: Property<Boolean>
 
+    @get:Input
+    @get:Optional
+    abstract val ciConfigurationModelName: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val ciConfigurationProviderClassName: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val ciDefaultBranchAlias: Property<String>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
@@ -67,7 +79,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:InputDirectory
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val teamCityGeneratedConfigurationDirectory: DirectoryProperty
+    abstract val ciGeneratedConfigurationDirectory: DirectoryProperty
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -111,11 +123,13 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
                 primaryCatalogModelName = primaryCatalogModelName.get(),
                 dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
                 ciDocumentationEnabled = ciDocumentationEnabled.get(),
+                ciConfigurationModelName = ciConfigurationModelName.orNull,
+                ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
                 versionsFile = versionsFile.get().asFile,
                 rootSettingsFile = rootSettingsFile.get().asFile,
                 ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
                 ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
-                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.orNull?.asFile,
+                ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                 projectRootDirectory = projectRootDirectory.get().asFile,
                 includedBuilds = includedBuildSources()
             )
@@ -199,13 +213,12 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
             .removePrefix("refs/remotes/")
             .removePrefix("origin/")
 
-        return if (normalized == TEAMCITY_DEFAULT_BRANCH) MAIN_BRANCH else normalized
+        return if (normalized == ciDefaultBranchAlias.orNull) MAIN_BRANCH else normalized
     }
 
     private companion object {
         const val MAIN_BRANCH = "main"
         const val DETACHED_HEAD = "HEAD"
-        const val TEAMCITY_DEFAULT_BRANCH = "<default>"
         const val OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE = "FIGMA_DESIGN_SYNC_OFFICIAL"
         const val BRANCH_ENVIRONMENT_VARIABLE = "FIGMA_DESIGN_SYNC_BRANCH"
 

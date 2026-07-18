@@ -88,6 +88,15 @@ abstract class figmaDesignSyncExtension @Inject constructor(
         .property(Boolean::class.javaObjectType)
         .convention(false)
 
+    /** Stable JSON key used for the effective CI configuration. */
+    val ciConfigurationModelName: Property<String> = objects.property(String::class.java)
+
+    /** Project adapter implementing the generated CI configuration contract. */
+    val ciConfigurationProviderClassName: Property<String> = objects.property(String::class.java)
+
+    /** Provider-specific branch label that represents the repository default branch. */
+    val ciDefaultBranchAlias: Property<String> = objects.property(String::class.java)
+
     /**
      * Version declarations used by the generated model.
      */
@@ -108,10 +117,8 @@ abstract class figmaDesignSyncExtension @Inject constructor(
      */
     val ciWindowsRuntimeFile: RegularFileProperty = objects.fileProperty()
 
-    /**
-     * Effective TeamCity configuration generated from the versioned Kotlin DSL.
-     */
-    val teamCityGeneratedConfigurationDirectory: DirectoryProperty = objects.directoryProperty()
+    /** Effective configuration directory read by the selected CI adapter. */
+    val ciGeneratedConfigurationDirectory: DirectoryProperty = objects.directoryProperty()
 
     /** Optional CI adapter command that materializes effective configuration. */
     val ciConfigurationCommand: ListProperty<String> = objects.listProperty(String::class.java)

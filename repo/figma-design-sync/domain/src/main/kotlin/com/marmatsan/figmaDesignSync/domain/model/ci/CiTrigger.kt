@@ -1,9 +1,7 @@
 package com.marmatsan.figmaDesignSync.domain.model.ci
 
-/**
- * Effective TeamCity pipeline trigger extracted from generated configuration.
- */
-data class TeamCityTrigger(
+/** Effective CI pipeline trigger supplied by a concrete adapter. */
+data class CiTrigger(
     val type: Type,
     val branchFilter: String?,
     val dependencyPipelineId: String?,

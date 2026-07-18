@@ -11,10 +11,10 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityVcsRoot
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiConfiguration
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiJob
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiPipeline
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiVcsRoot
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import kotlinx.serialization.json.JsonArray
@@ -300,21 +300,21 @@ internal fun CiWindowsRuntime.toDesignJson(): JsonObject =
     }
 
 /**
- * Converts effective TeamCity pipelines and VCS roots to stable JSON.
+ * Converts effective CI pipelines and VCS roots to stable JSON.
  */
-internal fun TeamCityConfiguration.toDesignJson(): JsonObject =
+internal fun CiConfiguration.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "pipelines",
             pipelines
-                .sortedBy(TeamCityPipeline::id)
-                .map(TeamCityPipeline::toDesignJson)
+                .sortedBy(CiPipeline::id)
+                .map(CiPipeline::toDesignJson)
                 .let(::JsonArray)
         )
         put(
             "vcsRoots",
             vcsRoots
-                .sortedBy(TeamCityVcsRoot::id)
+                .sortedBy(CiVcsRoot::id)
                 .map { vcsRoot ->
                     buildJsonObject {
                         put("id", vcsRoot.id)
@@ -328,7 +328,7 @@ internal fun TeamCityConfiguration.toDesignJson(): JsonObject =
         )
     }
 
-private fun TeamCityPipeline.toDesignJson(): JsonObject =
+private fun CiPipeline.toDesignJson(): JsonObject =
     buildJsonObject {
         put("id", id)
         put("name", name)
@@ -351,13 +351,13 @@ private fun TeamCityPipeline.toDesignJson(): JsonObject =
         put(
             "jobs",
             jobs
-                .sortedBy(TeamCityJob::id)
-                .map(TeamCityJob::toDesignJson)
+                .sortedBy(CiJob::id)
+                .map(CiJob::toDesignJson)
                 .let(::JsonArray)
         )
     }
 
-private fun TeamCityJob.toDesignJson(): JsonObject =
+private fun CiJob.toDesignJson(): JsonObject =
     buildJsonObject {
         put("id", id)
         put("name", name)
@@ -375,7 +375,7 @@ private fun TeamCityJob.toDesignJson(): JsonObject =
         put(
             "artifacts",
             artifacts
-                .sortedBy(TeamCityJob.Artifact::path)
+                .sortedBy(CiJob.Artifact::path)
                 .map { artifact ->
                     buildJsonObject {
                         put("path", artifact.path)
@@ -388,7 +388,7 @@ private fun TeamCityJob.toDesignJson(): JsonObject =
         put(
             "dependencies",
             dependencies
-                .sortedBy(TeamCityJob.Dependency::jobId)
+                .sortedBy(CiJob.Dependency::jobId)
                 .map { dependency ->
                     buildJsonObject {
                         put("jobId", dependency.jobId)
@@ -400,7 +400,7 @@ private fun TeamCityJob.toDesignJson(): JsonObject =
         put(
             "publishedChecks",
             publishedChecks
-                .sortedBy(TeamCityJob.PublishedCheck::name)
+                .sortedBy(CiJob.PublishedCheck::name)
                 .map { check -> buildJsonObject { put("name", check.name) } }
                 .let(::JsonArray)
         )

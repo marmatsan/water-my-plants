@@ -36,11 +36,13 @@ internal class FigmaTrunkSyncChecker(
                 primaryCatalogModelName = request.primaryCatalogModelName,
                 dependencyCatalogProviderClassName = request.dependencyCatalogProviderClassName,
                 ciDocumentationEnabled = request.ciDocumentationEnabled,
+                ciConfigurationModelName = request.ciConfigurationModelName,
+                ciConfigurationProviderClassName = request.ciConfigurationProviderClassName,
                 versionsFile = request.versionsFile,
                 rootSettingsFile = request.rootSettingsFile,
                 ciExternalTopologyFile = request.ciExternalTopologyFile,
                 ciWindowsRuntimeFile = request.ciWindowsRuntimeFile,
-                teamCityGeneratedConfigurationDirectory = request.teamCityGeneratedConfigurationDirectory,
+                ciGeneratedConfigurationDirectory = request.ciGeneratedConfigurationDirectory,
                 projectRootDirectory = request.projectRootDirectory,
                 includedBuilds = request.includedBuilds
             )

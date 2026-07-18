@@ -176,9 +176,11 @@ class GradleTaskSteps : En {
         val ciDocumentationConfiguration = if (ciDocumentationEnabled) {
             """
             ciDocumentationEnabled.set(true)
+            ciConfigurationModelName.set("teamCity")
+            ciConfigurationProviderClassName.set(EmptyCiConfigurationProvider::class.java.name)
             ciExternalTopologyFile.set(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
             ciWindowsRuntimeFile.set(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
-            teamCityGeneratedConfigurationDirectory.set(
+            ciGeneratedConfigurationDirectory.set(
                 layout.projectDirectory.dir(".teamcity/target/generated-configs")
             )
             """.trimIndent()
@@ -188,6 +190,7 @@ class GradleTaskSteps : En {
 
         resolve("build.gradle.kts").writeText(
             """
+            import com.marmatsan.figmaDesignSync.data.ci.configuration.EmptyCiConfigurationProvider
             import com.marmatsan.figmaDesignSync.data.dependencies.catalog.EmptyDependencyCatalogProvider
 
             plugins {

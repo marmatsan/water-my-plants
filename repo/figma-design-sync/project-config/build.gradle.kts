@@ -14,6 +14,7 @@ repositories {
 dependencies {
     implementation(projects.data)
     implementation(projects.plugin)
+    implementation(projects.teamcityAdapter)
     implementation("com.marmatsan.repo:catalog-core")
     implementation("com.marmatsan.repo:water-my-plants-catalog")
 }

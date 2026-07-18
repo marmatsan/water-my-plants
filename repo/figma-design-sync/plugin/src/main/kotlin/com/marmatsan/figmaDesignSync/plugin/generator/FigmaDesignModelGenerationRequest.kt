@@ -20,8 +20,9 @@ import java.time.Instant
  * @property rootSettingsFile Root `settings.gradle.kts`.
  * @property ciExternalTopologyFile Versioned external CI topology.
  * @property ciWindowsRuntimeFile Versioned Windows service runtime.
- * @property teamCityGeneratedConfigurationDirectory Effective TeamCity
- * configuration generated from `.teamcity/settings.kts`.
+ * @property ciConfigurationModelName Stable JSON key for the configured CI adapter.
+ * @property ciConfigurationProviderClassName Project-config CI adapter.
+ * @property ciGeneratedConfigurationDirectory Effective generated CI configuration.
  * @property projectRootDirectory Repository root.
  * @property includedBuilds Included builds that contribute catalogs, modules,
  * and module dependency graphs.
@@ -33,11 +34,13 @@ internal data class FigmaDesignModelGenerationRequest(
     val primaryCatalogModelName: String,
     val dependencyCatalogProviderClassName: String,
     val ciDocumentationEnabled: Boolean,
+    val ciConfigurationModelName: String?,
+    val ciConfigurationProviderClassName: String?,
     val versionsFile: File,
     val rootSettingsFile: File,
     val ciExternalTopologyFile: File?,
     val ciWindowsRuntimeFile: File?,
-    val teamCityGeneratedConfigurationDirectory: File?,
+    val ciGeneratedConfigurationDirectory: File?,
     val projectRootDirectory: File,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )

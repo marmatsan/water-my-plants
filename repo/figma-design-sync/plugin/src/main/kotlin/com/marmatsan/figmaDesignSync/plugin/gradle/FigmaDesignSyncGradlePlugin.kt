@@ -145,11 +145,14 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             primaryCatalogModelName.set(extension.primaryCatalogModelName)
             dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
             ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
+            ciConfigurationModelName.set(extension.ciConfigurationModelName)
+            ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
+            ciDefaultBranchAlias.set(extension.ciDefaultBranchAlias)
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
             ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
-            teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
+            ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
                 includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
             )
@@ -179,11 +182,13 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             primaryCatalogModelName.set(extension.primaryCatalogModelName)
             dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
             ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
+            ciConfigurationModelName.set(extension.ciConfigurationModelName)
+            ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
             versionsFile.set(extension.versionsFile)
             rootSettingsFile.set(extension.rootSettingsFile)
             ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
             ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
-            teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
+            ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
                 includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
             )
@@ -243,7 +248,7 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 doFirst {
                     commandLine(extension.ciConfigurationCommand.get())
                 }
-                outputs.dir(extension.teamCityGeneratedConfigurationDirectory)
+                outputs.dir(extension.ciGeneratedConfigurationDirectory)
                 outputs.upToDateWhen { false }
             }
 
@@ -259,11 +264,14 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 primaryCatalogModelName.set(extension.primaryCatalogModelName)
                 dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
                 ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
+                ciConfigurationModelName.set(extension.ciConfigurationModelName)
+                ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
+                ciDefaultBranchAlias.set(extension.ciDefaultBranchAlias)
                 versionsFile.set(extension.versionsFile)
                 rootSettingsFile.set(extension.rootSettingsFile)
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
                 ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
-                teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
+                ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
                 includedBuildSettingsFiles.from(
                     includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
                 )
@@ -329,11 +337,13 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 primaryCatalogModelName.set(extension.primaryCatalogModelName)
                 dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
                 ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
+                ciConfigurationModelName.set(extension.ciConfigurationModelName)
+                ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
                 versionsFile.set(extension.versionsFile)
                 rootSettingsFile.set(extension.rootSettingsFile)
                 ciExternalTopologyFile.set(extension.ciExternalTopologyFile)
                 ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
-                teamCityGeneratedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
+                ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
                 includedBuildSettingsFiles.from(
                     includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
                 )

@@ -12,8 +12,10 @@ The active adapter consists of:
 
 - `src/main/kotlin/.../WaterMyPlantsFigmaDesignSyncGradlePlugin.kt`, which
   applies `com.marmatsan.figmaDesignSync` and supplies repository paths, Figma
-  metadata identity, included builds, and the optional TeamCity generation
-  command;
+  metadata identity, included builds, the TeamCity adapter class, its
+  `teamCity` model key, and the optional TeamCity generation command;
+- `../teamcity-adapter/src/main/kotlin/.../TeamCityCiConfigurationProvider.kt`,
+  which translates TeamCity's generated YAML/XML into the portable CI model;
 - `src/main/kotlin/.../WaterMyPlantsDependencyCatalogProvider.kt`, which adapts
   the concrete `WaterMyPlantsCatalog` to the portable catalog provider;
 - `water-my-plants/figma-config.ts`, which owns Figma file identity, node ids,
@@ -34,21 +36,25 @@ The adapter then applies the reusable `com.marmatsan.figmaDesignSync` plugin.
 ## Reusing The Engine
 
 A new Gradle repository reuses `domain/`, `data/`, `plugin/`, `tools/`, and
-their tests. It supplies a new project-config adapter that:
+their tests. It reuses `teamcity-adapter/` only when TeamCity is its CI system,
+and supplies a new project-config adapter that:
 
 1. implements `DependencyCatalogProvider` for its dependency source;
 2. applies and configures `com.marmatsan.figmaDesignSync`;
 3. declares its primary catalog model name and included builds;
 4. provides its Figma metadata URL, namespace, and TypeScript config module;
 5. provides a change-impact policy for its repository paths;
-6. optionally provides a CI configuration command and CI-specific source
-   files.
+6. optionally selects a `CiConfigurationProvider`, its stable JSON model key,
+   generated configuration directory, default-branch alias, and materializing
+   command.
 
 The reusable plugin defaults `ciDocumentationEnabled` to `false`. A project
-that does not enable it needs no TeamCity generated directory, CI topology
+that does not enable it needs no generated CI directory, provider, topology
 files, or materialization command; its generated model simply omits
-`content.ci`. Water My Plants enables the flag and supplies those inputs from
-its Kotlin adapter.
+`content.ci`. Water My Plants enables the flag and selects
+`TeamCityCiConfigurationProvider` from Kotlin project configuration. The
+portable plugin knows only `CiConfigurationProvider`, not TeamCity file
+formats or branch aliases.
 
 This portability boundary is executable. The Gradle integration suite applies
 the reusable plugin with its default CI setting, removes both `docs/ci` and
@@ -80,6 +86,7 @@ From the repository root:
 ```powershell
 .\gradlew.bat :figma-design-sync:domain:check `
     :figma-design-sync:data:check `
+    :figma-design-sync:teamcity-adapter:check `
     :figma-design-sync:plugin:check `
     :figma-design-sync:project-config:check
 

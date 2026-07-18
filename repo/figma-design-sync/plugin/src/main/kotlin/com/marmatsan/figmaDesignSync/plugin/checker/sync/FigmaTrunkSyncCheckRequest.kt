@@ -22,11 +22,13 @@ internal data class FigmaTrunkSyncCheckRequest(
     val primaryCatalogModelName: String,
     val dependencyCatalogProviderClassName: String,
     val ciDocumentationEnabled: Boolean,
+    val ciConfigurationModelName: String?,
+    val ciConfigurationProviderClassName: String?,
     val versionsFile: File,
     val rootSettingsFile: File,
     val ciExternalTopologyFile: File?,
     val ciWindowsRuntimeFile: File?,
-    val teamCityGeneratedConfigurationDirectory: File?,
+    val ciGeneratedConfigurationDirectory: File?,
     val projectRootDirectory: File,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )

@@ -44,6 +44,7 @@
     "repo/dependency-catalog/*",
     "repo/gradle-plugins/settings.gradle.kts",
     "repo/figma-design-sync/settings.gradle.kts",
+    "repo/figma-design-sync/teamcity-adapter/src/*",
     "repo/figma-design-sync/project-config/src/*",
     "settings.gradle.kts",
     "build.gradle.kts",

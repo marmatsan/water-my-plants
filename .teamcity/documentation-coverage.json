@@ -42,6 +42,7 @@
         "repo/figma-design-sync/data/src/*",
         "repo/figma-design-sync/domain/src/*",
         "repo/figma-design-sync/plugin/src/*",
+        "repo/figma-design-sync/teamcity-adapter/src/*",
         "repo/figma-design-sync/project-config/src/*",
         "repo/figma-design-sync/project-config/water-my-plants/*",
         "repo/figma-design-sync/*/build.gradle.kts",
@@ -50,6 +51,7 @@
       "documentationPaths": [
         "repo/figma-design-sync/README.md",
         "repo/figma-design-sync/project-config/README.md",
+        "repo/figma-design-sync/teamcity-adapter/README.md",
         "repo/figma-design-sync/docs/runbooks/*.md",
         "repo/figma-design-sync/docs/reference/*.md",
         "repo/figma-design-sync/docs/standards/*.md"

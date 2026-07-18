@@ -18,7 +18,7 @@ class OfficialFigmaArtifactContractValidator {
             "design-model.json requires non-empty gitSha and modelHash values."
         }
         expectedGitSha?.takeIf(String::isNotBlank)?.let { expected ->
-            requireEqual(model.gitSha, expected, "TeamCity revision")
+            requireEqual(model.gitSha, expected, "CI revision")
         }
 
         val scope = contract.scope
