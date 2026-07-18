@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -12,6 +12,7 @@ sources:
   - repo/gradle-plugins/settings.gradle.kts
   - repo/figma-design-sync/settings.gradle.kts
   - repo/figma-design-sync/data/build.gradle.kts
+  - repo/figma-design-sync/project-config/build.gradle.kts
 ---
 
 # Project Structure
@@ -94,13 +95,18 @@ configuration:
 | `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
 | `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
-| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, and repository-specific TeamCity orchestration. |
+| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, repository-specific TeamCity orchestration, and adapter contract tests. |
 | `repo/figma-design-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
 the portable plugin; another repository replaces `project-config` without
 changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
 `teamcity-adapter` only if its CI provider is TeamCity.
+
+The `project-config` test suite receives the language-neutral writer runtime
+fixture from `tools/fixtures/contracts/` as a test-only system property. This
+keeps the published contract executable against the typed Water My Plants
+configuration without adding the tools package to production dependencies.
 
 ## Documentation
 
