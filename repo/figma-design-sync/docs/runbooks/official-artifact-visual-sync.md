@@ -10,6 +10,7 @@ sources:
   - .teamcity/settings.kts
   - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
   - tools/teamcity/prepare-figma-sync-handoff.ps1
+  - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/artifact/ValidateOfficialFigmaArtifactSetTask.kt
 ---
 
 # Official Artifact Visual Sync Runbook

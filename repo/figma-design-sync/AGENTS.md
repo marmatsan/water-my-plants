@@ -33,6 +33,8 @@ used by CI.
   design model.
 - `domain/model/impact`: portable Figma verification scopes, impacts, policy,
   and repository change-set models.
+- `domain/model/artifact` and `domain/service/artifact`: pure official artifact
+  identities and cross-file validation rules used by the MCP handoff.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
 - `domain/port/ci`: path-based sources and ports for external topology,
@@ -48,6 +50,8 @@ used by CI.
 - `data/figma/client`: Figma API client and client exceptions.
 - `data/figma/dto`: serializable Figma API response and node DTOs.
 - `data/figma/common`: shared Figma URL helpers.
+- `data/figma/artifact`: filesystem and JSON readers for official TeamCity
+  artifact sets.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
 - `data/dependencies/catalog`: adapters from the reusable `catalog-core` tree
@@ -70,6 +74,8 @@ used by CI.
   generation and sync verification.
 - `plugin/task/impact`: portable Gradle task that writes
   `build/reports/figma-sync/change-impact.json`.
+- `plugin/task/artifact`: Gradle adapter that validates an official artifact
+  set and writes its typed handoff identity.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 
@@ -94,6 +100,8 @@ used by CI.
   wired into the root `check` lifecycle.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
+- `validateOfficialFigmaArtifactSet`: validates the downloaded main model,
+  scope, plan, and runner manifests before MCP-operated publication.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it
   locally for diagnosis, but CI is the source of truth before merging into
   `main`.

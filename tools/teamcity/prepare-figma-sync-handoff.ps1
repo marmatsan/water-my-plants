@@ -14,7 +14,6 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "../..")).Path
-Import-Module (Join-Path $PSScriptRoot "FigmaArtifactHandoff.psm1") -Force
 $expectedGitSha = $null
 
 if ($PSCmdlet.ParameterSetName -eq "Download") {
@@ -57,9 +56,23 @@ if ($PSCmdlet.ParameterSetName -eq "Download") {
     $ArtifactDirectory = $downloadDirectory
 }
 
-$handoff = Test-OfficialFigmaArtifactSet `
-    -ArtifactDirectory $ArtifactDirectory `
-    -ExpectedGitSha $expectedGitSha
+$artifactParent = Split-Path -Parent $ArtifactDirectory
+$artifactName = Split-Path -Leaf $ArtifactDirectory
+$validationOutput = Join-Path $artifactParent "$artifactName-validation.json"
+$gradleWrapper = Join-Path $repositoryRoot $(if ($IsWindows) { "gradlew.bat" } else { "gradlew" })
+$validationArguments = @(
+    "validateOfficialFigmaArtifactSet",
+    "-PfigmaArtifactDirectory=$ArtifactDirectory",
+    "-PfigmaArtifactValidationOutput=$validationOutput"
+)
+if (-not [string]::IsNullOrWhiteSpace($expectedGitSha)) {
+    $validationArguments += "-PfigmaExpectedGitSha=$expectedGitSha"
+}
+& $gradleWrapper @validationArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "The official Figma artifact set failed Kotlin validation."
+}
+$handoff = Get-Content -LiteralPath $validationOutput -Raw | ConvertFrom-Json
 
 $toolsDirectory = Join-Path $repositoryRoot "repo/figma-design-sync/tools"
 $executor = Join-Path $toolsDirectory "dist/execute-mcp-runner.mjs"

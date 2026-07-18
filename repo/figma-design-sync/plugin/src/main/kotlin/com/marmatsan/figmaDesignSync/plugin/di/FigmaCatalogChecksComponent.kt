@@ -10,6 +10,8 @@ import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModuleDepend
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModulesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.versions.RepositoryVersionsDataSource
 import com.marmatsan.figmaDesignSync.data.figma.client.FigmaFileContentClient
+import com.marmatsan.figmaDesignSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDesignSync.domain.service.artifact.OfficialFigmaArtifactContractValidator
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
@@ -82,6 +84,12 @@ internal abstract class figmaDesignSyncComponent {
      * Service used by `checkFigmaVersionNaming`.
      */
     abstract val versionNamingChecker: VersionNamingChecker
+
+    /** Reads the filesystem artifact set consumed by the MCP operator handoff. */
+    abstract val officialFigmaArtifactSetReader: OfficialFigmaArtifactSetReader
+
+    /** Validates the cross-file identity of an official main artifact set. */
+    abstract val officialFigmaArtifactContractValidator: OfficialFigmaArtifactContractValidator
 
     /**
      * Provides the narrow Figma API client used only by the sync checker.

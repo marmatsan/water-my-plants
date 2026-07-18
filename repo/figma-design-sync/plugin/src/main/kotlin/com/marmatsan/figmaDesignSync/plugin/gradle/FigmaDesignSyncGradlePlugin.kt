@@ -2,6 +2,7 @@ package com.marmatsan.figmaDesignSync.plugin.gradle
 
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import com.marmatsan.figmaDesignSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
+import com.marmatsan.figmaDesignSync.plugin.task.artifact.ValidateOfficialFigmaArtifactSetTask
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiExternalTopologyFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
@@ -14,6 +15,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
+import java.io.File
 
 /**
  * Registers Gradle tasks that generate and verify the Figma design model.
@@ -50,6 +52,23 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             )
             project.providers.gradleProperty("figmaComparisonBase").orNull?.let(comparisonBaseOverride::set)
             outputs.upToDateWhen { false }
+        }
+
+        project.tasks.register<ValidateOfficialFigmaArtifactSetTask>("validateOfficialFigmaArtifactSet") {
+            group = "verification"
+            description = "Validates an official main Figma artifact set and writes its handoff identity."
+
+            artifactDirectory.set(
+                project.layout.dir(
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                )
+            )
+            expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
+            outputFile.set(
+                project.layout.file(
+                    project.providers.gradleProperty("figmaArtifactValidationOutput").map(::File)
+                ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json"))
+            )
         }
 
         val checkFigmaCatalogUsage = project.tasks.register<CheckFigmaCatalogUsageTask>("checkFigmaCatalogUsage") {
