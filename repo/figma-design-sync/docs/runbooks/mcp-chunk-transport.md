@@ -7,8 +7,9 @@ status: active
 last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
-  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
-  - repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/png/PayloadPngEncoder.kt
 ---
 
 # MCP Payload Transport Runbook
@@ -46,34 +47,30 @@ Do not commit the generated JavaScript. The script expects
 `design-model.json` to be injected as `DESIGN_MODEL` before execution and must
 run in the Figma MCP runtime because it uses the Figma plugin API.
 
-To generate MCP runner snippets for an official TeamCity artifact:
+TeamCity invokes the Kotlin `OfficialMcpRunnerGenerator` after building this
+boundary. The official artifact already contains complete visual and metadata
+runner directories. Inspect the visual runner without writing to Figma:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpDryRun=true
 ```
 
-To validate the Figma visual contract before mutating visual targets, generate a
-preflight runner:
+The first selected `99-*.mcp.js` unit is `preflight`. Query it without executing
+the runner:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=preflight --allow-partial=true
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpNext=true
 ```
 
 `preflight` reads the same official model and validates variables, component
 properties, usage chip variants, configured sections, target model shape, and
 root filters. It must return `mutatedNodeIds: []`.
 
-To make a visual write fail before mutation when the visual contract is stale,
-combine `preflight` with one visual target:
-
-```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries --allow-partial=true
-```
-
-The generated `99-run-target.mcp.js` executes the requested diagnostic targets
-in one atomic `use_figma` call. Partial runs cannot complete an official
-integration. Do not combine `metadata` with any other target; metadata must run
-alone after the complete visual runner succeeds.
+The Kotlin executor preserves preflight-first ordering and checkpoints each
+subsequent visual unit independently. A focused diagnostic may execute one
+generated atomic file through the supervised MCP writer and record its result,
+but it cannot complete an official integration. Metadata remains a separate
+manifest and runs only after the visual checkpoint is complete.
 
 Official mode defaults to `--transport=png` and writes:
 
@@ -112,29 +109,26 @@ so the staging runner inspects only direct children of each document page. It
 must not call `figma.root.findAll`, which traverses the complete design and can
 exhaust the plugin runtime, or rely on unsupported `loadAllPagesAsync`.
 
-To run only one top-level catalog root, use its explicit execution scope:
+To inspect execution from one top-level catalog root, use its explicit runner
+file:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries.androidx --allow-partial=true
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpFrom="RUNNER_FILE_FOR_waterMyPlants.libraries.androidx" -PfigmaMcpDryRun=true
 ```
 
-Use this for large catalog targets that hit MCP timeouts or generic Figma
-runtime failures. `--roots` scopes the already-official TeamCity model in the
-runner; it does not create or authorize a branch-local design model.
+`figmaMcpFrom` includes that file and every later planned unit. For a supervised
+one-unit diagnosis, execute only the named generated file through the supported
+MCP writer and record the result. The runner already scopes the official model
+to that root; it does not create or authorize a branch-local design model.
 
 If the generated PNG exceeds the supported upload size or asset upload is not
-usable, regenerate with chunk transport:
-
-```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks
-```
+usable, rerun the authorized official TeamCity generation with
+`-PfigmaMcpTransport=chunks`. Do not regenerate an official runner from a local
+or feature-branch model.
 
 If a generated chunk runner file is too large for the MCP transport, reduce the
-chunk size instead of copying the long payload manually:
-
-```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --transport=chunks --chunk-size=8000
-```
+chunk size with `-PfigmaMcpChunkSize=8000` on that authorized generation
+instead of copying the long payload manually.
 
 Use [visual-preview.md](visual-preview.md) instead when testing fixture-driven
 visual changes before the change reaches `main`.
@@ -289,9 +283,10 @@ the required write tools.
 
 ## Sources
 
-- `tools/scripts/write-mcp-runner.ts`
-- `tools/scripts/execute-mcp-runner.ts`
-- `tools/scripts/payload-png.ts`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/png/PayloadPngEncoder.kt`
+- `tools/src/sync-trunk-design-model.ts`
 
 ## Run The Planned Visual Sync
 
@@ -302,10 +297,10 @@ lexical order without editing its target or root. Catalog calls are split by
 roots from the official model and finish with stale-node cleanup. All calls use
 `writeMetadata=false`.
 
-If a focused diagnostic is necessary, regenerate the runner with the target
-and `--allow-partial=true`. A partial runner may confirm a repair, but it cannot
-authorize metadata. Regenerate the official artifact and complete its generated
-visual plan before closing the synchronization.
+If a focused diagnostic is necessary, use one atomic file already present in
+the complete runner and record the result in its checkpoint. A partial repair
+cannot authorize metadata. Complete the official artifact's generated visual
+plan before closing the synchronization.
 
 ## Write Metadata
 
@@ -334,8 +329,7 @@ Generate metadata independently and reuse staging only with a matching
 completed visual checkpoint:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=metadata
-node dist/execute-mcp-runner.mjs --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\metadata\manifest.json" -PfigmaMcpReuseStaging=true -PfigmaMcpVisualState="PATH\TO\visual\execution-state.json" -PfigmaMcpDryRun=true
 ```
 
 Do not edit `SYNC_OPTIONS` or manifest identity fields by hand.

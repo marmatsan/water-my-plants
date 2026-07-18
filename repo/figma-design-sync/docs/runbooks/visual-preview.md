@@ -167,22 +167,21 @@ node dist\write-mcp-runner.mjs --mode=preview --fixture=versions --target=versio
 
 Do not write metadata after a version preview run.
 
-## Official Runner Generation
+## Official Runner Handoff
 
-The same generator can create MCP runner files for an official TeamCity
-artifact. Official mode defaults to PNG payload transport, and the source model
-must be the artifact from `Figma Sync > Generate main design model`:
+The preview generator does not authorize an official runner. TeamCity uses the
+Kotlin generator and publishes complete visual and metadata runner directories
+next to the official model and visual plan. Inspect that artifact with:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=metadata
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpDryRun=true
 ```
 
 Official mode stages data under `water_my_plants_sync_staging`. Only the
 `metadata` target writes to the authoritative namespace, and it should be run
 after every scope in the TeamCity-generated visual plan has completed
-successfully. Add `--allow-partial=true` only for supervised diagnosis; an ad
-hoc partial runner does not authorize a metadata write.
+successfully. A supervised atomic diagnostic does not authorize a metadata
+write.
 
 ## Verification
 

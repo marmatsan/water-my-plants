@@ -83,7 +83,9 @@ consumer repository.
 3. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
    `FigmaWriterProjectConfigJson`, and register
    `WriteFigmaWriterProjectConfigTask`. Wire its output into
-   `PrepareOfficialFigmaSyncTask.writerProjectConfigFile`. The model supplies
+   `PrepareOfficialFigmaSyncTask.writerProjectConfigFile`,
+   `RunFigmaMcpTask.writerProjectConfigFile`, and
+   `ProbeFigmaMcpTask.writerProjectConfigFile`. The model supplies
    repository paths, Figma component identities, visual targets, and the
    relative repository root used for writer fingerprints. Keep the JSON under
    `build/`; do not version it.

@@ -176,8 +176,8 @@ branch-local models and locally regenerated models are not authorized
 publication inputs. After the MCP sync writes the latest metadata, rerun
 `Figma Sync` on `main` to verify the result.
 
-The generated executor and checkpoint contract are ready for a write-capable
-MCP endpoint, but the current local Figma Desktop endpoint is capability-gated:
+The Kotlin executor and checkpoint contract are ready for a write-capable MCP
+endpoint, but the current local Figma Desktop endpoint is capability-gated:
 it does not advertise `use_figma` or `upload_assets`. TeamCity therefore
 publishes the deterministic plan and runners but does not attempt a speculative
 headless visual write. See

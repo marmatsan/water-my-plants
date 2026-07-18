@@ -67,9 +67,12 @@ adapter define JSON schema version `1`. Repository adapters own the model
 values; generated JSON is a transient build input rather than a reviewed
 source file.
 
-The materialized directory contains the compiled writer, checkpoint executor,
-runner generator, portable writer sources used for fingerprints, and visual
-fixtures. `figmaDesignSync.toolsDirectory` points to this directory.
+The materialized directory contains the compiled Figma Plugin API writer, the
+transitional preview runner generator, portable writer sources used for
+fingerprints, and visual fixtures. `figmaDesignSync.toolsDirectory` points to
+this directory. Official runner generation, capability probing, MCP transport,
+and checkpoints are Kotlin services delivered by the Maven plugin and its
+transitive `domain` and `data` artifacts.
 
 The language-neutral
 `tools/fixtures/contracts/writer-runtime-contract.json` fixture defines the

@@ -74,18 +74,18 @@ each visual target in the order below, and never writes metadata. Catalog
 targets are expanded into one file per declared root plus a final cleanup file:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpDryRun=true
 ```
 
 Apply the accompanying `visual-sync-plan.json` to that complete runner. Do not
 run `metadata` until every scope selected by the plan has succeeded and all
 affected sections have been checked. Then use the separate metadata runner.
 
-For supervised diagnosis only, an official-artifact runner may select one
-target by explicitly acknowledging that it is partial:
+For supervised diagnosis only, inspect the next atomic unit from the complete
+official artifact. Do not regenerate a partial official runner locally:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --targets=preflight,waterMyPlants.libraries --allow-partial=true
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpNext=true
 ```
 
 For an atomic granular runner, `completedTargets` is expected to contain both
@@ -128,19 +128,21 @@ produce a `full` plan automatically.
 
 ## Subtree Scoped Runs
 
-When a catalog target is too large for one MCP call, or a visual fix only
-affects one top-level catalog root, run the target against the matching child
-section and filter the TeamCity model with `--roots`.
+When a visual fix affects one top-level catalog root, locate its atomic runner
+file in the official manifest and inspect the remaining plan from that unit:
 
 ```powershell
-cd repo\figma-design-sync\tools
-npm run build
-node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=waterMyPlants.libraries --roots=androidx --section-node-id=63069:630 --allow-partial=true
+.\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpFrom="RUNNER_FILE_FOR_waterMyPlants.libraries.androidx" -PfigmaMcpDryRun=true
 ```
 
-`--roots` filters only top-level catalog roots before the tree is flattened.
-Library roots match `group`; plugin roots match `id`. If the root is missing,
-the runner fails before mutating Figma and prints the available roots.
+`figmaMcpFrom` selects that unit and every later planned unit; the dry run does
+not mutate Figma. For a supervised one-unit diagnosis, execute only the named
+generated file through the supported MCP writer, then record that exact file
+with `figmaMcpRecordSuccess` or `figmaMcpRecordFailure`.
+
+The full official manifest already splits catalog targets into one file per
+top-level root. Library roots match `group`; plugin roots match `id`. If the
+root is missing, the generated scope is absent from the manifest.
 
 Root-scoped execution also limits Figma traversal to the matching child
 section. Instance, connector, lock, stroke, fill, and descendant-layout scans

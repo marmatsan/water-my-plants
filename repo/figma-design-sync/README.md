@@ -27,8 +27,8 @@ model, but they do not affect `modelHash`.
 ## Included Build Shape
 
 This directory is an included Gradle build with three portable Kotlin modules,
-one CI-system adapter, one project adapter, and one portable TypeScript tooling
-package:
+one CI-system adapter, one project adapter, and one portable TypeScript Figma
+Plugin API boundary:
 
 | Path | Role |
 |------|------|
@@ -37,7 +37,7 @@ package:
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
 | `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
 | `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, credentials, and optional CI operations. |
-| `tools/` | TypeScript MCP/Figma scripts and visual sync tests that consume `design-model.json`. |
+| `tools/` | TypeScript executed inside the Figma Plugin API runtime plus preview tooling and visual sync tests. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
 Dependency direction is intentional:
@@ -164,10 +164,12 @@ Task responsibilities:
 |------|----------------|
 | `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
 | `prepareOfficialFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
+| `probeFigmaMcp` | Probes endpoint capabilities through the official Kotlin MCP SDK client. |
+| `runFigmaMcp` | Inspects, checkpoints, or executes an official runner through the Kotlin MCP adapter. |
 | `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
 | `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
-| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, builds the executor, and writes `figma-sync-handoff.json`. |
+| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, and writes `figma-sync-handoff.json`. |
 | `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the official TeamCity pipeline, and optionally waits for success. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
@@ -198,14 +200,14 @@ The strict flow is:
 2. Let TeamCity generate the effective configuration from `.teamcity/settings.kts`.
 3. Let the same job generate the official `design-model.json` from those effective files.
 4. Use the official artifact as the visual sync input.
-5. Run the official MCP runner without a target so `preflight` and every visual
-   target execute in contractual order without writing metadata.
+5. Run the official visual manifest with `runFigmaMcp` so `preflight` and every
+   planned target execute in contractual order without writing metadata.
 6. Validate all managed sections, then run the separate `metadata` target.
 7. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
 
 Do not create official design-model metadata from a feature branch. Branch-local
-visual iteration may reuse an official `main` artifact for layout debugging, but
-it must use `--allow-partial=true` for focused diagnostics and must not publish
+visual iteration may reuse an official `main` artifact for layout debugging,
+but it must use only the artifact's atomic visual units and must not publish
 trunk metadata. A partial run never completes the official synchronization.
 
 The official MCP runner uses PNG payload transport by default: the generated

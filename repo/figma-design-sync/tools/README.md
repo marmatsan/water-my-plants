@@ -1,8 +1,10 @@
 # Figma Design Sync Tools
 
-This package contains the portable TypeScript writer and the checkpointed MCP
-runner tooling. It is built with a repository-owned configuration so Figma
-node identities and visual targets remain outside the reusable writer.
+This package contains the portable TypeScript boundary executed inside the
+Figma Plugin API runtime. Kotlin owns official runner generation, MCP transport,
+capability probing, execution planning, and checkpoints. The package is built
+with a repository-owned configuration so Figma node identities and visual
+targets remain outside the reusable writer.
 
 Prepare a configured tool workspace with:
 
@@ -23,3 +25,7 @@ publication runbook describes the release gate and version alignment contract.
 baseline for runner manifests, targets, transports, and generated MCP file
 roles. Kotlin replacements must satisfy this fixture before a TypeScript
 implementation is removed.
+
+Use the root `probeFigmaMcp` and `runFigmaMcp` Gradle tasks for MCP operations.
+The TypeScript `mcp:runner` command remains only as a preview and compatibility
+generator during the gradual migration.
