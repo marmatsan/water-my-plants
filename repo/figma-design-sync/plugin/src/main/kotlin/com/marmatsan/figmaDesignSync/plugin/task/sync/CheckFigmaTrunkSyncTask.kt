@@ -47,6 +47,14 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val ciDocumentationEnabled: Property<Boolean>
 
+    @get:Input
+    @get:Optional
+    abstract val ciConfigurationModelName: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val ciConfigurationProviderClassName: Property<String>
+
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -68,7 +76,7 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:InputDirectory
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val teamCityGeneratedConfigurationDirectory: DirectoryProperty
+    abstract val ciGeneratedConfigurationDirectory: DirectoryProperty
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -114,11 +122,13 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
                 primaryCatalogModelName = primaryCatalogModelName.get(),
                 dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
                 ciDocumentationEnabled = ciDocumentationEnabled.get(),
+                ciConfigurationModelName = ciConfigurationModelName.orNull,
+                ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
                 versionsFile = versionsFile.get().asFile,
                 rootSettingsFile = rootSettingsFile.get().asFile,
                 ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
                 ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
-                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.orNull?.asFile,
+                ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                 projectRootDirectory = projectRootDirectory.get().asFile,
                 includedBuilds = includedBuildSources()
             )

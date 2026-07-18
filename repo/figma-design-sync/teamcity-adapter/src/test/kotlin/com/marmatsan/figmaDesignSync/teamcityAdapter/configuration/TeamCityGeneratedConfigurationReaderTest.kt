@@ -1,6 +1,6 @@
-package com.marmatsan.figmaDesignSync.data.teamcity.configuration
+package com.marmatsan.figmaDesignSync.teamcityAdapter.configuration
 
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityTrigger
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiTrigger
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -8,7 +8,7 @@ import java.nio.file.Files
 
 internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
 
-    test("read assembles pipelines jobs triggers artifacts checks and VCS roots") {
+    test("read translates TeamCity pipelines jobs triggers artifacts checks and VCS roots") {
         // GIVEN
         val root = Files.createTempDirectory("teamcity-generated").toFile()
         val pipeline = root.resolve("Root_Ci").apply { mkdirs() }
@@ -80,14 +80,14 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         val actualPipeline = configuration.pipelines.single()
         actualPipeline.id shouldBe "Root_Ci"
         actualPipeline.name shouldBe "CI"
-        actualPipeline.triggers[0] shouldBe TeamCityTrigger(
-            type = TeamCityTrigger.Type.Vcs,
+        actualPipeline.triggers[0] shouldBe CiTrigger(
+            type = CiTrigger.Type.Vcs,
             branchFilter = "+:*",
             dependencyPipelineId = null,
             afterSuccessfulBuildOnly = null
         )
-        actualPipeline.triggers[1] shouldBe TeamCityTrigger(
-            type = TeamCityTrigger.Type.Schedule,
+        actualPipeline.triggers[1] shouldBe CiTrigger(
+            type = CiTrigger.Type.Schedule,
             branchFilter = "+:<default>",
             dependencyPipelineId = null,
             afterSuccessfulBuildOnly = null

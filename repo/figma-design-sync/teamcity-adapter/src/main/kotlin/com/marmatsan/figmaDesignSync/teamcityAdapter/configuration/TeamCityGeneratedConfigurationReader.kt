@@ -1,25 +1,21 @@
-package com.marmatsan.figmaDesignSync.data.teamcity.configuration
+package com.marmatsan.figmaDesignSync.teamcityAdapter.configuration
 
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityTrigger
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityVcsRoot
-import me.tatarka.inject.annotations.Inject
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiConfiguration
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiJob
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiPipeline
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiTrigger
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiVcsRoot
+import java.io.File
+import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
 import org.snakeyaml.engine.v2.api.Load
 import org.snakeyaml.engine.v2.api.LoadSettings
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.io.File
-import javax.xml.XMLConstants
-import javax.xml.parsers.DocumentBuilderFactory
 
-/**
- * Reads the effective YAML and XML emitted by the TeamCity Kotlin DSL.
- */
-@Inject
+/** Reads the effective YAML and XML emitted by the TeamCity Kotlin DSL. */
 class TeamCityGeneratedConfigurationReader {
-    fun read(directory: File): TeamCityConfiguration {
+    fun read(directory: File): CiConfiguration {
         require(directory.isDirectory) {
             "TeamCity generated configuration directory does not exist: ${directory.path}"
         }
@@ -30,10 +26,10 @@ class TeamCityGeneratedConfigurationReader {
             .map(File::getParentFile)
             .toList()
 
-        return TeamCityConfiguration(
+        return CiConfiguration(
             pipelines = pipelineDirectories
                 .map(::readPipeline)
-                .sortedBy(TeamCityPipeline::id),
+                .sortedBy(CiPipeline::id),
             vcsRoots = directory
                 .walkTopDown()
                 .filter { file ->
@@ -43,18 +39,18 @@ class TeamCityGeneratedConfigurationReader {
                 }
                 .map(::readVcsRoot)
                 .toList()
-                .sortedBy(TeamCityVcsRoot::id)
+                .sortedBy(CiVcsRoot::id)
         )
     }
 
-    private fun readPipeline(directory: File): TeamCityPipeline {
+    private fun readPipeline(directory: File): CiPipeline {
         val projectDocument = readXml(directory.resolve(PROJECT_CONFIG_FILE_NAME))
         val buildTypeFiles = directory.resolve(BUILD_TYPES_DIRECTORY_NAME)
             .listFiles { file -> file.isFile && file.extension == XML_EXTENSION }
             ?.sortedBy(File::getName)
             .orEmpty()
 
-        return TeamCityPipeline(
+        return CiPipeline(
             id = directory.name,
             name = projectDocument.documentElement
                 .getElementsByTagName(NAME_ELEMENT)
@@ -67,7 +63,7 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readTriggers(document: Document): List<TeamCityTrigger> {
+    private fun readTriggers(document: Document): List<CiTrigger> {
         val triggers = document.getElementsByTagName(BUILD_TRIGGER_ELEMENT)
         return (0 until triggers.length).map { index ->
             val trigger = triggers.item(index) as Element
@@ -81,22 +77,22 @@ class TeamCityGeneratedConfigurationReader {
                 }
 
             when (val type = trigger.getAttribute(TYPE_ATTRIBUTE)) {
-                VCS_TRIGGER_TYPE -> TeamCityTrigger(
-                    type = TeamCityTrigger.Type.Vcs,
+                VCS_TRIGGER_TYPE -> CiTrigger(
+                    type = CiTrigger.Type.Vcs,
                     branchFilter = parameters[BRANCH_FILTER_PARAMETER],
                     dependencyPipelineId = null,
                     afterSuccessfulBuildOnly = null
                 )
 
-                BUILD_DEPENDENCY_TRIGGER_TYPE -> TeamCityTrigger(
-                    type = TeamCityTrigger.Type.PipelineFinish,
+                BUILD_DEPENDENCY_TRIGGER_TYPE -> CiTrigger(
+                    type = CiTrigger.Type.PipelineFinish,
                     branchFilter = parameters[BRANCH_FILTER_PARAMETER],
                     dependencyPipelineId = parameters[DEPENDS_ON_PARAMETER],
                     afterSuccessfulBuildOnly = parameters[AFTER_SUCCESS_PARAMETER]?.toBooleanStrict()
                 )
 
-                SCHEDULING_TRIGGER_TYPE -> TeamCityTrigger(
-                    type = TeamCityTrigger.Type.Schedule,
+                SCHEDULING_TRIGGER_TYPE -> CiTrigger(
+                    type = CiTrigger.Type.Schedule,
                     branchFilter = parameters[BRANCH_FILTER_PARAMETER],
                     dependencyPipelineId = null,
                     afterSuccessfulBuildOnly = null
@@ -107,11 +103,11 @@ class TeamCityGeneratedConfigurationReader {
         }
     }
 
-    private fun readJobs(file: File): List<TeamCityJob> {
+    private fun readJobs(file: File): List<CiJob> {
         val root = readYaml(file)
         return root.requiredMap(JOBS_KEY).map { (jobId, value) ->
             val job = value.asStringMap("job '$jobId'")
-            TeamCityJob(
+            CiJob(
                 id = jobId,
                 name = job.requiredString(NAME_KEY),
                 steps = job.optionalList(STEPS_KEY).map(::readStep),
@@ -124,7 +120,7 @@ class TeamCityGeneratedConfigurationReader {
                     .map { feature -> feature.asStringMap("feature") }
                     .filter { feature -> feature.optionalString(TYPE_KEY) == STATUS_PUBLISHER_TYPE }
                     .map { feature ->
-                        TeamCityJob.PublishedCheck(
+                        CiJob.PublishedCheck(
                             name = feature.requiredString(CHECK_NAME_KEY)
                         )
                     }
@@ -132,30 +128,30 @@ class TeamCityGeneratedConfigurationReader {
         }
     }
 
-    private fun readStep(value: Any?): TeamCityJob.Step {
+    private fun readStep(value: Any?): CiJob.Step {
         val step = value.asStringMap("step")
-        return TeamCityJob.Step(
+        return CiJob.Step(
             id = step.requiredString(ID_KEY),
             name = step.requiredString(NAME_KEY),
             command = step.requiredString(SCRIPT_CONTENT_KEY)
         )
     }
 
-    private fun readArtifact(value: Any?): TeamCityJob.Artifact {
+    private fun readArtifact(value: Any?): CiJob.Artifact {
         val artifact = value.asStringMap("artifact")
-        return TeamCityJob.Artifact(
+        return CiJob.Artifact(
             path = artifact.requiredString(PATH_KEY),
             publish = artifact.requiredBoolean(PUBLISH_ARTIFACT_KEY),
             shareWithJobs = artifact.requiredBoolean(SHARE_WITH_JOBS_KEY)
         )
     }
 
-    private fun readDependency(value: Any?): TeamCityJob.Dependency {
+    private fun readDependency(value: Any?): CiJob.Dependency {
         val dependency = value.asStringMap("dependency")
         require(dependency.size == 1) { "Expected one TeamCity dependency per list item" }
         val (jobId, configurationValue) = dependency.entries.single()
         val configuration = configurationValue.asStringMap("dependency '$jobId'")
-        return TeamCityJob.Dependency(
+        return CiJob.Dependency(
             jobId = jobId,
             artifactPaths = configuration.optionalList(FILES_KEY).map { artifactPath ->
                 artifactPath as? String ?: error("Expected TeamCity dependency artifact path")
@@ -163,7 +159,7 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readVcsRoot(file: File): TeamCityVcsRoot {
+    private fun readVcsRoot(file: File): CiVcsRoot {
         val document = readXml(file)
         val root = document.documentElement
         val parameters = root.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
@@ -174,7 +170,7 @@ class TeamCityGeneratedConfigurationReader {
             }
         }
 
-        return TeamCityVcsRoot(
+        return CiVcsRoot(
             id = file.nameWithoutExtension,
             name = root.getElementsByTagName(NAME_ELEMENT).item(0).textContent.trim(),
             url = parameters.getValue(URL_PARAMETER),

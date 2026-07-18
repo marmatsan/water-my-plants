@@ -9,9 +9,9 @@ import com.marmatsan.figmaDesignSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiNode
 import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityConfiguration
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityJob
-import com.marmatsan.figmaDesignSync.domain.model.ci.TeamCityPipeline
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiConfiguration
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiJob
+import com.marmatsan.figmaDesignSync.domain.model.ci.CiPipeline
 import com.marmatsan.figmaDesignSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDesignSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreeSource
@@ -20,8 +20,8 @@ import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimeSource
-import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
-import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
@@ -228,7 +228,7 @@ class DesignModelSteps : En {
             projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
             ciExternalTopologyPort = FakeCiExternalTopologyPort,
             ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
-            teamCityConfigurationPort = FakeTeamCityConfigurationPort
+            ciConfigurationPort = FakeCiConfigurationPort
         )
     }
 
@@ -253,11 +253,13 @@ class DesignModelSteps : En {
             primaryCatalogModelName = "waterMyPlants",
             dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
             ciDocumentationEnabled = true,
+            ciConfigurationModelName = "teamCity",
+            ciConfigurationProviderClassName = "example.CiConfigurationProvider",
             versionsFile = File("versions.properties"),
             rootSettingsFile = File("settings.gradle.kts"),
             ciExternalTopologyFile = File("docs/ci/external-topology.yaml"),
             ciWindowsRuntimeFile = File("docs/ci/windows-runtime.yaml"),
-            teamCityGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
+            ciGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
             projectRootDirectory = File("."),
             includedBuilds = listOf(
                 FigmaDesignModelIncludedBuildSource(
@@ -391,16 +393,16 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
         )
 }
 
-private object FakeTeamCityConfigurationPort : TeamCityConfigurationPort {
-    override fun readConfiguration(source: TeamCityGeneratedConfigurationSource): TeamCityConfiguration =
-        TeamCityConfiguration(
+private object FakeCiConfigurationPort : CiConfigurationPort {
+    override fun readConfiguration(source: CiGeneratedConfigurationSource): CiConfiguration =
+        CiConfiguration(
             pipelines = listOf(
-                TeamCityPipeline(
+                CiPipeline(
                     id = "Root_Ci",
                     name = "CI",
                     triggers = emptyList(),
                     jobs = listOf(
-                        TeamCityJob(
+                        CiJob(
                             id = "verify",
                             name = "Verify",
                             steps = emptyList(),

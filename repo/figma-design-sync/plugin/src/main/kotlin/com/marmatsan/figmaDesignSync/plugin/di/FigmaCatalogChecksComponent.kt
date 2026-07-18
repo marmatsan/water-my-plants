@@ -3,7 +3,7 @@ package com.marmatsan.figmaDesignSync.plugin.di
 import com.marmatsan.figmaDesignSync.data.datasource.catalog.ProjectCatalogTreesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.ci.CiExternalTopologyDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.ci.CiWindowsRuntimeDataSource
-import com.marmatsan.figmaDesignSync.data.datasource.ci.TeamCityConfigurationDataSource
+import com.marmatsan.figmaDesignSync.data.datasource.ci.CiConfigurationDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.impact.FigmaChangeImpactPolicyDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.impact.GitRepositoryChangeSetDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModuleDependenciesDataSource
@@ -16,7 +16,7 @@ import com.marmatsan.figmaDesignSync.domain.service.artifact.OfficialFigmaArtifa
 import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
-import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiConfigurationPort
 import com.marmatsan.figmaDesignSync.domain.port.impact.FigmaChangeImpactPolicyPort
 import com.marmatsan.figmaDesignSync.domain.port.impact.RepositoryChangeSetPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
@@ -120,7 +120,7 @@ internal abstract class figmaDesignSyncComponent {
         dataSource
 
     @Provides
-    protected fun teamCityConfigurationPort(dataSource: TeamCityConfigurationDataSource): TeamCityConfigurationPort =
+    protected fun ciConfigurationPort(dataSource: CiConfigurationDataSource): CiConfigurationPort =
         dataSource
 
     @Provides

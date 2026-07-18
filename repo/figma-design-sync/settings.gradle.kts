@@ -170,5 +170,6 @@ include(
     ":data",
     ":domain",
     ":plugin",
-    ":project-config"
+    ":project-config",
+    ":teamcity-adapter"
 )

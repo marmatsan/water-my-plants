@@ -6,8 +6,8 @@ import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologySource
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimeSource
-import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
-import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityGeneratedConfigurationSource
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDesignSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesScope
@@ -40,7 +40,7 @@ internal class FigmaDesignModelGenerator(
     private val projectModuleDependenciesPort: ProjectModuleDependenciesPort,
     private val ciExternalTopologyPort: CiExternalTopologyPort,
     private val ciWindowsRuntimePort: CiWindowsRuntimePort,
-    private val teamCityConfigurationPort: TeamCityConfigurationPort
+    private val ciConfigurationPort: CiConfigurationPort
 ) {
     /**
      * Generates the complete model and stable model hash for [request].
@@ -126,13 +126,15 @@ internal class FigmaDesignModelGenerator(
                     .toDesignJson()
             )
             put(
-                "teamCity",
-                teamCityConfigurationPort
+                request.ciConfigurationModelName.requireCiInput("configuration model name"),
+                ciConfigurationPort
                     .readConfiguration(
-                        TeamCityGeneratedConfigurationSource(
-                            request.teamCityGeneratedConfigurationDirectory
-                                .requireCiInput("TeamCity generated configuration")
-                                .absolutePath
+                        CiGeneratedConfigurationSource(
+                            directoryPath = request.ciGeneratedConfigurationDirectory
+                                .requireCiInput("generated configuration")
+                                .absolutePath,
+                            providerClassName = request.ciConfigurationProviderClassName
+                                .requireCiInput("configuration provider class name")
                         )
                     )
                     .toDesignJson()
@@ -254,5 +256,10 @@ internal class FigmaDesignModelGenerator(
 
 private fun java.io.File?.requireCiInput(name: String): java.io.File =
     requireNotNull(this) {
+        "CI documentation is enabled, but its $name input is not configured."
+    }
+
+private fun String?.requireCiInput(name: String): String =
+    requireNotNull(this?.takeIf(String::isNotBlank)) {
         "CI documentation is enabled, but its $name input is not configured."
     }
