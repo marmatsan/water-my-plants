@@ -56,4 +56,6 @@ export type SyncExecutionMetadata = {
   writerHash: string;
   transportHash: string;
   targetFingerprints: Record<string, string>;
+  writerScopeFingerprints: Record<string, string>;
+  writerScopeFingerprintSchemaVersion: number;
 };

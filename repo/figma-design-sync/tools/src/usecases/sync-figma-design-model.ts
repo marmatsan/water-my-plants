@@ -33,7 +33,10 @@ export async function syncFigmaDesignModel(
     throw new Error("Figma sync metadata must run alone after the complete visual sync.");
   }
   if (shouldWriteMetadata && !options.executionMetadata) {
-    throw new Error("Figma sync metadata requires writerHash, transportHash, and target fingerprints.");
+    throw new Error(
+      "Figma sync metadata requires writerHash, transportHash, model target fingerprints, " +
+        "and writer scope fingerprints."
+    );
   }
   const completedTargets: SyncTargetName[] = [];
   const skippedTargets = ALL_SYNC_TARGETS.filter((target) => !requestedTargets.has(target));

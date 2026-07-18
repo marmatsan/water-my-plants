@@ -26,18 +26,22 @@ not authorize a branch-local model or an early metadata write.
 
 ## Execution Identity
 
-Generated runner manifests use four independent identity fields:
+Generated runner manifests use these independent identity fields:
 
 | Field | Meaning | Invalidates |
 |-------|---------|-------------|
 | `modelHash` | Stable hash of the visual model content. | Targets whose model fingerprints changed. |
-| `writerHash` | Hash of the compiled visual writer. | The complete visual target set. |
+| `writerHash` | Hash of the compiled visual writer. | Starts writer-scope comparison. |
+| `writerScopeFingerprints` | Source fingerprints for each writer target family. | Only changed writer scopes when the change is mapped safely. |
+| `writerScopeFingerprintSchemaVersion` | Version of writer source classification. | A complete migration sync when it changes. |
 | `transportHash` | Hash of PNG/chunk staging behavior. | Staging only; it does not make unchanged visuals stale. |
 | `gitSha` | Revision that produced the official artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
 
 `manifestHash` binds those values to the exact generated files. Each visual
-scope also has a `targetFingerprint`, so model changes can produce a partial
-plan without guessing from file names.
+scope also has a model `targetFingerprint`. Model and writer fingerprints are
+compared independently, then their changed scopes are combined into one plan.
+Catalog roots and cleanup units inherit the fingerprint of their catalog
+writer because they execute the same gateway.
 
 ## TeamCity Artifacts
 
@@ -55,11 +59,13 @@ For a model-affecting `main` revision, `Generate main design model` publishes:
 | Decision | Meaning |
 |----------|---------|
 | `none` | `modelHash` and `writerHash` already match Figma; skip visual and metadata writes. |
-| `partial` | The writer is unchanged and only known target fingerprints changed; execute `preflight` plus those scopes. |
-| `full` | Metadata is unavailable or legacy, the writer changed, or the model difference cannot be mapped safely. |
+| `partial` | Known model-target or writer-scope fingerprints changed; execute `preflight` plus their union. |
+| `full` | Metadata is unavailable or legacy, the fingerprint schema changed, shared writer code changed, or a model/writer difference cannot be mapped safely. |
 
 Metadata read failures fail closed to `full`. A plan never turns an unknown
-change into a no-op.
+change into a no-op. The first official sync after introducing or changing the
+writer fingerprint schema is deliberately `full`; its final metadata write
+establishes the baseline used by later partial plans.
 
 ## Local Capability Probe
 

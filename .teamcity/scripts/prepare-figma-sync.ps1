@@ -109,6 +109,8 @@ try {
         writerHash = $visualRunnerManifest.writerHash
         transportHash = $visualRunnerManifest.transportHash
         targetFingerprints = $visualRunnerManifest.targetFingerprints
+        writerScopeFingerprints = $visualRunnerManifest.writerScopeFingerprints
+        writerScopeFingerprintSchemaVersion = $visualRunnerManifest.writerScopeFingerprintSchemaVersion
         visualRunnerManifestHash = $visualRunnerManifest.manifestHash
         metadataRunnerManifestHash = $metadataRunnerManifest.manifestHash
         visualSyncDecision = $visualSyncPlan.decision

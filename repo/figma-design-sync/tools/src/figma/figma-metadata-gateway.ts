@@ -19,6 +19,16 @@ export class FigmaMetadataGateway implements MetadataSyncGateway {
       "targetFingerprints",
       JSON.stringify(executionMetadata.targetFingerprints)
     );
+    page.setSharedPluginData(
+      METADATA_NAMESPACE,
+      "writerScopeFingerprints",
+      JSON.stringify(executionMetadata.writerScopeFingerprints)
+    );
+    page.setSharedPluginData(
+      METADATA_NAMESPACE,
+      "writerScopeFingerprintSchemaVersion",
+      String(executionMetadata.writerScopeFingerprintSchemaVersion)
+    );
     page.setSharedPluginData(METADATA_NAMESPACE, "syncedAt", new Date().toISOString());
 
     return {
@@ -29,6 +39,10 @@ export class FigmaMetadataGateway implements MetadataSyncGateway {
         modelHash: page.getSharedPluginData(METADATA_NAMESPACE, "modelHash"),
         writerHash: page.getSharedPluginData(METADATA_NAMESPACE, "writerHash"),
         transportHash: page.getSharedPluginData(METADATA_NAMESPACE, "transportHash"),
+        writerScopeFingerprintSchemaVersion: page.getSharedPluginData(
+          METADATA_NAMESPACE,
+          "writerScopeFingerprintSchemaVersion"
+        ),
       },
       mutatedNodeIds: [page.id],
     };

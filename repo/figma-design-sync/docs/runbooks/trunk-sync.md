@@ -84,8 +84,9 @@ intentionally non-authoritative and must not write official metadata.
 3. Validate the artifact with
    [official-artifact-visual-sync.md](official-artifact-visual-sync.md).
 4. Use the generated runner whose manifest identity matches the official
-   artifact. Rebuild only for branch-local writer diagnosis; a rebuilt runner
-   has a different `writerHash` and requires a full visual plan.
+   artifact. Rebuild only for branch-local writer diagnosis; the official plan
+   must classify any different `writerHash` through its writer-scope
+   fingerprints, or fail closed to a full visual plan.
 5. Stage the official model and generated MCP script through the PNG payload
    transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
@@ -114,7 +115,8 @@ still visually stale.
 A successful standalone `Check Figma trunk sync` does not change the result of
 an earlier failed aggregate `Figma Sync` run. The complete pipeline must be
 rerun after the MCP write. Visual staleness is determined by `modelHash`,
-`writerHash`, and target fingerprints. `gitSha` identifies the official
+`writerHash`, model target fingerprints, and writer scope fingerprints.
+`gitSha` identifies the official
 artifact and checkpoint but does not invalidate unchanged visuals by itself.
 Follow the generated plan and fail closed to a full visual run when its identity
 or previous Figma metadata cannot be validated.
@@ -129,7 +131,8 @@ When a visual target fails:
 - Regenerate the official TeamCity artifact when model content changes.
 - Use `--allow-partial=true` only to diagnose or verify the focused repair.
 - Complete every scope selected by the new TeamCity visual plan before writing
-  metadata. A writer change selects the complete target set; ad hoc partial
+  metadata. Mapped writer changes may select a target family; shared or
+  unexplained writer changes select the complete target set. Ad hoc partial
   success does not complete an official synchronization.
 
 Branch-local visual iteration with an already-official artifact is allowed only

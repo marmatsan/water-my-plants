@@ -119,7 +119,8 @@ The pipeline:
   model-affecting revision;
 - builds the compatible MCP writer and publishes visual plus metadata runner
   manifests with independent model, writer, and transport hashes;
-- compares their target fingerprints with Figma metadata and publishes
+- compares their model-target and writer-scope fingerprints with Figma
+  metadata and publishes
   `visual-sync-plan.json` with a fail-closed `none`, `partial`, or `full`
   decision;
 - sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the

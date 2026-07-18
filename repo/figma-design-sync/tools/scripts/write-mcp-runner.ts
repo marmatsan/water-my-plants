@@ -10,6 +10,10 @@ import {
   PAYLOAD_PNG_TEXT_KEYWORD,
   stringifyAsciiJson,
 } from "./payload-png";
+import {
+  createWriterScopeFingerprints,
+  WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION,
+} from "./writer-scope-fingerprints";
 
 const TOOL_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DEFAULT_TRUNK_SYNC_SCRIPT = resolve(TOOL_ROOT, "sync-trunk-design-model.mcp.js");
@@ -22,7 +26,7 @@ const METADATA_PAGE_ID = "62934:908";
 const DEFAULT_CHUNK_SIZE = 30_000;
 const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
 const MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH = 100_000;
-const MANIFEST_SCHEMA_VERSION = 2;
+const MANIFEST_SCHEMA_VERSION = 3;
 const TRANSPORT_CONTRACT_VERSION = 1;
 
 const KNOWN_TARGETS = [
@@ -294,6 +298,12 @@ async function writeRunnerFiles(options) {
   const writerHash = sha256(script);
   const transportHash = createTransportHash(options);
   const targetFingerprints = createTargetFingerprints(designModel);
+  const writerScopeFingerprints = await createWriterScopeFingerprints({
+    sourceRoot: resolve(TOOL_ROOT, "src"),
+    repositoryRoot: resolve(TOOL_ROOT, "..", "..", ".."),
+    policyPath: resolve(TOOL_ROOT, "..", "change-impact-policy.json"),
+    scopes: Object.keys(targetFingerprints),
+  });
 
   validateStagingEntryLength("designModelJson", minifiedModelJson);
   validateStagingEntryLength("script", script);
@@ -354,6 +364,8 @@ async function writeRunnerFiles(options) {
     writerHash,
     transportHash,
     targetFingerprints,
+    writerScopeFingerprints,
+    writerScopeFingerprintSchemaVersion: WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION,
   });
   files.push(...targetRunner.files);
   files.push(await writeManifest(
@@ -368,6 +380,8 @@ async function writeRunnerFiles(options) {
       writerHash,
       transportHash,
       targetFingerprints,
+      writerScopeFingerprints,
+      writerScopeFingerprintSchemaVersion: WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION,
       executionScopes: targetRunner.executionScopes,
     }
   ));
@@ -518,6 +532,8 @@ async function writeManifest(
     writerHash: executionMetadata.writerHash,
     transportHash: executionMetadata.transportHash,
     targetFingerprints: executionMetadata.targetFingerprints,
+    writerScopeFingerprints: executionMetadata.writerScopeFingerprints,
+    writerScopeFingerprintSchemaVersion: executionMetadata.writerScopeFingerprintSchemaVersion,
     executionScopes: executionMetadata.executionScopes,
     payloadImage,
     files,

@@ -127,6 +127,35 @@ export function validateManifest(manifest) {
   if (manifest.schemaVersion < 2) {
     throw new Error(`Unsupported MCP manifest schema ${manifest.schemaVersion}; expected 2 or newer.`);
   }
+  if (manifest.schemaVersion >= 3) {
+    for (const key of [
+      "targetFingerprints",
+      "writerScopeFingerprints",
+      "writerScopeFingerprintSchemaVersion",
+      "executionScopes",
+    ]) {
+      if (manifest[key] === undefined || manifest[key] === null) {
+        throw new Error(`MCP manifest schema ${manifest.schemaVersion} is missing '${key}'. Regenerate it with the current write-mcp-runner.`);
+      }
+    }
+    if (
+      typeof manifest.writerScopeFingerprints !== "object" ||
+      Array.isArray(manifest.writerScopeFingerprints)
+    ) {
+      throw new Error("MCP manifest writerScopeFingerprints must be an object.");
+    }
+    if (!Number.isInteger(manifest.writerScopeFingerprintSchemaVersion)) {
+      throw new Error("MCP manifest writerScopeFingerprintSchemaVersion must be an integer.");
+    }
+    const requiredWriterScopes = [
+      ...new Set([...Object.values(manifest.executionScopes), "metadata"]),
+    ];
+    for (const scope of requiredWriterScopes) {
+      if (typeof manifest.writerScopeFingerprints[scope] !== "string") {
+        throw new Error(`MCP manifest is missing the writer fingerprint for scope '${scope}'.`);
+      }
+    }
+  }
   if (!Array.isArray(manifest.files) || manifest.files.some((file) => typeof file !== "string")) {
     throw new Error("MCP manifest files must be a string array.");
   }

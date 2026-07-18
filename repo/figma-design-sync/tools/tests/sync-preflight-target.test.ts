@@ -53,6 +53,11 @@ test("metadata writes after being requested as the only target", async () => {
       writerHash: "sha256:writer",
       transportHash: "sha256:transport",
       targetFingerprints: { versions: "sha256:versions" },
+      writerScopeFingerprints: {
+        versions: "sha256:versions-writer",
+        metadata: "sha256:metadata-writer",
+      },
+      writerScopeFingerprintSchemaVersion: 1,
     },
   });
 
