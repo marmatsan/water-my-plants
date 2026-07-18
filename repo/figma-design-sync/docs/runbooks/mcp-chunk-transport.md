@@ -1,3 +1,16 @@
+---
+title: MCP payload transport
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts
+---
+
 # MCP Payload Transport Runbook
 
 ## Purpose
@@ -247,10 +260,41 @@ return {
 };
 ```
 
+## Prerequisites
+
+- Use the official `main` artifact and generated runner manifest.
+- Build the TypeScript tools with the repository lockfile.
+- Confirm the local MCP endpoint capabilities before attempting a write.
+
+## Verification
+
+Confirm every planned runner unit is recorded as successful, the visual state
+matches the selected plan, and metadata is written only after all authorized
+visual scopes complete.
+
+## Recovery
+
+Resume from `execution-state.json` when execution identity still matches.
+Regenerate runners when model, writer, transport, or manifest hashes differ.
+Use chunk staging only when PNG upload is unavailable and the endpoint supports
+the required write tools.
+
+## Prohibited Actions
+
+- Do not paste the complete model or compiled writer into chat.
+- Do not write metadata after an ad hoc partial repair.
+- Do not treat an MCP handshake as proof of write capability.
+
+## Sources
+
+- `tools/scripts/write-mcp-runner.ts`
+- `tools/scripts/execute-mcp-runner.ts`
+- `tools/scripts/payload-png.ts`
+
 ## Run The Planned Visual Sync
 
 The official runner contains bounded calls for `preflight` and every visual
-target from [target-scopes.md](target-scopes.md). Apply
+target from [target-scopes.md](../reference/target-scopes.md). Apply
 `visual-sync-plan.json`, then execute every selected `99-*.mcp.js` file in
 lexical order without editing its target or root. Catalog calls are split by
 roots from the official model and finish with stale-node cleanup. All calls use

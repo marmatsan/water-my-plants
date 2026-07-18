@@ -1,12 +1,30 @@
 # CI Documentation Coverage
 
 `.teamcity/documentation-coverage.json` is the versioned documentation contract
-for changes that can alter the CI or Figma documentation state.
+for changes that can alter CI, Figma, the documentation system, or the product
+module graph.
+
+`validate-documentation.ps1` runs before change-scope classification. It checks
+the typed documentation contract from `docs/documentation.md`: canonical
+placement, frontmatter, review dates, canonical sources, runbook and ADR
+sections, and local Markdown links. Expired review dates warn; structural or
+link errors fail CI.
+
+The validator MUST remain compatible with Windows PowerShell 5.1 because
+TeamCity invokes repository scripts through `powershell.exe`. Local validation
+SHOULD execute both the focused test and the validator with that same runtime;
+using `pwsh` alone is insufficient for CI compatibility.
 
 `get-change-impact.ps1` compares the build revision with `origin/main`. It
 classifies the change as `documentation-only` only when every changed path is an
-explicitly allowed Markdown path. Every other change remains
+explicitly allowed Markdown path, including nested product-module docs. Every other change remains
 `full-verification`.
+
+CI validation scripts and the coverage manifest are `model-neutral`: their
+normal CI build still runs Gradle, but post-merge Figma Sync publishes only the
+scope artifact because those files cannot change the generated design model or
+compiled visual writer. This is distinct from `transport-only`, which is
+reserved for MCP runner transport changes.
 
 For each affected rule, the script requires at least one changed file matching
 that rule's `documentationPaths`. CI fails before Gradle when the source surface
@@ -28,7 +46,7 @@ and a matching test in `.teamcity/scripts/tests/get-change-impact.tests.ps1`.
 ## CI Execution
 
 `WaterMyPlantsCi` executes this contract before Gradle. A documentation-only
-revision validates whitespace and local Markdown links, then publishes the same
+revision validates the complete documentation structure and changed whitespace, then publishes the same
 required `TeamCity CI` status without running Gradle. All other revisions run
 the complete Gradle `check` lifecycle.
 

@@ -1,8 +1,13 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "documentationOnlyPaths": [
     "README.md",
+    "AGENTS.md",
     "docs/*.md",
+    "*/docs/*.md",
+    "*/*/docs/*.md",
+    "*/AGENTS.md",
+    "*/*/AGENTS.md",
     ".teamcity/README.md",
     "repo/*/README.md",
     "repo/*/docs/*.md"
@@ -13,6 +18,13 @@
     "repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts",
     "repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts",
     "repo/figma-design-sync/tools/tests/*"
+  ],
+  "figmaModelNeutralPaths": [
+    ".teamcity/documentation-coverage.json",
+    ".teamcity/scripts/get-change-impact.ps1",
+    ".teamcity/scripts/invoke-ci-verification.ps1",
+    ".teamcity/scripts/validate-documentation.ps1",
+    ".teamcity/scripts/tests/*"
   ],
   "figmaModelContentPaths": [
     ".teamcity/settings.kts",
@@ -48,6 +60,35 @@
   ],
   "rules": [
     {
+      "id": "documentation-system",
+      "sourcePaths": [
+        "AGENTS.md",
+        "docs/documentation.md",
+        "docs/templates/*.md",
+        ".teamcity/scripts/validate-documentation.ps1"
+      ],
+      "documentationPaths": [
+        "docs/documentation.md",
+        "docs/README.md",
+        ".teamcity/README.md",
+        "docs/ci/documentation-coverage.md"
+      ]
+    },
+    {
+      "id": "product-module-structure",
+      "sourcePaths": [
+        "settings.gradle.kts",
+        "*/build.gradle.kts",
+        "*/*/build.gradle.kts"
+      ],
+      "documentationPaths": [
+        "docs/reference/project-structure.md",
+        "docs/standards/architecture.md",
+        "*/docs/README.md",
+        "*/*/docs/README.md"
+      ]
+    },
+    {
       "id": "teamcity-pipelines",
       "sourcePaths": [".teamcity/settings.kts", ".teamcity/pom.xml", ".teamcity/scripts/*"],
       "documentationPaths": [".teamcity/README.md", "docs/runbooks/teamcity-cloudflare-access.md"]
@@ -62,7 +103,12 @@
         "repo/figma-design-sync/*/build.gradle.kts",
         "repo/figma-design-sync/settings.gradle.kts"
       ],
-      "documentationPaths": ["repo/figma-design-sync/README.md", "repo/figma-design-sync/docs/runbooks/*.md"]
+      "documentationPaths": [
+        "repo/figma-design-sync/README.md",
+        "repo/figma-design-sync/docs/runbooks/*.md",
+        "repo/figma-design-sync/docs/reference/*.md",
+        "repo/figma-design-sync/docs/standards/*.md"
+      ]
     },
     {
       "id": "dependency-catalog-model",
@@ -82,8 +128,8 @@
         "repo/dependency-catalog/README.md",
         "repo/gradle-plugins/README.md",
         "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md",
-        "repo/figma-design-sync/docs/runbooks/dependency-version-naming.md",
-        "repo/figma-design-sync/docs/runbooks/visual-sync-contract.md"
+        "repo/figma-design-sync/docs/standards/dependency-version-naming.md",
+        "repo/figma-design-sync/docs/reference/visual-sync-contract.md"
       ]
     },
     {

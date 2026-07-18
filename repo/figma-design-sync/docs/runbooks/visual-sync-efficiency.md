@@ -1,3 +1,16 @@
+---
+title: Efficient visual sync
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/scripts/execute-mcp-runner.ts
+  - repo/figma-design-sync/tools/scripts/write-visual-sync-plan.ts
+---
+
 # Efficient Visual Sync Runbook
 
 ## Purpose
@@ -125,3 +138,35 @@ evidence, batching makes retries more expensive and less diagnosable.
 
 These rules reduce repeated context while keeping the official full/partial
 decision and every successful execution unit auditable.
+
+## Prerequisites
+
+- Use the complete TeamCity-generated runner and visual plan.
+- Probe the MCP endpoint and require the capabilities selected by the transport.
+- Keep the matching model, writer, transport, manifest, and checkpoint files
+  together.
+
+## Verification
+
+Confirm the plan decision matches changed fingerprints, each selected runner
+unit has a successful checkpoint, and metadata staging reuses only a complete
+compatible visual state.
+
+## Recovery
+
+Retry only the failed atomic unit when execution identity matches. Regenerate
+the plan and checkpoints after any identity change. Fall back from PNG to
+chunks only for a verified transport limitation.
+
+## Prohibited Actions
+
+- Do not choose `none` or `partial` manually for an official integration.
+- Do not skip hash validation to reuse staging.
+- Do not resend successful runner units merely to rebuild conversational
+  context.
+
+## Sources
+
+- `tools/scripts/execute-mcp-runner.ts`
+- `tools/scripts/write-visual-sync-plan.ts`
+- `tools/scripts/write-mcp-runner.ts`

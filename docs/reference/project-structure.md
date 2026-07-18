@@ -1,3 +1,18 @@
+---
+title: Project structure
+type: reference
+scope: repository
+owner: architecture
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 180
+sources:
+  - settings.gradle.kts
+  - repo/dependency-catalog/settings.gradle.kts
+  - repo/gradle-plugins/settings.gradle.kts
+  - repo/figma-design-sync/settings.gradle.kts
+---
+
 # Project Structure
 
 This repository is split between product modules, repository infrastructure,
@@ -74,10 +89,19 @@ publish a compatibility artifact.
 | Path | Purpose |
 |------|---------|
 | `README.md` | Repository entry point and links to deeper documentation. |
-| `docs/documentation.md` | Rules for README files, guides, references, and runbooks. |
+| `docs/documentation.md` | Canonical documentation taxonomy and validation contract. |
+| `docs/standards/` | Project-wide engineering rules for production and tooling. |
+| `docs/guides/` | Supported development workflows. |
+| `docs/reference/` | Exact project contracts and inventories. |
+| `docs/decisions/` | Architecture Decision Records. |
+| `docs/runbooks/` | Project-wide operational execution and recovery procedures. |
+| `docs/templates/` | Starting points for typed documentation. |
 | `docs/ci/` | CI and branch protection documentation. |
 | `docs/uml/` | Project-wide PlantUML diagrams and shared UML includes. |
 | `<module>/docs/README.md` | Module documentation index and orientation. |
+| `<module>/docs/standards/` | Rules owned only by that module. |
+| `<module>/docs/guides/` | Module-specific development workflows. |
+| `<module>/docs/reference/` | Module-specific contracts and inventories. |
 | `<module>/docs/runbooks/` | Module-owned operational runbooks. |
 | `<module>/docs/uml/` | Module-owned PlantUML diagrams, UML publication notes, and UML helper scripts. |
 

@@ -22,7 +22,7 @@ try {
     New-Item -ItemType Directory -Path "$testRoot/repo/figma-design-sync/tools/scripts" -Force | Out-Null
     New-Item -ItemType Directory -Path "$testRoot/repo/figma-design-sync/docs/runbooks" -Force | Out-Null
     Copy-Item -LiteralPath "$sourceRoot/.teamcity/documentation-coverage.json" -Destination "$testRoot/.teamcity/documentation-coverage.json"
-    @("get-change-impact.ps1", "invoke-ci-verification.ps1", "prepare-figma-sync.ps1", "verify-figma-trunk-sync.ps1") |
+    @("get-change-impact.ps1", "invoke-ci-verification.ps1", "prepare-figma-sync.ps1", "verify-figma-trunk-sync.ps1", "validate-documentation.ps1") |
         ForEach-Object {
             Copy-Item -LiteralPath "$sourceRoot/.teamcity/scripts/$_" -Destination "$testRoot/.teamcity/scripts/$_"
         }
@@ -70,6 +70,20 @@ try {
 
         & "$testRoot/.teamcity/scripts/verify-figma-trunk-sync.ps1"
         Assert-Equal $LASTEXITCODE 0 "Transport-only Figma verification must be a successful no-op"
+
+        Add-Content -LiteralPath ".teamcity/scripts/validate-documentation.ps1" -Value "`n# Model-neutral test change."
+        Set-Content -LiteralPath ".teamcity/README.md" -Value "# TeamCity`n`nDocument validation changed."
+        Invoke-Git @("add", ".teamcity/scripts/validate-documentation.ps1", ".teamcity/README.md")
+        Invoke-Git @("commit", "-m", "test: update documentation validation")
+
+        & "$testRoot/.teamcity/scripts/prepare-figma-sync.ps1"
+        Assert-Equal $LASTEXITCODE 0 "Model-neutral Figma preparation must succeed"
+        $scope = Get-Content -LiteralPath "build/reports/figma-sync/sync-scope.json" -Raw | ConvertFrom-Json
+        Assert-Equal $scope.scope "model-neutral" "Figma scope artifact must preserve model-neutral classification"
+        Assert-Equal (Test-Path -LiteralPath "build/reports/figma-sync/design-model.json") $false "Model-neutral Figma preparation must not generate a model"
+
+        & "$testRoot/.teamcity/scripts/verify-figma-trunk-sync.ps1"
+        Assert-Equal $LASTEXITCODE 0 "Model-neutral Figma verification must be a successful no-op"
     } finally {
         Pop-Location
     }
@@ -79,4 +93,4 @@ try {
     }
 }
 
-Write-Host "documentation-only and transport-only pipeline tests passed"
+Write-Host "documentation-only, transport-only, and model-neutral pipeline tests passed"

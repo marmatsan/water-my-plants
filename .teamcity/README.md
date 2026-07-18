@@ -75,12 +75,16 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
+- validates typed documentation before scope classification: canonical
+  placement, frontmatter, review dates, runbook and ADR sections, canonical
+  sources, and local Markdown links are checked by
+  `.teamcity/scripts/validate-documentation.ps1`;
 - validates documentation coverage before Gradle: changes to TeamCity,
   Figma-sync implementation, dependency-catalog model, or CI topology must
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
-- uses `Verify change scope` to run `git diff --check` and local Markdown-link
-  validation for documentation-only changes; every other change runs
+- uses `Verify change scope` to run `git diff --check` for documentation-only
+  changes after the repository-wide documentation validator; every other change runs
   `.\gradlew.bat check --stacktrace` so Gradle failures retain their diagnostic
   context in the TeamCity build log;
 - blocks invalid dependency version key names through
@@ -88,6 +92,10 @@ The pipeline:
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
   which is wired into the Gradle `check` lifecycle;
 - publishes the `TeamCity CI` GitHub status from `Verify`.
+
+TeamCity runs these scripts with Windows PowerShell 5.1 (`powershell.exe`). CI
+validation scripts must not depend on APIs available only in newer .NET or
+PowerShell versions.
 
 `CI` does not run `generateFigmaDesignModel` and does not publish
 `build/reports/figma-sync/design-model.json`. Figma represents the stable
@@ -126,6 +134,11 @@ publishes only a `sync-scope.json` artifact and the final job exits successfully
 without Maven, Gradle, model generation, metadata validation, or an MCP write.
 The previous official Figma metadata remains authoritative because neither the
 model nor the compiled visual writer changed.
+
+The same Figma no-op applies to `model-neutral` revisions such as documentation
+validation scripts and their coverage manifest. Unlike documentation-only
+changes, these revisions still run the normal Gradle CI verification before
+merge.
 
 `prepare-figma-sync.ps1` removes the previous
 `build/reports/figma-sync` directory before preparing any scope. This prevents a

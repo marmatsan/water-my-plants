@@ -1,8 +1,21 @@
+---
+title: Figma sync target scopes
+type: reference
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/src/config/figma-config.ts
+  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+---
+
 # Figma Sync Target Scopes
 
 ## Purpose
 
-Use this runbook to understand the ordered visual targets in the Figma model.
+Use this reference to understand the ordered visual targets in the Figma model.
 TeamCity always generates the complete runner. The official visual plan then
 requires either all targets (`full`), only changed fingerprints plus preflight
 (`partial`), or no write (`none`). Ad hoc granular targets remain reserved for

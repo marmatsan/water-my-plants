@@ -104,9 +104,9 @@ used by CI.
     `design-model.json` may be used for an official or branch-local visual sync.
   - `docs/runbooks/mcp-chunk-transport.md` when staging TeamCity artifacts and
     generated MCP scripts through Figma shared plugin data.
-  - `docs/runbooks/target-scopes.md` when choosing the smallest sync target for
+  - `docs/reference/target-scopes.md` when choosing the smallest sync target for
     a Figma section.
-  - `docs/runbooks/visual-sync-contract.md` when changing or validating Figma
+  - `docs/reference/visual-sync-contract.md` when changing or validating Figma
     visual sync behavior, especially catalog tree nodes, connectors, layout, and
     locking.
   - `docs/runbooks/troubleshooting.md` when diagnosing failed or visually

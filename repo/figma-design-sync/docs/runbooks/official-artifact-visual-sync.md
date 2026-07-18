@@ -1,3 +1,16 @@
+---
+title: Official artifact visual sync
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - .teamcity/settings.kts
+  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+---
+
 # Official Artifact Visual Sync Runbook
 
 ## Purpose
@@ -165,3 +178,33 @@ Important generation details:
   either `generateFigmaDesignModel` or `checkFigmaTrunkSync`.
 - Module dependency graphs are no longer rendered into the deleted Figma
   `dependency of modules` section. They belong in PlantUML architecture docs.
+
+## Prerequisites
+
+- The source revision is merged into `main`.
+- TeamCity generated and published the Figma report for that exact revision.
+- The artifact hashes and visual plan are available together.
+
+## Verification
+
+Verify the artifact revision, model hash, writer hash, transport hash, and
+manifest hash before mutation. After visual execution, rerun the complete Figma
+Sync pipeline and require the aggregate run to succeed.
+
+## Recovery
+
+Discard an artifact whose revision or hashes cannot be proven. If visual
+execution fails, resume only compatible checkpoint units or regenerate the
+official artifact from the authoritative `main` run.
+
+## Prohibited Actions
+
+- Do not publish a locally generated or feature-branch design model.
+- Do not repair metadata to make an incompatible artifact appear current.
+- Do not reuse an artifact after its writer or manifest identity changes.
+
+## Sources
+
+- `.teamcity/settings.kts`
+- `.teamcity/scripts/prepare-figma-sync.ps1`
+- `tools/scripts/write-mcp-runner.ts`

@@ -1,8 +1,21 @@
+---
+title: Dependency version naming
+type: standard
+scope: repository-dependencies
+owner: dependency-catalog
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 180
+sources:
+  - repo/dependency-catalog/versions.properties
+  - repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/Versions.kt
+---
+
 # Dependency Version Naming
 
 ## Purpose
 
-Use this reference when adding or renaming entries in
+Use this standard when adding or renaming entries in
 `repo/dependency-catalog/versions.properties`.
 
 The names are rendered in the Figma `versions` section, so the file must keep a

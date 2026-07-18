@@ -1,3 +1,16 @@
+---
+title: Figma sync troubleshooting
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/src
+  - repo/figma-design-sync/tools/tests
+---
+
 # Figma Sync Troubleshooting
 
 ## Purpose
@@ -5,7 +18,7 @@
 Use this document when a Figma trunk sync fails or produces visually incorrect
 catalog trees. The normal execution flow lives in
 [trunk-sync.md](trunk-sync.md), and the expected visual state lives in
-[visual-sync-contract.md](visual-sync-contract.md).
+[visual-sync-contract.md](../reference/visual-sync-contract.md).
 
 ## Metadata Safety
 
@@ -437,3 +450,33 @@ successful or failed generated unit in `execution-state.json` as described in
 [visual-sync-efficiency.md](visual-sync-efficiency.md). Re-test the endpoint
 with `mcp:probe` before enabling direct execution; do not infer write support
 from a successful MCP handshake.
+
+## Prerequisites
+
+Capture the failing target, runner file, execution identity, Figma section, and
+the smallest relevant tool response. Do not begin with a new full write when a
+compatible checkpoint exists.
+
+## Verification
+
+Re-run the failed atomic unit, inspect its target section, and confirm the
+result is recorded in `execution-state.json`. Complete the authoritative visual
+plan before metadata verification.
+
+## Recovery
+
+Use the symptom-specific sections above. When completion is unknown, inspect
+the target before retrying. When capability or identity is incompatible,
+regenerate rather than overriding the guard.
+
+## Prohibited Actions
+
+- Do not infer success from a timeout.
+- Do not move connectors or managed nodes to the page as a permanent repair.
+- Do not bypass preflight, capability, hash, or metadata completion checks.
+
+## Sources
+
+- `tools/src/`
+- `tools/tests/`
+- `execution-state.json` generated beside the official runners
