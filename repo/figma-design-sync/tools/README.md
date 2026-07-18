@@ -14,3 +14,8 @@ npx figma-design-sync-build `
 
 The package remains `private` until a release is explicitly authorized. The
 publication runbook describes the release gate and version alignment contract.
+
+`fixtures/contracts/writer-runtime-contract.json` is the language-neutral
+baseline for runner manifests, targets, transports, and generated MCP file
+roles. Kotlin replacements must satisfy this fixture before a TypeScript
+implementation is removed.
