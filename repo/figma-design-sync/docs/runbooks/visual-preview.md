@@ -1,3 +1,16 @@
+---
+title: Figma visual preview
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts
+  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+---
+
 # Figma Visual Preview Runbook
 
 ## Purpose
@@ -183,3 +196,27 @@ node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=wa
 
 For repository contract changes that affect the generated model, also run the
 Gradle checks described in [trunk-sync.md](trunk-sync.md).
+
+## Prerequisites
+
+- Use a sandbox Figma section or an explicit preview fixture.
+- Build the TypeScript writer from the current branch.
+- Keep official metadata writes disabled.
+
+## Recovery
+
+Delete temporary preview sections and regenerate the preview runner when its
+fixture or writer changes. A failed preview must not be resumed against an
+official section.
+
+## Prohibited Actions
+
+- Do not point a preview runner at an official section.
+- Do not write `water_my_plants_sync` metadata from preview mode.
+- Do not treat a preview result as authorization for trunk publication.
+
+## Sources
+
+- `tools/src/app/sync-catalog-tree-preview.mcp.ts`
+- `tools/scripts/write-mcp-runner.ts`
+- `tools/tests/`

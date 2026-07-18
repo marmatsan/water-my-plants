@@ -1,3 +1,17 @@
+---
+title: TeamCity Cloudflare Access operations
+type: runbook
+scope: repository-ci
+owner: ci-platform
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - .teamcity/settings.kts
+  - docs/ci/external-topology.yaml
+  - docs/ci/windows-runtime.yaml
+---
+
 # TeamCity Cloudflare Access Runbook
 
 ## Purpose
@@ -299,3 +313,24 @@ After configuration or recovery:
   unchanged.
 - When the GitHub webhook secret rotates, update GitHub and the TeamCity GitHub
   App connection in the same operation, then send a test delivery.
+
+## Recovery
+
+Use the verification commands in this runbook to identify whether the failure
+belongs to Cloudflare Access, the tunnel, TeamCity authentication, the GitHub
+webhook, or the Windows services. Restore one boundary at a time and preserve
+the last known valid service-token and TeamCity-token entries until the
+replacement is verified.
+
+## Prohibited Actions
+
+- Do not expose the TeamCity origin directly to bypass Cloudflare Access.
+- Do not place service-token or TeamCity-token values in source control,
+  command history, screenshots, or documentation.
+- Do not grant the build-agent account write access to TeamCity server data.
+
+## Sources
+
+- `.teamcity/settings.kts`
+- `docs/ci/external-topology.yaml`
+- `docs/ci/windows-runtime.yaml`

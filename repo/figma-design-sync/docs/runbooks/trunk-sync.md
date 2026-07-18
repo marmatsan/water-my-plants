@@ -1,3 +1,16 @@
+---
+title: Figma trunk sync
+type: runbook
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - .teamcity/settings.kts
+  - repo/figma-design-sync/tools/src/app/sync-trunk-design-model.mcp.ts
+---
+
 # Figma Trunk Sync Runbook
 
 ## Purpose
@@ -14,8 +27,8 @@ fine-grained runbooks:
 | [official-artifact-visual-sync.md](official-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
 | [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging official payloads through PNG or chunk fallback, running targets, and writing metadata. |
 | [visual-sync-efficiency.md](visual-sync-efficiency.md) | Reading the visual plan, probing MCP capabilities, and resuming checkpointed execution without repeating completed work. |
-| [target-scopes.md](target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
-| [visual-sync-contract.md](visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
+| [target-scopes.md](../reference/target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
+| [visual-sync-contract.md](../reference/visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
 | [troubleshooting.md](troubleshooting.md) | Diagnosing failed or visually incorrect sync runs. |
 
 ## Ownership
@@ -83,7 +96,7 @@ intentionally non-authoritative and must not write official metadata.
    root and finish with cleanup-only calls. Every visual call uses
    `writeMetadata=false`.
 7. Check every managed Figma section against
-   [visual-sync-contract.md](visual-sync-contract.md).
+   [visual-sync-contract.md](../reference/visual-sync-contract.md).
 8. After all visual targets are correct, run only the `metadata` target with
    `writeMetadata=true`.
 9. Optionally rerun only TeamCity `Check Figma trunk sync`, or run
@@ -210,3 +223,15 @@ After merging changes that affect generated model content, regenerate the model
 from `main` and sync Figma again. Commits that only change traceability
 metadata, CI settings, or unrelated files do not require a Figma sync if
 `modelHash` stays unchanged.
+
+## Prerequisites
+
+- Use a TeamCity Figma Sync run for the exact merged `main` revision.
+- Confirm the CI pipeline succeeded before accepting its generated model.
+- Use a write-capable MCP endpoint and the TeamCity-generated visual plan.
+
+## Prohibited Actions
+
+- Do not generate or publish the official model from a feature branch.
+- Do not write official metadata after an incomplete plan.
+- Do not replace the aggregate post-merge verification with a standalone check.

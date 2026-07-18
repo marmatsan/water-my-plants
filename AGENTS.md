@@ -41,6 +41,23 @@ The feature covers the domain generation flow and the Gradle task integration
 because both are part of the contract used by the Figma sync pipeline.
 ```
 
+## Documentation
+
+- Treat `docs/documentation.md` as the canonical documentation standard.
+- Choose the document type before creating prose: standard, guide, runbook,
+  reference, ADR, or README index.
+- Start typed documents from the matching template under `docs/templates/` and
+  place them in the canonical project or module directory.
+- Keep shared production rules under `docs/standards/`. Module documentation
+  links to shared rules and records only module ownership, contracts, and
+  explicit exceptions.
+- Keep README files as orientation and navigation. Move detailed development
+  workflows to guides and operational execution or recovery to runbooks.
+- Keep Figma and rendered UML as derived publication surfaces linked to their
+  versioned repository sources.
+- Run `pwsh -NoProfile -File .teamcity/scripts/validate-documentation.ps1`
+  after adding, moving, or editing documentation.
+
 ## UML Documentation
 
 - Use PlantUML for UML diagrams.

@@ -192,10 +192,10 @@ High-signal entry points:
 
 | Document | Use When |
 |----------|----------|
-| `docs/runbooks/dependency-version-naming.md` | Adding or renaming dependency version keys. |
-| `docs/runbooks/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
+| `docs/standards/dependency-version-naming.md` | Adding or renaming dependency version keys. |
+| `docs/reference/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
 | `docs/runbooks/trunk-sync.md` | Running the official trunk sync workflow. |
 | `docs/runbooks/official-artifact-visual-sync.md` | Deciding whether a `design-model.json` is official enough for sync. |
 | `docs/runbooks/visual-sync-efficiency.md` | Executing the smallest safe target set and resuming from checkpoints. |
-| `docs/runbooks/target-scopes.md` | Updating the smallest possible Figma section. |
+| `docs/reference/target-scopes.md` | Updating the smallest possible Figma section. |
 | `docs/runbooks/troubleshooting.md` | Diagnosing broken sync output or metadata mismatches. |

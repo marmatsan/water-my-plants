@@ -84,6 +84,13 @@ $transportOnly = -not $documentationOnly -and $changedPaths.Count -gt 0 -and @(
         -not (Test-PathMatchesAny $_ @($manifest.figmaTransportOnlyPaths))
     }
 ).Count -eq 0
+$modelNeutralOnly = -not $documentationOnly -and -not $transportOnly -and $changedPaths.Count -gt 0 -and @(
+    $changedPaths | Where-Object {
+        -not (Test-PathMatchesAny $_ @($manifest.documentationOnlyPaths)) -and
+        -not (Test-PathMatchesAny $_ @($manifest.figmaTransportOnlyPaths)) -and
+        -not (Test-PathMatchesAny $_ @($manifest.figmaModelNeutralPaths))
+    }
+).Count -eq 0
 
 $modelContentChanged = @(
     $changedPaths | Where-Object { Test-PathMatchesAny $_ @($manifest.figmaModelContentPaths) }
@@ -112,6 +119,8 @@ $figmaImpact = if ($documentationOnly) {
     "documentation-only"
 } elseif ($transportOnly) {
     "transport-only"
+} elseif ($modelNeutralOnly) {
+    "model-neutral"
 } elseif ($modelContentChanged) {
     "model-content"
 } elseif ($visualWriterChanged) {
@@ -125,6 +134,8 @@ $result = [PSCustomObject]@{
         "documentation-only"
     } elseif ($transportOnly) {
         "transport-only"
+    } elseif ($modelNeutralOnly) {
+        "model-neutral"
     } else {
         "full-verification"
     }

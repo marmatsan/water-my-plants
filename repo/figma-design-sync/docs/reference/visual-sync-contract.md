@@ -1,9 +1,22 @@
+---
+title: Figma visual sync contract
+type: reference
+scope: repo/figma-design-sync
+owner: figma-design-sync
+status: active
+last-reviewed: 2026-07-18
+review-cycle-days: 90
+sources:
+  - repo/figma-design-sync/tools/src
+  - repo/figma-design-sync/tools/tests
+---
+
 # Figma Visual Sync Contract
 
 ## Purpose
 
 This document captures the stable visual contract used by the MCP sync tooling.
-The execution flow lives in [trunk-sync.md](trunk-sync.md); this file describes
+The execution flow lives in [trunk-sync.md](../runbooks/trunk-sync.md); this file describes
 what the generated Figma state must look like after the sync.
 
 ## Tooling Boundary
@@ -189,7 +202,7 @@ For each repository version:
 - Name plugin-owned version keys with the `PluginVersion` suffix.
 - `checkFigmaVersionNaming` enforces this naming contract in CI through the
   root Gradle `check` lifecycle. See
-  [dependency-version-naming.md](dependency-version-naming.md).
+  [dependency-version-naming.md](../standards/dependency-version-naming.md).
 - Ensure `Version alias` mode equals the version key.
 - Set `Version number` mode to the repository value.
 - Create a missing Figma variable under the matching section folder.
