@@ -332,7 +332,7 @@ completed visual checkpoint:
 
 ```powershell
 node dist\write-mcp-runner.mjs --mode=official --model=PATH\TO\design-model.json --target=metadata
-npm run mcp:execute -- --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
 ```
 
 Do not edit `SYNC_OPTIONS` or manifest identity fields by hand.
