@@ -16,11 +16,12 @@ import {
 } from "./writer-scope-fingerprints";
 import {
   CATALOG_TARGET_NAMES,
-  CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE,
+  CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY,
   DEFAULT_FIXTURE_TARGETS,
   METADATA_PAGE_ID,
   OFFICIAL_STAGING_NAMESPACE,
   PREVIEW_STAGING_NAMESPACE,
+  REPOSITORY_ROOT_RELATIVE_TO_TOOLS,
   WRITER_TARGET_NAMES,
 } from "@figma-design-sync/project-config";
 
@@ -274,8 +275,12 @@ async function writeRunnerFiles(options) {
   const targetFingerprints = createTargetFingerprints(designModel);
   const writerScopeFingerprints = await createWriterScopeFingerprints({
     sourceRoot: resolve(TOOL_ROOT, "src"),
-    repositoryRoot: resolve(TOOL_ROOT, "..", "..", ".."),
-    policyPath: resolve(TOOL_ROOT, "..", CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE),
+    repositoryRoot: resolve(TOOL_ROOT, REPOSITORY_ROOT_RELATIVE_TO_TOOLS),
+    policyPath: resolve(
+      TOOL_ROOT,
+      REPOSITORY_ROOT_RELATIVE_TO_TOOLS,
+      CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY
+    ),
     scopes: Object.keys(targetFingerprints),
   });
 

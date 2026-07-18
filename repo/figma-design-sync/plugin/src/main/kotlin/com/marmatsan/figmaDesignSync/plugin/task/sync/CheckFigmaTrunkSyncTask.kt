@@ -23,6 +23,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Gradle verification task that fails when Figma does not contain the current
@@ -31,6 +32,7 @@ import org.gradle.api.tasks.TaskAction
  * The task reads `FIGMA_FILE_CONTENT_ACCESS_TOKEN` at execution time and does
  * not model it as a cacheable input because the token is secret runtime state.
  */
+@DisableCachingByDefault(because = "The check reads Figma, Git, a secret token, and current-time runtime state")
 abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val metadataNodeUrl: Property<String>

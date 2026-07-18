@@ -17,7 +17,10 @@ water-my-plants-catalog -> catalog-core
 ```
 
 The included-build root is an organizational parent and does not publish a
-compatibility artifact.
+compatibility artifact. `:catalog-core` does publish the supporting
+`com.marmatsan.repo:catalog-core:<version>` artifact required by a distributed
+Figma Design Sync plugin. The concrete Water My Plants catalog remains source
+owned and is not part of the portable release.
 
 ## Public Contract
 
@@ -50,8 +53,15 @@ Repository-specific consumers declare both stable coordinates only when they
 need the concrete facade:
 
 ```kotlin
-implementation("com.marmatsan.repo:catalog-core")
+implementation("com.marmatsan.repo:catalog-core:<version>")
 implementation("com.marmatsan.repo:water-my-plants-catalog")
+```
+
+Stage and verify `catalog-core` through the owning Figma Design Sync
+distribution task:
+
+```powershell
+.\gradlew.bat :figma-design-sync:verifyStagedPublication
 ```
 
 ## Sources Of Truth

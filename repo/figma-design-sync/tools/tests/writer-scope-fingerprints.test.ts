@@ -3,7 +3,9 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE } from "@figma-design-sync/project-config";
+import {
+  CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY,
+} from "@figma-design-sync/project-config";
 import {
   createWriterScopeFingerprints,
   WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION,
@@ -113,7 +115,13 @@ test("repository policy maps catalog writer changes to catalog scopes and prefli
   const options = {
     sourceRoot,
     repositoryRoot: root,
-    policyPath: join(process.cwd(), "..", CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE),
+    policyPath: join(
+      process.cwd(),
+      "..",
+      "..",
+      "..",
+      CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY
+    ),
     scopes: REQUESTED_SCOPES,
   };
 

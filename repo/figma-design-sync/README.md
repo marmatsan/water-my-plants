@@ -85,6 +85,37 @@ The portable plugin id is `com.marmatsan.figmaDesignSync`. It intentionally has
 no Water My Plants defaults. See [`project-config/README.md`](project-config/README.md)
 for the adapter contract required by another repository.
 
+## Distribution Readiness
+
+Consumers will apply one versioned Gradle plugin rather than addressing the
+internal projects. The staged publication contains the plugin marker,
+`figma-design-sync-gradle-plugin`, transitive domain and data artifacts, the
+supporting `catalog-core` API, and the optional `teamcity-adapter`. Water My
+Plants `project-config` is deliberately excluded.
+
+The TypeScript writer is prepared as
+`@marmatsan/figma-design-sync-tools`. Its build executable injects a
+repository-owned `figma-config.ts`, so the published package does not own Figma
+node ids or repository paths. Maven and npm versions must remain aligned.
+
+Validate the complete staged distribution without publishing externally:
+
+```powershell
+.\gradlew.bat :figma-design-sync:verifyStagedPublication
+
+Push-Location repo\figma-design-sync\tools
+$env:npm_config_cache = "..\..\..\build\npm-cache"
+npm pack --dry-run
+Remove-Item Env:npm_config_cache
+Pop-Location
+```
+
+The standalone fixture resolves the plugin from generated Maven files and does
+not use `includeBuild`. See the
+[adoption guide](docs/guides/adopting-figma-design-sync.md),
+[distribution contract](docs/reference/distribution-contract.md), and
+[publication runbook](docs/runbooks/publishing-release.md).
+
 ## Output Contract
 
 `generateFigmaDesignModel` writes:

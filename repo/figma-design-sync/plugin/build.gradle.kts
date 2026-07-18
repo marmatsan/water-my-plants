@@ -1,10 +1,12 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import java.net.URI
+import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
+    `maven-publish`
     alias(plugins.plugins.com.google.devtools.ksp)
     alias(plugins.plugins.org.jetbrains.dokka)
 }
@@ -29,6 +31,10 @@ tasks.withType<Test> {
     System.getProperty("cucumber.features")?.let { features ->
         systemProperty("cucumber.features", features)
     }
+}
+
+java {
+    withSourcesJar()
 }
 
 dependencies {
@@ -56,6 +62,36 @@ gradlePlugin {
     plugins.register(pluginName) {
         id = pluginName
         implementationClass = "${pluginName}.plugin.gradle.FigmaDesignSyncGradlePlugin"
+        displayName = "Figma Design Sync"
+        description = "Generates and verifies a portable Gradle repository model for Figma documentation."
+    }
+}
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        if (name == "pluginMaven") {
+            artifactId = "figma-design-sync-gradle-plugin"
+        }
+
+        pom {
+            name.set("Figma Design Sync Gradle Plugin")
+            description.set("Gradle entry point for portable Figma design synchronization.")
+            url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/figma-design-sync")
+            scm {
+                connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                url.set("https://github.com/marmatsan/water-my-plants")
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "staging"
+            url = uri(
+                providers.gradleProperty("figmaDesignSyncPublicationRepository").orNull
+                    ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
+            )
+        }
     }
 }
 
