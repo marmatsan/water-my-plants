@@ -443,8 +443,8 @@ class OfficialMcpRunnerGenerator(
     companion object {
         const val TRANSPORT_PNG = "png"
         const val TRANSPORT_CHUNKS = "chunks"
+        const val MANIFEST_SCHEMA_VERSION = 3
 
-        private const val MANIFEST_SCHEMA_VERSION = 3
         private const val TRANSPORT_CONTRACT_VERSION = 2
         private const val DEFAULT_CHUNK_SIZE = 30_000
         private const val MINIMUM_CHUNK_SIZE = 1_000

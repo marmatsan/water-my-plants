@@ -8,7 +8,7 @@ last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts
-  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - repo/figma-design-sync/tools/scripts/write-mcp-preview.ts
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/visual/GenerateCiVisualPlanTask.kt
 ---
 
@@ -76,7 +76,7 @@ Build the MCP bundle and generate runner snippets from the tools directory:
 ```powershell
 .\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 Catalog tree preview defaults to `--entrypoint=preview-catalog`, which stages
@@ -84,7 +84,7 @@ Catalog tree preview defaults to `--entrypoint=preview-catalog`, which stages
 Pass it explicitly when documenting or sharing a reproduction:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 The command writes an ignored directory under:
@@ -136,8 +136,7 @@ From the repository root, generate a plan for the target being inspected:
 Then package the preview runner from the tools directory:
 
 ```powershell
-node dist\write-mcp-runner.mjs `
-  --mode=preview `
+node dist\write-mcp-preview.mjs `
   --model="PATH\TO\design-model.json" `
   --target=ci.overview `
   --ci-visual-plan="..\..\..\build\tmp\figma-preview\ci-visual-plan.json"
@@ -162,9 +161,9 @@ templates for the target being tested:
 Examples:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.libraries --section-node-id=SANDBOX_SECTION_ID
-node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
-node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=gradlePlugins.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.libraries --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=gradlePlugins.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 Use `--allow-official-sections=true` only for supervised manual repair where the
@@ -193,7 +192,7 @@ Version preview still touches the configured Figma variable collection and
 the visual mutation is intentionally being inspected in the official file:
 
 ```powershell
-node dist\write-mcp-runner.mjs --mode=preview --fixture=versions --target=versions
+node dist\write-mcp-preview.mjs --fixture=versions --target=versions
 ```
 
 Do not write metadata after a version preview run.
@@ -221,7 +220,7 @@ For tooling changes:
 ```powershell
 .\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-node dist\write-mcp-runner.mjs --mode=preview --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 For repository contract changes that affect the generated model, also run the
@@ -248,5 +247,5 @@ official section.
 ## Sources
 
 - `tools/src/app/sync-catalog-tree-preview.mcp.ts`
-- `tools/scripts/write-mcp-runner.ts`
+- `tools/scripts/write-mcp-preview.ts`
 - `tools/tests/`

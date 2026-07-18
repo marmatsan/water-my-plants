@@ -8,7 +8,7 @@ last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json
-  - repo/figma-design-sync/tools/scripts/writer-scope-fingerprints.ts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/fingerprint/WriterScopeFingerprintCalculator.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/FigmaChangeImpactClassifier.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/impact/ClassifyFigmaChangeImpactTask.kt
 ---

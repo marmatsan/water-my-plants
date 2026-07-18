@@ -19,19 +19,16 @@ const projectConfigBuildOptions = await createProjectConfigBuildOptions(projectC
 const outputDirectory = join(packageRoot, "dist", "tests");
 await mkdir(outputDirectory, { recursive: true });
 
-await bundle("scripts/write-mcp-runner.ts", join(packageRoot, "dist", "write-mcp-runner.mjs"));
+await bundle("scripts/write-mcp-preview.ts", join(packageRoot, "dist", "write-mcp-preview.mjs"));
 
 runNodeTest(join(packageRoot, "tests", "distribution-build.test.mjs"));
 
 for (const testName of [
-  "writer-runtime-contract",
-  "payload-png",
   "sync-preflight-target",
   "version-sync-plan",
   "header-sync-plan",
   "metadata-sync",
-  "writer-scope-fingerprints",
-  "write-mcp-runner",
+  "write-mcp-preview",
   "catalog-root-filter-scope",
   "library-catalog-entries",
   "catalog-tree-targets",

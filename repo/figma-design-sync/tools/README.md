@@ -34,7 +34,8 @@ roles. Kotlin replacements must satisfy this fixture before a TypeScript
 implementation is removed.
 
 Use the root `probeFigmaMcp` and `runFigmaMcp` Gradle tasks for MCP operations.
-The TypeScript `mcp:runner` command remains only as a preview and compatibility
-packager during the gradual migration. It does not calculate CI visual
-structure. A CI target must receive `--ci-visual-plan=PATH` pointing to output
-from the Kotlin `generateFigmaCiVisualPlan` Gradle task.
+The TypeScript `mcp:preview` command is a preview-only packager for supervised
+visual inspection. It rejects official mode, metadata writes, PNG transport,
+preflight, and multi-target execution. Official manifests, payload transport,
+fingerprints, execution plans, and checkpoints are generated and enforced by
+Kotlin.

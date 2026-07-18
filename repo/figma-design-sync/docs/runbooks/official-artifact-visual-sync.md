@@ -8,7 +8,7 @@ last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
-  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/artifact/ValidateOfficialFigmaArtifactSetTask.kt
@@ -61,8 +61,8 @@ change includes any of the following:
 - PlantUML sources or other documentation artifacts published into Figma.
 - Model extraction, serialization, catalog, module, plugin, version, or CI
   topology sources.
-- TypeScript visual writer, runner, transport, layout, or component-binding
-  code.
+- Kotlin runner or transport code, or TypeScript visual writer, layout, or
+  component-binding code.
 - A Figma component or visual contract change that requires the checked-in
   documentation to be updated with it.
 
@@ -246,6 +246,6 @@ official artifact from the authoritative `main` run.
 
 - `.teamcity/settings.kts`
 - `plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/official/PrepareOfficialFigmaSyncTask.kt`
-- `tools/scripts/write-mcp-runner.ts`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt`
 - `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
 - `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt`

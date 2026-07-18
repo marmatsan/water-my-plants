@@ -68,7 +68,7 @@ values; generated JSON is a transient build input rather than a reviewed
 source file.
 
 The materialized directory contains the compiled Figma Plugin API writer, the
-transitional preview runner generator, portable writer sources used for
+preview-only runner generator, portable writer sources used for
 fingerprints, and visual fixtures. `figmaDesignSync.toolsDirectory` points to
 this directory. Official runner generation, capability probing, MCP transport,
 and checkpoints are Kotlin services delivered by the Maven plugin and its
@@ -77,9 +77,8 @@ transitive `domain` and `data` artifacts.
 The language-neutral
 `tools/fixtures/contracts/writer-runtime-contract.json` fixture defines the
 observable runner manifest, target, transport, hash, and execution-scope
-contract. Replacement implementations, including gradual Kotlin migrations,
-must satisfy this executable baseline before the corresponding TypeScript
-implementation is removed.
+contract. The Kotlin runner tests own its executable coverage; the retired
+TypeScript implementation remains out of the published package.
 
 The project config owns both
 `REPOSITORY_ROOT_RELATIVE_TO_TOOLS` and

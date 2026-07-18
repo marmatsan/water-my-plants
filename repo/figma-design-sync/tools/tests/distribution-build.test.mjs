@@ -33,9 +33,9 @@ test("materializes a writer from the Kotlin-generated JSON project config", asyn
     assert.match(generatedWriter, /Generated from sync-trunk-design-model\.mcp\.ts/);
     assert.doesNotMatch(generatedWriter, /@figma-design-sync\/project-config/);
 
-    const runner = await readFile(join(outputRoot, "dist", "write-mcp-runner.mjs"), "utf8");
-    assert.match(runner, /water_my_plants_sync/);
-    assert.doesNotMatch(runner, /@figma-design-sync\/project-config/);
+    const preview = await readFile(join(outputRoot, "dist", "write-mcp-preview.mjs"), "utf8");
+    assert.match(preview, /water_my_plants_sync_preview/);
+    assert.doesNotMatch(preview, /@figma-design-sync\/project-config/);
   } finally {
     await rm(outputRoot, { recursive: true, force: true });
   }
