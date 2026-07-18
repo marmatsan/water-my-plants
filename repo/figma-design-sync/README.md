@@ -105,6 +105,8 @@ Run these from the repository root:
 .\gradlew.bat checkFigmaCatalogUsage
 .\gradlew.bat checkCiWindowsRuntimeFreshness
 .\gradlew.bat classifyFigmaChangeImpact
+.\gradlew.bat validateOfficialFigmaArtifactSet `
+    -PfigmaArtifactDirectory=<artifact-directory>
 ```
 
 Task responsibilities:
@@ -112,6 +114,7 @@ Task responsibilities:
 | Task | Responsibility |
 |------|----------------|
 | `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
+| `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
