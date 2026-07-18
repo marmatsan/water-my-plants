@@ -90,11 +90,16 @@ export async function syncFigmaDesignModel(
   completedTargets.push(...catalogTargets);
 
   const ciTargets = CI_SYNC_TARGETS.filter((target) => requestedTargets.has(target));
+  if (ciTargets.length > 0 && !options.ciVisualPlan) {
+    throw new Error(
+      "CI visual sync requires a Kotlin-generated ciVisualPlan. " +
+        "Generate it with the generateFigmaCiVisualPlan Gradle task."
+    );
+  }
   const ciSyncResult = ciTargets.length > 0
     ? await dependencies.ciDocumentationSyncGateway.syncCiDocumentation(
-        designModel,
         ciTargets,
-        options.ciVisualPlan
+        options.ciVisualPlan!
       )
     : emptyCiDocumentationSyncResult();
   completedTargets.push(...ciTargets);

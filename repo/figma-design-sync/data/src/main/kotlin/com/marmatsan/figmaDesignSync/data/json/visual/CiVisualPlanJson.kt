@@ -12,7 +12,10 @@ import com.marmatsan.figmaDesignSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDesignSync.domain.model.visual.CiVisualPlan
 import com.marmatsan.figmaDesignSync.domain.model.visual.CiVisualPlanConfig
 import com.marmatsan.figmaDesignSync.domain.service.visual.CiVisualPlanner
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.LocalDate
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -29,6 +32,8 @@ import kotlinx.serialization.json.put
 
 /** JSON boundary between the official design model and the Kotlin CI visual planner. */
 object CiVisualPlanJson {
+    private val prettyJson = Json { prettyPrint = true }
+
     fun create(
         designModel: JsonObject,
         config: CiVisualPlanConfig,
@@ -49,6 +54,24 @@ object CiVisualPlanJson {
                 }
         } ?: plan
         return selected.toJson()
+    }
+
+    fun write(
+        designModelPath: String,
+        config: CiVisualPlanConfig,
+        target: String? = null,
+        outputPath: String
+    ) {
+        val designModel = Json.parseToJsonElement(
+            Files.readString(Path.of(designModelPath)).removePrefix(UTF8_BOM)
+        ).jsonObject
+        val destination = Path.of(outputPath)
+        destination.parent?.let(Files::createDirectories)
+        Files.writeString(
+            destination,
+            prettyJson.encodeToString(JsonObject.serializer(), create(designModel, config, target)) +
+                System.lineSeparator()
+        )
     }
 
     private fun JsonObject.toExternalTopology(): CiExternalTopology = CiExternalTopology(
@@ -232,4 +255,6 @@ object CiVisualPlanJson {
 
     private fun JsonObject.requiredBoolean(name: String): Boolean =
         this[name]?.jsonPrimitive?.booleanOrNull ?: throw IllegalArgumentException("CI visual model is missing '$name'.")
+
+    private const val UTF8_BOM = "\uFEFF"
 }

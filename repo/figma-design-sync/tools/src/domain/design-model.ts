@@ -37,7 +37,7 @@ export type SyncFigmaDesignModelOptions = {
   sectionNodeOverrides?: Record<string, string>;
   catalogRootFilters?: Partial<Record<SyncTargetName, string[]>>;
   catalogCleanupOnlyTargets?: SyncTargetName[];
-  ciVisualPlan?: import("./ci/create-ci-visual-plan").CiVisualPlan;
+  ciVisualPlan?: import("./ci/ci-visual-plan").CiVisualPlan;
   executionMetadata?: SyncExecutionMetadata;
 };
 

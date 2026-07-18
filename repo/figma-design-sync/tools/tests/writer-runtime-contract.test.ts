@@ -65,6 +65,7 @@ function generateManifest(workspace, extraArguments) {
       "--mode=official",
       `--model=${workspace.modelPath}`,
       `--script=${workspace.scriptPath}`,
+      `--ci-visual-plan=${workspace.ciVisualPlanPath}`,
       `--out-dir=${workspace.outDir}`,
       ...extraArguments,
     ],
@@ -83,6 +84,7 @@ function createWorkspace() {
   const root = mkdtempSync(join(tmpdir(), "figma-writer-contract-"));
   const modelPath = join(root, "design-model.json");
   const scriptPath = join(root, "sync-script.mcp.js");
+  const ciVisualPlanPath = join(root, "ci-visual-plan.json");
   const outDir = join(root, "out");
 
   writeFileSync(
@@ -112,6 +114,24 @@ function createWorkspace() {
     "utf8"
   );
   writeFileSync(
+    ciVisualPlanPath,
+    JSON.stringify({
+      parentName: "Continuous Integration and Design Documentation",
+      sections: contract.visual.targets
+        .filter((target) => target.startsWith("ci."))
+        .map((target) => ({
+          target,
+          name: target,
+          description: target,
+          orientation: "horizontal",
+          headerSources: [],
+          nodes: [],
+          connections: [],
+        })),
+    }),
+    "utf8"
+  );
+  writeFileSync(
     scriptPath,
     [
       "const DESIGN_MODEL = undefined;",
@@ -121,5 +141,5 @@ function createWorkspace() {
     "utf8"
   );
 
-  return { root, modelPath, scriptPath, outDir };
+  return { root, modelPath, scriptPath, ciVisualPlanPath, outDir };
 }

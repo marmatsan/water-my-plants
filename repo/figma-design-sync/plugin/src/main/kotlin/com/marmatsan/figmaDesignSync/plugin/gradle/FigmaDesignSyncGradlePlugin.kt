@@ -16,6 +16,7 @@ import com.marmatsan.figmaDesignSync.plugin.task.official.PrepareOfficialFigmaSy
 import com.marmatsan.figmaDesignSync.plugin.task.official.ValidateOfficialFigmaSyncScopeTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import com.marmatsan.figmaDesignSync.plugin.task.versions.CheckFigmaVersionNamingTask
+import com.marmatsan.figmaDesignSync.plugin.task.visual.GenerateCiVisualPlanTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.language.base.plugins.LifecycleBasePlugin
@@ -33,6 +34,7 @@ import java.io.File
  * plugin exposes the `figmaDesignSync` extension and creates:
  *
  * - `generateFigmaDesignModel`
+ * - `generateFigmaCiVisualPlan`
  * - `prepareOfficialFigmaSync`
  * - `verifyOfficialFigmaSync`
  * - `checkFigmaCatalogUsage`
@@ -47,6 +49,28 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
         val extension = project.extensions.create<figmaDesignSyncExtension>("figmaDesignSync")
 
         val includedBuildSources = extension.includedBuildSources(project)
+
+        project.tasks.register<GenerateCiVisualPlanTask>("generateFigmaCiVisualPlan") {
+            group = "documentation"
+            description = "Generates the Kotlin-owned CI visual plan consumed by the Figma adapter."
+
+            designModelFile.set(
+                project.layout.file(
+                    project.providers.gradleProperty("figmaCiVisualDesignModel").map(::File)
+                ).orElse(extension.designModelFile)
+            )
+            writerProjectConfigFile.set(
+                project.layout.file(
+                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File)
+                )
+            )
+            target.convention(project.providers.gradleProperty("figmaCiVisualTarget"))
+            outputFile.set(
+                project.layout.file(
+                    project.providers.gradleProperty("figmaCiVisualPlanOutput").map(::File)
+                ).orElse(project.layout.buildDirectory.file("reports/figma-sync/ci-visual-plan.json"))
+            )
+        }
 
         project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyFigmaChangeImpact") {
             group = "verification"
