@@ -77,12 +77,13 @@ scope.
 
 ## Writer Scope Fingerprints
 
-The same `figmaVisualTargetRules` also classify TypeScript writer sources when
-the MCP manifest is generated. Each mapped source contributes only to the
-listed writer target fingerprints. An unmapped source under `tools/src` is
-treated as shared and contributes to every target, so changing shared node,
-text, configuration, port, or orchestration code still forces a full visual
-sync.
+The same `figmaVisualTargetRules` classify every source selected by
+`figmaVisualWriterPaths` when the MCP manifest is generated. This includes the
+TypeScript Figma boundary and Kotlin visual planners/JSON adapters outside
+`tools/src`. Each mapped source contributes only to the listed writer target
+fingerprints. An unmapped selected source is treated as shared and contributes
+to every target, so changing shared node, text, configuration, port, or
+orchestration code still forces a full visual sync.
 
 Sources explicitly classified as `figmaTransportOnlyPaths`, including the
 sandbox catalog preview entrypoint, do not contribute to official writer
@@ -90,8 +91,11 @@ fingerprints because they cannot alter the trunk writer.
 
 Catalog roots and cleanup execution scopes inherit their catalog target
 fingerprint. The global compiled `writerHash` remains the guard that detects an
-actual runtime change. If that hash changes but the scoped source fingerprints
-cannot explain it, planning fails closed to `full`.
+actual TypeScript runtime change. Scoped fingerprints are compared
+independently so a Kotlin planner or JSON adapter change still selects its
+mapped targets even when the compiled JavaScript hash is unchanged. If the
+compiled hash changes but the scoped source fingerprints cannot explain it,
+planning fails closed to `full`.
 
 Increment `WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION` whenever classification
 semantics change incompatibly. The resulting full migration sync writes a new

@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDesignSync.data.json.writer
 
+import com.marmatsan.figmaDesignSync.domain.model.visual.CiVisualPlanConfig
 import com.marmatsan.figmaDesignSync.domain.model.writer.FigmaWriterRuntimeConfig
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,6 +21,7 @@ object FigmaWriterRuntimeConfigJson {
             "Unsupported Figma writer project config schema ${json.requiredInt("schemaVersion")}; " +
                 "expected $SUPPORTED_SCHEMA_VERSION."
         }
+        val ciTargets = json.requiredStringList("CI_VISUAL_TARGET_NAMES")
         return FigmaWriterRuntimeConfig(
             metadataPageId = json.requiredString("METADATA_PAGE_ID"),
             metadataNamespace = json.requiredString("METADATA_NAMESPACE"),
@@ -30,7 +32,21 @@ object FigmaWriterRuntimeConfigJson {
             changeImpactPolicyRelativeToRepository =
                 json.requiredString("CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY"),
             writerTargetNames = json.requiredStringList("WRITER_TARGET_NAMES"),
-            catalogTargetNames = json.requiredStringList("CATALOG_TARGET_NAMES")
+            catalogTargetNames = json.requiredStringList("CATALOG_TARGET_NAMES"),
+            ciVisualPlanConfig = if (ciTargets.isEmpty()) null else CiVisualPlanConfig(
+                configurationModelName = json.requiredString("CI_CONFIGURATION_MODEL_NAME"),
+                ciPipelineName = json.requiredString("CI_PIPELINE_NAME"),
+                figmaPipelineName = json.requiredString("FIGMA_PIPELINE_NAME"),
+                githubMainBlobUrl = json.requiredString("GITHUB_MAIN_BLOB_URL"),
+                teamCitySource = json.requiredString("TEAMCITY_SOURCE"),
+                topologySource = json.requiredString("TOPOLOGY_SOURCE"),
+                windowsRuntimeSource = json.requiredString("WINDOWS_RUNTIME_SOURCE"),
+                windowsRuntimeRunbookSource = json.requiredString("WINDOWS_RUNTIME_RUNBOOK_SOURCE"),
+                visualContractSource = json.requiredString("VISUAL_CONTRACT_SOURCE"),
+                branchProtectionSource = json.requiredString("BRANCH_PROTECTION_SOURCE"),
+                officialSyncSource = json.requiredString("OFFICIAL_SYNC_SOURCE"),
+                officialDesignModelPath = json.requiredString("OFFICIAL_DESIGN_MODEL_PATH")
+            )
         )
     }
 

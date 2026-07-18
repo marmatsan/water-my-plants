@@ -38,6 +38,27 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec({
             root.toFile().deleteRecursively()
         }
     }
+
+    test("includes Kotlin visual planners outside the TypeScript source root") {
+        val root = Files.createTempDirectory("kotlin-writer-fingerprints")
+        try {
+            val sourceRoot = root.resolve("repo/tools/src").apply { createDirectories() }
+            sourceRoot.resolve("shared.ts").writeText("export const shared = 1;\n")
+            val kotlinPlanner = root.resolve("repo/visual/CiVisualPlanner.kt").apply {
+                parent.createDirectories()
+                writeText("class CiVisualPlanner\n")
+            }
+
+            val before = fingerprints(root, sourceRoot)
+            kotlinPlanner.writeText("class CiVisualPlannerV2\n")
+            val after = fingerprints(root, sourceRoot)
+
+            after["ci.overview"] shouldNotBe before["ci.overview"]
+            after["versions"] shouldBe before["versions"]
+        } finally {
+            root.toFile().deleteRecursively()
+        }
+    }
 })
 
 private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.nio.file.Path) =
@@ -49,7 +70,7 @@ private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.ni
             transportOnlyPaths = listOf("repo/tools/src/preview.ts"),
             modelNeutralPaths = emptyList(),
             modelContentPaths = emptyList(),
-            visualWriterPaths = listOf("repo/tools/src/*"),
+            visualWriterPaths = listOf("repo/tools/src/*", "repo/visual/*"),
             visualTargetRules = listOf(
                 FigmaVisualTargetRule(
                     paths = listOf("repo/tools/src/figma/figma-ci-*"),
@@ -58,6 +79,10 @@ private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.ni
                 FigmaVisualTargetRule(
                     paths = listOf("repo/tools/src/figma/figma-catalog-*"),
                     targets = listOf("preflight", "waterMyPlants.libraries")
+                ),
+                FigmaVisualTargetRule(
+                    paths = listOf("repo/visual/*"),
+                    targets = listOf("ci.overview")
                 )
             )
         ),

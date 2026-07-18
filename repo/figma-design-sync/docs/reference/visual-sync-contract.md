@@ -9,6 +9,8 @@ review-cycle-days: 90
 sources:
   - repo/figma-design-sync/tools/src
   - repo/figma-design-sync/tools/tests
+  - repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/visual
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/visual
 ---
 
 # Figma Visual Sync Contract
@@ -21,12 +23,18 @@ what the generated Figma state must look like after the sync.
 
 ## Tooling Boundary
 
-The visual sync source of truth is TypeScript under
-`repo/figma-design-sync/tools/src/`.
+Visual planning is split by capability. Pure, deterministic plans live in
+Kotlin under `domain/service/visual`; JSON adaptation lives in
+`data/json/visual`. TypeScript under `tools/src` owns only orchestration that
+runs inside the Figma Plugin API and the concrete node, component, variable,
+text, and connector adapters.
 
 The tool source follows the same dependency direction as the Gradle sync code:
 
-- `domain` contains generated-model types and pure catalog rules.
+- Kotlin `domain` contains portable models and pure visual rules.
+- Kotlin `data` translates language-neutral JSON into those models and emits
+  target-scoped plan JSON.
+- TypeScript `domain` retains boundary types and transitional preview rules.
 - `ports` contains gateway contracts.
 - `usecases` coordinates sync behavior through those contracts.
 - `figma` contains the Figma MCP API adapters.
@@ -79,8 +87,14 @@ runner does not authorize metadata.
 
 ## CI Documentation Visual Sync
 
-The CI writer reads only `content.ci` from the official `main`
-`design-model.json`. It creates or updates one parent section named
+The Kotlin `CiVisualPlanner` reads only `content.ci` from the official `main`
+`design-model.json` through `CiVisualPlanJson`. The official runner generator
+embeds one target-scoped `ciVisualPlan` in `SYNC_OPTIONS`; the TypeScript Figma
+gateway consumes that plan and does not decide CI section structure during an
+official sync. Transitional preview runners may still calculate the same plan
+in TypeScript until preview generation is moved behind the Kotlin contract.
+
+The Figma gateway creates or updates one parent section named
 `Continuous Integration and Design Documentation` on Figma page `63153:2876`
 and exposes five independently runnable targets:
 
@@ -149,7 +163,7 @@ from component set `64361:716`. Its `environment` variant is configured directly
 on the nested instance because Figma does not promote that property to the
 parent `.ci node` component. Supported environments are `github`, `teamcity`,
 `cloudflare`, `figma`, `codex`, `browser`, `terminal`, `operator`, and `json`.
-The visual plan maps every node explicitly; there is no generic fallback. The
+The Kotlin visual plan maps every node explicitly; there is no generic fallback. The
 preflight must fail when the nested instance is absent or duplicated, belongs
 to another component set, lacks the `environment` property, or exposes a
 different set of variant values.

@@ -52,6 +52,20 @@ internal class VisualSyncPlannerTest : FunSpec({
         plan.body.executionScopes.shouldContainExactly("preflight", "waterMyPlants.libraries.androidx")
     }
 
+    test("Kotlin planner changes select their scope even when the compiled TypeScript hash is unchanged") {
+        val previous = previousMetadata().copy(
+            writerScopeFingerprints = previousMetadata().writerScopeFingerprints?.plus(
+                "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
+            )
+        )
+
+        val plan = planner.create(manifest, previous)
+
+        plan.body.decision shouldBe VisualSyncDecision.PARTIAL
+        plan.body.reason shouldBe "writer-scope-fingerprints-changed"
+        plan.body.executionScopes.shouldContainExactly("preflight", "waterMyPlants.libraries.androidx")
+    }
+
     test("metadata-only writer changes still create a partial metadata plan") {
         val previous = previousMetadata().copy(
             writerHash = "sha256:writer-old",

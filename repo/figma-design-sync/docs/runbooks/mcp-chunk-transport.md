@@ -29,9 +29,11 @@ payload is too large or asset upload is unavailable.
 
 ## Build The MCP Bundle
 
-The visual sync source lives under `repo/figma-design-sync/tools/src/`.
-TypeScript is the source of truth; JavaScript is only the generated runtime
-artifact executed by Figma MCP.
+The Figma Plugin API boundary lives under
+`repo/figma-design-sync/tools/src/`. Pure CI planning lives in Kotlin and is
+embedded in the runner as `ciVisualPlan`; TypeScript consumes that plan while
+performing node mutations. JavaScript is only the generated runtime artifact
+executed by Figma MCP.
 
 ```powershell
 cd repo\figma-design-sync\tools

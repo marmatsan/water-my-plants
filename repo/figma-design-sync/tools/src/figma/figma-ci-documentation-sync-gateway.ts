@@ -21,6 +21,7 @@ import {
   type CiVisualConnection,
   type CiVisualNode,
   type CiVisualOrientation,
+  type CiVisualPlan,
   type CiVisualSection,
 } from "../domain/ci/create-ci-visual-plan";
 import type { DesignModel } from "../domain/design-model";
@@ -55,13 +56,17 @@ const CONNECTOR_LABEL_COLLISION_GAP = 16;
 const CONNECTOR_LABEL_MAX_TEXT_WIDTH = 280;
 
 export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGateway {
-  async syncCiDocumentation(designModel: DesignModel, targetNames: string[]) {
+  async syncCiDocumentation(
+    designModel: DesignModel,
+    targetNames: string[],
+    visualPlan?: CiVisualPlan
+  ) {
     const unknownTargets = targetNames.filter((target) => !CI_VISUAL_TARGET_NAMES.includes(target as any));
     if (unknownTargets.length > 0) {
       throw new Error(`Unknown CI documentation target(s): ${unknownTargets.join(", ")}.`);
     }
 
-    const plan = createCiVisualPlan(designModel);
+    const plan = visualPlan ?? createCiVisualPlan(designModel);
     const page = await requirePage(CI_DOCUMENTATION_PAGE_ID);
     const nodeComponent = await requireComponent(CI_NODE_COMPONENT_ID);
     const modeCollection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
