@@ -5,6 +5,7 @@ import com.marmatsan.figmaDesignSync.data.fingerprint.FigmaTargetFingerprintCalc
 import com.marmatsan.figmaDesignSync.data.fingerprint.WriterScopeFingerprintCalculator
 import com.marmatsan.figmaDesignSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDesignSync.data.json.CanonicalJson
+import com.marmatsan.figmaDesignSync.data.json.visual.CiVisualPlanJson
 import com.marmatsan.figmaDesignSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDesignSync.data.png.PayloadPngEncoder
 import com.marmatsan.figmaDesignSync.domain.model.writer.ExecutableRunnerManifest
@@ -305,6 +306,13 @@ class OfficialMcpRunnerGenerator(
                 put("catalogRootFilters", buildJsonObject { put(target, JsonArray(roots.map(::JsonPrimitive))) })
             }
             if (cleanupOnly) put("catalogCleanupOnlyTargets", JsonArray(listOf(JsonPrimitive(target))))
+            if (target.startsWith("ci.")) {
+                val ciConfig = context.request.config.ciVisualPlanConfig
+                    ?: throw IllegalArgumentException(
+                        "CI visual target '$target' requires CI visual plan project configuration."
+                    )
+                put("ciVisualPlan", CiVisualPlanJson.create(context.designModel, ciConfig, target))
+            }
             put("executionMetadata", executionMetadata)
         }
         return renderer.runTarget(

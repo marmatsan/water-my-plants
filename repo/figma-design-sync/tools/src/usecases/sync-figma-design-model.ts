@@ -91,7 +91,11 @@ export async function syncFigmaDesignModel(
 
   const ciTargets = CI_SYNC_TARGETS.filter((target) => requestedTargets.has(target));
   const ciSyncResult = ciTargets.length > 0
-    ? await dependencies.ciDocumentationSyncGateway.syncCiDocumentation(designModel, ciTargets)
+    ? await dependencies.ciDocumentationSyncGateway.syncCiDocumentation(
+        designModel,
+        ciTargets,
+        options.ciVisualPlan
+      )
     : emptyCiDocumentationSyncResult();
   completedTargets.push(...ciTargets);
 

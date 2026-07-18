@@ -60,6 +60,7 @@ object FigmaWriterProjectConfigJson {
             put("HEADER_LINK_PROPERTY_NAME", headerLinkPropertyName)
             put("GITHUB_MAIN_BLOB_URL", githubMainBlobUrl)
             put("GITHUB_MAIN_TREE_URL", githubMainTreeUrl)
+            put("CI_CONFIGURATION_MODEL_NAME", ciConfigurationModelName)
             put("CI_PIPELINE_NAME", ciPipelineName)
             put("FIGMA_PIPELINE_NAME", figmaPipelineName)
             put("TEAMCITY_SOURCE", teamCitySource)

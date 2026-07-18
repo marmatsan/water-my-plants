@@ -166,6 +166,32 @@ test("preflight validates and synchronizes a granular CI documentation target", 
   assert.deepEqual(result.updatedCiSections, ["ci.overview"]);
 });
 
+test("forwards the Kotlin-precomputed CI visual plan to the Figma boundary", async () => {
+  const calls: string[] = [];
+  const dependencies = fakeDependencies(calls);
+  let receivedPlan;
+  dependencies.ciDocumentationSyncGateway.syncCiDocumentation = async (_model, targets, visualPlan) => {
+    receivedPlan = visualPlan;
+    return {
+      updatedCiSections: targets,
+      createdCiNodes: [],
+      createdCiConnectors: [],
+      mutatedNodeIds: [],
+    };
+  };
+  const ciVisualPlan = {
+    parentName: "Continuous Integration and Design Documentation" as const,
+    sections: [],
+  };
+
+  await syncFigmaDesignModel(mainDesignModel(), dependencies, {
+    targets: ["ci.overview"],
+    ciVisualPlan,
+  });
+
+  assert.equal(receivedPlan, ciVisualPlan);
+});
+
 function mainDesignModel() {
   return {
     branch: "main",
@@ -211,7 +237,7 @@ function fakeDependencies(calls: string[]) {
       },
     },
     ciDocumentationSyncGateway: {
-      async syncCiDocumentation(_designModel, targetNames) {
+      async syncCiDocumentation(_designModel, targetNames, _visualPlan?) {
         calls.push("ci");
         return {
           updatedCiSections: targetNames,

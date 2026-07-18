@@ -74,7 +74,11 @@ export type CatalogTreeSyncGateway = {
 };
 
 export type CiDocumentationSyncGateway = {
-  syncCiDocumentation(designModel: DesignModel, targetNames: string[]): Promise<CiDocumentationSyncResult>;
+  syncCiDocumentation(
+    designModel: DesignModel,
+    targetNames: string[],
+    visualPlan?: import("../domain/ci/create-ci-visual-plan").CiVisualPlan
+  ): Promise<CiDocumentationSyncResult>;
 };
 
 export type MetadataSyncGateway = {

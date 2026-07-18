@@ -21,6 +21,7 @@ internal class FigmaWriterProjectConfigJsonTest : FunSpec({
         root.getValue("OFFICIAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
             "water_my_plants_sync_staging"
         root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
+        root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
         root.getValue("CATALOG_TARGET_NAMES").jsonArray.map { it.jsonPrimitive.content }
             .shouldContainExactly(
                 "waterMyPlants.libraries",
@@ -79,6 +80,7 @@ internal class FigmaWriterProjectConfigJsonTest : FunSpec({
             "HEADER_LINK_PROPERTY_NAME",
             "GITHUB_MAIN_BLOB_URL",
             "GITHUB_MAIN_TREE_URL",
+            "CI_CONFIGURATION_MODEL_NAME",
             "CI_PIPELINE_NAME",
             "FIGMA_PIPELINE_NAME",
             "TEAMCITY_SOURCE",

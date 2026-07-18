@@ -91,6 +91,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         headerLinkPropertyName = "Link",
         githubMainBlobUrl = GITHUB_MAIN_BLOB_URL,
         githubMainTreeUrl = GITHUB_MAIN_TREE_URL,
+        ciConfigurationModelName = "teamCity",
         ciPipelineName = "CI",
         figmaPipelineName = "Figma Sync",
         teamCitySource = ".teamcity/settings.kts",

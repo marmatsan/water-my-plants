@@ -1,6 +1,7 @@
 package com.marmatsan.figmaDesignSync.data.writer
 
 import com.marmatsan.figmaDesignSync.data.json.writer.ExecutableRunnerManifestJson
+import com.marmatsan.figmaDesignSync.domain.model.visual.CiVisualPlanConfig
 import com.marmatsan.figmaDesignSync.domain.model.writer.FigmaWriterRuntimeConfig
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -30,6 +31,34 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
                   "waterMyPlants":{
                     "libraries":[{"group":"androidx"},{"group":"com"}]
                   }
+                },
+                "ci":{
+                  "externalTopology":{
+                    "schemaVersion":1,
+                    "validation":{"lastValidatedOn":"2026-07-18","warnAfterDays":90},
+                    "nodes":[{"id":"operator","type":"actor","name":"Operator","description":"Starts actions."}],
+                    "connections":[]
+                  },
+                  "windowsRuntime":{
+                    "schemaVersion":1,
+                    "validation":{"lastValidatedOn":"2026-07-18","warnAfterDays":90},
+                    "platform":"Windows",
+                    "services":[{
+                      "id":"teamcity-server",
+                      "name":"TeamCity Server",
+                      "description":"Hosts TeamCity.",
+                      "service":"TeamCity",
+                      "startup":"Automatic",
+                      "identity":"LocalSystem"
+                    }]
+                  },
+                  "teamCity":{
+                    "vcsRoots":[],
+                    "pipelines":[
+                      {"id":"Root_Ci","name":"CI","triggers":[],"jobs":[]},
+                      {"id":"Root_FigmaSync","name":"Figma Sync","triggers":[],"jobs":[]}
+                    ]
+                  }
                 }
               }
             }
@@ -51,7 +80,7 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
               "figmaTransportOnlyPaths":[],
               "figmaModelNeutralPaths":[],
               "figmaModelContentPaths":[],
-              "figmaVisualWriterPaths":[],
+              "figmaVisualWriterPaths":["repo/figma-design-sync/tools/src/*"],
               "figmaVisualTargetRules":[]
             }
             """.trimIndent()
@@ -71,14 +100,15 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
         val result = generator.generate(request)
 
         result.visualManifest.targets shouldContainExactly
-            listOf("preflight", "versions", "waterMyPlants.libraries")
+            listOf("preflight", "versions", "waterMyPlants.libraries", "ci.windowsRuntime")
         result.visualManifest.fullVisualSync shouldBe true
         result.visualManifest.executionScopes.values shouldContainExactly listOf(
             "preflight",
             "versions",
             "waterMyPlants.libraries.androidx",
             "waterMyPlants.libraries.com",
-            "waterMyPlants.libraries.cleanup"
+            "waterMyPlants.libraries.cleanup",
+            "ci.windowsRuntime"
         )
         result.visualManifest.payloadImage.shouldNotBeNull()
         result.metadataManifest.targets shouldContainExactly listOf("metadata")
@@ -89,10 +119,15 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
         val androidxSource = Files.readString(
             visualDirectory.resolve("99-02-00-waterMyPlants-libraries-androidx.mcp.js")
         )
+        val ciSource = Files.readString(
+            visualDirectory.resolve("99-03-ci-windowsRuntime.mcp.js")
+        )
         stageSource shouldContain "for (const documentPage of figma.root.children)"
         stageSource shouldContain "page.setSharedPluginData(namespace, \"script\", payload.script)"
         androidxSource shouldContain
             "\"catalogRootFilters\":{\"waterMyPlants.libraries\":[\"androidx\"]}"
+        ciSource shouldContain "\"ciVisualPlan\""
+        ciSource shouldContain "\"target\":\"ci.windowsRuntime\""
         ExecutableRunnerManifestJson().read(visualDirectory.resolve("manifest.json").toString())
             .manifestHash shouldBe result.visualManifest.manifestHash
 
@@ -118,6 +153,26 @@ private val runtimeConfig = FigmaWriterRuntimeConfig(
     mcpClientName = "test-client",
     repositoryRootRelativeToTools = "../../..",
     changeImpactPolicyRelativeToRepository = "change-impact-policy.json",
-    writerTargetNames = listOf("preflight", "versions", "waterMyPlants.libraries", "metadata"),
-    catalogTargetNames = listOf("waterMyPlants.libraries")
+    writerTargetNames = listOf(
+        "preflight",
+        "versions",
+        "waterMyPlants.libraries",
+        "ci.windowsRuntime",
+        "metadata"
+    ),
+    catalogTargetNames = listOf("waterMyPlants.libraries"),
+    ciVisualPlanConfig = CiVisualPlanConfig(
+        configurationModelName = "teamCity",
+        ciPipelineName = "CI",
+        figmaPipelineName = "Figma Sync",
+        githubMainBlobUrl = "https://example.test/blob/main",
+        teamCitySource = ".teamcity/settings.kts",
+        topologySource = "docs/ci/external-topology.yaml",
+        windowsRuntimeSource = "docs/ci/windows-runtime.yaml",
+        windowsRuntimeRunbookSource = "docs/runbooks/teamcity.md",
+        visualContractSource = "docs/ci/visual-model-contract.md",
+        branchProtectionSource = "docs/ci/main-branch-protection.md",
+        officialSyncSource = "docs/runbooks/official-sync.md",
+        officialDesignModelPath = "build/reports/figma-sync/design-model.json"
+    )
 )

@@ -36,6 +36,7 @@ data class FigmaWriterProjectConfig(
     val headerLinkPropertyName: String,
     val githubMainBlobUrl: String,
     val githubMainTreeUrl: String,
+    val ciConfigurationModelName: String,
     val ciPipelineName: String,
     val figmaPipelineName: String,
     val teamCitySource: String,

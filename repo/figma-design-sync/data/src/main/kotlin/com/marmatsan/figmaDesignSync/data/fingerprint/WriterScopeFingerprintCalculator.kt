@@ -22,15 +22,20 @@ class WriterScopeFingerprintCalculator {
         scopes: List<String>
     ): Map<String, String> {
         validateRuleTargets(policy, writerTargets)
-        val sourceFiles = Files.walk(sourceRoot).use { paths ->
+        require(Files.isDirectory(sourceRoot)) { "Figma writer source root does not exist: $sourceRoot" }
+        val sourceFiles = Files.walk(repositoryRoot).use { paths ->
             paths.filter(Path::isRegularFile)
                 .sorted()
                 .filter { source ->
-                    !matchesAny(repositoryPath(repositoryRoot, source), policy.transportOnlyPaths)
+                    val path = repositoryPath(repositoryRoot, source)
+                    matchesAny(path, policy.visualWriterPaths) &&
+                        !matchesAny(path, policy.transportOnlyPaths)
                 }
                 .toList()
         }
-        require(sourceFiles.isNotEmpty()) { "No Figma writer sources were found under $sourceRoot." }
+        require(sourceFiles.isNotEmpty()) {
+            "No Figma writer sources matched the visual writer policy under $repositoryRoot."
+        }
 
         val sourcesByTarget = writerTargets.associateWith { mutableListOf<SourceFingerprint>() }
         sourceFiles.forEach { source ->

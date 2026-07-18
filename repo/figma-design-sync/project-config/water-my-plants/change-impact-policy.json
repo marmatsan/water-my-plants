@@ -61,6 +61,9 @@
   ],
   "figmaVisualWriterPaths": [
     "repo/figma-design-sync/tools/src/*",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/visual/*",
+    "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/visual/*",
+    "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/visual/*",
     "repo/figma-design-sync/project-config/water-my-plants/figma-config.ts"
   ],
   "figmaVisualTargetRules": [
@@ -81,7 +84,13 @@
       "targets": ["headers"]
     },
     {
-      "paths": ["repo/figma-design-sync/tools/src/figma/figma-ci-*", "repo/figma-design-sync/tools/src/domain/ci/*"],
+      "paths": [
+        "repo/figma-design-sync/tools/src/figma/figma-ci-*",
+        "repo/figma-design-sync/tools/src/domain/ci/*",
+        "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/model/visual/*",
+        "repo/figma-design-sync/domain/src/main/kotlin/com/marmatsan/figmaDesignSync/domain/service/visual/*",
+        "repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/json/visual/*"
+      ],
       "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
     },
     {

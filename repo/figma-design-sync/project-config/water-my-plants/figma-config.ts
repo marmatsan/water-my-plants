@@ -83,6 +83,7 @@ export const HEADER_LINK_PROPERTY_NAME = "Link";
 
 export const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
 export const GITHUB_MAIN_TREE_URL = "https://github.com/marmatsan/water-my-plants/tree/main";
+export const CI_CONFIGURATION_MODEL_NAME = "teamCity";
 export const CI_PIPELINE_NAME = "CI";
 export const FIGMA_PIPELINE_NAME = "Figma Sync";
 export const TEAMCITY_SOURCE = ".teamcity/settings.kts";

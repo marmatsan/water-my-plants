@@ -59,7 +59,14 @@ class VisualSyncPlanner(
         }
 
         val modelChanged = previousMetadata.modelHash != manifest.modelHash
-        val writerChanged = previousMetadata.writerHash != manifest.writerHash
+        val compiledWriterChanged = previousMetadata.writerHash != manifest.writerHash
+        val writerChangedScopes = allScopes.filter { scope ->
+            manifest.writerScopeFingerprints[scope] !=
+                previousMetadata.writerScopeFingerprints?.get(scope)
+        }
+        val metadataWriterChanged = manifest.writerScopeFingerprints["metadata"] !=
+            previousMetadata.writerScopeFingerprints?.get("metadata")
+        val writerChanged = compiledWriterChanged || writerChangedScopes.isNotEmpty() || metadataWriterChanged
         if (!modelChanged && !writerChanged) {
             return plan(VisualSyncDecision.NONE, "visual-input-unchanged", identity, emptyList(), manifest)
         }
@@ -82,18 +89,7 @@ class VisualSyncPlanner(
             )
         }
 
-        val writerChangedScopes = if (writerChanged) {
-            allScopes.filter { scope ->
-                manifest.writerScopeFingerprints[scope] !=
-                    previousMetadata.writerScopeFingerprints?.get(scope)
-            }
-        } else {
-            emptyList()
-        }
-        val metadataWriterChanged = writerChanged &&
-            manifest.writerScopeFingerprints["metadata"] !=
-            previousMetadata.writerScopeFingerprints?.get("metadata")
-        if (writerChanged && writerChangedScopes.isEmpty() && !metadataWriterChanged) {
+        if (compiledWriterChanged && writerChangedScopes.isEmpty() && !metadataWriterChanged) {
             return plan(
                 VisualSyncDecision.FULL,
                 "writer-changed-outside-known-scope-fingerprints",
