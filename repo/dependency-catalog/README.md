@@ -21,7 +21,7 @@ compatibility artifact.
 
 ## Public Contract
 
-Repository tooling consumes:
+The Water My Plants project adapter consumes:
 
 ```kotlin
 WaterMyPlantsCatalog.resolved(rootDir)
@@ -32,7 +32,22 @@ Both functions return `DependencyCatalogTrees`. Concrete `Versions`,
 `libraryTrees`, and `pluginTrees` declarations are internal implementation
 details of `:water-my-plants-catalog`.
 
-Consumers declare the stable coordinates explicitly:
+Portable consumers declare only `catalog-core` and depend on an adapter
+contract. `figma-design-sync:data` defines `DependencyCatalogProvider`; its
+Water My Plants implementation lives in
+`repo/figma-design-sync/project-config` and is the only Figma sync production
+module that depends on `water-my-plants-catalog`.
+
+The resulting dependency direction is:
+
+```text
+figma-design-sync:data -> catalog-core
+figma-design-sync:project-config -> figma-design-sync:data
+figma-design-sync:project-config -> water-my-plants-catalog -> catalog-core
+```
+
+Repository-specific consumers declare both stable coordinates only when they
+need the concrete facade:
 
 ```kotlin
 implementation("com.marmatsan.repo:catalog-core")
