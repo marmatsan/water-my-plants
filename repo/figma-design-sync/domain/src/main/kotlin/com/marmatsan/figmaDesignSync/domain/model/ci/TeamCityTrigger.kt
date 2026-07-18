@@ -11,6 +11,7 @@ data class TeamCityTrigger(
 ) {
     enum class Type(val serializedName: String) {
         Vcs("vcs"),
-        PipelineFinish("pipeline finish")
+        PipelineFinish("pipeline finish"),
+        Schedule("schedule")
     }
 }
