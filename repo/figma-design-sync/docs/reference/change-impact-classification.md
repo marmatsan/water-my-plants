@@ -7,7 +7,7 @@ status: active
 last-reviewed: 2026-07-18
 review-cycle-days: 90
 sources:
-  - repo/figma-design-sync/change-impact-policy.json
+  - repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json
   - repo/figma-design-sync/tools/scripts/writer-scope-fingerprints.ts
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/checker/impact/FigmaChangeImpactClassifier.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/impact/ClassifyFigmaChangeImpactTask.kt
@@ -32,8 +32,9 @@ The default task compares `HEAD` with `origin/main`. When `HEAD` is `main`, it
 compares the current commit with its first parent so a post-merge build
 classifies the merged revision.
 
-Path rules live in `repo/figma-design-sync/change-impact-policy.json`. The
-policy is the only source for documentation-only, transport-only,
+Path rules for this repository live in
+`repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`.
+The project-config policy is the only source for documentation-only, transport-only,
 model-neutral, model-content, visual-writer, and visual-target path patterns.
 
 Tests may provide `figmaChangedPaths` and `figmaComparisonBase` Gradle

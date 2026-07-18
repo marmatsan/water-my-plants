@@ -18,7 +18,7 @@ using `pwsh` alone is insufficient for CI compatibility.
 `validate-documentation.ps1 -FailOnCoverageGap` compares the build revision
 with `origin/main` and checks each affected documentation rule. Figma scope is
 classified separately by the portable `classifyFigmaChangeImpact` Gradle task
-and `repo/figma-design-sync/change-impact-policy.json`.
+and `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`.
 
 CI validation scripts and the coverage manifest are `model-neutral`: their
 normal CI build still runs Gradle, but post-merge Figma Sync publishes only the
@@ -44,7 +44,8 @@ When adding a documentation coverage area, add a narrow rule to the manifest
 and a matching case in
 `.teamcity/scripts/tests/validate-documentation.tests.ps1`. When adding a
 Figma-relevant source area, update
-`repo/figma-design-sync/change-impact-policy.json` and the Kotlin classifier
+`repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`
+and the Kotlin classifier
 tests.
 
 ## CI Execution
