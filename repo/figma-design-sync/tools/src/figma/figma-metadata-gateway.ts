@@ -1,4 +1,4 @@
-import { METADATA_NAMESPACE, METADATA_PAGE_ID } from "../config/figma-config";
+import { METADATA_NAMESPACE, METADATA_PAGE_ID } from "@figma-design-sync/project-config";
 import type { DesignModel, SyncExecutionMetadata } from "../domain/design-model";
 import type { MetadataSyncGateway } from "../ports/sync-gateways";
 import { requirePage } from "./figma-node-gateway";

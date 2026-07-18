@@ -1,4 +1,4 @@
-import { CATALOG_TREE_TARGETS, METADATA_NAMESPACE } from "../config/figma-config";
+import { CATALOG_TREE_TARGETS, METADATA_NAMESPACE } from "@figma-design-sync/project-config";
 import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
 import type { DesignModel } from "../domain/design-model";
 import type { CatalogTreeSyncGateway, CatalogTreeSyncOptions } from "../ports/sync-gateways";

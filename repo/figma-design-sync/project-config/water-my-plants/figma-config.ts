@@ -1,7 +1,12 @@
-import type { CatalogTreeTarget } from "../domain/design-model";
+import type { CatalogTreeTarget } from "../../tools/src/domain/design-model";
 
 export const METADATA_PAGE_ID = "62934:908";
 export const METADATA_NAMESPACE = "water_my_plants_sync";
+export const FIGMA_FILE_KEY = "YBZXsd8oyGLbcI2KWxJvRK";
+export const PROJECT_DISPLAY_NAME = "Water My Plants";
+export const MCP_CLIENT_NAME = "water-my-plants-figma-sync";
+export const OFFICIAL_STAGING_NAMESPACE = `${METADATA_NAMESPACE}_staging`;
+export const PREVIEW_STAGING_NAMESPACE = `${METADATA_NAMESPACE}_preview`;
 export const CI_DOCUMENTATION_PAGE_ID = "63153:2876";
 export const CI_NODE_COMPONENT_ID = "64301:3927";
 export const CI_ICON_COMPONENT_SET_ID = "64361:716";
@@ -76,8 +81,21 @@ export const CONNECTOR_TEMPLATE_NAME = "simple-solid_arrow";
 export const HEADER_INSTANCE_NAME = ".Header";
 export const HEADER_LINK_PROPERTY_NAME = "Link";
 
-const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
-const GITHUB_MAIN_TREE_URL = "https://github.com/marmatsan/water-my-plants/tree/main";
+export const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
+export const GITHUB_MAIN_TREE_URL = "https://github.com/marmatsan/water-my-plants/tree/main";
+export const CI_PIPELINE_NAME = "CI";
+export const FIGMA_PIPELINE_NAME = "Figma Sync";
+export const TEAMCITY_SOURCE = ".teamcity/settings.kts";
+export const TOPOLOGY_SOURCE = "docs/ci/external-topology.yaml";
+export const WINDOWS_RUNTIME_SOURCE = "docs/ci/windows-runtime.yaml";
+export const WINDOWS_RUNTIME_RUNBOOK_SOURCE = "docs/runbooks/teamcity-cloudflare-access.md";
+export const VISUAL_CONTRACT_SOURCE = "docs/ci/visual-model-contract.md";
+export const BRANCH_PROTECTION_SOURCE = "docs/ci/main-branch-protection.md";
+export const OFFICIAL_SYNC_SOURCE =
+  "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md";
+export const OFFICIAL_DESIGN_MODEL_PATH = "build/reports/figma-sync/design-model.json";
+export const CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE =
+  "project-config/water-my-plants/change-impact-policy.json";
 
 export const HEADER_SECTION_TARGETS = [
   {
@@ -247,3 +265,27 @@ export const CATALOG_TREE_TARGETS: CatalogTreeTarget[] = [
     nodes: (designModel) => designModel.content?.catalogs?.figmaDesignSync?.plugins,
   },
 ];
+
+export const CI_VISUAL_TARGET_NAMES = [
+  "ci.overview",
+  "ci.pullRequestIntegration",
+  "ci.postMergeDesignDocumentation",
+  "ci.infrastructureAndAccess",
+  "ci.windowsRuntime",
+] as const;
+
+export const CATALOG_TARGET_NAMES = CATALOG_TREE_TARGETS.map((target) => target.name);
+
+export const WRITER_TARGET_NAMES = [
+  "preflight",
+  "headers",
+  "versions",
+  ...CATALOG_TARGET_NAMES,
+  ...CI_VISUAL_TARGET_NAMES,
+  "metadata",
+];
+
+export const DEFAULT_FIXTURE_TARGETS = {
+  "catalog-tree": "waterMyPlants.plugins",
+  versions: "versions",
+};

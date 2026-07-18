@@ -1,39 +1,16 @@
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import {
+  CATALOG_TARGET_NAMES,
+  WRITER_TARGET_NAMES,
+} from "@figma-design-sync/project-config";
 
 export const WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION = 1;
 
-const WRITER_TARGETS = [
-  "preflight",
-  "headers",
-  "versions",
-  "waterMyPlants.libraries",
-  "waterMyPlants.plugins",
-  "waterMyPlants.customGradleConventionPlugins",
-  "waterMyPlants.customGradlePlugins",
-  "gradlePlugins.libraries",
-  "gradlePlugins.plugins",
-  "figmaDesignSync.libraries",
-  "figmaDesignSync.plugins",
-  "ci.overview",
-  "ci.pullRequestIntegration",
-  "ci.postMergeDesignDocumentation",
-  "ci.infrastructureAndAccess",
-  "ci.windowsRuntime",
-  "metadata",
-];
+const WRITER_TARGETS = WRITER_TARGET_NAMES;
 
-const CATALOG_TARGETS = [
-  "waterMyPlants.libraries",
-  "waterMyPlants.plugins",
-  "waterMyPlants.customGradleConventionPlugins",
-  "waterMyPlants.customGradlePlugins",
-  "gradlePlugins.libraries",
-  "gradlePlugins.plugins",
-  "figmaDesignSync.libraries",
-  "figmaDesignSync.plugins",
-];
+const CATALOG_TARGETS = CATALOG_TARGET_NAMES;
 
 export async function createWriterScopeFingerprints({
   sourceRoot,

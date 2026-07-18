@@ -1,14 +1,19 @@
 import type { DesignModel } from "../design-model";
+import {
+  BRANCH_PROTECTION_SOURCE,
+  CI_PIPELINE_NAME,
+  FIGMA_PIPELINE_NAME,
+  GITHUB_MAIN_BLOB_URL,
+  OFFICIAL_DESIGN_MODEL_PATH,
+  OFFICIAL_SYNC_SOURCE,
+  TEAMCITY_SOURCE,
+  TOPOLOGY_SOURCE,
+  VISUAL_CONTRACT_SOURCE,
+  WINDOWS_RUNTIME_RUNBOOK_SOURCE,
+  WINDOWS_RUNTIME_SOURCE,
+} from "@figma-design-sync/project-config";
 
-export const CI_VISUAL_TARGET_NAMES = [
-  "ci.overview",
-  "ci.pullRequestIntegration",
-  "ci.postMergeDesignDocumentation",
-  "ci.infrastructureAndAccess",
-  "ci.windowsRuntime",
-] as const;
-
-export type CiVisualTargetName = typeof CI_VISUAL_TARGET_NAMES[number];
+export type CiVisualTargetName = string;
 export type CiVisualOrientation = "horizontal" | "grid";
 export type CiVisualNodeType =
   | "actor"
@@ -73,20 +78,10 @@ export type CiVisualPlan = {
   sections: CiVisualSection[];
 };
 
-const GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main";
-const TEAMCITY_SOURCE = ".teamcity/settings.kts";
-const TOPOLOGY_SOURCE = "docs/ci/external-topology.yaml";
-const WINDOWS_RUNTIME_SOURCE = "docs/ci/windows-runtime.yaml";
-const WINDOWS_RUNTIME_RUNBOOK_SOURCE = "docs/runbooks/teamcity-cloudflare-access.md";
-const VISUAL_CONTRACT_SOURCE = "docs/ci/visual-model-contract.md";
-const BRANCH_PROTECTION_SOURCE = "docs/ci/main-branch-protection.md";
-const OFFICIAL_SYNC_SOURCE = "repo/figma-design-sync/docs/runbooks/official-artifact-visual-sync.md";
-const OFFICIAL_DESIGN_MODEL_PATH = "build/reports/figma-sync/design-model.json";
-
 export function createCiVisualPlan(designModel: DesignModel): CiVisualPlan {
   const ci = requireCiContent(designModel);
-  const ciPipeline = requirePipeline(ci.teamCity, "CI");
-  const figmaPipeline = requirePipeline(ci.teamCity, "Figma Sync");
+  const ciPipeline = requirePipeline(ci.teamCity, CI_PIPELINE_NAME);
+  const figmaPipeline = requirePipeline(ci.teamCity, FIGMA_PIPELINE_NAME);
 
   return {
     parentName: "Continuous Integration and Design Documentation",

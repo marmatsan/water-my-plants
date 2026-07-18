@@ -14,58 +14,32 @@ import {
   createWriterScopeFingerprints,
   WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION,
 } from "./writer-scope-fingerprints";
+import {
+  CATALOG_TARGET_NAMES,
+  CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE,
+  DEFAULT_FIXTURE_TARGETS,
+  METADATA_PAGE_ID,
+  OFFICIAL_STAGING_NAMESPACE,
+  PREVIEW_STAGING_NAMESPACE,
+  WRITER_TARGET_NAMES,
+} from "@figma-design-sync/project-config";
 
 const TOOL_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const DEFAULT_TRUNK_SYNC_SCRIPT = resolve(TOOL_ROOT, "sync-trunk-design-model.mcp.js");
 const DEFAULT_PREVIEW_CATALOG_SCRIPT = resolve(TOOL_ROOT, "dist", "sync-catalog-tree-preview.mcp.js");
 const FIXTURE_ROOT = resolve(TOOL_ROOT, "fixtures", "visual");
 const DEFAULT_OUT_ROOT = resolve(TOOL_ROOT, "dist", "mcp-runners");
-const OFFICIAL_STAGING_NAMESPACE = "water_my_plants_sync_staging";
-const PREVIEW_STAGING_NAMESPACE = "water_my_plants_sync_preview";
-const METADATA_PAGE_ID = "62934:908";
 const DEFAULT_CHUNK_SIZE = 30_000;
 const PAYLOAD_PNG_FILE_NAME = "10-official-sync-payload.png";
 const MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH = 100_000;
 const MANIFEST_SCHEMA_VERSION = 3;
 const TRANSPORT_CONTRACT_VERSION = 1;
 
-const KNOWN_TARGETS = [
-  "preflight",
-  "headers",
-  "versions",
-  "waterMyPlants.libraries",
-  "waterMyPlants.plugins",
-  "waterMyPlants.customGradleConventionPlugins",
-  "waterMyPlants.customGradlePlugins",
-  "gradlePlugins.libraries",
-  "gradlePlugins.plugins",
-  "figmaDesignSync.libraries",
-  "figmaDesignSync.plugins",
-  "ci.overview",
-  "ci.pullRequestIntegration",
-  "ci.postMergeDesignDocumentation",
-  "ci.infrastructureAndAccess",
-  "ci.windowsRuntime",
-  "metadata",
-];
+const KNOWN_TARGETS = WRITER_TARGET_NAMES;
 
 const FULL_VISUAL_TARGETS = KNOWN_TARGETS.filter((target) => target !== "metadata");
 
-const CATALOG_TARGETS = [
-  "waterMyPlants.libraries",
-  "waterMyPlants.plugins",
-  "waterMyPlants.customGradleConventionPlugins",
-  "waterMyPlants.customGradlePlugins",
-  "gradlePlugins.libraries",
-  "gradlePlugins.plugins",
-  "figmaDesignSync.libraries",
-  "figmaDesignSync.plugins",
-];
-
-const DEFAULT_FIXTURE_TARGETS = {
-  "catalog-tree": "waterMyPlants.plugins",
-  versions: "versions",
-};
+const CATALOG_TARGETS = CATALOG_TARGET_NAMES;
 
 const args = {
   ...readNpmConfigArgs(),
@@ -301,7 +275,7 @@ async function writeRunnerFiles(options) {
   const writerScopeFingerprints = await createWriterScopeFingerprints({
     sourceRoot: resolve(TOOL_ROOT, "src"),
     repositoryRoot: resolve(TOOL_ROOT, "..", "..", ".."),
-    policyPath: resolve(TOOL_ROOT, "..", "change-impact-policy.json"),
+    policyPath: resolve(TOOL_ROOT, "..", CHANGE_IMPACT_POLICY_RELATIVE_TO_MODULE),
     scopes: Object.keys(targetFingerprints),
   });
 

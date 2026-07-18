@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { HEADER_SECTION_TARGETS } from "../src/config/figma-config";
+import { HEADER_SECTION_TARGETS } from "@figma-design-sync/project-config";
 import {
   headerLinkNeedsLeftAlignment,
   headerLinkRanges,
