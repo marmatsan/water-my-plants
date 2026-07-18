@@ -1,8 +1,11 @@
 [CmdletBinding()]
 param(
     [string]$RepositoryRoot,
+    [string]$CoverageManifestPath,
+    [string[]]$ChangedPath,
     [switch]$AsJson,
-    [switch]$FailOnWarnings
+    [switch]$FailOnWarnings,
+    [switch]$FailOnCoverageGap
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,12 +16,39 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
     $RepositoryRoot = (Resolve-Path $RepositoryRoot).Path
 }
 
+if ([string]::IsNullOrWhiteSpace($CoverageManifestPath)) {
+    $CoverageManifestPath = Join-Path $RepositoryRoot ".teamcity/documentation-coverage.json"
+}
+
 $errors = [System.Collections.Generic.List[string]]::new()
 $warnings = [System.Collections.Generic.List[string]]::new()
 $validatedDocuments = [System.Collections.Generic.List[string]]::new()
 
 function Normalize-Path([string]$Path) {
     return $Path.Replace("\", "/").TrimStart("./")
+}
+
+function Test-PathMatchesAny([string]$Path, [object[]]$Patterns) {
+    $normalizedPath = Normalize-Path $Path
+    return @($Patterns | Where-Object { $normalizedPath -like (Normalize-Path $_) }).Count -gt 0
+}
+
+function Get-RepositoryChangedPaths {
+    & git -C $RepositoryRoot rev-parse --verify origin/main 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cannot resolve origin/main. Documentation coverage fails closed because the change scope is unknown."
+    }
+
+    $head = (& git -C $RepositoryRoot rev-parse HEAD).Trim()
+    $main = (& git -C $RepositoryRoot rev-parse origin/main).Trim()
+    $base = if ($head -eq $main) {
+        (& git -C $RepositoryRoot rev-parse "$head^").Trim()
+    } else {
+        (& git -C $RepositoryRoot merge-base HEAD origin/main).Trim()
+    }
+
+    return @(& git -C $RepositoryRoot diff --name-only --diff-filter=ACMR "$base..$head" |
+        ForEach-Object { Normalize-Path $_ })
 }
 
 function Get-RelativePath([string]$Path) {
@@ -232,10 +262,44 @@ foreach ($file in $markdownFiles) {
     }
 }
 
+$coverageViolations = [System.Collections.Generic.List[object]]::new()
+if ($FailOnCoverageGap -or $PSBoundParameters.ContainsKey("ChangedPath")) {
+    if (-not (Test-Path -LiteralPath $CoverageManifestPath)) {
+        throw "Documentation coverage manifest was not found: $CoverageManifestPath"
+    }
+
+    $manifest = Get-Content -LiteralPath $CoverageManifestPath -Raw | ConvertFrom-Json
+    $changedPaths = if ($PSBoundParameters.ContainsKey("ChangedPath")) {
+        @($ChangedPath | ForEach-Object { Normalize-Path $_ } | Where-Object { $_ })
+    } else {
+        @(Get-RepositoryChangedPaths)
+    }
+    foreach ($rule in @($manifest.rules)) {
+        $changedSources = @($changedPaths | Where-Object { Test-PathMatchesAny $_ @($rule.sourcePaths) })
+        if ($changedSources.Count -eq 0) {
+            continue
+        }
+
+        $changedDocumentation = @(
+            $changedPaths | Where-Object { Test-PathMatchesAny $_ @($rule.documentationPaths) }
+        )
+        if ($changedDocumentation.Count -eq 0) {
+            $coverageViolations.Add(
+                [PSCustomObject]@{
+                    rule = $rule.id
+                    changedSources = $changedSources
+                    requiredDocumentation = @($rule.documentationPaths)
+                }
+            )
+        }
+    }
+}
+
 $result = [PSCustomObject]@{
     validatedDocuments = @($validatedDocuments)
     errors = @($errors)
     warnings = @($warnings)
+    coverageViolations = @($coverageViolations)
 }
 
 if ($AsJson) {
@@ -251,6 +315,13 @@ if ($errors.Count -gt 0) {
 }
 if ($FailOnWarnings -and $warnings.Count -gt 0) {
     throw "Documentation validation warnings are configured as failures:`n$($warnings -join "`n")"
+}
+if ($FailOnCoverageGap -and $coverageViolations.Count -gt 0) {
+    $details = $coverageViolations | ForEach-Object {
+        "[$($_.rule)] changed: $($_.changedSources -join ', '); update one of: " +
+            "$($_.requiredDocumentation -join ', ')"
+    }
+    throw "Documentation coverage is incomplete.`n$($details -join "`n")"
 }
 
 if (-not $AsJson) {

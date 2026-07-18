@@ -5,6 +5,7 @@ import com.marmatsan.figmaDesignSync.plugin.task.catalog.CheckFigmaCatalogUsageT
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiExternalTopologyFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
 import com.marmatsan.figmaDesignSync.plugin.task.generate.GenerateFigmaDesignModelTask
+import com.marmatsan.figmaDesignSync.plugin.task.impact.ClassifyFigmaChangeImpactTask
 import com.marmatsan.figmaDesignSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import com.marmatsan.figmaDesignSync.plugin.task.versions.CheckFigmaVersionNamingTask
 import org.gradle.api.Plugin
@@ -34,6 +35,22 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
 
         extension.designModelMetadataNodeUrl.convention(FIGMA_PAGE_URL)
         val includedBuildSources = extension.includedBuildSources(project)
+
+        project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyFigmaChangeImpact") {
+            group = "verification"
+            description = "Classifies the current repository change for Figma verification and sync."
+
+            policyFile.set(extension.changeImpactPolicyFile)
+            projectRootDirectory.set(project.layout.projectDirectory)
+            outputFile.set(extension.changeImpactFile)
+            changedPathsOverride.convention(
+                project.providers.gradleProperty("figmaChangedPaths")
+                    .map { value -> value.split(',').map(String::trim).filter(String::isNotEmpty) }
+                    .orElse(emptyList())
+            )
+            project.providers.gradleProperty("figmaComparisonBase").orNull?.let(comparisonBaseOverride::set)
+            outputs.upToDateWhen { false }
+        }
 
         val checkFigmaCatalogUsage = project.tasks.register<CheckFigmaCatalogUsageTask>("checkFigmaCatalogUsage") {
             group = "verification"

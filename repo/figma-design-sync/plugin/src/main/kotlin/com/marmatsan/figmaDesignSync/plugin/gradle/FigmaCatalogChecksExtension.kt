@@ -111,6 +111,16 @@ abstract class figmaDesignSyncExtension @Inject constructor(
      */
     val designModelFile: RegularFileProperty = objects.fileProperty()
 
+    /**
+     * Versioned path policy used to classify repository changes for Figma.
+     */
+    val changeImpactPolicyFile: RegularFileProperty = objects.fileProperty()
+
+    /**
+     * Machine-readable output produced by `classifyFigmaChangeImpact`.
+     */
+    val changeImpactFile: RegularFileProperty = objects.fileProperty()
+
     init {
         versionsFile.convention(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
         rootSettingsFile.convention(layout.projectDirectory.file("settings.gradle.kts"))
@@ -120,6 +130,10 @@ abstract class figmaDesignSyncExtension @Inject constructor(
             layout.projectDirectory.dir(".teamcity/target/generated-configs")
         )
         designModelFile.convention(layout.buildDirectory.file("reports/figma-sync/design-model.json"))
+        changeImpactPolicyFile.convention(
+            layout.projectDirectory.file("repo/figma-design-sync/change-impact-policy.json")
+        )
+        changeImpactFile.convention(layout.buildDirectory.file("reports/figma-sync/change-impact.json"))
 
         includedBuilds.register("dependency-catalog") {
             modelName.convention("dependencyCatalog")

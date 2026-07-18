@@ -15,10 +15,10 @@ TeamCity invokes repository scripts through `powershell.exe`. Local validation
 SHOULD execute both the focused test and the validator with that same runtime;
 using `pwsh` alone is insufficient for CI compatibility.
 
-`get-change-impact.ps1` compares the build revision with `origin/main`. It
-classifies the change as `documentation-only` only when every changed path is an
-explicitly allowed Markdown path, including nested product-module docs. Every other change remains
-`full-verification`.
+`validate-documentation.ps1 -FailOnCoverageGap` compares the build revision
+with `origin/main` and checks each affected documentation rule. Figma scope is
+classified separately by the portable `classifyFigmaChangeImpact` Gradle task
+and `repo/figma-design-sync/change-impact-policy.json`.
 
 CI validation scripts and the coverage manifest are `model-neutral`: their
 normal CI build still runs Gradle, but post-merge Figma Sync publishes only the
@@ -26,7 +26,7 @@ scope artifact because those files cannot change the generated design model or
 compiled visual writer. This is distinct from `transport-only`, which is
 reserved for MCP runner transport changes.
 
-For each affected rule, the script requires at least one changed file matching
+For each affected rule, the validator requires at least one changed file matching
 that rule's `documentationPaths`. CI fails before Gradle when the source surface
 changes without its canonical documentation.
 
@@ -40,15 +40,20 @@ The contract is deliberately conservative:
 - PlantUML publication remains governed by `AGENTS.md`: a changed `.puml` must
   be rendered and published to Figma before its merge is complete.
 
-When adding a new Figma-relevant source area, add a narrow rule to the manifest
-and a matching test in `.teamcity/scripts/tests/get-change-impact.tests.ps1`.
+When adding a documentation coverage area, add a narrow rule to the manifest
+and a matching case in
+`.teamcity/scripts/tests/validate-documentation.tests.ps1`. When adding a
+Figma-relevant source area, update
+`repo/figma-design-sync/change-impact-policy.json` and the Kotlin classifier
+tests.
 
 ## CI Execution
 
-`WaterMyPlantsCi` executes this contract before Gradle. A documentation-only
-revision validates the complete documentation structure and changed whitespace, then publishes the same
-required `TeamCity CI` status without running Gradle. All other revisions run
-the complete Gradle `check` lifecycle.
+`WaterMyPlantsCi` executes this contract before the full Gradle check. A
+documentation-only revision validates the complete documentation structure and changed whitespace,
+then publishes the same required `TeamCity CI` status without running the full
+Gradle `check` lifecycle. The lightweight classifier task still runs. All other
+revisions run the complete Gradle `check` lifecycle.
 
 After a successful `main` CI run, `Figma Sync` reads the same classification. A
 documentation-only revision publishes a scope artifact and exits successfully

@@ -69,9 +69,10 @@ documentation-only commit. The previous metadata remains valid because
 
 On `main`, TeamCity still starts the `Figma Sync` pipeline after a successful
 `CI` run so the post-merge status chain remains visible. Its scope artifact
-marks documentation-only revisions and makes both jobs successful no-ops: they
-do not invoke Maven or Gradle, generate `design-model.json`, validate metadata,
-or request an MCP write.
+marks documentation-only revisions and makes both jobs successful no-ops after
+the lightweight Gradle classification task: they do not invoke Maven, run the
+full Gradle verification, generate `design-model.json`, validate metadata, or
+request an MCP write.
 
 ## Branch Visual Iteration
 

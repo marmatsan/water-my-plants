@@ -4,6 +4,8 @@ import com.marmatsan.figmaDesignSync.data.datasource.catalog.ProjectCatalogTrees
 import com.marmatsan.figmaDesignSync.data.datasource.ci.CiExternalTopologyDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.ci.CiWindowsRuntimeDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.ci.TeamCityConfigurationDataSource
+import com.marmatsan.figmaDesignSync.data.datasource.impact.FigmaChangeImpactPolicyDataSource
+import com.marmatsan.figmaDesignSync.data.datasource.impact.GitRepositoryChangeSetDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModuleDependenciesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.modules.ProjectModulesDataSource
 import com.marmatsan.figmaDesignSync.data.datasource.versions.RepositoryVersionsDataSource
@@ -12,11 +14,14 @@ import com.marmatsan.figmaDesignSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDesignSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDesignSync.domain.port.ci.TeamCityConfigurationPort
+import com.marmatsan.figmaDesignSync.domain.port.impact.FigmaChangeImpactPolicyPort
+import com.marmatsan.figmaDesignSync.domain.port.impact.RepositoryChangeSetPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDesignSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDesignSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDesignSync.plugin.checker.catalog.CatalogUsageChecker
 import com.marmatsan.figmaDesignSync.plugin.checker.sync.FigmaTrunkSyncChecker
+import com.marmatsan.figmaDesignSync.plugin.checker.impact.FigmaChangeImpactClassifier
 import com.marmatsan.figmaDesignSync.plugin.checker.versions.VersionNamingChecker
 import com.marmatsan.figmaDesignSync.plugin.generator.FigmaDesignModelGenerator
 import com.marmatsan.figmaDesignSync.plugin.checker.ci.CiExternalTopologyFreshnessChecker
@@ -33,6 +38,21 @@ import me.tatarka.inject.annotations.Provides
  */
 @Component
 internal abstract class figmaDesignSyncComponent {
+    /**
+     * Pure service used by `classifyFigmaChangeImpact`.
+     */
+    abstract val changeImpactClassifier: FigmaChangeImpactClassifier
+
+    /**
+     * Policy adapter used by `classifyFigmaChangeImpact`.
+     */
+    abstract val changeImpactPolicyPort: FigmaChangeImpactPolicyPort
+
+    /**
+     * Git adapter used by `classifyFigmaChangeImpact`.
+     */
+    abstract val repositoryChangeSetPort: RepositoryChangeSetPort
+
     /**
      * Service used by `generateFigmaDesignModel`.
      */
@@ -100,4 +120,14 @@ internal abstract class figmaDesignSyncComponent {
         dataSource: ProjectModuleDependenciesDataSource
     ): ProjectModuleDependenciesPort =
         dataSource
+
+    @Provides
+    protected fun changeImpactPolicyPort(
+        dataSource: FigmaChangeImpactPolicyDataSource
+    ): FigmaChangeImpactPolicyPort = dataSource
+
+    @Provides
+    protected fun repositoryChangeSetPort(
+        dataSource: GitRepositoryChangeSetDataSource
+    ): RepositoryChangeSetPort = dataSource
 }

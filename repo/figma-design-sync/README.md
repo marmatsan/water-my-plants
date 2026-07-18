@@ -61,6 +61,7 @@ The model is generated from repository source files, not from Figma:
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
 | `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
 | `.teamcity/target/generated-configs` | Effective pipelines, jobs, triggers, artifacts, checks, and VCS roots generated from `.teamcity/settings.kts`. |
+| `repo/figma-design-sync/change-impact-policy.json` | Path policy used to classify whether a change can affect the model or visual writer. |
 
 The default included-build sources are configured by the `figmaDesignSync`
 Gradle extension:
@@ -102,18 +103,25 @@ Run these from the repository root:
 .\gradlew.bat checkFigmaVersionNaming
 .\gradlew.bat checkFigmaCatalogUsage
 .\gradlew.bat checkCiWindowsRuntimeFreshness
+.\gradlew.bat classifyFigmaChangeImpact
 ```
 
 Task responsibilities:
 
 | Task | Responsibility |
 |------|----------------|
+| `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
 | `checkCiWindowsRuntimeFreshness` | Emits a non-blocking warning when the Windows service runtime has not been manually validated within its configured window. |
 | `generateFigmaDesignModel` | Generates the official JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
 | `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the official pipeline. |
+
+The change-impact classifier is implemented in Kotlin and is portable across
+Windows, macOS, and Linux. See
+[`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md)
+for its policy, precedence, and output contract.
 
 `checkFigmaVersionNaming`, `checkFigmaCatalogUsage`,
 `checkCiExternalTopologyFreshness`, and `checkCiWindowsRuntimeFreshness` are
