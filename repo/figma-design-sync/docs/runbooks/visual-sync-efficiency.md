@@ -90,16 +90,16 @@ TeamCity path. Do not bypass either failure with direct REST mutations.
 Inspect a runner without executing it:
 
 ```powershell
-npm run mcp:execute -- --manifest=PATH\TO\manifest.json --dry-run
-npm run mcp:execute -- --manifest=PATH\TO\manifest.json --next
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --dry-run
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --next
 ```
 
 When Codex executes a generated file through the supported Figma MCP writer,
 record the result in the same checkpoint used by the deterministic executor:
 
 ```powershell
-npm run mcp:execute -- --manifest=PATH\TO\manifest.json --record-success=99-00-preflight.mcp.js --summary="Preflight passed"
-npm run mcp:execute -- --manifest=PATH\TO\manifest.json --record-failure=99-01-versions.mcp.js --summary="Figma component contract failed"
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --record-success=99-00-preflight.mcp.js --summary="Preflight passed"
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\manifest.json --record-failure=99-01-versions.mcp.js --summary="Figma component contract failed"
 ```
 
 Continue from the checkpoint with `--resume`; use `--retry-failed` to select
@@ -110,7 +110,7 @@ For metadata, reuse staging only after the completed visual checkpoint matches
 the metadata runner identity:
 
 ```powershell
-npm run mcp:execute -- --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
+node dist/execute-mcp-runner.mjs --manifest=PATH\TO\metadata\manifest.json --reuse-staging --visual-state=PATH\TO\visual\execution-state.json --dry-run
 ```
 
 Never record metadata success before every execution scope selected by the
