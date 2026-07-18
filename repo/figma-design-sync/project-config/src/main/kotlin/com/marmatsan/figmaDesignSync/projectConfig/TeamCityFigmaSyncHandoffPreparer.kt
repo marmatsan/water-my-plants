@@ -95,7 +95,7 @@ class TeamCityFigmaSyncHandoffPreparer(
                         "recordFailure",
                         "$commandPrefix --record-failure=\"RUNNER_FILE.mcp.js\" --summary=\"SHORT_ERROR\""
                     )
-                    put("rerun", "pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait")
+                    put("rerun", ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true")
                 }
             )
         }

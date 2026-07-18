@@ -132,6 +132,10 @@ used by CI.
 - `prepareTeamCityFigmaSyncHandoff`: Water My Plants project adapter that
   prepares a validated local handoff from a TeamCity build id or existing
   artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
+- `rerunTeamCityFigmaSync`: Water My Plants project adapter that obtains
+  credentials through a port, exchanges Cloudflare service auth, and reuses or
+  queues the official `main` pipeline. Keep TeamCity CLI operations in
+  `teamcity-adapter` and secret-store selection outside portable modules.
 - Treat `figmaDesignSync` as a CI-owned verification step. Developers may run it
   locally for diagnosis, but CI is the source of truth before merging into
   `main`.

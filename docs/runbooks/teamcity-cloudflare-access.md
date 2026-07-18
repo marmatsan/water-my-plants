@@ -10,6 +10,8 @@ sources:
   - .teamcity/settings.kts
   - docs/ci/external-topology.yaml
   - docs/ci/windows-runtime.yaml
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
 ---
 
 # TeamCity Cloudflare Access Runbook
@@ -43,7 +45,7 @@ credentials remain operator-managed state and must not be committed.
   token stored in the system keyring.
 - A separate TeamCity automation token with only project view, build
   configuration view, build runtime view, and run build permissions is stored
-  in PowerShell SecretStore.
+  in an operator-managed vault and exposed only to the rerun task process.
 - The GitHub App webhook uses a dedicated bypass destination for only
   `/app/webhooks/githubapp`.
 - PowerShell SecretManagement and SecretStore are installed for local service
@@ -256,18 +258,44 @@ TeamCity. Do not remove the application's `Allow` policy while this transport
 is in use; Cloudflare requires service-token headers on every request when an
 application has only `Service Auth` policies.
 
-Use the repository-owned TeamCity CLI wrapper for the supported rerun path:
+The repository-owned rerun orchestration is Kotlin. Its credential port reads
+`TEAMCITY_TOKEN` and either `TEAMCITY_HEADER_CF_ACCESS_TOKEN` or the
+`TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID` and
+`TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET` pair. The default adapter exchanges
+the service-token pair for the short-lived JWT and clears the pair from the
+TeamCity CLI child environment.
+
+SecretStore is one workstation adapter for that port. In a clean PowerShell
+process, bridge the stored values only for the Gradle invocation and always
+remove them afterwards:
 
 ```powershell
-pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -ValidateOnly
-pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
+$cloudflareCredential = Get-Secret -Vault TeamCitySecrets -Name TeamCityCloudflareAccess
+try {
+    $env:TEAMCITY_TOKEN = Get-Secret `
+        -Vault TeamCitySecrets `
+        -Name TeamCityAutomationToken `
+        -AsPlainText
+    $env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID = $cloudflareCredential.UserName
+    $env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET =
+        $cloudflareCredential.GetNetworkCredential().Password
+
+    .\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityValidateOnly=true
+    # After validation, use this for the real rerun:
+    # .\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true
+} finally {
+    Remove-Item Env:TEAMCITY_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID -ErrorAction SilentlyContinue
+    Remove-Item Env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET -ErrorAction SilentlyContinue
+    Remove-Variable cloudflareCredential -ErrorAction SilentlyContinue
+}
 ```
 
-The wrapper:
+The Kotlin task:
 
 - accepts only the public HTTPS TeamCity URL;
 - is fixed to `WaterMyPlants_WaterMyPlantsFigmaSync` on `main`;
-- loads the Cloudflare and dedicated TeamCity credentials from SecretStore;
+- obtains the Cloudflare and dedicated TeamCity credentials through a port;
 - converts the Cloudflare authorization cookie into the raw
   `cf-access-token` header used only by the child CLI process;
 - delegates active-run queries, queueing, and waiting to TeamCity CLI;
@@ -276,8 +304,8 @@ The wrapper:
   failure;
 - does not print either secret.
 
-The TeamCity UI remains the fallback when the local secret provider or CLI
-wrapper is unavailable. Do not disable CSRF, copy session cookies, expose
+The TeamCity UI remains the fallback when the local secret provider or CLI is
+unavailable. Do not disable CSRF, copy session cookies, expose
 `localhost:8111`, or bypass Cloudflare for the public REST API.
 
 ## Verification
@@ -286,9 +314,11 @@ After configuration or recovery:
 
 1. Open the TeamCity UI through the HTTPS hostname and complete interactive
    authentication.
-2. Run `teamcity auth status` and one read-only run query through the wrapper.
-3. Run the repository client with `-ValidateOnly`; it must authenticate both
-   access boundaries and return state `Validated` without queueing a build.
+2. Run `teamcity auth status` and one read-only run query through the profile
+   wrapper.
+3. Run `rerunTeamCityFigmaSync` with
+   `-PfigmaTeamCityValidateOnly=true`; it must authenticate both access
+   boundaries and return state `Validated` without queueing a build.
 4. Confirm a GitHub App test webhook and a real `push` delivery return HTTP
    `200`.
 5. Confirm GitHub push or pull request events start the expected TeamCity
@@ -312,8 +342,8 @@ and isolated restore drills.
 - When `figma-sync-automation` expires, create a replacement with the same
   minimal permissions and replace `TeamCityAutomationToken` in SecretStore.
 - When the Cloudflare service token rotates, replace
-  `TeamCityCloudflareAccess` in SecretStore and leave the PowerShell wrapper
-  unchanged.
+  `TeamCityCloudflareAccess` in SecretStore and keep the credential-port
+  environment contract unchanged.
 - When the GitHub webhook secret rotates, update GitHub and the TeamCity GitHub
   App connection in the same operation, then send a test delivery.
 

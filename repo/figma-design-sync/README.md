@@ -35,8 +35,8 @@ package:
 | `domain/` | Pure model and port definitions for versions, catalogs, modules, and module dependency edges. |
 | `data/` | File, Gradle, dependency-catalog, and Figma API adapters that implement domain ports. |
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
-| `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML into the portable CI model. |
-| `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, and optional CI commands. |
+| `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
+| `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, credentials, and optional CI operations. |
 | `tools/` | TypeScript MCP/Figma scripts and visual sync tests that consume `design-model.json`. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
@@ -137,6 +137,7 @@ Task responsibilities:
 | `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
 | `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, builds the executor, and writes `figma-sync-handoff.json`. |
+| `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the official TeamCity pipeline, and optionally waits for success. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
