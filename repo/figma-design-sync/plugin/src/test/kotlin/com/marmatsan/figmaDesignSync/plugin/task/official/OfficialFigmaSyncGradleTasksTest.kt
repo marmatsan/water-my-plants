@@ -29,7 +29,7 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
             ).jsonObject
 
             scope["scope"]?.jsonPrimitive?.content shouldBe "documentation-only"
-            preparation.task(":generateFigmaSyncTeamCityConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
+            preparation.task(":materializeFigmaSyncCiConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
             preparation.task(":generateOfficialFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
             verification.task(":checkOfficialFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
         } finally {
@@ -51,10 +51,16 @@ private fun File.writeFixture() {
         plugins {
             id("com.marmatsan.figmaDesignSync")
         }
+
+        figmaDesignSync {
+            changeImpactPolicyFile.set(
+                layout.projectDirectory.file("project-config/change-impact-policy.json")
+            )
+        }
         """.trimIndent()
     )
-    resolve("repo/figma-design-sync").mkdirs()
-    resolve("repo/figma-design-sync/change-impact-policy.json").writeText(
+    resolve("project-config").mkdirs()
+    resolve("project-config/change-impact-policy.json").writeText(
         """
         {
           "schemaVersion": 1,

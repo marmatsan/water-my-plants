@@ -42,7 +42,7 @@ Feature: Figma design model generation
     Then both generated model hashes are equal
 
   @gradle @integration
-  Scenario: generateFigmaDesignModel writes the official TeamCity design model report
+  Scenario: generateFigmaDesignModel writes the official CI design model report
     Given a temporary Gradle project exists
     And the temporary Gradle project has repository model files
     And the temporary Gradle project applies the figmaDesignSync plugin

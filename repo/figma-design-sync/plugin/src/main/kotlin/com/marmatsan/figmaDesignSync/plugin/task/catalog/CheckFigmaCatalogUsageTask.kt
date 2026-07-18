@@ -11,6 +11,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -24,6 +25,12 @@ import org.gradle.api.tasks.TaskAction
  * not used by any module, convention plugin, or tool configuration.
  */
 abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
+    @get:Input
+    abstract val primaryCatalogModelName: Property<String>
+
+    @get:Input
+    abstract val dependencyCatalogProviderClassName: Property<String>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val rootSettingsFile: RegularFileProperty
@@ -55,6 +62,8 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
         val result = figmaDesignSyncComponent::class.create().catalogUsageChecker.check(
             CatalogUsageCheckRequest(
                 projectRootDirectory = projectRootDirectory.get().asFile,
+                primaryCatalogModelName = primaryCatalogModelName.get(),
+                dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
                 includedBuilds = includedBuildSources()
             )
         )

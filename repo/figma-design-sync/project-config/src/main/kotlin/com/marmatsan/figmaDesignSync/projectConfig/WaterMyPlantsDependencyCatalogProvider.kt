@@ -1,0 +1,15 @@
+package com.marmatsan.figmaDesignSync.projectConfig
+
+import com.marmatsan.dependencies.WaterMyPlantsCatalog
+import com.marmatsan.dependencies.catalog.DependencyCatalogTrees
+import com.marmatsan.figmaDesignSync.data.dependencies.catalog.DependencyCatalogProvider
+import java.io.File
+
+/** Water My Plants adapter for the portable dependency catalog contract. */
+class WaterMyPlantsDependencyCatalogProvider : DependencyCatalogProvider {
+    override fun resolved(rootDir: File): DependencyCatalogTrees =
+        WaterMyPlantsCatalog.resolved(rootDir)
+
+    override fun withVersionAliases(): DependencyCatalogTrees =
+        WaterMyPlantsCatalog.withVersionAliases()
+}

@@ -13,6 +13,9 @@ import java.time.Instant
  * @property branch Current Git branch recorded in the generated metadata.
  * @property gitSha Current Git commit recorded in the generated metadata.
  * @property generatedAt Timestamp written for traceability.
+ * @property primaryCatalogModelName Stable JSON key for the project's main catalog.
+ * @property dependencyCatalogProviderClassName Project-config catalog adapter.
+ * @property ciDocumentationEnabled Whether the optional CI model is included.
  * @property versionsFile Source `repo/dependency-catalog/versions.properties` file.
  * @property rootSettingsFile Root `settings.gradle.kts`.
  * @property ciExternalTopologyFile Versioned external CI topology.
@@ -27,11 +30,14 @@ internal data class FigmaDesignModelGenerationRequest(
     val branch: String,
     val gitSha: String,
     val generatedAt: Instant,
+    val primaryCatalogModelName: String,
+    val dependencyCatalogProviderClassName: String,
+    val ciDocumentationEnabled: Boolean,
     val versionsFile: File,
     val rootSettingsFile: File,
-    val ciExternalTopologyFile: File,
-    val ciWindowsRuntimeFile: File,
-    val teamCityGeneratedConfigurationDirectory: File,
+    val ciExternalTopologyFile: File?,
+    val ciWindowsRuntimeFile: File?,
+    val teamCityGeneratedConfigurationDirectory: File?,
     val projectRootDirectory: File,
     val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )

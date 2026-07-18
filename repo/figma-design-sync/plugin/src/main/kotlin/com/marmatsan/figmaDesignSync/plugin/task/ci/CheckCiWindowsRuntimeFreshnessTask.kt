@@ -5,6 +5,7 @@ import com.marmatsan.figmaDesignSync.plugin.di.figmaDesignSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -16,15 +17,17 @@ import java.time.ZoneOffset
  */
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
     @get:InputFile
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
     @TaskAction
     fun checkFreshness() {
+        val runtimeFile = ciWindowsRuntimeFile.orNull?.asFile ?: return
         val result = figmaDesignSyncComponent::class.create()
             .ciWindowsRuntimeFreshnessChecker
             .check(
-                runtimeFile = ciWindowsRuntimeFile.get().asFile,
+                runtimeFile = runtimeFile,
                 currentDate = LocalDate.now(ZoneOffset.UTC)
             )
 

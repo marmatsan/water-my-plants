@@ -28,6 +28,8 @@ internal class CatalogUsageCheckerTest : FunSpec({
         val result = checker.check(
             CatalogUsageCheckRequest(
                 projectRootDirectory = rootDir,
+                primaryCatalogModelName = "waterMyPlants",
+                dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
                 includedBuilds = listOf(
                     FigmaDesignModelIncludedBuildSource(
                         modelName = "gradlePlugins",

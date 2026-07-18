@@ -10,8 +10,8 @@ package com.marmatsan.figmaDesignSync.domain.model.figma
  * Example:
  * ```
  * FigmaNodeReference(
- *     fileKey = "YBZXsd8oyGLbcI2KWxJvRK",
- *     nodeId = "63308:2386"
+ *     fileKey = "exampleFileKey",
+ *     nodeId = "123:456"
  * )
  * ```
  *

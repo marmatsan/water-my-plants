@@ -14,6 +14,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -21,6 +22,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -30,11 +32,20 @@ import org.gradle.api.tasks.TaskAction
  *
  * The artifact is the source consumed by the Figma MCP sync step. Git branch
  * and SHA are captured at execution time so the generated metadata identifies
- * the exact repository snapshot. The artifact is intentionally restricted to the
- * TeamCity Figma Sync pipeline on `main` so local or short-lived branch models
- * cannot be mistaken for the official Figma publication input.
+ * the exact repository snapshot. The artifact is intentionally restricted to
+ * the configured CI Figma Sync adapter on `main` so local or short-lived
+ * branch models cannot be mistaken for the official Figma publication input.
  */
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
+    @get:Input
+    abstract val primaryCatalogModelName: Property<String>
+
+    @get:Input
+    abstract val dependencyCatalogProviderClassName: Property<String>
+
+    @get:Input
+    abstract val ciDocumentationEnabled: Property<Boolean>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
@@ -44,14 +55,17 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     abstract val rootSettingsFile: RegularFileProperty
 
     @get:InputFile
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciExternalTopologyFile: RegularFileProperty
 
     @get:InputFile
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
     @get:InputDirectory
+    @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val teamCityGeneratedConfigurationDirectory: DirectoryProperty
 
@@ -85,7 +99,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
      */
     @TaskAction
     fun generate() {
-        val branch = officialTeamCityBranch()
+        val branch = officialBranch()
         requireMainBranch(branch)
         requireCompatibleGitCheckout(branch)
 
@@ -94,11 +108,14 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
                 branch = branch,
                 gitSha = git("rev-parse", "HEAD"),
                 generatedAt = Instant.now(),
+                primaryCatalogModelName = primaryCatalogModelName.get(),
+                dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                ciDocumentationEnabled = ciDocumentationEnabled.get(),
                 versionsFile = versionsFile.get().asFile,
                 rootSettingsFile = rootSettingsFile.get().asFile,
-                ciExternalTopologyFile = ciExternalTopologyFile.get().asFile,
-                ciWindowsRuntimeFile = ciWindowsRuntimeFile.get().asFile,
-                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.get().asFile,
+                ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
+                ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
+                teamCityGeneratedConfigurationDirectory = teamCityGeneratedConfigurationDirectory.orNull?.asFile,
                 projectRootDirectory = projectRootDirectory.get().asFile,
                 includedBuilds = includedBuildSources()
             )
@@ -135,12 +152,13 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
         includedBuildSourcesProvider?.get().orEmpty()
 
-    private fun officialTeamCityBranch(): String {
+    private fun officialBranch(): String {
         val officialGeneration = System.getenv(OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE)
         if (officialGeneration != "true") {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json from " +
-                    "TeamCity Figma Sync. Missing $OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true."
+                    "the configured CI Figma Sync adapter. Missing " +
+                    "$OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true."
             )
         }
 
@@ -148,7 +166,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         if (rawBranch.isBlank()) {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json when " +
-                    "$BRANCH_ENVIRONMENT_VARIABLE identifies the TeamCity build branch."
+                    "$BRANCH_ENVIRONMENT_VARIABLE identifies the CI checkout branch."
             )
         }
 
@@ -159,8 +177,8 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         if (branch != MAIN_BRANCH) {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json from " +
-                    "'$MAIN_BRANCH'. Current branch is '$branch'. Use TeamCity Figma Sync on " +
-                    "'$MAIN_BRANCH' to produce the artifact consumed by the Figma MCP sync."
+                    "'$MAIN_BRANCH'. Current branch is '$branch'. Use the configured CI Figma Sync " +
+                    "adapter on '$MAIN_BRANCH' to produce the artifact consumed by the Figma sync."
             )
         }
     }
@@ -169,8 +187,8 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         val gitBranch = normalizeBranch(git("rev-parse", "--abbrev-ref", "HEAD"))
         if (gitBranch != DETACHED_HEAD && gitBranch != branch) {
             throw GradleException(
-                "TeamCity declared Figma design model branch '$branch', but the Git checkout is " +
-                    "'$gitBranch'. Fix the TeamCity checkout before generating design-model.json."
+                "CI declared Figma design model branch '$branch', but the Git checkout is " +
+                    "'$gitBranch'. Fix the CI checkout before generating design-model.json."
             )
         }
     }
