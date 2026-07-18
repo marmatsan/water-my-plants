@@ -426,15 +426,16 @@ for the wrapper, verification procedure, webhook boundary, and the known CSRF
 contract for mutating requests.
 
 Read-only diagnostics and the post-MCP verification rerun use TeamCity CLI.
-The repository wrapper exchanges the Cloudflare service credential for a
+The repository Kotlin task exchanges the Cloudflare service credential for a
 short-lived Access JWT, then invokes `teamcity.exe` with the raw
 `cf-access-token` and the dedicated TeamCity automation token. This prevents
 Cloudflare from injecting `CF_Authorization` into the mutating request, so
 TeamCity keeps treating the CLI POST as Bearer-authenticated and does not
-require CSRF:
+require CSRF. Load the credentials into the process environment as described
+in the access runbook, then run:
 
 ```powershell
-pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait
+.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true
 ```
 
 Prepare the MCP-operated handoff from the successful `Generate main design
@@ -604,7 +605,7 @@ other than `main`, fix repository checkout before investigating Figma sync.
 
 After the MCP write updates official metadata, rerun the complete `Figma Sync`
 pipeline with
-`pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait`. A successful
+`.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true`. A successful
 standalone `Check Figma trunk sync` proves that metadata matches, but it does
 not replace the previously failed aggregate pipeline or its GitHub status.
 Confirm that `Generate main design model`, `Check Figma trunk sync`, and the

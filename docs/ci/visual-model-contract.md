@@ -159,7 +159,7 @@ Generate main design model
   -> Operator
   -> Codex/MCP client
   -> Figma Design Document
-  -> TeamCity CLI rerun wrapper
+  -> Kotlin TeamCity rerun task
   -> Check Figma trunk sync
 ```
 
@@ -169,7 +169,7 @@ contains `design-model.json` and must create the same visual edge as publishing
 the file explicitly. None of these generation, artifact, or verification nodes
 may remain isolated.
 
-The rerun uses the repository-owned TeamCity CLI wrapper. It exchanges the
+The rerun uses the repository-owned Kotlin Gradle task. It exchanges the
 Cloudflare service credential for a short-lived raw `cf-access-token`, removes
 the service-token headers, and delegates active-run checks, queueing, and
 waiting to `teamcity.exe` with dedicated Bearer authentication. This avoids

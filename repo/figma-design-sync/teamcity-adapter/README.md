@@ -7,7 +7,9 @@ artifacts, published checks, dependencies, and VCS roots.
 
 It also exposes `TeamCityCliClient`, the typed CLI boundary used by
 project-config operational tasks to inspect and download successful TeamCity
-artifact sets without PowerShell orchestration.
+artifact sets, find active runs, queue a run, and wait for its result without
+PowerShell orchestration. Authentication is supplied as a per-process
+environment map so the adapter does not own a particular secret store.
 
 The public entry point is `TeamCityCiConfigurationProvider`. A project selects
 that class through `figmaDesignSync.ciConfigurationProviderClassName`, supplies

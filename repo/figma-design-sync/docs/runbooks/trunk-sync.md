@@ -104,7 +104,7 @@ intentionally non-authoritative and must not write official metadata.
     `checkFigmaTrunkSync` locally, as an early diagnostic after writing
     metadata.
 10. Rerun the complete TeamCity `Figma Sync` pipeline with
-    `pwsh -File tools/teamcity/invoke-figma-sync-rerun.ps1 -Wait`. Confirm that
+    `.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true`. Confirm that
     `Generate main design model`, `Check Figma trunk sync`, and the aggregate
     pipeline all succeed so TeamCity publishes a successful final status.
 
