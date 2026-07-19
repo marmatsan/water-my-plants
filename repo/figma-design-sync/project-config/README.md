@@ -22,7 +22,9 @@ The active adapter consists of:
   Figma file identity, node ids, component properties, GitHub links, visual
   targets, and MCP namespaces as a typed Kotlin value;
 - `water-my-plants/change-impact-policy.json`, which owns path classification
-  for this repository layout.
+  for this repository layout. Its model-neutral entries name only existing
+  host adapters; replacing an adapter requires removing the obsolete path so
+  the policy cannot silently preserve a deleted integration.
 
 The root build applies the adapter plugin:
 

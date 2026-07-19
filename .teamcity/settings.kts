@@ -79,14 +79,61 @@ object WaterMyPlantsCi : Pipeline({
             repository(GitHub)
         }
 
+        params {
+            param("ci.plan.comparisonBase", "")
+            param("ci.unit.repository-diff.required", "false")
+            param("ci.unit.teamcity-dsl.required", "true")
+            param("ci.unit.gradle-verification.required", "true")
+        }
+
         steps {
             step(PipelineScriptStep {
                 name = "Validate agent capabilities"
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
             })
             step(PipelineScriptStep {
-                name = "Verify change scope"
-                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1"""
+                name = "Generate verification plan"
+                scriptContent = """.\gradlew.bat prepareTeamCityCiPlan --stacktrace"""
+            })
+            step(PipelineScriptStep {
+                name = "Validate documentation"
+                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\validate-documentation.ps1 -FailOnCoverageGap"""
+            })
+            step(PipelineScriptStep {
+                name = "Verify repository diff"
+                scriptContent = """
+                    @echo off
+                    if /I not "%ci.unit.repository-diff.required%"=="true" (
+                        echo Skipped by the enforced CI plan.
+                        exit /b 0
+                    )
+                    git diff --check "%ci.plan.comparisonBase%..HEAD"
+                    if errorlevel 1 exit /b 1
+                """.trimIndent()
+            })
+            step(PipelineScriptStep {
+                name = "Validate TeamCity DSL"
+                scriptContent = """
+                    @echo off
+                    if /I not "%ci.unit.teamcity-dsl.required%"=="true" (
+                        echo Skipped by the enforced CI plan.
+                        exit /b 0
+                    )
+                    call .\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate
+                    if errorlevel 1 exit /b 1
+                """.trimIndent()
+            })
+            step(PipelineScriptStep {
+                name = "Run Gradle verification"
+                scriptContent = """
+                    @echo off
+                    if /I not "%ci.unit.gradle-verification.required%"=="true" (
+                        echo Skipped by the enforced CI plan.
+                        exit /b 0
+                    )
+                    call .\gradlew.bat check --stacktrace
+                    if errorlevel 1 exit /b 1
+                """.trimIndent()
             })
         }
 

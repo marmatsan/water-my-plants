@@ -9,12 +9,19 @@ class CiGradlePlugin : Plugin<Project> {
             "com.marmatsan.ci must be applied to the root project."
         }
 
-        project.tasks.register("generateCiPlan", GenerateCiPlanTask::class.java) { task ->
+        val generateCiPlan = project.tasks.register("generateCiPlan", GenerateCiPlanTask::class.java) { task ->
             task.group = "verification"
             task.description = "Generates the provider-neutral CI verification plan."
             task.repositoryRoot.set(project.layout.projectDirectory)
             project.providers.gradleProperty("ciComparisonBase").orNull?.let(task.comparisonBaseOverride::set)
             task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
+        }
+
+        project.tasks.register("prepareTeamCityCiPlan", PrepareTeamCityCiPlanTask::class.java) { task ->
+            task.group = "verification"
+            task.description = "Generates the CI plan and exports its allow-listed TeamCity parameters."
+            task.dependsOn(generateCiPlan)
+            task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
         }
     }
 }
