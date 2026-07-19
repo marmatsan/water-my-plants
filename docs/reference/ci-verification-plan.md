@@ -9,7 +9,6 @@ review-cycle-days: 180
 sources:
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/model/CiPlan.kt
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/CiPlanFactory.kt
-  - build/reports/ci/ci-plan.json
 ---
 
 # CI Verification Plan
