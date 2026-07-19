@@ -24,7 +24,7 @@ class CiPlanFactory {
 
         return CiPlan(
             schemaVersion = SCHEMA_VERSION,
-            mode = CiPlanMode.OBSERVATION,
+            mode = CiPlanMode.ENFORCED,
             comparisonBase = changeSet.comparisonBase,
             head = changeSet.head,
             scope = scope,
@@ -60,7 +60,7 @@ class CiPlanFactory {
             id = VerificationUnitId.TEAMCITY_DSL,
             required = PathCategory.TEAMCITY in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
-            capabilities = listOf("java", "maven", "teamcity-cli"),
+            capabilities = listOf("java", "maven-wrapper"),
             reasons = requiredReasons(PathCategory.TEAMCITY in categories, "TeamCity configuration changed.")
         ),
         unit(
@@ -88,7 +88,7 @@ class CiPlanFactory {
             gradleTasks = if (fullVerification) listOf("check") else emptyList(),
             reasons = when {
                 fallbackReason != null -> listOf(fallbackReason)
-                fullVerification -> listOf("Observation mode preserves the existing full Gradle verification.")
+                fullVerification -> listOf("Every non-documentation change retains full Gradle verification.")
                 else -> emptyList()
             }
         ),
@@ -157,8 +157,21 @@ class CiPlanFactory {
         else -> CiScope.UNKNOWN
     }
 
-    private fun isDocumentation(path: String): Boolean =
-        path.endsWith(".md", ignoreCase = true) || path.endsWith("AGENTS.md", ignoreCase = true)
+    private fun isDocumentation(path: String): Boolean {
+        if (!path.endsWith(".md", ignoreCase = true)) return false
+
+        val segments = path.split('/')
+        return path.equals("README.md", ignoreCase = true) ||
+            path.equals("AGENTS.md", ignoreCase = true) ||
+            path.equals(".teamcity/README.md", ignoreCase = true) ||
+            path.endsWith("/AGENTS.md", ignoreCase = true) ||
+            segments.any { segment -> segment.equals("docs", ignoreCase = true) } ||
+            (
+                segments.size == 3 &&
+                    segments.first().equals("repo", ignoreCase = true) &&
+                    segments.last().equals("README.md", ignoreCase = true)
+                )
+    }
 
     private fun normalize(path: String): String = path.trim().replace('\\', '/')
 

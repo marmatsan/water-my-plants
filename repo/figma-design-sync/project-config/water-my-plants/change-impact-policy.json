@@ -29,7 +29,6 @@
   ],
   "figmaModelNeutralPaths": [
     ".teamcity/documentation-coverage.json",
-    ".teamcity/scripts/invoke-ci-verification.ps1",
     ".teamcity/scripts/validate-documentation.ps1",
     ".teamcity/scripts/tests/*",
     "repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json",

@@ -80,7 +80,9 @@ The pipeline:
 - discovers and validates the Windows agent toolchain and Android SDK before
   running repository verification, then exports the discovered SDK path only
   to later steps in the same TeamCity build;
-- validates typed documentation and change coverage before scope classification: canonical
+- generates the enforced `build/reports/ci/ci-plan.json` contract and exports
+  only its allow-listed TeamCity parameters to subsequent steps;
+- validates typed documentation and change coverage after planning: canonical
   placement, frontmatter, review dates, runbook and ADR sections, canonical
   sources, and local Markdown links are checked by
   `.teamcity/scripts/validate-documentation.ps1`;
@@ -88,27 +90,26 @@ The pipeline:
   Figma-sync implementation, dependency-catalog model, or CI topology must
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
-- uses the portable `classifyFigmaChangeImpact` Gradle task and the policy in
-  `repo/figma-design-sync/project-config/water-my-plants/change-impact-policy.json`
-  as the only change-scope
-  decision; documentation-only changes then run `git diff --check`, while every
-  other change runs `.\gradlew.bat check --stacktrace` so Gradle failures retain
-  their diagnostic context in the TeamCity build log;
-- generates `build/reports/ci/ci-plan.json` through the repository-owned Kotlin
-  planner before verification. The plan is currently observational: it records
-  typed verification units, dependencies, capabilities, and reasons, while the
-  existing Figma classifier remains authoritative for task selection;
-- publishes `build/reports/ci` as pipeline evidence so the observational plan
-  can be compared with the work that actually ran;
+- exposes repository diff, TeamCity DSL, documentation, and Gradle verification
+  as separate sequential steps inside the same `Verify` job;
+- uses allow-listed parameters emitted by `prepareTeamCityCiPlan` in small
+  inline Windows command adapters:
+  documentation-only changes run `git diff --check`, `.teamcity` changes also
+  generate the Kotlin DSL with the Maven wrapper, and every non-documentation
+  change runs one `.\gradlew.bat check --stacktrace` invocation;
+- coalesces Figma-tooling and dependency-catalog units into that single heavy
+  Gradle invocation while only one agent is available;
+- publishes `build/reports/ci` as pipeline evidence;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
   which is wired into the Gradle `check` lifecycle;
 - publishes the `TeamCity CI` GitHub status from `Verify`.
 
-TeamCity runs these scripts with Windows PowerShell 5.1 (`powershell.exe`). CI
-validation scripts must not depend on APIs available only in newer .NET or
-PowerShell versions.
+TeamCity runs the remaining capability and documentation adapters with Windows
+PowerShell 5.1 (`powershell.exe`). Those scripts must not depend on APIs
+available only in newer .NET or PowerShell versions. Change classification and
+step selection are Kotlin-owned.
 
 `CI` does not run `generateFigmaDesignModel` and does not publish
 `build/reports/figma-sync/design-model.json`. Figma represents the stable
@@ -285,11 +286,26 @@ repositories:
     path: ""
 ```
 
-The generated CI script content should invoke the versioned scope wrapper:
+The generated CI job should expose the planner and allow-listed verification
+steps separately:
 
 ```yaml
-script-content: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\invoke-ci-verification.ps1
+- name: Generate verification plan
+  script-content: .\gradlew.bat prepareTeamCityCiPlan --stacktrace
+- name: Validate documentation
+  script-content: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\validate-documentation.ps1 -FailOnCoverageGap
+- name: Run Gradle verification
+  script-content: .\gradlew.bat check --stacktrace
 ```
+
+Conditional steps use `ci.unit.*.required` parameters emitted by the planner.
+The skip/run check is part of each visible generated command because TeamCity
+2026.1 Pipeline generation does not serialize inherited build-step conditions.
+Every parameter referenced by step content is also declared on the job so it
+does not become an unresolved automatic agent requirement. Heavy verification
+defaults to enabled and the Kotlin plan replaces those defaults at runtime.
+Commands remain defined in versioned TeamCity DSL; the JSON plan never carries
+shell content.
 
 Do not perform `git init`, `git fetch`, or `git checkout` from build script
 content. Repository checkout belongs in the Pipeline DSL through job

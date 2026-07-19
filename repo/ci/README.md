@@ -8,8 +8,11 @@ verification units apply to a committed repository change.
 - Domain models and classification do not depend on TeamCity, GitHub Actions,
   Gradle APIs, PowerShell, or Figma Design Sync.
 - The Git adapter resolves the committed diff against `origin/main`.
+- The TeamCity adapter converts the plan to escaped, allow-listed build
+  parameters; it does not add provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan` in the Water My Plants root build.
+  `generateCiPlan` and `prepareTeamCityCiPlan` in the Water My Plants root
+  build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
 
@@ -21,8 +24,10 @@ The generated contract is documented in
 ```powershell
 .\gradlew.bat :ci:check
 .\gradlew.bat generateCiPlan
+.\gradlew.bat prepareTeamCityCiPlan
 ```
 
-The first rollout is observational. TeamCity publishes the plan but continues
-to use the existing Figma change-impact classifier to select the authoritative
-verification path.
+`generateCiPlan` writes the provider-neutral JSON contract.
+`prepareTeamCityCiPlan` additionally emits TeamCity service messages for the
+reviewed parameter allow-list. TeamCity uses those parameters to run visible
+sequential steps while the repository has one build agent.

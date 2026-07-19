@@ -27,7 +27,7 @@ parallel without changing this contract.
 | Field | Meaning |
 |-------|---------|
 | `schemaVersion` | Version of the JSON compatibility contract. |
-| `mode` | `observation` until plan-based task omission becomes authoritative, then `enforced`. |
+| `mode` | `enforced` when provider execution decisions are derived from this plan. |
 | `comparisonBase` | Git revision used as the start of the committed diff. |
 | `head` | Exact revision being planned. |
 | `scope` | Primary path classification for reporting. |
@@ -49,8 +49,30 @@ Stable verification unit identifiers are `documentation`, `repository-diff`,
 - CI adapters map stable identifiers to versioned, reviewed commands.
 - Documentation validation remains repository-wide because its coverage rules
   relate implementation paths to required documentation changes.
-- Observation mode cannot omit verification that the previous CI flow ran.
+- Documentation-only classification is deliberately narrow. Unknown Markdown
+  locations fail closed to full verification instead of being treated as docs.
 - The required GitHub status remains `TeamCity CI`.
+
+## TeamCity Execution
+
+The current single-agent adapter executes one `Verify` job with visible,
+sequential steps. `prepareTeamCityCiPlan` emits allow-listed build parameters;
+later steps consume only those parameters through small inline Windows command
+adapters:
+
+| Plan unit | TeamCity execution |
+|-----------|--------------------|
+| `documentation` | Always run the repository documentation validator. |
+| `repository-diff` | Run `git diff --check` for documentation-only changes. |
+| `teamcity-dsl` | Generate the TeamCity Kotlin DSL with the Maven wrapper when `.teamcity` changes. |
+| `figma-tooling` | Coalesced into the heavy Gradle verification on the single agent. |
+| `dependency-catalog` | Coalesced into the heavy Gradle verification on the single agent. |
+| `gradle-verification` | Run one root `check` invocation for every non-documentation change. |
+| `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
+
+This topology keeps one checkout, one agent allocation, and one authoritative
+GitHub status. Coalesced units remain explicit in the JSON so a later
+multi-agent adapter can split them without changing classification policy.
 
 ## Performance Baseline
 
@@ -63,7 +85,7 @@ comparison baseline:
 | Queue wait | 19 s | 28.5 s | 47 s |
 | Aggregate execution | 21 s | 41.5 s | 51 s |
 
-Future enforced selection records the same metrics for documentation-only,
+Enforced selection records the same metrics for documentation-only,
 module-only, tooling, and full-verification changes. A targeted path must not
 reduce correctness, and full verification must not regress materially merely
 because the plan is visible.
@@ -72,6 +94,12 @@ because the plan is visible.
 
 - `repo/ci` contains the executable models, classifier, Git adapter, JSON
   writer, Gradle task, and tests.
-- `.teamcity/settings.kts` publishes the report.
-- `.teamcity/scripts/invoke-ci-verification.ps1` invokes the plan in
-  observation mode before the existing authoritative classifier.
+- `repo/ci` also contains the narrow TeamCity parameter and service-message
+  adapters used by `prepareTeamCityCiPlan`.
+- `.teamcity/settings.kts` maps allow-listed parameters to visible sequential
+  steps, performs their skip/run decision, and publishes the report. The
+TeamCity 2026.1 Pipeline YAML generator does not serialize inherited build
+step conditions, so the decision is explicit in each generated step command.
+Referenced parameters have job-level defaults to prevent unresolved automatic
+agent requirements; heavy verification defaults to enabled and therefore fails
+closed if runtime replacement is unavailable.
