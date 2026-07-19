@@ -100,11 +100,11 @@ single class KDoc.
 The Markdown headings must follow Dokka's format:
 
 ```markdown
-# Module figmaDesignSync/domain
+# Module figmaDocumentationSync/domain
 
 Module-level documentation.
 
-# Package com.marmatsan.figmaDesignSync.domain.model.catalog
+# Package com.marmatsan.figmaDocumentationSync.domain.model.catalog
 
 Package-level documentation.
 ```

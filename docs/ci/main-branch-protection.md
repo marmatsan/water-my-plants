@@ -88,7 +88,7 @@ Finish Build Trigger.
 
 The generation task is guarded so local or branch execution cannot create the
 official artifact accidentally. TeamCity `Figma Sync` must provide
-`FIGMA_DESIGN_SYNC_OFFICIAL=true` and the TeamCity build branch; any branch that
+`FIGMA_DOCUMENTATION_SYNC_OFFICIAL=true` and the TeamCity build branch; any branch that
 does not normalize to `main` is rejected before `design-model.json` is written.
 
 The Figma write step is currently MCP-operated. If `Figma Sync` fails because

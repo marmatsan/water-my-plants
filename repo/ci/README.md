@@ -20,7 +20,7 @@ aggregator so existing consumers do not need to know its internal projects.
 ## Boundaries
 
 - Domain models and classification do not depend on TeamCity, GitHub Actions,
-  Gradle APIs, PowerShell, or Figma Design Sync.
+  Gradle APIs, PowerShell, or Figma Documentation Sync.
 - The Git adapter resolves the committed diff against `origin/main`.
 - The Gradle adapter snapshots executable root-project modules and declared
   project dependencies after project evaluation. The domain computes changed

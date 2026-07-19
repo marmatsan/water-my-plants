@@ -48,4 +48,4 @@ Inspect logs to ensure credentials and sensitive payloads are absent.
 ## Related Documentation
 
 - `docs/templates/adr.md`
-- `repo/figma-design-sync/docs/standards/dependency-version-naming.md`
+- `repo/figma-documentation-sync/docs/standards/dependency-version-naming.md`

@@ -94,7 +94,7 @@ class CiPlanFactory {
             required = PathCategory.FIGMA in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("java", "android-sdk", "node"),
-            reasons = requiredReasons(PathCategory.FIGMA in categories, "Figma Design Sync implementation changed.")
+            reasons = requiredReasons(PathCategory.FIGMA in categories, "Figma Documentation Sync implementation changed.")
         ),
         unit(
             id = VerificationUnitId.DEPENDENCY_CATALOG,
@@ -171,7 +171,7 @@ class CiPlanFactory {
     ): PathCategory = when {
         isDocumentation(path) -> PathCategory.DOCUMENTATION
         path.startsWith(".teamcity/") -> PathCategory.TEAMCITY
-        path.startsWith("repo/figma-design-sync/") -> PathCategory.FIGMA
+        path.startsWith("repo/figma-documentation-sync/") -> PathCategory.FIGMA
         path.startsWith("repo/dependency-catalog/") ||
             path.startsWith("repo/gradle-plugins/") ||
             path in ROOT_GRADLE_FILES -> PathCategory.DEPENDENCY_INFRASTRUCTURE

@@ -3,7 +3,7 @@ title: Distribute Figma Design Sync as a Gradle plugin
 type: adr
 scope: repository
 owner: figma-design-sync
-status: accepted
+status: superseded
 last-reviewed: 2026-07-19
 review-cycle-days: 365
 sources:
@@ -75,6 +75,6 @@ release authorization.
 
 ## Supersession
 
-The TypeScript project-configuration input is partially superseded by
-[ADR-0004](adr-0004-use-json-for-figma-writer-project-configuration.md). The
-Gradle plugin plus npm writer distribution decision remains active.
+Superseded by
+[ADR-0005](adr-0005-name-figma-documentation-sync.md), which retains the
+Gradle plugin and npm writer distribution under the new public identity.

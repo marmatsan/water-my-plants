@@ -32,7 +32,7 @@ class CiPlanFactoryTest : FunSpec({
     }
 
     test("mixed changes keep all matching units") {
-        val plan = plan("repo/figma-design-sync/tools/package.json", "app/build.gradle.kts")
+        val plan = plan("repo/figma-documentation-sync/tools/package.json", "app/build.gradle.kts")
 
         plan.scope shouldBe CiScope.MIXED
         plan.requiredUnitIds() shouldContain VerificationUnitId.FIGMA_TOOLING
@@ -57,7 +57,7 @@ class CiPlanFactoryTest : FunSpec({
     }
 
     test("markdown outside an approved documentation surface is verified as code") {
-        val plan = plan("repo/figma-design-sync/tools/implementation-notes.md")
+        val plan = plan("repo/figma-documentation-sync/tools/implementation-notes.md")
 
         plan.scope shouldBe CiScope.FIGMA_TOOLING
         plan.fullVerification shouldBe true

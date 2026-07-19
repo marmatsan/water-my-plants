@@ -32,7 +32,7 @@
 - Prefer commit messages shaped like:
 
 ```text
-test(figma-design-sync): add executable BDD coverage for design model generation
+test(figma-documentation-sync): add executable BDD coverage for design model generation
 
 Add Cucumber scenarios for the figma design model so the expected repository
 snapshot is documented as executable behavior.
@@ -71,7 +71,7 @@ because both are part of the contract used by the Figma sync pipeline.
 - Name diagram files in kebab-case using the diagram purpose, for example `architecture.puml`, `ports-and-adapters.puml`, or `model-generation-flow.puml`.
 - When a diagram is published to Figma, render the `.puml` to `.svg` and place the generated SVG in a Figma diagram section named after the full diagram file name, for example `architecture.puml`.
 - Render temporary PlantUML SVGs under `tmp/uml/<module>/` and keep sanitized Figma import SVGs in the same temporary tree. Do not render generated SVGs next to the `.puml` source unless a task explicitly requires it.
-- Group diagrams inside a parent Figma section with a relevant scope name. Module diagrams use the module name, for example `figmaDesignSync`; project-wide diagrams use the project-wide concern, for example `projectModuleDependencies`.
+- Group diagrams inside a parent Figma section with a relevant scope name. Module diagrams use the module name, for example `figmaDocumentationSync`; project-wide diagrams use the project-wide concern, for example `projectModuleDependencies`.
 - Each parent Figma section for UML diagrams must contain a `.Header` component that describes that parent section. Fill `Header`, `Link`, and `Definition` with relevant information, and make `Link` point to the GitHub `main` branch URL for the documented source file when possible.
 - The parent Figma section is the visual/documentation container: bind its fill to `md/sys/color/surface`, set corner radius `28`, and keep only related diagram sections and its `.Header` inside it.
 - The generated SVG is an upload artifact for Figma sync, not the source of truth. Keep the `.puml` as the reviewed source in the repository.

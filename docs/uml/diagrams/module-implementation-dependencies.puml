@@ -48,17 +48,17 @@ package "module :dependencies" as ModuleDependencies {
   UnitTestConsumesDependencies --> DependenciesTarget
 }
 
-package "included build figma-design-sync module :data" as ModuleFigmaDesignSyncData {
-  component ":figma-design-sync:plugin" as FigmaPluginConsumesData <<gradle>>
-  component ":figma-design-sync:data" as FigmaDataTarget <<adapter>>
+package "included build figma-documentation-sync module :data" as ModuleFigmaDocumentationSyncData {
+  component ":figma-documentation-sync:plugin" as FigmaPluginConsumesData <<gradle>>
+  component ":figma-documentation-sync:data" as FigmaDataTarget <<adapter>>
 
   FigmaPluginConsumesData --> FigmaDataTarget
 }
 
-package "included build figma-design-sync module :domain" as ModuleFigmaDesignSyncDomain {
-  component ":figma-design-sync:data" as FigmaDataConsumesDomain <<adapter>>
-  component ":figma-design-sync:plugin" as FigmaPluginConsumesDomain <<gradle>>
-  component ":figma-design-sync:domain" as FigmaDomainTarget <<domain>>
+package "included build figma-documentation-sync module :domain" as ModuleFigmaDocumentationSyncDomain {
+  component ":figma-documentation-sync:data" as FigmaDataConsumesDomain <<adapter>>
+  component ":figma-documentation-sync:plugin" as FigmaPluginConsumesDomain <<gradle>>
+  component ":figma-documentation-sync:domain" as FigmaDomainTarget <<domain>>
 
   FigmaDataConsumesDomain --> FigmaDomainTarget
   FigmaPluginConsumesDomain --> FigmaDomainTarget
@@ -70,7 +70,7 @@ package "modules without incoming implementation(projects...) consumers" as Modu
   component ":bdd-test" as BddTestTarget <<gradle>>
   component ":compose" as ComposeTarget <<gradle>>
   component ":dokka-documentation" as DokkaDocumentationTarget <<gradle>>
-  component ":figma-design-sync:plugin" as FigmaPluginTarget <<gradle>>
+  component ":figma-documentation-sync:plugin" as FigmaPluginTarget <<gradle>>
   component ":onboarding:ui" as OnboardingTarget
   component ":protobuf" as ProtobufTarget <<gradle>>
   component ":unit-test" as UnitTestTarget <<gradle>>
@@ -79,8 +79,8 @@ package "modules without incoming implementation(projects...) consumers" as Modu
 
 ModuleCoreUi -[hidden]down-> ModuleCatalogCore
 ModuleCatalogCore -[hidden]down-> ModuleDependencies
-ModuleDependencies -[hidden]down-> ModuleFigmaDesignSyncData
-ModuleFigmaDesignSyncData -[hidden]down-> ModuleFigmaDesignSyncDomain
-ModuleFigmaDesignSyncDomain -[hidden]down-> ModuleNoIncomingConsumers
+ModuleDependencies -[hidden]down-> ModuleFigmaDocumentationSyncData
+ModuleFigmaDocumentationSyncData -[hidden]down-> ModuleFigmaDocumentationSyncDomain
+ModuleFigmaDocumentationSyncDomain -[hidden]down-> ModuleNoIncomingConsumers
 
 @enduml

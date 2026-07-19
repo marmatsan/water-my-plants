@@ -3,7 +3,7 @@ title: Use JSON for Figma writer project configuration
 type: adr
 scope: repository
 owner: figma-design-sync
-status: accepted
+status: superseded
 last-reviewed: 2026-07-19
 review-cycle-days: 365
 sources:
@@ -67,6 +67,6 @@ source.
 
 ## Supersession
 
-Partially supersedes [ADR-0002](adr-0002-distribute-figma-design-sync-as-gradle-plugin.md):
-the distribution remains a Gradle plugin plus npm writer package, but the
-writer no longer accepts a repository-owned TypeScript configuration module.
+Superseded by
+[ADR-0005](adr-0005-name-figma-documentation-sync.md), which retains JSON as
+the only writer project-configuration input under the new public identity.

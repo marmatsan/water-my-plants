@@ -14,7 +14,7 @@ pluginManagement {
     }
     // Custom Gradle plugins
     includeBuild("./repo/gradle-plugins")
-    includeBuild("./repo/figma-design-sync")
+    includeBuild("./repo/figma-documentation-sync")
     includeBuild("./repo/ci")
 }
 dependencyResolutionManagement {

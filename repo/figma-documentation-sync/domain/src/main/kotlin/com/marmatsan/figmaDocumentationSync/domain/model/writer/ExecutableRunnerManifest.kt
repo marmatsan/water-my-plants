@@ -1,0 +1,36 @@
+package com.marmatsan.figmaDocumentationSync.domain.model.writer
+
+/** Complete executable contract for one generated MCP runner directory. */
+data class ExecutableRunnerManifest(
+    val path: String,
+    val schemaVersion: Int,
+    val mode: String,
+    val entrypoint: String,
+    val target: String,
+    val targets: List<String>,
+    val writeMetadata: Boolean,
+    val transport: String,
+    val namespace: String,
+    val sectionNodeId: String?,
+    val roots: List<String>,
+    val allowOfficialSections: Boolean,
+    val fullVisualSync: Boolean,
+    val allowPartial: Boolean,
+    val metadataPageId: String,
+    val modelPath: String,
+    val scriptPath: String,
+    val modelHash: String,
+    val gitSha: String,
+    val designModelLength: Int,
+    val scriptLength: Int,
+    val writerHash: String,
+    val transportHash: String,
+    val targetFingerprints: Map<String, String>,
+    val writerScopeFingerprints: Map<String, String>,
+    val writerScopeFingerprintSchemaVersion: Int,
+    val executionScopes: Map<String, String>,
+    val payloadImage: RunnerPayloadImage?,
+    val files: List<String>,
+    val fileHashes: Map<String, String>,
+    val manifestHash: String
+)
