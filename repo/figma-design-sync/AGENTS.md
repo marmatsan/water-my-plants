@@ -132,6 +132,10 @@ used by CI.
 - `prepareTeamCityFigmaSyncHandoff`: Water My Plants project adapter that
   prepares a validated local handoff from a TeamCity build id or existing
   artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
+- `uploadOfficialFigmaPayload`: Water My Plants project adapter that accepts
+  only a successful main TeamCity build and a single-use
+  `mcp.figma.com/mcp/upload/.../submit` URL, then verifies and uploads the
+  manifest-declared PNG through Kotlin.
 - `rerunTeamCityFigmaSync`: Water My Plants project adapter that obtains
   credentials through a port, exchanges Cloudflare service auth, and reuses or
   queues the official `main` pipeline. Keep TeamCity CLI operations in

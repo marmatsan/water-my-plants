@@ -5,12 +5,6 @@ import com.marmatsan.figmaDesignSync.domain.port.writer.McpClientPort
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.sse.SSE
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
 import io.modelcontextprotocol.kotlin.sdk.client.Client
 import io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
@@ -25,6 +19,8 @@ class KotlinSdkMcpClient private constructor(
     private val httpClient: HttpClient,
     private val client: Client
 ) : McpClientPort {
+    private val assetUploader = KtorFigmaPngAssetUploader()
+
     override suspend fun listToolNames(): List<String> = client.listTools().tools.map { tool -> tool.name }
 
     override suspend fun readTextResource(uri: String): String = client.readResource(
@@ -51,13 +47,7 @@ class KotlinSdkMcpClient private constructor(
         arguments = mapOf("fileKey" to fileKey, "count" to count)
     ).toDomain()
 
-    override suspend fun uploadAsset(url: String, bytes: ByteArray) {
-        val response = httpClient.post(url) {
-            header(HttpHeaders.ContentType, ContentType.Image.PNG.toString())
-            setBody(bytes)
-        }
-        require(response.status.isSuccess()) { "Payload upload failed with HTTP ${response.status.value}." }
-    }
+    override suspend fun uploadAsset(url: String, bytes: ByteArray) = assetUploader.upload(url, bytes)
 
     override fun close() {
         runBlocking { client.close() }

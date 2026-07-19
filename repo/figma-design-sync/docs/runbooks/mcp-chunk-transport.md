@@ -9,7 +9,9 @@ review-cycle-days: 90
 sources:
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/png/PayloadPngEncoder.kt
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
 ---
 
 # MCP Payload Transport Runbook
@@ -97,11 +99,30 @@ roots use one call per root followed by a cleanup-only call. The PNG asset is a
 transport artifact only; the staging runner removes the uploaded image node
 after extracting the payload.
 
-`upload_assets` returns a single-use URL under `https://mcp.figma.com`. Upload
-the raw PNG bytes with an explicit `Content-Type: image/png` header. Sending it
-as multipart form data or the default `application/octet-stream` is rejected.
+`upload_assets` returns a single-use URL under `https://mcp.figma.com`. For
+Water My Plants, pass that URL and the official TeamCity child run id to the
+Kotlin uploader:
+
+```powershell
+.\gradlew.bat uploadOfficialFigmaPayload `
+    -PfigmaTeamCityBuildId=<job-run-id> `
+    -PfigmaMcpUploadUrl="<single-use-upload-url>"
+```
+
+The task downloads the successful main artifact again so the HTTP boundary
+cannot be pointed at an arbitrary local file. It checks the cross-file contract,
+manifest PNG declaration, byte length, SHA-256, PNG signature, default HTTPS
+port, exact `mcp.figma.com` host, submit path, and `scaleMode=FILL` query before
+sending `Content-Type: image/png`. The URL is neither logged nor persisted.
 Request a new URL after any failed or consumed upload attempt; do not reuse an
 old URL.
+
+If the environment cannot start the TeamCity CLI from a Gradle child process,
+download the child run with the authenticated `teamcity run download` command
+and use `-PfigmaArtifactDirectory` plus the mandatory
+`-PfigmaExpectedGitSha`. This fallback still accepts only a complete official
+artifact set and its manifest-declared PNG; it never accepts a standalone image
+path.
 
 `upload_assets` may place the temporary image on the current Figma page, which
 does not have to be the metadata page. Uploaded assets are direct page children,
@@ -285,7 +306,9 @@ the required write tools.
 
 - `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/McpRunnerExecutor.kt`
+- `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/png/PayloadPngEncoder.kt`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt`
 - `tools/src/sync-trunk-design-model.ts`
 
 ## Run The Planned Visual Sync

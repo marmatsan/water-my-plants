@@ -12,7 +12,9 @@ sources:
   - repo/gradle-plugins/settings.gradle.kts
   - repo/figma-design-sync/settings.gradle.kts
   - repo/figma-design-sync/data/build.gradle.kts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-design-sync/project-config/build.gradle.kts
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
 ---
 
 # Project Structure
@@ -92,10 +94,10 @@ configuration:
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/figma-design-sync/domain/` | `:domain` | Portable design-model types and ports. |
-| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
+| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
 | `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
-| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, repository-specific TeamCity orchestration, and adapter contract tests. |
+| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified official payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
 | `repo/figma-design-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies

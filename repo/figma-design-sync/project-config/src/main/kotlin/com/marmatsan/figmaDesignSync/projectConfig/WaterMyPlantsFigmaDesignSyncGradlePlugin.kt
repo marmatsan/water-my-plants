@@ -166,6 +166,29 @@ class WaterMyPlantsFigmaDesignSyncGradlePlugin : Plugin<Project> {
             requiredBuildTypeName.set("Generate main design model")
         }
 
+        project.tasks.register<UploadOfficialFigmaPayloadTask>("uploadOfficialFigmaPayload") {
+            group = "documentation"
+            description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
+            buildId.convention(
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+            )
+            artifactDirectory.set(
+                project.layout.dir(
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                )
+            )
+            uploadUrl.convention(project.providers.gradleProperty("figmaMcpUploadUrl"))
+            destinationRoot.convention(
+                project.layout.dir(
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
+            )
+            projectDirectory.set(project.layout.projectDirectory)
+            expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
+            mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))
+            requiredBuildTypeName.set("Generate main design model")
+        }
+
         project.tasks.register<RerunTeamCityFigmaSyncTask>("rerunTeamCityFigmaSync") {
             group = "documentation"
             description = "Validates or reruns the official TeamCity Figma Sync pipeline."
