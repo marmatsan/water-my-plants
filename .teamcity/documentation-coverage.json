@@ -39,8 +39,13 @@
       "id": "ci-planner",
       "sourcePaths": [
         "repo/ci/*",
-        "repo/ci/src/*",
+        "repo/ci/domain/src/*",
+        "repo/ci/data/src/*",
+        "repo/ci/plugin/src/*",
         "repo/ci/build.gradle.kts",
+        "repo/ci/domain/build.gradle.kts",
+        "repo/ci/data/build.gradle.kts",
+        "repo/ci/plugin/build.gradle.kts",
         "repo/ci/settings.gradle.kts"
       ],
       "documentationPaths": [

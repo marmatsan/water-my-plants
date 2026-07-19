@@ -3,6 +3,20 @@
 `repo/ci` owns the provider-neutral Kotlin contract that decides which
 verification units apply to a committed repository change.
 
+## Included Build Shape
+
+This directory is an included Gradle build with three modules:
+
+| Path | Role |
+|------|------|
+| `domain/` | Provider-neutral plans, topology, module-impact rules, ports, and services. It has no Gradle, TeamCity, Git, filesystem, or HTTP dependencies. |
+| `data/` | Git, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries. |
+| `plugin/` | Gradle tasks and the `com.marmatsan.ci` composition root consumed by Water My Plants. |
+
+The dependency direction is `plugin -> data -> domain`; `plugin` may also use
+domain types while composing tasks. The included build keeps a root `check`
+aggregator so existing consumers do not need to know its internal projects.
+
 ## Boundaries
 
 - Domain models and classification do not depend on TeamCity, GitHub Actions,
@@ -26,7 +40,7 @@ The generated contract is documented in
 ## Verification
 
 ```powershell
-.\gradlew.bat :ci:check
+.\gradlew.bat :ci:domain:check :ci:data:check :ci:plugin:check
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
