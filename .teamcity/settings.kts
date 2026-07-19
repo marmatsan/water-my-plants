@@ -202,8 +202,16 @@ object WaterMyPlantsFigmaSync : Pipeline({
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -RequireNode -ExportTeamCityParameters"""
             })
             step(PipelineScriptStep {
-                name = "Prepare Figma Sync"
-                scriptContent = """.\gradlew.bat prepareOfficialFigmaSync --stacktrace"""
+                name = "Classify Figma change impact"
+                scriptContent = """.\gradlew.bat classifyOfficialFigmaSyncChangeImpact -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+            })
+            step(PipelineScriptStep {
+                name = "Materialize official design model"
+                scriptContent = """.\gradlew.bat materializeFigmaSyncCiConfiguration generateOfficialFigmaSyncModel -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+            })
+            step(PipelineScriptStep {
+                name = "Build MCP runners and visual plan"
+                scriptContent = """.\gradlew.bat prepareOfficialFigmaSync -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
             })
         }
 
@@ -235,8 +243,12 @@ object WaterMyPlantsFigmaSync : Pipeline({
                 scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
             })
             step(PipelineScriptStep {
+                name = "Validate official sync scope"
+                scriptContent = """.\gradlew.bat validateOfficialFigmaSyncScope -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+            })
+            step(PipelineScriptStep {
                 name = "Verify Figma sync metadata"
-                scriptContent = """.\gradlew.bat verifyOfficialFigmaSync --stacktrace"""
+                scriptContent = """.\gradlew.bat checkOfficialFigmaTrunkSync -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
             })
         }
 

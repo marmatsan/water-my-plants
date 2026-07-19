@@ -162,15 +162,16 @@ validation scripts and their coverage manifest. Unlike documentation-only
 changes, these revisions still run the normal Gradle CI verification before
 merge.
 
-`prepareOfficialFigmaSync` owns the complete preparation chain in the
-`figma-design-sync` Gradle plugin. It removes the previous report directory,
-classifies the change, conditionally generates TeamCity configuration and the
-official model, builds the MCP runners and plan, and writes `sync-scope.json`.
-`verifyOfficialFigmaSync` validates that downloaded scope against the current
-checkout and delegates to the Kotlin trunk checker only for
-`full-verification`. This prevents a persistent agent checkout from
-republishing a stale model or runner without keeping CI orchestration in
-PowerShell.
+The generation job exposes three Kotlin-owned phases after capability
+validation: change-impact classification, conditional model materialization,
+and MCP runner plus visual-plan construction. The verification job exposes
+scope validation before the conditional metadata check. TeamCity passes
+`figmaOfficialTeamCityPhasedExecution=true` so later Gradle invocations consume
+the artifacts produced by the earlier visible step without repeating it.
+Direct local use keeps the dependency-complete `prepareOfficialFigmaSync` and
+`verifyOfficialFigmaSync` entry points. This prevents a persistent agent
+checkout from republishing a stale model or runner without moving orchestration
+into PowerShell.
 
 Gradle configuration cache and local build cache are enabled in
 [`gradle.properties`](../gradle.properties). The current checked-in Pipeline DSL
@@ -210,15 +211,34 @@ belong to the same branch revision as the pipeline chain being validated.
 
 ### Infrastructure Health
 
-`Infrastructure Health` is a daily, non-gating pipeline scheduled at 06:00 in
-the TeamCity server time zone. It validates the Windows agent toolchain, SDK,
-free disk space, the private TeamCity readiness endpoint, the public HTTPS
-route, and the GitHub App webhook boundary. It publishes machine-readable JSON
-under `build/reports/ci-health` and deliberately does not publish a GitHub
-commit status.
+`Infrastructure Health` is a non-gating pipeline. Its TeamCity schedule remains
+at 06:00 in the server time zone as a 24/7-agent fallback. On the current
+developer workstation, Windows Task Scheduler also queues it after startup as
+soon as TeamCity is ready. It validates the Windows agent toolchain, SDK, free
+disk space, the private TeamCity readiness endpoint, the public HTTPS route,
+and the GitHub App webhook boundary. It publishes machine-readable JSON under
+`build/reports/ci-health` and deliberately does not publish a GitHub commit
+status.
 
-This pipeline cannot report that the TeamCity server, its scheduler, or its
-only agent is completely unavailable because none of its steps would start.
+The startup path is Kotlin first:
+
+- `runTeamCityInfrastructureHealth` validates and queues the exact build type
+  through the local TeamCity REST origin;
+- `invoke-infrastructure-health-at-startup.ps1` waits for readiness and exposes
+  the SecretStore token only to that Gradle process;
+- `install-infrastructure-health-startup-task.ps1` owns the Windows Task
+  Scheduler adapter. Its trigger is `AtStartup`, `StartWhenAvailable` waits for
+  the interactive user session that can unlock SecretStore, and overlapping
+  instances are ignored.
+
+Install or refresh the task from an elevated PowerShell session:
+
+```powershell
+pwsh -NoProfile -File .teamcity/scripts/install-infrastructure-health-startup-task.ps1 -RunNow
+```
+
+This pipeline cannot report that the TeamCity server, Task Scheduler, or its
+only agent is completely unavailable because none of its checks would finish.
 Use an external availability monitor for the public hostname and Cloudflare
 Tunnel when an independent outage signal is required.
 
@@ -424,8 +444,9 @@ For this project, the generated pipeline should:
 - set the official Figma design model environment guard only on `Figma Sync`;
 - emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI`, with
   `afterSuccessfulBuildOnly=true`;
-- emit a daily trigger and Windows-agent requirement for
-  `Infrastructure Health`;
+- emit a daily fallback trigger and Windows-agent requirement for
+  `Infrastructure Health`, while the separate workstation adapter owns the
+  startup request;
 - run the agent-capability preflight before every Gradle or infrastructure
   health operation.
 

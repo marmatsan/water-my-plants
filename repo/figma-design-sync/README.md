@@ -197,6 +197,16 @@ Task responsibilities:
 | `generateFigmaDesignModel` | Generates the official JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
 | `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the official pipeline. |
 
+TeamCity may expose official synchronization as sequential steps by passing
+`-PfigmaOfficialTeamCityPhasedExecution=true`. In that mode it invokes
+classification first, model materialization second, runner and visual-plan
+construction third, then scope validation before the metadata check. The flag
+removes only the dependency edges that would repeat an earlier TeamCity step;
+each phase still consumes the files produced in the same job workspace and
+fails closed when a prerequisite is absent. Local and third-party consumers
+must keep using the dependency-complete `prepareOfficialFigmaSync` and
+`verifyOfficialFigmaSync` entry points without this adapter flag.
+
 The change-impact classifier is implemented in Kotlin and is portable across
 Windows, macOS, and Linux. See
 [`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md)

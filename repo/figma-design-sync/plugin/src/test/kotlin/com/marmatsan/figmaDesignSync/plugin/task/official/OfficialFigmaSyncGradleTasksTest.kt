@@ -36,6 +36,52 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
             project.deleteRecursively()
         }
     }
+
+    test("TeamCity can execute official synchronization as visible sequential phases") {
+        val project = Files.createTempDirectory("official-figma-sync-phases").toFile()
+        try {
+            project.writeFixture()
+            project.initializeGitRepository()
+
+            val property = "-PfigmaOfficialTeamCityPhasedExecution=true"
+            project.runner(
+                "classifyOfficialFigmaSyncChangeImpact",
+                "-PfigmaChangedPaths=docs/example.md",
+                property,
+                "--stacktrace"
+            ).build()
+            val modelPhase = project.runner(
+                "materializeFigmaSyncCiConfiguration",
+                "generateOfficialFigmaSyncModel",
+                property,
+                "--stacktrace"
+            ).build()
+            val runnerPhase = project.runner(
+                "prepareOfficialFigmaSync",
+                property,
+                "--stacktrace"
+            ).build()
+            project.runner(
+                "validateOfficialFigmaSyncScope",
+                property,
+                "--stacktrace"
+            ).build()
+            val metadataPhase = project.runner(
+                "checkOfficialFigmaTrunkSync",
+                property,
+                "--stacktrace"
+            ).build()
+
+            modelPhase.task(":classifyOfficialFigmaSyncChangeImpact") shouldBe null
+            runnerPhase.task(":generateOfficialFigmaSyncModel") shouldBe null
+            metadataPhase.task(":validateOfficialFigmaSyncScope") shouldBe null
+            modelPhase.task(":materializeFigmaSyncCiConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
+            modelPhase.task(":generateOfficialFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
+            metadataPhase.task(":checkOfficialFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
+        } finally {
+            project.deleteRecursively()
+        }
+    }
 })
 
 private fun File.runner(vararg arguments: String): GradleRunner =

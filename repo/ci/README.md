@@ -15,8 +15,8 @@ verification units apply to a committed repository change.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan` and `prepareTeamCityCiPlan` in the Water My Plants root
-  build.
+  `generateCiPlan`, `prepareTeamCityCiPlan`, and
+  `runTeamCityInfrastructureHealth` in the Water My Plants root build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
 
@@ -37,3 +37,9 @@ reviewed parameter allow-list. TeamCity uses those parameters to run visible
 sequential steps while the repository has one build agent. Safe module-only
 changes select affected module `check` tasks plus `checkFigmaCatalogUsage`;
 invalid graphs, unknown paths, and tooling changes retain root `check`.
+
+`runTeamCityInfrastructureHealth` is the Kotlin queueing boundary used by the
+Windows startup adapter. It accepts HTTPS TeamCity origins or the local HTTP
+loopback origin, never follows redirects with the Bearer token, and validates
+the build type plus branch before issuing the REST request. SecretStore access
+and Windows Task Scheduler remain thin PowerShell adapters outside this module.

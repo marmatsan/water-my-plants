@@ -38,5 +38,25 @@ class CiGradlePlugin : Plugin<Project> {
             task.dependsOn(generateCiPlan)
             task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
         }
+
+        project.tasks.register(
+            "runTeamCityInfrastructureHealth",
+            RunTeamCityInfrastructureHealthTask::class.java
+        ) { task ->
+            task.group = "verification"
+            task.description = "Queues the non-gating TeamCity Infrastructure Health pipeline."
+            task.serverUrl.convention(
+                project.providers.gradleProperty("teamCityInfrastructureHealthServerUrl")
+                    .orElse("http://127.0.0.1:8111")
+            )
+            task.buildTypeId.convention(
+                project.providers.gradleProperty("teamCityInfrastructureHealthBuildTypeId")
+                    .orElse("WaterMyPlants_WaterMyPlantsInfrastructureHealth")
+            )
+            task.branch.convention(
+                project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main")
+            )
+            task.teamCityToken.convention(project.providers.environmentVariable("TEAMCITY_TOKEN"))
+        }
     }
 }

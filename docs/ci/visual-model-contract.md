@@ -67,9 +67,10 @@ The overview contains three distinct journeys:
 - Post-merge design documentation: successful CI on `main`, Figma Sync model
   generation and verification, the external operator and Codex/MCP write, and
   the verification rerun.
-- Infrastructure health: the daily TeamCity schedule, agent capability and
-  disk checks, HTTPS boundary probes, and the published `ci-health` report.
-  This is an internal scheduled signal, not an independent uptime monitor.
+- Infrastructure health: the Windows startup request plus the daily TeamCity
+  fallback schedule, agent capability and disk checks, HTTPS boundary probes,
+  and the published `ci-health` report. This is an internal host-driven signal,
+  not an independent uptime monitor.
 
 Cloudflare appears as a simplified boundary in the overview. Its policies and
 authentication paths belong in `Infrastructure and Access`.
