@@ -10,6 +10,7 @@ sources:
   - settings.gradle.kts
   - repo/dependency-catalog/settings.gradle.kts
   - repo/gradle-plugins/settings.gradle.kts
+  - repo/ci/settings.gradle.kts
   - repo/figma-design-sync/settings.gradle.kts
   - repo/figma-design-sync/data/build.gradle.kts
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt
@@ -70,11 +71,14 @@ modules support the repository and CI; they are not production app modules.
 |------|----------------|---------|
 | `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
+| `repo/ci/` | `ci` | Provider-neutral Kotlin planner that generates the versioned CI verification contract. |
 | `repo/figma-design-sync/` | `figma-design-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
 
-The root build includes `repo/gradle-plugins` and `repo/figma-design-sync`
-through `pluginManagement.includeBuild(...)`. Both included builds consume
-`repo/dependency-catalog`.
+The root build includes `repo/gradle-plugins`, `repo/ci`, and
+`repo/figma-design-sync` through `pluginManagement.includeBuild(...)`.
+`repo/gradle-plugins` and `repo/figma-design-sync` consume the dependency
+catalog model. `repo/ci` reads only the central version properties while
+remaining independent from the concrete dependency trees.
 
 `repo/dependency-catalog` contains two Gradle modules with a one-way dependency:
 

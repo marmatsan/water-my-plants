@@ -15,6 +15,7 @@ pluginManagement {
     // Custom Gradle plugins
     includeBuild("./repo/gradle-plugins")
     includeBuild("./repo/figma-design-sync")
+    includeBuild("./repo/ci")
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

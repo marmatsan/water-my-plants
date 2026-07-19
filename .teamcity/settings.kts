@@ -97,6 +97,10 @@ object WaterMyPlantsCi : Pipeline({
         features {
             feature(GitHubStatusPublisher("TeamCity CI"))
         }
+
+        outputFiles {
+            pipelineArtifacts("build/reports/ci")
+        }
     }
 })
 

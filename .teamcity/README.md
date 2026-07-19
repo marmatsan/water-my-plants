@@ -94,6 +94,12 @@ The pipeline:
   decision; documentation-only changes then run `git diff --check`, while every
   other change runs `.\gradlew.bat check --stacktrace` so Gradle failures retain
   their diagnostic context in the TeamCity build log;
+- generates `build/reports/ci/ci-plan.json` through the repository-owned Kotlin
+  planner before verification. The plan is currently observational: it records
+  typed verification units, dependencies, capabilities, and reasons, while the
+  existing Figma classifier remains authoritative for task selection;
+- publishes `build/reports/ci` as pipeline evidence so the observational plan
+  can be compared with the work that actually ran;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
