@@ -99,7 +99,10 @@ Kotlin `rerunTeamCityFigmaSync` task owns Cloudflare token exchange, active-run
 deduplication, queueing, and optional waiting. It obtains credentials through
 `TeamCityAutomationCredentialsProvider`; the default environment adapter keeps
 PowerShell SecretStore and other workstation-specific vaults outside the
-module. No Figma synchronization workflow depends on `tools/teamcity/`.
+module. Read-only run discovery and waiting use TeamCity CLI. Queueing uses the
+cookie-free Kotlin REST adapter so Bearer-authenticated POST requests do not
+enter TeamCity's CSRF session flow. No Figma synchronization workflow depends
+on `tools/teamcity/`.
 
 The upload task accepts these Gradle properties:
 
@@ -122,15 +125,15 @@ The rerun task accepts these Gradle properties:
 | `figmaTeamCityServerUrl` | `https://teamcity.marmatsan.dev` | Public HTTPS TeamCity endpoint. |
 | `figmaTeamCityValidateOnly` | `false` | Validate both authentication layers without queueing. |
 | `figmaTeamCityWait` | `false` | Wait for the reused or queued run and require success. |
-| `figmaTeamCityPollIntervalSeconds` | `10` | TeamCity CLI watch interval. |
-| `figmaTeamCityTimeoutMinutes` | `60` | Maximum TeamCity CLI watch duration. |
+| `figmaTeamCityPollIntervalSeconds` | `10` | TeamCity CLI watch interval after queueing. |
+| `figmaTeamCityTimeoutMinutes` | `60` | Maximum TeamCity CLI watch duration after queueing. |
 
 Credentials enter only through `TEAMCITY_TOKEN` plus either a short-lived
 `TEAMCITY_HEADER_CF_ACCESS_TOKEN` or the
 `TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID` and
 `TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET` pair. The task exchanges the pair for
-the short-lived token before starting the CLI child process and never logs the
-values.
+the short-lived token before starting either transport and never logs the
+values or stores response cookies.
 
 ## Verification
 

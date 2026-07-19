@@ -425,14 +425,14 @@ for the duration of each CLI command. Follow
 for the wrapper, verification procedure, webhook boundary, and the known CSRF
 contract for mutating requests.
 
-Read-only diagnostics and the post-MCP verification rerun use TeamCity CLI.
+Read-only diagnostics and post-MCP verification monitoring use TeamCity CLI.
 The repository Kotlin task exchanges the Cloudflare service credential for a
-short-lived Access JWT, then invokes `teamcity.exe` with the raw
-`cf-access-token` and the dedicated TeamCity automation token. This prevents
-Cloudflare from injecting `CF_Authorization` into the mutating request, so
-TeamCity keeps treating the CLI POST as Bearer-authenticated and does not
-require CSRF. Load the credentials into the process environment as described
-in the access runbook, then run:
+short-lived Access JWT. It uses that token with TeamCity CLI for read-only
+operations and queues the verification through a Kotlin REST adapter that does
+not store cookies or follow redirects. TeamCity therefore receives the POST as
+a Bearer-authenticated request outside its CSRF session flow. Load the
+credentials into the process environment as described in the access runbook,
+then run:
 
 ```powershell
 .\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true

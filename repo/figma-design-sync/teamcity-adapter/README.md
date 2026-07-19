@@ -5,11 +5,12 @@ configuration and the portable `figma-design-sync` CI model. It owns every
 TeamCity YAML/XML parsing rule required to populate pipelines, jobs, triggers,
 artifacts, published checks, dependencies, and VCS roots.
 
-It also exposes `TeamCityCliClient`, the typed CLI boundary used by
-project-config operational tasks to inspect and download successful TeamCity
-artifact sets, find active runs, queue a run, and wait for its result without
-PowerShell orchestration. Authentication is supplied as a per-process
-environment map so the adapter does not own a particular secret store.
+It also exposes typed operational boundaries without PowerShell orchestration.
+`TeamCityCliClient` inspects and downloads successful TeamCity artifact sets,
+finds active runs, and waits for their results. `TeamCityRestRunStarter` queues
+a run through a cookie-free Bearer request, while `TeamCityCompositeRunClient`
+combines those read and write transports. Authentication is supplied at the
+adapter boundary so this module does not own a particular secret store.
 
 The public entry point is `TeamCityCiConfigurationProvider`. A project selects
 that class through `figmaDesignSync.ciConfigurationProviderClassName`, supplies

@@ -4,7 +4,7 @@ type: runbook
 scope: repository-ci
 owner: ci-platform
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
@@ -12,6 +12,7 @@ sources:
   - docs/ci/windows-runtime.yaml
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
+  - repo/figma-design-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityRestRunStarter.kt
 ---
 
 # TeamCity Cloudflare Access Runbook
@@ -242,21 +243,25 @@ this route. Two consecutive CSRF reads therefore return different values, even
 when the HTTP client reuses one cookie container.
 
 TeamCity recommends clearing session cookies for unsafe requests authenticated
-with a Bearer token. The repository wrapper follows that contract while
-delegating TeamCity operations to the official CLI:
+with a Bearer token. TeamCity CLI 1.3.0 still retains the Cloudflare cookie for
+the mutating request, so the repository task separates its read and write
+transports:
 
 1. It exchanges the Cloudflare service-token headers for the short-lived Access
    JWT returned in `CF_Authorization`.
-2. It removes the service-token headers from the child process environment.
-3. It invokes `teamcity.exe` with temporary `TEAMCITY_TOKEN` and
-   `TEAMCITY_HEADER_CF_ACCESS_TOKEN` values for active-run checks, queueing, and
+2. It invokes `teamcity.exe` with temporary `TEAMCITY_TOKEN` and
+   `TEAMCITY_HEADER_CF_ACCESS_TOKEN` values only for active-run checks and
    waiting.
+3. It queues the build through `TeamCityRestRunStarter`, which sends Bearer and
+   `CF-Access-Token` headers without installing a cookie handler and without
+   following redirects.
 
-The POST does not resend the service-token pair because that would cause
-Cloudflare to inject a new `CF_Authorization` cookie into the request seen by
-TeamCity. Do not remove the application's `Allow` policy while this transport
-is in use; Cloudflare requires service-token headers on every request when an
-application has only `Service Auth` policies.
+The POST neither resends the service-token pair nor replays the exchanged
+`CF_Authorization` cookie. TeamCity therefore evaluates it as a Bearer request
+without a session and skips the CSRF check. Do not remove the application's
+`Allow` policy while this transport is in use; Cloudflare requires
+service-token headers on every request when an application has only `Service
+Auth` policies.
 
 The repository-owned rerun orchestration is Kotlin. Its credential port reads
 `TEAMCITY_TOKEN` and either `TEAMCITY_HEADER_CF_ACCESS_TOKEN` or the
@@ -297,8 +302,9 @@ The Kotlin task:
 - is fixed to `WaterMyPlants_WaterMyPlantsFigmaSync` on `main`;
 - obtains the Cloudflare and dedicated TeamCity credentials through a port;
 - converts the Cloudflare authorization cookie into the raw
-  `cf-access-token` header used only by the child CLI process;
-- delegates active-run queries, queueing, and waiting to TeamCity CLI;
+  `cf-access-token` header used by the CLI and REST adapters;
+- delegates active-run queries and waiting to TeamCity CLI;
+- queues through a Kotlin JDK HTTP adapter with no cookie store or redirects;
 - reuses a queued or running `Figma Sync` instead of creating a duplicate;
 - checks for an accepted active run before treating an uncertain start as a
   failure;

@@ -1,6 +1,8 @@
 package com.marmatsan.figmaDesignSync.projectConfig
 
+import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCompositeRunClient
 import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityCliClient
+import com.marmatsan.figmaDesignSync.teamcityAdapter.TeamCityRestRunStarter
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -34,13 +36,21 @@ abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
     @TaskAction
     fun rerun() {
         val credentials = EnvironmentTeamCityAutomationCredentialsProvider().load(serverUrl.get())
-        val client = TeamCityCliClient(
+        val cliClient = TeamCityCliClient(
             environment = mapOf(
                 "TEAMCITY_URL" to credentials.serverUrl,
                 "TEAMCITY_TOKEN" to credentials.teamCityToken,
                 "TEAMCITY_HEADER_CF_ACCESS_TOKEN" to credentials.cloudflareAccessToken,
                 "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID" to null,
                 "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null
+            )
+        )
+        val client = TeamCityCompositeRunClient(
+            readClient = cliClient,
+            runStarter = TeamCityRestRunStarter(
+                serverUrl = credentials.serverUrl,
+                teamCityToken = credentials.teamCityToken,
+                cloudflareAccessToken = credentials.cloudflareAccessToken
             )
         )
         val result = TeamCityFigmaSyncRerunner(
