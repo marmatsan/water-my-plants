@@ -96,9 +96,12 @@ The pipeline:
   inline Windows command adapters:
   documentation-only changes run `git diff --check`, `.teamcity` changes also
   generate the Kotlin DSL with the Maven wrapper, and every non-documentation
-  change runs one `.\gradlew.bat check --stacktrace` invocation;
+  change runs one Gradle invocation with the plan's validated task list;
 - coalesces Figma-tooling and dependency-catalog units into that single heavy
   Gradle invocation while only one agent is available;
+- uses the evaluated Gradle module graph for application changes: the changed
+  modules, all transitive reverse dependents, and `checkFigmaCatalogUsage` run
+  in one Gradle invocation; invalid graphs or unmapped paths use root `check`;
 - publishes `build/reports/ci` as pipeline evidence;
 - blocks invalid dependency version key names through
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
@@ -295,7 +298,7 @@ steps separately:
 - name: Validate documentation
   script-content: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\validate-documentation.ps1 -FailOnCoverageGap
 - name: Run Gradle verification
-  script-content: .\gradlew.bat check --stacktrace
+  script-content: .\gradlew.bat %ci.unit.gradle-verification.tasks% --stacktrace
 ```
 
 Conditional steps use `ci.unit.*.required` parameters emitted by the planner.
@@ -304,6 +307,8 @@ The skip/run check is part of each visible generated command because TeamCity
 Every parameter referenced by step content is also declared on the job so it
 does not become an unresolved automatic agent requirement. Heavy verification
 defaults to enabled and the Kotlin plan replaces those defaults at runtime.
+The Gradle command receives only task names validated by the Kotlin TeamCity
+adapter; arbitrary command content is never read from `ci-plan.json`.
 Commands remain defined in versioned TeamCity DSL; the JSON plan never carries
 shell content.
 

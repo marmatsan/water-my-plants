@@ -84,6 +84,7 @@ object WaterMyPlantsCi : Pipeline({
             param("ci.unit.repository-diff.required", "false")
             param("ci.unit.teamcity-dsl.required", "true")
             param("ci.unit.gradle-verification.required", "true")
+            param("ci.unit.gradle-verification.tasks", "check")
         }
 
         steps {
@@ -131,7 +132,7 @@ object WaterMyPlantsCi : Pipeline({
                         echo Skipped by the enforced CI plan.
                         exit /b 0
                     )
-                    call .\gradlew.bat check --stacktrace
+                    call .\gradlew.bat %ci.unit.gradle-verification.tasks% --stacktrace
                     if errorlevel 1 exit /b 1
                 """.trimIndent()
             })

@@ -4,20 +4,37 @@ import com.marmatsan.ci.domain.model.CiPlan
 import com.marmatsan.ci.domain.model.CiPlanMode
 import com.marmatsan.ci.domain.model.CiScope
 import com.marmatsan.ci.domain.model.RepositoryChangeSet
+import com.marmatsan.ci.domain.model.RepositoryModuleGraph
 import com.marmatsan.ci.domain.model.VerificationUnit
 import com.marmatsan.ci.domain.model.VerificationUnitId
 
 /** Pure classifier that turns repository paths into provider-neutral verification units. */
 class CiPlanFactory {
-    fun create(changeSet: RepositoryChangeSet): CiPlan {
+    fun create(changeSet: RepositoryChangeSet, moduleGraph: RepositoryModuleGraph): CiPlan {
         val changedFiles = changeSet.changedFiles.map(::normalize).distinct().sorted()
-        val categories = changedFiles.map(::category).toSet()
+        val moduleImpactAnalyzer = ModuleImpactAnalyzer()
+        val moduleImpact = moduleImpactAnalyzer.analyze(
+            changedFiles = changedFiles.filterNot(::isDocumentation),
+            graph = moduleGraph
+        )
+        val categories = changedFiles.map { path ->
+            category(path, moduleGraph, moduleImpactAnalyzer)
+        }.toSet()
         val documentationOnly = changedFiles.isNotEmpty() && categories == setOf(PathCategory.DOCUMENTATION)
-        val unknown = changedFiles.isEmpty() || PathCategory.UNKNOWN in categories
+        val moduleGraphInvalid = changedFiles.any { path -> !isDocumentation(path) } && !moduleImpact.isValid
+        val unknown = changedFiles.isEmpty() || PathCategory.UNKNOWN in categories || moduleGraphInvalid
         val scope = scope(categories, documentationOnly, unknown)
-        val fullVerification = !documentationOnly
+        val targetedModuleVerification =
+            !unknown &&
+                PathCategory.APPLICATION in categories &&
+                categories.all { category ->
+                    category == PathCategory.APPLICATION || category == PathCategory.DOCUMENTATION
+                } &&
+                moduleImpact.affectedModules.isNotEmpty()
+        val fullVerification = !documentationOnly && !targetedModuleVerification
         val fallbackReason = when {
             changedFiles.isEmpty() -> "No changed files were resolved; verification fails closed."
+            moduleGraphInvalid -> moduleImpact.fallbackReason
             unknown -> "At least one changed path has no targeted verification policy."
             else -> null
         }
@@ -29,9 +46,16 @@ class CiPlanFactory {
             head = changeSet.head,
             scope = scope,
             changedFiles = changedFiles,
-            changedModules = emptyList(),
-            affectedModules = emptyList(),
-            verificationUnits = units(categories, documentationOnly, fullVerification, fallbackReason),
+            changedModules = moduleImpact.changedModules,
+            affectedModules = moduleImpact.affectedModules,
+            verificationUnits = units(
+                categories = categories,
+                documentationOnly = documentationOnly,
+                targetedModuleVerification = targetedModuleVerification,
+                fullVerification = fullVerification,
+                affectedModules = moduleImpact.affectedModules,
+                fallbackReason = fallbackReason
+            ),
             fullVerification = fullVerification,
             fallbackReason = fallbackReason
         )
@@ -40,7 +64,9 @@ class CiPlanFactory {
     private fun units(
         categories: Set<PathCategory>,
         documentationOnly: Boolean,
+        targetedModuleVerification: Boolean,
         fullVerification: Boolean,
+        affectedModules: List<String>,
         fallbackReason: String?
     ): List<VerificationUnit> = listOf(
         unit(
@@ -82,12 +108,20 @@ class CiPlanFactory {
         ),
         unit(
             id = VerificationUnitId.GRADLE_VERIFICATION,
-            required = fullVerification,
+            required = !documentationOnly,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("java", "android-sdk"),
-            gradleTasks = if (fullVerification) listOf("check") else emptyList(),
+            gradleTasks = when {
+                documentationOnly -> emptyList()
+                targetedModuleVerification ->
+                    affectedModules.map { module -> "$module:check" } + CHECK_FIGMA_CATALOG_USAGE
+                else -> listOf("check")
+            },
             reasons = when {
                 fallbackReason != null -> listOf(fallbackReason)
+                targetedModuleVerification -> listOf(
+                    "Changed modules and their transitive reverse dependents can be verified independently."
+                )
                 fullVerification -> listOf("Every non-documentation change retains full Gradle verification.")
                 else -> emptyList()
             }
@@ -130,15 +164,18 @@ class CiPlanFactory {
     private fun requiredReasons(required: Boolean, reason: String): List<String> =
         if (required) listOf(reason) else emptyList()
 
-    private fun category(path: String): PathCategory = when {
+    private fun category(
+        path: String,
+        moduleGraph: RepositoryModuleGraph,
+        moduleImpactAnalyzer: ModuleImpactAnalyzer
+    ): PathCategory = when {
         isDocumentation(path) -> PathCategory.DOCUMENTATION
         path.startsWith(".teamcity/") -> PathCategory.TEAMCITY
         path.startsWith("repo/figma-design-sync/") -> PathCategory.FIGMA
         path.startsWith("repo/dependency-catalog/") ||
             path.startsWith("repo/gradle-plugins/") ||
             path in ROOT_GRADLE_FILES -> PathCategory.DEPENDENCY_INFRASTRUCTURE
-        path.startsWith("app/") || path.startsWith("core/") || path.startsWith("onboarding/") ->
-            PathCategory.APPLICATION
+        moduleImpactAnalyzer.moduleFor(path, moduleGraph) != null -> PathCategory.APPLICATION
         else -> PathCategory.UNKNOWN
     }
 
@@ -186,6 +223,7 @@ class CiPlanFactory {
 
     private companion object {
         const val SCHEMA_VERSION = 1
+        const val CHECK_FIGMA_CATALOG_USAGE = "checkFigmaCatalogUsage"
         val ROOT_GRADLE_FILES = setOf("settings.gradle.kts", "build.gradle.kts", "gradle.properties")
     }
 }
