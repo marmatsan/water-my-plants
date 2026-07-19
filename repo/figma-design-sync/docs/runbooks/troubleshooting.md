@@ -156,7 +156,7 @@ are generated in Kotlin only as part of the authorized TeamCity artifact:
 ```powershell
 .\gradlew.bat buildFigmaDesignSyncTools
 cd repo\figma-design-sync\tools
-node dist\write-mcp-runner.mjs --mode=preview --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
+node dist\write-mcp-preview.mjs --entrypoint=preview-catalog --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 Use preview runners to reproduce visual issues quickly. They stage data under

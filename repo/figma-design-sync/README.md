@@ -37,7 +37,7 @@ Plugin API boundary:
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
 | `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
 | `project-config/` | Water My Plants adapter for repository paths, catalog source, Figma identities, visual targets, credentials, and optional CI operations. |
-| `tools/` | Thin TypeScript Figma Plugin API boundary plus transitional runner packaging and adapter tests. |
+| `tools/` | Thin TypeScript Figma Plugin API boundary plus optional preview packaging and adapter tests. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
 Dependency direction is intentional:

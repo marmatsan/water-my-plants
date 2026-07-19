@@ -27,6 +27,10 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty(
+        "figmaDesignSyncWriterRuntimeContract",
+        rootProject.file("tools/fixtures/contracts/writer-runtime-contract.json").absolutePath
+    )
 }
 
 gradlePlugin {

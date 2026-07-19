@@ -8,7 +8,7 @@ last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt
-  - repo/figma-design-sync/tools/scripts/write-mcp-runner.ts
+  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
 ---
 
 # Figma Sync Target Scopes
