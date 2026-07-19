@@ -8,7 +8,9 @@ last-reviewed: 2026-07-19
 review-cycle-days: 180
 sources:
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/model/CiPlan.kt
+  - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/model/CiExecutionTopology.kt
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/CiPlanFactory.kt
+  - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/CiTopologyPlanner.kt
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/ModuleImpactAnalyzer.kt
 ---
 
@@ -83,6 +85,31 @@ This topology keeps one checkout, one agent allocation, and one authoritative
 GitHub status. Coalesced units remain explicit in the JSON so a later
 multi-agent adapter can split them without changing classification policy.
 
+## Multi-Agent Topology Preview
+
+`generateCiTopologyPreview -PciAvailableAgents=<count>` writes
+`build/reports/ci/ci-topology-preview.json`. This is a provider-neutral,
+`preview-only` contract: the active TeamCity Kotlin DSL does not read it and
+continues to define one `Verify` job while only one agent exists.
+
+| Available agents | Previewed execution |
+|------------------|---------------------|
+| `1` | One `verify` lane runs every required unit sequentially and publishes the authoritative status. |
+| `2` | `documentation` runs first; `supplemental-verification` and `gradle-verification` may then run in parallel; `ci-gate` waits for both and publishes the status. |
+| `3+` | `documentation` runs first; repository, tooling, and Gradle lanes may then run in parallel; `ci-gate` waits for every required lane and publishes the status. |
+
+The planner omits empty lanes, derives lane capabilities from their units, and
+preserves every required dependency. It fails when no agent is available,
+when `publish-reports` is missing, when any required unit is lost or reordered,
+or when more than one lane would publish the authoritative status.
+
+Adding agents alone does not activate this topology. Activation requires a
+separate reviewed TeamCity change that provisions equivalent agent
+capabilities, maps each allow-listed lane to a job, keeps `TeamCity CI` as the
+only required GitHub status, and validates cache isolation plus artifact
+handoff. Figma publication remains a default-branch workflow and is not made
+parallel with branch CI by this preview.
+
 ## Performance Baseline
 
 The ten most recent successful `main` CI pipeline heads before this rollout
@@ -104,7 +131,8 @@ because the plan is visible.
 - `repo/ci` contains the executable models, classifier, Git adapter, JSON
   writer, Gradle task, and tests.
 - `repo/ci` also contains the narrow TeamCity parameter and service-message
-  adapters used by `prepareTeamCityCiPlan`.
+  adapters used by `prepareTeamCityCiPlan`, plus the preview-only topology
+  projector used by `generateCiTopologyPreview`.
 - `.teamcity/settings.kts` maps allow-listed parameters to visible sequential
   steps, performs their skip/run decision, and publishes the report. The
   TeamCity 2026.1 Pipeline YAML generator does not serialize inherited build

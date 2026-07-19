@@ -1,0 +1,44 @@
+package com.marmatsan.ci.plugin
+
+import com.marmatsan.ci.data.json.CiExecutionTopologyJson
+import com.marmatsan.ci.data.json.CiPlanJson
+import com.marmatsan.ci.domain.service.CiTopologyPlanner
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
+
+@DisableCachingByDefault(because = "The preview is a diagnostic projection of a Git-derived CI plan")
+abstract class GenerateCiTopologyPreviewTask : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val planFile: RegularFileProperty
+
+    @get:Input
+    abstract val availableAgents: Property<Int>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val plan = CiPlanJson().read(planFile.get().asFile.readText())
+        val topology = CiTopologyPlanner().create(plan, availableAgents.get())
+        val output = outputFile.get().asFile
+        CiExecutionTopologyJson().write(topology, output)
+
+        logger.lifecycle(
+            "CI topology preview generated: agents={}, mode={}, lanes={}, output={}",
+            topology.availableAgents,
+            topology.mode,
+            topology.lanes.joinToString { lane -> lane.id },
+            output.absolutePath
+        )
+    }
+}
