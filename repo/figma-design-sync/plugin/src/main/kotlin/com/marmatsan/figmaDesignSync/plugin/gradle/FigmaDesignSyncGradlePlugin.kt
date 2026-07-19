@@ -279,6 +279,9 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
                 delete(project.layout.buildDirectory.dir("reports/figma-sync"))
             }
 
+        val teamCityPhasedOfficialExecution =
+            booleanProperty(project, "figmaOfficialTeamCityPhasedExecution")
+
         val classifyOfficialFigmaSyncChangeImpact =
             project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyOfficialFigmaSyncChangeImpact") {
                 group = "verification"
@@ -301,7 +304,11 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             project.tasks.register<Exec>("materializeFigmaSyncCiConfiguration") {
                 group = "documentation"
                 description = "Runs the optional CI adapter when the Figma model can change."
-                dependsOn(classifyOfficialFigmaSyncChangeImpact)
+                if (teamCityPhasedOfficialExecution.get()) {
+                    mustRunAfter(classifyOfficialFigmaSyncChangeImpact)
+                } else {
+                    dependsOn(classifyOfficialFigmaSyncChangeImpact)
+                }
                 onlyIf("CI documentation adapter is enabled and Figma impact requires full verification") {
                     extension.ciDocumentationEnabled.get() &&
                         extension.ciConfigurationCommand.get().isNotEmpty() &&
@@ -319,7 +326,11 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             project.tasks.register<GenerateFigmaDesignModelTask>("generateOfficialFigmaSyncModel") {
                 group = "documentation"
                 description = "Generates the model required by the prepared official Figma Sync scope."
-                dependsOn(materializeFigmaSyncCiConfiguration)
+                if (teamCityPhasedOfficialExecution.get()) {
+                    mustRunAfter(materializeFigmaSyncCiConfiguration)
+                } else {
+                    dependsOn(materializeFigmaSyncCiConfiguration)
+                }
                 onlyIf("Figma change impact requires full verification") {
                     isFullVerification(extension.changeImpactFile.get().asFile)
                 }
@@ -358,7 +369,11 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
         project.tasks.register<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
             group = "documentation"
             description = "Prepares the official model, MCP runners, visual plan, and shared sync scope."
-            dependsOn(generateOfficialFigmaSyncModel)
+            if (teamCityPhasedOfficialExecution.get()) {
+                mustRunAfter(generateOfficialFigmaSyncModel)
+            } else {
+                dependsOn(generateOfficialFigmaSyncModel)
+            }
 
             changeImpactFile.set(extension.changeImpactFile)
             changeImpactPolicyFile.set(extension.changeImpactPolicyFile)
@@ -397,7 +412,11 @@ class FigmaDesignSyncGradlePlugin : Plugin<Project> {
             project.tasks.register<CheckFigmaTrunkSyncTask>("checkOfficialFigmaTrunkSync") {
                 group = "verification"
                 description = "Checks Figma metadata only when the validated official scope can change the model."
-                dependsOn(validateOfficialFigmaSyncScope)
+                if (teamCityPhasedOfficialExecution.get()) {
+                    mustRunAfter(validateOfficialFigmaSyncScope)
+                } else {
+                    dependsOn(validateOfficialFigmaSyncScope)
+                }
                 onlyIf("Validated Figma scope requires full verification") {
                     verifiedOfficialScopeFile.get().asFile
                         .readText()

@@ -13,6 +13,9 @@ sources:
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
   - repo/figma-design-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityRestRunStarter.kt
+  - repo/ci/src/main/kotlin/com/marmatsan/ci/plugin/RunTeamCityInfrastructureHealthTask.kt
+  - .teamcity/scripts/invoke-infrastructure-health-at-startup.ps1
+  - .teamcity/scripts/install-infrastructure-health-startup-task.ps1
 ---
 
 # TeamCity Cloudflare Access Runbook
@@ -114,6 +117,38 @@ An unauthenticated request to the public root should receive the Cloudflare
 Access redirect. A `GET` to the webhook path should reach TeamCity and return
 `400 Bad Request` because it is not a signed GitHub `POST`; an Access redirect
 there means the path-specific bypass policy is broken.
+
+## Queue Infrastructure Health After Startup
+
+The daily 06:00 TeamCity trigger remains useful when the server runs
+continuously, but it cannot recover a time slot missed while this workstation
+was powered off. Windows Task Scheduler therefore queues the same non-gating
+pipeline after startup:
+
+```powershell
+pwsh -NoProfile -File .teamcity/scripts/install-infrastructure-health-startup-task.ps1 -RunNow
+```
+
+The task uses an `AtStartup` trigger and `StartWhenAvailable`. It runs under the
+interactive user identity so PowerShell SecretStore remains available; when no
+user session exists at boot, Windows starts the task once that condition becomes
+available. The adapter waits for `http://127.0.0.1:8111/healthCheck/ready`, loads
+only `TeamCityAutomationToken`, and invokes the Kotlin
+`runTeamCityInfrastructureHealth` task. The Kotlin REST adapter allows plain
+HTTP only for a loopback host, never follows redirects, and does not use the
+public Cloudflare route.
+
+Inspect or test the installed task without exposing credentials:
+
+```powershell
+Get-ScheduledTask -TaskName "Water My Plants - Infrastructure Health at startup"
+Get-ScheduledTaskInfo -TaskName "Water My Plants - Infrastructure Health at startup"
+Start-ScheduledTask -TaskName "Water My Plants - Infrastructure Health at startup"
+```
+
+Keep the scheduled action pointed at the stable repository checkout. Re-run the
+installer if that checkout moves. Do not place the TeamCity token in the task
+arguments, environment block, or exported task XML.
 
 ## Store The Cloudflare Service Token
 
