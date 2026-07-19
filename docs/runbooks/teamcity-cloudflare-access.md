@@ -10,9 +10,9 @@ sources:
   - .teamcity/settings.kts
   - docs/ci/external-topology.yaml
   - docs/ci/windows-runtime.yaml
-  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
-  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
-  - repo/figma-design-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityRestRunStarter.kt
+  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
+  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
+  - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRestRunStarter.kt
   - repo/ci/plugin/src/main/kotlin/com/marmatsan/ci/plugin/RunTeamCityInfrastructureHealthTask.kt
   - .teamcity/scripts/invoke-infrastructure-health-at-startup.ps1
   - .teamcity/scripts/install-infrastructure-health-startup-task.ps1

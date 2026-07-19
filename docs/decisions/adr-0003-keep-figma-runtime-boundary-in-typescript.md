@@ -3,7 +3,7 @@ title: Keep the Figma runtime boundary in TypeScript
 type: adr
 scope: repository
 owner: figma-design-sync
-status: accepted
+status: superseded
 last-reviewed: 2026-07-19
 review-cycle-days: 365
 sources:
@@ -92,4 +92,6 @@ Reconsider Kotlin/JS only when all of these conditions hold:
 
 ## Supersession
 
-None.
+Superseded by
+[ADR-0005](adr-0005-name-figma-documentation-sync.md), which retains the
+TypeScript Figma Plugin API boundary under the new public identity.

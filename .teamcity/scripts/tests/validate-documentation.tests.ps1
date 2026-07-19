@@ -80,6 +80,35 @@ try {
 
     & $validator -RepositoryRoot $fixtureRoot | Out-Null
 
+    $supersededAdr = @'
+---
+title: Historical decision
+type: adr
+scope: repository
+owner: architecture
+status: superseded
+last-reviewed: 2026-07-19
+review-cycle-days: 365
+sources:
+  - retired/source.kt
+---
+
+# ADR-0001: Historical Decision
+
+## Context
+Historical context.
+## Decision
+Historical decision.
+## Consequences
+Historical consequences.
+## Alternatives
+Historical alternatives.
+## Supersession
+Superseded by a current decision.
+'@
+    Write-Fixture "docs/decisions/adr-0001-historical-decision.md" $supersededAdr
+    & $validator -RepositoryRoot $fixtureRoot | Out-Null
+
     Write-Fixture "docs/misplaced.md" ($validStandard -replace 'type: standard', 'type: guide')
     Assert-Fails { & $validator -RepositoryRoot $fixtureRoot } "outside its canonical directory"
     Remove-Item -LiteralPath (Join-Path $fixtureRoot "docs/misplaced.md")

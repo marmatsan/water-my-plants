@@ -92,7 +92,7 @@ sources:
 ```
 
 Use stable ownership areas such as `android`, `repository-tooling`, or
-`figma-design-sync`, not an individual's name. Never put credentials or local
+`figma-documentation-sync`, not an individual's name. Never put credentials or local
 machine paths in metadata.
 
 Runbooks and external integration references SHOULD use a 90-day review cycle.
@@ -130,7 +130,8 @@ support a reference but must not replace its canonical source.
 ADRs use `adr-NNNN-kebab-case-title.md`. An ADR records context, decision,
 consequences, alternatives, and links to superseded decisions. Accepted ADRs
 are immutable except for status and supersession links; a changed decision gets
-a new ADR.
+a new ADR. A superseded ADR keeps its original source paths as historical
+evidence; validation does not require those retired paths to remain present.
 
 ## Production Documentation
 

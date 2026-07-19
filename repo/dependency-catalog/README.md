@@ -19,7 +19,7 @@ water-my-plants-catalog -> catalog-core
 The included-build root is an organizational parent and does not publish a
 compatibility artifact. `:catalog-core` does publish the supporting
 `com.marmatsan.repo:catalog-core:<version>` artifact required by a distributed
-Figma Design Sync plugin. The concrete Water My Plants catalog remains source
+Figma Documentation Sync plugin. The concrete Water My Plants catalog remains source
 owned and is not part of the portable release.
 
 `versions.properties` is also the central version registry for repository
@@ -41,17 +41,17 @@ Both functions return `DependencyCatalogTrees`. Concrete `Versions`,
 details of `:water-my-plants-catalog`.
 
 Portable consumers declare only `catalog-core` and depend on an adapter
-contract. `figma-design-sync:data` defines `DependencyCatalogProvider`; its
+contract. `figma-documentation-sync:data` defines `DependencyCatalogProvider`; its
 Water My Plants implementation lives in
-`repo/figma-design-sync/project-config` and is the only Figma sync production
+`repo/figma-documentation-sync/project-config` and is the only Figma sync production
 module that depends on `water-my-plants-catalog`.
 
 The resulting dependency direction is:
 
 ```text
-figma-design-sync:data -> catalog-core
-figma-design-sync:project-config -> figma-design-sync:data
-figma-design-sync:project-config -> water-my-plants-catalog -> catalog-core
+figma-documentation-sync:data -> catalog-core
+figma-documentation-sync:project-config -> figma-documentation-sync:data
+figma-documentation-sync:project-config -> water-my-plants-catalog -> catalog-core
 ```
 
 Repository-specific consumers declare both stable coordinates only when they
@@ -62,11 +62,11 @@ implementation("com.marmatsan.repo:catalog-core:<version>")
 implementation("com.marmatsan.repo:water-my-plants-catalog")
 ```
 
-Stage and verify `catalog-core` through the owning Figma Design Sync
+Stage and verify `catalog-core` through the owning Figma Documentation Sync
 distribution task:
 
 ```powershell
-.\gradlew.bat :figma-design-sync:verifyStagedPublication
+.\gradlew.bat :figma-documentation-sync:verifyStagedPublication
 ```
 
 ## Sources Of Truth

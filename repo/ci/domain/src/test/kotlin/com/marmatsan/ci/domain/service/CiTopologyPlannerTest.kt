@@ -27,7 +27,7 @@ class CiTopologyPlannerTest : FunSpec({
 
     test("two agents preview supplemental and Gradle work in parallel after documentation") {
         val topology = CiTopologyPlanner().create(
-            plan(".teamcity/settings.kts", "repo/figma-design-sync/tools/package.json"),
+            plan(".teamcity/settings.kts", "repo/figma-documentation-sync/tools/package.json"),
             availableAgents = 2
         )
 
@@ -51,7 +51,7 @@ class CiTopologyPlannerTest : FunSpec({
     test("three agents separate repository tooling and Gradle lanes without losing work") {
         val plan = plan(
             ".teamcity/settings.kts",
-            "repo/figma-design-sync/tools/package.json",
+            "repo/figma-documentation-sync/tools/package.json",
             "repo/dependency-catalog/versions.properties"
         )
 

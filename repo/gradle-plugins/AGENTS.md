@@ -66,7 +66,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 ## Plugin Rules
 
 - Preserve the existing plugin ID pattern: `com.marmatsan.<name>`.
-- Keep implementation classes under `com.marmatsan.<name>.plugin` by default. Modules with internal architecture packages may use a nested package such as `com.marmatsan.figmaDesignSync.plugin.gradle`.
+- Keep implementation classes under `com.marmatsan.<name>.plugin` by default. Modules with internal architecture packages may use a nested package such as `com.marmatsan.figmaDocumentationSync.plugin.gradle`.
 - Prefer Gradle typed APIs and Kotlin DSL helpers over strongly typed configuration when the API is available.
 - Avoid `afterEvaluate` unless there is no stable lazy Gradle API for the behavior.
 - Keep convention plugins idempotent and safe to apply to their intended project types.
@@ -82,7 +82,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 
 - Shared Dokka documentation setup is described in `dokka-documentation/docs/README.md`.
 - Each Gradle convention plugin module keeps its own `docs/README.md` describing its plugin ID, purpose, behavior, requirements, and focused verification command.
-- `figma-design-sync` has additional module-local instructions in `../figma-design-sync/AGENTS.md`. Follow them when editing its source, tests, documentation, generated design model, or Figma automation workflow.
+- `figma-documentation-sync` has additional module-local instructions in `../figma-documentation-sync/AGENTS.md`. Follow them when editing its source, tests, documentation, generated design model, or Figma automation workflow.
 
 ## Testing
 

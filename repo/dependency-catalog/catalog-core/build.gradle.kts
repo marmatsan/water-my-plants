@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.marmatsan.repo"
-version = providers.gradleProperty("figmaDesignSyncVersion").getOrElse("0.1.0-SNAPSHOT")
+version = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
 
 java {
     withSourcesJar()
@@ -20,7 +20,7 @@ publishing {
 
             pom {
                 name.set("Repository Catalog Core")
-                description.set("Portable dependency catalog model used by Figma Design Sync adapters.")
+                description.set("Portable dependency catalog model used by Figma Documentation Sync adapters.")
                 url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/dependency-catalog")
                 scm {
                     connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
@@ -34,7 +34,7 @@ publishing {
         maven {
             name = "staging"
             url = uri(
-                providers.gradleProperty("figmaDesignSyncPublicationRepository").orNull
+                providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
                     ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
             )
         }

@@ -153,7 +153,7 @@ The pipeline:
   metadata and publishes
   `visual-sync-plan.json` with a fail-closed `none`, `partial`, or `full`
   decision;
-- sets `FIGMA_DESIGN_SYNC_OFFICIAL=true` and `FIGMA_DESIGN_SYNC_BRANCH` so the
+- sets `FIGMA_DOCUMENTATION_SYNC_OFFICIAL=true` and `FIGMA_DOCUMENTATION_SYNC_BRANCH` so the
   Gradle task can verify it is running under the official Figma Sync pipeline;
 - publishes the Figma report directory and effective TeamCity configuration as
   job artifacts;
@@ -204,7 +204,7 @@ endpoint, but the current local Figma Desktop endpoint is capability-gated:
 it does not advertise `use_figma` or `upload_assets`. TeamCity therefore
 publishes the deterministic plan and runners but does not attempt a speculative
 headless visual write. See
-[`visual-sync-efficiency.md`](../repo/figma-design-sync/docs/runbooks/visual-sync-efficiency.md).
+[`visual-sync-efficiency.md`](../repo/figma-documentation-sync/docs/runbooks/visual-sync-efficiency.md).
 
 Use a Finish Build Trigger for this chain, not a direct VCS trigger on
 `Figma Sync`. The trigger watches `CI`, requires a successful watched build, and

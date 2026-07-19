@@ -1,0 +1,28 @@
+@startuml figma-documentation-sync-architecture
+!include ../../../../../docs/uml/includes/theme.puml
+!include ../../../../../docs/uml/includes/stereotypes.puml
+
+title figmaDocumentationSync architecture
+
+skinparam nodesep 90
+skinparam ranksep 140
+
+component "domain\n--\nProject model\nModule model\nPorts" as domainPackage <<domain>>
+component "data\n--\nGradle readers\nCatalog readers\nVersion readers\nFigma client" as dataPackage <<adapter>>
+component "plugin\n--\nGradle plugin\nTasks\nModel generation\nDI component" as pluginPackage <<gradle>>
+artifact "design-model.json" as designModel <<artifact>>
+component "tools\n--\nMCP app\nSync use case\nFigma gateways" as toolsPackage <<figma>>
+cloud "Figma file" as figmaFile <<figma>>
+
+domainPackage --> dataPackage : flow\nDomain contracts define model and ports
+dataPackage --> pluginPackage : flow\nAdapters read Gradle, catalogs,\nversions, and Figma metadata
+pluginPackage --> designModel : flow\nGradle tasks export the versioned\nFigma design model
+designModel --> toolsPackage : flow\nGenerated JSON enters the MCP\nsync runtime
+toolsPackage --> figmaFile : flow\nMCP gateways update visual\ncomponents in Figma
+
+dataPackage ..> domainPackage : dependency\n`data` implements `domain` ports
+pluginPackage ..> domainPackage : dependency\n`plugin` uses the shared model
+pluginPackage ..> dataPackage : dependency\n`plugin` reuses concrete adapters
+toolsPackage ..> designModel : runtime dependency\n`tools` consumes generated JSON
+
+@enduml

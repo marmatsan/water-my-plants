@@ -1,0 +1,33 @@
+{
+  "name": "@marmatsan/figma-documentation-sync-tools",
+  "version": "0.1.0-SNAPSHOT",
+  "description": "Portable TypeScript Figma Plugin API boundary for Figma Documentation Sync.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "figma-documentation-sync-build": "bin/build.mjs"
+  },
+  "files": [
+    "bin/",
+    "fixtures/",
+    "scripts/",
+    "src/",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node bin/build.mjs --output-dir=.",
+    "test": "node tests/test.mjs",
+    "premcp:preview": "npm run build",
+    "mcp:preview": "node dist/write-mcp-preview.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.117.0",
+    "typescript": "^5.8.3"
+  }
+}

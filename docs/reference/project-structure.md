@@ -14,11 +14,11 @@ sources:
   - repo/ci/domain/build.gradle.kts
   - repo/ci/data/build.gradle.kts
   - repo/ci/plugin/build.gradle.kts
-  - repo/figma-design-sync/settings.gradle.kts
-  - repo/figma-design-sync/data/build.gradle.kts
-  - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt
-  - repo/figma-design-sync/project-config/build.gradle.kts
-  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
+  - repo/figma-documentation-sync/settings.gradle.kts
+  - repo/figma-documentation-sync/data/build.gradle.kts
+  - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
+  - repo/figma-documentation-sync/project-config/build.gradle.kts
+  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
 ---
 
 # Project Structure
@@ -75,11 +75,11 @@ modules support the repository and CI; they are not production app modules.
 | `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
 | `repo/ci/` | `ci` | Provider-neutral Kotlin planner that generates the versioned CI verification contract. |
-| `repo/figma-design-sync/` | `figma-design-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
+| `repo/figma-documentation-sync/` | `figma-documentation-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
 
 The root build includes `repo/gradle-plugins`, `repo/ci`, and
-`repo/figma-design-sync` through `pluginManagement.includeBuild(...)`.
-`repo/gradle-plugins` and `repo/figma-design-sync` consume the dependency
+`repo/figma-documentation-sync` through `pluginManagement.includeBuild(...)`.
+`repo/gradle-plugins` and `repo/figma-documentation-sync` consume the dependency
 catalog model. `repo/ci` reads only the central version properties while
 remaining independent from the concrete dependency trees.
 
@@ -107,17 +107,17 @@ composition:
 The included-build root keeps `:ci:check` as an aggregate contract while the
 implementation dependency direction remains `plugin -> data -> domain`.
 
-`repo/figma-design-sync` separates its portable engine from this repository's
+`repo/figma-documentation-sync` separates its portable engine from this repository's
 configuration:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
-| `repo/figma-design-sync/domain/` | `:domain` | Portable design-model types and ports. |
-| `repo/figma-design-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
-| `repo/figma-design-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
-| `repo/figma-design-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
-| `repo/figma-design-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified official payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
-| `repo/figma-design-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
+| `repo/figma-documentation-sync/domain/` | `:domain` | Portable design-model types and ports. |
+| `repo/figma-documentation-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
+| `repo/figma-documentation-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
+| `repo/figma-documentation-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
+| `repo/figma-documentation-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified official payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
+| `repo/figma-documentation-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
 the portable plugin; another repository replaces `project-config` without
@@ -163,7 +163,7 @@ Generated files and local caches should not be treated as source:
 - `.kotlin/`
 - `tmp/`
 - any module-local `build/` directory
-- generated Figma sync JavaScript under `repo/figma-design-sync/tools/`
+- generated Figma sync JavaScript under `repo/figma-documentation-sync/tools/`
 
 If a generated artifact is required for review, document how to regenerate it
 instead of treating the generated file as the source of truth.

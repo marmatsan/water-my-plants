@@ -165,6 +165,9 @@ function Test-RequiredMetadata([string]$Path, [hashtable]$Metadata, [string]$Exp
         Add-Error $Path "At least one canonical source is required."
     }
     foreach ($source in $sources) {
+        if ($Metadata["status"] -eq "superseded") {
+            continue
+        }
         if ($source -match '^(https?:|generated:)') {
             continue
         }

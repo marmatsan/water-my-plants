@@ -183,8 +183,8 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
     params {
         param("env.FIGMA_FILE_CONTENT_ACCESS_TOKEN", "%figma.file.content.access.token%")
-        param("env.FIGMA_DESIGN_SYNC_OFFICIAL", "true")
-        param("env.FIGMA_DESIGN_SYNC_BRANCH", "%teamcity.build.branch%")
+        param("env.FIGMA_DOCUMENTATION_SYNC_OFFICIAL", "true")
+        param("env.FIGMA_DOCUMENTATION_SYNC_BRANCH", "%teamcity.build.branch%")
     }
 
     job {

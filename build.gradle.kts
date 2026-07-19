@@ -11,7 +11,7 @@ plugins {
     id("com.marmatsan.bddTest") apply false
     id("com.marmatsan.compose") apply false
     id("com.marmatsan.ci") apply true
-    id("com.marmatsan.waterMyPlantsFigmaDesignSync") apply true
+    id("com.marmatsan.waterMyPlantsFigmaDocumentationSync") apply true
     id("com.marmatsan.protobuf") apply false
     id("com.marmatsan.unitTest") apply false
 }
