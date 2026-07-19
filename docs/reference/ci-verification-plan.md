@@ -9,6 +9,7 @@ review-cycle-days: 180
 sources:
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/model/CiPlan.kt
   - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/CiPlanFactory.kt
+  - repo/ci/src/main/kotlin/com/marmatsan/ci/domain/service/ModuleImpactAnalyzer.kt
 ---
 
 # CI Verification Plan
@@ -32,8 +33,8 @@ parallel without changing this contract.
 | `head` | Exact revision being planned. |
 | `scope` | Primary path classification for reporting. |
 | `changedFiles` | Normalized repository-relative paths. |
-| `changedModules` | Directly changed Gradle modules; empty in schema version 1 observation mode. |
-| `affectedModules` | Changed modules plus transitive consumers; empty in schema version 1 observation mode. |
+| `changedModules` | Gradle modules that own changed implementation paths. |
+| `affectedModules` | Changed modules plus all transitive reverse dependents. |
 | `verificationUnits` | Allow-listed work units, dependencies, capabilities, Gradle tasks, and reasons. |
 | `fullVerification` | Whether root `check` remains required. |
 | `fallbackReason` | Fail-closed explanation when targeted classification is unsafe. |
@@ -51,6 +52,14 @@ Stable verification unit identifiers are `documentation`, `repository-diff`,
   relate implementation paths to required documentation changes.
 - Documentation-only classification is deliberately narrow. Unknown Markdown
   locations fail closed to full verification instead of being treated as docs.
+- The evaluated Gradle project model is the source of truth for module
+  directories and project dependency edges. Synthetic parent projects without
+  build files are not executable modules.
+- An empty graph, duplicate module identity or directory, unresolved edge, or
+  unclassified path fails closed to the root `check` task.
+- Module-only changes run `check` for the changed modules and every transitive
+  consumer. They also run `checkFigmaCatalogUsage`, because removing source can
+  make a dependency declaration unused even when catalog files did not change.
 - The required GitHub status remains `TeamCity CI`.
 
 ## TeamCity Execution
@@ -67,7 +76,7 @@ adapters:
 | `teamcity-dsl` | Generate the TeamCity Kotlin DSL with the Maven wrapper when `.teamcity` changes. |
 | `figma-tooling` | Coalesced into the heavy Gradle verification on the single agent. |
 | `dependency-catalog` | Coalesced into the heavy Gradle verification on the single agent. |
-| `gradle-verification` | Run one root `check` invocation for every non-documentation change. |
+| `gradle-verification` | Run affected module checks plus catalog usage for safe module-only changes; otherwise run root `check`. |
 | `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
 
 This topology keeps one checkout, one agent allocation, and one authoritative
@@ -98,8 +107,8 @@ because the plan is visible.
   adapters used by `prepareTeamCityCiPlan`.
 - `.teamcity/settings.kts` maps allow-listed parameters to visible sequential
   steps, performs their skip/run decision, and publishes the report. The
-TeamCity 2026.1 Pipeline YAML generator does not serialize inherited build
-step conditions, so the decision is explicit in each generated step command.
-Referenced parameters have job-level defaults to prevent unresolved automatic
-agent requirements; heavy verification defaults to enabled and therefore fails
-closed if runtime replacement is unavailable.
+  TeamCity 2026.1 Pipeline YAML generator does not serialize inherited build
+  step conditions, so the decision is explicit in each generated step command.
+  Referenced parameters have job-level defaults to prevent unresolved automatic
+  agent requirements; heavy verification defaults to enabled and therefore
+  fails closed if runtime replacement is unavailable.

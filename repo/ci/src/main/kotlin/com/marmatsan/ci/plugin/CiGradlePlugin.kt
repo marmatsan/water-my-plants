@@ -1,5 +1,6 @@
 package com.marmatsan.ci.plugin
 
+import com.marmatsan.ci.data.gradle.GradleProjectModuleGraphSource
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -15,6 +16,20 @@ class CiGradlePlugin : Plugin<Project> {
             task.repositoryRoot.set(project.layout.projectDirectory)
             project.providers.gradleProperty("ciComparisonBase").orNull?.let(task.comparisonBaseOverride::set)
             task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
+        }
+
+        project.gradle.projectsEvaluated {
+            val graph = GradleProjectModuleGraphSource().read(project)
+            generateCiPlan.configure { task ->
+                task.moduleDirectories.set(
+                    graph.modules.associate { module -> module.id to module.directory }
+                )
+                task.moduleDependencyEdges.set(
+                    graph.dependencies.map { dependency ->
+                        "${dependency.dependentModule}->${dependency.dependencyModule}"
+                    }
+                )
+            }
         }
 
         project.tasks.register("prepareTeamCityCiPlan", PrepareTeamCityCiPlanTask::class.java) { task ->
