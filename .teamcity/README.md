@@ -99,6 +99,10 @@ The pipeline:
   change runs one Gradle invocation with the plan's validated task list;
 - coalesces Figma-tooling and dependency-catalog units into that single heavy
   Gradle invocation while only one agent is available;
+- keeps the future multi-agent topology inactive. The Kotlin-only
+  `generateCiTopologyPreview -PciAvailableAgents=<count>` task can model the
+  future lanes, dependencies, capabilities, and final status publisher without
+  changing the checked-in TeamCity jobs;
 - uses the evaluated Gradle module graph for application changes: the changed
   modules, all transitive reverse dependents, and `checkFigmaCatalogUsage` run
   in one Gradle invocation; invalid graphs or unmapped paths use root `check`;
@@ -108,6 +112,14 @@ The pipeline:
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
   which is wired into the Gradle `check` lifecycle;
 - publishes the `TeamCity CI` GitHub status from `Verify`.
+
+When more agents are provisioned, use the executable preview contract in
+[`docs/reference/ci-verification-plan.md`](../docs/reference/ci-verification-plan.md#multi-agent-topology-preview)
+as the migration boundary. The activation change must map its allow-listed
+lanes to TeamCity jobs, preserve the final `TeamCity CI` status, prove agent
+capability parity and artifact handoff, and keep the single-agent DSL available
+until the parallel topology is green. Merely increasing the agent pool does not
+change job concurrency.
 
 TeamCity runs the remaining capability and documentation adapters with Windows
 PowerShell 5.1 (`powershell.exe`). Those scripts must not depend on APIs

@@ -15,7 +15,7 @@ verification units apply to a committed repository change.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan`, `prepareTeamCityCiPlan`, and
+  `generateCiPlan`, `generateCiTopologyPreview`, `prepareTeamCityCiPlan`, and
   `runTeamCityInfrastructureHealth` in the Water My Plants root build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
@@ -28,10 +28,17 @@ The generated contract is documented in
 ```powershell
 .\gradlew.bat :ci:check
 .\gradlew.bat generateCiPlan
+.\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
 ```
 
 `generateCiPlan` writes the provider-neutral JSON contract.
+`generateCiTopologyPreview` projects its required units into agent lanes under
+`build/reports/ci/ci-topology-preview.json`. The output is explicitly
+`preview-only`: no TeamCity setting consumes it. One agent produces the current
+single `verify` lane; two agents preview supplemental and Gradle lanes; three or
+more agents additionally separate repository and tooling work before one
+authoritative `ci-gate` lane.
 `prepareTeamCityCiPlan` additionally emits TeamCity service messages for the
 reviewed parameter allow-list. TeamCity uses those parameters to run visible
 sequential steps while the repository has one build agent. Safe module-only

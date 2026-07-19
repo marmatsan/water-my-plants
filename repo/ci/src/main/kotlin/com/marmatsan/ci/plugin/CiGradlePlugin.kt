@@ -40,6 +40,22 @@ class CiGradlePlugin : Plugin<Project> {
         }
 
         project.tasks.register(
+            "generateCiTopologyPreview",
+            GenerateCiTopologyPreviewTask::class.java
+        ) { task ->
+            task.group = "verification"
+            task.description = "Previews provider-neutral CI lanes without changing active TeamCity jobs."
+            task.dependsOn(generateCiPlan)
+            task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
+            task.availableAgents.convention(
+                project.providers.gradleProperty("ciAvailableAgents").map(String::toInt).orElse(1)
+            )
+            task.outputFile.convention(
+                project.layout.buildDirectory.file("reports/ci/ci-topology-preview.json")
+            )
+        }
+
+        project.tasks.register(
             "runTeamCityInfrastructureHealth",
             RunTeamCityInfrastructureHealthTask::class.java
         ) { task ->

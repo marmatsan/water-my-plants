@@ -1,0 +1,28 @@
+package com.marmatsan.ci.data.json
+
+import com.marmatsan.ci.domain.model.RepositoryChangeSet
+import com.marmatsan.ci.domain.service.CiPlanFactory
+import com.marmatsan.ci.domain.service.CiTopologyPlanner
+import com.marmatsan.ci.testModuleGraph
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+
+class CiExecutionTopologyJsonTest : FunSpec({
+    test("round trips the preview topology contract") {
+        val plan = CiPlanFactory().create(
+            changeSet = RepositoryChangeSet(
+                comparisonBase = "base-sha",
+                head = "head-sha",
+                changedFiles = listOf(".teamcity/settings.kts")
+            ),
+            moduleGraph = testModuleGraph()
+        )
+        val expected = CiTopologyPlanner().create(plan, availableAgents = 3)
+        val json = CiExecutionTopologyJson()
+        val output = kotlin.io.path.createTempFile().toFile()
+
+        json.write(expected, output)
+
+        json.read(output.readText()) shouldBe expected
+    }
+})
