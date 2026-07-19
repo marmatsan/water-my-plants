@@ -4,6 +4,7 @@ import com.marmatsan.figmaDesignSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDesignSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDesignSync.data.json.writer.VisualSyncPlanJson
 import com.marmatsan.figmaDesignSync.domain.model.writer.ExecutableRunnerManifest
+import com.marmatsan.figmaDesignSync.domain.model.writer.RunnerPayloadImage
 import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncDecision
 import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncIdentity
 import com.marmatsan.figmaDesignSync.domain.model.writer.VisualSyncPlan
@@ -58,6 +59,11 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
         result.summary["teamCityBuildId"]?.toString() shouldBe "null"
         result.summary["dryRun"]?.jsonObject?.get("decision")?.jsonPrimitive?.content shouldBe "partial"
         result.summary["nextUnit"]?.jsonPrimitive?.content shouldBe "00-clear-staging.mcp.js"
+        result.summary["commands"]?.jsonObject?.get("uploadPayload")?.jsonPrimitive?.content shouldBe
+            ".\\gradlew.bat uploadOfficialFigmaPayload " +
+                "-PfigmaArtifactDirectory=\"${artifacts.toPath().toAbsolutePath().normalize()}\" " +
+                "-PfigmaExpectedGitSha=abc123 " +
+                "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
         root.deleteRecursively()
     }
 
@@ -94,7 +100,7 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
     }
 })
 
-private fun File.writeArtifactFixture() {
+internal fun File.writeArtifactFixture(payloadBytes: ByteArray? = null) {
     resolve("design-model.json").writeText(
         """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}"""
     )
@@ -103,12 +109,14 @@ private fun File.writeArtifactFixture() {
     val visualManifest = visual.writeManifest(
         targets = listOf("preflight"),
         fullVisualSync = true,
-        writeMetadata = false
+        writeMetadata = false,
+        payloadBytes = payloadBytes
     )
     val metadataManifest = metadata.writeManifest(
         targets = listOf("metadata"),
         fullVisualSync = false,
-        writeMetadata = true
+        writeMetadata = true,
+        payloadBytes = payloadBytes
     )
     VisualSyncPlanJson().run {
         val body = VisualSyncPlanBody(
@@ -150,12 +158,23 @@ private fun File.writeArtifactFixture() {
 private fun File.writeManifest(
     targets: List<String>,
     fullVisualSync: Boolean,
-    writeMetadata: Boolean
+    writeMetadata: Boolean,
+    payloadBytes: ByteArray?
 ): ExecutableRunnerManifest {
     val fileName = if (writeMetadata) "99-run-target.mcp.js" else "99-00-preflight.mcp.js"
     val source = "return { target: '${targets.single()}' };\n"
     resolve("00-clear-staging.mcp.js").writeText("return { cleared: true };\n")
     resolve(fileName).writeText(source)
+    val payloadImage = payloadBytes?.let { bytes ->
+        val payloadFileName = "10-official-sync-payload.png"
+        resolve(payloadFileName).writeBytes(bytes)
+        RunnerPayloadImage(
+            fileName = payloadFileName,
+            byteLength = bytes.size,
+            sha256 = Sha256Hash.of(bytes),
+            textKeyword = "figmaSyncPayload"
+        )
+    }
     val files = listOf("00-clear-staging.mcp.js", fileName)
     val fileHashes = files.associateWith { name -> Sha256Hash.of(resolve(name).readBytes()) }
     val draft = ExecutableRunnerManifest(
@@ -166,7 +185,7 @@ private fun File.writeManifest(
         target = targets.first(),
         targets = targets,
         writeMetadata = writeMetadata,
-        transport = "chunks",
+        transport = if (payloadImage == null) "chunks" else "png",
         namespace = "test_staging",
         sectionNodeId = null,
         roots = emptyList(),
@@ -189,7 +208,7 @@ private fun File.writeManifest(
         ),
         writerScopeFingerprintSchemaVersion = 1,
         executionScopes = mapOf(fileName to targets.single()),
-        payloadImage = null,
+        payloadImage = payloadImage,
         files = files,
         fileHashes = fileHashes,
         manifestHash = ""

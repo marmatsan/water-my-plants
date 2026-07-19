@@ -171,6 +171,9 @@ Run these from the repository root:
 .\gradlew.bat classifyFigmaChangeImpact
 .\gradlew.bat validateOfficialFigmaArtifactSet `
     -PfigmaArtifactDirectory=<artifact-directory>
+.\gradlew.bat uploadOfficialFigmaPayload `
+    -PfigmaTeamCityBuildId=<job-run-id> `
+    -PfigmaMcpUploadUrl=<single-use-upload-url>
 ```
 
 Task responsibilities:
@@ -185,6 +188,7 @@ Task responsibilities:
 | `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
 | `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, and writes `figma-sync-handoff.json`. |
+| `uploadOfficialFigmaPayload` | Water My Plants Kotlin adapter that downloads one successful main TeamCity artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
 | `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the official TeamCity pipeline, and optionally waits for success. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
@@ -230,6 +234,12 @@ runner writes `10-official-sync-payload.png`, that image is uploaded to Figma,
 and the staging runner extracts and validates the model plus MCP script before
 storing the script as plain text in temporary shared plugin data. Avoiding a
 second Base64 encoding keeps the staging entry below Figma's per-entry limit.
+The repository-specific `uploadOfficialFigmaPayload` task keeps this transfer
+Kotlin-first: it validates the successful main TeamCity build, cross-file
+artifact identity, payload length and SHA-256, PNG signature, and exact
+`https://mcp.figma.com/mcp/upload/<id>/submit?scaleMode=FILL` destination before
+sending any bytes. The single-use URL is internal task state and is never
+written to the handoff summary or task output.
 Each visual target then runs in a separate, lexically ordered MCP call. Catalog
 targets are further split by declared root and end with a cleanup-only call.
 This keeps the complete synchronization mandatory without exceeding the MCP

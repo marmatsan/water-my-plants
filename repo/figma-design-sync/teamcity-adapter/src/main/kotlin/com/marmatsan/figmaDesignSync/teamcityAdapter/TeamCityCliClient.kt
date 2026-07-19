@@ -11,8 +11,11 @@ import kotlinx.serialization.json.jsonPrimitive
 /** TeamCity CLI adapter used by local Kotlin operational tasks. */
 class TeamCityCliClient(
     private val environment: Map<String, String?> = emptyMap(),
+    private val workingDirectory: File? = null,
     private val execute: (List<String>, Map<String, String?>) -> CommandResult =
-        { arguments, commandEnvironment -> executeProcess(arguments, commandEnvironment) }
+        { arguments, commandEnvironment ->
+            executeProcess(arguments, commandEnvironment, workingDirectory)
+        }
 ) : TeamCityBuildArtifactClient, TeamCityRunClient {
     override fun readBuild(buildId: Long): TeamCityBuild {
         val root = executeJson("run", "view", buildId.toString(), "--json")
@@ -124,9 +127,11 @@ class TeamCityCliClient(
     private companion object {
         fun executeProcess(
             arguments: List<String>,
-            environment: Map<String, String?>
+            environment: Map<String, String?>,
+            workingDirectory: File?
         ): CommandResult {
             val processBuilder = ProcessBuilder(arguments)
+            workingDirectory?.let(processBuilder::directory)
             environment.forEach { (name, value) ->
                 if (value == null) {
                     processBuilder.environment().remove(name)

@@ -60,6 +60,14 @@ class TeamCityFigmaSyncHandoffPreparer(
         val commandPrefix =
             ".\\gradlew.bat runFigmaMcp " +
                 "-PfigmaMcpManifest=\"$visualManifest\" -PfigmaMcpPlan=\"${artifacts.planPath}\""
+        val uploadPayloadCommand = request.buildId?.let { buildId ->
+            ".\\gradlew.bat uploadOfficialFigmaPayload " +
+                "-PfigmaTeamCityBuildId=$buildId " +
+                "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
+        } ?: ".\\gradlew.bat uploadOfficialFigmaPayload " +
+            "-PfigmaArtifactDirectory=\"${artifacts.artifactDirectory}\" " +
+            "-PfigmaExpectedGitSha=${validated.gitSha} " +
+            "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
         val summary = buildJsonObject {
             put("schemaVersion", 1)
             put("preparedAt", clock.instant().toString())
@@ -89,6 +97,7 @@ class TeamCityFigmaSyncHandoffPreparer(
                             "-PfigmaMcpSummary=\"SHORT_ERROR\""
                     )
                     put("execute", commandPrefix)
+                    put("uploadPayload", uploadPayloadCommand)
                     put("rerun", ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true")
                 }
             )

@@ -4,13 +4,16 @@ type: runbook
 scope: repo/figma-design-sync
 owner: figma-design-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
+  - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityOfficialFigmaPayloadUploader.kt
+  - repo/figma-design-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityCliClient.kt
   - repo/figma-design-sync/plugin/src/main/kotlin/com/marmatsan/figmaDesignSync/plugin/task/artifact/ValidateOfficialFigmaArtifactSetTask.kt
 ---
 
@@ -212,12 +215,36 @@ Codex-operated Figma MCP unit at a time, then record success or failure through
 the Kotlin checkpoint executor. The task never writes to Figma and never
 records a unit automatically.
 
+For PNG transport, request one upload URL from Figma `upload_assets`, then pass
+that single-use URL and the same child run id to the narrow Kotlin uploader:
+
+```powershell
+.\gradlew.bat uploadOfficialFigmaPayload `
+    -PfigmaTeamCityBuildId=<job-run-id> `
+    -PfigmaMcpUploadUrl="<single-use-upload-url>"
+```
+
+The task revalidates that the build is successful, belongs to `main`, and is
+the `Generate main design model` job. It then validates the artifact contract,
+visual manifest, PNG length, SHA-256, signature, and destination allow-list
+before posting. It never prints or stores the upload URL. Run
+`10-stage-payload-from-png.mcp.js` only after this command succeeds.
+
+If the workstation uses reusable command permissions, authorize only
+`.\gradlew.bat uploadOfficialFigmaPayload`. Do not replace the task with
+`Invoke-WebRequest` or grant a generic outbound-upload permission.
+
 When artifacts were downloaded through another authorized route, validate them
-without a second download:
+without a second download. The explicit revision is mandatory in this mode:
 
 ```powershell
 .\gradlew.bat prepareTeamCityFigmaSyncHandoff `
     -PfigmaArtifactDirectory=<downloaded-figma-sync-directory>
+
+.\gradlew.bat uploadOfficialFigmaPayload `
+    -PfigmaArtifactDirectory=<downloaded-figma-sync-directory> `
+    -PfigmaExpectedGitSha=<exact-main-git-sha> `
+    -PfigmaMcpUploadUrl="<single-use-upload-url>"
 ```
 
 After all selected visual units and metadata complete, use the handoff's
@@ -249,3 +276,6 @@ official artifact from the authoritative `main` run.
 - `data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/writer/OfficialMcpRunnerGenerator.kt`
 - `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
 - `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/UploadOfficialFigmaPayloadTask.kt`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/TeamCityOfficialFigmaPayloadUploader.kt`
+- `teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityCliClient.kt`
