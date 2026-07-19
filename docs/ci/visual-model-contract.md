@@ -170,11 +170,11 @@ the file explicitly. None of these generation, artifact, or verification nodes
 may remain isolated.
 
 The rerun uses the repository-owned Kotlin Gradle task. It exchanges the
-Cloudflare service credential for a short-lived raw `cf-access-token`, removes
-the service-token headers, and delegates active-run checks, queueing, and
-waiting to `teamcity.exe` with dedicated Bearer authentication. This avoids
-forwarding Cloudflare's session cookie into TeamCity's CSRF check. The TeamCity
-UI remains the recovery interface. The
+Cloudflare service credential for a short-lived raw `cf-access-token` and
+delegates active-run checks and waiting to `teamcity.exe`. Queueing uses a
+cookie-free Kotlin REST adapter with dedicated Bearer authentication and no
+redirect following. This keeps Cloudflare's session cookie out of TeamCity's
+CSRF check. The TeamCity UI remains the recovery interface. The
 repository-owned handoff downloads and validates the official artifact, then
 selects the next checkpoint unit without writing Figma. It is represented as a
 technical annotation on the handoff connection, not as another domain artifact.
