@@ -36,6 +36,20 @@
       "documentationPaths": [".teamcity/README.md", "docs/runbooks/teamcity-cloudflare-access.md"]
     },
     {
+      "id": "ci-planner",
+      "sourcePaths": [
+        "repo/ci/*",
+        "repo/ci/src/*",
+        "repo/ci/build.gradle.kts",
+        "repo/ci/settings.gradle.kts"
+      ],
+      "documentationPaths": [
+        "repo/ci/README.md",
+        "docs/reference/ci-verification-plan.md",
+        ".teamcity/README.md"
+      ]
+    },
+    {
       "id": "figma-sync-implementation",
       "sourcePaths": [
         "repo/figma-design-sync/tools/*",

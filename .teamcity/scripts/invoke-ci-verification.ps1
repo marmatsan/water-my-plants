@@ -13,7 +13,7 @@ Push-Location $repositoryRoot
 try {
     & (Join-Path $PSScriptRoot "validate-documentation.ps1") -FailOnCoverageGap
 
-    & $gradleWrapper classifyFigmaChangeImpact --stacktrace
+    & $gradleWrapper generateCiPlan classifyFigmaChangeImpact --stacktrace
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
