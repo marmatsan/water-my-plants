@@ -13,7 +13,7 @@ sources:
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
   - repo/figma-design-sync/project-config/src/main/kotlin/com/marmatsan/figmaDesignSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
   - repo/figma-design-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDesignSync/teamcityAdapter/TeamCityRestRunStarter.kt
-  - repo/ci/src/main/kotlin/com/marmatsan/ci/plugin/RunTeamCityInfrastructureHealthTask.kt
+  - repo/ci/plugin/src/main/kotlin/com/marmatsan/ci/plugin/RunTeamCityInfrastructureHealthTask.kt
   - .teamcity/scripts/invoke-infrastructure-health-at-startup.ps1
   - .teamcity/scripts/install-infrastructure-health-startup-task.ps1
 ---

@@ -54,3 +54,11 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ci"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(
+    ":domain",
+    ":data",
+    ":plugin"
+)

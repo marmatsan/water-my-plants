@@ -11,6 +11,9 @@ sources:
   - repo/dependency-catalog/settings.gradle.kts
   - repo/gradle-plugins/settings.gradle.kts
   - repo/ci/settings.gradle.kts
+  - repo/ci/domain/build.gradle.kts
+  - repo/ci/data/build.gradle.kts
+  - repo/ci/plugin/build.gradle.kts
   - repo/figma-design-sync/settings.gradle.kts
   - repo/figma-design-sync/data/build.gradle.kts
   - repo/figma-design-sync/data/src/main/kotlin/com/marmatsan/figmaDesignSync/data/mcp/KtorFigmaPngAssetUploader.kt
@@ -91,6 +94,18 @@ Repository tooling consumes the stable coordinates
 `com.marmatsan.repo:catalog-core` and
 `com.marmatsan.repo:water-my-plants-catalog`. The included-build root does not
 publish a compatibility artifact.
+
+`repo/ci` separates provider-neutral policy from infrastructure and Gradle
+composition:
+
+| Path | Gradle module | Purpose |
+|------|---------------|---------|
+| `repo/ci/domain/` | `:domain` | Provider-neutral plans, topology, module-impact rules, ports, and services. |
+| `repo/ci/data/` | `:data` | Git, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters. Depends on `:domain`. |
+| `repo/ci/plugin/` | `:plugin` | Gradle tasks and the `com.marmatsan.ci` composition root. Depends on `:domain` and `:data`. |
+
+The included-build root keeps `:ci:check` as an aggregate contract while the
+implementation dependency direction remains `plugin -> data -> domain`.
 
 `repo/figma-design-sync` separates its portable engine from this repository's
 configuration:
