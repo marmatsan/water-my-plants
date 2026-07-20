@@ -76,7 +76,9 @@ class McpRunnerSourceRenderer {
             "PAYLOAD_FILE_NAME" to quote(
                 value = payloadFileName
             ),
-            "EXPECTED_IDENTITY" to CanonicalJson.stringify(identity)
+            "EXPECTED_IDENTITY" to CanonicalJson.stringify(
+                value = identity
+            )
         )
     )
 
@@ -93,7 +95,9 @@ class McpRunnerSourceRenderer {
             "NAMESPACE" to quote(
                 value = namespace
             ),
-            "EXPECTED_IDENTITY" to CanonicalJson.stringify(identity)
+            "EXPECTED_IDENTITY" to CanonicalJson.stringify(
+                value = identity
+            )
         )
     )
 
@@ -112,7 +116,9 @@ class McpRunnerSourceRenderer {
             "NAMESPACE" to quote(
                 value = namespace
             ),
-            "SYNC_OPTIONS" to CanonicalJson.stringify(syncOptions),
+            "SYNC_OPTIONS" to CanonicalJson.stringify(
+                value = syncOptions
+            ),
             "EXECUTION_SCOPE" to quote(
                 value = executionScope
             ),
@@ -162,7 +168,7 @@ class McpRunnerSourceRenderer {
 
     fun templateHashes(): Map<String, String> = TEMPLATE_NAMES.associateWith { templateName ->
         Sha256Hash.of(
-            template(
+            value = template(
                 name = templateName
             ).toByteArray(StandardCharsets.UTF_8)
         )

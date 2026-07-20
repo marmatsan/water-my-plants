@@ -24,24 +24,32 @@ internal class McpRunnerExecutorTest : FunSpec(
             "99-00-preflight.mcp.js" to "return { preflight: true };\n"
         )
         sources.forEach { (file, source) -> Files.writeString(
-            root.resolve(file),
+            root.resolve(
+                file
+            ),
             source
         ) }
         val draft = executableManifest(
             root = root.toString(),
             files = sources.keys.toList(),
             hashes = sources.mapValues { (_, source) ->
-                Sha256Hash.of(source.toByteArray(StandardCharsets.UTF_8))
+                Sha256Hash.of(
+                    value = source.toByteArray(StandardCharsets.UTF_8)
+                )
             }
         )
         val manifest = ExecutableRunnerManifestJson().finalizeAndWrite(
-            draft,
-            root.resolve("manifest.json").toString()
+            draft = draft,
+            outputPath = root.resolve(
+                "manifest.json"
+            ).toString()
         )
         val client = RecordingMcpClient()
         val executor = McpRunnerExecutor(
             clock = Clock.fixed(
-                Instant.parse("2026-07-18T18:00:00Z"),
+                Instant.parse(
+                    "2026-07-18T18:00:00Z"
+                ),
                 ZoneOffset.UTC
             ),
             clientFactory = { _, _ -> client }
@@ -59,7 +67,11 @@ internal class McpRunnerExecutorTest : FunSpec(
         client.executedCode shouldContainExactly sources.values.toList()
         result.executionFiles shouldContainExactly sources.keys.toList()
         result.state.completedFiles.map { entry -> entry.file } shouldContainExactly sources.keys.toList()
-        McpExecutionStateJson().readOptional(root.resolve("execution-state.json").toString())
+        McpExecutionStateJson().readOptional(
+            path = root.resolve(
+                "execution-state.json"
+            ).toString()
+        )
             ?.completedFiles
             ?.size shouldBe 2
         client.closed shouldBe true

@@ -245,7 +245,7 @@ class DesignModelSteps : En {
     ): FigmaDesignModelGenerationResult {
         requireRepositorySources()
         return generator.generate(
-            request(
+            request = request(
                 gitSha = gitSha,
                 generatedAt = generatedAt
             )
@@ -306,7 +306,9 @@ class DesignModelSteps : En {
         )
 
     private companion object {
-        val DEFAULT_GENERATED_AT: Instant = Instant.parse("2026-06-19T10:15:30Z")
+        val DEFAULT_GENERATED_AT: Instant = Instant.parse(
+            "2026-06-19T10:15:30Z"
+        )
     }
 }
 
@@ -354,7 +356,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                     entries = listOf(
                         LibraryCatalogEntry.Artifact(
                             artifact = "kotlin-stdlib",
-                            version = CatalogVersion("2.4.0"),
+                            version = CatalogVersion(
+                                value = "2.4.0"
+                            ),
                             requiredByModules = listOf(":app")
                         )
                     )
@@ -369,7 +373,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
             roots = listOf(
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
-                    version = CatalogVersion("2.4.0"),
+                    version = CatalogVersion(
+                        value = "2.4.0"
+                    ),
                     appliedToModules = listOf(":app")
                 )
             )
@@ -406,7 +412,9 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-14"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-14"
+                ),
                 warnAfterDays = 90
             ),
             nodes = listOf(
@@ -428,7 +436,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-16"
+                ),
                 warnAfterDays = 90
             ),
             platform = "Windows",

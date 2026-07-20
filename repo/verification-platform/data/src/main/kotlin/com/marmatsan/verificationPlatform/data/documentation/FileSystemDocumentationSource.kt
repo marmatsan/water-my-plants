@@ -31,17 +31,21 @@ class FileSystemDocumentationSource {
             .forEach { entry ->
                 if (entry == root) return@forEach
                 val path = entry.relativeTo(root).invariantSeparatorsPath
-                entries.add(path)
+                entries.add(
+                    element = path
+                )
                 if (entry.isFile &&
                     entry.extension.equals(
                         "md",
                         ignoreCase = true
                     ) &&
-                    !path.startsWith("docs/templates/") &&
+                    !path.startsWith(
+                        prefix = "docs/templates/"
+                    ) &&
                     !path.contains("/docs/templates/")
                 ) {
                     documents.add(
-                        DocumentationFile(
+                        element = DocumentationFile(
                             path = path,
                             content = entry.readText()
                         )

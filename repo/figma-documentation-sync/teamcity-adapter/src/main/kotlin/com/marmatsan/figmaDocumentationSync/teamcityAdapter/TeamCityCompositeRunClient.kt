@@ -11,10 +11,10 @@ class TeamCityCompositeRunClient(
         status: String,
         limit: Int
     ): List<TeamCityRun> = readClient.listRuns(
-        buildTypeId,
-        branch,
-        status,
-        limit
+        buildTypeId = buildTypeId,
+        branch = branch,
+        status = status,
+        limit = limit
     )
 
     override fun startRun(
@@ -22,8 +22,8 @@ class TeamCityCompositeRunClient(
         branch: String
     ): TeamCityRun =
         runStarter.startRun(
-            buildTypeId,
-            branch
+            buildTypeId = buildTypeId,
+            branch = branch
         )
 
     override fun watchRun(
@@ -31,12 +31,14 @@ class TeamCityCompositeRunClient(
         pollIntervalSeconds: Int,
         timeoutMinutes: Int
     ): TeamCityRun = readClient.watchRun(
-        buildId,
-        pollIntervalSeconds,
-        timeoutMinutes
+        buildId = buildId,
+        pollIntervalSeconds = pollIntervalSeconds,
+        timeoutMinutes = timeoutMinutes
     )
 
     override fun readRun(
         buildId: Long
-    ): TeamCityRun = readClient.readRun(buildId)
+    ): TeamCityRun = readClient.readRun(
+        buildId = buildId
+    )
 }

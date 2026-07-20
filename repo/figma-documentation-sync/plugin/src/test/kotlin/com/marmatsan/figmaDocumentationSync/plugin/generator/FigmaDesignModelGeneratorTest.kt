@@ -48,13 +48,17 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
 
         // WHEN
         val first = generator.generate(
-            request(
-                generatedAt = Instant.parse("2026-06-19T10:15:30Z")
+            request = request(
+                generatedAt = Instant.parse(
+                    "2026-06-19T10:15:30Z"
+                )
             )
         )
         val second = generator.generate(
-            request(
-                generatedAt = Instant.parse("2026-06-19T10:16:30Z")
+            request = request(
+                generatedAt = Instant.parse(
+                    "2026-06-19T10:16:30Z"
+                )
             )
         )
 
@@ -70,12 +74,12 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
 
         // WHEN
         val first = generator.generate(
-            request(
+            request = request(
                 gitSha = "abc123"
             )
         )
         val second = generator.generate(
-            request(
+            request = request(
                 gitSha = "def456"
             )
         )
@@ -91,11 +95,15 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         result.model["content"]?.jsonObject
-            ?.get("versions")
+            ?.get(
+                key = "versions"
+            )
             ?.jsonObject
             ?.keys
             ?.toList() shouldBe listOf(
@@ -119,10 +127,14 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         )
 
         // WHEN
-        val result = generator.generate(request)
+        val result = generator.generate(
+            request = request
+        )
 
         // THEN
-        result.model["content"]?.jsonObject?.get("ci") shouldBe null
+        result.model["content"]?.jsonObject?.get(
+            key = "ci"
+        ) shouldBe null
     }
 
     test("generate writes version sections in repository order") {
@@ -130,12 +142,16 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val sections = result.model["content"]
             ?.jsonObject
-            ?.get("versionSections")
+            ?.get(
+                key = "versionSections"
+            )
             ?.jsonArray
 
         sections?.map { section ->
@@ -152,24 +168,36 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("libraries")
+            ?.get(
+                key = "libraries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("entries")
+            ?.get(
+                key = "entries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("providedByConventionPlugins")
+            ?.get(
+                key = "providedByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -196,24 +224,36 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("libraries")
+            ?.get(
+                key = "libraries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("entries")
+            ?.get(
+                key = "entries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("configuredByConventionPlugins")
+            ?.get(
+                key = "configuredByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -237,20 +277,30 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("plugins")
+            ?.get(
+                key = "plugins"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("providedByConventionPlugins")
+            ?.get(
+                key = "providedByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -277,36 +327,68 @@ internal class FigmaDesignModelGeneratorTest : FunSpec(
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val gradlePluginsCatalog = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("gradlePlugins")
+            ?.get(
+                key = "gradlePlugins"
+            )
             ?.jsonObject
 
-        gradlePluginsCatalog?.get("libraries") shouldBe null
-        gradlePluginsCatalog?.get("plugins") shouldBe null
+        gradlePluginsCatalog?.get(
+            key = "libraries"
+        ) shouldBe null
+        gradlePluginsCatalog?.get(
+            key = "plugins"
+        ) shouldBe null
     }
 
     test("generate writes external topology Windows runtime and effective TeamCity configuration") {
         // WHEN
-        val result = generator().generate(request())
+        val result = generator().generate(
+            request = request()
+        )
 
         // THEN
         result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
-        val ci = result.model["content"]?.jsonObject?.get("ci")?.jsonObject
-        ci?.get("externalTopology")?.jsonObject
-            ?.get("nodes")?.jsonArray?.single()?.jsonObject
-            ?.get("name")?.jsonPrimitive?.content shouldBe "Operator"
-        ci?.get("windowsRuntime")?.jsonObject
-            ?.get("services")?.jsonArray?.single()?.jsonObject
-            ?.get("service")?.jsonPrimitive?.content shouldBe "TeamCity"
-        ci?.get("teamCity")?.jsonObject
-            ?.get("pipelines")?.jsonArray?.single()?.jsonObject
-            ?.get("name")?.jsonPrimitive?.content shouldBe "CI"
+        val ci = result.model["content"]?.jsonObject?.get(
+            key = "ci"
+        )?.jsonObject
+        ci?.get(
+            key = "externalTopology"
+        )?.jsonObject
+            ?.get(
+                key = "nodes"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "name"
+            )?.jsonPrimitive?.content shouldBe "Operator"
+        ci?.get(
+            key = "windowsRuntime"
+        )?.jsonObject
+            ?.get(
+                key = "services"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "service"
+            )?.jsonPrimitive?.content shouldBe "TeamCity"
+        ci?.get(
+            key = "teamCity"
+        )?.jsonObject
+            ?.get(
+                key = "pipelines"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "name"
+            )?.jsonPrimitive?.content shouldBe "CI"
     }
 }
 )
@@ -324,7 +406,9 @@ private fun generator(): FigmaDesignModelGenerator =
 
 private fun request(
     gitSha: String = "abc123",
-    generatedAt: Instant = Instant.parse("2026-06-19T10:15:30Z")
+    generatedAt: Instant = Instant.parse(
+        "2026-06-19T10:15:30Z"
+    )
 ): FigmaDesignModelGenerationRequest =
     FigmaDesignModelGenerationRequest(
         branch = "main",
@@ -435,7 +519,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                     entries = listOf(
                         LibraryCatalogEntry.Artifact(
                             artifact = "kotlin-stdlib",
-                            version = CatalogVersion("2.4.0"),
+                            version = CatalogVersion(
+                                value = "2.4.0"
+                            ),
                             requiredByModules = listOf(":app"),
                             providedByConventionPlugins = conventionPluginUsages,
                             configuredByConventionPlugins = conventionPluginConfigurationUsages
@@ -477,7 +563,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
             roots = listOf(
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
-                    version = CatalogVersion("2.4.0"),
+                    version = CatalogVersion(
+                        value = "2.4.0"
+                    ),
                     appliedToModules = listOf(":app"),
                     providedByConventionPlugins = conventionPluginUsages
                 )
@@ -516,7 +604,9 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-14"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-14"
+                ),
                 warnAfterDays = 90
             ),
             nodes = listOf(
@@ -538,7 +628,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-16"
+                ),
                 warnAfterDays = 90
             ),
             platform = "Windows",

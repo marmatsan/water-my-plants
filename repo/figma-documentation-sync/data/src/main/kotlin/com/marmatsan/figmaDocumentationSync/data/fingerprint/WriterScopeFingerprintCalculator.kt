@@ -66,7 +66,9 @@ class WriterScopeFingerprintCalculator {
             affectedTargets.forEach { target ->
                 sourcesByTarget.getValue(target) += SourceFingerprint(
                     path = path,
-                    sourceHash = Sha256Hash.of(Files.readAllBytes(source))
+                    sourceHash = Sha256Hash.of(
+                        value = Files.readAllBytes(source)
+                    )
                 )
             }
         }
@@ -100,7 +102,11 @@ class WriterScopeFingerprintCalculator {
                     JsonArray(sourceJson)
                 )
             }
-            Sha256Hash.of(CanonicalJson.stringify(body))
+            Sha256Hash.of(
+                value = CanonicalJson.stringify(
+                    value = body
+                )
+            )
         }
 
         return (scopes + "metadata").distinct().associateWith { scope ->
@@ -134,7 +140,9 @@ class WriterScopeFingerprintCalculator {
     ): String {
         if (scope in writerTargets) return scope
         return catalogTargets.sortedByDescending(String::length)
-            .firstOrNull { target -> scope.startsWith("$target.") }
+            .firstOrNull { target -> scope.startsWith(
+                prefix = "$target."
+            ) }
             ?: throw IllegalArgumentException("Unknown Figma writer execution scope '$scope'.")
     }
 
@@ -167,7 +175,11 @@ class WriterScopeFingerprintCalculator {
                 when (character) {
                     '*' -> append(".*")
                     '?' -> append('.')
-                    else -> append(Regex.escape(character.toString()))
+                    else -> append(
+                        Regex.escape(
+                            literal = character.toString()
+                        )
+                    )
                 }
             }
             append('$')

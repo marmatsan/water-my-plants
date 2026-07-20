@@ -51,11 +51,15 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec(
                             entries = listOf(
                                 LibraryCatalogEntry.Artifact(
                                     artifact = "ktor-bom",
-                                    version = CatalogVersion("ktorLibraryVersion")
+                                    version = CatalogVersion(
+                                        value = "ktorLibraryVersion"
+                                    )
                                 ),
                                 LibraryCatalogEntry.Artifact(
                                     artifact = "ktor-client-core",
-                                    version = CatalogVersion(null)
+                                    version = CatalogVersion(
+                                        value = null
+                                    )
                                 )
                             )
                         )
@@ -125,7 +129,9 @@ internal class IncludedBuildSettingsCatalogReaderTest : FunSpec(
                                     children = listOf(
                                         PluginCatalogNode(
                                             id = "ksp",
-                                            version = CatalogVersion("kspPluginVersion")
+                                            version = CatalogVersion(
+                                                value = "kspPluginVersion"
+                                            )
                                         )
                                     )
                                 )

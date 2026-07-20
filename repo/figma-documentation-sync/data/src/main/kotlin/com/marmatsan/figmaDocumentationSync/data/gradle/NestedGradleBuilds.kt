@@ -19,4 +19,8 @@ internal fun File.nestedGradleBuildRoots(): Sequence<File> =
         .filter(File::isGradleBuildRoot)
 
 private fun File.isGradleBuildRoot(): Boolean =
-    resolve("settings.gradle.kts").isFile || resolve("settings.gradle").isFile
+    resolve(
+        relative = "settings.gradle.kts"
+    ).isFile || resolve(
+        relative = "settings.gradle"
+    ).isFile

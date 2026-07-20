@@ -26,14 +26,18 @@ class IncludedBuildSettingsCatalogReader {
         usageByAlias: Map<String, Set<String>> = emptyMap()
     ): LibraryCatalogTree {
         val content = settingsFile.readText()
-        val libsBlock = content.extractCreateBlockOrNull("libs")
+        val libsBlock = content.extractCreateBlockOrNull(
+            catalogName = "libs"
+        )
             ?: return LibraryCatalogTree(
                 roots = emptyList()
             )
 
         return libsBlock
             .readLibraryDeclarations()
-            .toLibraryCatalogTree(usageByAlias)
+            .toLibraryCatalogTree(
+                usageByAlias = usageByAlias
+            )
     }
 
     /**
@@ -44,19 +48,25 @@ class IncludedBuildSettingsCatalogReader {
         usageByAlias: Map<String, Set<String>> = emptyMap()
     ): PluginCatalogTree {
         val content = settingsFile.readText()
-        val pluginsBlock = content.extractCreateBlockOrNull("plugins")
+        val pluginsBlock = content.extractCreateBlockOrNull(
+            catalogName = "plugins"
+        )
             ?: return PluginCatalogTree(
                 roots = emptyList()
             )
 
         return pluginsBlock
             .readPluginDeclarations()
-            .toPluginCatalogTree(usageByAlias)
+            .toPluginCatalogTree(
+                usageByAlias = usageByAlias
+            )
     }
 
     private fun String.readLibraryDeclarations(): List<LibraryDeclaration> =
         libraryDeclarationRegex
-            .findAll(this)
+            .findAll(
+                input = this
+            )
             .map { match ->
                 LibraryDeclaration(
                     alias = match.groupValues[1],
@@ -69,7 +79,9 @@ class IncludedBuildSettingsCatalogReader {
 
     private fun String.readPluginDeclarations(): List<PluginDeclaration> =
         pluginDeclarationRegex
-            .findAll(this)
+            .findAll(
+                input = this
+            )
             .map { match ->
                 PluginDeclaration(
                     alias = match.groupValues[1],
@@ -103,14 +115,18 @@ class IncludedBuildSettingsCatalogReader {
 
             leaf.entries += LibraryCatalogEntry.Artifact(
                 artifact = declaration.artifact,
-                version = CatalogVersion(declaration.version),
+                version = CatalogVersion(
+                    value = declaration.version
+                ),
                 requiredByModules = usageByAlias[declaration.alias].orEmpty().sorted()
             )
         }
 
         return LibraryCatalogTree(
             roots = roots.values
-                .map(MutableLibraryCatalogNode::toCatalogNode)
+                .map(
+                    transform = MutableLibraryCatalogNode::toCatalogNode
+                )
                 .sortedBy(LibraryCatalogNode::group)
         )
     }
@@ -137,13 +153,17 @@ class IncludedBuildSettingsCatalogReader {
                     }
                 }
 
-            leaf.version = CatalogVersion(declaration.version)
+            leaf.version = CatalogVersion(
+                value = declaration.version
+            )
             leaf.appliedToModules += usageByAlias[declaration.alias].orEmpty()
         }
 
         return PluginCatalogTree(
             roots = roots.values
-                .map(MutablePluginCatalogNode::toCatalogNode)
+                .map(
+                    transform = MutablePluginCatalogNode::toCatalogNode
+                )
                 .sortedBy(PluginCatalogNode::id)
         )
     }
@@ -209,7 +229,9 @@ class IncludedBuildSettingsCatalogReader {
                 group = group,
                 entries = entries,
                 children = children.values
-                    .map(MutableLibraryCatalogNode::toCatalogNode)
+                    .map(
+                        transform = MutableLibraryCatalogNode::toCatalogNode
+                    )
                     .sortedBy(LibraryCatalogNode::group)
             )
     }
@@ -227,7 +249,9 @@ class IncludedBuildSettingsCatalogReader {
                 version = version,
                 appliedToModules = appliedToModules.sorted(),
                 children = children.values
-                    .map(MutablePluginCatalogNode::toCatalogNode)
+                    .map(
+                        transform = MutablePluginCatalogNode::toCatalogNode
+                    )
                     .sortedBy(PluginCatalogNode::id)
             )
     }

@@ -28,7 +28,9 @@ class GradleModuleDependenciesReader {
         return rootDir
             .walkTopDown()
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .flatMap { buildFile ->
                 buildFile.readModuleDependencies(
                     rootDir = rootDir,
@@ -47,7 +49,9 @@ class GradleModuleDependenciesReader {
         rootDir: File,
         modulePathPrefix: String
     ): Set<ModuleDependency> {
-        val modulePathsByProjectAccessor = rootDir.modulePathsByProjectAccessor(modulePathPrefix)
+        val modulePathsByProjectAccessor = rootDir.modulePathsByProjectAccessor(
+            modulePathPrefix = modulePathPrefix
+        )
 
         return rootDir
             .walkTopDown()
@@ -143,11 +147,15 @@ class GradleModuleDependenciesReader {
         modulePathsByProjectAccessor: Map<String, String>
     ): Set<String> {
         val projectCallPaths = ProjectCallRegex
-            .findAll(this)
+            .findAll(
+                input = this
+            )
             .map { match -> match.groupValues[1] }
 
         val projectAccessorPaths = ProjectAccessorRegex
-            .findAll(this)
+            .findAll(
+                input = this
+            )
             .map { match ->
                 val projectAccessor = match.groupValues[1]
                 modulePathsByProjectAccessor[projectAccessor]

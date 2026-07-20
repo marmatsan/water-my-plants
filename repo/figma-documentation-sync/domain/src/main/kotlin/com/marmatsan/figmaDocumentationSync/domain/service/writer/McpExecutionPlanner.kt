@@ -28,12 +28,16 @@ class McpExecutionPlanner {
         executionFiles: List<String>
     ) {
         val missing = buildList {
-            if (!capabilities.canUseFigma) add(REQUIRED_WRITE_TOOL)
+            if (!capabilities.canUseFigma) add(
+                element = REQUIRED_WRITE_TOOL
+            )
             if (needsPayloadUpload(
                 manifest = manifest,
                 executionFiles = executionFiles
             ) && !capabilities.canUploadAssets) {
-                add(REQUIRED_UPLOAD_TOOL)
+                add(
+                    element = REQUIRED_UPLOAD_TOOL
+                )
             }
         }
         require(missing.isEmpty()) {
@@ -59,7 +63,9 @@ class McpExecutionPlanner {
                 "none" -> emptyList()
                 "partial" -> {
                     val scopes = syncPlan.body.executionScopes.toSet()
-                    files.filter { file -> !file.startsWith("99-") || manifest.executionScopes[file] in scopes }
+                    files.filter { file -> !file.startsWith(
+                        prefix = "99-"
+                    ) || manifest.executionScopes[file] in scopes }
                 }
                 "full" -> files
                 else -> error("Unknown visual sync plan decision '${syncPlan.body.decision.wireValue}'.")
@@ -74,7 +80,9 @@ class McpExecutionPlanner {
                 metadataManifest = manifest,
                 visualState = visualState
             )
-            files = files.filter { file -> file.startsWith("99-") }
+            files = files.filter { file -> file.startsWith(
+                prefix = "99-"
+            ) }
         }
 
         options.from?.let { firstFile ->
@@ -96,7 +104,9 @@ class McpExecutionPlanner {
                 manifest = manifest,
                 state = existingState
             )
-            val completed = existingState.completedFiles.map(McpCompletedFile::file).toSet()
+            val completed = existingState.completedFiles.map(
+                transform = McpCompletedFile::file
+            ).toSet()
             files = files.filterNot(completed::contains)
         }
         return files
@@ -237,8 +247,14 @@ class McpExecutionPlanner {
                 "Visual checkpoint $key does not match the metadata manifest."
             }
         }
-        val completedFiles = state.completedFiles.map(McpCompletedFile::file).filter { it.startsWith("99-") }.toSet()
-        val plannedFiles = state.plannedFiles.filter { it.startsWith("99-") }
+        val completedFiles = state.completedFiles.map(
+            transform = McpCompletedFile::file
+        ).filter { it.startsWith(
+            prefix = "99-"
+        ) }.toSet()
+        val plannedFiles = state.plannedFiles.filter { it.startsWith(
+            prefix = "99-"
+        ) }
         require(
             plannedFiles.isNotEmpty() &&
                 plannedFiles.all(completedFiles::contains) &&

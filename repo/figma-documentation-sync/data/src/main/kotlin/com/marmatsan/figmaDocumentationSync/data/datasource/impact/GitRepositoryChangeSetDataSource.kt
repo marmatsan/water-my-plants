@@ -51,7 +51,9 @@ class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
             "$base..$head"
         )
             .lineSequence()
-            .map(::normalizePath)
+            .map(
+                transform = ::normalizePath
+            )
             .filter(String::isNotBlank)
             .toList()
 

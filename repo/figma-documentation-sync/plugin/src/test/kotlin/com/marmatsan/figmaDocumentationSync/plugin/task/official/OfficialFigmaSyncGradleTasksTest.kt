@@ -29,7 +29,9 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec(
                 "--stacktrace"
             ).build()
             val scope = Json.parseToJsonElement(
-                project.resolve("build/reports/figma-sync/sync-scope.json").readText()
+                project.resolve(
+                    relative = "build/reports/figma-sync/sync-scope.json"
+                ).readText()
             ).jsonObject
 
             scope["scope"]?.jsonPrimitive?.content shouldBe "documentation-only"
@@ -98,8 +100,12 @@ private fun File.runner(
         .withArguments(*arguments)
 
 private fun File.writeFixture() {
-    resolve("settings.gradle.kts").writeText("rootProject.name = \"official-figma-sync-test\"")
-    resolve("build.gradle.kts").writeText(
+    resolve(
+        relative = "settings.gradle.kts"
+    ).writeText("rootProject.name = \"official-figma-sync-test\"")
+    resolve(
+        relative = "build.gradle.kts"
+    ).writeText(
         """
         plugins {
             id("com.marmatsan.figmaDocumentationSync")
@@ -112,8 +118,12 @@ private fun File.writeFixture() {
         }
         """.trimIndent()
     )
-    resolve("project-config").mkdirs()
-    resolve("project-config/change-impact-policy.json").writeText(
+    resolve(
+        relative = "project-config"
+    ).mkdirs()
+    resolve(
+        relative = "project-config/change-impact-policy.json"
+    ).writeText(
         """
         {
           "schemaVersion": 1,

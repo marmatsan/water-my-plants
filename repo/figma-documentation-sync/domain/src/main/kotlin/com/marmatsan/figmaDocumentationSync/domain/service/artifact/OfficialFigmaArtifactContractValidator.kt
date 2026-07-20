@@ -77,7 +77,9 @@ class OfficialFigmaArtifactContractValidator {
             visual = visual,
             metadata = metadata
         )
-        val decision = OfficialFigmaArtifactContract.Decision.fromWireValue(contract.plan.decision)
+        val decision = OfficialFigmaArtifactContract.Decision.fromWireValue(
+            value = contract.plan.decision
+        )
             ?: throw IllegalArgumentException(
                 "Unsupported visual sync decision '${contract.plan.decision}'."
             )

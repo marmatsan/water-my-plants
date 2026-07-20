@@ -67,9 +67,13 @@ internal class GradlePluginTreeReaderTest : FunSpec(
 private fun File.writeSettingsFile(
     path: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("settings.gradle.kts").writeText("rootProject.name = \"${directory.name}\"")
+    directory.resolve(
+        relative = "settings.gradle.kts"
+    ).writeText("rootProject.name = \"${directory.name}\"")
 }
 
 private fun File.writeGradlePluginBuildFile(
@@ -77,9 +81,13 @@ private fun File.writeGradlePluginBuildFile(
     pluginName: String,
     implementationClass: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("build.gradle.kts").writeText(
+    directory.resolve(
+        relative = "build.gradle.kts"
+    ).writeText(
         """
         plugins {
             `kotlin-dsl`

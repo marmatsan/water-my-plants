@@ -122,7 +122,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             ),
             FigmaHeaderSectionTarget(
                 sectionNodeId = "62936:183",
-                links = links("repo/dependency-catalog/versions.properties")
+                links = links(
+                    "repo/dependency-catalog/versions.properties"
+                )
             ),
             FigmaHeaderSectionTarget(
                 sectionNodeId = "63099:949",

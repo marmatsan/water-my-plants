@@ -43,7 +43,9 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             libs.implementation(
                 libraryGroup = "com.google.protobuf",

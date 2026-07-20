@@ -35,7 +35,9 @@ class GitRepositoryChangeSetSource {
             "--name-only",
             "--diff-filter=ACMRD",
             "$base..$head"
-        ).lineSequence().map(::normalize).filter(String::isNotBlank).toList()
+        ).lineSequence().map(
+            transform = ::normalize
+        ).filter(String::isNotBlank).toList()
 
         return RepositoryChangeSet(
             comparisonBase = base,

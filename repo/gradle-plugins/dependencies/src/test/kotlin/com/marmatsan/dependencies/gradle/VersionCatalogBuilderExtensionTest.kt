@@ -37,7 +37,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -45,7 +47,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
                 "androidx.activity.compose",
                 "androidx.activity",
                 "activity-compose"
-            ).version("1.9.2")
+            ).version(
+                "1.9.2"
+            )
         }
     }
 
@@ -66,7 +70,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -74,7 +80,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
                 "androidx.compose.bom",
                 "androidx.compose",
                 "compose-bom"
-            ).version("2025.06.01")
+            ).version(
+                "2025.06.01"
+            )
         }
     }
 
@@ -94,7 +102,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -122,7 +132,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -161,7 +173,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -186,14 +200,18 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec(
         )
 
         // WHEN
-        builder.registerPlugins(plugins)
+        builder.registerPlugins(
+            plugins = plugins
+        )
 
         // THEN
         verify {
             builder.plugin(
                 "com.android.application",
                 "com.android.application"
-            ).version("8.13.2")
+            ).version(
+                "8.13.2"
+            )
         }
     }
 }

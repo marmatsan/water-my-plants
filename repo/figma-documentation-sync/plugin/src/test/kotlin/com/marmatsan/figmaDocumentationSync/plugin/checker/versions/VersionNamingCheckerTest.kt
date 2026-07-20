@@ -85,7 +85,9 @@ internal class VersionNamingCheckerTest : FunSpec(
         )
 
         // THEN
-        result.violations.map(VersionNamingViolation::message) shouldBe listOf(
+        result.violations.map(
+            transform = VersionNamingViolation::message
+        ) shouldBe listOf(
             "Expected version sections in order: Main project dependencies, Libraries, Plugins. " +
                 "Found: Libraries, Main project dependencies, Plugins.",
             "Main project dependencies must declare only androidGradlePluginVersion, kotlinVersion. " +

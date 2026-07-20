@@ -14,7 +14,9 @@ class CucumberTypes : En {
             object : A1<Instant> {
                 override fun accept(
                     value: String
-                ): Instant = Instant.parse(value)
+                ): Instant = Instant.parse(
+                    value
+                )
             }
         )
     }

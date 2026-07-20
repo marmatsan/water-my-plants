@@ -17,7 +17,9 @@ class OfficialFigmaArtifactSetReader {
     fun read(
         artifactDirectory: String
     ): Result {
-        val root = Path.of(artifactDirectory).toAbsolutePath().normalize()
+        val root = Path.of(
+            artifactDirectory
+        ).toAbsolutePath().normalize()
         require(Files.isDirectory(root)) { "Artifact directory does not exist: '$root'." }
 
         val modelPath = findSingle(
@@ -137,16 +139,16 @@ class OfficialFigmaArtifactSetReader {
             ),
             identity = OfficialFigmaArtifactContract.Identity(
                 modelHash = identity.requiredString(
-                    "modelHash",
-                    "visual-sync-plan.json identity"
+                    name = "modelHash",
+                    context = "visual-sync-plan.json identity"
                 ),
                 writerHash = identity.requiredString(
-                    "writerHash",
-                    "visual-sync-plan.json identity"
+                    name = "writerHash",
+                    context = "visual-sync-plan.json identity"
                 ),
                 transportHash = identity.requiredString(
-                    "transportHash",
-                    "visual-sync-plan.json identity"
+                    name = "transportHash",
+                    context = "visual-sync-plan.json identity"
                 )
             )
         )
@@ -161,36 +163,36 @@ class OfficialFigmaArtifactSetReader {
         val context = "${path.parent.fileName} manifest"
         return OfficialFigmaArtifactContract.Manifest(
             mode = json.requiredString(
-                "mode",
-                context
+                name = "mode",
+                context = context
             ),
             gitSha = json.requiredString(
-                "gitSha",
-                context
+                name = "gitSha",
+                context = context
             ),
             modelHash = json.requiredString(
-                "modelHash",
-                context
+                name = "modelHash",
+                context = context
             ),
             manifestHash = json.requiredString(
-                "manifestHash",
-                context
+                name = "manifestHash",
+                context = context
             ),
             writerHash = json.requiredString(
-                "writerHash",
-                context
+                name = "writerHash",
+                context = context
             ),
             transportHash = json.requiredString(
-                "transportHash",
-                context
+                name = "transportHash",
+                context = context
             ),
             fullVisualSync = json.requiredBoolean(
-                "fullVisualSync",
-                context
+                name = "fullVisualSync",
+                context = context
             ),
             writeMetadata = json.requiredBoolean(
-                "writeMetadata",
-                context
+                name = "writeMetadata",
+                context = context
             )
         )
     }

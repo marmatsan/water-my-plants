@@ -7,8 +7,16 @@ fun libraryTree(
     rootGroup: String,
     content: LibraryScope.() -> Unit
 ): Node<DependencyNode.Library> {
-    val root = Node(DependencyNode.Library(rootGroup))
-    val scope = LibraryScope(root)
-    content.invoke(scope)
+    val root = Node(
+        DependencyNode.Library(
+            libraryGroup = rootGroup
+        )
+    )
+    val scope = LibraryScope(
+        root = root
+    )
+    content.invoke(
+        scope
+    )
     return root
 }

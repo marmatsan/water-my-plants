@@ -35,8 +35,8 @@ internal class TeamCityRestRunStarterTest : FunSpec(
         }
 
         starter.startRun(
-            "WaterMyPlants_WaterMyPlantsFigmaSync",
-            "main"
+            buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+            branch = "main"
         ) shouldBe
             TeamCityRun(
                 id = 1680,
@@ -73,8 +73,8 @@ internal class TeamCityRestRunStarterTest : FunSpec(
 
         val exception = shouldThrow<IllegalArgumentException> {
             starter.startRun(
-                "WaterMyPlants_WaterMyPlantsFigmaSync",
-                "main"
+                buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                branch = "main"
             )
         }
 
@@ -96,8 +96,8 @@ internal class TeamCityRestRunStarterTest : FunSpec(
 
         val exception = shouldThrow<IllegalArgumentException> {
             starter.startRun(
-                "WaterMyPlants_WaterMyPlantsFigmaSync",
-                "main"
+                buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                branch = "main"
             )
         }
 

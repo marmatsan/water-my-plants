@@ -27,7 +27,9 @@ class GradleTaskSteps : En {
     init {
         Given("a temporary Gradle project exists") {
             projectDir = Files.createTempDirectory("figma-documentation-sync-bdd").toFile()
-            designModelFile = projectDir.resolve("build/reports/figma-sync/design-model.json")
+            designModelFile = projectDir.resolve(
+                relative = "build/reports/figma-sync/design-model.json"
+            )
             officialFigmaSyncGenerationAuthorized = false
         }
 
@@ -48,8 +50,12 @@ class GradleTaskSteps : En {
         }
 
         Given("the temporary Gradle project has no CI documentation inputs") {
-            projectDir.resolve("docs/ci").deleteRecursively()
-            projectDir.resolve(".teamcity").deleteRecursively()
+            projectDir.resolve(
+                relative = "docs/ci"
+            ).deleteRecursively()
+            projectDir.resolve(
+                relative = ".teamcity"
+            ).deleteRecursively()
         }
 
         Given("the temporary Gradle project is a git repository") {
@@ -206,7 +212,9 @@ class GradleTaskSteps : En {
             ""
         }
 
-        resolve("build.gradle.kts").writeText(
+        resolve(
+            relative = "build.gradle.kts"
+        ).writeText(
             """
             import com.marmatsan.figmaDocumentationSync.data.ci.configuration.EmptyCiConfigurationProvider
             import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.EmptyDependencyCatalogProvider
@@ -253,7 +261,9 @@ class GradleTaskSteps : En {
     }
 
     private fun File.writeRepositoryModelFiles() {
-        resolve("settings.gradle.kts").writeText(
+        resolve(
+            relative = "settings.gradle.kts"
+        ).writeText(
             """
             pluginManagement {
                 repositories {
@@ -276,14 +286,30 @@ class GradleTaskSteps : En {
             include(":core:ui")
             """.trimIndent()
         )
-        resolve("app").mkdirs()
-        resolve("app/build.gradle.kts").writeText("")
-        resolve("core/ui").mkdirs()
-        resolve("core/ui/build.gradle.kts").writeText("")
-        resolve("repo/gradle-plugins").mkdirs()
-        resolve("repo/dependency-catalog").mkdirs()
-        resolve("repo/figma-documentation-sync").mkdirs()
-        resolve("repo/gradle-plugins/settings.gradle.kts").writeText(
+        resolve(
+            relative = "app"
+        ).mkdirs()
+        resolve(
+            relative = "app/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "core/ui"
+        ).mkdirs()
+        resolve(
+            relative = "core/ui/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "repo/gradle-plugins"
+        ).mkdirs()
+        resolve(
+            relative = "repo/dependency-catalog"
+        ).mkdirs()
+        resolve(
+            relative = "repo/figma-documentation-sync"
+        ).mkdirs()
+        resolve(
+            relative = "repo/gradle-plugins/settings.gradle.kts"
+        ).writeText(
             """
             dependencyResolutionManagement {
                 versionCatalogs {
@@ -297,33 +323,51 @@ class GradleTaskSteps : En {
             include(":android")
             """.trimIndent()
         )
-        resolve("repo/gradle-plugins/android").mkdirs()
-        resolve("repo/gradle-plugins/android/build.gradle.kts").writeText("")
-        resolve("repo/dependency-catalog/settings.gradle.kts").writeText(
+        resolve(
+            relative = "repo/gradle-plugins/android"
+        ).mkdirs()
+        resolve(
+            relative = "repo/gradle-plugins/android/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "repo/dependency-catalog/settings.gradle.kts"
+        ).writeText(
             """
             rootProject.name = "dependency-catalog"
             enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
             include(":catalog-core", ":water-my-plants-catalog")
             """.trimIndent()
         )
-        resolve("repo/dependency-catalog/catalog-core").mkdirs()
-        resolve("repo/dependency-catalog/catalog-core/build.gradle.kts").writeText("")
-        resolve("repo/dependency-catalog/water-my-plants-catalog").mkdirs()
-        resolve("repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts").writeText(
+        resolve(
+            relative = "repo/dependency-catalog/catalog-core"
+        ).mkdirs()
+        resolve(
+            relative = "repo/dependency-catalog/catalog-core/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "repo/dependency-catalog/water-my-plants-catalog"
+        ).mkdirs()
+        resolve(
+            relative = "repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts"
+        ).writeText(
             """
             dependencies {
                 implementation(projects.catalogCore)
             }
             """.trimIndent()
         )
-        resolve("repo/dependency-catalog/versions.properties").writeText(
+        resolve(
+            relative = "repo/dependency-catalog/versions.properties"
+        ).writeText(
             """
             ## Main project dependencies
             androidGradlePluginVersion=9.2.1
             kotlinVersion=2.4.0
             """.trimIndent()
         )
-        resolve("repo/figma-documentation-sync/settings.gradle.kts").writeText(
+        resolve(
+            relative = "repo/figma-documentation-sync/settings.gradle.kts"
+        ).writeText(
             """
             rootProject.name = "figma-documentation-sync"
 
@@ -339,14 +383,30 @@ class GradleTaskSteps : En {
             include(":data", ":domain", ":plugin")
             """.trimIndent()
         )
-        resolve("repo/figma-documentation-sync/data").mkdirs()
-        resolve("repo/figma-documentation-sync/data/build.gradle.kts").writeText("")
-        resolve("repo/figma-documentation-sync/domain").mkdirs()
-        resolve("repo/figma-documentation-sync/domain/build.gradle.kts").writeText("")
-        resolve("repo/figma-documentation-sync/plugin").mkdirs()
-        resolve("repo/figma-documentation-sync/plugin/build.gradle.kts").writeText("")
-        resolve("docs/ci").mkdirs()
-        resolve("docs/ci/external-topology.yaml").writeText(
+        resolve(
+            relative = "repo/figma-documentation-sync/data"
+        ).mkdirs()
+        resolve(
+            relative = "repo/figma-documentation-sync/data/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "repo/figma-documentation-sync/domain"
+        ).mkdirs()
+        resolve(
+            relative = "repo/figma-documentation-sync/domain/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "repo/figma-documentation-sync/plugin"
+        ).mkdirs()
+        resolve(
+            relative = "repo/figma-documentation-sync/plugin/build.gradle.kts"
+        ).writeText("")
+        resolve(
+            relative = "docs/ci"
+        ).mkdirs()
+        resolve(
+            relative = "docs/ci/external-topology.yaml"
+        ).writeText(
             """
             schemaVersion: 1
             validation:
@@ -360,7 +420,9 @@ class GradleTaskSteps : En {
             connections: []
             """.trimIndent()
         )
-        resolve("docs/ci/windows-runtime.yaml").writeText(
+        resolve(
+            relative = "docs/ci/windows-runtime.yaml"
+        ).writeText(
             """
             schemaVersion: 1
             validation:
@@ -376,15 +438,21 @@ class GradleTaskSteps : En {
                 identity: NT SERVICE\TeamCity
             """.trimIndent()
         )
-        resolve(".teamcity/target/generated-configs/Root_Ci").mkdirs()
-        resolve(".teamcity/target/generated-configs/Root_Ci/project-config.xml").writeText(
+        resolve(
+            relative = ".teamcity/target/generated-configs/Root_Ci"
+        ).mkdirs()
+        resolve(
+            relative = ".teamcity/target/generated-configs/Root_Ci/project-config.xml"
+        ).writeText(
             """
             <project>
               <name>CI</name>
             </project>
             """.trimIndent()
         )
-        resolve(".teamcity/target/generated-configs/Root_Ci/pipeline.yml").writeText(
+        resolve(
+            relative = ".teamcity/target/generated-configs/Root_Ci/pipeline.yml"
+        ).writeText(
             """
             version: 1
             jobs:

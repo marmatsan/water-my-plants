@@ -34,7 +34,9 @@ fun VersionCatalog.requireDependencyNotation(
  */
 fun VersionCatalog.requireBundle(
     alias: String
-): Provider<ExternalModuleDependencyBundle> = findBundle(alias)
+): Provider<ExternalModuleDependencyBundle> = findBundle(
+    alias
+)
     .orElseThrow {
         NoSuchElementException("Bundle alias '$alias' not found in version catalog named ${this.name}")
     }

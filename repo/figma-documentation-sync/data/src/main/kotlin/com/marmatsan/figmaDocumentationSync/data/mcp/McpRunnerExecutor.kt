@@ -33,7 +33,9 @@ class McpRunnerExecutor(
             endpoint,
             clientName
         )
-        return client.use { connected -> runBlocking { planner.capabilities(connected.listToolNames()) } }
+        return client.use { connected -> runBlocking { planner.capabilities(
+            toolNames = connected.listToolNames()
+        ) } }
     }
 
     fun inspect(
@@ -76,25 +78,25 @@ class McpRunnerExecutor(
         )
         val state = if (success) {
             planner.recordSuccess(
-                initial,
-                loaded.manifest,
-                file,
-                0,
-                summary,
-                now
+                state = initial,
+                manifest = loaded.manifest,
+                file = file,
+                durationMs = 0,
+                summary = summary,
+                now = now
             )
         } else {
             planner.recordFailure(
-                initial,
-                file,
-                0,
-                summary,
-                now
+                state = initial,
+                file = file,
+                durationMs = 0,
+                message = summary,
+                now = now
             )
         }
         stateJson.writeAtomic(
-            state,
-            loaded.statePath.toString()
+            state = state,
+            path = loaded.statePath.toString()
         )
         return state
     }
@@ -114,8 +116,8 @@ class McpRunnerExecutor(
         )
         if (loaded.executionFiles.isEmpty()) {
             stateJson.writeAtomic(
-                state,
-                loaded.statePath.toString()
+                state = state,
+                path = loaded.statePath.toString()
             )
             return Result(
                 state = state,
@@ -130,13 +132,17 @@ class McpRunnerExecutor(
         )
         val toolNames = client.use { connected ->
             runBlocking {
-                val capabilities = planner.capabilities(connected.listToolNames())
-                planner.requireWriteCapabilities(
-                    capabilities,
-                    loaded.manifest,
-                    loaded.executionFiles
+                val capabilities = planner.capabilities(
+                    toolNames = connected.listToolNames()
                 )
-                val guidance = connected.readTextResource(McpExecutionPlanner.FIGMA_USE_SKILL_URI)
+                planner.requireWriteCapabilities(
+                    capabilities = capabilities,
+                    manifest = loaded.manifest,
+                    executionFiles = loaded.executionFiles
+                )
+                val guidance = connected.readTextResource(
+                    uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI
+                )
                 require(guidance.isNotBlank()) {
                     "Write-capable Figma MCP endpoint did not provide required " +
                         McpExecutionPlanner.FIGMA_USE_SKILL_URI + "."
@@ -153,7 +159,11 @@ class McpRunnerExecutor(
                                 fileKey = request.fileKey
                             )
                         }
-                        val source = Files.readString(loaded.runnerDirectory.resolve(file))
+                        val source = Files.readString(
+                            loaded.runnerDirectory.resolve(
+                                file
+                            )
+                        )
                         assertContentHash(
                             expectedHash = loaded.manifest.fileHashes.getValue(file),
                             content = source,
@@ -179,8 +189,8 @@ class McpRunnerExecutor(
                             now = clock.instant().toString()
                         )
                         stateJson.writeAtomic(
-                            state,
-                            loaded.statePath.toString()
+                            state = state,
+                            path = loaded.statePath.toString()
                         )
                     } catch (
                         failure: Exception
@@ -195,8 +205,8 @@ class McpRunnerExecutor(
                             now = clock.instant().toString()
                         )
                         stateJson.writeAtomic(
-                            state,
-                            loaded.statePath.toString()
+                            state = state,
+                            path = loaded.statePath.toString()
                         )
                         throw failure
                     }
@@ -214,12 +224,18 @@ class McpRunnerExecutor(
     private fun load(
         request: Request
     ): Loaded {
-        val manifestPath = Path.of(request.manifestPath).toAbsolutePath().normalize()
+        val manifestPath = Path.of(
+            request.manifestPath
+        ).toAbsolutePath().normalize()
         val runnerDirectory = requireNotNull(manifestPath.parent) { "Manifest has no parent directory." }
         val manifest = manifestJson.read(manifestPath.toString())
         val statePath = request.statePath?.let(Path::of)?.toAbsolutePath()?.normalize()
-            ?: runnerDirectory.resolve(DEFAULT_STATE_FILE)
-        val existingState = stateJson.readOptional(statePath.toString())
+            ?: runnerDirectory.resolve(
+                DEFAULT_STATE_FILE
+            )
+        val existingState = stateJson.readOptional(
+            path = statePath.toString()
+        )
         val visualState = request.visualStatePath?.let(stateJson::readOptional)
         val plan = request.planPath?.let(planJson::read)
         val executionFiles = planner.selectExecutionFiles(
@@ -249,20 +265,26 @@ class McpRunnerExecutor(
             "PNG runner manifest does not declare payloadImage."
         }
         val response = client.requestAssetUpload(
-            fileKey,
-            1
+            fileKey = fileKey,
+            count = 1
         )
         require(!response.isError) { response.text.ifBlank { "upload_assets failed." } }
         val uploadUrl = URL_PATTERN.find(response.text)?.value
             ?: error("upload_assets did not return an upload URL.")
-        val bytes = Files.readAllBytes(runnerDirectory.resolve(payload.fileName))
-        val actualHash = Sha256Hash.of(bytes)
+        val bytes = Files.readAllBytes(
+            runnerDirectory.resolve(
+                payload.fileName
+            )
+        )
+        val actualHash = Sha256Hash.of(
+            value = bytes
+        )
         require(actualHash == payload.sha256) {
             "MCP content hash mismatch for '${payload.fileName}': $actualHash != ${payload.sha256}."
         }
         client.uploadAsset(
-            uploadUrl,
-            bytes
+            url = uploadUrl,
+            bytes = bytes
         )
     }
 
@@ -271,7 +293,9 @@ class McpRunnerExecutor(
         content: String,
         label: String
     ) {
-        val actualHash = Sha256Hash.of(content.toByteArray(StandardCharsets.UTF_8))
+        val actualHash = Sha256Hash.of(
+            value = content.toByteArray(StandardCharsets.UTF_8)
+        )
         require(actualHash == expectedHash) {
             "MCP content hash mismatch for '$label': $actualHash != $expectedHash."
         }

@@ -29,7 +29,9 @@ class CiPlanFactory {
         changeSet: RepositoryChangeSet,
         moduleGraph: RepositoryModuleGraph
     ): CiPlan {
-        val changedFiles = changeSet.changedFiles.map(::normalize).distinct().sorted()
+        val changedFiles = changeSet.changedFiles.map(
+            transform = ::normalize
+        ).distinct().sorted()
         val moduleImpactAnalyzer = ModuleImpactAnalyzer()
         val moduleImpact = moduleImpactAnalyzer.analyze(
             changedFiles = changedFiles.filterNot(::isDocumentation),
@@ -122,7 +124,7 @@ class CiPlanFactory {
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("git"),
             gradleTasks = requiredTasks(
-                documentationOnly,
+                required = documentationOnly,
                 CHECK_REPOSITORY_DIFF
             ),
             reasons = requiredReasons(
@@ -139,7 +141,7 @@ class CiPlanFactory {
                 "maven-wrapper"
             ),
             gradleTasks = requiredTasks(
-                PathCategory.TEAMCITY in categories,
+                required = PathCategory.TEAMCITY in categories,
                 CHECK_TEAMCITY_DSL
             ),
             reasons = requiredReasons(
@@ -253,14 +255,22 @@ class CiPlanFactory {
         isDocumentation(
             path = path
         ) -> PathCategory.DOCUMENTATION
-        path.startsWith(".teamcity/") -> PathCategory.TEAMCITY
-        path.startsWith("repo/figma-documentation-sync/") -> PathCategory.FIGMA
-        path.startsWith("repo/dependency-catalog/") ||
-            path.startsWith("repo/gradle-plugins/") ||
+        path.startsWith(
+            prefix = ".teamcity/"
+        ) -> PathCategory.TEAMCITY
+        path.startsWith(
+            prefix = "repo/figma-documentation-sync/"
+        ) -> PathCategory.FIGMA
+        path.startsWith(
+            prefix = "repo/dependency-catalog/"
+        ) ||
+            path.startsWith(
+                prefix = "repo/gradle-plugins/"
+            ) ||
             path in ROOT_GRADLE_FILES -> PathCategory.DEPENDENCY_INFRASTRUCTURE
         moduleImpactAnalyzer.moduleFor(
-            path,
-            moduleGraph
+            path = path,
+            graph = moduleGraph
         ) != null -> PathCategory.APPLICATION
         else -> PathCategory.UNKNOWN
     }

@@ -28,7 +28,11 @@ class KtorFigmaPngAssetUploader internal constructor(
             "Official Figma payload must contain between 1 and " +
                 "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes."
         }
-        require(bytes.startsWith(PayloadPngEncoder.PNG_SIGNATURE)) {
+        require(
+            bytes.startsWith(
+                prefix = PayloadPngEncoder.PNG_SIGNATURE
+            )
+        ) {
             "Official Figma payload is not a PNG file."
         }
 

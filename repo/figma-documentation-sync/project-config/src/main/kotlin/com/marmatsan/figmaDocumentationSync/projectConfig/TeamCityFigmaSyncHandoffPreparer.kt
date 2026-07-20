@@ -72,7 +72,11 @@ class TeamCityFigmaSyncHandoffPreparer(
             )
             put(
                 "executionFiles",
-                JsonArray(inspection.executionFiles.map(::JsonPrimitive))
+                JsonArray(
+                    inspection.executionFiles.map(
+                        transform = ::JsonPrimitive
+                    )
+                )
             )
         }
         val nextUnit = inspection.executionFiles.firstOrNull() ?: "COMPLETE"
@@ -172,7 +176,9 @@ class TeamCityFigmaSyncHandoffPreparer(
                 }
             )
         }
-        val summaryFile = artifacts.artifactDirectory.resolve("figma-sync-handoff.json").toFile()
+        val summaryFile = artifacts.artifactDirectory.resolve(
+            "figma-sync-handoff.json"
+        ).toFile()
         summaryFile.writeText(
             prettyJson.encodeToString(
                 JsonObject.serializer(),
@@ -199,7 +205,9 @@ class TeamCityFigmaSyncHandoffPreparer(
         }
 
         val buildId = requireNotNull(request.buildId)
-        val build = teamCityClient.readBuild(buildId)
+        val build = teamCityClient.readBuild(
+            buildId = buildId
+        )
         require(build.id == buildId) {
             "TeamCity returned build ${build.id} while build $buildId was requested."
         }
@@ -214,12 +222,16 @@ class TeamCityFigmaSyncHandoffPreparer(
             "Build $buildId is '${build.buildTypeName}', not the ${request.requiredBuildTypeName} job."
         }
 
-        val timestamp = downloadTimestamp.format(clock.instant())
-        val output = request.destinationRoot.resolve("figma-sync-$buildId-$timestamp")
+        val timestamp = downloadTimestamp.format(
+            clock.instant()
+        )
+        val output = request.destinationRoot.resolve(
+            relative = "figma-sync-$buildId-$timestamp"
+        )
         require(output.mkdirs()) { "Could not create TeamCity artifact directory: ${output.path}" }
         teamCityClient.downloadArtifacts(
-            buildId,
-            output
+            buildId = buildId,
+            outputDirectory = output
         )
         expandSharedArchiveWhenNeeded(
             directory = output
@@ -230,12 +242,18 @@ class TeamCityFigmaSyncHandoffPreparer(
     private fun expandSharedArchiveWhenNeeded(
         directory: File
     ) {
-        val models = directory.findFiles("design-model.json")
-        val archives = directory.findFiles(".shared_files.zip")
+        val models = directory.findFiles(
+            fileName = "design-model.json"
+        )
+        val archives = directory.findFiles(
+            fileName = ".shared_files.zip"
+        )
         if (models.isEmpty() && archives.size == 1) {
             expandZip(
                 archive = archives.single(),
-                destination = directory.resolve("shared-files")
+                destination = directory.resolve(
+                    relative = "shared-files"
+                )
             )
         } else {
             require(archives.size <= 1) {
@@ -253,8 +271,14 @@ class TeamCityFigmaSyncHandoffPreparer(
         ZipInputStream(archive.inputStream().buffered()).use { zip ->
             var entry = zip.nextEntry
             while (entry != null) {
-                val target = root.resolve(entry.name).normalize()
-                require(target.startsWith(root)) { "Unsafe ZIP entry '${entry.name}'." }
+                val target = root.resolve(
+                    entry.name
+                ).normalize()
+                require(
+                    target.startsWith(
+                        root
+                    )
+                ) { "Unsafe ZIP entry '${entry.name}'." }
                 if (entry.isDirectory) {
                     Files.createDirectories(target)
                 } else {
@@ -303,7 +327,9 @@ private fun File.findFiles(
 ): List<File> =
     Files.walk(toPath()).use { paths ->
         paths.filter { path -> Files.isRegularFile(path) && path.fileName.toString() == fileName }
-            .map(java.nio.file.Path::toFile)
+            .map(
+                java.nio.file.Path::toFile
+            )
             .toList()
     }
 

@@ -12,7 +12,9 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec(
     test("round trips a model-neutral official scope") {
         val directory = Files.createTempDirectory("figma-sync-scope").toFile()
         try {
-            val path = directory.resolve("sync-scope.json")
+            val path = directory.resolve(
+                relative = "sync-scope.json"
+            )
             val expected = OfficialFigmaSyncScope(
                 scope = FigmaVerificationScope.MODEL_NEUTRAL,
                 figmaImpact = FigmaImpact.MODEL_NEUTRAL,
@@ -46,7 +48,9 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec(
     test("reads visual and metadata runner identities recursively") {
         val directory = Files.createTempDirectory("figma-runner-manifests").toFile()
         try {
-            val visual = directory.resolve("visual/manifest.json").apply {
+            val visual = directory.resolve(
+                relative = "visual/manifest.json"
+            ).apply {
                 parentFile.mkdirs()
                 writeText(
                     manifest(
@@ -56,7 +60,9 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec(
                     )
                 )
             }
-            directory.resolve("metadata/manifest.json").apply {
+            directory.resolve(
+                relative = "metadata/manifest.json"
+            ).apply {
                 parentFile.mkdirs()
                 writeText(
                     manifest(
@@ -67,7 +73,9 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec(
                 )
             }
 
-            val manifests = OfficialFigmaSyncScopeJson().readRunnerManifests(directory.absolutePath)
+            val manifests = OfficialFigmaSyncScopeJson().readRunnerManifests(
+                rootPath = directory.absolutePath
+            )
 
             manifests.single { it.fullVisualSync }.path shouldBe visual.toPath().toAbsolutePath().normalize().toString()
             manifests.single { it.writeMetadata }.manifestHash shouldBe "metadata-hash"

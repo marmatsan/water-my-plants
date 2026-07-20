@@ -27,7 +27,9 @@ internal class GradleProjectModulesReaderTest : FunSpec(
             """.trimIndent()
         )
         includedBuildSettingsFile.parentFile
-            .resolve("catalog")
+            .resolve(
+                relative = "catalog"
+            )
             .mkdirs()
 
         // WHEN
@@ -60,7 +62,9 @@ internal class GradleProjectModulesReaderTest : FunSpec(
             content = ""
         )
         includedBuildSettingsFile.parentFile
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText("")
 
         // WHEN
@@ -116,7 +120,9 @@ private fun settingsFile(
     content: String
 ): File =
     Files.createTempDirectory("gradle-project-modules-reader")
-        .resolve("settings.gradle.kts")
+        .resolve(
+            "settings.gradle.kts"
+        )
         .toFile()
         .apply {
             writeText(content)

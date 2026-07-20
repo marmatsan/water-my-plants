@@ -43,7 +43,9 @@ class BddTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             libs.testImplementationPlatform(
                 libraryGroup = "io.cucumber",

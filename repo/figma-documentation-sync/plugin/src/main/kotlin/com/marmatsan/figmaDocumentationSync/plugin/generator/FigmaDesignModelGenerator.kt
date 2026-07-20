@@ -66,7 +66,9 @@ internal class FigmaDesignModelGenerator(
                 content
             )
         }
-        val modelHash = FigmaDesignModelHash.compute(hashInput)
+        val modelHash = FigmaDesignModelHash.compute(
+            model = hashInput
+        )
         val model = buildJsonObject {
             put(
                 "schemaVersion",
@@ -104,9 +106,15 @@ internal class FigmaDesignModelGenerator(
         request: FigmaDesignModelGenerationRequest
     ) =
         buildJsonObject {
-            val includedBuilds = request.includedBuilds.map(FigmaDesignModelIncludedBuildSource::toDomainSource)
+            val includedBuilds = request.includedBuilds.map(
+                transform = FigmaDesignModelIncludedBuildSource::toDomainSource
+            )
             val versionSections = repositoryVersionsPort
-                .readVersionSections(VersionsFileSource(request.versionsFile.absolutePath))
+                .readVersionSections(
+                    source = VersionsFileSource(
+                        path = request.versionsFile.absolutePath
+                    )
+                )
             put(
                 "versions",
                 versionSections
@@ -159,8 +167,10 @@ internal class FigmaDesignModelGenerator(
                 "externalTopology",
                 ciExternalTopologyPort
                     .readTopology(
-                        CiExternalTopologySource(
-                            request.ciExternalTopologyFile.requireCiInput("external topology").absolutePath
+                        source = CiExternalTopologySource(
+                            path = request.ciExternalTopologyFile.requireCiInput(
+                                name = "external topology"
+                            ).absolutePath
                         )
                     )
                     .toDesignJson()
@@ -169,22 +179,30 @@ internal class FigmaDesignModelGenerator(
                 "windowsRuntime",
                 ciWindowsRuntimePort
                     .readRuntime(
-                        CiWindowsRuntimeSource(
-                            request.ciWindowsRuntimeFile.requireCiInput("Windows runtime").absolutePath
+                        source = CiWindowsRuntimeSource(
+                            filePath = request.ciWindowsRuntimeFile.requireCiInput(
+                                name = "Windows runtime"
+                            ).absolutePath
                         )
                     )
                     .toDesignJson()
             )
             put(
-                request.ciConfigurationModelName.requireCiInput("configuration model name"),
+                request.ciConfigurationModelName.requireCiInput(
+                    name = "configuration model name"
+                ),
                 ciConfigurationPort
                     .readConfiguration(
-                        CiGeneratedConfigurationSource(
+                        source = CiGeneratedConfigurationSource(
                             directoryPath = request.ciGeneratedConfigurationDirectory
-                                .requireCiInput("generated configuration")
+                                .requireCiInput(
+                                    name = "generated configuration"
+                                )
                                 .absolutePath,
                             providerClassName = request.ciConfigurationProviderClassName
-                                .requireCiInput("configuration provider class name")
+                                .requireCiInput(
+                                    name = "configuration provider class name"
+                                )
                         )
                     )
                     .toDesignJson()
@@ -196,7 +214,9 @@ internal class FigmaDesignModelGenerator(
     ) =
         buildJsonObject {
             val conventionPluginIncludedBuilds = request.includedBuilds
-                .map(FigmaDesignModelIncludedBuildSource::toDomainSource)
+                .map(
+                    transform = FigmaDesignModelIncludedBuildSource::toDomainSource
+                )
                 .filter(IncludedBuildSource::publishesConventionPlugins)
             put(
                 request.primaryCatalogModelName,

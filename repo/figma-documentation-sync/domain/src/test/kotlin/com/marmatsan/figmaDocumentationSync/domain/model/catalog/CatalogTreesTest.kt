@@ -9,7 +9,9 @@ internal class CatalogTreesTest : FunSpec(
 
     test("catalog version is visible by default when it has a value") {
         // WHEN
-        val version = CatalogVersion("2.4.0")
+        val version = CatalogVersion(
+            value = "2.4.0"
+        )
 
         // THEN
         version.visible shouldBe true
@@ -17,7 +19,9 @@ internal class CatalogTreesTest : FunSpec(
 
     test("catalog version is hidden by default when it has no value") {
         // WHEN
-        val version = CatalogVersion(null)
+        val version = CatalogVersion(
+            value = null
+        )
 
         // THEN
         version.visible shouldBe false
@@ -37,7 +41,9 @@ internal class CatalogTreesTest : FunSpec(
         val entries = listOf(
             LibraryCatalogEntry.Artifact(
                 artifact = "activity-compose",
-                version = CatalogVersion("1.12.0")
+                version = CatalogVersion(
+                    value = "1.12.0"
+                )
             )
         )
 

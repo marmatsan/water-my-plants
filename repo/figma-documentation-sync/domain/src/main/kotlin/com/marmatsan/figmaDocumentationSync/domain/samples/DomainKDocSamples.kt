@@ -44,7 +44,9 @@ internal object DomainKDocSamples {
     fun libraryCatalogEntrySample() {
         val artifact = LibraryCatalogEntry.Artifact(
             artifact = "kotlin-stdlib",
-            version = CatalogVersion("2.4.0"),
+            version = CatalogVersion(
+                value = "2.4.0"
+            ),
             requiredByModules = listOf(":app"),
             providedByConventionPlugins = listOf(
                 ConventionPluginUsage(
@@ -62,7 +64,9 @@ internal object DomainKDocSamples {
                 "ui-graphics",
                 "ui-tooling"
             ),
-            version = CatalogVersion("2026.05.01"),
+            version = CatalogVersion(
+                value = "2026.05.01"
+            ),
             requiredByModules = listOf(":core:ui")
         )
 
@@ -109,9 +113,15 @@ internal object DomainKDocSamples {
                 )
         }
 
-        val source = VersionsFileSource("repo/dependency-catalog/versions.properties")
-        val versions = port.readVersions(source)
-        val sections = port.readVersionSections(source)
+        val source = VersionsFileSource(
+            path = "repo/dependency-catalog/versions.properties"
+        )
+        val versions = port.readVersions(
+            source = source
+        )
+        val sections = port.readVersionSections(
+            source = source
+        )
 
         check(versions["kotlinVersion"] == "2.4.0")
         check(sections.single().name == "Main project dependencies")
@@ -216,8 +226,8 @@ internal object DomainKDocSamples {
 
         check(
             ModuleDependency(
-                ":app",
-                ":core:ui"
+                dependentModule = ":app",
+                dependencyModule = ":core:ui"
             ) in dependencies
         )
     }

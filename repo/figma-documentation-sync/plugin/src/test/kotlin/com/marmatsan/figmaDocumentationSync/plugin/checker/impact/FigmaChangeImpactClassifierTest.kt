@@ -14,11 +14,11 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("documentation changes do not require Gradle or Figma verification") {
         val result = classifier.classify(
-            changeSet(
+            changeSet = changeSet(
                 "docs/documentation.md",
                 "core/ui/docs/README.md"
             ),
-            policy()
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.DOCUMENTATION_ONLY
@@ -28,11 +28,11 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("transport changes do not request a visual rewrite") {
         val result = classifier.classify(
-            changeSet(
+            changeSet = changeSet(
                 "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt",
                 "repo/figma-documentation-sync/docs/runbooks/mcp-chunk-transport.md"
             ),
-            policy()
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.TRANSPORT_ONLY
@@ -41,11 +41,11 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("model-neutral tooling still requires normal repository verification") {
         val result = classifier.classify(
-            changeSet(
+            changeSet = changeSet(
                 "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt",
                 "docs/ci/documentation-coverage.md"
             ),
-            policy()
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.MODEL_NEUTRAL
@@ -54,11 +54,11 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("a mapped visual writer selects only its configured targets") {
         val result = classifier.classify(
-            changeSet(
+            changeSet = changeSet(
                 "repo/figma-documentation-sync/tools/src/figma/figma-version-sync-gateway.ts",
                 "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md"
             ),
-            policy()
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
@@ -68,8 +68,10 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("an unmapped visual writer fails closed to all targets") {
         val result = classifier.classify(
-            changeSet("repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts"),
-            policy()
+            changeSet = changeSet(
+                "repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts"
+            ),
+            policy = policy()
         )
 
         result.impact shouldBe FigmaImpact.VISUAL_TARGETS
@@ -78,8 +80,10 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("model sources require full model verification") {
         val result = classifier.classify(
-            changeSet("app/build.gradle.kts"),
-            policy()
+            changeSet = changeSet(
+                "app/build.gradle.kts"
+            ),
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
@@ -88,8 +92,10 @@ internal class FigmaChangeImpactClassifierTest : FunSpec(
 
     test("unknown paths require full verification") {
         val result = classifier.classify(
-            changeSet("gradle.properties"),
-            policy()
+            changeSet = changeSet(
+                "gradle.properties"
+            ),
+            policy = policy()
         )
 
         result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION

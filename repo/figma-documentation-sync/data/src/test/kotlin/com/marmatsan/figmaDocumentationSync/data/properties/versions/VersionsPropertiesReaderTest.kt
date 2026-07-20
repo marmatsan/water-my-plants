@@ -28,7 +28,9 @@ internal class VersionsPropertiesReaderTest : FunSpec(
         val reader = VersionsPropertiesReader()
 
         // WHEN
-        val sections = reader.readSections(versionsFile)
+        val sections = reader.readSections(
+            file = versionsFile
+        )
 
         // THEN
         sections.map { section -> section.name } shouldBe listOf(

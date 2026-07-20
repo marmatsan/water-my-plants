@@ -33,7 +33,9 @@ class LibraryScope(
                 version
             )
         )
-        entries = (entries ?: mutableListOf()).apply { add(newEntry) }
+        entries = (entries ?: mutableListOf()).apply { add(
+            element = newEntry
+        ) }
     }
 
     /**
@@ -66,7 +68,9 @@ class LibraryScope(
                 version = version
             )
         )
-        entries = (entries ?: mutableListOf()).apply { add(newEntry) }
+        entries = (entries ?: mutableListOf()).apply { add(
+            element = newEntry
+        ) }
     }
 
     /**
@@ -98,13 +102,21 @@ class LibraryScope(
         group: String,
         content: (LibraryScope.() -> Unit)? = null
     ) {
-        val node = Node(DependencyNode.Library(group))
-        currentParent.add(node)
+        val node = Node(
+            DependencyNode.Library(
+                libraryGroup = group
+            )
+        )
+        currentParent.add(
+            child = node
+        )
 
         val childScope = LibraryScope(
             root = node
         )
-        content?.invoke(childScope)
+        content?.invoke(
+            childScope
+        )
 
         val updatedNodeValue = node.value.copy(
             entries = childScope.entries?.toList()
@@ -119,7 +131,9 @@ class LibraryScope(
         if (siblings.isNotEmpty()) {
             siblings[siblings.lastIndex] = updatedNode
         } else {
-            siblings.add(updatedNode)
+            siblings.add(
+                element = updatedNode
+            )
         }
     }
 }

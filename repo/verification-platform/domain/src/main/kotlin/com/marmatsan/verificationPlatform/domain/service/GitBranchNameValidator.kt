@@ -48,10 +48,18 @@ class GitBranchNameValidator {
             '/'
         )
         return when {
-            trimmed.startsWith("refs/remotes/origin/") -> trimmed.removePrefix("refs/remotes/origin/")
-            trimmed.startsWith("refs/heads/") -> trimmed.removePrefix("refs/heads/")
-            trimmed.startsWith("origin/") -> trimmed.removePrefix("origin/")
-            trimmed.startsWith("refs/pull/") -> trimmed.removePrefix("refs/")
+            trimmed.startsWith(
+                prefix = "refs/remotes/origin/"
+            ) -> trimmed.removePrefix("refs/remotes/origin/")
+            trimmed.startsWith(
+                prefix = "refs/heads/"
+            ) -> trimmed.removePrefix("refs/heads/")
+            trimmed.startsWith(
+                prefix = "origin/"
+            ) -> trimmed.removePrefix("origin/")
+            trimmed.startsWith(
+                prefix = "refs/pull/"
+            ) -> trimmed.removePrefix("refs/")
             else -> trimmed
         }
     }

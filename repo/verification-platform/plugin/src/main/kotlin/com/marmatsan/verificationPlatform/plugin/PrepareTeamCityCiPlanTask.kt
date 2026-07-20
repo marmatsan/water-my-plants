@@ -27,7 +27,9 @@ abstract class PrepareTeamCityCiPlanTask : DefaultTask() {
         val plan = CiPlanJson().read(planFile.get().asFile.readText())
         val parameters = TeamCityCiPlanParameters().create(plan)
 
-        TeamCityServiceMessageFormatter().setParameters(parameters).forEach(logger::lifecycle)
+        TeamCityServiceMessageFormatter().setParameters(
+            parameters = parameters
+        ).forEach(logger::lifecycle)
 
         val requiredUnits = plan.verificationUnits.filter { it.required }.joinToString { it.id.name }
         logger.lifecycle(

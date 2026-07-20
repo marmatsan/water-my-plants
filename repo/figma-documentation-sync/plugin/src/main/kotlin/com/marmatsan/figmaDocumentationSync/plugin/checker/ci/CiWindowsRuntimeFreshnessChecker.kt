@@ -18,7 +18,9 @@ internal class CiWindowsRuntimeFreshnessChecker(
         currentDate: LocalDate
     ): Result {
         val runtime = ciWindowsRuntimePort.readRuntime(
-            CiWindowsRuntimeSource(runtimeFile.absolutePath)
+            source = CiWindowsRuntimeSource(
+                filePath = runtimeFile.absolutePath
+            )
         )
         val warningDate = runtime.validation.lastValidatedOn
             .plusDays(runtime.validation.warnAfterDays.toLong())

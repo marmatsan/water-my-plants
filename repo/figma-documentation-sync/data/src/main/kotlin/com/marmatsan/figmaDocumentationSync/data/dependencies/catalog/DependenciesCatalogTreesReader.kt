@@ -34,7 +34,11 @@ class DependenciesCatalogTreesReader(
     fun readLibraryTree(
         rootDir: File
     ): LibraryCatalogTree =
-        readLibraryTree(dependencyCatalogProvider.resolved(rootDir).libraries)
+        readLibraryTree(
+            dependencyCatalogProvider.resolved(
+                rootDir = rootDir
+            ).libraries
+        )
 
     /**
      * Reads concrete plugin versions from `versions.properties`.
@@ -42,7 +46,11 @@ class DependenciesCatalogTreesReader(
     fun readPluginTree(
         rootDir: File
     ): PluginCatalogTree =
-        readPluginTree(dependencyCatalogProvider.resolved(rootDir).plugins)
+        readPluginTree(
+            dependencyCatalogProvider.resolved(
+                rootDir = rootDir
+            ).plugins
+        )
 
     /**
      * Reads a library tree using version aliases instead of resolved versions.
@@ -56,7 +64,9 @@ class DependenciesCatalogTreesReader(
     ): LibraryCatalogTree =
         readLibraryTree(dependencyCatalogProvider.withVersionAliases().libraries)
             .withLibraryUsages(
-                gradleCatalogUsageReader.readMainLibraryUsages(rootDir)
+                gradleCatalogUsageReader.readMainLibraryUsages(
+                    rootDir = rootDir
+                )
             )
             .withConventionPluginUsages(
                 readConventionPluginLibraryUsages(
@@ -74,7 +84,9 @@ class DependenciesCatalogTreesReader(
     ): PluginCatalogTree =
         readPluginTree(dependencyCatalogProvider.withVersionAliases().plugins)
             .withPluginUsages(
-                gradleCatalogUsageReader.readMainPluginUsages(rootDir)
+                usages = gradleCatalogUsageReader.readMainPluginUsages(
+                    rootDir = rootDir
+                )
             )
             .withConventionPluginUsages(
                 readConventionPluginPluginUsages(
@@ -99,7 +111,9 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         includedBuilds: List<IncludedBuildSource>
     ): ConventionPluginLibraryUsages {
-        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(rootDir)
+        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(
+            rootDir = rootDir
+        )
 
         return includedBuilds
             .filter(IncludedBuildSource::publishesConventionPlugins)
@@ -133,7 +147,9 @@ class DependenciesCatalogTreesReader(
         rootDir: File,
         includedBuilds: List<IncludedBuildSource>
     ): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> {
-        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(rootDir)
+        val modulesByPluginId = gradleCatalogUsageReader.readMainAppliedLiteralPluginUsages(
+            rootDir = rootDir
+        )
 
         return includedBuilds
             .filter(IncludedBuildSource::publishesConventionPlugins)
@@ -149,7 +165,7 @@ class DependenciesCatalogTreesReader(
                 )
 
                 usages.mergePluginConventionPluginUsages(
-                    pluginUsages.toConventionPluginPluginUsages(
+                    other = pluginUsages.toConventionPluginPluginUsages(
                         pluginIdsByModule = pluginIdsByModule,
                         modulesByPluginId = modulesByPluginId
                     )
@@ -172,13 +188,17 @@ private fun LibraryEntry.toLibraryCatalogEntry(): LibraryCatalogEntry =
     when (this) {
         is LibraryEntry.Single -> LibraryCatalogEntry.Artifact(
             artifact = artifact.artifact,
-            version = CatalogVersion(artifact.version)
+            version = CatalogVersion(
+                value = artifact.version
+            )
         )
 
         is LibraryEntry.Bundle -> LibraryCatalogEntry.ArtifactsBundle(
             alias = artifactsBundle.alias,
             artifacts = artifactsBundle.artifacts.map { artifact -> artifact.artifact },
-            version = CatalogVersion(artifactsBundle.version)
+            version = CatalogVersion(
+                value = artifactsBundle.version
+            )
         )
     }
 
@@ -328,7 +348,9 @@ private fun PluginCatalogTree.withPluginUsages(
     usages: Map<String, Set<String>>
 ): PluginCatalogTree =
     copy(
-        roots = roots.map { node -> node.withPluginUsages(usages) }
+        roots = roots.map { node -> node.withPluginUsages(
+            usages = usages
+        ) }
     )
 
 private fun PluginCatalogNode.withPluginUsages(
@@ -345,8 +367,8 @@ private fun PluginCatalogNode.withPluginUsages(
     return copy(
         appliedToModules = usages[pluginId].orEmpty().sorted(),
         children = children.map { child -> child.withPluginUsages(
-            usages,
-            pluginId
+            usages = usages,
+            parentId = pluginId
         ) }
     )
 }
@@ -414,9 +436,15 @@ private operator fun GradleCatalogUsageReader.LibraryUsages.plus(
     other: GradleCatalogUsageReader.LibraryUsages
 ): GradleCatalogUsageReader.LibraryUsages =
     GradleCatalogUsageReader.LibraryUsages(
-        coordinates = coordinates.merge(other.coordinates),
-        bundles = bundles.merge(other.bundles),
-        aliases = aliases.merge(other.aliases)
+        coordinates = coordinates.merge(
+            other = other.coordinates
+        ),
+        bundles = bundles.merge(
+            other = other.bundles
+        ),
+        aliases = aliases.merge(
+            other = other.aliases
+        )
     )
 
 private data class ConventionPluginLibraryUsages(
@@ -429,9 +457,15 @@ private operator fun ConventionPluginLibraryUsages.plus(
     other: ConventionPluginLibraryUsages
 ): ConventionPluginLibraryUsages =
     ConventionPluginLibraryUsages(
-        coordinates = coordinates.mergeConventionPluginUsages(other.coordinates),
-        bundles = bundles.mergeConventionPluginUsages(other.bundles),
-        configuredCoordinates = configuredCoordinates.mergeConventionPluginConfigurationUsages(other.configuredCoordinates)
+        coordinates = coordinates.mergeConventionPluginUsages(
+            other = other.coordinates
+        ),
+        bundles = bundles.mergeConventionPluginUsages(
+            other = other.bundles
+        ),
+        configuredCoordinates = configuredCoordinates.mergeConventionPluginConfigurationUsages(
+            other = other.configuredCoordinates
+        )
     )
 
 private fun GradleCatalogUsageReader.LibraryConfigurationUsages.toConventionPluginLibraryConfigurationUsages(
@@ -521,7 +555,9 @@ private fun libraryAlias(
 
         artifactAliasSegment = when {
             artifact == groupSuffix -> ""
-            artifact.startsWith("$groupSuffix-") -> artifact.removePrefix("$groupSuffix-")
+            artifact.startsWith(
+                prefix = "$groupSuffix-"
+            ) -> artifact.removePrefix("$groupSuffix-")
             else -> null
         }
 

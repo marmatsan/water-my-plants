@@ -35,13 +35,17 @@ abstract class ProbeFigmaMcpTask @Inject constructor() : DefaultTask() {
     fun probe() {
         val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)
         val capabilities = McpRunnerExecutor().probe(
-            endpoint.get(),
-            config.mcpClientName
+            endpoint = endpoint.get(),
+            clientName = config.mcpClientName
         )
         val output = buildJsonObject {
             put(
                 "toolNames",
-                JsonArray(capabilities.toolNames.map(::JsonPrimitive))
+                JsonArray(
+                    capabilities.toolNames.map(
+                        transform = ::JsonPrimitive
+                    )
+                )
             )
             put(
                 "canUseFigma",

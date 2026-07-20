@@ -21,8 +21,8 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec(
         }
 
         uploader.uploadBlocking(
-            uploadUrl,
-            png
+            url = uploadUrl,
+            bytes = png
         )
 
         capturedUrl shouldBe uploadUrl
@@ -68,8 +68,8 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec(
 
         invalidUrls.forEach { url ->
             shouldThrow<IllegalArgumentException> { uploader.uploadBlocking(
-                url,
-                png
+                url = url,
+                bytes = png
             ) }
         }
 
@@ -85,14 +85,14 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec(
 
         shouldThrow<IllegalArgumentException> {
             uploader.uploadBlocking(
-                uploadUrl,
-                "not-a-png".encodeToByteArray()
+                url = uploadUrl,
+                bytes = "not-a-png".encodeToByteArray()
             )
         }
         shouldThrow<IllegalArgumentException> {
             uploader.uploadBlocking(
-                uploadUrl,
-                ByteArray(10 * 1024 * 1024 + 1)
+                url = uploadUrl,
+                bytes = ByteArray(10 * 1024 * 1024 + 1)
             )
         }
 
@@ -104,8 +104,8 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec(
 
         val failure = shouldThrow<IllegalArgumentException> {
             uploader.uploadBlocking(
-                uploadUrl,
-                png
+                url = uploadUrl,
+                bytes = png
             )
         }
 

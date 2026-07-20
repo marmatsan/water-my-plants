@@ -57,7 +57,7 @@ internal class VisualSyncPlannerTest : FunSpec(
         val previous = previousMetadata().copy(
             writerHash = "sha256:writer-old",
             writerScopeFingerprints = previousMetadata().writerScopeFingerprints?.plus(
-                "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
+                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
             )
         )
 
@@ -77,7 +77,7 @@ internal class VisualSyncPlannerTest : FunSpec(
     test("Kotlin planner changes select their scope even when the compiled TypeScript hash is unchanged") {
         val previous = previousMetadata().copy(
             writerScopeFingerprints = previousMetadata().writerScopeFingerprints?.plus(
-                "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
+                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
             )
         )
 
@@ -98,7 +98,7 @@ internal class VisualSyncPlannerTest : FunSpec(
         val previous = previousMetadata().copy(
             writerHash = "sha256:writer-old",
             writerScopeFingerprints = previousMetadata().writerScopeFingerprints?.plus(
-                "metadata" to "sha256:metadata-writer-old"
+                pair = "metadata" to "sha256:metadata-writer-old"
             )
         )
 

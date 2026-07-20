@@ -113,8 +113,12 @@ internal data class Versions(
             rootDir: File
         ): File {
             val candidates = listOf(
-                rootDir.resolve("repo/dependency-catalog/versions.properties"),
-                rootDir.resolve("versions.properties")
+                rootDir.resolve(
+                    relative = "repo/dependency-catalog/versions.properties"
+                ),
+                rootDir.resolve(
+                    relative = "versions.properties"
+                )
             )
             return candidates.firstOrNull { it.isFile }
                 ?: error("versions.properties not found in repo/dependency-catalog or root directory")

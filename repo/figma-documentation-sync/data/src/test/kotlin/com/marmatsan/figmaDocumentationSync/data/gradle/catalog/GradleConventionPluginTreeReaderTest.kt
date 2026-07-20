@@ -13,7 +13,9 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec(
     test("readPluginTree detects any Gradle convention plugin build file under included build root") {
         // GIVEN
         val rootDir = Files.createTempDirectory("gradle-convention-plugin-tree").toFile()
-        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        val includedBuildRootDir = rootDir.resolve(
+            relative = "repo/gradle-plugins"
+        )
         includedBuildRootDir.writeBuildFile(
             path = "analytics",
             content = conventionPluginBuildFile(
@@ -88,9 +90,13 @@ private fun File.writeBuildFile(
     path: String,
     content: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("build.gradle.kts").writeText(content)
+    directory.resolve(
+        relative = "build.gradle.kts"
+    ).writeText(content)
 }
 
 private fun conventionPluginBuildFile(

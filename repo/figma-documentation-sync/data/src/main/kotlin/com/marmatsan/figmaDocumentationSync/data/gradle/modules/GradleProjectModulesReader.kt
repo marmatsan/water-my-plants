@@ -30,7 +30,9 @@ class GradleProjectModulesReader {
 
     private fun IncludedBuild.readIncludedBuildModules(): Set<String> {
         val includedModules = settingsFile.readIncludedModules()
-        val standaloneRootModule = if (includedModules.isEmpty() && settingsFile.parentFile.resolve(BUILD_FILE_NAME).isFile) {
+        val standaloneRootModule = if (includedModules.isEmpty() && settingsFile.parentFile.resolve(
+            relative = BUILD_FILE_NAME
+        ).isFile) {
             setOf(STANDALONE_ROOT_MODULE)
         } else {
             emptySet()
@@ -45,16 +47,22 @@ class GradleProjectModulesReader {
 
     private fun File.readIncludedModules(): Set<String> =
         stringLiteralRegex
-            .findAll(readText())
+            .findAll(
+                input = readText()
+            )
             .map { match -> match.groupValues[1] }
-            .filter { value -> value.startsWith(":") }
+            .filter { value -> value.startsWith(
+                prefix = ":"
+            ) }
             .toSet()
 
     private fun Set<String>.existingAggregateModules(
         rootDir: File
     ): Set<String> =
         flatMap { module -> module.parentModules() }
-            .filter { module -> rootDir.resolve(module.toRelativePath()).isDirectory }
+            .filter { module -> rootDir.resolve(
+                relative = module.toRelativePath()
+            ).isDirectory }
             .toSet()
 
     private fun String.parentModules(): List<String> {

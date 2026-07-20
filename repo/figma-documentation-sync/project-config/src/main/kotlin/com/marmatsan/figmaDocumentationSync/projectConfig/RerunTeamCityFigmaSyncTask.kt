@@ -60,7 +60,7 @@ abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
             buildTypeId = buildTypeId.get(),
             branch = branch.get()
         ).rerun(
-            TeamCityFigmaSyncRerunner.Request(
+            request = TeamCityFigmaSyncRerunner.Request(
                 validateOnly = validateOnly.get(),
                 waitForCompletion = waitForCompletion.get(),
                 pollIntervalSeconds = pollIntervalSeconds.get(),

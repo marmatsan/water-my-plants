@@ -14,7 +14,9 @@ internal class FigmaChangeImpactClassifier {
         changeSet: RepositoryChangeSet,
         policy: FigmaChangeImpactPolicy
     ): FigmaChangeImpact {
-        val changedPaths = changeSet.changedPaths.map(::normalizePath)
+        val changedPaths = changeSet.changedPaths.map(
+            transform = ::normalizePath
+        )
         val documentationOnly = changedPaths.isNotEmpty() && changedPaths.all { path ->
             matchesAny(
                 path = path,
@@ -123,7 +125,11 @@ internal class FigmaChangeImpactClassifier {
                 when (character) {
                     '*' -> append(".*")
                     '?' -> append('.')
-                    else -> append(Regex.escape(character.toString()))
+                    else -> append(
+                        Regex.escape(
+                            literal = character.toString()
+                        )
+                    )
                 }
             }
             append('$')

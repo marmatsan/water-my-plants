@@ -35,7 +35,9 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            from(
+                components["java"]
+            )
             artifactId = "figma-documentation-sync-teamcity-adapter"
 
             pom {

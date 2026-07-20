@@ -38,7 +38,9 @@ class CloudflareHttpAccessTokenProvider(
         }
         return response.setCookieHeaders
             .asSequence()
-            .mapNotNull { header -> accessCookie.find(header)?.groupValues?.get(1) }
+            .mapNotNull { header -> accessCookie.find(header)?.groupValues?.get(
+                index = 1
+            ) }
             .firstOrNull()
             ?: throw IllegalArgumentException(
                 "Cloudflare Access did not return a CF_Authorization token."

@@ -10,7 +10,9 @@ class WaterMyPlantsDependencyCatalogProvider : DependencyCatalogProvider {
     override fun resolved(
         rootDir: File
     ): DependencyCatalogTrees =
-        WaterMyPlantsCatalog.resolved(rootDir)
+        WaterMyPlantsCatalog.resolved(
+            rootDir = rootDir
+        )
 
     override fun withVersionAliases(): DependencyCatalogTrees =
         WaterMyPlantsCatalog.withVersionAliases()

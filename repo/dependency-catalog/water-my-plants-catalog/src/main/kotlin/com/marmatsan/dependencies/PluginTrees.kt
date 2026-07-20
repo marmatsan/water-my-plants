@@ -18,7 +18,9 @@ internal fun pluginTrees(
 
 private fun comPluginTree(
     versions: Versions
-) = pluginTree("com") {
+) = pluginTree(
+    rootId = "com"
+) {
     plugin("android") {
         plugin(
             id = "application",
@@ -53,7 +55,9 @@ private fun comPluginTree(
 
 private fun dePluginTree(
     versions: Versions
-) = pluginTree("de") {
+) = pluginTree(
+    rootId = "de"
+) {
     plugin("mannodermaus") {
         plugin(
             id = "android-junit5",
@@ -64,7 +68,9 @@ private fun dePluginTree(
 
 private fun orgPluginTree(
     versions: Versions
-) = pluginTree("org") {
+) = pluginTree(
+    rootId = "org"
+) {
     plugin("jetbrains") {
         plugin(
             id = "dokka",

@@ -35,7 +35,9 @@ class ModuleImpactAnalyzer {
                 path = path,
                 graph = graph
             ) }
-            .map(RepositoryModule::id)
+            .map(
+                transform = RepositoryModule::id
+            )
             .distinct()
             .sorted()
         val reverseDependencies = graph.dependencies
@@ -76,7 +78,9 @@ class ModuleImpactAnalyzer {
                 val directory = normalize(
                     path = module.directory
                 ).trimEnd('/')
-                normalizedPath == directory || normalizedPath.startsWith("$directory/")
+                normalizedPath == directory || normalizedPath.startsWith(
+                    prefix = "$directory/"
+                )
             }
             .maxByOrNull { module -> normalize(
                 path = module.directory
@@ -95,7 +99,9 @@ class ModuleImpactAnalyzer {
                 module.directory.isBlank() ||
                 normalize(
                     path = module.directory
-                ).startsWith("../") ||
+                ).startsWith(
+                    prefix = "../"
+                ) ||
                 normalize(
                     path = module.directory
                 ).contains("/../")
@@ -120,7 +126,9 @@ class ModuleImpactAnalyzer {
             return "The Gradle module graph contains duplicate directory ${duplicateDirectory.key}."
         }
 
-        val moduleIds = graph.modules.map(RepositoryModule::id).toSet()
+        val moduleIds = graph.modules.map(
+            transform = RepositoryModule::id
+        ).toSet()
         val unresolvedDependency = graph.dependencies.firstOrNull { dependency ->
             dependency.dependentModule !in moduleIds || dependency.dependencyModule !in moduleIds
         }
@@ -138,11 +146,15 @@ class ModuleImpactAnalyzer {
     ): Set<String> {
         val visited = linkedSetOf<String>()
         val pending = ArrayDeque<String>()
-        pending.add(module)
+        pending.add(
+            element = module
+        )
 
         while (pending.isNotEmpty()) {
             val current = pending.removeFirst()
-            if (!visited.add(current)) continue
+            if (!visited.add(
+                element = current
+            )) continue
             reverseDependencies[current].orEmpty().sorted().forEach(pending::addLast)
         }
 

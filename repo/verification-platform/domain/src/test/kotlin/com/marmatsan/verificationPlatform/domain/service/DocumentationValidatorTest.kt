@@ -15,16 +15,16 @@ class DocumentationValidatorTest : FunSpec(
         val result = validate(
             documents = listOf(
                 DocumentationFile(
-                    "docs/standards/example.md",
-                    validStandard
+                    path = "docs/standards/example.md",
+                    content = validStandard
                 ),
                 DocumentationFile(
-                    "docs/runbooks/example.md",
-                    validRunbook
+                    path = "docs/runbooks/example.md",
+                    content = validRunbook
                 ),
                 DocumentationFile(
-                    "docs/decisions/adr-0001-historical-decision.md",
-                    supersededAdr
+                    path = "docs/decisions/adr-0001-historical-decision.md",
+                    content = supersededAdr
                 )
             ),
             entries = setOf("source.txt")
@@ -48,8 +48,8 @@ class DocumentationValidatorTest : FunSpec(
         val result = validate(
             documents = listOf(
                 DocumentationFile(
-                    "docs/misplaced.md",
-                    misplacedGuide
+                    path = "docs/misplaced.md",
+                    content = misplacedGuide
                 )
             ),
             entries = setOf("source.txt")
@@ -67,8 +67,8 @@ class DocumentationValidatorTest : FunSpec(
         val result = validate(
             documents = listOf(
                 DocumentationFile(
-                    "docs/runbooks/incomplete.md",
-                    incomplete
+                    path = "docs/runbooks/incomplete.md",
+                    content = incomplete
                 )
             ),
             entries = setOf("source.txt")
@@ -81,8 +81,8 @@ class DocumentationValidatorTest : FunSpec(
         val result = validate(
             documents = listOf(
                 DocumentationFile(
-                    "docs/standards/broken-link.md",
-                    "$validStandard\n[Missing](missing.md)\n"
+                    path = "docs/standards/broken-link.md",
+                    content = "$validStandard\n[Missing](missing.md)\n"
                 )
             ),
             entries = setOf("source.txt")
@@ -103,8 +103,8 @@ class DocumentationValidatorTest : FunSpec(
         val snapshot = DocumentationRepositorySnapshot(
             documents = listOf(
                 DocumentationFile(
-                    "docs/standards/example.md",
-                    validStandard
+                    path = "docs/standards/example.md",
+                    content = validStandard
                 )
             ),
             repositoryEntries = setOf(

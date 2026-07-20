@@ -19,7 +19,7 @@ class CiExecutionTopologyJsonTest : FunSpec(
             moduleGraph = testModuleGraph()
         )
         val expected = CiTopologyPlanner().create(
-            plan,
+            plan = plan,
             availableAgents = 3
         )
         val json = CiExecutionTopologyJson()

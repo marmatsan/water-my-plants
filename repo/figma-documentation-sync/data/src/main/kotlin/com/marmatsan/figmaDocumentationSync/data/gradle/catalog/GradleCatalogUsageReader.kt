@@ -70,7 +70,7 @@ class GradleCatalogUsageReader {
             }
             .fold(emptyMap()) { usages, (moduleDir, kotlinFile) ->
                 usages.merge(
-                    kotlinFile.readAppliedPlugins(
+                    other = kotlinFile.readAppliedPlugins(
                         includedBuildRootDir = rootDir,
                         modulePathPrefix = modulePathPrefix,
                         moduleDir = moduleDir
@@ -87,11 +87,13 @@ class GradleCatalogUsageReader {
             .conventionPluginModuleDirs()
             .associate { moduleDir ->
                 val modulePath = moduleDir.toIncludedBuildModulePath(
-                    rootDir,
-                    modulePathPrefix
+                    includedBuildRootDir = rootDir,
+                    modulePathPrefix = modulePathPrefix
                 )
                 val pluginIds = moduleDir
-                    .resolve(BUILD_FILE_NAME)
+                    .resolve(
+                        relative = BUILD_FILE_NAME
+                    )
                     .readText()
                     .pluginIds()
                     .toSet()
@@ -107,7 +109,7 @@ class GradleCatalogUsageReader {
             .buildFiles()
             .fold(emptyMap()) { usages, buildFile ->
                 usages.merge(
-                    buildFile.readIncludedBuildLibraryAliases(
+                    other = buildFile.readIncludedBuildLibraryAliases(
                         includedBuildRootDir = rootDir,
                         modulePathPrefix = modulePathPrefix
                     )
@@ -122,7 +124,7 @@ class GradleCatalogUsageReader {
             .buildFiles()
             .fold(emptyMap()) { usages, buildFile ->
                 usages.merge(
-                    buildFile.readIncludedBuildPluginAliases(
+                    other = buildFile.readIncludedBuildPluginAliases(
                         includedBuildRootDir = rootDir,
                         modulePathPrefix = modulePathPrefix
                     )
@@ -134,9 +136,13 @@ class GradleCatalogUsageReader {
     ): LibraryUsages =
         rootDir
             .buildFiles()
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .fold(LibraryUsages()) { usages, buildFile ->
-                usages + buildFile.readMainLibraryAliases(rootDir)
+                usages + buildFile.readMainLibraryAliases(
+                    rootDir = rootDir
+                )
             }
 
     fun readMainPluginUsages(
@@ -144,9 +150,15 @@ class GradleCatalogUsageReader {
     ): Map<String, Set<String>> =
         rootDir
             .buildFiles()
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .fold(emptyMap()) { usages, buildFile ->
-                usages.merge(buildFile.readMainPluginAliases(rootDir))
+                usages.merge(
+                    other = buildFile.readMainPluginAliases(
+                        rootDir = rootDir
+                    )
+                )
             }
 
     fun readMainLiteralPluginUsages(
@@ -154,9 +166,15 @@ class GradleCatalogUsageReader {
     ): Map<String, Set<String>> =
         rootDir
             .buildFiles()
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .fold(emptyMap()) { usages, buildFile ->
-                usages.merge(buildFile.readMainLiteralPluginIds(rootDir))
+                usages.merge(
+                    other = buildFile.readMainLiteralPluginIds(
+                        rootDir = rootDir
+                    )
+                )
             }
 
     fun readMainAppliedLiteralPluginUsages(
@@ -164,9 +182,15 @@ class GradleCatalogUsageReader {
     ): Map<String, Set<String>> =
         rootDir
             .buildFiles()
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .fold(emptyMap()) { usages, buildFile ->
-                usages.merge(buildFile.readMainAppliedLiteralPluginIds(rootDir))
+                usages.merge(
+                    other = buildFile.readMainAppliedLiteralPluginIds(
+                        rootDir = rootDir
+                    )
+                )
             }
 
     fun readMainAppliedLiteralPluginIds(
@@ -174,7 +198,9 @@ class GradleCatalogUsageReader {
     ): Set<String> =
         rootDir
             .buildFiles()
-            .filterNot { file -> file.isInsideNestedGradleBuild(rootDir) }
+            .filterNot { file -> file.isInsideNestedGradleBuild(
+                rootDir = rootDir
+            ) }
             .flatMap { buildFile -> buildFile.readAppliedLiteralPluginIds() }
             .toSet()
 
@@ -198,18 +224,26 @@ class GradleCatalogUsageReader {
         moduleDir: File
     ): LibraryUsages {
         val modulePath = moduleDir.toIncludedBuildModulePath(
-            includedBuildRootDir,
-            modulePathPrefix
+            includedBuildRootDir = includedBuildRootDir,
+            modulePathPrefix = modulePathPrefix
         )
         val content = readText()
         val coordinateUsages = libraryCoordinateUsageRegex
-            .findAll(content)
-            .associateToUsageMap(modulePath) { match ->
+            .findAll(
+                input = content
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match ->
                 "${match.groupValues[1]}:${match.groupValues[2]}"
             }
         val bundleUsages = libraryBundleUsageRegex
-            .findAll(content)
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = content
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
 
         return LibraryUsages(
             coordinates = coordinateUsages,
@@ -223,17 +257,21 @@ class GradleCatalogUsageReader {
         moduleDir: File
     ): LibraryConfigurationUsages {
         val modulePath = moduleDir.toIncludedBuildModulePath(
-            includedBuildRootDir,
-            modulePathPrefix
+            includedBuildRootDir = includedBuildRootDir,
+            modulePathPrefix = modulePathPrefix
         )
         val content = readText()
         val coordinateUsages = libraryConfigurationUsageRegex
-            .findAll(content)
+            .findAll(
+                input = content
+            )
             .fold(emptyMap<String, Set<LibraryConfigurationUsage>>()) { usages, match ->
                 val coordinate = "${match.groupValues[2]}:${match.groupValues[3]}"
                 val usage = LibraryConfigurationUsage(
                     pluginModule = modulePath,
-                    target = content.configurationTarget(match)
+                    target = content.configurationTarget(
+                        match = match
+                    )
                 )
 
                 usages + (coordinate to (usages[coordinate].orEmpty() + usage))
@@ -251,11 +289,19 @@ class GradleCatalogUsageReader {
         if (modulePath == ROOT_MODULE) return LibraryUsages()
         val content = readText()
         val libraryUsages = mainLibraryAliasRegex
-            .findAll(content)
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = content
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
         val bundleUsages = mainLibraryBundleAliasRegex
-            .findAll(content)
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = content
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
 
         return LibraryUsages(
             aliases = libraryUsages,
@@ -269,13 +315,17 @@ class GradleCatalogUsageReader {
         moduleDir: File
     ): Map<String, Set<String>> {
         val modulePath = moduleDir.toIncludedBuildModulePath(
-            includedBuildRootDir,
-            modulePathPrefix
+            includedBuildRootDir = includedBuildRootDir,
+            modulePathPrefix = modulePathPrefix
         )
 
         return appliedPluginRegex
-            .findAll(readText())
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = readText()
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readIncludedBuildLibraryAliases(
@@ -288,8 +338,12 @@ class GradleCatalogUsageReader {
         )
 
         return includedBuildLibraryAliasRegex
-            .findAll(readText())
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = readText()
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readIncludedBuildPluginAliases(
@@ -302,8 +356,12 @@ class GradleCatalogUsageReader {
         )
 
         return includedBuildPluginAliasRegex
-            .findAll(readText())
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = readText()
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readMainPluginAliases(
@@ -313,8 +371,12 @@ class GradleCatalogUsageReader {
         if (modulePath == ROOT_MODULE) return emptyMap()
 
         return mainPluginAliasRegex
-            .findAll(readText())
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = readText()
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readMainLiteralPluginIds(
@@ -324,8 +386,12 @@ class GradleCatalogUsageReader {
         if (modulePath == ROOT_MODULE) return emptyMap()
 
         return literalPluginIdRegex
-            .findAll(readText())
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = readText()
+            )
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readMainAppliedLiteralPluginIds(
@@ -336,17 +402,27 @@ class GradleCatalogUsageReader {
         val content = readText()
 
         return literalPluginIdRegex
-            .findAll(content)
-            .filterNot { match -> content.lineSuffixAfter(match).contains(applyFalseRegex) }
-            .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
+            .findAll(
+                input = content
+            )
+            .filterNot { match -> content.lineSuffixAfter(
+                match = match
+            ).contains(applyFalseRegex) }
+            .associateToUsageMap(
+                modulePath = modulePath
+            ) { match -> match.groupValues[1] }
     }
 
     private fun File.readAppliedLiteralPluginIds(): Sequence<String> {
         val content = readText()
 
         return literalPluginIdRegex
-            .findAll(content)
-            .filterNot { match -> content.lineSuffixAfter(match).contains(applyFalseRegex) }
+            .findAll(
+                input = content
+            )
+            .filterNot { match -> content.lineSuffixAfter(
+                match = match
+            ).contains(applyFalseRegex) }
             .map { match -> match.groupValues[1] }
     }
 
@@ -370,7 +446,9 @@ class GradleCatalogUsageReader {
         modulePath: String,
         key: (MatchResult) -> String
     ): Map<String, Set<String>> =
-        map(key)
+        map(
+            transform = key
+        )
             .fold(emptyMap()) { usages, usageKey ->
                 usages + (usageKey to (usages[usageKey].orEmpty() + modulePath))
             }
@@ -393,16 +471,24 @@ class GradleCatalogUsageReader {
         other: LibraryUsages
     ): LibraryUsages =
         LibraryUsages(
-            coordinates = coordinates.merge(other.coordinates),
-            bundles = bundles.merge(other.bundles),
-            aliases = aliases.merge(other.aliases)
+            coordinates = coordinates.merge(
+                other = other.coordinates
+            ),
+            bundles = bundles.merge(
+                other = other.bundles
+            ),
+            aliases = aliases.merge(
+                other = other.aliases
+            )
         )
 
     private operator fun LibraryConfigurationUsages.plus(
         other: LibraryConfigurationUsages
     ): LibraryConfigurationUsages =
         LibraryConfigurationUsages(
-            coordinates = coordinates.mergeConfigurationUsages(other.coordinates)
+            coordinates = coordinates.mergeConfigurationUsages(
+                other = other.coordinates
+            )
         )
 
     private fun String.configurationTarget(
@@ -429,7 +515,9 @@ class GradleCatalogUsageReader {
         var depth = 0
         val stack = mutableListOf<BlockName>()
 
-        configurationBlockTokenRegex.findAll(contentBeforeMatch).forEach { token ->
+        configurationBlockTokenRegex.findAll(
+            input = contentBeforeMatch
+        ).forEach { token ->
             val text = token.value
             when {
                 text == "}" -> {
@@ -454,7 +542,9 @@ class GradleCatalogUsageReader {
             }
         }
 
-        return stack.map(BlockName::name)
+        return stack.map(
+            transform = BlockName::name
+        )
     }
 
     private fun File.toIncludedBuildModulePath(
@@ -501,7 +591,9 @@ class GradleCatalogUsageReader {
             pluginNameRegex,
             pluginIdRegex
         )
-            .flatMap { regex -> regex.findAll(this) }
+            .flatMap { regex -> regex.findAll(
+                input = this
+            ) }
             .map { match -> match.groupValues[1] }
 
     /**

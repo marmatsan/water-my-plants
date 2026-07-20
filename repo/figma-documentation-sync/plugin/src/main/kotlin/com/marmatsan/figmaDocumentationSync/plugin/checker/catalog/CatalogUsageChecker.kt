@@ -26,7 +26,9 @@ internal class CatalogUsageChecker(
     fun check(
         request: CatalogUsageCheckRequest
     ): CatalogUsageCheckResult {
-        val includedBuilds = request.includedBuilds.map(FigmaDesignModelIncludedBuildSource::toDomainSource)
+        val includedBuilds = request.includedBuilds.map(
+            transform = FigmaDesignModelIncludedBuildSource::toDomainSource
+        )
         val conventionPluginIncludedBuilds = includedBuilds.filter(IncludedBuildSource::publishesConventionPlugins)
         val unusedEntries = mutableListOf<UnusedCatalogEntry>()
 
@@ -98,7 +100,9 @@ private fun LibraryCatalogNode.unusedEntries(
         .map { entry ->
             UnusedCatalogEntry(
                 catalogName = catalogName,
-                entry = entry.catalogPath(groupPath)
+                entry = entry.catalogPath(
+                    groupPath = groupPath
+                )
             )
         } + children.flatMap { child ->
         child.unusedEntries(

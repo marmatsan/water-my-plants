@@ -148,7 +148,9 @@ class TeamCityCliClient(
     private fun executeJson(
         vararg arguments: String
     ): JsonObject {
-        val result = executeTeamCity(*arguments)
+        val result = executeTeamCity(
+            arguments = *arguments
+        )
         val root = runCatching { Json.parseToJsonElement(result.output).jsonObject }
             .getOrElse { error ->
                 throw IllegalArgumentException(

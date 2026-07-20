@@ -27,5 +27,7 @@ class RepositoryVersionsDataSource(
     override fun readVersionSections(
         source: VersionsFileSource
     ): List<RepositoryVersionSection> =
-        versionsPropertiesReader.readSections(File(source.path))
+        versionsPropertiesReader.readSections(
+            file = File(source.path)
+        )
 }

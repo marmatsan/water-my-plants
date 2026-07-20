@@ -59,7 +59,9 @@ internal class CiExternalTopologyYamlReaderTest : FunSpec(
             14
         )
         topology.validation.warnAfterDays shouldBe 90
-        topology.nodes.map(CiNode::id) shouldBe listOf(
+        topology.nodes.map(
+            transform = CiNode::id
+        ) shouldBe listOf(
             "operator",
             "teamcity-server"
         )

@@ -58,8 +58,8 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
             )
         } ?: component.repositoryChangeSetPort.read(projectRootDirectory.get().asFile.absolutePath)
         val impact = component.changeImpactClassifier.classify(
-            changeSet,
-            policy
+            changeSet = changeSet,
+            policy = policy
         )
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
@@ -80,9 +80,17 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
         linkedMapOf(
             "scope" to JsonPrimitive(scope.wireValue),
             "figmaImpact" to JsonPrimitive(impact.wireValue),
-            "affectedVisualTargets" to JsonArray(affectedVisualTargets.map(::JsonPrimitive)),
+            "affectedVisualTargets" to JsonArray(
+                affectedVisualTargets.map(
+                    transform = ::JsonPrimitive
+                )
+            ),
             "comparisonBase" to (comparisonBase?.let(::JsonPrimitive) ?: JsonNull),
-            "changedPaths" to JsonArray(changedPaths.map(::JsonPrimitive))
+            "changedPaths" to JsonArray(
+                changedPaths.map(
+                    transform = ::JsonPrimitive
+                )
+            )
         )
     )
 

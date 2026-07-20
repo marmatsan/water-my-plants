@@ -181,7 +181,11 @@ object WaterMyPlantsCiGate : BuildType(
     }
 
     features {
-        feature(GitHubCommitStatusPublisher("TeamCity CI"))
+        feature(
+            GitHubCommitStatusPublisher(
+                statusCheckName = "TeamCity CI"
+            )
+        )
     }
 }
 )

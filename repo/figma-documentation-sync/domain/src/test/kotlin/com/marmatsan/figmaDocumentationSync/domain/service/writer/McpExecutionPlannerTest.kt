@@ -17,13 +17,13 @@ internal class McpExecutionPlannerTest : FunSpec(
 
     test("capability probe distinguishes read-only and write-capable endpoints") {
         planner.capabilities(
-            listOf(
+            toolNames = listOf(
                 "get_metadata",
                 "get_screenshot"
             )
         ).writeCapable shouldBe false
         val writable = planner.capabilities(
-            listOf(
+            toolNames = listOf(
                 "upload_assets",
                 "use_figma",
                 "get_metadata"
@@ -31,16 +31,18 @@ internal class McpExecutionPlannerTest : FunSpec(
         )
         writable.writeCapable shouldBe true
         planner.requireWriteCapabilities(
-            writable,
-            manifest,
-            manifest.files
+            capabilities = writable,
+            manifest = manifest,
+            executionFiles = manifest.files
         )
 
         shouldThrow<IllegalArgumentException> {
             planner.requireWriteCapabilities(
-                planner.capabilities(listOf("get_metadata")),
-                manifest,
-                manifest.files
+                capabilities = planner.capabilities(
+                    toolNames = listOf("get_metadata")
+                ),
+                manifest = manifest,
+                executionFiles = manifest.files
             )
         }.message shouldBe
             "MCP endpoint is read-only for this runner; missing tool(s): use_figma, upload_assets. " +
@@ -49,54 +51,54 @@ internal class McpExecutionPlannerTest : FunSpec(
 
     test("resume skips completed files with the same execution identity") {
         var state = planner.createOrResumeState(
-            manifest,
+            manifest = manifest,
             existingState = null,
             options = McpExecutionOptions(),
             executionFiles = manifest.files,
             now = "2026-07-18T18:00:00Z"
         )
         state = planner.recordSuccess(
-            state,
-            manifest,
-            "00-clear-staging.mcp.js",
-            10,
-            "ok",
-            "2026-07-18T18:00:01Z"
+            state = state,
+            manifest = manifest,
+            file = "00-clear-staging.mcp.js",
+            durationMs = 10,
+            summary = "ok",
+            now = "2026-07-18T18:00:01Z"
         )
 
         planner.selectExecutionFiles(
-            manifest,
-            McpExecutionOptions(
+            manifest = manifest,
+            options = McpExecutionOptions(
                 resume = true
             ),
-            state,
+            existingState = state,
             visualState = null
         ) shouldContainExactly manifest.files.drop(1)
     }
 
     test("retry failed selects only the atomic failed unit") {
         val initial = planner.createOrResumeState(
-            manifest,
+            manifest = manifest,
             existingState = null,
             options = McpExecutionOptions(),
             executionFiles = manifest.files,
             now = "2026-07-18T18:00:00Z"
         )
         val failed = planner.recordFailure(
-            initial,
-            "99-00-preflight.mcp.js",
-            25,
-            "timeout",
-            "2026-07-18T18:00:01Z"
+            state = initial,
+            file = "99-00-preflight.mcp.js",
+            durationMs = 25,
+            message = "timeout",
+            now = "2026-07-18T18:00:01Z"
         )
 
         planner.selectExecutionFiles(
-            manifest,
-            McpExecutionOptions(
+            manifest = manifest,
+            options = McpExecutionOptions(
                 resume = true,
                 retryFailed = true
             ),
-            failed,
+            existingState = failed,
             visualState = null
         ) shouldContainExactly listOf("99-00-preflight.mcp.js")
     }
@@ -122,8 +124,8 @@ internal class McpExecutionPlannerTest : FunSpec(
         )
 
         planner.selectExecutionFiles(
-            manifest,
-            McpExecutionOptions(),
+            manifest = manifest,
+            options = McpExecutionOptions(),
             existingState = null,
             visualState = null,
             syncPlan = plan
@@ -132,7 +134,7 @@ internal class McpExecutionPlannerTest : FunSpec(
 
     test("checkpoint identity invalidates resume when writer changes") {
         val state = planner.createOrResumeState(
-            manifest,
+            manifest = manifest,
             existingState = null,
             options = McpExecutionOptions(),
             executionFiles = manifest.files,
@@ -140,29 +142,29 @@ internal class McpExecutionPlannerTest : FunSpec(
         )
         shouldThrow<IllegalArgumentException> {
             planner.assertStateIdentity(
-                manifest.copy(
+                manifest = manifest.copy(
                     writerHash = "sha256:new-writer"
                 ),
-                state
+                state = state
             )
         }.message shouldBe "Checkpoint writerHash mismatch: sha256:writer != sha256:new-writer."
     }
 
     test("checkpoint rejects a completed file whose hash was altered") {
         val initial = planner.createOrResumeState(
-            manifest,
+            manifest = manifest,
             existingState = null,
             options = McpExecutionOptions(),
             executionFiles = manifest.files,
             now = "2026-07-18T18:00:00Z"
         )
         val completed = planner.recordSuccess(
-            initial,
-            manifest,
-            "00-clear-staging.mcp.js",
-            10,
-            "ok",
-            "2026-07-18T18:00:01Z"
+            state = initial,
+            manifest = manifest,
+            file = "00-clear-staging.mcp.js",
+            durationMs = 10,
+            summary = "ok",
+            now = "2026-07-18T18:00:01Z"
         )
         val altered = completed.copy(
             completedFiles = listOf(
@@ -174,8 +176,8 @@ internal class McpExecutionPlannerTest : FunSpec(
 
         shouldThrow<IllegalArgumentException> {
             planner.assertStateIdentity(
-                manifest,
-                altered
+                manifest = manifest,
+                state = altered
             )
         }.message shouldBe
             "Checkpoint file hash mismatch for '00-clear-staging.mcp.js': " +

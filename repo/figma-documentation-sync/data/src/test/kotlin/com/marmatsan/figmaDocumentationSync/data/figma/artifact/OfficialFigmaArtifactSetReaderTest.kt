@@ -9,10 +9,14 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec(
     test("reads the official artifact files recursively") {
         val root = Files.createTempDirectory("figma-artifact-set").toFile()
         try {
-            root.resolve("design-model.json").writeText(
+            root.resolve(
+                relative = "design-model.json"
+            ).writeText(
                 """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}"""
             )
-            root.resolve("sync-scope.json").writeText(
+            root.resolve(
+                relative = "sync-scope.json"
+            ).writeText(
                 "\uFEFF" + """
                 {
                   "scope":"full-verification",
@@ -26,7 +30,9 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec(
                 }
                 """.trimIndent()
             )
-            root.resolve("visual-sync-plan.json").writeText(
+            root.resolve(
+                relative = "visual-sync-plan.json"
+            ).writeText(
                 """
                 {
                   "decision":"partial",
@@ -39,16 +45,24 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec(
                 }
                 """.trimIndent()
             )
-            val visualDirectory = root.resolve("mcp-runners/visual").apply { mkdirs() }
-            val metadataDirectory = root.resolve("mcp-runners/metadata").apply { mkdirs() }
-            visualDirectory.resolve("manifest.json").writeText(
+            val visualDirectory = root.resolve(
+                relative = "mcp-runners/visual"
+            ).apply { mkdirs() }
+            val metadataDirectory = root.resolve(
+                relative = "mcp-runners/metadata"
+            ).apply { mkdirs() }
+            visualDirectory.resolve(
+                relative = "manifest.json"
+            ).writeText(
                 manifestJson(
                     fullVisualSync = true,
                     writeMetadata = false,
                     manifestHash = "visual-hash"
                 )
             )
-            metadataDirectory.resolve("manifest.json").writeText(
+            metadataDirectory.resolve(
+                relative = "manifest.json"
+            ).writeText(
                 manifestJson(
                     fullVisualSync = false,
                     writeMetadata = true,
@@ -60,8 +74,12 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec(
 
             result.contract.model.branch shouldBe "main"
             result.contract.plan.decision shouldBe "partial"
-            result.visualManifestPath shouldBe visualDirectory.resolve("manifest.json").toPath()
-            result.metadataManifestPath shouldBe metadataDirectory.resolve("manifest.json").toPath()
+            result.visualManifestPath shouldBe visualDirectory.resolve(
+                relative = "manifest.json"
+            ).toPath()
+            result.metadataManifestPath shouldBe metadataDirectory.resolve(
+                relative = "manifest.json"
+            ).toPath()
         } finally {
             root.deleteRecursively()
         }

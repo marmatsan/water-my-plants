@@ -55,7 +55,11 @@ class FigmaTargetFingerprintCalculator {
                 hash(
                     value = buildJsonObject { put(
                         "roots",
-                        JsonArray(roots.map(::JsonPrimitive))
+                        JsonArray(
+                            roots.map(
+                                transform = ::JsonPrimitive
+                            )
+                        )
                     ) }
                 )
             )
@@ -75,16 +79,24 @@ class FigmaTargetFingerprintCalculator {
                 target
             ) }
             target == "versions" -> buildJsonObject {
-                content?.get("versions")?.let { put(
+                content?.get(
+                    key = "versions"
+                )?.let { put(
                     "versions",
                     it
                 ) }
-                content?.get("versionSections")?.let { put(
+                content?.get(
+                    key = "versionSections"
+                )?.let { put(
                     "versionSections",
                     it
                 ) }
             }
-            target.startsWith("ci.") -> content?.get("ci") ?: JsonNull
+            target.startsWith(
+                prefix = "ci."
+            ) -> content?.get(
+                key = "ci"
+            ) ?: JsonNull
             target in catalogTargets -> catalogNodes(
                 designModel = designModel,
                 target = target
@@ -100,13 +112,23 @@ class FigmaTargetFingerprintCalculator {
         val catalogName = target.substringBefore('.')
         val treeName = target.substringAfter('.')
         return designModel["content"]?.jsonObject
-            ?.get("catalogs")?.jsonObject
-            ?.get(catalogName)?.jsonObject
-            ?.get(treeName)?.jsonArray
+            ?.get(
+                key = "catalogs"
+            )?.jsonObject
+            ?.get(
+                key = catalogName
+            )?.jsonObject
+            ?.get(
+                key = treeName
+            )?.jsonArray
             ?: JsonArray(emptyList())
     }
 
     private fun hash(
         value: JsonElement
-    ): String = Sha256Hash.of(CanonicalJson.stringify(value))
+    ): String = Sha256Hash.of(
+        value = CanonicalJson.stringify(
+            value = value
+        )
+    )
 }

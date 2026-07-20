@@ -26,7 +26,9 @@ class McpExecutionStateJson {
     fun readOptional(
         path: String
     ): McpExecutionState? {
-        val source = Path.of(path)
+        val source = Path.of(
+            path
+        )
         if (!Files.isRegularFile(source)) return null
         val state = Json.parseToJsonElement(Files.readString(source).removePrefix(UTF8_BOM)).jsonObject.toState()
         require(state.schemaVersion == SUPPORTED_SCHEMA_VERSION) {
@@ -39,7 +41,9 @@ class McpExecutionStateJson {
         state: McpExecutionState,
         path: String
     ) {
-        val output = Path.of(path)
+        val output = Path.of(
+            path
+        )
         output.parent?.let(Files::createDirectories)
         val temporary = output.resolveSibling("${output.fileName}.${ProcessHandle.current().pid()}.tmp")
         Files.writeString(
@@ -111,7 +115,11 @@ class McpExecutionStateJson {
         )
         put(
             "plannedFiles",
-            JsonArray(plannedFiles.map(::JsonPrimitive))
+            JsonArray(
+                plannedFiles.map(
+                    transform = ::JsonPrimitive
+                )
+            )
         )
         put(
             "failedFile",

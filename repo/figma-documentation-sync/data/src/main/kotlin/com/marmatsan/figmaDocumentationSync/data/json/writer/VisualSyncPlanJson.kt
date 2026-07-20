@@ -25,13 +25,19 @@ import kotlinx.serialization.json.put
 class VisualSyncPlanJson : VisualSyncPlanHasher {
     override fun hash(
         body: VisualSyncPlanBody
-    ): String = Sha256Hash.of(CanonicalJson.stringify(body.toJson()))
+    ): String = Sha256Hash.of(
+        value = CanonicalJson.stringify(
+            value = body.toJson()
+        )
+    )
 
     fun write(
         plan: VisualSyncPlan,
         outputPath: String
     ) {
-        val output = Path.of(outputPath)
+        val output = Path.of(
+            outputPath
+        )
         output.parent?.let(Files::createDirectories)
         val body = plan.body.toJson().toMutableMap()
         body["planHash"] = JsonPrimitive(plan.planHash)
@@ -47,7 +53,13 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
     fun read(
         inputPath: String
     ): VisualSyncPlan {
-        val source = Json.parseToJsonElement(Files.readString(Path.of(inputPath)).removePrefix(UTF8_BOM)).jsonObject
+        val source = Json.parseToJsonElement(
+            Files.readString(
+                Path.of(
+                    inputPath
+                )
+            ).removePrefix(UTF8_BOM)
+        ).jsonObject
         val identity = source.getValue("identity").jsonObject
         val decisionValue = source.getValue("decision").jsonPrimitive.content
         val body = VisualSyncPlanBody(
@@ -104,7 +116,11 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
         )
         put(
             "executionScopes",
-            JsonArray(executionScopes.map(::JsonPrimitive))
+            JsonArray(
+                executionScopes.map(
+                    transform = ::JsonPrimitive
+                )
+            )
         )
         put(
             "identity",

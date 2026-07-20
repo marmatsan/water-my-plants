@@ -50,7 +50,9 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            from(
+                components["java"]
+            )
             artifactId = "figma-documentation-sync-data"
 
             pom {
@@ -80,7 +82,9 @@ dokka {
     moduleName.set("figmaDocumentationSync-data")
 
     dokkaPublications.html {
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {

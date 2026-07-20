@@ -18,7 +18,9 @@ internal class CiExternalTopologyFreshnessChecker(
         currentDate: LocalDate
     ): Result {
         val topology = ciExternalTopologyPort.readTopology(
-            CiExternalTopologySource(topologyFile.absolutePath)
+            source = CiExternalTopologySource(
+                path = topologyFile.absolutePath
+            )
         )
         val warningDate = topology.validation.lastValidatedOn
             .plusDays(topology.validation.warnAfterDays.toLong())

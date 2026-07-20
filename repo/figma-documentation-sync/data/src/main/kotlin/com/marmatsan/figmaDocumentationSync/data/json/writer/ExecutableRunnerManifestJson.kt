@@ -28,7 +28,9 @@ class ExecutableRunnerManifestJson {
         outputPath: String
     ): ExecutableRunnerManifest {
         val finalized = draft.copy(
-            path = Path.of(outputPath).toAbsolutePath().normalize().toString(),
+            path = Path.of(
+                outputPath
+            ).toAbsolutePath().normalize().toString(),
             manifestHash = hash(
                 manifest = draft
             )
@@ -50,7 +52,9 @@ class ExecutableRunnerManifestJson {
         require(manifest.manifestHash == expectedHash) {
             "MCP manifest hash mismatch: ${manifest.manifestHash} != $expectedHash."
         }
-        val output = Path.of(outputPath)
+        val output = Path.of(
+            outputPath
+        )
         output.parent?.let(Files::createDirectories)
         Files.writeString(
             output,
@@ -67,9 +71,13 @@ class ExecutableRunnerManifestJson {
     fun read(
         path: String
     ): ExecutableRunnerManifest {
-        val normalized = Path.of(path).toAbsolutePath().normalize()
+        val normalized = Path.of(
+            path
+        ).toAbsolutePath().normalize()
         val source = Json.parseToJsonElement(Files.readString(normalized).removePrefix(UTF8_BOM)).jsonObject
-        val manifest = source.toManifest(normalized.toString())
+        val manifest = source.toManifest(
+            path = normalized.toString()
+        )
         require(manifest.schemaVersion >= MINIMUM_SCHEMA_VERSION) {
             "Unsupported MCP manifest schema ${manifest.schemaVersion}; expected $MINIMUM_SCHEMA_VERSION or newer."
         }
@@ -98,7 +106,9 @@ class ExecutableRunnerManifestJson {
             "PNG MCP manifest is missing 'payloadImage.sha256'."
         }
         val expectedHash = Sha256Hash.of(
-            CanonicalJson.stringify(JsonObject(source.filterKeys { key -> key != "manifestHash" }))
+            value = CanonicalJson.stringify(
+                value = JsonObject(source.filterKeys { key -> key != "manifestHash" })
+            )
         )
         require(manifest.manifestHash == expectedHash) {
             "MCP manifest hash mismatch: ${manifest.manifestHash} != $expectedHash."
@@ -110,8 +120,8 @@ class ExecutableRunnerManifestJson {
         manifest: ExecutableRunnerManifest
     ): String =
         Sha256Hash.of(
-            CanonicalJson.stringify(
-                manifest.toJson(
+            value = CanonicalJson.stringify(
+                value = manifest.toJson(
                     includeHash = false
                 )
             )
@@ -407,7 +417,11 @@ class ExecutableRunnerManifestJson {
         name: String
     ): Int = this[name]?.jsonPrimitive?.int ?: 0
 
-    private fun List<String>.toJsonArray(): JsonArray = JsonArray(map(::JsonPrimitive))
+    private fun List<String>.toJsonArray(): JsonArray = JsonArray(
+        map(
+            transform = ::JsonPrimitive
+        )
+    )
 
     private fun Map<String, String>.toJsonObject(): JsonObject =
         JsonObject(mapValues { (_, value) -> JsonPrimitive(value) })

@@ -40,7 +40,7 @@ abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
     @TaskAction
     fun prepare() {
         val result = TeamCityFigmaSyncHandoffPreparer().prepare(
-            TeamCityFigmaSyncHandoffPreparer.Request(
+            request = TeamCityFigmaSyncHandoffPreparer.Request(
                 buildId = buildId.orNull,
                 artifactDirectory = artifactDirectory.orNull?.asFile,
                 destinationRoot = destinationRoot.get().asFile,

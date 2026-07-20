@@ -24,16 +24,18 @@ internal fun libraryTrees(
 
 private fun androidxLibrariesTree(
     versions: Versions
-) = libraryTree("androidx") {
+) = libraryTree(
+    rootGroup = "androidx"
+) {
     library("activity") {
         artifact(
-            "activity-compose",
+            artifact = "activity-compose",
             version = versions.activityComposeLibraryVersion
         )
     }
     library("compose") {
         artifact(
-            "compose-bom",
+            artifact = "compose-bom",
             version = versions.composeBomLibraryVersion
         )
         library("ui") {
@@ -47,38 +49,38 @@ private fun androidxLibrariesTree(
         }
         library("material3") {
             artifact(
-                "material3"
+                artifact = "material3"
             )
         }
         library("material") {
             artifact(
-                "material-icons-core"
+                artifact = "material-icons-core"
             )
         }
     }
     library("core") {
         artifact(
-            "core-ktx",
+            artifact = "core-ktx",
             version = versions.coreKtxLibraryVersion
         )
     }
     library("lifecycle") {
         artifact(
-            "lifecycle-runtime-ktx",
+            artifact = "lifecycle-runtime-ktx",
             version = versions.lifecycleLibraryVersion
         )
         artifact(
-            "lifecycle-viewmodel-compose",
+            artifact = "lifecycle-viewmodel-compose",
             version = versions.lifecycleLibraryVersion
         )
         artifact(
-            "lifecycle-runtime-compose",
+            artifact = "lifecycle-runtime-compose",
             version = versions.lifecycleLibraryVersion
         )
     }
     library("navigation") {
         artifact(
-            "navigation-compose",
+            artifact = "navigation-compose",
             version = versions.navigationComposeLibraryVersion
         )
     }
@@ -86,12 +88,14 @@ private fun androidxLibrariesTree(
 
 private fun comLibrariesTree(
     versions: Versions
-) = libraryTree("com") {
+) = libraryTree(
+    rootGroup = "com"
+) {
     library("figma") {
         library("code") {
             library("connect") {
                 artifact(
-                    "code-connect-lib",
+                    artifact = "code-connect-lib",
                     version = versions.figmaCodeConnectLibraryVersion
                 )
             }
@@ -100,11 +104,11 @@ private fun comLibrariesTree(
     library("google") {
         library("protobuf") {
             artifact(
-                "protobuf-kotlin",
+                artifact = "protobuf-kotlin",
                 version = versions.protobufLibraryVersion
             )
             artifact(
-                "protoc",
+                artifact = "protoc",
                 version = versions.protobufLibraryVersion
             )
         }
@@ -113,32 +117,34 @@ private fun comLibrariesTree(
 
 private fun ioLibrariesTree(
     versions: Versions
-) = libraryTree("io") {
+) = libraryTree(
+    rootGroup = "io"
+) {
     library("cucumber") {
         artifact(
-            "cucumber-bom",
+            artifact = "cucumber-bom",
             version = versions.cucumberLibraryVersion
         )
         artifact(
-            "cucumber-java8"
+            artifact = "cucumber-java8"
         )
         artifact(
-            "cucumber-junit-platform-engine"
+            artifact = "cucumber-junit-platform-engine"
         )
     }
     library("kotest") {
         artifact(
-            "kotest-runner-junit5",
+            artifact = "kotest-runner-junit5",
             version = versions.kotestLibraryVersion
         )
         artifact(
-            "kotest-assertions-core",
+            artifact = "kotest-assertions-core",
             version = versions.kotestLibraryVersion
         )
     }
     library("mockk") {
         artifact(
-            "mockk",
+            artifact = "mockk",
             version = versions.mockkLibraryVersion
         )
     }
@@ -146,7 +152,9 @@ private fun ioLibrariesTree(
 
 private fun meLibrariesTree(
     versions: Versions
-) = libraryTree("me") {
+) = libraryTree(
+    rootGroup = "me"
+) {
     library("tatarka") {
         library("inject") {
             artifact(
@@ -163,7 +171,9 @@ private fun meLibrariesTree(
 
 private fun orgLibrariesTree(
     versions: Versions
-) = libraryTree("org") {
+) = libraryTree(
+    rootGroup = "org"
+) {
     library("jetbrains") {
         library("kotlinx") {
             artifact(
@@ -175,10 +185,10 @@ private fun orgLibrariesTree(
     library("junit") {
         library("platform") {
             artifact(
-                "junit-platform-launcher"
+                artifact = "junit-platform-launcher"
             )
             artifact(
-                "junit-platform-suite"
+                artifact = "junit-platform-suite"
             )
         }
     }

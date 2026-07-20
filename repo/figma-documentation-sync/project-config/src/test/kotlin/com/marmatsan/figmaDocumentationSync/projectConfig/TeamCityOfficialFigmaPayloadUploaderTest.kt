@@ -28,7 +28,9 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest : FunSpec(
         val handoffPreparer = TeamCityFigmaSyncHandoffPreparer(
             teamCityClient = client,
             clock = Clock.fixed(
-                Instant.parse("2026-07-19T08:00:00Z"),
+                Instant.parse(
+                    "2026-07-19T08:00:00Z"
+                ),
                 ZoneOffset.UTC
             )
         )
@@ -58,8 +60,12 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest : FunSpec(
         result.gitSha shouldBe "abc123"
         result.modelHash shouldBe "model-hash"
         result.payloadByteLength shouldBe payload.size
-        result.payloadSha256 shouldBe Sha256Hash.of(payload)
-        result.artifactDirectory.resolve("figma-sync-handoff.json").shouldExist()
+        result.payloadSha256 shouldBe Sha256Hash.of(
+            value = payload
+        )
+        result.artifactDirectory.resolve(
+            relative = "figma-sync-handoff.json"
+        ).shouldExist()
         root.deleteRecursively()
     }
 
@@ -70,7 +76,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest : FunSpec(
             payload = payload
         ) { outputDirectory ->
             val path = outputDirectory.resolve(
-                "mcp-runners/visual/10-official-sync-payload.png"
+                relative = "mcp-runners/visual/10-official-sync-payload.png"
             )
             val tampered = path.readBytes()
             tampered[tampered.lastIndex] = (tampered.last() + 1).toByte()
@@ -95,16 +101,22 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest : FunSpec(
             )
         }
 
-        failure.message?.startsWith("Official PNG payload hash mismatch:") shouldBe true
+        failure.message?.startsWith(
+            prefix = "Official PNG payload hash mismatch:"
+        ) shouldBe true
         uploads shouldBe 0
         root.deleteRecursively()
     }
 
     test("uploads a previously downloaded artifact only with an explicit revision") {
         val root = Files.createTempDirectory("figma-payload-directory").toFile()
-        val artifacts = root.resolve("artifacts").apply {
+        val artifacts = root.resolve(
+            relative = "artifacts"
+        ).apply {
             mkdirs()
-            writeArtifactFixture(PayloadPngEncoder().encode("{\"official\":true}"))
+            writeArtifactFixture(
+                payloadBytes = PayloadPngEncoder().encode("{\"official\":true}")
+            )
         }
         val client = object : TeamCityBuildArtifactClient {
             override fun readBuild(
@@ -174,7 +186,9 @@ private fun fixtureClient(
         buildId: Long,
         outputDirectory: File
     ) {
-        outputDirectory.writeArtifactFixture(payload)
+        outputDirectory.writeArtifactFixture(
+            payloadBytes = payload
+        )
         afterWrite(outputDirectory)
     }
 }

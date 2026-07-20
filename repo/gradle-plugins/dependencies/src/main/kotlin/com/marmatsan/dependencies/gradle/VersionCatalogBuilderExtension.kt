@@ -49,7 +49,9 @@ fun VersionCatalogBuilder.registerPlugins(
         plugin(
             plugin.pluginId,
             plugin.pluginId
-        ).version(plugin.version)
+        ).version(
+            plugin.version
+        )
     }
 }
 
@@ -142,7 +144,9 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
  */
 private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
     version: String? = null
-) = if (version == null) withoutVersion() else version(version)
+) = if (version == null) withoutVersion() else version(
+    version
+)
 
 
 /**
@@ -190,7 +194,9 @@ private fun VersionCatalogBuilder.registerLibrary(
         libraryGroup = libraryGroup,
         artifact = artifact.artifact
     )
-    libraryAliasBuilder.registerLibraryVersion(version)
+    libraryAliasBuilder.registerLibraryVersion(
+        version = version
+    )
     return libraryAlias
 }
 
@@ -229,7 +235,9 @@ internal fun libraryAlias(
 
         artifactAliasSegment = when {
             artifact == groupSuffix -> ""
-            artifact.startsWith("$groupSuffix-") -> artifact.removePrefix("$groupSuffix-")
+            artifact.startsWith(
+                prefix = "$groupSuffix-"
+            ) -> artifact.removePrefix("$groupSuffix-")
             else -> null
         }
 

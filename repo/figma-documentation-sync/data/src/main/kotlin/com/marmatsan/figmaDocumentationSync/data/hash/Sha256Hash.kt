@@ -18,5 +18,7 @@ object Sha256Hash {
             .joinToString(
                 prefix = "sha256:",
                 separator = ""
-            ) { byte -> "%02x".format(byte) }
+            ) { byte -> "%02x".format(
+                byte
+            ) }
 }

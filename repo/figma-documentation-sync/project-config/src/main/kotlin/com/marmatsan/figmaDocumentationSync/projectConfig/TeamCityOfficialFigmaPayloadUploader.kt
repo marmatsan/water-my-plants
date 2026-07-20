@@ -28,7 +28,7 @@ class TeamCityOfficialFigmaPayloadUploader(
             }
         }
         val handoff = handoffPreparer.prepare(
-            TeamCityFigmaSyncHandoffPreparer.Request(
+            request = TeamCityFigmaSyncHandoffPreparer.Request(
                 buildId = request.buildId,
                 artifactDirectory = request.artifactDirectory,
                 destinationRoot = request.destinationRoot,
@@ -55,7 +55,9 @@ class TeamCityOfficialFigmaPayloadUploader(
             "Official PNG payload must use a file name without path segments."
         }
         val runnerDirectory = requireNotNull(manifestPath.parent).toAbsolutePath().normalize()
-        val payloadPath = runnerDirectory.resolve(payload.fileName).normalize()
+        val payloadPath = runnerDirectory.resolve(
+            payload.fileName
+        ).normalize()
         require(payloadPath.parent == runnerDirectory && Files.isRegularFile(payloadPath)) {
             "Official PNG payload does not exist beside its visual manifest."
         }
@@ -63,7 +65,9 @@ class TeamCityOfficialFigmaPayloadUploader(
         require(bytes.size == payload.byteLength) {
             "Official PNG payload length mismatch: ${bytes.size} != ${payload.byteLength}."
         }
-        val actualHash = Sha256Hash.of(bytes)
+        val actualHash = Sha256Hash.of(
+            value = bytes
+        )
         require(actualHash == payload.sha256) {
             "Official PNG payload hash mismatch: $actualHash != ${payload.sha256}."
         }

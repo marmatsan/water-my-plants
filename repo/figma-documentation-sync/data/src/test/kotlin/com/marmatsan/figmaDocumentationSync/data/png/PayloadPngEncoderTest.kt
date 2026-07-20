@@ -15,7 +15,7 @@ internal class PayloadPngEncoderTest : FunSpec(
     test("encodes the official payload as ASCII JSON in a valid PNG text chunk") {
         val encoder = PayloadPngEncoder()
         val payloadJson = encoder.payloadJson(
-            OfficialSyncPayload(
+            payload = OfficialSyncPayload(
                 payloadSchemaVersion = PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION,
                 designModelJson = "{\"name\":\"Jardín\"}",
                 designModelHash = "sha256:model",
@@ -64,7 +64,9 @@ private fun decodePayloadText(
             )
             val encoded = text.substringAfter("${PayloadPngEncoder.TEXT_KEYWORD}\u0000")
             return String(
-                Base64.getDecoder().decode(encoded),
+                Base64.getDecoder().decode(
+                    encoded
+                ),
                 StandardCharsets.UTF_8
             )
         }

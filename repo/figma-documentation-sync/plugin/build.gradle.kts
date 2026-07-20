@@ -108,7 +108,9 @@ dokka {
     moduleName.set("figmaDocumentationSync-plugin")
 
     dokkaPublications.html {
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {

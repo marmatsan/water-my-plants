@@ -10,19 +10,27 @@ class FileSystemDocumentationSourceTest : FunSpec(
     test("reads authored Markdown and excludes templates and generated trees") {
         val root = Files.createTempDirectory("ci-documentation-source").toFile()
         try {
-            root.resolve("docs/standards/example.md").apply {
+            root.resolve(
+                relative = "docs/standards/example.md"
+            ).apply {
                 parentFile.mkdirs()
                 writeText("# Standard")
             }
-            root.resolve("docs/templates/standard.md").apply {
+            root.resolve(
+                relative = "docs/templates/standard.md"
+            ).apply {
                 parentFile.mkdirs()
                 writeText("# Template")
             }
-            root.resolve("module/build/generated.md").apply {
+            root.resolve(
+                relative = "module/build/generated.md"
+            ).apply {
                 parentFile.mkdirs()
                 writeText("# Generated")
             }
-            root.resolve("source.txt").writeText("source")
+            root.resolve(
+                relative = "source.txt"
+            ).writeText("source")
 
             val snapshot = FileSystemDocumentationSource().read(root)
 

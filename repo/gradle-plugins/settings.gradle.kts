@@ -47,25 +47,41 @@ dependencyResolutionManagement {
                 alias = "com.android.tools.build.gradle",
                 group = "com.android.tools.build",
                 artifact = "gradle"
-            ).version(version("androidGradlePluginVersion"))
+            ).version(
+                version(
+                    key = "androidGradlePluginVersion"
+                )
+            )
 
             library(
                 alias = "com.google.protobuf.gradle.plugin",
                 group = "com.google.protobuf",
                 artifact = "protobuf-gradle-plugin"
-            ).version(version("protobufPluginVersion"))
+            ).version(
+                version(
+                    key = "protobufPluginVersion"
+                )
+            )
 
             library(
                 alias = "org.jetbrains.kotlin.gradle.plugin",
                 group = "org.jetbrains.kotlin",
                 artifact = "kotlin-gradle-plugin"
-            ).version(version("kotlinVersion"))
+            ).version(
+                version(
+                    key = "kotlinVersion"
+                )
+            )
 
             library(
                 alias = "org.jetbrains.dokka.gradle.plugin",
                 group = "org.jetbrains.dokka",
                 artifact = "dokka-gradle-plugin"
-            ).version(version("dokkaPluginVersion"))
+            ).version(
+                version(
+                    key = "dokkaPluginVersion"
+                )
+            )
             
             /* Testing */
             // JUnit Platform
@@ -80,20 +96,32 @@ dependencyResolutionManagement {
                 alias = "io.kotest.runner.junit5",
                 group = "io.kotest",
                 artifact = "kotest-runner-junit5"
-            ).version(version("kotestLibraryVersion"))
+            ).version(
+                version(
+                    key = "kotestLibraryVersion"
+                )
+            )
 
             library(
                 alias = "io.kotest.assertions.core",
                 group = "io.kotest",
                 artifact = "kotest-assertions-core"
-            ).version(version("kotestLibraryVersion"))
+            ).version(
+                version(
+                    key = "kotestLibraryVersion"
+                )
+            )
 
             // MockK
             library(
                 alias = "io.mockk",
                 group = "io.mockk",
                 artifact = "mockk"
-            ).version(version("mockkLibraryVersion"))
+            ).version(
+                version(
+                    key = "mockkLibraryVersion"
+                )
+            )
         }
     }
 }

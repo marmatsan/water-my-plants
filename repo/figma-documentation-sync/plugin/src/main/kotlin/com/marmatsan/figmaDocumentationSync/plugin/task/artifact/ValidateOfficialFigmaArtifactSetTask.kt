@@ -68,7 +68,9 @@ abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
                         "visualManifestPath" to JsonPrimitive(visualManifestPath.toString()),
                         "metadataManifestPath" to JsonPrimitive(metadataManifestPath.toString()),
                         "visualStatePath" to JsonPrimitive(
-                            visualManifestPath.parent.resolve("execution-state.json").toString()
+                            visualManifestPath.parent.resolve(
+                                "execution-state.json"
+                            ).toString()
                         )
                     )
                 )

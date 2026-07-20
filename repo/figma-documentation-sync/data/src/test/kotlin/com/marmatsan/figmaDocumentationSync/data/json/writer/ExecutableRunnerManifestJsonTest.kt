@@ -33,7 +33,9 @@ internal class ExecutableRunnerManifestJsonTest : FunSpec(
             )
             put(
                 "targets",
-                buildJsonArray { add(JsonPrimitive("preflight")) }
+                buildJsonArray { add(
+                    element = JsonPrimitive("preflight")
+                ) }
             )
             put(
                 "writeMetadata",
@@ -109,7 +111,9 @@ internal class ExecutableRunnerManifestJsonTest : FunSpec(
             )
             put(
                 "files",
-                buildJsonArray { add(JsonPrimitive("99-run-target.mcp.js")) }
+                buildJsonArray { add(
+                    element = JsonPrimitive("99-run-target.mcp.js")
+                ) }
             )
             put(
                 "fileHashes",
@@ -119,7 +123,11 @@ internal class ExecutableRunnerManifestJsonTest : FunSpec(
                 ) }
             )
         }
-        val manifestHash = Sha256Hash.of(CanonicalJson.stringify(body))
+        val manifestHash = Sha256Hash.of(
+            value = CanonicalJson.stringify(
+                value = body
+            )
+        )
         val source = JsonObject(body + ("manifestHash" to JsonPrimitive(manifestHash)))
         val file = Files.createTempFile(
             "legacy-mcp-manifest",

@@ -23,7 +23,9 @@ data class Node<T : DependencyNode>(
      */
     fun add(
         child: Node<T>
-    ) = children.add(child)
+    ) = children.add(
+        element = child
+    )
 
     /**
      * Traverses this tree in depth-first pre-order and maps matching nodes to results.
@@ -98,7 +100,7 @@ data class Node<T : DependencyNode>(
             if (shouldIncludeNode(node.value)) {
                 val fullPath = currentPath.joinToString(".")
                 results.add(
-                    mapNode(
+                    element = mapNode(
                         node.value,
                         fullPath
                     )

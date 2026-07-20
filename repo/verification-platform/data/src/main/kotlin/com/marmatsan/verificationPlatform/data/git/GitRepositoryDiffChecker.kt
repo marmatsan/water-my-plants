@@ -38,7 +38,9 @@ class GitRepositoryDiffChecker {
             .start()
         val output = process.inputStream.bufferedReader().use { reader -> reader.readText() }
         val exitCode = process.waitFor()
-        check(exitCode == 0) {
+        check(
+            exitCode == 0
+        ) {
             "Repository diff verification failed: ${output.trim()}"
         }
     }

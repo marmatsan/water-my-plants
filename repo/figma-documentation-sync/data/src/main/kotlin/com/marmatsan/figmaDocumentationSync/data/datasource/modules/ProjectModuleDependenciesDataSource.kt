@@ -23,7 +23,9 @@ class ProjectModuleDependenciesDataSource(
         source: ProjectModuleDependenciesSource
     ): Set<ModuleDependency> =
         when (source.scope) {
-            ProjectModuleDependenciesScope.Main -> gradleModuleDependenciesReader.readMain(File(source.rootDirPath))
+            ProjectModuleDependenciesScope.Main -> gradleModuleDependenciesReader.readMain(
+                rootDir = File(source.rootDirPath)
+            )
             ProjectModuleDependenciesScope.IncludedBuild -> gradleModuleDependenciesReader.readIncludedBuild(
                 rootDir = File(source.rootDirPath),
                 modulePathPrefix = source.modulePathPrefix

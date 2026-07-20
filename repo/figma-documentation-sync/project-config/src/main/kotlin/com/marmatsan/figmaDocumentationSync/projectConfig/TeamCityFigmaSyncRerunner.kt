@@ -40,8 +40,8 @@ class TeamCityFigmaSyncRerunner(
 
         val queuedRun = try {
             teamCityClient.startRun(
-                buildTypeId,
-                branch
+                buildTypeId = buildTypeId,
+                branch = branch
             )
         } catch (
             startError: RuntimeException
@@ -85,7 +85,9 @@ class TeamCityFigmaSyncRerunner(
         } catch (
             watchError: RuntimeException
         ) {
-            val current = runCatching { teamCityClient.readRun(run.id) }
+            val current = runCatching { teamCityClient.readRun(
+                buildId = run.id
+            ) }
                 .getOrElse { throw watchError }
             if (current.state == "finished" && current.status != "SUCCESS") {
                 throw failedRun(

@@ -19,7 +19,9 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
         val npmVersion = Regex("\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
             .find(packageJson.get().asFile.readText())
             ?.groupValues
-            ?.get(1)
+            ?.get(
+                index = 1
+            )
             ?: error("Missing version in tools/package.json")
         val expectedVersion = mavenVersion.get()
         check(npmVersion == expectedVersion) {

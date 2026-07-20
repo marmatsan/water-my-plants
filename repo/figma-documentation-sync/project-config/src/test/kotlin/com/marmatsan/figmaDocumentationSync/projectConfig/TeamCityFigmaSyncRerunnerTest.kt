@@ -38,8 +38,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec(
             ): TeamCityRun = error("Validation must not read a run")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun(
-            TeamCityFigmaSyncRerunner.Request(
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun(
+            request = TeamCityFigmaSyncRerunner.Request(
                 validateOnly = true
             )
         ) shouldBe TeamCityFigmaSyncRerunResult(
@@ -95,8 +97,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec(
             ): TeamCityRun = error("Watch succeeds")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun(
-            TeamCityFigmaSyncRerunner.Request(
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun(
+            request = TeamCityFigmaSyncRerunner.Request(
                 waitForCompletion = true,
                 pollIntervalSeconds = 5,
                 timeoutMinutes = 30
@@ -144,7 +148,9 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec(
             ): TeamCityRun = error("Reading was not requested")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun() shouldBe TeamCityFigmaSyncRerunResult(
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun() shouldBe TeamCityFigmaSyncRerunResult(
             runId = 1581,
             webUrl = "https://teamcity.example/build/1581",
             branch = "main",
@@ -189,8 +195,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec(
         }
 
         val exception = shouldThrow<IllegalStateException> {
-            TeamCityFigmaSyncRerunner(client).rerun(
-                TeamCityFigmaSyncRerunner.Request(
+            TeamCityFigmaSyncRerunner(
+                teamCityClient = client
+            ).rerun(
+                request = TeamCityFigmaSyncRerunner.Request(
                     waitForCompletion = true
                 )
             )

@@ -28,7 +28,9 @@ class QueueTeamCityRun(
         require(BRANCH.matches(request.branch)) {
             "TeamCity branch contains unsupported characters."
         }
-        return runQueue.queue(request)
+        return runQueue.queue(
+            request = request
+        )
     }
 
     private companion object {

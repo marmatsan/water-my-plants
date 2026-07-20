@@ -17,17 +17,25 @@ import kotlinx.serialization.json.jsonPrimitive
 class RunnerManifestJson {
     fun hash(
         body: JsonObject
-    ): String = Sha256Hash.of(CanonicalJson.stringify(body))
+    ): String = Sha256Hash.of(
+        value = CanonicalJson.stringify(
+            value = body
+        )
+    )
 
     fun readAll(
         rootPath: String
     ): List<RunnerManifest> {
-        val root = Path.of(rootPath)
+        val root = Path.of(
+            rootPath
+        )
         if (!Files.isDirectory(root)) return emptyList()
         return Files.walk(root).use { paths ->
             paths.filter { path -> path.isRegularFile() && path.fileName.toString() == MANIFEST_FILE_NAME }
                 .sorted()
-                .map(::read)
+                .map(
+                    ::read
+                )
                 .toList()
         }
     }
@@ -45,10 +53,16 @@ class RunnerManifestJson {
             modelHash = source.requiredString("modelHash"),
             writerHash = source.requiredString("writerHash"),
             transportHash = source.requiredString("transportHash"),
-            targetFingerprints = source.requiredStringMap("targetFingerprints"),
-            writerScopeFingerprints = source.requiredStringMap("writerScopeFingerprints"),
+            targetFingerprints = source.requiredStringMap(
+                name = "targetFingerprints"
+            ),
+            writerScopeFingerprints = source.requiredStringMap(
+                name = "writerScopeFingerprints"
+            ),
             writerScopeFingerprintSchemaVersion = source.requiredInt("writerScopeFingerprintSchemaVersion"),
-            executionScopes = source.requiredStringMap("executionScopes"),
+            executionScopes = source.requiredStringMap(
+                name = "executionScopes"
+            ),
             manifestHash = source.requiredString("manifestHash")
         )
     }

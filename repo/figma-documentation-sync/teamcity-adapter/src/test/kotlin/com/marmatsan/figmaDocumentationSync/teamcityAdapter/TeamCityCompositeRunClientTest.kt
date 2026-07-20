@@ -48,8 +48,8 @@ internal class TeamCityCompositeRunClientTest : FunSpec(
         )
 
         client.startRun(
-            "WaterMyPlants_WaterMyPlantsFigmaSync",
-            "main"
+            buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+            branch = "main"
         ) shouldBe queued
     }
 }

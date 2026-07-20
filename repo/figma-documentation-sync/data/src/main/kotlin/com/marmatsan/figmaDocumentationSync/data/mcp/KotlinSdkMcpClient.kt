@@ -63,8 +63,8 @@ class KotlinSdkMcpClient private constructor(
         url: String,
         bytes: ByteArray
     ) = assetUploader.upload(
-        url,
-        bytes
+        url = url,
+        bytes = bytes
     )
 
     override fun close() {
@@ -93,7 +93,9 @@ class KotlinSdkMcpClient private constructor(
                 client = httpClient,
                 url = endpoint
             )
-            runBlocking { client.connect(transport) }
+            runBlocking { client.connect(
+                transport = transport
+            ) }
             return KotlinSdkMcpClient(
                 httpClient = httpClient,
                 client = client

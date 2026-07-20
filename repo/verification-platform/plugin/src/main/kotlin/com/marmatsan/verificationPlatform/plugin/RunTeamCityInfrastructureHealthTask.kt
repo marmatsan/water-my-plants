@@ -35,7 +35,7 @@ abstract class RunTeamCityInfrastructureHealthTask : DefaultTask() {
     @TaskAction
     fun queue() {
         val result = QueueTeamCityRun(
-            TeamCityRestRunQueue(
+            runQueue = TeamCityRestRunQueue(
                 serverUrl = serverUrl.get(),
                 teamCityToken = teamCityToken.get()
             )

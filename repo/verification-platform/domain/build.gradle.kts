@@ -53,7 +53,9 @@ dokka {
 
     dokkaPublications.html {
         failOnWarning.set(true)
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {

@@ -36,7 +36,7 @@ internal class TeamCityRestRunQueueTest : FunSpec(
         }
 
         queue.queue(
-            TeamCityRunRequest(
+            request = TeamCityRunRequest(
                 buildTypeId = "WaterMyPlants_WaterMyPlantsInfrastructureHealth",
                 branch = "main"
             )
@@ -61,8 +61,8 @@ internal class TeamCityRestRunQueueTest : FunSpec(
     test("rejects plain HTTP for a non-loopback TeamCity origin") {
         val failure = shouldThrow<IllegalArgumentException> {
             TeamCityRestRunQueue(
-                "http://teamcity.example",
-                "teamcity-token"
+                serverUrl = "http://teamcity.example",
+                teamCityToken = "teamcity-token"
             )
         }
 
@@ -82,9 +82,9 @@ internal class TeamCityRestRunQueueTest : FunSpec(
 
         val failure = shouldThrow<IllegalArgumentException> {
             queue.queue(
-                TeamCityRunRequest(
-                    "InfrastructureHealth",
-                    "main"
+                request = TeamCityRunRequest(
+                    buildTypeId = "InfrastructureHealth",
+                    branch = "main"
                 )
             )
         }

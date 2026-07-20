@@ -11,7 +11,7 @@ internal class OfficialFigmaArtifactContractValidatorTest : FunSpec(
 
     test("accepts one consistent official main artifact set") {
         val result = validator.validate(
-            validContract(),
+            contract = validContract(),
             expectedGitSha = "abc123"
         )
 

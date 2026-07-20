@@ -11,7 +11,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
     test("readConventionLibraryUsages maps wrapper catalog dependencies to convention modules") {
         // GIVEN
         val rootDir = Files.createTempDirectory("convention-library-usages").toFile()
-        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        val includedBuildRootDir = rootDir.resolve(
+            relative = "repo/gradle-plugins"
+        )
         includedBuildRootDir.writeBuildFile(
             path = "android",
             content = """
@@ -66,7 +68,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
     test("readConventionPluginIdsByModule maps convention plugin ids to their implementing modules") {
         // GIVEN
         val rootDir = Files.createTempDirectory("convention-plugin-ids").toFile()
-        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        val includedBuildRootDir = rootDir.resolve(
+            relative = "repo/gradle-plugins"
+        )
         includedBuildRootDir.writeBuildFile(
             path = "compose",
             content = """
@@ -107,7 +111,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
     test("readConventionLibraryConfigurationUsages maps requireDependencyNotation calls to convention modules") {
         // GIVEN
         val rootDir = Files.createTempDirectory("convention-library-configuration-usages").toFile()
-        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        val includedBuildRootDir = rootDir.resolve(
+            relative = "repo/gradle-plugins"
+        )
         includedBuildRootDir.writeBuildFile(
             path = "protobuf",
             content = """
@@ -187,7 +193,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
         )
 
         // WHEN
-        val usages = GradleCatalogUsageReader().readMainLiteralPluginUsages(rootDir)
+        val usages = GradleCatalogUsageReader().readMainLiteralPluginUsages(
+            rootDir = rootDir
+        )
 
         // THEN
         usages shouldBe mapOf(
@@ -221,7 +229,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
         )
 
         // WHEN
-        val usages = GradleCatalogUsageReader().readMainAppliedLiteralPluginUsages(rootDir)
+        val usages = GradleCatalogUsageReader().readMainAppliedLiteralPluginUsages(
+            rootDir = rootDir
+        )
 
         // THEN
         usages shouldBe mapOf(
@@ -243,7 +253,9 @@ internal class GradleCatalogUsageReaderTest : FunSpec(
         )
 
         // WHEN
-        val pluginIds = GradleCatalogUsageReader().readMainAppliedLiteralPluginIds(rootDir)
+        val pluginIds = GradleCatalogUsageReader().readMainAppliedLiteralPluginIds(
+            rootDir = rootDir
+        )
 
         // THEN
         pluginIds shouldBe setOf("com.marmatsan.figmaDocumentationSync")
@@ -256,16 +268,24 @@ private fun File.writeKotlinFile(
     fileName: String,
     content: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve(fileName).writeText(content)
+    directory.resolve(
+        relative = fileName
+    ).writeText(content)
 }
 
 private fun File.writeBuildFile(
     path: String,
     content: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("build.gradle.kts").writeText(content)
+    directory.resolve(
+        relative = "build.gradle.kts"
+    ).writeText(content)
 }

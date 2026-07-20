@@ -85,7 +85,9 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     fun prepare() {
         val component = figmaDocumentationSyncComponent::class.create()
         val scopeJson = component.officialFigmaSyncScopeJson
-        val impact = scopeJson.readChangeImpact(changeImpactFile.get().asFile.absolutePath)
+        val impact = scopeJson.readChangeImpact(
+            sourcePath = changeImpactFile.get().asFile.absolutePath
+        )
         val gitSha = capture(
             projectRootDirectory.get().asFile,
             "git",
@@ -113,17 +115,21 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             )
 
             val runnerDirectory = runnerOutputDirectory.get().asFile
-            val writerScript = tools.resolve("sync-trunk-design-model.mcp.js")
+            val writerScript = tools.resolve(
+                relative = "sync-trunk-design-model.mcp.js"
+            )
             if (!writerScript.isFile) {
                 throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
             }
             OfficialMcpRunnerGenerator().generate(
-                OfficialMcpRunnerGenerator.Request(
+                request = OfficialMcpRunnerGenerator.Request(
                     modelPath = model.absolutePath,
                     scriptPath = writerScript.absolutePath,
                     outputDirectory = runnerDirectory.absolutePath,
                     toolsDirectory = tools.absolutePath,
-                    writerSourceDirectory = tools.resolve("src").absolutePath,
+                    writerSourceDirectory = tools.resolve(
+                        relative = "src"
+                    ).absolutePath,
                     repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
                     changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
                     config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
@@ -132,14 +138,18 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                 )
             )
 
-            val manifests = scopeJson.readRunnerManifests(runnerDirectory.absolutePath)
+            val manifests = scopeJson.readRunnerManifests(
+                rootPath = runnerDirectory.absolutePath
+            )
             val visualManifest = manifests.singleOrNull { manifest -> manifest.fullVisualSync }
                 ?: throw GradleException("Official visual MCP runner manifest was not generated exactly once.")
             val metadataManifest = manifests.singleOrNull { manifest -> manifest.writeMetadata }
                 ?: throw GradleException("Official metadata MCP runner manifest was not generated exactly once.")
             val plan = visualSyncPlanFile.get().asFile
             val planJson = VisualSyncPlanJson()
-            val visualPlan = VisualSyncPlanner(planJson).create(
+            val visualPlan = VisualSyncPlanner(
+                planHasher = planJson
+            ).create(
                 visualManifest,
                 readPreviousMetadata()
             )
@@ -196,7 +206,9 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
         val nodeUrl = metadataNodeUrl.orNull ?: return null
         val namespace = metadataNamespace.orNull ?: return null
-        val reference = FigmaNodeUrl.parse(nodeUrl)
+        val reference = FigmaNodeUrl.parse(
+            url = nodeUrl
+        )
         val node = runCatching {
             FigmaFileContentClient().getNodeContent(
                 fileKey = reference.fileKey,

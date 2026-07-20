@@ -25,7 +25,7 @@ internal class WriterRuntimeContractTest : FunSpec(
         )
         val contract = Json.parseToJsonElement(Files.readString(contractPath)).jsonObject
         val runtimeConfig = FigmaWriterRuntimeConfigJson.decode(
-            FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
+            source = FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
         )
         val visual = contract.getValue("visual").jsonObject
         val metadata = contract.getValue("metadata").jsonObject

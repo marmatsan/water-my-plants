@@ -9,11 +9,17 @@ internal class PluginScopeTest : FunSpec(
     {
 
     test("plugin adds a child plugin node with version") {
-        val root = Node(DependencyNode.Plugin("root"))
-        val scope = PluginScope(root)
+        val root = Node(
+            DependencyNode.Plugin(
+                pluginId = "root"
+            )
+        )
+        val scope = PluginScope(
+            root = root
+        )
 
         scope.plugin(
-            "com.android.application",
+            id = "com.android.application",
             version = "9.2.1"
         )
 
@@ -28,8 +34,14 @@ internal class PluginScopeTest : FunSpec(
     }
 
     test("plugin adds a child plugin node without version") {
-        val root = Node(DependencyNode.Plugin("root"))
-        val scope = PluginScope(root)
+        val root = Node(
+            DependencyNode.Plugin(
+                pluginId = "root"
+            )
+        )
+        val scope = PluginScope(
+            root = root
+        )
 
         scope.plugin("com.marmatsan.android")
 
@@ -43,17 +55,23 @@ internal class PluginScopeTest : FunSpec(
     }
 
     test("plugin supports nested plugin groups") {
-        val root = Node(DependencyNode.Plugin("root"))
-        val scope = PluginScope(root)
+        val root = Node(
+            DependencyNode.Plugin(
+                pluginId = "root"
+            )
+        )
+        val scope = PluginScope(
+            root = root
+        )
 
         scope.plugin("org.jetbrains.kotlin") {
             plugin(
-                "android",
+                id = "android",
                 version = "2.3.21"
             )
             plugin("plugin") {
                 plugin(
-                    "compose",
+                    id = "compose",
                     version = "2.3.21"
                 )
             }
@@ -90,19 +108,25 @@ internal class PluginScopeTest : FunSpec(
     }
 
     test("plugin restores parent after nested content and keeps sibling order") {
-        val root = Node(DependencyNode.Plugin("root"))
-        val scope = PluginScope(root)
+        val root = Node(
+            DependencyNode.Plugin(
+                pluginId = "root"
+            )
+        )
+        val scope = PluginScope(
+            root = root
+        )
 
         scope.plugin("com.android") {
             plugin(
-                "application",
+                id = "application",
                 version = "9.2.1"
             )
         }
         scope.plugin("com.google") {
             plugin("devtools") {
                 plugin(
-                    "ksp",
+                    id = "ksp",
                     version = "2.3.9"
                 )
             }

@@ -28,8 +28,8 @@ internal class VisualSyncPlanJsonTest : FunSpec(
             val hash = adapter.hash(body)
             adapter.write(
                 VisualSyncPlan(
-                    body,
-                    hash
+                    body = body,
+                    planHash = hash
                 ),
                 output.toString()
             )

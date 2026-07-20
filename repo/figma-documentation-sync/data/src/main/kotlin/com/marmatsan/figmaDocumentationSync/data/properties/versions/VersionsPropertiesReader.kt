@@ -46,7 +46,9 @@ class VersionsPropertiesReader {
         file.forEachLine { line ->
             val trimmed = line.trim()
             when {
-                trimmed.startsWith("## ") -> {
+                trimmed.startsWith(
+                    prefix = "## "
+                ) -> {
                     currentSection = trimmed.removePrefix("##").trim()
                     sections.getOrPut(
                         currentSection,
@@ -54,7 +56,11 @@ class VersionsPropertiesReader {
                     )
                 }
 
-                trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("!") -> Unit
+                trimmed.isEmpty() || trimmed.startsWith(
+                    prefix = "#"
+                ) || trimmed.startsWith(
+                    prefix = "!"
+                ) -> Unit
 
                 "=" in trimmed -> {
                     val separatorIndex = trimmed.indexOf("=")

@@ -32,7 +32,9 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
         }
 
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(String::toBoolean).getOrElse(false)) {
+        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(
+            String::toBoolean
+        ).getOrElse(false)) {
             project.pluginManager.apply("com.figma.code.connect")
         }
 
@@ -40,7 +42,9 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             /* Compose libraries managed by Compose BOM */
             libs.implementationPlatform(

@@ -16,7 +16,7 @@ internal class MapperTest : FunSpec(
             libraryGroup = "androidx.activity",
             entries = listOf(
                 LibraryEntry.Single(
-                    Artifact(
+                    artifact = Artifact(
                         artifact = "activity-compose",
                         version = "1.9.1"
                     )

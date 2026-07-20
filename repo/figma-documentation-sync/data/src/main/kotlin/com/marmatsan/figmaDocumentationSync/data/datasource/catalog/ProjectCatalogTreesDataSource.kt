@@ -43,7 +43,9 @@ class ProjectCatalogTreesDataSource(
     ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readLibraryTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(
+                    gradleCatalogUsageReader = gradleCatalogUsageReader
+                ).readLibraryTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -73,7 +75,9 @@ class ProjectCatalogTreesDataSource(
     ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readPluginTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(
+                    gradleCatalogUsageReader = gradleCatalogUsageReader
+                ).readPluginTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -126,13 +130,17 @@ private fun List<PluginCatalogTree>.mergePluginTrees(): PluginCatalogTree =
         PluginCatalogTree(
             roots = emptyList()
         )
-    ) { mergedTree, tree -> mergedTree.merge(tree) }
+    ) { mergedTree, tree -> mergedTree.merge(
+        other = tree
+    ) }
 
 private fun PluginCatalogTree.merge(
     other: PluginCatalogTree
 ): PluginCatalogTree =
     copy(
-        roots = roots.mergePluginNodes(other.roots)
+        roots = roots.mergePluginNodes(
+            other = other.roots
+        )
     )
 
 private fun List<PluginCatalogNode>.mergePluginNodes(
@@ -157,5 +165,7 @@ private fun PluginCatalogNode.merge(
                     PluginCatalogNode.ConventionPluginUsage::pluginModule
                 )
             ),
-        children = children.mergePluginNodes(other.children)
+        children = children.mergePluginNodes(
+            other = other.children
+        )
     )

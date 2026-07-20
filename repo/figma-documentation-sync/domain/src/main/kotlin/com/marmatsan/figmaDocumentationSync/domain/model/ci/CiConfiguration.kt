@@ -11,10 +11,18 @@ data class CiConfiguration(
     val vcsRoots: List<CiVcsRoot>
 ) {
     init {
-        require(pipelines.map(CiPipeline::id).let { ids -> ids.size == ids.toSet().size }) {
+        require(
+            pipelines.map(
+                transform = CiPipeline::id
+            ).let { ids -> ids.size == ids.toSet().size }
+        ) {
             "CI pipeline ids must be unique"
         }
-        require(vcsRoots.map(CiVcsRoot::id).let { ids -> ids.size == ids.toSet().size }) {
+        require(
+            vcsRoots.map(
+                transform = CiVcsRoot::id
+            ).let { ids -> ids.size == ids.toSet().size }
+        ) {
             "CI VCS root ids must be unique"
         }
     }

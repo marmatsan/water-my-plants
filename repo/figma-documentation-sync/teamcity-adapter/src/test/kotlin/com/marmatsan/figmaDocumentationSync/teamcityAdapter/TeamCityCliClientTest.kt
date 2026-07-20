@@ -27,7 +27,9 @@ internal class TeamCityCliClientTest : FunSpec(
             )
         }
 
-        val build = client.readBuild(1573)
+        val build = client.readBuild(
+            buildId = 1573
+        )
 
         build shouldBe TeamCityBuild(
             id = 1573,
@@ -49,7 +51,9 @@ internal class TeamCityCliClientTest : FunSpec(
     }
 
     test("downloads one build artifact set into the requested directory") {
-        val output = Files.createTempDirectory("teamcity-cli-download").resolve("artifacts").toFile()
+        val output = Files.createTempDirectory("teamcity-cli-download").resolve(
+            "artifacts"
+        ).toFile()
         val commands = mutableListOf<List<String>>()
         val client = TeamCityCliClient { command, _ ->
             commands += command
@@ -61,8 +65,8 @@ internal class TeamCityCliClientTest : FunSpec(
         }
 
         client.downloadArtifacts(
-            1573,
-            output
+            buildId = 1573,
+            outputDirectory = output
         )
 
         output.isDirectory shouldBe true
@@ -167,11 +171,11 @@ internal class TeamCityCliClientTest : FunSpec(
         }
 
         client.startRun(
-            "WaterMyPlants_WaterMyPlantsFigmaSync",
-            "main"
+            buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+            branch = "main"
         ).state shouldBe "queued"
         client.watchRun(
-            1581,
+            buildId = 1581,
             pollIntervalSeconds = 10,
             timeoutMinutes = 60
         ).status shouldBe "SUCCESS"

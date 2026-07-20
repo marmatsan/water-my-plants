@@ -50,7 +50,11 @@ class CiTopologyPlanner {
                 availableAgents = availableAgents
             )
         }
-        check(lanes.flatMap(CiExecutionLane::verificationUnits) == requiredUnits.map(VerificationUnit::id)) {
+        check(
+            lanes.flatMap(CiExecutionLane::verificationUnits) == requiredUnits.map(
+                transform = VerificationUnit::id
+            )
+        ) {
             "CI topology must schedule every required verification unit exactly once and in plan order."
         }
         val statusPublisher = lanes.single(CiExecutionLane::publishesAuthoritativeStatus)
@@ -145,7 +149,9 @@ class CiTopologyPlanner {
         publishesAuthoritativeStatus: Boolean
     ) = CiExecutionLane(
         id = id,
-        verificationUnits = units.map(VerificationUnit::id),
+        verificationUnits = units.map(
+            transform = VerificationUnit::id
+        ),
         needs = needs,
         capabilities = units.flatMap(VerificationUnit::capabilities).distinct(),
         parallelSafe = units.all(VerificationUnit::parallelSafe),

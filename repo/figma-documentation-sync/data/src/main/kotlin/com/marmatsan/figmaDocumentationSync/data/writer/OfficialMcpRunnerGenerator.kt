@@ -47,9 +47,15 @@ class OfficialMcpRunnerGenerator(
         require(request.chunkSize >= MINIMUM_CHUNK_SIZE) {
             "MCP chunk size must be at least $MINIMUM_CHUNK_SIZE."
         }
-        val modelPath = Path.of(request.modelPath).toAbsolutePath().normalize()
-        val scriptPath = Path.of(request.scriptPath).toAbsolutePath().normalize()
-        val outputRoot = Path.of(request.outputDirectory).toAbsolutePath().normalize()
+        val modelPath = Path.of(
+            request.modelPath
+        ).toAbsolutePath().normalize()
+        val scriptPath = Path.of(
+            request.scriptPath
+        ).toAbsolutePath().normalize()
+        val outputRoot = Path.of(
+            request.outputDirectory
+        ).toAbsolutePath().normalize()
         val modelElement = Json.parseToJsonElement(Files.readString(modelPath).removePrefix(UTF8_BOM))
         val designModel = modelElement.jsonObject
         val modelJson = Json.encodeToString(
@@ -71,7 +77,9 @@ class OfficialMcpRunnerGenerator(
 
         val modelHash = designModel.requiredString("modelHash")
         val gitSha = designModel.requiredString("gitSha")
-        val writerHash = Sha256Hash.of(script.toByteArray(StandardCharsets.UTF_8))
+        val writerHash = Sha256Hash.of(
+            value = script.toByteArray(StandardCharsets.UTF_8)
+        )
         val transportHash = transportHash(
             request = request
         )
@@ -81,8 +89,12 @@ class OfficialMcpRunnerGenerator(
             catalogTargets = request.config.catalogTargetNames
         )
         val allWriterFingerprints = writerFingerprints.create(
-            sourceRoot = Path.of(request.writerSourceDirectory).toAbsolutePath().normalize(),
-            repositoryRoot = Path.of(request.repositoryRootDirectory).toAbsolutePath().normalize(),
+            sourceRoot = Path.of(
+                request.writerSourceDirectory
+            ).toAbsolutePath().normalize(),
+            repositoryRoot = Path.of(
+                request.repositoryRootDirectory
+            ).toAbsolutePath().normalize(),
             policy = policySource.read(request.changeImpactPolicyPath),
             writerTargets = request.config.writerTargetNames,
             catalogTargets = request.config.catalogTargetNames,
@@ -103,14 +115,18 @@ class OfficialMcpRunnerGenerator(
 
         val visual = generateRunner(
             context = context,
-            outputDirectory = outputRoot.resolve(VISUAL_DIRECTORY),
+            outputDirectory = outputRoot.resolve(
+                VISUAL_DIRECTORY
+            ),
             targets = request.config.visualTargetNames,
             writeMetadata = false,
             fullVisualSync = true
         )
         val metadata = generateRunner(
             context = context,
-            outputDirectory = outputRoot.resolve(METADATA_DIRECTORY),
+            outputDirectory = outputRoot.resolve(
+                METADATA_DIRECTORY
+            ),
             targets = listOf("metadata"),
             writeMetadata = true,
             fullVisualSync = false
@@ -134,8 +150,8 @@ class OfficialMcpRunnerGenerator(
         val sources = linkedMapOf<String, String>()
         val namespace = context.request.config.officialStagingNamespace
         sources[CLEAR_STAGING_FILE] = renderer.clearStaging(
-            context.request.config.metadataPageId,
-            namespace
+            metadataPageId = context.request.config.metadataPageId,
+            namespace = namespace
         )
 
         val payloadImage = if (context.request.transport == TRANSPORT_PNG) {
@@ -150,19 +166,27 @@ class OfficialMcpRunnerGenerator(
                 writerHash = context.writerHash,
                 transportHash = context.transportHash
             )
-            val bytes = payloadEncoder.encode(payloadEncoder.payloadJson(payload))
+            val bytes = payloadEncoder.encode(
+                payloadEncoder.payloadJson(
+                    payload = payload
+                )
+            )
             require(bytes.size <= PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
                 "Official payload PNG is ${bytes.size} bytes and exceeds " +
                     "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes. Use chunk transport."
             }
             Files.write(
-                outputDirectory.resolve(PAYLOAD_PNG_FILE),
+                outputDirectory.resolve(
+                    PAYLOAD_PNG_FILE
+                ),
                 bytes
             )
             val image = RunnerPayloadImage(
                 fileName = PAYLOAD_PNG_FILE,
                 byteLength = bytes.size,
-                sha256 = Sha256Hash.of(bytes),
+                sha256 = Sha256Hash.of(
+                    value = bytes
+                ),
                 textKeyword = PayloadPngEncoder.TEXT_KEYWORD
             )
             sources[STAGE_PAYLOAD_FILE] = renderer.stagePayloadFromPng(
@@ -199,14 +223,20 @@ class OfficialMcpRunnerGenerator(
             fullVisualSync = fullVisualSync
         )
         sources.forEach { (fileName, source) -> Files.writeString(
-            outputDirectory.resolve(fileName),
+            outputDirectory.resolve(
+                fileName
+            ),
             source
         ) }
         val fileHashes = sources.mapValues { (_, source) ->
-            Sha256Hash.of(source.toByteArray(StandardCharsets.UTF_8))
+            Sha256Hash.of(
+                value = source.toByteArray(StandardCharsets.UTF_8)
+            )
         }
         val manifestDraft = ExecutableRunnerManifest(
-            path = outputDirectory.resolve(MANIFEST_FILE).toString(),
+            path = outputDirectory.resolve(
+                MANIFEST_FILE
+            ).toString(),
             schemaVersion = MANIFEST_SCHEMA_VERSION,
             mode = "official",
             entrypoint = "trunk-sync",
@@ -245,8 +275,10 @@ class OfficialMcpRunnerGenerator(
             manifestHash = ""
         )
         return manifestJson.finalizeAndWrite(
-            manifestDraft,
-            outputDirectory.resolve(MANIFEST_FILE).toString()
+            draft = manifestDraft,
+            outputPath = outputDirectory.resolve(
+                MANIFEST_FILE
+            ).toString()
         )
     }
 
@@ -416,7 +448,11 @@ class OfficialMcpRunnerGenerator(
                     "catalogRootFilters",
                     buildJsonObject { put(
                         target,
-                        JsonArray(roots.map(::JsonPrimitive))
+                        JsonArray(
+                            roots.map(
+                                transform = ::JsonPrimitive
+                            )
+                        )
                     ) }
                 )
             }
@@ -424,7 +460,9 @@ class OfficialMcpRunnerGenerator(
                 "catalogCleanupOnlyTargets",
                 JsonArray(listOf(JsonPrimitive(target)))
             )
-            if (target.startsWith("ci.")) {
+            if (target.startsWith(
+                prefix = "ci."
+            )) {
                 val ciConfig = context.request.config.ciVisualPlanConfig
                     ?: throw IllegalArgumentException(
                         "CI visual target '$target' requires CI visual plan project configuration."
@@ -492,7 +530,11 @@ class OfficialMcpRunnerGenerator(
                 renderer.templateHashes().toJsonObject()
             )
         }
-        return Sha256Hash.of(CanonicalJson.stringify(body))
+        return Sha256Hash.of(
+            value = CanonicalJson.stringify(
+                value = body
+            )
+        )
     }
 
     private fun catalogRoots(
@@ -504,9 +546,15 @@ class OfficialMcpRunnerGenerator(
         val catalogName = target.substringBefore('.')
         val treeName = target.substringAfter('.')
         val nodes = designModel["content"]?.jsonObject
-            ?.get("catalogs")?.jsonObject
-            ?.get(catalogName)?.jsonObject
-            ?.get(treeName)?.jsonArray
+            ?.get(
+                key = "catalogs"
+            )?.jsonObject
+            ?.get(
+                key = catalogName
+            )?.jsonObject
+            ?.get(
+                key = treeName
+            )?.jsonArray
             ?: JsonArray(emptyList())
         val rootKey = if (treeName == "libraries") "group" else "id"
         return nodes.mapNotNull { node -> node.jsonObject[rootKey]?.jsonPrimitive?.contentOrNull }.distinct()
@@ -547,8 +595,12 @@ class OfficialMcpRunnerGenerator(
         toolsDirectory: String,
         path: String
     ): String {
-        val tools = Path.of(toolsDirectory).toAbsolutePath().normalize()
-        val target = Path.of(path).toAbsolutePath().normalize()
+        val tools = Path.of(
+            toolsDirectory
+        ).toAbsolutePath().normalize()
+        val target = Path.of(
+            path
+        ).toAbsolutePath().normalize()
         return runCatching { tools.relativize(target).toString() }
             .getOrDefault(target.toString())
             .replace(

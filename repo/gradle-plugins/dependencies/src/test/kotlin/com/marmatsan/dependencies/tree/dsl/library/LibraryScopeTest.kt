@@ -13,13 +13,19 @@ internal class LibraryScopeTest : FunSpec(
 
     test("artifact adds a single entry with version to the created library") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("activity") {
             artifact(
-                "activity-compose",
+                artifact = "activity-compose",
                 version = "1.9.1"
             )
         }
@@ -31,7 +37,7 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "activity",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "activity-compose",
                                 "1.9.1"
                             )
@@ -44,16 +50,24 @@ internal class LibraryScopeTest : FunSpec(
 
     test("artifact adds multiple entries and keeps versionless artifacts and declaration order") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("activity") {
             artifact(
-                "activity-compose",
+                artifact = "activity-compose",
                 version = "1.9.1"
             )
-            artifact("activity-ktx")
+            artifact(
+                artifact = "activity-ktx"
+            )
         }
 
         // THEN
@@ -63,13 +77,13 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "activity",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "activity-compose",
                                 "1.9.1"
                             )
                         ),
                         LibraryEntry.Single(
-                            Artifact("activity-ktx")
+                            artifact = Artifact("activity-ktx")
                         )
                     )
                 )
@@ -79,8 +93,14 @@ internal class LibraryScopeTest : FunSpec(
 
     test("artifactsBundle adds a bundle entry with alias and versionless artifacts") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("compose") {
@@ -99,7 +119,7 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "compose",
                     entries = listOf(
                         LibraryEntry.Bundle(
-                            ArtifactsBundle(
+                            artifactsBundle = ArtifactsBundle(
                                 alias = "composeBundle",
                                 artifacts = listOf(
                                     Artifact("ui"),
@@ -116,8 +136,14 @@ internal class LibraryScopeTest : FunSpec(
 
     test("artifactsBundle propagates version to bundle and artifacts") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("compose") {
@@ -136,7 +162,7 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "compose",
                     entries = listOf(
                         LibraryEntry.Bundle(
-                            ArtifactsBundle(
+                            artifactsBundle = ArtifactsBundle(
                                 alias = "composeBundle",
                                 artifacts = listOf(
                                     Artifact(
@@ -159,13 +185,19 @@ internal class LibraryScopeTest : FunSpec(
 
     test("artifactsBundle can be declared with artifact and keeps entry order") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("compose") {
             artifact(
-                "compose-bom",
+                artifact = "compose-bom",
                 version = "2025.06.01"
             )
             artifactsBundle(
@@ -182,13 +214,13 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "compose",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "compose-bom",
                                 "2025.06.01"
                             )
                         ),
                         LibraryEntry.Bundle(
-                            ArtifactsBundle(
+                            artifactsBundle = ArtifactsBundle(
                                 alias = "composeBundle",
                                 artifacts = listOf(
                                     Artifact("ui"),
@@ -204,42 +236,60 @@ internal class LibraryScopeTest : FunSpec(
 
     test("library adds a child library node without entries when content is null") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("compose")
 
         // THEN
         root.children shouldBe mutableListOf(
-            Node(DependencyNode.Library("compose"))
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose"
+                )
+            )
         )
     }
 
     test("library supports nested groups and preserves parent entries and children") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("compose") {
             artifact(
-                "compose-bom",
+                artifact = "compose-bom",
                 version = "2025.06.01"
             )
             library("ui") {
-                artifact("ui")
+                artifact(
+                    artifact = "ui"
+                )
             }
         }
 
         // THEN
         root.children shouldBe mutableListOf(
             Node(
-                DependencyNode.Library(
+                value = DependencyNode.Library(
                     libraryGroup = "compose",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "compose-bom",
                                 "2025.06.01"
                             )
@@ -252,7 +302,7 @@ internal class LibraryScopeTest : FunSpec(
                             libraryGroup = "ui",
                             entries = listOf(
                                 LibraryEntry.Single(
-                                    Artifact("ui")
+                                    artifact = Artifact("ui")
                                 )
                             )
                         )
@@ -264,19 +314,25 @@ internal class LibraryScopeTest : FunSpec(
 
     test("library keeps entries isolated between siblings and preserves sibling order") {
         // GIVEN
-        val root = Node(DependencyNode.Library("androidx"))
-        val scope = LibraryScope(root)
+        val root = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
+        val scope = LibraryScope(
+            root = root
+        )
 
         // WHEN
         scope.library("activity") {
             artifact(
-                "activity-compose",
+                artifact = "activity-compose",
                 version = "1.9.1"
             )
         }
         scope.library("compose") {
             artifact(
-                "compose-bom",
+                artifact = "compose-bom",
                 version = "2025.06.01"
             )
         }
@@ -288,7 +344,7 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "activity",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "activity-compose",
                                 "1.9.1"
                             )
@@ -301,7 +357,7 @@ internal class LibraryScopeTest : FunSpec(
                     libraryGroup = "compose",
                     entries = listOf(
                         LibraryEntry.Single(
-                            Artifact(
+                            artifact = Artifact(
                                 "compose-bom",
                                 "2025.06.01"
                             )

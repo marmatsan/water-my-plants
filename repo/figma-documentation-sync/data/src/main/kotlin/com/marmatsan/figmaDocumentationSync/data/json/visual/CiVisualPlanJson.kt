@@ -39,12 +39,20 @@ object CiVisualPlanJson {
         config: CiVisualPlanConfig,
         target: String? = null
     ): JsonObject {
-        val ci = designModel["content"]?.jsonObject?.get("ci")?.jsonObject
+        val ci = designModel["content"]?.jsonObject?.get(
+            key = "ci"
+        )?.jsonObject
             ?: throw IllegalArgumentException("designModel.content.ci is required for CI visual sync.")
         val plan = CiVisualPlanner().create(
-            externalTopology = ci.requiredObject("externalTopology").toExternalTopology(),
-            windowsRuntime = ci.requiredObject("windowsRuntime").toWindowsRuntime(),
-            configuration = ci.requiredObject(config.configurationModelName).toCiConfiguration(),
+            externalTopology = ci.requiredObject(
+                name = "externalTopology"
+            ).toExternalTopology(),
+            windowsRuntime = ci.requiredObject(
+                name = "windowsRuntime"
+            ).toWindowsRuntime(),
+            configuration = ci.requiredObject(
+                name = config.configurationModelName
+            ).toCiConfiguration(),
             config = config
         )
         val selected = target?.let { requested ->
@@ -65,9 +73,15 @@ object CiVisualPlanJson {
         outputPath: String
     ) {
         val designModel = Json.parseToJsonElement(
-            Files.readString(Path.of(designModelPath)).removePrefix(UTF8_BOM)
+            Files.readString(
+                Path.of(
+                    designModelPath
+                )
+            ).removePrefix(UTF8_BOM)
         ).jsonObject
-        val destination = Path.of(outputPath)
+        val destination = Path.of(
+            outputPath
+        )
         destination.parent?.let(Files::createDirectories)
         Files.writeString(
             destination,
@@ -91,7 +105,9 @@ object CiVisualPlanJson {
             name = "validation"
         ).let { validation ->
             CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse(validation.requiredString("lastValidatedOn")),
+                lastValidatedOn = LocalDate.parse(
+                    validation.requiredString("lastValidatedOn")
+                ),
                 warnAfterDays = validation.requiredInt("warnAfterDays")
             )
         },
@@ -117,7 +133,9 @@ object CiVisualPlanJson {
                 label = connection.requiredString("label"),
                 description = connection.requiredString("description"),
                 protocol = connection.optionalString("protocol"),
-                authentication = connection.requiredArray("authentication").map { it.jsonPrimitive.content },
+                authentication = connection.requiredArray(
+                    name = "authentication"
+                ).map { it.jsonPrimitive.content },
                 policy = connection.optionalString("policy"),
                 path = connection.optionalString("path"),
                 automation = CiConnection.Automation.entries.single { automation ->
@@ -136,7 +154,9 @@ object CiVisualPlanJson {
             name = "validation"
         ).let { validation ->
             CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse(validation.requiredString("lastValidatedOn")),
+                lastValidatedOn = LocalDate.parse(
+                    validation.requiredString("lastValidatedOn")
+                ),
                 warnAfterDays = validation.requiredInt("warnAfterDays")
             )
         },
@@ -171,7 +191,9 @@ object CiVisualPlanJson {
                 name = root.requiredString("name"),
                 url = root.requiredString("url"),
                 defaultBranchRef = root.requiredString("defaultBranchRef"),
-                branchSpec = root.requiredArray("branchSpec").map { it.jsonPrimitive.content }
+                branchSpec = root.requiredArray(
+                    name = "branchSpec"
+                ).map { it.jsonPrimitive.content }
             )
         }
     )
@@ -211,9 +233,9 @@ object CiVisualPlanJson {
         ).map { element ->
             val step = element.jsonObject
             CiJob.Step(
-                step.requiredString("id"),
-                step.requiredString("name"),
-                step.requiredString("command")
+                id = step.requiredString("id"),
+                name = step.requiredString("name"),
+                command = step.requiredString("command")
             )
         },
         repositoryIds = requiredArray(
@@ -234,14 +256,18 @@ object CiVisualPlanJson {
         ).map { element ->
             val dependency = element.jsonObject
             CiJob.Dependency(
-                dependency.requiredString("jobId"),
-                dependency.requiredArray("artifactPaths").map { it.jsonPrimitive.content }
+                jobId = dependency.requiredString("jobId"),
+                artifactPaths = dependency.requiredArray(
+                    name = "artifactPaths"
+                ).map { it.jsonPrimitive.content }
             )
         },
         publishedChecks = requiredArray(
             name = "publishedChecks"
         ).map { element ->
-            CiJob.PublishedCheck(element.jsonObject.requiredString("name"))
+            CiJob.PublishedCheck(
+                name = element.jsonObject.requiredString("name")
+            )
         }
     )
 

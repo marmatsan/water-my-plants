@@ -17,8 +17,12 @@ object WaterMyPlantsCatalog {
     private fun catalogTrees(
         versions: Versions
     ): DependencyCatalogTrees = DependencyCatalogTrees(
-        libraries = libraryTrees(versions),
-        plugins = pluginTrees(versions)
+        libraries = libraryTrees(
+            versions = versions
+        ),
+        plugins = pluginTrees(
+            versions = versions
+        )
     )
 }
 

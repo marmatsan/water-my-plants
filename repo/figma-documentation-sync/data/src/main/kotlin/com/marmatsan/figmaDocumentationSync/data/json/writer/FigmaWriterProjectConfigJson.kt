@@ -24,7 +24,9 @@ object FigmaWriterProjectConfigJson {
         ) + System.lineSeparator()
 
     private fun FigmaWriterProjectConfig.toJson(): JsonObject {
-        val catalogTargetNames = catalogTreeTargets.map(FigmaCatalogTreeTargetConfig::name)
+        val catalogTargetNames = catalogTreeTargets.map(
+            transform = FigmaCatalogTreeTargetConfig::name
+        )
         return buildJsonObject {
             put(
                 "schemaVersion",
@@ -392,5 +394,7 @@ object FigmaWriterProjectConfigJson {
     private fun Map<String, String>.toJsonObject(): JsonObject =
         mapValues { (_, value) -> JsonPrimitive(value) }.let(::JsonObject)
 
-    private fun List<String>.toJsonArray(): JsonArray = map(::JsonPrimitive).let(::JsonArray)
+    private fun List<String>.toJsonArray(): JsonArray = map(
+        transform = ::JsonPrimitive
+    ).let(::JsonArray)
 }

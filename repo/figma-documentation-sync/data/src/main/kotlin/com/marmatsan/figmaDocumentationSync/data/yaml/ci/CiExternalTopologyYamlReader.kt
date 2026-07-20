@@ -22,25 +22,41 @@ class CiExternalTopologyYamlReader {
             .build()
         val root = file.inputStream().use { input ->
             Load(settings).loadFromInputStream(input)
-        }.asStringMap("root")
+        }.asStringMap(
+            context = "root"
+        )
 
-        val validation = root.requiredMap("validation")
+        val validation = root.requiredMap(
+            key = "validation"
+        )
 
         return CiExternalTopology(
             schemaVersion = root.requiredInt("schemaVersion"),
             validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse(validation.requiredString("lastValidatedOn")),
+                lastValidatedOn = LocalDate.parse(
+                    validation.requiredString("lastValidatedOn")
+                ),
                 warnAfterDays = validation.requiredInt("warnAfterDays")
             ),
-            nodes = root.requiredList("nodes").map(::readNode),
-            connections = root.requiredList("connections").map(::readConnection)
+            nodes = root.requiredList(
+                key = "nodes"
+            ).map(
+                transform = ::readNode
+            ),
+            connections = root.requiredList(
+                key = "connections"
+            ).map(
+                transform = ::readConnection
+            )
         )
     }
 
     private fun readNode(
         value: Any?
     ): CiNode {
-        val node = value.asStringMap("node")
+        val node = value.asStringMap(
+            context = "node"
+        )
         val serializedType = node.requiredString("type")
         val type = CiNode.Type.entries.singleOrNull { candidate ->
             candidate.serializedName == serializedType
@@ -57,7 +73,9 @@ class CiExternalTopologyYamlReader {
     private fun readConnection(
         value: Any?
     ): CiConnection {
-        val connection = value.asStringMap("connection")
+        val connection = value.asStringMap(
+            context = "connection"
+        )
         val serializedAutomation = connection.requiredString("automation")
         val automation = CiConnection.Automation.entries.singleOrNull { candidate ->
             candidate.serializedName == serializedAutomation
@@ -70,7 +88,9 @@ class CiExternalTopologyYamlReader {
             label = connection.requiredString("label"),
             description = connection.requiredString("description"),
             protocol = connection.optionalString("protocol"),
-            authentication = connection.optionalStringList("authentication"),
+            authentication = connection.optionalStringList(
+                key = "authentication"
+            ),
             policy = connection.optionalString("policy"),
             path = connection.optionalString("path"),
             automation = automation,
@@ -91,32 +111,46 @@ class CiExternalTopologyYamlReader {
     private fun Map<String, Any?>.requiredMap(
         key: String
     ): Map<String, Any?> =
-        get(key).asStringMap(key)
+        get(
+            key = key
+        ).asStringMap(
+            context = key
+        )
 
     private fun Map<String, Any?>.requiredList(
         key: String
     ): List<Any?> =
-        get(key) as? List<*> ?: error("Expected YAML list '$key'")
+        get(
+            key = key
+        ) as? List<*> ?: error("Expected YAML list '$key'")
 
     private fun Map<String, Any?>.requiredString(
         key: String
     ): String =
-        get(key) as? String ?: error("Expected YAML string '$key'")
+        get(
+            key = key
+        ) as? String ?: error("Expected YAML string '$key'")
 
     private fun Map<String, Any?>.optionalString(
         key: String
     ): String? =
-        get(key)?.let { value -> value as? String ?: error("Expected YAML string '$key'") }
+        get(
+            key = key
+        )?.let { value -> value as? String ?: error("Expected YAML string '$key'") }
 
     private fun Map<String, Any?>.requiredInt(
         key: String
     ): Int =
-        (get(key) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
+        (get(
+            key = key
+        ) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
 
     private fun Map<String, Any?>.optionalStringList(
         key: String
     ): List<String> =
-        when (val value = get(key)) {
+        when (val value = get(
+            key = key
+        )) {
             null -> emptyList()
             is List<*> -> value.map { item ->
                 item as? String ?: error("Expected string value in YAML list '$key'")

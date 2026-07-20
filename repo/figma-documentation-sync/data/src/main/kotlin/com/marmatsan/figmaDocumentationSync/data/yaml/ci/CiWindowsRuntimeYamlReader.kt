@@ -20,24 +20,36 @@ class CiWindowsRuntimeYamlReader {
             .build()
         val root = file.inputStream().use { input ->
             Load(settings).loadFromInputStream(input)
-        }.asStringMap("root")
-        val validation = root.requiredMap("validation")
+        }.asStringMap(
+            context = "root"
+        )
+        val validation = root.requiredMap(
+            key = "validation"
+        )
 
         return CiWindowsRuntime(
             schemaVersion = root.requiredInt("schemaVersion"),
             validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse(validation.requiredString("lastValidatedOn")),
+                lastValidatedOn = LocalDate.parse(
+                    validation.requiredString("lastValidatedOn")
+                ),
                 warnAfterDays = validation.requiredInt("warnAfterDays")
             ),
             platform = root.requiredString("platform"),
-            services = root.requiredList("services").map(::readService)
+            services = root.requiredList(
+                key = "services"
+            ).map(
+                transform = ::readService
+            )
         )
     }
 
     private fun readService(
         value: Any?
     ): CiWindowsRuntime.Service {
-        val service = value.asStringMap("service")
+        val service = value.asStringMap(
+            context = "service"
+        )
         return CiWindowsRuntime.Service(
             id = service.requiredString("id"),
             name = service.requiredString("name"),
@@ -61,20 +73,30 @@ class CiWindowsRuntimeYamlReader {
     private fun Map<String, Any?>.requiredMap(
         key: String
     ): Map<String, Any?> =
-        get(key).asStringMap(key)
+        get(
+            key = key
+        ).asStringMap(
+            context = key
+        )
 
     private fun Map<String, Any?>.requiredList(
         key: String
     ): List<Any?> =
-        get(key) as? List<*> ?: error("Expected YAML list '$key'")
+        get(
+            key = key
+        ) as? List<*> ?: error("Expected YAML list '$key'")
 
     private fun Map<String, Any?>.requiredString(
         key: String
     ): String =
-        get(key) as? String ?: error("Expected YAML string '$key'")
+        get(
+            key = key
+        ) as? String ?: error("Expected YAML string '$key'")
 
     private fun Map<String, Any?>.requiredInt(
         key: String
     ): Int =
-        (get(key) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
+        (get(
+            key = key
+        ) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
 }

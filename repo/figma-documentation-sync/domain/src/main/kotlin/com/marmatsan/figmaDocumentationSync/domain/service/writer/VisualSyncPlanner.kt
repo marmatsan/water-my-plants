@@ -77,10 +77,14 @@ class VisualSyncPlanner(
         val compiledWriterChanged = previousMetadata.writerHash != manifest.writerHash
         val writerChangedScopes = allScopes.filter { scope ->
             manifest.writerScopeFingerprints[scope] !=
-                previousMetadata.writerScopeFingerprints?.get(scope)
+                previousMetadata.writerScopeFingerprints?.get(
+                    key = scope
+                )
         }
         val metadataWriterChanged = manifest.writerScopeFingerprints["metadata"] !=
-            previousMetadata.writerScopeFingerprints?.get("metadata")
+            previousMetadata.writerScopeFingerprints?.get(
+                key = "metadata"
+            )
         val writerChanged = compiledWriterChanged || writerChangedScopes.isNotEmpty() || metadataWriterChanged
         if (!modelChanged && !writerChanged) {
             return plan(
@@ -95,7 +99,9 @@ class VisualSyncPlanner(
         val modelChangedScopes = if (modelChanged) {
             allScopes.filter { scope ->
                 scope != "preflight" &&
-                    manifest.targetFingerprints[scope] != previousMetadata.targetFingerprints.get(scope)
+                    manifest.targetFingerprints[scope] != previousMetadata.targetFingerprints.get(
+                        key = scope
+                    )
             }
         } else {
             emptyList()

@@ -28,23 +28,29 @@ class OfficialFigmaSyncScopeJson {
         sourcePath: String
     ): FigmaChangeImpact {
         val source = readObject(
-            path = Path.of(sourcePath),
+            path = Path.of(
+                sourcePath
+            ),
             description = "Figma change-impact report"
         )
         return FigmaChangeImpact(
             scope = source.requiredEnum(
-                "scope",
-                FigmaVerificationScope.entries,
-                FigmaVerificationScope::wireValue
+                name = "scope",
+                values = FigmaVerificationScope.entries,
+                wireValue = FigmaVerificationScope::wireValue
             ),
             impact = source.requiredEnum(
-                "figmaImpact",
-                FigmaImpact.entries,
-                FigmaImpact::wireValue
+                name = "figmaImpact",
+                values = FigmaImpact.entries,
+                wireValue = FigmaImpact::wireValue
             ),
-            affectedVisualTargets = source.requiredStringList("affectedVisualTargets"),
+            affectedVisualTargets = source.requiredStringList(
+                name = "affectedVisualTargets"
+            ),
             comparisonBase = source.optionalString("comparisonBase"),
-            changedPaths = source.requiredStringList("changedPaths")
+            changedPaths = source.requiredStringList(
+                name = "changedPaths"
+            )
         )
     }
 
@@ -52,29 +58,39 @@ class OfficialFigmaSyncScopeJson {
         sourcePath: String
     ): OfficialFigmaSyncScope {
         val source = readObject(
-            path = Path.of(sourcePath),
+            path = Path.of(
+                sourcePath
+            ),
             description = "official Figma Sync scope"
         )
         return OfficialFigmaSyncScope(
             scope = source.requiredEnum(
-                "scope",
-                FigmaVerificationScope.entries,
-                FigmaVerificationScope::wireValue
+                name = "scope",
+                values = FigmaVerificationScope.entries,
+                wireValue = FigmaVerificationScope::wireValue
             ),
             figmaImpact = source.requiredEnum(
-                "figmaImpact",
-                FigmaImpact.entries,
-                FigmaImpact::wireValue
+                name = "figmaImpact",
+                values = FigmaImpact.entries,
+                wireValue = FigmaImpact::wireValue
             ),
-            affectedVisualTargets = source.requiredStringList("affectedVisualTargets"),
+            affectedVisualTargets = source.requiredStringList(
+                name = "affectedVisualTargets"
+            ),
             comparisonBase = source.optionalString("comparisonBase"),
             gitSha = source.requiredString("gitSha"),
             modelHash = source.optionalString("modelHash"),
             writerHash = source.optionalString("writerHash"),
             transportHash = source.optionalString("transportHash"),
-            targetFingerprints = source.optionalStringMap("targetFingerprints"),
-            writerScopeFingerprints = source.optionalStringMap("writerScopeFingerprints"),
-            writerScopeFingerprintSchemaVersion = source.optionalInt("writerScopeFingerprintSchemaVersion"),
+            targetFingerprints = source.optionalStringMap(
+                name = "targetFingerprints"
+            ),
+            writerScopeFingerprints = source.optionalStringMap(
+                name = "writerScopeFingerprints"
+            ),
+            writerScopeFingerprintSchemaVersion = source.optionalInt(
+                name = "writerScopeFingerprintSchemaVersion"
+            ),
             visualRunnerManifestHash = source.optionalString("visualRunnerManifestHash"),
             metadataRunnerManifestHash = source.optionalString("metadataRunnerManifestHash"),
             visualSyncDecision = source.optionalString("visualSyncDecision"),
@@ -86,7 +102,9 @@ class OfficialFigmaSyncScopeJson {
         scope: OfficialFigmaSyncScope,
         outputPath: String
     ) {
-        val output = Path.of(outputPath)
+        val output = Path.of(
+            outputPath
+        )
         output.parent?.let(Files::createDirectories)
         Files.writeString(
             output,
@@ -100,14 +118,20 @@ class OfficialFigmaSyncScopeJson {
     fun readRunnerManifests(
         rootPath: String
     ): List<RunnerManifest> {
-        return RunnerManifestJson().readAll(rootPath)
+        return RunnerManifestJson().readAll(
+            rootPath = rootPath
+        )
     }
 
     private fun OfficialFigmaSyncScope.toJson() = JsonObject(
         linkedMapOf(
             "scope" to JsonPrimitive(scope.wireValue),
             "figmaImpact" to JsonPrimitive(figmaImpact.wireValue),
-            "affectedVisualTargets" to JsonArray(affectedVisualTargets.map(::JsonPrimitive)),
+            "affectedVisualTargets" to JsonArray(
+                affectedVisualTargets.map(
+                    transform = ::JsonPrimitive
+                )
+            ),
             "comparisonBase" to comparisonBase.toJson(),
             "gitSha" to JsonPrimitive(gitSha),
             "modelHash" to modelHash.toJson(),

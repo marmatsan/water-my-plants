@@ -32,7 +32,9 @@ class GradlePluginTreeReader {
             .toSet()
 
         return PluginCatalogTree(
-            roots = pluginIds.toPluginCatalogNodes(usageByPluginId)
+            roots = pluginIds.toPluginCatalogNodes(
+                usageByPluginId = usageByPluginId
+            )
         )
     }
 
@@ -41,11 +43,15 @@ class GradlePluginTreeReader {
             PluginNameRegex,
             PluginIdRegex
         )
-            .flatMap { regex -> regex.findAll(this) }
+            .flatMap { regex -> regex.findAll(
+                input = this
+            ) }
             .map { match -> match.groupValues[1] }
 
     private fun String.hasRegularGradlePluginImplementation(): Boolean =
-        ImplementationClassRegex.findAll(this)
+        ImplementationClassRegex.findAll(
+            input = this
+        )
             .map { match -> match.groupValues[1] }
             .any { implementationClass -> !implementationClass.endsWith(CONVENTION_PLUGIN_SUFFIX) }
 
@@ -54,8 +60,8 @@ class GradlePluginTreeReader {
     ): List<PluginCatalogNode> =
         map { pluginId -> pluginId.split(".") }
             .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(
-                segments,
-                usageByPluginId
+                segments = segments,
+                usageByPluginId = usageByPluginId
             ) }
             .sortedBy(PluginCatalogNode::id)
 
@@ -81,23 +87,25 @@ class GradlePluginTreeReader {
             ?.copy(
                 appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
                 children = existingNode.children.withPath(
-                    tail,
-                    usageByPluginId,
-                    pluginId
+                    segments = tail,
+                    usageByPluginId = usageByPluginId,
+                    parentId = pluginId
                 )
             )
             ?: PluginCatalogNode(
                 id = head,
                 appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
                 children = emptyList<PluginCatalogNode>().withPath(
-                    tail,
-                    usageByPluginId,
-                    pluginId
+                    segments = tail,
+                    usageByPluginId = usageByPluginId,
+                    parentId = pluginId
                 )
             )
 
         return filterNot { node -> node.id == head }
-            .plus(updatedNode)
+            .plus(
+                element = updatedNode
+            )
             .sortedBy(PluginCatalogNode::id)
     }
 

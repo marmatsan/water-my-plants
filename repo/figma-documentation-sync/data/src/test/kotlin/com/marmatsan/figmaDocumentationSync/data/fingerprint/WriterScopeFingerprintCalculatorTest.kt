@@ -14,14 +14,24 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec(
     test("target-specific changes invalidate only their execution family") {
         val root = Files.createTempDirectory("writer-fingerprints")
         try {
-            val sourceRoot = root.resolve("repo/tools/src").apply { createDirectories() }
-            val ciSource = sourceRoot.resolve("figma/figma-ci-gateway.ts").apply {
+            val sourceRoot = root.resolve(
+                "repo/tools/src"
+            ).apply { createDirectories() }
+            val ciSource = sourceRoot.resolve(
+                "figma/figma-ci-gateway.ts"
+            ).apply {
                 parent.createDirectories()
                 writeText("export const ci = 1;\n")
             }
-            sourceRoot.resolve("figma/figma-catalog-gateway.ts").writeText("export const catalog = 1;\n")
-            sourceRoot.resolve("figma/figma-node-gateway.ts").writeText("export const shared = 1;\n")
-            sourceRoot.resolve("preview.ts").writeText("export const preview = 1;\n")
+            sourceRoot.resolve(
+                "figma/figma-catalog-gateway.ts"
+            ).writeText("export const catalog = 1;\n")
+            sourceRoot.resolve(
+                "figma/figma-node-gateway.ts"
+            ).writeText("export const shared = 1;\n")
+            sourceRoot.resolve(
+                "preview.ts"
+            ).writeText("export const preview = 1;\n")
 
             val before = fingerprints(
                 repositoryRoot = root,
@@ -49,9 +59,15 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec(
     test("includes Kotlin visual planners outside the TypeScript source root") {
         val root = Files.createTempDirectory("kotlin-writer-fingerprints")
         try {
-            val sourceRoot = root.resolve("repo/tools/src").apply { createDirectories() }
-            sourceRoot.resolve("shared.ts").writeText("export const shared = 1;\n")
-            val kotlinPlanner = root.resolve("repo/visual/CiVisualPlanner.kt").apply {
+            val sourceRoot = root.resolve(
+                "repo/tools/src"
+            ).apply { createDirectories() }
+            sourceRoot.resolve(
+                "shared.ts"
+            ).writeText("export const shared = 1;\n")
+            val kotlinPlanner = root.resolve(
+                "repo/visual/CiVisualPlanner.kt"
+            ).apply {
                 parent.createDirectories()
                 writeText("class CiVisualPlanner\n")
             }

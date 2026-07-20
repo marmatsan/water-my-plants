@@ -131,13 +131,19 @@ abstract class RunFigmaMcpTask @Inject constructor() : DefaultTask() {
                         put(
                             "executionScopes",
                             inspection.executionScopes
-                                ?.map(::JsonPrimitive)
+                                ?.map(
+                                    transform = ::JsonPrimitive
+                                )
                                 ?.let(::JsonArray)
                                 ?: JsonNull
                         )
                         put(
                             "executionFiles",
-                            JsonArray(inspection.executionFiles.map(::JsonPrimitive))
+                            JsonArray(
+                                inspection.executionFiles.map(
+                                    transform = ::JsonPrimitive
+                                )
+                            )
                         )
                     }
                     logger.lifecycle(

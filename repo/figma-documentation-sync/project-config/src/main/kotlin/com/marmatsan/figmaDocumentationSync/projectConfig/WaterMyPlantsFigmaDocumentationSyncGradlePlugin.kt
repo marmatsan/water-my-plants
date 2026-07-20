@@ -161,16 +161,22 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
             buildId.convention(
-                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(
+                        ::File
+                    )
                 )
             )
             destinationRoot.convention(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                        ::File
+                    )
                 ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
@@ -188,17 +194,23 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
             buildId.convention(
-                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(
+                        ::File
+                    )
                 )
             )
             uploadUrl.convention(project.providers.gradleProperty("figmaMcpUploadUrl"))
             destinationRoot.convention(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                        ::File
+                    )
                 ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             projectDirectory.set(project.layout.projectDirectory)
@@ -222,22 +234,30 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             )
             validateOnly.convention(
                 project.providers.gradleProperty("figmaTeamCityValidateOnly")
-                    .map(String::toBoolean)
+                    .map(
+                        String::toBoolean
+                    )
                     .orElse(false)
             )
             waitForCompletion.convention(
                 project.providers.gradleProperty("figmaTeamCityWait")
-                    .map(String::toBoolean)
+                    .map(
+                        String::toBoolean
+                    )
                     .orElse(false)
             )
             pollIntervalSeconds.convention(
                 project.providers.gradleProperty("figmaTeamCityPollIntervalSeconds")
-                    .map(String::toInt)
+                    .map(
+                        String::toInt
+                    )
                     .orElse(10)
             )
             timeoutMinutes.convention(
                 project.providers.gradleProperty("figmaTeamCityTimeoutMinutes")
-                    .map(String::toInt)
+                    .map(
+                        String::toInt
+                    )
                     .orElse(60)
             )
             buildTypeId.set("WaterMyPlants_WaterMyPlantsFigmaSync")

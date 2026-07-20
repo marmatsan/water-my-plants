@@ -35,7 +35,9 @@ internal object FigmaDesignModelHash {
         val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
         return "sha256:" + digest.joinToString(
             separator = ""
-        ) { byte -> "%02x".format(byte) }
+        ) { byte -> "%02x".format(
+            byte
+        ) }
     }
 
     private fun JsonElement.canonicalized(): JsonElement =

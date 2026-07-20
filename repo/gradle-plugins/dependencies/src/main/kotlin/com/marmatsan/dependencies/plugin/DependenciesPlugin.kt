@@ -10,8 +10,12 @@ class DependenciesPlugin : Plugin<Settings> {
         settings: Settings
     ) {
         settings.dependencyResolutionManagement {
-            val catalog = WaterMyPlantsCatalog.resolved(settings.rootDir)
-            configureVersionCatalogs(catalog)
+            val catalog = WaterMyPlantsCatalog.resolved(
+                rootDir = settings.rootDir
+            )
+            configureVersionCatalogs(
+                catalog = catalog
+            )
         }
     }
 }

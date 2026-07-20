@@ -43,7 +43,9 @@ class TeamCityRestRunQueue(
     override fun queue(
         request: TeamCityRunRequest
     ): TeamCityQueuedRun {
-        val uri = serverUri.resolve("/app/rest/buildQueue")
+        val uri = serverUri.resolve(
+            "/app/rest/buildQueue"
+        )
         val headers = mapOf(
             "Accept" to "application/json",
             "Authorization" to "Bearer $teamCityToken",

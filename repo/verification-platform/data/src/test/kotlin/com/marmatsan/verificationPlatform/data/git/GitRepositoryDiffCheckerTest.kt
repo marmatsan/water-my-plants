@@ -28,7 +28,9 @@ class GitRepositoryDiffCheckerTest : FunSpec(
                 "CI Test"
             )
 
-            root.resolve("example.txt").writeText("baseline\n")
+            root.resolve(
+                relative = "example.txt"
+            ).writeText("baseline\n")
             commit(
                 root = root,
                 message = "baseline"
@@ -39,7 +41,9 @@ class GitRepositoryDiffCheckerTest : FunSpec(
                 "HEAD"
             )
 
-            root.resolve("example.txt").writeText("clean\n")
+            root.resolve(
+                relative = "example.txt"
+            ).writeText("clean\n")
             commit(
                 root = root,
                 message = "clean"
@@ -52,13 +56,15 @@ class GitRepositoryDiffCheckerTest : FunSpec(
 
             shouldNotThrowAny {
                 GitRepositoryDiffChecker().check(
-                    root,
-                    baseline,
-                    cleanHead
+                    repositoryRoot = root,
+                    comparisonBase = baseline,
+                    head = cleanHead
                 )
             }
 
-            root.resolve("example.txt").writeText("trailing whitespace   \n")
+            root.resolve(
+                relative = "example.txt"
+            ).writeText("trailing whitespace   \n")
             commit(
                 root = root,
                 message = "invalid"
@@ -71,9 +77,9 @@ class GitRepositoryDiffCheckerTest : FunSpec(
 
             shouldThrow<IllegalStateException> {
                 GitRepositoryDiffChecker().check(
-                    root,
-                    cleanHead,
-                    invalidHead
+                    repositoryRoot = root,
+                    comparisonBase = cleanHead,
+                    head = invalidHead
                 )
             }
         } finally {

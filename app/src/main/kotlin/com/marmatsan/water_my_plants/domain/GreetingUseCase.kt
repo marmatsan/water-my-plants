@@ -8,5 +8,7 @@ class GreetingUseCase @Inject constructor(
 ) {
     operator fun invoke(
         name: String
-    ) = repository.greeting(name)
+    ) = repository.greeting(
+        name = name
+    )
 }

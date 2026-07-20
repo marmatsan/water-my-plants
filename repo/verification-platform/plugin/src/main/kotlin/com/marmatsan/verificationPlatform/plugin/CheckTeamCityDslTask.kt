@@ -35,7 +35,9 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
     @TaskAction
     fun checkTeamCityDsl() {
         val root = repositoryRoot.get().asFile
-        val wrapper = root.resolve(if (isWindows()) "mvnw.cmd" else "mvnw")
+        val wrapper = root.resolve(
+            relative = if (isWindows()) "mvnw.cmd" else "mvnw"
+        )
         check(wrapper.isFile) { "Maven wrapper was not found: $wrapper" }
 
         execOperations.exec { spec ->
@@ -48,7 +50,9 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
             )
         }.assertNormalExitValue()
         validateGeneratedTeamCityConfiguration(
-            directory = root.resolve(GENERATED_CONFIG_DIRECTORY)
+            directory = root.resolve(
+                relative = GENERATED_CONFIG_DIRECTORY
+            )
         )
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
     }

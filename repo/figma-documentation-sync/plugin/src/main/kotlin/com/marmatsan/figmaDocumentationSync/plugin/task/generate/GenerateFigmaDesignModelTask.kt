@@ -124,7 +124,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         )
 
         val result = figmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
-            FigmaDesignModelGenerationRequest(
+            request = FigmaDesignModelGenerationRequest(
                 branch = branch,
                 gitSha = git(
                     "rev-parse",

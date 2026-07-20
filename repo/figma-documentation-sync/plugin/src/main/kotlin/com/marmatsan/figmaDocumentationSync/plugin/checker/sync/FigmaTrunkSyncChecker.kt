@@ -31,7 +31,7 @@ internal class FigmaTrunkSyncChecker(
         request: FigmaTrunkSyncCheckRequest
     ): FigmaTrunkSyncCheckResult {
         val expected = figmaDesignModelGenerator.generate(
-            FigmaDesignModelGenerationRequest(
+            request = FigmaDesignModelGenerationRequest(
                 branch = request.branch,
                 gitSha = request.gitSha,
                 generatedAt = request.generatedAt,
@@ -49,7 +49,9 @@ internal class FigmaTrunkSyncChecker(
                 includedBuilds = request.includedBuilds
             )
         )
-        val metadataNode = FigmaNodeUrl.parse(request.metadataNodeUrl)
+        val metadataNode = FigmaNodeUrl.parse(
+            url = request.metadataNodeUrl
+        )
         val figmaMetadata = figmaFileContentClient
             .getNodeContent(
                 fileKey = metadataNode.fileKey,

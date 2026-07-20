@@ -16,7 +16,11 @@ object FigmaWriterRuntimeConfigJson {
     fun read(
         path: String
     ): FigmaWriterRuntimeConfig = decode(
-        source = Files.readString(Path.of(path))
+        source = Files.readString(
+            Path.of(
+                path
+            )
+        )
     )
 
     fun decode(
@@ -27,7 +31,9 @@ object FigmaWriterRuntimeConfigJson {
             "Unsupported Figma writer project config schema ${json.requiredInt("schemaVersion")}; " +
                 "expected $SUPPORTED_SCHEMA_VERSION."
         }
-        val ciTargets = json.requiredStringList("CI_VISUAL_TARGET_NAMES")
+        val ciTargets = json.requiredStringList(
+            name = "CI_VISUAL_TARGET_NAMES"
+        )
         return FigmaWriterRuntimeConfig(
             metadataPageId = json.requiredString("METADATA_PAGE_ID"),
             metadataNamespace = json.requiredString("METADATA_NAMESPACE"),
@@ -37,8 +43,12 @@ object FigmaWriterRuntimeConfigJson {
             repositoryRootRelativeToTools = json.requiredString("REPOSITORY_ROOT_RELATIVE_TO_TOOLS"),
             changeImpactPolicyRelativeToRepository =
                 json.requiredString("CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY"),
-            writerTargetNames = json.requiredStringList("WRITER_TARGET_NAMES"),
-            catalogTargetNames = json.requiredStringList("CATALOG_TARGET_NAMES"),
+            writerTargetNames = json.requiredStringList(
+                name = "WRITER_TARGET_NAMES"
+            ),
+            catalogTargetNames = json.requiredStringList(
+                name = "CATALOG_TARGET_NAMES"
+            ),
             ciVisualPlanConfig = if (ciTargets.isEmpty()) null else CiVisualPlanConfig(
                 configurationModelName = json.requiredString("CI_CONFIGURATION_MODEL_NAME"),
                 ciPipelineName = json.requiredString("CI_PIPELINE_NAME"),

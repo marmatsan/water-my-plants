@@ -64,7 +64,9 @@ internal fun List<RepositoryVersionSection>.toVersionSectionsJson(): JsonArray =
 internal fun LibraryCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(LibraryCatalogNode::group))
-        .map(LibraryCatalogNode::toDesignJson)
+        .map(
+            transform = LibraryCatalogNode::toDesignJson
+        )
         .let(::JsonArray)
 
 private fun LibraryCatalogNode.toDesignJson(): JsonObject =
@@ -85,7 +87,9 @@ private fun LibraryCatalogNode.toDesignJson(): JsonObject =
             "children",
             children
                 .sortedWith(compareBy(LibraryCatalogNode::group))
-                .map(LibraryCatalogNode::toDesignJson)
+                .map(
+                    transform = LibraryCatalogNode::toDesignJson
+                )
                 .let(::JsonArray)
         )
     }
@@ -97,7 +101,9 @@ private fun List<LibraryCatalogEntry>.toEntriesJson(): JsonArray =
             { entry -> entry.sortKey }
         )
     )
-        .map(LibraryCatalogEntry::toDesignJson)
+        .map(
+            transform = LibraryCatalogEntry::toDesignJson
+        )
         .let(::JsonArray)
 
 private val LibraryCatalogEntry.sortKind: String
@@ -227,7 +233,9 @@ private fun List<ConventionPluginConfigurationUsage>.toConfigurationUsageDesignJ
 internal fun PluginCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(PluginCatalogNode::id))
-        .map(PluginCatalogNode::toDesignJson)
+        .map(
+            transform = PluginCatalogNode::toDesignJson
+        )
         .let(::JsonArray)
 
 private fun PluginCatalogNode.toDesignJson(): JsonObject =
@@ -252,7 +260,9 @@ private fun PluginCatalogNode.toDesignJson(): JsonObject =
             "children",
             children
                 .sortedWith(compareBy(PluginCatalogNode::id))
-                .map(PluginCatalogNode::toDesignJson)
+                .map(
+                    transform = PluginCatalogNode::toDesignJson
+                )
                 .let(::JsonArray)
         )
     }
@@ -301,7 +311,9 @@ internal fun Collection<String>.toSortedJsonArray(): JsonArray =
     sorted().toJsonArray()
 
 private fun Collection<String>.toJsonArray(): JsonArray =
-    map(::JsonPrimitive).let(::JsonArray)
+    map(
+        transform = ::JsonPrimitive
+    ).let(::JsonArray)
 
 /**
  * Converts module dependency edges to stable JSON objects.
@@ -497,7 +509,9 @@ internal fun CiConfiguration.toDesignJson(): JsonObject =
             "pipelines",
             pipelines
                 .sortedBy(CiPipeline::id)
-                .map(CiPipeline::toDesignJson)
+                .map(
+                    transform = CiPipeline::toDesignJson
+                )
                 .let(::JsonArray)
         )
         put(
@@ -571,7 +585,9 @@ private fun CiPipeline.toDesignJson(): JsonObject =
             "jobs",
             jobs
                 .sortedBy(CiJob::id)
-                .map(CiJob::toDesignJson)
+                .map(
+                    transform = CiJob::toDesignJson
+                )
                 .let(::JsonArray)
         )
     }
