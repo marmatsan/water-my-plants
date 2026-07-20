@@ -51,9 +51,9 @@ TeamCity CI
 ```
 
 Use `Any source` for this required status check. TeamCity currently publishes
-`TeamCity CI` as a classic commit status through Commit Status Publisher, not as
-a GitHub Checks API run. The PR can therefore show `Checks (0)` while still
-showing `All checks have passed` for `TeamCity CI`.
+`TeamCity CI` as a classic commit status through the native Pipeline repository
+integration, not as a GitHub Checks API run. The PR can therefore show
+`Checks (0)` while still showing `All checks have passed` for `TeamCity CI`.
 
 Do not require `Figma Sync` in the GitHub ruleset. `Figma Sync` runs after
 changes reach `main`. It may still appear on `main` commits as the optional
@@ -74,7 +74,8 @@ It validates:
 - dependency catalog usage through `checkFigmaCatalogUsage`;
 - repository health before merge.
 
-The final `CI` job publishes the `TeamCity CI` commit status to GitHub.
+The native Pipeline repository integration publishes the final `CI` result as
+the `TeamCity CI` commit status on GitHub.
 
 `CI` must not generate or publish `build/reports/figma-sync/design-model.json`.
 Only the post-merge `Figma Sync` pipeline on `main` may produce the official

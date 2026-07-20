@@ -116,14 +116,7 @@ class TeamCityGeneratedConfigurationReader {
                 },
                 artifacts = job.optionalList(FILES_PUBLICATION_KEY).map(::readArtifact),
                 dependencies = job.optionalList(DEPENDENCIES_KEY).map(::readDependency),
-                publishedChecks = job.optionalList(FEATURES_KEY)
-                    .map { feature -> feature.asStringMap("feature") }
-                    .filter { feature -> feature.optionalString(TYPE_KEY) == STATUS_PUBLISHER_TYPE }
-                    .map { feature ->
-                        CiJob.PublishedCheck(
-                            name = feature.requiredString(CHECK_NAME_KEY)
-                        )
-                    }
+                publishedChecks = emptyList()
             )
         }
     }
@@ -227,9 +220,6 @@ class TeamCityGeneratedConfigurationReader {
     private fun Map<String, Any?>.requiredString(key: String): String =
         get(key) as? String ?: error("Expected YAML string '$key'")
 
-    private fun Map<String, Any?>.optionalString(key: String): String? =
-        get(key)?.let { value -> value as? String ?: error("Expected YAML string '$key'") }
-
     private fun Map<String, Any?>.requiredBoolean(key: String): Boolean =
         get(key) as? Boolean ?: error("Expected YAML boolean '$key'")
 
@@ -260,15 +250,11 @@ class TeamCityGeneratedConfigurationReader {
         const val REPOSITORIES_KEY = "repositories"
         const val FILES_PUBLICATION_KEY = "files-publication"
         const val DEPENDENCIES_KEY = "dependencies"
-        const val FEATURES_KEY = "features"
-        const val TYPE_KEY = "type"
         const val ID_KEY = "id"
         const val SCRIPT_CONTENT_KEY = "script-content"
         const val PATH_KEY = "path"
         const val PUBLISH_ARTIFACT_KEY = "publish-artifact"
         const val SHARE_WITH_JOBS_KEY = "share-with-jobs"
         const val FILES_KEY = "files"
-        const val STATUS_PUBLISHER_TYPE = "commit-status-publisher"
-        const val CHECK_NAME_KEY = "build_custom_name"
     }
 }

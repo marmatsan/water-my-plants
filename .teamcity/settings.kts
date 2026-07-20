@@ -108,10 +108,6 @@ object WaterMyPlantsCi : Pipeline({
             contains("teamcity.agent.jvm.os.name", "Windows")
         }
 
-        features {
-            feature(GitHubStatusPublisher("TeamCity CI"))
-        }
-
         outputFiles {
             pipelineArtifacts("build/reports/ci")
         }
@@ -222,10 +218,6 @@ object WaterMyPlantsFigmaSync : Pipeline({
             contains("teamcity.agent.jvm.os.name", "Windows")
         }
 
-        features {
-            feature(GitHubStatusPublisher("TeamCity Figma Sync"))
-        }
-
         dependency(
             "figma_sync_generate_design_model",
             listOf("build/reports/figma-sync", ".teamcity/target/generated-configs")
@@ -290,28 +282,6 @@ object WaterMyPlantsInfrastructureHealth : Pipeline({
         }
     }
 })
-
-/**
- * Pipeline-compatible Commit Status Publisher feature for GitHub.
- *
- * TeamCity Pipelines Kotlin DSL accepts build features that implement
- * [PipelineCompatible]. This wrapper emits the `commit-status-publisher`
- * feature into the generated Pipeline YAML and publishes the final pipeline
- * status with [statusCheckName].
- *
- * @param statusCheckName GitHub status check name required by branch protection.
- */
-class GitHubStatusPublisher(statusCheckName: String) : BuildFeature(), PipelineCompatible {
-    init {
-        type = "commit-status-publisher"
-        yamlType = "commit-status-publisher"
-
-        param("publisherId", "githubStatusPublisher")
-        param("github_host", "https://api.github.com")
-        param("github_authentication_type", "vcsRoot")
-        param("build_custom_name", statusCheckName)
-    }
-}
 
 /**
  * GitHub repository VCS root used by both versioned settings and pipeline jobs.

@@ -45,9 +45,34 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
                 "teamcity-configs:generate"
             )
         }.assertNormalExitValue()
+        validateGeneratedPipelineYaml(root.resolve(GENERATED_CONFIG_DIRECTORY))
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
+    }
+
+    private fun validateGeneratedPipelineYaml(directory: java.io.File) {
+        val pipelineFiles = directory
+            .walkTopDown()
+            .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
+            .toList()
+        check(pipelineFiles.isNotEmpty()) {
+            "TeamCity generation did not produce any $PIPELINE_FILE_NAME files under $directory"
+        }
+
+        pipelineFiles.forEach { file ->
+            check(UNSUPPORTED_STATUS_PUBLISHER !in file.readText()) {
+                "${file.path} contains '$UNSUPPORTED_STATUS_PUBLISHER'. " +
+                    "TeamCity Pipelines publishes repository statuses through its native repository " +
+                    "integration; Commit Status Publisher is not a supported Pipeline YAML feature."
+            }
+        }
     }
 
     private fun isWindows(): Boolean =
         System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")
+
+    private companion object {
+        const val GENERATED_CONFIG_DIRECTORY = ".teamcity/target/generated-configs"
+        const val PIPELINE_FILE_NAME = "pipeline.yml"
+        const val UNSUPPORTED_STATUS_PUBLISHER = "type: commit-status-publisher"
+    }
 }

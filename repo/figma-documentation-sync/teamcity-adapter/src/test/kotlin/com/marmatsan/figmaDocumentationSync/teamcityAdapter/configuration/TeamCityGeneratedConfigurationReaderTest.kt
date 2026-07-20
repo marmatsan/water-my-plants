@@ -8,7 +8,7 @@ import java.nio.file.Files
 
 internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
 
-    test("read translates TeamCity pipelines jobs triggers artifacts checks and VCS roots") {
+    test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
         // GIVEN
         val root = Files.createTempDirectory("teamcity-generated").toFile()
         val pipeline = root.resolve("Root_Ci").apply { mkdirs() }
@@ -30,9 +30,6 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
                     name: Run Gradle check
                     id: RUNNER_1
                     type: script
-                features:
-                  - type: commit-status-publisher
-                    build_custom_name: TeamCity CI
                 repositories:
                   - Root_GitHub:
                       enabled: true
@@ -100,7 +97,7 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         job.repositoryIds shouldBe listOf("Root_GitHub")
         job.artifacts.single().path shouldBe "build/report.json"
         job.dependencies.single().artifactPaths shouldBe listOf("build/input.json")
-        job.publishedChecks.single().name shouldBe "TeamCity CI"
+        job.publishedChecks shouldBe emptyList()
 
         val vcsRoot = configuration.vcsRoots.single()
         vcsRoot.id shouldBe "Root_GitHub"

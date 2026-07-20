@@ -27,13 +27,13 @@ All visual labels and descriptions use English.
 The visual model aggregates sources without duplicating their ownership:
 
 - `.teamcity/settings.kts` owns pipelines, jobs, triggers, branch filters,
-  commands, artifacts, and GitHub status publishers.
+  commands, artifacts, and repository attachment.
 - TeamCity generated configuration is an unversioned extraction input. Files
   under `.teamcity/target/generated-configs` must not be committed.
 - `docs/ci/external-topology.yaml` owns external systems and connections that
   are not represented by TeamCity DSL, including Cloudflare access and tunnel
-  boundaries, user and CLI access, the GitHub webhook ingress, and the external
-  MCP-operated Figma write.
+  boundaries, user and CLI access, the GitHub webhook ingress, native Pipeline
+  status publication, and the external MCP-operated Figma write.
 - `docs/ci/windows-runtime.yaml` owns the reviewed Windows service inventory,
   startup modes, and service identities for the local CI host.
 - The generated `design-model.json` aggregates these sources for the visual sync.

@@ -363,52 +363,33 @@ settings root, and TeamCity can apply settings-path checkout rules such as
 
 ## GitHub Status Publishing
 
-GitHub status publishing is configured in DSL because Pipeline editing is
-read-only when versioned settings are enabled.
+GitHub status publishing uses the native TeamCity Pipelines repository
+integration. Keep `Publish status to repository` enabled for the main GitHub
+repository in TeamCity. The versioned Kotlin DSL attaches the existing GitHub
+VCS root to each pipeline; it does not encode Commit Status Publisher as a job
+feature.
 
-The Pipeline DSL exposes `Job.features` and accepts build features that
-implement `PipelineCompatible`. This project declares a small generic feature
-wrapper and attaches it to the final pipeline job:
-
-```kotlin
-features {
-    feature(GitHubStatusPublisher("TeamCity CI"))
-}
-```
-
-That emits `commit-status-publisher` into the generated Pipeline YAML:
-
-```yaml
-features:
-- type: commit-status-publisher
-  build_custom_name: TeamCity CI
-```
-
-The feature uses GitHub with VCS root credentials:
-
-```kotlin
-param("publisherId", "githubStatusPublisher")
-param("github_host", "https://api.github.com")
-param("github_authentication_type", "vcsRoot")
-param("build_custom_name", statusCheckName)
-```
+Do not add `commit-status-publisher` under `Job.features`. TeamCity Pipelines
+does not include that value in the YAML feature enum because status publication
+is already integrated at repository level. Emitting it produces a YAML schema
+error and disables the visual editor.
 
 GitHub branch protection should require only the `TeamCity CI` status check.
-The `TeamCity CI` status is published by the final `CI` pipeline job, which
-depends on the earlier job, so it represents the pull request validation chain.
+The native integration publishes the final `CI` result as `TeamCity CI`, so it
+represents the pull request validation chain.
 
-`Figma Sync` publishes `TeamCity Figma Sync` from its final job so `main`
-commits show whether post-merge Figma documentation verification passed. Do not
-require that status in GitHub branch protection because the pipeline runs after
-changes reach `main`.
+The same integration publishes `Figma Sync` as `TeamCity Figma Sync` so `main`
+commits show whether post-merge Figma documentation verification passed. Do
+not require that status in GitHub branch protection because the pipeline runs
+after changes reach `main`.
 
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
 statuses.
 
-The feature intentionally omits `vcsRootId`. TeamCity's Commit Status Publisher
-then publishes for the Git VCS roots attached to the virtual job. If GitHub
-receives no statuses, inspect `teamcity-commit-status.log`.
+If GitHub receives no statuses, verify the repository-level toggle and the
+GitHub App or VCS root credentials, then inspect
+`teamcity-commit-status.log`.
 
 ## Secure Parameters
 
@@ -450,8 +431,8 @@ For this project, the generated pipeline should:
 - reference only one Git VCS root for the GitHub repository;
 - emit job-level `repositories` entries;
 - emit direct Gradle script content;
-- emit `commit-status-publisher` on the `CI` verify job and the final
-  `Figma Sync` job;
+- omit `commit-status-publisher` from every job because repository status
+  publication is native Pipeline configuration;
 - avoid generating or publishing `design-model.json` from `CI`;
 - keep `Figma Sync` as a separate default-branch pipeline;
 - set the official Figma design model environment guard only on `Figma Sync`;
@@ -657,7 +638,8 @@ the reset in the server log, then send a VCS commit-hook notification or push a
 new commit.
 
 If GitHub receives no status check, inspect `teamcity-commit-status.log` and
-confirm that the status publisher feature is attached to the final job.
+confirm that `Publish status to repository` remains enabled for the pipeline's
+main GitHub repository.
 
 If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
 been run with the latest `design-model.json` artifact from
