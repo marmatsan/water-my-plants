@@ -10,7 +10,9 @@ import me.tatarka.inject.annotations.Inject
 /** Filesystem boundary for the CI provider selected by project-config. */
 @Inject
 class CiConfigurationDataSource : CiConfigurationPort {
-    override fun readConfiguration(source: CiGeneratedConfigurationSource): CiConfiguration =
+    override fun readConfiguration(
+        source: CiGeneratedConfigurationSource
+    ): CiConfiguration =
         CiConfigurationProviderFactory
             .create(source.providerClassName)
             .read(File(source.directoryPath))

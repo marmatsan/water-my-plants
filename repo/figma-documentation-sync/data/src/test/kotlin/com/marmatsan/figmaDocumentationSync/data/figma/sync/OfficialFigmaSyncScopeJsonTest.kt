@@ -7,7 +7,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class OfficialFigmaSyncScopeJsonTest : FunSpec({
+internal class OfficialFigmaSyncScopeJsonTest : FunSpec(
+    {
     test("round trips a model-neutral official scope") {
         val directory = Files.createTempDirectory("figma-sync-scope").toFile()
         try {
@@ -31,7 +32,10 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec({
             )
 
             val adapter = OfficialFigmaSyncScopeJson()
-            adapter.write(expected, path.absolutePath)
+            adapter.write(
+                expected,
+                path.absolutePath
+            )
 
             adapter.read(path.absolutePath) shouldBe expected
         } finally {
@@ -44,11 +48,23 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec({
         try {
             val visual = directory.resolve("visual/manifest.json").apply {
                 parentFile.mkdirs()
-                writeText(manifest(fullVisualSync = true, writeMetadata = false, hash = "visual-hash"))
+                writeText(
+                    manifest(
+                        fullVisualSync = true,
+                        writeMetadata = false,
+                        hash = "visual-hash"
+                    )
+                )
             }
             directory.resolve("metadata/manifest.json").apply {
                 parentFile.mkdirs()
-                writeText(manifest(fullVisualSync = false, writeMetadata = true, hash = "metadata-hash"))
+                writeText(
+                    manifest(
+                        fullVisualSync = false,
+                        writeMetadata = true,
+                        hash = "metadata-hash"
+                    )
+                )
             }
 
             val manifests = OfficialFigmaSyncScopeJson().readRunnerManifests(directory.absolutePath)
@@ -59,7 +75,8 @@ internal class OfficialFigmaSyncScopeJsonTest : FunSpec({
             directory.deleteRecursively()
         }
     }
-})
+}
+)
 
 private fun manifest(
     fullVisualSync: Boolean,

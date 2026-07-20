@@ -8,11 +8,15 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.time.LocalDate
 
-internal class CiExternalTopologyYamlReaderTest : FunSpec({
+internal class CiExternalTopologyYamlReaderTest : FunSpec(
+    {
 
     test("read maps versioned nodes connections and validation metadata") {
         // GIVEN
-        val file = Files.createTempFile("external-topology", ".yaml").toFile().apply {
+        val file = Files.createTempFile(
+            "external-topology",
+            ".yaml"
+        ).toFile().apply {
             writeText(
                 """
                 schemaVersion: 1
@@ -49,9 +53,16 @@ internal class CiExternalTopologyYamlReaderTest : FunSpec({
 
         // THEN
         topology.schemaVersion shouldBe 1
-        topology.validation.lastValidatedOn shouldBe LocalDate.of(2026, 7, 14)
+        topology.validation.lastValidatedOn shouldBe LocalDate.of(
+            2026,
+            7,
+            14
+        )
         topology.validation.warnAfterDays shouldBe 90
-        topology.nodes.map(CiNode::id) shouldBe listOf("operator", "teamcity-server")
+        topology.nodes.map(CiNode::id) shouldBe listOf(
+            "operator",
+            "teamcity-server"
+        )
         topology.connections.single() shouldBe CiConnection(
             id = "operator-teamcity",
             sourceNodeId = "operator",
@@ -69,7 +80,10 @@ internal class CiExternalTopologyYamlReaderTest : FunSpec({
 
     test("read rejects connections to unknown nodes") {
         // GIVEN
-        val file = Files.createTempFile("invalid-external-topology", ".yaml").toFile().apply {
+        val file = Files.createTempFile(
+            "invalid-external-topology",
+            ".yaml"
+        ).toFile().apply {
             writeText(
                 """
                 schemaVersion: 1
@@ -97,4 +111,5 @@ internal class CiExternalTopologyYamlReaderTest : FunSpec({
             CiExternalTopologyYamlReader().read(file)
         }.message shouldBe "Unknown CI connection target 'teamcity-server'"
     }
-})
+}
+)

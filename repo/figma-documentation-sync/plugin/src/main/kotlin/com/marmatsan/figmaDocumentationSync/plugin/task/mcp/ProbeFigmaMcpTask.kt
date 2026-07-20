@@ -20,7 +20,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Probes the local MCP endpoint through the official Kotlin SDK transport. */
-@DisableCachingByDefault(because = "Connects to a local MCP endpoint")
+@DisableCachingByDefault(
+    because = "Connects to a local MCP endpoint"
+)
 abstract class ProbeFigmaMcpTask @Inject constructor() : DefaultTask() {
     @get:Input
     abstract val endpoint: Property<String>
@@ -32,14 +34,34 @@ abstract class ProbeFigmaMcpTask @Inject constructor() : DefaultTask() {
     @TaskAction
     fun probe() {
         val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)
-        val capabilities = McpRunnerExecutor().probe(endpoint.get(), config.mcpClientName)
+        val capabilities = McpRunnerExecutor().probe(
+            endpoint.get(),
+            config.mcpClientName
+        )
         val output = buildJsonObject {
-            put("toolNames", JsonArray(capabilities.toolNames.map(::JsonPrimitive)))
-            put("canUseFigma", capabilities.canUseFigma)
-            put("canUploadAssets", capabilities.canUploadAssets)
-            put("writeCapable", capabilities.writeCapable)
+            put(
+                "toolNames",
+                JsonArray(capabilities.toolNames.map(::JsonPrimitive))
+            )
+            put(
+                "canUseFigma",
+                capabilities.canUseFigma
+            )
+            put(
+                "canUploadAssets",
+                capabilities.canUploadAssets
+            )
+            put(
+                "writeCapable",
+                capabilities.writeCapable
+            )
         }
-        logger.lifecycle(prettyJson.encodeToString(JsonObject.serializer(), output))
+        logger.lifecycle(
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                output
+            )
+        )
     }
 
     private companion object {

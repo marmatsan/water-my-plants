@@ -196,7 +196,9 @@ private fun PagerIndicatorSymbol(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun OnboardingScreenPreview() {
     AndroidTemplateTheme {

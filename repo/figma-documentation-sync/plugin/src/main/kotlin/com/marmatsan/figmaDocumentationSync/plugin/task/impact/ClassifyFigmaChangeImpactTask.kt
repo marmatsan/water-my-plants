@@ -25,7 +25,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Writes the deterministic Figma impact of the current Git change set. */
-@DisableCachingByDefault(because = "The default input is the current Git revision graph")
+@DisableCachingByDefault(
+    because = "The default input is the current Git revision graph"
+)
 abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -55,10 +57,18 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
                 changedPaths = paths
             )
         } ?: component.repositoryChangeSetPort.read(projectRootDirectory.get().asFile.absolutePath)
-        val impact = component.changeImpactClassifier.classify(changeSet, policy)
+        val impact = component.changeImpactClassifier.classify(
+            changeSet,
+            policy
+        )
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
-        output.writeText(prettyJson.encodeToString(JsonObject.serializer(), impact.toJson()) + System.lineSeparator())
+        output.writeText(
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                impact.toJson()
+            ) + System.lineSeparator()
+        )
 
         logger.lifecycle(
             "Classified Figma change impact as ${impact.impact.wireValue} " +

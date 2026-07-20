@@ -10,5 +10,7 @@ import java.io.File
  * their CI system into the shared [CiConfiguration] model.
  */
 interface CiConfigurationProvider {
-    fun read(directory: File): CiConfiguration
+    fun read(
+        directory: File
+    ): CiConfiguration
 }

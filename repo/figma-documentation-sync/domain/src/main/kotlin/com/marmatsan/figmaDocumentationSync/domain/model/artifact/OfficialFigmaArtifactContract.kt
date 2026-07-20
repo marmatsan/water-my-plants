@@ -47,13 +47,17 @@ data class OfficialFigmaArtifactContract(
         val writeMetadata: Boolean
     )
 
-    enum class Decision(val wireValue: String) {
+    enum class Decision(
+        val wireValue: String
+    ) {
         NONE("none"),
         PARTIAL("partial"),
         FULL("full");
 
         companion object {
-            fun fromWireValue(value: String): Decision? = entries.firstOrNull { it.wireValue == value }
+            fun fromWireValue(
+                value: String
+            ): Decision? = entries.firstOrNull { it.wireValue == value }
         }
     }
 }

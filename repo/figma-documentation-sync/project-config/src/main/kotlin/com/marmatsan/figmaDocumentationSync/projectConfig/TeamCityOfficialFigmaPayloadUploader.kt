@@ -16,7 +16,9 @@ class TeamCityOfficialFigmaPayloadUploader(
     private val uploadPng: (String, ByteArray) -> Unit =
         KtorFigmaPngAssetUploader()::uploadBlocking
 ) {
-    fun upload(request: Request): Result {
+    fun upload(
+        request: Request
+    ): Result {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
         }
@@ -66,7 +68,10 @@ class TeamCityOfficialFigmaPayloadUploader(
             "Official PNG payload hash mismatch: $actualHash != ${payload.sha256}."
         }
 
-        uploadPng(request.uploadUrl, bytes)
+        uploadPng(
+            request.uploadUrl,
+            bytes
+        )
         return Result(
             buildId = request.buildId,
             gitSha = manifest.gitSha,
@@ -84,7 +89,11 @@ class TeamCityOfficialFigmaPayloadUploader(
         val uploadUrl: String,
         val destinationRoot: File,
         val expectedGitSha: String? = null,
-        val mainBranchAliases: Set<String> = setOf("main", "<default>", "refs/heads/main"),
+        val mainBranchAliases: Set<String> = setOf(
+            "main",
+            "<default>",
+            "refs/heads/main"
+        ),
         val requiredBuildTypeName: String = "Generate main design model"
     )
 

@@ -12,7 +12,9 @@ import java.io.File
  */
 interface DependencyCatalogProvider {
     /** Returns catalog trees with concrete versions resolved from [rootDir]. */
-    fun resolved(rootDir: File): DependencyCatalogTrees
+    fun resolved(
+        rootDir: File
+    ): DependencyCatalogTrees
 
     /** Returns catalog trees whose versions contain stable repository aliases. */
     fun withVersionAliases(): DependencyCatalogTrees

@@ -6,45 +6,104 @@ import io.kotest.core.spec.style.FunSpec
 import java.io.File
 import java.nio.file.Files
 
-class GitRepositoryDiffCheckerTest : FunSpec({
+class GitRepositoryDiffCheckerTest : FunSpec(
+    {
     test("accepts clean commits and rejects trailing whitespace") {
         val root = Files.createTempDirectory("ci-git-diff-checker").toFile()
         try {
-            git(root, "init")
-            git(root, "config", "user.email", "ci@example.invalid")
-            git(root, "config", "user.name", "CI Test")
+            git(
+                root,
+                "init"
+            )
+            git(
+                root,
+                "config",
+                "user.email",
+                "ci@example.invalid"
+            )
+            git(
+                root,
+                "config",
+                "user.name",
+                "CI Test"
+            )
 
             root.resolve("example.txt").writeText("baseline\n")
-            commit(root, "baseline")
-            val baseline = git(root, "rev-parse", "HEAD")
+            commit(
+                root = root,
+                message = "baseline"
+            )
+            val baseline = git(
+                root,
+                "rev-parse",
+                "HEAD"
+            )
 
             root.resolve("example.txt").writeText("clean\n")
-            commit(root, "clean")
-            val cleanHead = git(root, "rev-parse", "HEAD")
+            commit(
+                root = root,
+                message = "clean"
+            )
+            val cleanHead = git(
+                root,
+                "rev-parse",
+                "HEAD"
+            )
 
             shouldNotThrowAny {
-                GitRepositoryDiffChecker().check(root, baseline, cleanHead)
+                GitRepositoryDiffChecker().check(
+                    root,
+                    baseline,
+                    cleanHead
+                )
             }
 
             root.resolve("example.txt").writeText("trailing whitespace   \n")
-            commit(root, "invalid")
-            val invalidHead = git(root, "rev-parse", "HEAD")
+            commit(
+                root = root,
+                message = "invalid"
+            )
+            val invalidHead = git(
+                root,
+                "rev-parse",
+                "HEAD"
+            )
 
             shouldThrow<IllegalStateException> {
-                GitRepositoryDiffChecker().check(root, cleanHead, invalidHead)
+                GitRepositoryDiffChecker().check(
+                    root,
+                    cleanHead,
+                    invalidHead
+                )
             }
         } finally {
             root.deleteRecursively()
         }
     }
-}) {
+}
+) {
     companion object {
-        private fun commit(root: File, message: String) {
-            git(root, "add", ".")
-            git(root, "commit", "-m", message)
+        private fun commit(
+            root: File,
+            message: String
+        ) {
+            git(
+                root,
+                "add",
+                "."
+            )
+            git(
+                root,
+                "commit",
+                "-m",
+                message
+            )
         }
 
-        private fun git(root: File, vararg arguments: String): String {
+        private fun git(
+            root: File,
+            vararg arguments: String
+        ): String {
             val process = ProcessBuilder(listOf("git") + arguments)
                 .directory(root)
                 .redirectErrorStream(true)

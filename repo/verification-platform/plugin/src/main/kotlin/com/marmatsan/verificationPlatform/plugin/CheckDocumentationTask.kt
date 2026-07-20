@@ -16,7 +16,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Validates repository documentation and committed change coverage in Kotlin. */
-@DisableCachingByDefault(because = "Documentation coverage depends on the committed Git change set")
+@DisableCachingByDefault(
+    because = "Documentation coverage depends on the committed Git change set"
+)
 abstract class CheckDocumentationTask : DefaultTask() {
     /** Repository checkout containing Markdown and canonical source files. */
     @get:Internal

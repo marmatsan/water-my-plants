@@ -23,20 +23,30 @@ import kotlinx.serialization.json.put
 
 /** Canonical hasher and filesystem JSON adapter for [VisualSyncPlan]. */
 class VisualSyncPlanJson : VisualSyncPlanHasher {
-    override fun hash(body: VisualSyncPlanBody): String = Sha256Hash.of(CanonicalJson.stringify(body.toJson()))
+    override fun hash(
+        body: VisualSyncPlanBody
+    ): String = Sha256Hash.of(CanonicalJson.stringify(body.toJson()))
 
-    fun write(plan: VisualSyncPlan, outputPath: String) {
+    fun write(
+        plan: VisualSyncPlan,
+        outputPath: String
+    ) {
         val output = Path.of(outputPath)
         output.parent?.let(Files::createDirectories)
         val body = plan.body.toJson().toMutableMap()
         body["planHash"] = JsonPrimitive(plan.planHash)
         Files.writeString(
             output,
-            prettyJson.encodeToString(JsonObject.serializer(), JsonObject(body)) + System.lineSeparator()
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                JsonObject(body)
+            ) + System.lineSeparator()
         )
     }
 
-    fun read(inputPath: String): VisualSyncPlan {
+    fun read(
+        inputPath: String
+    ): VisualSyncPlan {
         val source = Json.parseToJsonElement(Files.readString(Path.of(inputPath)).removePrefix(UTF8_BOM)).jsonObject
         val identity = source.getValue("identity").jsonObject
         val decisionValue = source.getValue("decision").jsonPrimitive.content
@@ -57,28 +67,70 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
             ),
             manifestHash = source.getValue("manifestHash").jsonPrimitive.content
         )
-        val plan = VisualSyncPlan(body = body, planHash = source.getValue("planHash").jsonPrimitive.content)
-        require(plan.planHash == hash(body)) { "Visual sync plan hash mismatch: ${plan.planHash} != ${hash(body)}." }
+        val plan = VisualSyncPlan(
+            body = body,
+            planHash = source.getValue("planHash").jsonPrimitive.content
+        )
+        require(
+            plan.planHash == hash(
+                body = body
+            )
+        ) { "Visual sync plan hash mismatch: ${plan.planHash} != ${hash(
+            body = body
+        )}." }
         return plan
     }
 
     private fun VisualSyncPlanBody.toJson(): JsonObject = buildJsonObject {
-        put("schemaVersion", schemaVersion)
-        put("decision", decision.wireValue)
-        put("reason", reason)
-        put("requiresVisualWrite", requiresVisualWrite)
-        put("requiresMetadataWrite", requiresMetadataWrite)
-        put("executionScopes", JsonArray(executionScopes.map(::JsonPrimitive)))
+        put(
+            "schemaVersion",
+            schemaVersion
+        )
+        put(
+            "decision",
+            decision.wireValue
+        )
+        put(
+            "reason",
+            reason
+        )
+        put(
+            "requiresVisualWrite",
+            requiresVisualWrite
+        )
+        put(
+            "requiresMetadataWrite",
+            requiresMetadataWrite
+        )
+        put(
+            "executionScopes",
+            JsonArray(executionScopes.map(::JsonPrimitive))
+        )
         put(
             "identity",
             buildJsonObject {
-                put("modelHash", identity.modelHash)
-                put("writerHash", identity.writerHash)
-                put("transportHash", identity.transportHash)
-                put("writerScopeFingerprintSchemaVersion", identity.writerScopeFingerprintSchemaVersion)
+                put(
+                    "modelHash",
+                    identity.modelHash
+                )
+                put(
+                    "writerHash",
+                    identity.writerHash
+                )
+                put(
+                    "transportHash",
+                    identity.transportHash
+                )
+                put(
+                    "writerScopeFingerprintSchemaVersion",
+                    identity.writerScopeFingerprintSchemaVersion
+                )
             }
         )
-        put("manifestHash", manifestHash)
+        put(
+            "manifestHash",
+            manifestHash
+        )
     }
 
     private companion object {

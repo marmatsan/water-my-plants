@@ -12,7 +12,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for preparing an official TeamCity Figma Sync handoff. */
-@DisableCachingByDefault(because = "Downloads and inspects official TeamCity artifacts")
+@DisableCachingByDefault(
+    because = "Downloads and inspects official TeamCity artifacts"
+)
 abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
     @get:Input
     @get:Optional

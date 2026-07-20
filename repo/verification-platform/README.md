@@ -32,9 +32,11 @@ aggregator so existing consumers do not need to know its internal projects.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan`, `checkGitWorkflow`, `checkDocumentation`, `checkRepositoryDiff`,
-  `checkTeamCityDsl`, `generateCiTopologyPreview`, `prepareTeamCityCiPlan`, and
-  `runTeamCityInfrastructureHealth` in the Water My Plants root build.
+  `generateCiPlan`, `checkGitWorkflow`, `checkDocumentation`,
+  `checkKotlinFunctionArguments`, `formatKotlinFunctionArguments`,
+  `checkRepositoryDiff`, `checkTeamCityDsl`, `generateCiTopologyPreview`,
+  `prepareTeamCityCiPlan`, and `runTeamCityInfrastructureHealth` in the Water
+  My Plants root build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
 
@@ -66,12 +68,28 @@ therefore add or update KDoc in the same change.
 .\gradlew.bat :verification-platform:dokkaGenerate
 .\gradlew.bat checkGitWorkflow
 .\gradlew.bat checkDocumentation
+.\gradlew.bat checkKotlinFunctionArguments
+.\gradlew.bat formatKotlinFunctionArguments
 .\gradlew.bat checkRepositoryDiff
 .\gradlew.bat checkTeamCityDsl
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
 ```
+
+`checkKotlinFunctionArguments` enforces the repository Kotlin standard for
+every `.kt` and `.kts` file: every declaration parameter is vertical, calls
+with multiple arguments are vertical, and named arguments are vertical even
+when used alone. Short function-type and lambda signatures may remain inline
+within the 120-character repository line limit. It is wired into the root
+`check` lifecycle so future source files are checked locally and in CI.
+For `.kt` files, the check also resolves unambiguous functions and constructors
+declared in the same source file and requires every supported argument to use
+its Kotlin parameter name. `formatKotlinFunctionArguments` applies both that
+named-argument rule and the structural layout to existing code. Java APIs,
+function values, individual `vararg` elements, receiver or cross-file calls,
+and Kotlin Script DSL APIs remain positional when the compiler rejects names;
+compiler validation and review cover cases that require semantic resolution.
 
 `checkTeamCityDsl` also rejects generated Pipeline YAML that encodes
 `commit-status-publisher` as a job feature. Its YAML schema does not allow that

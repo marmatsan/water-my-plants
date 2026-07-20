@@ -7,7 +7,8 @@ import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class CiExecutionTopologyJsonTest : FunSpec({
+class CiExecutionTopologyJsonTest : FunSpec(
+    {
     test("round trips the preview topology contract") {
         val plan = CiPlanFactory().create(
             changeSet = RepositoryChangeSet(
@@ -17,12 +18,19 @@ class CiExecutionTopologyJsonTest : FunSpec({
             ),
             moduleGraph = testModuleGraph()
         )
-        val expected = CiTopologyPlanner().create(plan, availableAgents = 3)
+        val expected = CiTopologyPlanner().create(
+            plan,
+            availableAgents = 3
+        )
         val json = CiExecutionTopologyJson()
         val output = kotlin.io.path.createTempFile().toFile()
 
-        json.write(expected, output)
+        json.write(
+            expected,
+            output
+        )
 
         json.read(output.readText()) shouldBe expected
     }
-})
+}
+)

@@ -7,7 +7,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-internal class CiWindowsRuntimeFreshnessCheckerTest : FunSpec({
+internal class CiWindowsRuntimeFreshnessCheckerTest : FunSpec(
+    {
 
     test("check requests a warning only after the configured validation window") {
         val checker = CiWindowsRuntimeFreshnessChecker(FakeCiWindowsRuntimePort)
@@ -22,10 +23,13 @@ internal class CiWindowsRuntimeFreshnessCheckerTest : FunSpec({
             currentDate = LocalDate.parse("2026-10-15")
         ).warningRequired shouldBe true
     }
-})
+}
+)
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
-    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+    override fun readRuntime(
+        source: CiWindowsRuntimeSource
+    ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(

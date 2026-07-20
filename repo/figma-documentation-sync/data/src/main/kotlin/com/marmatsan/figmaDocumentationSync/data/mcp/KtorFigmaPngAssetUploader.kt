@@ -17,8 +17,13 @@ class KtorFigmaPngAssetUploader internal constructor(
 ) {
     constructor() : this(::sendWithKtor)
 
-    suspend fun upload(url: String, bytes: ByteArray) {
-        val target = requireAllowedTarget(url)
+    suspend fun upload(
+        url: String,
+        bytes: ByteArray
+    ) {
+        val target = requireAllowedTarget(
+            url = url
+        )
         require(bytes.size in 1..PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
             "Official Figma payload must contain between 1 and " +
                 "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes."
@@ -27,20 +32,44 @@ class KtorFigmaPngAssetUploader internal constructor(
             "Official Figma payload is not a PNG file."
         }
 
-        val status = send(target, bytes)
+        val status = send(
+            target,
+            bytes
+        )
         require(status in 200..299) { "Payload upload failed with HTTP $status." }
     }
 
-    fun uploadBlocking(url: String, bytes: ByteArray) = runBlocking { upload(url, bytes) }
+    fun uploadBlocking(
+        url: String,
+        bytes: ByteArray
+    ) = runBlocking { upload(
+        url = url,
+        bytes = bytes
+    ) }
 
-    private fun requireAllowedTarget(url: String): URI {
+    private fun requireAllowedTarget(
+        url: String
+    ): URI {
         val target = runCatching { URI(url) }.getOrElse { failure ->
-            throw IllegalArgumentException("Figma upload URL is invalid.", failure)
+            throw IllegalArgumentException(
+                "Figma upload URL is invalid.",
+                failure
+            )
         }
-        require(!target.isOpaque && target.scheme.equals("https", ignoreCase = true)) {
+        require(
+            !target.isOpaque && target.scheme.equals(
+                "https",
+                ignoreCase = true
+            )
+        ) {
             "Figma upload URL must use HTTPS."
         }
-        require(target.host.equals(ALLOWED_HOST, ignoreCase = true)) {
+        require(
+            target.host.equals(
+                ALLOWED_HOST,
+                ignoreCase = true
+            )
+        ) {
             "Figma upload URL host must be $ALLOWED_HOST."
         }
         require(target.port == -1 || target.port == HTTPS_PORT) {
@@ -58,7 +87,9 @@ class KtorFigmaPngAssetUploader internal constructor(
         return target
     }
 
-    private fun ByteArray.startsWith(prefix: ByteArray): Boolean =
+    private fun ByteArray.startsWith(
+        prefix: ByteArray
+    ): Boolean =
         size >= prefix.size && prefix.indices.all { index -> this[index] == prefix[index] }
 
     private companion object {
@@ -70,10 +101,16 @@ class KtorFigmaPngAssetUploader internal constructor(
                 "[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/submit$"
         )
 
-        suspend fun sendWithKtor(target: URI, bytes: ByteArray): Int =
+        suspend fun sendWithKtor(
+            target: URI,
+            bytes: ByteArray
+        ): Int =
             HttpClient(CIO) { followRedirects = false }.use { client ->
                 client.post(target.toString()) {
-                    header(HttpHeaders.ContentType, ContentType.Image.PNG.toString())
+                    header(
+                        HttpHeaders.ContentType,
+                        ContentType.Image.PNG.toString()
+                    )
                     setBody(bytes)
                 }.status.value
             }

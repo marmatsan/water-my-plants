@@ -14,14 +14,20 @@ import org.gradle.kotlin.dsl.hasPlugin
 @Suppress("unused")
 class ComposeGradleConventionPlugin : Plugin<Project> {
 
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
-                configureApplicationExtension(project.extensions.getByType<ApplicationExtension>())
+                configureApplicationExtension(
+                    extension = project.extensions.getByType<ApplicationExtension>()
+                )
             }
 
             else -> {
-                configureLibraryExtension(project.extensions.getByType<LibraryExtension>())
+                configureLibraryExtension(
+                    extension = project.extensions.getByType<LibraryExtension>()
+                )
             }
         }
 

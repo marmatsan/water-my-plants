@@ -8,29 +8,74 @@ import me.tatarka.inject.annotations.Inject
 /** Git adapter that compares the current checkout with `origin/main`. */
 @Inject
 class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
-    override fun read(repositoryRootPath: String): RepositoryChangeSet {
+    override fun read(
+        repositoryRootPath: String
+    ): RepositoryChangeSet {
         val repositoryRoot = File(repositoryRootPath).canonicalFile
-        git(repositoryRoot, "rev-parse", "--verify", "origin/main")
+        git(
+            repositoryRoot,
+            "rev-parse",
+            "--verify",
+            "origin/main"
+        )
 
-        val head = git(repositoryRoot, "rev-parse", "HEAD")
-        val main = git(repositoryRoot, "rev-parse", "origin/main")
+        val head = git(
+            repositoryRoot,
+            "rev-parse",
+            "HEAD"
+        )
+        val main = git(
+            repositoryRoot,
+            "rev-parse",
+            "origin/main"
+        )
         val base = if (head == main) {
-            git(repositoryRoot, "rev-parse", "$head^")
+            git(
+                repositoryRoot,
+                "rev-parse",
+                "$head^"
+            )
         } else {
-            git(repositoryRoot, "merge-base", "HEAD", "origin/main")
+            git(
+                repositoryRoot,
+                "merge-base",
+                "HEAD",
+                "origin/main"
+            )
         }
-        val paths = git(repositoryRoot, "diff", "--name-only", "--diff-filter=ACMR", "$base..$head")
+        val paths = git(
+            repositoryRoot,
+            "diff",
+            "--name-only",
+            "--diff-filter=ACMR",
+            "$base..$head"
+        )
             .lineSequence()
             .map(::normalizePath)
             .filter(String::isNotBlank)
             .toList()
 
-        return RepositoryChangeSet(comparisonBase = base, changedPaths = paths)
+        return RepositoryChangeSet(
+            comparisonBase = base,
+            changedPaths = paths
+        )
     }
 
-    private fun git(repositoryRoot: File, vararg arguments: String): String {
-        val safeDirectory = repositoryRoot.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+    private fun git(
+        repositoryRoot: File,
+        vararg arguments: String
+    ): String {
+        val safeDirectory = repositoryRoot.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(repositoryRoot)
             .redirectErrorStream(true)
             .start()
@@ -42,5 +87,10 @@ class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
         return output.trim()
     }
 
-    private fun normalizePath(path: String): String = path.trim().replace('\\', '/')
+    private fun normalizePath(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    )
 }

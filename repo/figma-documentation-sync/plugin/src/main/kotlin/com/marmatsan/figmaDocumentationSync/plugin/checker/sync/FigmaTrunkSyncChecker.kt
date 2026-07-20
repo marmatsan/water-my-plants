@@ -27,7 +27,9 @@ internal class FigmaTrunkSyncChecker(
      * @throws GradleException when metadata is missing or the model hash is out
      * of sync.
      */
-    fun check(request: FigmaTrunkSyncCheckRequest): FigmaTrunkSyncCheckResult {
+    fun check(
+        request: FigmaTrunkSyncCheckRequest
+    ): FigmaTrunkSyncCheckResult {
         val expected = figmaDesignModelGenerator.generate(
             FigmaDesignModelGenerationRequest(
                 branch = request.branch,

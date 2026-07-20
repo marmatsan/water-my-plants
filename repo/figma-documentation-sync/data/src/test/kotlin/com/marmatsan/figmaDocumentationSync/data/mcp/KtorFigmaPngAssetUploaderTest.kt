@@ -5,7 +5,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class KtorFigmaPngAssetUploaderTest : FunSpec({
+internal class KtorFigmaPngAssetUploaderTest : FunSpec(
+    {
     val uploadUrl =
         "https://mcp.figma.com/mcp/upload/0d188fd2-0c70-46f5-b30a-6dd4f3904998/submit?scaleMode=FILL"
     val png = PayloadPngEncoder().encode("{}")
@@ -19,7 +20,10 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec({
             204
         }
 
-        uploader.uploadBlocking(uploadUrl, png)
+        uploader.uploadBlocking(
+            uploadUrl,
+            png
+        )
 
         capturedUrl shouldBe uploadUrl
         capturedBytes shouldBe png
@@ -27,13 +31,34 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec({
 
     test("rejects upload targets outside the single-use Figma MCP contract") {
         val invalidUrls = listOf(
-            uploadUrl.replace("https://", "http://"),
-            uploadUrl.replace("mcp.figma.com", "example.com"),
-            uploadUrl.replace("mcp.figma.com", "mcp.figma.com.example.com"),
-            uploadUrl.replace("mcp.figma.com", "mcp.figma.com:8443"),
-            uploadUrl.replace("/mcp/upload/", "/other/upload/"),
-            uploadUrl.replace("?scaleMode=FILL", "?scaleMode=FIT"),
-            uploadUrl.replace("https://", "https://user@mcp.figma.com/")
+            uploadUrl.replace(
+                "https://",
+                "http://"
+            ),
+            uploadUrl.replace(
+                "mcp.figma.com",
+                "example.com"
+            ),
+            uploadUrl.replace(
+                "mcp.figma.com",
+                "mcp.figma.com.example.com"
+            ),
+            uploadUrl.replace(
+                "mcp.figma.com",
+                "mcp.figma.com:8443"
+            ),
+            uploadUrl.replace(
+                "/mcp/upload/",
+                "/other/upload/"
+            ),
+            uploadUrl.replace(
+                "?scaleMode=FILL",
+                "?scaleMode=FIT"
+            ),
+            uploadUrl.replace(
+                "https://",
+                "https://user@mcp.figma.com/"
+            )
         )
         var sends = 0
         val uploader = KtorFigmaPngAssetUploader { _, _ ->
@@ -42,7 +67,10 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec({
         }
 
         invalidUrls.forEach { url ->
-            shouldThrow<IllegalArgumentException> { uploader.uploadBlocking(url, png) }
+            shouldThrow<IllegalArgumentException> { uploader.uploadBlocking(
+                url,
+                png
+            ) }
         }
 
         sends shouldBe 0
@@ -56,10 +84,16 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec({
         }
 
         shouldThrow<IllegalArgumentException> {
-            uploader.uploadBlocking(uploadUrl, "not-a-png".encodeToByteArray())
+            uploader.uploadBlocking(
+                uploadUrl,
+                "not-a-png".encodeToByteArray()
+            )
         }
         shouldThrow<IllegalArgumentException> {
-            uploader.uploadBlocking(uploadUrl, ByteArray(10 * 1024 * 1024 + 1))
+            uploader.uploadBlocking(
+                uploadUrl,
+                ByteArray(10 * 1024 * 1024 + 1)
+            )
         }
 
         sends shouldBe 0
@@ -69,9 +103,13 @@ internal class KtorFigmaPngAssetUploaderTest : FunSpec({
         val uploader = KtorFigmaPngAssetUploader { _, _ -> 500 }
 
         val failure = shouldThrow<IllegalArgumentException> {
-            uploader.uploadBlocking(uploadUrl, png)
+            uploader.uploadBlocking(
+                uploadUrl,
+                png
+            )
         }
 
         failure.message shouldBe "Payload upload failed with HTTP 500."
     }
-})
+}
+)

@@ -2,7 +2,9 @@ package com.marmatsan.figmaDocumentationSync.data.gradle
 
 import java.io.File
 
-internal fun File.isInsideNestedGradleBuild(rootDir: File): Boolean {
+internal fun File.isInsideNestedGradleBuild(
+    rootDir: File
+): Boolean {
     val normalizedRoot = rootDir.canonicalFile
 
     return generateSequence(parentFile?.canonicalFile) { file -> file.parentFile?.canonicalFile }

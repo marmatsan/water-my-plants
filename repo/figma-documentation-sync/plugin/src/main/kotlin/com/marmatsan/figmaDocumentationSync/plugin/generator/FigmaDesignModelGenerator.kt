@@ -50,20 +50,48 @@ internal class FigmaDesignModelGenerator(
      * from the hash so commits that do not affect the visual model do not force
      * a Figma sync.
      */
-    fun generate(request: FigmaDesignModelGenerationRequest): FigmaDesignModelGenerationResult {
-        val content = buildContent(request)
+    fun generate(
+        request: FigmaDesignModelGenerationRequest
+    ): FigmaDesignModelGenerationResult {
+        val content = buildContent(
+            request = request
+        )
         val hashInput = buildJsonObject {
-            put("schemaVersion", SCHEMA_VERSION)
-            put("content", content)
+            put(
+                "schemaVersion",
+                SCHEMA_VERSION
+            )
+            put(
+                "content",
+                content
+            )
         }
         val modelHash = FigmaDesignModelHash.compute(hashInput)
         val model = buildJsonObject {
-            put("schemaVersion", SCHEMA_VERSION)
-            put("branch", request.branch)
-            put("gitSha", request.gitSha)
-            put("generatedAt", request.generatedAt.toString())
-            put("content", content)
-            put("modelHash", modelHash)
+            put(
+                "schemaVersion",
+                SCHEMA_VERSION
+            )
+            put(
+                "branch",
+                request.branch
+            )
+            put(
+                "gitSha",
+                request.gitSha
+            )
+            put(
+                "generatedAt",
+                request.generatedAt.toString()
+            )
+            put(
+                "content",
+                content
+            )
+            put(
+                "modelHash",
+                modelHash
+            )
         }
 
         return FigmaDesignModelGenerationResult(
@@ -72,7 +100,9 @@ internal class FigmaDesignModelGenerator(
         )
     }
 
-    private fun buildContent(request: FigmaDesignModelGenerationRequest) =
+    private fun buildContent(
+        request: FigmaDesignModelGenerationRequest
+    ) =
         buildJsonObject {
             val includedBuilds = request.includedBuilds.map(FigmaDesignModelIncludedBuildSource::toDomainSource)
             val versionSections = repositoryVersionsPort
@@ -84,8 +114,16 @@ internal class FigmaDesignModelGenerator(
                     .associate { entry -> entry.key to entry.value }
                     .toVersionsJson()
             )
-            put("versionSections", versionSections.toVersionSectionsJson())
-            put("catalogs", buildCatalogs(request))
+            put(
+                "versionSections",
+                versionSections.toVersionSectionsJson()
+            )
+            put(
+                "catalogs",
+                buildCatalogs(
+                    request = request
+                )
+            )
             put(
                 "modules",
                 projectModulesPort
@@ -97,13 +135,25 @@ internal class FigmaDesignModelGenerator(
                     )
                     .toSortedJsonArray()
             )
-            put("moduleDependencies", buildModuleDependencies(request))
+            put(
+                "moduleDependencies",
+                buildModuleDependencies(
+                    request = request
+                )
+            )
             if (request.ciDocumentationEnabled) {
-                put("ci", buildCi(request))
+                put(
+                    "ci",
+                    buildCi(
+                        request = request
+                    )
+                )
             }
         }
 
-    private fun buildCi(request: FigmaDesignModelGenerationRequest) =
+    private fun buildCi(
+        request: FigmaDesignModelGenerationRequest
+    ) =
         buildJsonObject {
             put(
                 "externalTopology",
@@ -141,7 +191,9 @@ internal class FigmaDesignModelGenerator(
             )
         }
 
-    private fun buildCatalogs(request: FigmaDesignModelGenerationRequest) =
+    private fun buildCatalogs(
+        request: FigmaDesignModelGenerationRequest
+    ) =
         buildJsonObject {
             val conventionPluginIncludedBuilds = request.includedBuilds
                 .map(FigmaDesignModelIncludedBuildSource::toDomainSource)
@@ -209,17 +261,25 @@ internal class FigmaDesignModelGenerator(
                             val plugins = projectCatalogTreesPort.readPluginTree(source)
 
                             if (libraries.roots.isNotEmpty()) {
-                                put("libraries", libraries.toDesignJson())
+                                put(
+                                    "libraries",
+                                    libraries.toDesignJson()
+                                )
                             }
                             if (plugins.roots.isNotEmpty()) {
-                                put("plugins", plugins.toDesignJson())
+                                put(
+                                    "plugins",
+                                    plugins.toDesignJson()
+                                )
                             }
                         }
                     )
                 }
         }
 
-    private fun buildModuleDependencies(request: FigmaDesignModelGenerationRequest) =
+    private fun buildModuleDependencies(
+        request: FigmaDesignModelGenerationRequest
+    ) =
         buildJsonObject {
             put(
                 "main",
@@ -254,12 +314,16 @@ internal class FigmaDesignModelGenerator(
     }
 }
 
-private fun java.io.File?.requireCiInput(name: String): java.io.File =
+private fun java.io.File?.requireCiInput(
+    name: String
+): java.io.File =
     requireNotNull(this) {
         "CI documentation is enabled, but its $name input is not configured."
     }
 
-private fun String?.requireCiInput(name: String): String =
+private fun String?.requireCiInput(
+    name: String
+): String =
     requireNotNull(this?.takeIf(String::isNotBlank)) {
         "CI documentation is enabled, but its $name input is not configured."
     }

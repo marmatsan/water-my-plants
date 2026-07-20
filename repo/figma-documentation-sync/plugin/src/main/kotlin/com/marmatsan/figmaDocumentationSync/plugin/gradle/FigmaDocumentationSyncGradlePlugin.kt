@@ -43,7 +43,9 @@ import java.io.File
  */
 @Suppress("unused")
 class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         project.pluginManager.apply("base")
 
         val extension = project.extensions.create<figmaDocumentationSyncExtension>("figmaDocumentationSync")
@@ -116,11 +118,36 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             endpoint.convention(
                 project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp")
             )
-            resume.convention(booleanProperty(project, "figmaMcpResume"))
-            retryFailed.convention(booleanProperty(project, "figmaMcpRetryFailed"))
-            reuseStaging.convention(booleanProperty(project, "figmaMcpReuseStaging"))
-            dryRun.convention(booleanProperty(project, "figmaMcpDryRun"))
-            next.convention(booleanProperty(project, "figmaMcpNext"))
+            resume.convention(
+                booleanProperty(
+                    project = project,
+                    name = "figmaMcpResume"
+                )
+            )
+            retryFailed.convention(
+                booleanProperty(
+                    project = project,
+                    name = "figmaMcpRetryFailed"
+                )
+            )
+            reuseStaging.convention(
+                booleanProperty(
+                    project = project,
+                    name = "figmaMcpReuseStaging"
+                )
+            )
+            dryRun.convention(
+                booleanProperty(
+                    project = project,
+                    name = "figmaMcpDryRun"
+                )
+            )
+            next.convention(
+                booleanProperty(
+                    project = project,
+                    name = "figmaMcpNext"
+                )
+            )
             from.convention(project.providers.gradleProperty("figmaMcpFrom"))
             recordSuccess.convention(project.providers.gradleProperty("figmaMcpRecordSuccess"))
             recordFailure.convention(project.providers.gradleProperty("figmaMcpRecordFailure"))
@@ -280,7 +307,10 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             }
 
         val teamCityPhasedOfficialExecution =
-            booleanProperty(project, "figmaOfficialTeamCityPhasedExecution")
+            booleanProperty(
+                project = project,
+                name = "figmaOfficialTeamCityPhasedExecution"
+            )
 
         val classifyOfficialFigmaSyncChangeImpact =
             project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyOfficialFigmaSyncChangeImpact") {
@@ -312,7 +342,9 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 onlyIf("CI documentation adapter is enabled and Figma impact requires full verification") {
                     extension.ciDocumentationEnabled.get() &&
                         extension.ciConfigurationCommand.get().isNotEmpty() &&
-                        isFullVerification(extension.changeImpactFile.get().asFile)
+                        isFullVerification(
+                            changeImpactFile = extension.changeImpactFile.get().asFile
+                        )
                 }
                 workingDir(extension.ciConfigurationWorkingDirectory)
                 doFirst {
@@ -332,7 +364,9 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                     dependsOn(materializeFigmaSyncCiConfiguration)
                 }
                 onlyIf("Figma change impact requires full verification") {
-                    isFullVerification(extension.changeImpactFile.get().asFile)
+                    isFullVerification(
+                        changeImpactFile = extension.changeImpactFile.get().asFile
+                    )
                 }
 
                 primaryCatalogModelName.set(extension.primaryCatalogModelName)
@@ -462,17 +496,24 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun isFullVerification(changeImpactFile: File): Boolean =
+    private fun isFullVerification(
+        changeImpactFile: File
+    ): Boolean =
         figmaDocumentationSyncComponent::class.create().officialFigmaSyncScopeJson
             .readChangeImpact(changeImpactFile.absolutePath)
             .scope == FigmaVerificationScope.FULL_VERIFICATION
 
-    private fun booleanProperty(project: Project, name: String) =
+    private fun booleanProperty(
+        project: Project,
+        name: String
+    ) =
         project.providers.gradleProperty(name).map(String::toBoolean).orElse(false)
 
 }
 
-private fun figmaDocumentationSyncExtension.includedBuildSources(project: Project) =
+private fun figmaDocumentationSyncExtension.includedBuildSources(
+    project: Project
+) =
     project.provider {
         includedBuilds
             .toList()

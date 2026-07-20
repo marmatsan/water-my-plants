@@ -5,9 +5,15 @@ import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 internal fun pluginTrees(
     versions: Versions
 ) = listOf(
-    comPluginTree(versions),
-    dePluginTree(versions),
-    orgPluginTree(versions)
+    comPluginTree(
+        versions = versions
+    ),
+    dePluginTree(
+        versions = versions
+    ),
+    orgPluginTree(
+        versions = versions
+    )
 )
 
 private fun comPluginTree(

@@ -23,17 +23,30 @@ import kotlinx.serialization.json.put
 
 /** Reads, validates, hashes, and writes complete executable runner manifests. */
 class ExecutableRunnerManifestJson {
-    fun finalizeAndWrite(draft: ExecutableRunnerManifest, outputPath: String): ExecutableRunnerManifest {
+    fun finalizeAndWrite(
+        draft: ExecutableRunnerManifest,
+        outputPath: String
+    ): ExecutableRunnerManifest {
         val finalized = draft.copy(
             path = Path.of(outputPath).toAbsolutePath().normalize().toString(),
-            manifestHash = hash(draft)
+            manifestHash = hash(
+                manifest = draft
+            )
         )
-        write(finalized, outputPath)
+        write(
+            manifest = finalized,
+            outputPath = outputPath
+        )
         return finalized
     }
 
-    fun write(manifest: ExecutableRunnerManifest, outputPath: String) {
-        val expectedHash = hash(manifest)
+    fun write(
+        manifest: ExecutableRunnerManifest,
+        outputPath: String
+    ) {
+        val expectedHash = hash(
+            manifest = manifest
+        )
         require(manifest.manifestHash == expectedHash) {
             "MCP manifest hash mismatch: ${manifest.manifestHash} != $expectedHash."
         }
@@ -41,12 +54,19 @@ class ExecutableRunnerManifestJson {
         output.parent?.let(Files::createDirectories)
         Files.writeString(
             output,
-            prettyJson.encodeToString(JsonObject.serializer(), manifest.toJson(includeHash = true)) +
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                manifest.toJson(
+                    includeHash = true
+                )
+            ) +
                 System.lineSeparator()
         )
     }
 
-    fun read(path: String): ExecutableRunnerManifest {
+    fun read(
+        path: String
+    ): ExecutableRunnerManifest {
         val normalized = Path.of(path).toAbsolutePath().normalize()
         val source = Json.parseToJsonElement(Files.readString(normalized).removePrefix(UTF8_BOM)).jsonObject
         val manifest = source.toManifest(normalized.toString())
@@ -86,114 +106,306 @@ class ExecutableRunnerManifestJson {
         return manifest
     }
 
-    fun hash(manifest: ExecutableRunnerManifest): String =
-        Sha256Hash.of(CanonicalJson.stringify(manifest.toJson(includeHash = false)))
+    fun hash(
+        manifest: ExecutableRunnerManifest
+    ): String =
+        Sha256Hash.of(
+            CanonicalJson.stringify(
+                manifest.toJson(
+                    includeHash = false
+                )
+            )
+        )
 
-    private fun ExecutableRunnerManifest.toJson(includeHash: Boolean): JsonObject = buildJsonObject {
-        put("schemaVersion", schemaVersion)
-        put("mode", mode)
-        put("entrypoint", entrypoint)
-        put("target", target)
-        put("targets", targets.toJsonArray())
-        put("writeMetadata", writeMetadata)
-        put("transport", transport)
-        put("namespace", namespace)
-        put("sectionNodeId", sectionNodeId?.let(::JsonPrimitive) ?: JsonNull)
-        put("roots", roots.toJsonArray())
-        put("allowOfficialSections", allowOfficialSections)
-        put("allowPartial", allowPartial)
-        put("fullVisualSync", fullVisualSync)
-        put("metadataPageId", metadataPageId)
-        put("modelPath", modelPath)
-        put("scriptPath", scriptPath)
-        put("modelHash", modelHash)
-        put("gitSha", gitSha)
-        put("designModelLength", designModelLength)
-        put("scriptLength", scriptLength)
-        put("writerHash", writerHash)
-        put("transportHash", transportHash)
-        put("targetFingerprints", targetFingerprints.toJsonObject())
-        put("writerScopeFingerprints", writerScopeFingerprints.toJsonObject())
-        put("writerScopeFingerprintSchemaVersion", writerScopeFingerprintSchemaVersion)
-        put("executionScopes", executionScopes.toJsonObject())
-        put("payloadImage", payloadImage?.toJson() ?: JsonNull)
-        put("files", files.toJsonArray())
-        put("fileHashes", fileHashes.toJsonObject())
-        if (includeHash) put("manifestHash", manifestHash)
+    private fun ExecutableRunnerManifest.toJson(
+        includeHash: Boolean
+    ): JsonObject = buildJsonObject {
+        put(
+            "schemaVersion",
+            schemaVersion
+        )
+        put(
+            "mode",
+            mode
+        )
+        put(
+            "entrypoint",
+            entrypoint
+        )
+        put(
+            "target",
+            target
+        )
+        put(
+            "targets",
+            targets.toJsonArray()
+        )
+        put(
+            "writeMetadata",
+            writeMetadata
+        )
+        put(
+            "transport",
+            transport
+        )
+        put(
+            "namespace",
+            namespace
+        )
+        put(
+            "sectionNodeId",
+            sectionNodeId?.let(::JsonPrimitive) ?: JsonNull
+        )
+        put(
+            "roots",
+            roots.toJsonArray()
+        )
+        put(
+            "allowOfficialSections",
+            allowOfficialSections
+        )
+        put(
+            "allowPartial",
+            allowPartial
+        )
+        put(
+            "fullVisualSync",
+            fullVisualSync
+        )
+        put(
+            "metadataPageId",
+            metadataPageId
+        )
+        put(
+            "modelPath",
+            modelPath
+        )
+        put(
+            "scriptPath",
+            scriptPath
+        )
+        put(
+            "modelHash",
+            modelHash
+        )
+        put(
+            "gitSha",
+            gitSha
+        )
+        put(
+            "designModelLength",
+            designModelLength
+        )
+        put(
+            "scriptLength",
+            scriptLength
+        )
+        put(
+            "writerHash",
+            writerHash
+        )
+        put(
+            "transportHash",
+            transportHash
+        )
+        put(
+            "targetFingerprints",
+            targetFingerprints.toJsonObject()
+        )
+        put(
+            "writerScopeFingerprints",
+            writerScopeFingerprints.toJsonObject()
+        )
+        put(
+            "writerScopeFingerprintSchemaVersion",
+            writerScopeFingerprintSchemaVersion
+        )
+        put(
+            "executionScopes",
+            executionScopes.toJsonObject()
+        )
+        put(
+            "payloadImage",
+            payloadImage?.toJson() ?: JsonNull
+        )
+        put(
+            "files",
+            files.toJsonArray()
+        )
+        put(
+            "fileHashes",
+            fileHashes.toJsonObject()
+        )
+        if (includeHash) put(
+            "manifestHash",
+            manifestHash
+        )
     }
 
-    private fun JsonObject.toManifest(path: String): ExecutableRunnerManifest = ExecutableRunnerManifest(
+    private fun JsonObject.toManifest(
+        path: String
+    ): ExecutableRunnerManifest = ExecutableRunnerManifest(
         path = path,
-        schemaVersion = requiredInt("schemaVersion"),
-        mode = requiredString("mode"),
-        entrypoint = requiredString("entrypoint"),
-        target = requiredString("target"),
-        targets = requiredStringList("targets"),
-        writeMetadata = requiredBoolean("writeMetadata"),
-        transport = requiredString("transport"),
-        namespace = requiredString("namespace"),
+        schemaVersion = requiredInt(
+            name = "schemaVersion"
+        ),
+        mode = requiredString(
+            name = "mode"
+        ),
+        entrypoint = requiredString(
+            name = "entrypoint"
+        ),
+        target = requiredString(
+            name = "target"
+        ),
+        targets = requiredStringList(
+            name = "targets"
+        ),
+        writeMetadata = requiredBoolean(
+            name = "writeMetadata"
+        ),
+        transport = requiredString(
+            name = "transport"
+        ),
+        namespace = requiredString(
+            name = "namespace"
+        ),
         sectionNodeId = this["sectionNodeId"]?.jsonPrimitive?.contentOrNull,
-        roots = requiredStringList("roots"),
-        allowOfficialSections = requiredBoolean("allowOfficialSections"),
-        allowPartial = requiredBoolean("allowPartial"),
-        fullVisualSync = requiredBoolean("fullVisualSync"),
-        metadataPageId = requiredString("metadataPageId"),
-        modelPath = requiredString("modelPath"),
-        scriptPath = requiredString("scriptPath"),
-        modelHash = requiredString("modelHash"),
-        gitSha = requiredString("gitSha"),
-        designModelLength = requiredInt("designModelLength"),
-        scriptLength = requiredInt("scriptLength"),
-        writerHash = requiredString("writerHash"),
-        transportHash = requiredString("transportHash"),
-        targetFingerprints = stringMapOrEmpty("targetFingerprints"),
-        writerScopeFingerprints = stringMapOrEmpty("writerScopeFingerprints"),
-        writerScopeFingerprintSchemaVersion = intOrZero("writerScopeFingerprintSchemaVersion"),
-        executionScopes = stringMapOrEmpty("executionScopes"),
+        roots = requiredStringList(
+            name = "roots"
+        ),
+        allowOfficialSections = requiredBoolean(
+            name = "allowOfficialSections"
+        ),
+        allowPartial = requiredBoolean(
+            name = "allowPartial"
+        ),
+        fullVisualSync = requiredBoolean(
+            name = "fullVisualSync"
+        ),
+        metadataPageId = requiredString(
+            name = "metadataPageId"
+        ),
+        modelPath = requiredString(
+            name = "modelPath"
+        ),
+        scriptPath = requiredString(
+            name = "scriptPath"
+        ),
+        modelHash = requiredString(
+            name = "modelHash"
+        ),
+        gitSha = requiredString(
+            name = "gitSha"
+        ),
+        designModelLength = requiredInt(
+            name = "designModelLength"
+        ),
+        scriptLength = requiredInt(
+            name = "scriptLength"
+        ),
+        writerHash = requiredString(
+            name = "writerHash"
+        ),
+        transportHash = requiredString(
+            name = "transportHash"
+        ),
+        targetFingerprints = stringMapOrEmpty(
+            name = "targetFingerprints"
+        ),
+        writerScopeFingerprints = stringMapOrEmpty(
+            name = "writerScopeFingerprints"
+        ),
+        writerScopeFingerprintSchemaVersion = intOrZero(
+            name = "writerScopeFingerprintSchemaVersion"
+        ),
+        executionScopes = stringMapOrEmpty(
+            name = "executionScopes"
+        ),
         payloadImage = this["payloadImage"]?.takeUnless { value -> value === JsonNull }?.jsonObject?.toPayloadImage(),
-        files = requiredStringList("files"),
-        fileHashes = requiredStringMap("fileHashes"),
-        manifestHash = requiredString("manifestHash")
+        files = requiredStringList(
+            name = "files"
+        ),
+        fileHashes = requiredStringMap(
+            name = "fileHashes"
+        ),
+        manifestHash = requiredString(
+            name = "manifestHash"
+        )
     )
 
     private fun RunnerPayloadImage.toJson(): JsonObject = buildJsonObject {
-        put("fileName", fileName)
-        put("byteLength", byteLength)
-        put("sha256", sha256)
-        put("textKeyword", textKeyword)
+        put(
+            "fileName",
+            fileName
+        )
+        put(
+            "byteLength",
+            byteLength
+        )
+        put(
+            "sha256",
+            sha256
+        )
+        put(
+            "textKeyword",
+            textKeyword
+        )
     }
 
     private fun JsonObject.toPayloadImage(): RunnerPayloadImage = RunnerPayloadImage(
-        fileName = requiredString("fileName"),
-        byteLength = requiredInt("byteLength"),
-        sha256 = requiredString("sha256"),
-        textKeyword = requiredString("textKeyword")
+        fileName = requiredString(
+            name = "fileName"
+        ),
+        byteLength = requiredInt(
+            name = "byteLength"
+        ),
+        sha256 = requiredString(
+            name = "sha256"
+        ),
+        textKeyword = requiredString(
+            name = "textKeyword"
+        )
     )
 
-    private fun JsonObject.requiredString(name: String): String =
+    private fun JsonObject.requiredString(
+        name: String
+    ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
-    private fun JsonObject.requiredInt(name: String): Int =
+    private fun JsonObject.requiredInt(
+        name: String
+    ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
-    private fun JsonObject.requiredBoolean(name: String): Boolean =
+    private fun JsonObject.requiredBoolean(
+        name: String
+    ): Boolean =
         this[name]?.jsonPrimitive?.boolean
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
-    private fun JsonObject.requiredStringList(name: String): List<String> =
+    private fun JsonObject.requiredStringList(
+        name: String
+    ): List<String> =
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
-    private fun JsonObject.requiredStringMap(name: String): Map<String, String> =
+    private fun JsonObject.requiredStringMap(
+        name: String
+    ): Map<String, String> =
         this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
-    private fun JsonObject.stringMapOrEmpty(name: String): Map<String, String> =
+    private fun JsonObject.stringMapOrEmpty(
+        name: String
+    ): Map<String, String> =
         this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }.orEmpty()
 
-    private fun JsonObject.intOrZero(name: String): Int = this[name]?.jsonPrimitive?.int ?: 0
+    private fun JsonObject.intOrZero(
+        name: String
+    ): Int = this[name]?.jsonPrimitive?.int ?: 0
 
     private fun List<String>.toJsonArray(): JsonArray = JsonArray(map(::JsonPrimitive))
 

@@ -37,7 +37,10 @@ class GradlePluginTreeReader {
     }
 
     private fun String.pluginIds(): Sequence<String> =
-        sequenceOf(PluginNameRegex, PluginIdRegex)
+        sequenceOf(
+            PluginNameRegex,
+            PluginIdRegex
+        )
             .flatMap { regex -> regex.findAll(this) }
             .map { match -> match.groupValues[1] }
 
@@ -50,7 +53,10 @@ class GradlePluginTreeReader {
         usageByPluginId: Map<String, Set<String>>
     ): List<PluginCatalogNode> =
         map { pluginId -> pluginId.split(".") }
-            .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(segments, usageByPluginId) }
+            .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(
+                segments,
+                usageByPluginId
+            ) }
             .sortedBy(PluginCatalogNode::id)
 
     private fun List<PluginCatalogNode>.withPath(
@@ -64,19 +70,30 @@ class GradlePluginTreeReader {
 
         val head = segments.first()
         val tail = segments.drop(1)
-        val pluginId = listOf(parentId, head)
+        val pluginId = listOf(
+            parentId,
+            head
+        )
             .filter(String::isNotBlank)
             .joinToString(".")
         val existingNode = firstOrNull { node -> node.id == head }
         val updatedNode = existingNode
             ?.copy(
                 appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
-                children = existingNode.children.withPath(tail, usageByPluginId, pluginId)
+                children = existingNode.children.withPath(
+                    tail,
+                    usageByPluginId,
+                    pluginId
+                )
             )
             ?: PluginCatalogNode(
                 id = head,
                 appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
-                children = emptyList<PluginCatalogNode>().withPath(tail, usageByPluginId, pluginId)
+                children = emptyList<PluginCatalogNode>().withPath(
+                    tail,
+                    usageByPluginId,
+                    pluginId
+                )
             )
 
         return filterNot { node -> node.id == head }

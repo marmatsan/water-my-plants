@@ -9,13 +9,23 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-class DocumentationValidatorTest : FunSpec({
+class DocumentationValidatorTest : FunSpec(
+    {
     test("valid typed documents and superseded ADRs pass") {
         val result = validate(
             documents = listOf(
-                DocumentationFile("docs/standards/example.md", validStandard),
-                DocumentationFile("docs/runbooks/example.md", validRunbook),
-                DocumentationFile("docs/decisions/adr-0001-historical-decision.md", supersededAdr)
+                DocumentationFile(
+                    "docs/standards/example.md",
+                    validStandard
+                ),
+                DocumentationFile(
+                    "docs/runbooks/example.md",
+                    validRunbook
+                ),
+                DocumentationFile(
+                    "docs/decisions/adr-0001-historical-decision.md",
+                    supersededAdr
+                )
             ),
             entries = setOf("source.txt")
         )
@@ -30,10 +40,18 @@ class DocumentationValidatorTest : FunSpec({
     }
 
     test("typed documents outside canonical directories fail") {
-        val misplacedGuide = validStandard.replace("type: standard", "type: guide")
+        val misplacedGuide = validStandard.replace(
+            "type: standard",
+            "type: guide"
+        )
 
         val result = validate(
-            documents = listOf(DocumentationFile("docs/misplaced.md", misplacedGuide)),
+            documents = listOf(
+                DocumentationFile(
+                    "docs/misplaced.md",
+                    misplacedGuide
+                )
+            ),
             entries = setOf("source.txt")
         )
 
@@ -41,10 +59,18 @@ class DocumentationValidatorTest : FunSpec({
     }
 
     test("runbooks require recovery guidance") {
-        val incomplete = validRunbook.replace("## Recovery\nExample.\n", "")
+        val incomplete = validRunbook.replace(
+            "## Recovery\nExample.\n",
+            ""
+        )
 
         val result = validate(
-            documents = listOf(DocumentationFile("docs/runbooks/incomplete.md", incomplete)),
+            documents = listOf(
+                DocumentationFile(
+                    "docs/runbooks/incomplete.md",
+                    incomplete
+                )
+            ),
             entries = setOf("source.txt")
         )
 
@@ -75,8 +101,18 @@ class DocumentationValidatorTest : FunSpec({
             )
         )
         val snapshot = DocumentationRepositorySnapshot(
-            documents = listOf(DocumentationFile("docs/standards/example.md", validStandard)),
-            repositoryEntries = setOf("source.txt", "docs", "docs/standards", "docs/standards/example.md")
+            documents = listOf(
+                DocumentationFile(
+                    "docs/standards/example.md",
+                    validStandard
+                )
+            ),
+            repositoryEntries = setOf(
+                "source.txt",
+                "docs",
+                "docs/standards",
+                "docs/standards/example.md"
+            )
         )
 
         val missing = DocumentationValidator().validate(
@@ -88,16 +124,24 @@ class DocumentationValidatorTest : FunSpec({
         val satisfied = DocumentationValidator().validate(
             snapshot = snapshot,
             coverageRules = rules,
-            changedPaths = listOf("src/feature.kt", "docs/standards/example.md"),
+            changedPaths = listOf(
+                "src/feature.kt",
+                "docs/standards/example.md"
+            ),
             currentDate = today
         )
 
         missing.coverageViolations.map { violation -> violation.rule } shouldBe listOf("example-rule")
         satisfied.coverageViolations shouldBe emptyList()
     }
-}) {
+}
+) {
     companion object {
-        private val today = LocalDate.of(2026, 7, 20)
+        private val today = LocalDate.of(
+            2026,
+            7,
+            20
+        )
 
         private fun validate(
             documents: List<DocumentationFile>,

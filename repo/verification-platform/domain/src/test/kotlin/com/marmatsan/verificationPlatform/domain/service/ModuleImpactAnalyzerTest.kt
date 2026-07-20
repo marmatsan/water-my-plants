@@ -6,13 +6,23 @@ import com.marmatsan.verificationPlatform.domain.model.RepositoryModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class ModuleImpactAnalyzerTest : FunSpec({
+class ModuleImpactAnalyzerTest : FunSpec(
+    {
     test("walks transitive reverse dependencies") {
         val graph = RepositoryModuleGraph(
             modules = listOf(
-                RepositoryModule(id = ":app", directory = "app"),
-                RepositoryModule(id = ":core:domain", directory = "core/domain"),
-                RepositoryModule(id = ":feature:plants:domain", directory = "feature/plants/domain")
+                RepositoryModule(
+                    id = ":app",
+                    directory = "app"
+                ),
+                RepositoryModule(
+                    id = ":core:domain",
+                    directory = "core/domain"
+                ),
+                RepositoryModule(
+                    id = ":feature:plants:domain",
+                    directory = "feature/plants/domain"
+                )
             ),
             dependencies = listOf(
                 ModuleDependency(
@@ -39,4 +49,5 @@ class ModuleImpactAnalyzerTest : FunSpec({
         )
         impact.fallbackReason shouldBe null
     }
-})
+}
+)

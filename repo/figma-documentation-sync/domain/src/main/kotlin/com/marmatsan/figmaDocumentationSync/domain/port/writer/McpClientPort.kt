@@ -6,7 +6,9 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpToolResult
 interface McpClientPort : AutoCloseable {
     suspend fun listToolNames(): List<String>
 
-    suspend fun readTextResource(uri: String): String
+    suspend fun readTextResource(
+        uri: String
+    ): String
 
     suspend fun useFigma(
         fileKey: String,
@@ -15,7 +17,13 @@ interface McpClientPort : AutoCloseable {
         skillNames: String
     ): McpToolResult
 
-    suspend fun requestAssetUpload(fileKey: String, count: Int): McpToolResult
+    suspend fun requestAssetUpload(
+        fileKey: String,
+        count: Int
+    ): McpToolResult
 
-    suspend fun uploadAsset(url: String, bytes: ByteArray)
+    suspend fun uploadAsset(
+        url: String,
+        bytes: ByteArray
+    )
 }

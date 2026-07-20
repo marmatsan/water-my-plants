@@ -5,7 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class GradleModuleDependenciesReaderTest : FunSpec({
+internal class GradleModuleDependenciesReaderTest : FunSpec(
+    {
 
     test("readMain maps type-safe project accessors to module dependencies") {
         // GIVEN
@@ -162,4 +163,5 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
             )
         )
     }
-})
+}
+)

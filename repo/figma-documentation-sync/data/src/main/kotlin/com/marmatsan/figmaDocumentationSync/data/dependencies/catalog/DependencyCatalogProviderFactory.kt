@@ -2,7 +2,9 @@ package com.marmatsan.figmaDocumentationSync.data.dependencies.catalog
 
 /** Creates the project adapter selected by the Gradle project configuration. */
 object DependencyCatalogProviderFactory {
-    fun create(providerClassName: String): DependencyCatalogProvider {
+    fun create(
+        providerClassName: String
+    ): DependencyCatalogProvider {
         require(providerClassName.isNotBlank()) {
             "figmaDocumentationSync.dependencyCatalogProviderClassName must not be blank"
         }

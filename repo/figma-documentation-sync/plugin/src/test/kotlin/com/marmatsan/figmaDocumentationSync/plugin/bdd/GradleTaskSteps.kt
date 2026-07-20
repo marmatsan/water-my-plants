@@ -36,11 +36,15 @@ class GradleTaskSteps : En {
         }
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin") {
-            projectDir.writeBuildFile(ciDocumentationEnabled = true)
+            projectDir.writeBuildFile(
+                ciDocumentationEnabled = true
+            )
         }
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin without CI documentation") {
-            projectDir.writeBuildFile(ciDocumentationEnabled = false)
+            projectDir.writeBuildFile(
+                ciDocumentationEnabled = false
+            )
         }
 
         Given("the temporary Gradle project has no CI documentation inputs") {
@@ -79,7 +83,10 @@ class GradleTaskSteps : En {
         }
 
         Then("the written design model contains the current git sha") {
-            writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe projectDir.git("rev-parse", "HEAD")
+            writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe projectDir.git(
+                "rev-parse",
+                "HEAD"
+            )
         }
 
         Then("the written design model contains content") {
@@ -158,21 +165,32 @@ class GradleTaskSteps : En {
         GradleRunner.create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("generateFigmaDesignModel", "--stacktrace")
+            .withArguments(
+                "generateFigmaDesignModel",
+                "--stacktrace"
+            )
             .withEnvironment(gradleEnvironment())
 
     private fun gradleEnvironment(): Map<String, String> =
         System.getenv().toMutableMap().apply {
             if (officialFigmaSyncGenerationAuthorized) {
-                put("FIGMA_DOCUMENTATION_SYNC_OFFICIAL", "true")
-                put("FIGMA_DOCUMENTATION_SYNC_BRANCH", "main")
+                put(
+                    "FIGMA_DOCUMENTATION_SYNC_OFFICIAL",
+                    "true"
+                )
+                put(
+                    "FIGMA_DOCUMENTATION_SYNC_BRANCH",
+                    "main"
+                )
             } else {
                 remove("FIGMA_DOCUMENTATION_SYNC_OFFICIAL")
                 remove("FIGMA_DOCUMENTATION_SYNC_BRANCH")
             }
         }
 
-    private fun File.writeBuildFile(ciDocumentationEnabled: Boolean) {
+    private fun File.writeBuildFile(
+        ciDocumentationEnabled: Boolean
+    ) {
         val ciDocumentationConfiguration = if (ciDocumentationEnabled) {
             """
             ciDocumentationEnabled.set(true)
@@ -378,12 +396,29 @@ class GradleTaskSteps : En {
 
     private fun File.initializeGitRepository() {
         git("init")
-        git("checkout", "-b", "main")
-        git("add", ".")
-        git("-c", "user.name=BDD Test", "-c", "user.email=bdd@example.com", "commit", "-m", "Initial fixture")
+        git(
+            "checkout",
+            "-b",
+            "main"
+        )
+        git(
+            "add",
+            "."
+        )
+        git(
+            "-c",
+            "user.name=BDD Test",
+            "-c",
+            "user.email=bdd@example.com",
+            "commit",
+            "-m",
+            "Initial fixture"
+        )
     }
 
-    private fun File.git(vararg arguments: String): String {
+    private fun File.git(
+        vararg arguments: String
+    ): String {
         val process = ProcessBuilder(listOf("git") + arguments)
             .directory(this)
             .start()

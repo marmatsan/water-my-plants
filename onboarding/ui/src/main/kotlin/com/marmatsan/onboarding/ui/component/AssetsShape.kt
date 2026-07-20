@@ -59,7 +59,9 @@ fun AssetsShape(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun AssetsShapePreview(
     @PreviewParameter(AssetsShapePreviewParameterProvider::class)

@@ -18,13 +18,29 @@ class OfficialFigmaArtifactContractValidator {
             "design-model.json requires non-empty gitSha and modelHash values."
         }
         expectedGitSha?.takeIf(String::isNotBlank)?.let { expected ->
-            requireEqual(model.gitSha, expected, "CI revision")
+            requireEqual(
+                actual = model.gitSha,
+                expected = expected,
+                description = "CI revision"
+            )
         }
 
         val scope = contract.scope
-        requireEqual(scope.scope, FULL_VERIFICATION, "Figma change scope")
-        requireEqual(scope.gitSha, model.gitSha, "Scope gitSha")
-        requireEqual(scope.modelHash, model.modelHash, "Scope modelHash")
+        requireEqual(
+            actual = scope.scope,
+            expected = FULL_VERIFICATION,
+            description = "Figma change scope"
+        )
+        requireEqual(
+            actual = scope.gitSha,
+            expected = model.gitSha,
+            description = "Scope gitSha"
+        )
+        requireEqual(
+            actual = scope.modelHash,
+            expected = model.modelHash,
+            description = "Scope modelHash"
+        )
 
         val visualManifests = contract.manifests.filter { it.fullVisualSync }
         val metadataManifests = contract.manifests.filter { it.writeMetadata }
@@ -35,12 +51,32 @@ class OfficialFigmaArtifactContractValidator {
 
         val visual = visualManifests.single()
         val metadata = metadataManifests.single()
-        validateManifest("visual", visual, model)
-        validateManifest("metadata", metadata, model)
-        requireEqual(visual.writeMetadata, false, "Visual manifest metadata flag")
-        requireEqual(metadata.writeMetadata, true, "Metadata manifest metadata flag")
+        validateManifest(
+            name = "visual",
+            manifest = visual,
+            model = model
+        )
+        validateManifest(
+            name = "metadata",
+            manifest = metadata,
+            model = model
+        )
+        requireEqual(
+            actual = visual.writeMetadata,
+            expected = false,
+            description = "Visual manifest metadata flag"
+        )
+        requireEqual(
+            actual = metadata.writeMetadata,
+            expected = true,
+            description = "Metadata manifest metadata flag"
+        )
 
-        validateSharedIdentity(contract, visual, metadata)
+        validateSharedIdentity(
+            contract = contract,
+            visual = visual,
+            metadata = metadata
+        )
         val decision = OfficialFigmaArtifactContract.Decision.fromWireValue(contract.plan.decision)
             ?: throw IllegalArgumentException(
                 "Unsupported visual sync decision '${contract.plan.decision}'."
@@ -58,9 +94,21 @@ class OfficialFigmaArtifactContractValidator {
         manifest: OfficialFigmaArtifactContract.Manifest,
         model: OfficialFigmaArtifactContract.Model
     ) {
-        requireEqual(manifest.mode, "official", "$name manifest mode")
-        requireEqual(manifest.gitSha, model.gitSha, "$name manifest gitSha")
-        requireEqual(manifest.modelHash, model.modelHash, "$name manifest modelHash")
+        requireEqual(
+            actual = manifest.mode,
+            expected = "official",
+            description = "$name manifest mode"
+        )
+        requireEqual(
+            actual = manifest.gitSha,
+            expected = model.gitSha,
+            description = "$name manifest gitSha"
+        )
+        requireEqual(
+            actual = manifest.modelHash,
+            expected = model.modelHash,
+            description = "$name manifest modelHash"
+        )
         require(manifest.manifestHash.isNotBlank()) { "$name manifest requires a manifestHash." }
     }
 
@@ -71,20 +119,68 @@ class OfficialFigmaArtifactContractValidator {
     ) {
         val scope = contract.scope
         val plan = contract.plan
-        requireEqual(metadata.writerHash, visual.writerHash, "Metadata manifest writerHash")
-        requireEqual(scope.writerHash, visual.writerHash, "Scope writerHash")
-        requireEqual(plan.identity.writerHash, visual.writerHash, "Visual plan writerHash")
-        requireEqual(metadata.transportHash, visual.transportHash, "Metadata manifest transportHash")
-        requireEqual(scope.transportHash, visual.transportHash, "Scope transportHash")
-        requireEqual(plan.identity.transportHash, visual.transportHash, "Visual plan transportHash")
-        requireEqual(plan.identity.modelHash, contract.model.modelHash, "Visual plan modelHash")
-        requireEqual(plan.manifestHash, visual.manifestHash, "Visual plan manifestHash")
-        requireEqual(scope.visualRunnerManifestHash, visual.manifestHash, "Scope visual manifestHash")
-        requireEqual(scope.metadataRunnerManifestHash, metadata.manifestHash, "Scope metadata manifestHash")
-        requireEqual(scope.visualSyncDecision, plan.decision, "Scope visual decision")
+        requireEqual(
+            actual = metadata.writerHash,
+            expected = visual.writerHash,
+            description = "Metadata manifest writerHash"
+        )
+        requireEqual(
+            actual = scope.writerHash,
+            expected = visual.writerHash,
+            description = "Scope writerHash"
+        )
+        requireEqual(
+            actual = plan.identity.writerHash,
+            expected = visual.writerHash,
+            description = "Visual plan writerHash"
+        )
+        requireEqual(
+            actual = metadata.transportHash,
+            expected = visual.transportHash,
+            description = "Metadata manifest transportHash"
+        )
+        requireEqual(
+            actual = scope.transportHash,
+            expected = visual.transportHash,
+            description = "Scope transportHash"
+        )
+        requireEqual(
+            actual = plan.identity.transportHash,
+            expected = visual.transportHash,
+            description = "Visual plan transportHash"
+        )
+        requireEqual(
+            actual = plan.identity.modelHash,
+            expected = contract.model.modelHash,
+            description = "Visual plan modelHash"
+        )
+        requireEqual(
+            actual = plan.manifestHash,
+            expected = visual.manifestHash,
+            description = "Visual plan manifestHash"
+        )
+        requireEqual(
+            actual = scope.visualRunnerManifestHash,
+            expected = visual.manifestHash,
+            description = "Scope visual manifestHash"
+        )
+        requireEqual(
+            actual = scope.metadataRunnerManifestHash,
+            expected = metadata.manifestHash,
+            description = "Scope metadata manifestHash"
+        )
+        requireEqual(
+            actual = scope.visualSyncDecision,
+            expected = plan.decision,
+            description = "Scope visual decision"
+        )
     }
 
-    private fun requireEqual(actual: Any?, expected: Any?, description: String) {
+    private fun requireEqual(
+        actual: Any?,
+        expected: Any?,
+        description: String
+    ) {
         require(actual == expected) {
             "$description mismatch: expected '$expected', found '$actual'."
         }

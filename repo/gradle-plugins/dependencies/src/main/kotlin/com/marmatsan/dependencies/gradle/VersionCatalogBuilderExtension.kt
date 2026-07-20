@@ -46,7 +46,10 @@ fun VersionCatalogBuilder.registerPlugins(
     plugins: List<Dependency.Plugin>
 ) {
     plugins.forEach { plugin ->
-        plugin(plugin.pluginId, plugin.pluginId).version(plugin.version)
+        plugin(
+            plugin.pluginId,
+            plugin.pluginId
+        ).version(plugin.version)
     }
 }
 
@@ -97,7 +100,10 @@ private fun VersionCatalogBuilder.registerLibraryBundle(
         )
     }
 
-    bundle(bundle.alias, aliases)
+    bundle(
+        bundle.alias,
+        aliases
+    )
 }
 
 /**
@@ -118,7 +124,11 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
     libraryAlias: String,
     libraryGroup: String,
     artifact: String
-) = library(libraryAlias, libraryGroup, artifact)
+) = library(
+    libraryAlias,
+    libraryGroup,
+    artifact
+)
 
 /**
  * Registers the given [version] for this library alias.
@@ -228,7 +238,10 @@ internal fun libraryAlias(
         }
     }
 
-    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace("-", ".")
+    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace(
+        "-",
+        "."
+    )
 
     return if (artifactAliasSegment?.isEmpty() == true) {
         libraryGroup

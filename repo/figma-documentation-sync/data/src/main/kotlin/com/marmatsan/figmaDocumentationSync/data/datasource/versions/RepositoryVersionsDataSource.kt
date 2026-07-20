@@ -19,9 +19,13 @@ import java.io.File
 class RepositoryVersionsDataSource(
     private val versionsPropertiesReader: VersionsPropertiesReader
 ) : RepositoryVersionsPort {
-    override fun readVersions(source: VersionsFileSource): Map<String, String> =
+    override fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String> =
         versionsPropertiesReader.read(File(source.path))
 
-    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+    override fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection> =
         versionsPropertiesReader.readSections(File(source.path))
 }

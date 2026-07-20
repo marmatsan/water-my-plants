@@ -14,7 +14,9 @@ import org.gradle.process.ExecOperations
 import org.gradle.work.DisableCachingByDefault
 
 /** Exposes TeamCity Kotlin DSL generation through the Gradle verification API. */
-@DisableCachingByDefault(because = "The Maven plugin writes and validates provider-generated configuration")
+@DisableCachingByDefault(
+    because = "The Maven plugin writes and validates provider-generated configuration"
+)
 abstract class CheckTeamCityDslTask : DefaultTask() {
     /** Repository checkout containing the Maven wrapper and TeamCity project. */
     @get:Internal
@@ -45,11 +47,15 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
                 "teamcity-configs:generate"
             )
         }.assertNormalExitValue()
-        validateGeneratedTeamCityConfiguration(root.resolve(GENERATED_CONFIG_DIRECTORY))
+        validateGeneratedTeamCityConfiguration(
+            directory = root.resolve(GENERATED_CONFIG_DIRECTORY)
+        )
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
     }
 
-    private fun validateGeneratedTeamCityConfiguration(directory: java.io.File) {
+    private fun validateGeneratedTeamCityConfiguration(
+        directory: java.io.File
+    ) {
         val pipelineFiles = directory
             .walkTopDown()
             .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }

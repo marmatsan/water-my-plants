@@ -9,12 +9,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 
-internal class VersionCatalogBuilderExtensionTest : FunSpec({
+internal class VersionCatalogBuilderExtensionTest : FunSpec(
+    {
 
     lateinit var builder: VersionCatalogBuilder
 
     beforeEach {
-        builder = mockk<VersionCatalogBuilder>(relaxed = true)
+        builder = mockk<VersionCatalogBuilder>(
+            relaxed = true
+        )
     }
 
     test("registerLibraries registers a library alias without duplicating artifact prefix shared with group") {
@@ -141,9 +144,15 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
                         artifactsBundle = ArtifactsBundle(
                             alias = "composeUiBundle",
                             artifacts = listOf(
-                                Artifact(artifact = "ui"),
-                                Artifact(artifact = "ui-graphics"),
-                                Artifact(artifact = "ui-tooling")
+                                Artifact(
+                                    artifact = "ui"
+                                ),
+                                Artifact(
+                                    artifact = "ui-graphics"
+                                ),
+                                Artifact(
+                                    artifact = "ui-tooling"
+                                )
                             )
                         )
                     )
@@ -187,4 +196,5 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
             ).version("8.13.2")
         }
     }
-})
+}
+)

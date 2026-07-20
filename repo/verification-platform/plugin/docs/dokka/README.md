@@ -10,11 +10,14 @@ Read this module from its public Gradle entry points:
 
 1. `VerificationPlatformPlugin` registers the CI planning and infrastructure tasks.
 2. `CheckGitWorkflowTask` validates the branch contract.
-3. `GenerateCiPlanTask` writes the provider-neutral verification plan.
-4. `GenerateCiTopologyPreviewTask` writes a non-authoritative agent topology
+3. `VerificationPlatformPlugin` exposes the repository-wide
+   `checkKotlinFunctionArguments` and `formatKotlinFunctionArguments` lifecycle
+   tasks while their KtLint engine remains isolated in the included build.
+4. `GenerateCiPlanTask` writes the provider-neutral verification plan.
+5. `GenerateCiTopologyPreviewTask` writes a non-authoritative agent topology
    preview.
-5. `PrepareTeamCityCiPlanTask` exports allow-listed TeamCity parameters.
-6. `RunTeamCityInfrastructureHealthTask` queues the infrastructure-health run.
+6. `PrepareTeamCityCiPlanTask` exports allow-listed TeamCity parameters.
+7. `RunTeamCityInfrastructureHealthTask` queues the infrastructure-health run.
 
 # Package com.marmatsan.verificationPlatform.plugin
 

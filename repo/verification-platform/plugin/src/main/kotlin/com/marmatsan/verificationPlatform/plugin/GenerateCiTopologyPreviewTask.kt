@@ -15,7 +15,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Writes a non-authoritative agent-lane projection of an existing CI plan. */
-@DisableCachingByDefault(because = "The preview is a diagnostic projection of a Git-derived CI plan")
+@DisableCachingByDefault(
+    because = "The preview is a diagnostic projection of a Git-derived CI plan"
+)
 abstract class GenerateCiTopologyPreviewTask : DefaultTask() {
     /** Provider-neutral plan used as the source of required verification units. */
     @get:InputFile
@@ -34,9 +36,15 @@ abstract class GenerateCiTopologyPreviewTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val plan = CiPlanJson().read(planFile.get().asFile.readText())
-        val topology = CiTopologyPlanner().create(plan, availableAgents.get())
+        val topology = CiTopologyPlanner().create(
+            plan,
+            availableAgents.get()
+        )
         val output = outputFile.get().asFile
-        CiExecutionTopologyJson().write(topology, output)
+        CiExecutionTopologyJson().write(
+            topology,
+            output
+        )
 
         logger.lifecycle(
             "CI topology preview generated: agents={}, mode={}, lanes={}, output={}",

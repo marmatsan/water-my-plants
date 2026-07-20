@@ -27,7 +27,9 @@ class IncludedBuildSettingsCatalogReader {
     ): LibraryCatalogTree {
         val content = settingsFile.readText()
         val libsBlock = content.extractCreateBlockOrNull("libs")
-            ?: return LibraryCatalogTree(roots = emptyList())
+            ?: return LibraryCatalogTree(
+                roots = emptyList()
+            )
 
         return libsBlock
             .readLibraryDeclarations()
@@ -43,7 +45,9 @@ class IncludedBuildSettingsCatalogReader {
     ): PluginCatalogTree {
         val content = settingsFile.readText()
         val pluginsBlock = content.extractCreateBlockOrNull("plugins")
-            ?: return PluginCatalogTree(roots = emptyList())
+            ?: return PluginCatalogTree(
+                roots = emptyList()
+            )
 
         return pluginsBlock
             .readPluginDeclarations()
@@ -83,13 +87,17 @@ class IncludedBuildSettingsCatalogReader {
         forEach { declaration ->
             val segments = declaration.group.split(".")
             val root = roots.getOrPut(segments.first()) {
-                MutableLibraryCatalogNode(group = segments.first())
+                MutableLibraryCatalogNode(
+                    group = segments.first()
+                )
             }
             val leaf = segments
                 .drop(1)
                 .fold(root) { node, segment ->
                     node.children.getOrPut(segment) {
-                        MutableLibraryCatalogNode(group = segment)
+                        MutableLibraryCatalogNode(
+                            group = segment
+                        )
                     }
                 }
 
@@ -115,13 +123,17 @@ class IncludedBuildSettingsCatalogReader {
         forEach { declaration ->
             val segments = declaration.id.split(".")
             val root = roots.getOrPut(segments.first()) {
-                MutablePluginCatalogNode(id = segments.first())
+                MutablePluginCatalogNode(
+                    id = segments.first()
+                )
             }
             val leaf = segments
                 .drop(1)
                 .fold(root) { node, segment ->
                     node.children.getOrPut(segment) {
-                        MutablePluginCatalogNode(id = segment)
+                        MutablePluginCatalogNode(
+                            id = segment
+                        )
                     }
                 }
 
@@ -136,13 +148,18 @@ class IncludedBuildSettingsCatalogReader {
         )
     }
 
-    private fun String.extractCreateBlockOrNull(catalogName: String): String? {
+    private fun String.extractCreateBlockOrNull(
+        catalogName: String
+    ): String? {
         val createCall = """create("$catalogName")"""
         val createCallIndex = indexOf(createCall)
 
         if (createCallIndex < 0) return null
 
-        val blockStart = indexOf('{', startIndex = createCallIndex)
+        val blockStart = indexOf(
+            '{',
+            startIndex = createCallIndex
+        )
 
         require(blockStart >= 0) {
             "Catalog '$catalogName' has no body in included-build settings.gradle.kts"
@@ -156,7 +173,10 @@ class IncludedBuildSettingsCatalogReader {
                 '}' -> {
                     depth--
                     if (depth == 0) {
-                        return substring(blockStart + 1, index)
+                        return substring(
+                            blockStart + 1,
+                            index
+                        )
                     }
                 }
             }

@@ -17,7 +17,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Validates that the consumed sync scope belongs to the current checkout. */
-@DisableCachingByDefault(because = "The current Git revision is runtime state")
+@DisableCachingByDefault(
+    because = "The current Git revision is runtime state"
+)
 abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -37,7 +39,10 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
     fun validate() {
         val scope = figmaDocumentationSyncComponent::class.create().officialFigmaSyncScopeJson
             .read(scopeFile.get().asFile.absolutePath)
-        val currentGitSha = git("rev-parse", "HEAD")
+        val currentGitSha = git(
+            "rev-parse",
+            "HEAD"
+        )
         if (scope.gitSha != currentGitSha) {
             throw GradleException(
                 "Figma Sync scope artifact belongs to '${scope.gitSha}', not '$currentGitSha'."
@@ -59,10 +64,21 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
         }
     }
 
-    private fun git(vararg arguments: String): String {
+    private fun git(
+        vararg arguments: String
+    ): String {
         val root = projectRootDirectory.get().asFile
-        val safeDirectory = root.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+        val safeDirectory = root.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(root)
             .start()
         val output = ByteArrayOutputStream()

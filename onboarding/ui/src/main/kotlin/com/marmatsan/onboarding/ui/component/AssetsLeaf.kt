@@ -71,7 +71,9 @@ fun AssetsLeaf(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun AssetsLeafPreview(
     @PreviewParameter(AssetsLeafPreviewParameterProvider::class)

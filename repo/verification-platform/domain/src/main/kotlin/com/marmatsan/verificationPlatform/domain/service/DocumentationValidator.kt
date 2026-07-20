@@ -36,9 +36,15 @@ class DocumentationValidator {
         val repositoryEntries = snapshot.repositoryEntries.map(::normalize).toSet()
 
         snapshot.documents.sortedBy { document -> document.path }.forEach { document ->
-            val path = normalize(document.path)
-            val expectedType = expectedType(path)
-            val frontmatter = readFrontmatter(document.content)
+            val path = normalize(
+                path = document.path
+            )
+            val expectedType = expectedType(
+                path = path
+            )
+            val frontmatter = readFrontmatter(
+                content = document.content
+            )
 
             if (expectedType == null) {
                 if (frontmatter?.metadata?.get("type") in TYPED_DOCUMENT_TYPES) {
@@ -58,15 +64,28 @@ class DocumentationValidator {
                         errors = errors,
                         warnings = warnings
                     )
-                    validateHeadings(path, expectedType, frontmatter.body, errors)
+                    validateHeadings(
+                        path = path,
+                        expectedType = expectedType,
+                        body = frontmatter.body,
+                        errors = errors
+                    )
                 }
             }
 
-            validateLinks(path, document.content, repositoryEntries, errors)
+            validateLinks(
+                documentPath = path,
+                content = document.content,
+                repositoryEntries = repositoryEntries,
+                errors = errors
+            )
         }
 
         val coverageViolations = changedPaths?.let { paths ->
-            validateCoverage(paths, coverageRules)
+            validateCoverage(
+                changedPaths = paths,
+                rules = coverageRules
+            )
         }.orEmpty()
 
         return DocumentationValidationResult(
@@ -110,8 +129,13 @@ class DocumentationValidator {
 
         val reviewDate = frontmatter.metadata["last-reviewed"]?.let { value ->
             try {
-                LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE)
-            } catch (_: DateTimeParseException) {
+                LocalDate.parse(
+                    value,
+                    DateTimeFormatter.ISO_LOCAL_DATE
+                )
+            } catch (
+                _: DateTimeParseException
+            ) {
                 null
             }
         }
@@ -134,7 +158,10 @@ class DocumentationValidator {
         if (status != "superseded") {
             frontmatter.sources.forEach { source ->
                 if (!EXTERNAL_SOURCE_PATTERN.containsMatchIn(source) &&
-                    !sourceExists(source, repositoryEntries)
+                    !sourceExists(
+                        source = source,
+                        repositoryEntries = repositoryEntries
+                    )
                 ) {
                     errors.add("[$path] Canonical source does not exist: $source")
                 }
@@ -178,14 +205,26 @@ class DocumentationValidator {
         errors: MutableList<String>
     ) {
         MARKDOWN_LINK_PATTERN.findAll(content).forEach { match ->
-            val target = match.groups["target"]!!.value.trim('<', '>')
+            val target = match.groups["target"]!!.value.trim(
+                '<',
+                '>'
+            )
             if (EXTERNAL_LINK_PATTERN.containsMatchIn(target)) return@forEach
 
-            val targetPath = target.split('#', '?', limit = 2).first()
+            val targetPath = target.split(
+                '#',
+                '?',
+                limit = 2
+            ).first()
             if (targetPath.isBlank()) return@forEach
 
-            val resolved = resolve(documentPath, targetPath)
-            if (resolved == null || normalize(resolved) !in repositoryEntries) {
+            val resolved = resolve(
+                documentPath = documentPath,
+                targetPath = targetPath
+            )
+            if (resolved == null || normalize(
+                path = resolved
+            ) !in repositoryEntries) {
                 errors.add("[$documentPath] Broken local Markdown link: $target")
             }
         }
@@ -197,10 +236,16 @@ class DocumentationValidator {
     ): List<DocumentationCoverageViolation> {
         val normalizedPaths = changedPaths.map(::normalize).filter(String::isNotBlank).distinct()
         return rules.mapNotNull { rule ->
-            val changedSources = normalizedPaths.filter { path -> matchesAny(path, rule.sourcePaths) }
+            val changedSources = normalizedPaths.filter { path -> matchesAny(
+                path = path,
+                patterns = rule.sourcePaths
+            ) }
             if (changedSources.isEmpty()) return@mapNotNull null
 
-            val documentationChanged = normalizedPaths.any { path -> matchesAny(path, rule.documentationPaths) }
+            val documentationChanged = normalizedPaths.any { path -> matchesAny(
+                path = path,
+                patterns = rule.documentationPaths
+            ) }
             if (documentationChanged) return@mapNotNull null
 
             DocumentationCoverageViolation(
@@ -211,7 +256,9 @@ class DocumentationValidator {
         }
     }
 
-    private fun readFrontmatter(content: String): Frontmatter? {
+    private fun readFrontmatter(
+        content: String
+    ): Frontmatter? {
         val match = FRONTMATTER_PATTERN.find(content) ?: return null
         val metadata = linkedMapOf<String, String>()
         val sources = mutableListOf<String>()
@@ -222,10 +269,18 @@ class DocumentationValidator {
             if (keyMatch != null) {
                 val key = keyMatch.groups["key"]!!.value
                 currentKey = key
-                metadata[key] = keyMatch.groups["value"]?.value.orEmpty().trim().trim('"', '\'')
+                metadata[key] = keyMatch.groups["value"]?.value.orEmpty().trim().trim(
+                    '"',
+                    '\''
+                )
             } else if (currentKey == "sources") {
                 SOURCE_ITEM_PATTERN.matchEntire(line)?.groups?.get("value")?.value?.let { value ->
-                    sources.add(value.trim().trim('"', '\''))
+                    sources.add(
+                        value.trim().trim(
+                            '"',
+                            '\''
+                        )
+                    )
                 }
             }
         }
@@ -237,7 +292,9 @@ class DocumentationValidator {
         )
     }
 
-    private fun expectedType(path: String): String? = when {
+    private fun expectedType(
+        path: String
+    ): String? = when {
         path == "docs/documentation.md" -> "standard"
         ADR_PATH_PATTERN.matches(path) -> "adr"
         path.endsWith("/README.md") -> null
@@ -253,19 +310,38 @@ class DocumentationValidator {
         else -> null
     }
 
-    private fun sourceExists(source: String, repositoryEntries: Set<String>): Boolean {
-        val normalized = normalize(source)
+    private fun sourceExists(
+        source: String,
+        repositoryEntries: Set<String>
+    ): Boolean {
+        val normalized = normalize(
+            path = source
+        )
         return if (normalized.any { character -> character == '*' || character == '?' }) {
-            repositoryEntries.any { entry -> wildcardMatches(entry, normalized) }
+            repositoryEntries.any { entry -> wildcardMatches(
+                path = entry,
+                pattern = normalized
+            ) }
         } else {
             normalized in repositoryEntries
         }
     }
 
-    private fun matchesAny(path: String, patterns: List<String>): Boolean =
-        patterns.any { pattern -> wildcardMatches(path, normalize(pattern)) }
+    private fun matchesAny(
+        path: String,
+        patterns: List<String>
+    ): Boolean =
+        patterns.any { pattern -> wildcardMatches(
+            path = path,
+            pattern = normalize(
+                path = pattern
+            )
+        ) }
 
-    private fun wildcardMatches(path: String, pattern: String): Boolean {
+    private fun wildcardMatches(
+        path: String,
+        pattern: String
+    ): Boolean {
         val regex = buildString {
             append('^')
             pattern.forEach { character ->
@@ -277,14 +353,27 @@ class DocumentationValidator {
             }
             append('$')
         }
-        return Regex(regex, RegexOption.IGNORE_CASE).matches(normalize(path))
+        return Regex(
+            regex,
+            RegexOption.IGNORE_CASE
+        ).matches(
+            normalize(
+                path = path
+            )
+        )
     }
 
-    private fun resolve(documentPath: String, targetPath: String): String? {
+    private fun resolve(
+        documentPath: String,
+        targetPath: String
+    ): String? {
         val parts = if (targetPath.startsWith('/')) {
             targetPath.trimStart('/').split('/')
         } else {
-            documentPath.substringBeforeLast('/', "").split('/').filter(String::isNotEmpty) +
+            documentPath.substringBeforeLast(
+                '/',
+                ""
+            ).split('/').filter(String::isNotEmpty) +
                 targetPath.split('/')
         }
         val resolved = mutableListOf<String>()
@@ -298,7 +387,15 @@ class DocumentationValidator {
         return resolved.joinToString("/")
     }
 
-    private fun normalize(path: String): String = path.trim().replace('\\', '/').trimStart('.', '/')
+    private fun normalize(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    ).trimStart(
+        '.',
+        '/'
+    )
 
     private data class Frontmatter(
         val metadata: Map<String, String>,
@@ -307,8 +404,20 @@ class DocumentationValidator {
     )
 
     private companion object {
-        val TYPED_DOCUMENT_TYPES = setOf("standard", "guide", "runbook", "reference", "adr")
-        val SUPPORTED_STATUSES = setOf("draft", "active", "accepted", "deprecated", "superseded")
+        val TYPED_DOCUMENT_TYPES = setOf(
+            "standard",
+            "guide",
+            "runbook",
+            "reference",
+            "adr"
+        )
+        val SUPPORTED_STATUSES = setOf(
+            "draft",
+            "active",
+            "accepted",
+            "deprecated",
+            "superseded"
+        )
         val REQUIRED_METADATA_FIELDS = listOf(
             "title",
             "type",
@@ -318,26 +427,51 @@ class DocumentationValidator {
             "last-reviewed",
             "review-cycle-days"
         )
-        val PLACEHOLDER_FIELDS = listOf("title", "scope", "owner")
+        val PLACEHOLDER_FIELDS = listOf(
+            "title",
+            "scope",
+            "owner"
+        )
         val RUNBOOK_SECTIONS = listOf(
             "Purpose" to setOf("purpose"),
             "Prerequisites" to setOf("prerequisites"),
-            "Verification" to setOf("verification", "verify"),
-            "Recovery" to setOf("recovery", "failure recovery"),
+            "Verification" to setOf(
+                "verification",
+                "verify"
+            ),
+            "Recovery" to setOf(
+                "recovery",
+                "failure recovery"
+            ),
             "Prohibited Actions" to setOf("prohibited actions"),
             "Sources" to setOf("sources")
         )
-        val ADR_SECTIONS = setOf("context", "decision", "consequences", "alternatives", "supersession")
+        val ADR_SECTIONS = setOf(
+            "context",
+            "decision",
+            "consequences",
+            "alternatives",
+            "supersession"
+        )
         val FRONTMATTER_PATTERN = Regex(
             """\A---\r?\n(?<yaml>.*?)\r?\n---(?:\r?\n|\z)""",
             RegexOption.DOT_MATCHES_ALL
         )
         val METADATA_KEY_PATTERN = Regex("""(?<key>[a-z][a-z0-9-]*):(?:\s*(?<value>.*))?""")
         val SOURCE_ITEM_PATTERN = Regex("""\s+-\s+(?<value>.+?)\s*""")
-        val PLACEHOLDER_PATTERN = Regex("replace|repository-or|stable-area|placeholder", RegexOption.IGNORE_CASE)
+        val PLACEHOLDER_PATTERN = Regex(
+            "replace|repository-or|stable-area|placeholder",
+            RegexOption.IGNORE_CASE
+        )
         val EXTERNAL_SOURCE_PATTERN = Regex("^(https?:|generated:)")
-        val LEVEL_ONE_HEADING_PATTERN = Regex("""^#\s+\S""", setOf(RegexOption.MULTILINE))
-        val LEVEL_TWO_HEADING_PATTERN = Regex("""^##\s+(?<name>.+?)\s*$""", setOf(RegexOption.MULTILINE))
+        val LEVEL_ONE_HEADING_PATTERN = Regex(
+            """^#\s+\S""",
+            setOf(RegexOption.MULTILINE)
+        )
+        val LEVEL_TWO_HEADING_PATTERN = Regex(
+            """^##\s+(?<name>.+?)\s*$""",
+            setOf(RegexOption.MULTILINE)
+        )
         val MARKDOWN_LINK_PATTERN = Regex("""(?<!!)\[[^]]*]\((?<target>[^ )]+)""")
         val EXTERNAL_LINK_PATTERN = Regex("^(https?:|mailto:|#)")
         val ADR_PATH_PATTERN = Regex("""docs/decisions/adr-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*\.md""")

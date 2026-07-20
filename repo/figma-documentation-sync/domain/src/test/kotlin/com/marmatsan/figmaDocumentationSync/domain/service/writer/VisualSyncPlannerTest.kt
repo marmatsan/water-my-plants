@@ -7,11 +7,15 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
-internal class VisualSyncPlannerTest : FunSpec({
+internal class VisualSyncPlannerTest : FunSpec(
+    {
     val planner = VisualSyncPlanner { body -> "sha256:${body.reason}" }
 
     test("missing Figma metadata fails closed to a complete visual sync") {
-        val plan = planner.create(manifest, null)
+        val plan = planner.create(
+            manifest,
+            null
+        )
 
         plan.body.decision shouldBe VisualSyncDecision.FULL
         plan.body.reason shouldBe "figma-metadata-unavailable"
@@ -20,8 +24,12 @@ internal class VisualSyncPlannerTest : FunSpec({
 
     test("unchanged visual inputs skip Figma even when transport identity changed") {
         val plan = planner.create(
-            manifest.copy(modelHash = "sha256:model-same"),
-            previousMetadata(modelHash = "sha256:model-same")
+            manifest.copy(
+                modelHash = "sha256:model-same"
+            ),
+            previousMetadata(
+                modelHash = "sha256:model-same"
+            )
         )
 
         plan.body.decision shouldBe VisualSyncDecision.NONE
@@ -30,11 +38,19 @@ internal class VisualSyncPlannerTest : FunSpec({
     }
 
     test("model changes select changed target fingerprints plus preflight") {
-        val plan = planner.create(manifest, previousMetadata(modelHash = "sha256:model-old"))
+        val plan = planner.create(
+            manifest,
+            previousMetadata(
+                modelHash = "sha256:model-old"
+            )
+        )
 
         plan.body.decision shouldBe VisualSyncDecision.PARTIAL
         plan.body.reason shouldBe "target-model-fingerprints-changed"
-        plan.body.executionScopes.shouldContainExactly("preflight", "waterMyPlants.libraries.androidx")
+        plan.body.executionScopes.shouldContainExactly(
+            "preflight",
+            "waterMyPlants.libraries.androidx"
+        )
     }
 
     test("scoped writer changes select only their execution family") {
@@ -45,11 +61,17 @@ internal class VisualSyncPlannerTest : FunSpec({
             )
         )
 
-        val plan = planner.create(manifest, previous)
+        val plan = planner.create(
+            manifest,
+            previous
+        )
 
         plan.body.decision shouldBe VisualSyncDecision.PARTIAL
         plan.body.reason shouldBe "writer-scope-fingerprints-changed"
-        plan.body.executionScopes.shouldContainExactly("preflight", "waterMyPlants.libraries.androidx")
+        plan.body.executionScopes.shouldContainExactly(
+            "preflight",
+            "waterMyPlants.libraries.androidx"
+        )
     }
 
     test("Kotlin planner changes select their scope even when the compiled TypeScript hash is unchanged") {
@@ -59,11 +81,17 @@ internal class VisualSyncPlannerTest : FunSpec({
             )
         )
 
-        val plan = planner.create(manifest, previous)
+        val plan = planner.create(
+            manifest,
+            previous
+        )
 
         plan.body.decision shouldBe VisualSyncDecision.PARTIAL
         plan.body.reason shouldBe "writer-scope-fingerprints-changed"
-        plan.body.executionScopes.shouldContainExactly("preflight", "waterMyPlants.libraries.androidx")
+        plan.body.executionScopes.shouldContainExactly(
+            "preflight",
+            "waterMyPlants.libraries.androidx"
+        )
     }
 
     test("metadata-only writer changes still create a partial metadata plan") {
@@ -74,7 +102,10 @@ internal class VisualSyncPlannerTest : FunSpec({
             )
         )
 
-        val plan = planner.create(manifest, previous)
+        val plan = planner.create(
+            manifest,
+            previous
+        )
 
         plan.body.decision shouldBe VisualSyncDecision.PARTIAL
         plan.body.reason shouldBe "metadata-writer-fingerprint-changed"
@@ -84,13 +115,16 @@ internal class VisualSyncPlannerTest : FunSpec({
     test("fingerprint schema changes fail closed to a complete visual sync") {
         val plan = planner.create(
             manifest,
-            previousMetadata().copy(writerScopeFingerprintSchemaVersion = 2)
+            previousMetadata().copy(
+                writerScopeFingerprintSchemaVersion = 2
+            )
         )
 
         plan.body.decision shouldBe VisualSyncDecision.FULL
         plan.body.reason shouldBe "writer-scope-fingerprint-schema-changed"
     }
-})
+}
+)
 
 private val manifest = RunnerManifest(
     path = "manifest.json",

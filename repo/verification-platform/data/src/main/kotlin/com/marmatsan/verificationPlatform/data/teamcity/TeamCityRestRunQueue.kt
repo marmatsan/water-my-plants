@@ -40,7 +40,9 @@ class TeamCityRestRunQueue(
      * @throws IllegalArgumentException when TeamCity rejects the request or
      * returns a malformed response.
      */
-    override fun queue(request: TeamCityRunRequest): TeamCityQueuedRun {
+    override fun queue(
+        request: TeamCityRunRequest
+    ): TeamCityQueuedRun {
         val uri = serverUri.resolve("/app/rest/buildQueue")
         val headers = mapOf(
             "Accept" to "application/json",
@@ -48,10 +50,23 @@ class TeamCityRestRunQueue(
             "Content-Type" to "application/json"
         )
         val body = buildJsonObject {
-            put("buildType", buildJsonObject { put("id", request.buildTypeId) })
-            put("branchName", request.branch)
+            put(
+                "buildType",
+                buildJsonObject { put(
+                    "id",
+                    request.buildTypeId
+                ) }
+            )
+            put(
+                "branchName",
+                request.branch
+            )
         }.toString()
-        val response = post(uri, headers, body)
+        val response = post(
+            uri,
+            headers,
+            body
+        )
         require(response.statusCode in 200..299) {
             "TeamCity REST queue request failed with HTTP ${response.statusCode}: ${response.body.take(500)}"
         }
@@ -64,7 +79,10 @@ class TeamCityRestRunQueue(
                 webUrl = json["webUrl"]?.jsonPrimitive?.content
             )
         }.getOrElse {
-            throw IllegalArgumentException("TeamCity REST returned invalid JSON.", it)
+            throw IllegalArgumentException(
+                "TeamCity REST returned invalid JSON.",
+                it
+            )
         }
     }
 
@@ -86,9 +104,17 @@ class TeamCityRestRunQueue(
             .connectTimeout(Duration.ofSeconds(30))
             .build()
 
-        fun requireTrustedOrigin(uri: URI) {
-            val trusted = uri.scheme.equals("https", ignoreCase = true) ||
-                uri.scheme.equals("http", ignoreCase = true) && uri.host in LOOPBACK_HOSTS
+        fun requireTrustedOrigin(
+            uri: URI
+        ) {
+            val trusted = uri.scheme.equals(
+                "https",
+                ignoreCase = true
+            ) ||
+                uri.scheme.equals(
+                    "http",
+                    ignoreCase = true
+                ) && uri.host in LOOPBACK_HOSTS
             require(trusted) {
                 "TeamCity automation requires HTTPS or an HTTP loopback origin."
             }
@@ -97,16 +123,30 @@ class TeamCityRestRunQueue(
             }
         }
 
-        fun post(uri: URI, headers: Map<String, String>, body: String): Response {
+        fun post(
+            uri: URI,
+            headers: Map<String, String>,
+            body: String
+        ): Response {
             val request = HttpRequest.newBuilder(uri)
                 .timeout(Duration.ofSeconds(30))
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .apply { headers.forEach(::header) }
                 .build()
-            val response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
-            return Response(response.statusCode(), response.body())
+            val response = HTTP_CLIENT.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+            )
+            return Response(
+                statusCode = response.statusCode(),
+                body = response.body()
+            )
         }
 
-        val LOOPBACK_HOSTS = setOf("localhost", "127.0.0.1", "::1")
+        val LOOPBACK_HOSTS = setOf(
+            "localhost",
+            "127.0.0.1",
+            "::1"
+        )
     }
 }

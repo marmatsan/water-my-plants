@@ -5,7 +5,8 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import java.nio.file.Files
 
-class FileSystemDocumentationSourceTest : FunSpec({
+class FileSystemDocumentationSourceTest : FunSpec(
+    {
     test("reads authored Markdown and excludes templates and generated trees") {
         val root = Files.createTempDirectory("ci-documentation-source").toFile()
         try {
@@ -33,4 +34,5 @@ class FileSystemDocumentationSourceTest : FunSpec({
             root.deleteRecursively()
         }
     }
-})
+}
+)

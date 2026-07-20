@@ -10,7 +10,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 
-class CiPlanFactoryTest : FunSpec({
+class CiPlanFactoryTest : FunSpec(
+    {
     test("TeamCity changes retain full verification in enforced mode") {
         val plan = plan(".teamcity/settings.kts")
 
@@ -18,11 +19,19 @@ class CiPlanFactoryTest : FunSpec({
         plan.fullVerification shouldBe true
         plan.requiredUnitIds() shouldContain VerificationUnitId.TEAMCITY_DSL
         plan.gradleTasks() shouldBe
-            listOf("checkGitWorkflow", "checkDocumentation", "checkTeamCityDsl", "check")
+            listOf(
+                "checkGitWorkflow",
+                "checkDocumentation",
+                "checkTeamCityDsl",
+                "check"
+            )
     }
 
     test("mixed changes keep all matching units") {
-        val plan = plan("repo/figma-documentation-sync/tools/package.json", "app/build.gradle.kts")
+        val plan = plan(
+            "repo/figma-documentation-sync/tools/package.json",
+            "app/build.gradle.kts"
+        )
 
         plan.scope shouldBe CiScope.MIXED
         plan.requiredUnitIds() shouldContain VerificationUnitId.FIGMA_TOOLING
@@ -54,7 +63,12 @@ class CiPlanFactoryTest : FunSpec({
         plan.affectedModules shouldBe listOf(":app")
         plan.fullVerification shouldBe false
         plan.gradleTasks() shouldBe
-            listOf("checkGitWorkflow", "checkDocumentation", ":app:check", "checkFigmaCatalogUsage")
+            listOf(
+                "checkGitWorkflow",
+                "checkDocumentation",
+                ":app:check",
+                "checkFigmaCatalogUsage"
+            )
     }
 
     test("unresolved module graph dependencies fail closed to root check") {
@@ -73,11 +87,16 @@ class CiPlanFactoryTest : FunSpec({
         plan.changedModules shouldBe emptyList()
         plan.affectedModules shouldBe emptyList()
         plan.fullVerification shouldBe true
-        plan.gradleTasks() shouldBe listOf("checkGitWorkflow", "checkDocumentation", "check")
+        plan.gradleTasks() shouldBe listOf(
+            "checkGitWorkflow",
+            "checkDocumentation",
+            "check"
+        )
         plan.fallbackReason shouldBe
             "The Gradle module graph contains an unresolved dependency: :app -> :missing."
     }
-}) {
+}
+) {
     companion object {
         private fun plan(
             vararg paths: String,

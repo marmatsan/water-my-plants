@@ -13,7 +13,10 @@ class CiExecutionTopologyJson {
      * Missing parent directories are created and the document ends with the
      * platform line separator.
      */
-    fun write(topology: CiExecutionTopology, output: File) {
+    fun write(
+        topology: CiExecutionTopology,
+        output: File
+    ) {
         output.parentFile.mkdirs()
         output.writeText(format.encodeToString(topology) + System.lineSeparator())
     }
@@ -24,7 +27,9 @@ class CiExecutionTopologyJson {
      * @throws kotlinx.serialization.SerializationException when the JSON does
      * not satisfy the serialized contract.
      */
-    fun read(source: String): CiExecutionTopology = format.decodeFromString(source)
+    fun read(
+        source: String
+    ): CiExecutionTopology = format.decodeFromString(source)
 
     private companion object {
         val format = Json {

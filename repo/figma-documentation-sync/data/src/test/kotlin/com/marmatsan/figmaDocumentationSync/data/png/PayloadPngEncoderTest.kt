@@ -10,7 +10,8 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import javax.imageio.ImageIO
 
-internal class PayloadPngEncoderTest : FunSpec({
+internal class PayloadPngEncoderTest : FunSpec(
+    {
     test("encodes the official payload as ASCII JSON in a valid PNG text chunk") {
         val encoder = PayloadPngEncoder()
         val payloadJson = encoder.payloadJson(
@@ -30,20 +31,42 @@ internal class PayloadPngEncoderTest : FunSpec({
 
         payloadJson.shouldContain("Jard\\u00edn")
         ImageIO.read(ByteArrayInputStream(png)).width shouldBe 1
-        decodePayloadText(png) shouldBe payloadJson
+        decodePayloadText(
+            png = png
+        ) shouldBe payloadJson
     }
-})
+}
+)
 
-private fun decodePayloadText(png: ByteArray): String {
+private fun decodePayloadText(
+    png: ByteArray
+): String {
     var offset = PayloadPngEncoder.PNG_SIGNATURE.size
     while (offset + 12 <= png.size) {
-        val length = ByteBuffer.wrap(png, offset, 4).int
-        val type = String(png, offset + 4, 4, StandardCharsets.US_ASCII)
+        val length = ByteBuffer.wrap(
+            png,
+            offset,
+            4
+        ).int
+        val type = String(
+            png,
+            offset + 4,
+            4,
+            StandardCharsets.US_ASCII
+        )
         val dataStart = offset + 8
         if (type == "tEXt") {
-            val text = String(png, dataStart, length, StandardCharsets.ISO_8859_1)
+            val text = String(
+                png,
+                dataStart,
+                length,
+                StandardCharsets.ISO_8859_1
+            )
             val encoded = text.substringAfter("${PayloadPngEncoder.TEXT_KEYWORD}\u0000")
-            return String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8)
+            return String(
+                Base64.getDecoder().decode(encoded),
+                StandardCharsets.UTF_8
+            )
         }
         offset = dataStart + length + 4
     }

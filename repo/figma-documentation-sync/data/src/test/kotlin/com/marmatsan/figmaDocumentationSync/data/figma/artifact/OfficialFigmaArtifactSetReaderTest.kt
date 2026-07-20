@@ -4,7 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class OfficialFigmaArtifactSetReaderTest : FunSpec({
+internal class OfficialFigmaArtifactSetReaderTest : FunSpec(
+    {
     test("reads the official artifact files recursively") {
         val root = Files.createTempDirectory("figma-artifact-set").toFile()
         try {
@@ -41,10 +42,18 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec({
             val visualDirectory = root.resolve("mcp-runners/visual").apply { mkdirs() }
             val metadataDirectory = root.resolve("mcp-runners/metadata").apply { mkdirs() }
             visualDirectory.resolve("manifest.json").writeText(
-                manifestJson(fullVisualSync = true, writeMetadata = false, manifestHash = "visual-hash")
+                manifestJson(
+                    fullVisualSync = true,
+                    writeMetadata = false,
+                    manifestHash = "visual-hash"
+                )
             )
             metadataDirectory.resolve("manifest.json").writeText(
-                manifestJson(fullVisualSync = false, writeMetadata = true, manifestHash = "metadata-hash")
+                manifestJson(
+                    fullVisualSync = false,
+                    writeMetadata = true,
+                    manifestHash = "metadata-hash"
+                )
             )
 
             val result = OfficialFigmaArtifactSetReader().read(root.absolutePath)
@@ -57,7 +66,8 @@ internal class OfficialFigmaArtifactSetReaderTest : FunSpec({
             root.deleteRecursively()
         }
     }
-})
+}
+)
 
 private fun manifestJson(
     fullVisualSync: Boolean,

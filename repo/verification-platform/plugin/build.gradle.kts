@@ -8,7 +8,12 @@ plugins {
 
 dependencies {
     implementation(projects.domain)
-    implementation(projects.data)
+    implementation(projects.data) {
+        exclude(
+            group = "com.pinterest.ktlint",
+            module = "ktlint-rule-engine"
+        )
+    }
     implementation(gradleApi())
 }
 
@@ -30,7 +35,9 @@ dokka {
 
     dokkaPublications.html {
         failOnWarning.set(true)
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {

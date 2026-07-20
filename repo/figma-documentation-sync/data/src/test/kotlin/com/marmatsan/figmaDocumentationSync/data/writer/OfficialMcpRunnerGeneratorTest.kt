@@ -10,13 +10,17 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import java.nio.file.Files
 
-internal class OfficialMcpRunnerGeneratorTest : FunSpec({
+internal class OfficialMcpRunnerGeneratorTest : FunSpec(
+    {
     test("generates official visual and metadata runners entirely from Kotlin") {
         val root = Files.createTempDirectory("kotlin-mcp-runner")
         val tools = root.resolve("repo/figma-documentation-sync/tools")
         val sourceRoot = tools.resolve("src/app")
         Files.createDirectories(sourceRoot)
-        Files.writeString(sourceRoot.resolve("writer.ts"), "export const writer = true;")
+        Files.writeString(
+            sourceRoot.resolve("writer.ts"),
+            "export const writer = true;"
+        )
         val model = root.resolve("design-model.json")
         Files.writeString(
             model,
@@ -100,7 +104,12 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
         val result = generator.generate(request)
 
         result.visualManifest.targets shouldContainExactly
-            listOf("preflight", "versions", "waterMyPlants.libraries", "ci.windowsRuntime")
+            listOf(
+                "preflight",
+                "versions",
+                "waterMyPlants.libraries",
+                "ci.windowsRuntime"
+            )
         result.visualManifest.fullVisualSync shouldBe true
         result.visualManifest.executionScopes.values shouldContainExactly listOf(
             "preflight",
@@ -143,7 +152,8 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
 
         root.toFile().deleteRecursively()
     }
-})
+}
+)
 
 private val runtimeConfig = FigmaWriterRuntimeConfig(
     metadataPageId = "1:2",

@@ -7,7 +7,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
 
-internal class VersionNamingCheckerTest : FunSpec({
+internal class VersionNamingCheckerTest : FunSpec(
+    {
 
     test("check accepts the expected version section and suffix contract") {
         // GIVEN
@@ -40,7 +41,11 @@ internal class VersionNamingCheckerTest : FunSpec({
         )
 
         // WHEN
-        val result = checker.check(VersionNamingCheckRequest(versionsFile = File("versions.properties")))
+        val result = checker.check(
+            VersionNamingCheckRequest(
+                versionsFile = File("versions.properties")
+            )
+        )
 
         // THEN
         result.isSuccessful shouldBe true
@@ -73,7 +78,11 @@ internal class VersionNamingCheckerTest : FunSpec({
         )
 
         // WHEN
-        val result = checker.check(VersionNamingCheckRequest(versionsFile = File("versions.properties")))
+        val result = checker.check(
+            VersionNamingCheckRequest(
+                versionsFile = File("versions.properties")
+            )
+        )
 
         // THEN
         result.violations.map(VersionNamingViolation::message) shouldBe listOf(
@@ -85,15 +94,20 @@ internal class VersionNamingCheckerTest : FunSpec({
             "Plugins version key 'dokkaVersion' must end with 'PluginVersion'."
         )
     }
-})
+}
+)
 
 private class FakeRepositoryVersionsPort(
     private val sections: List<RepositoryVersionSection>
 ) : RepositoryVersionsPort {
-    override fun readVersions(source: VersionsFileSource): Map<String, String> =
+    override fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String> =
         sections.flatMap { section -> section.versions.entries }
             .associate { entry -> entry.key to entry.value }
 
-    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+    override fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection> =
         sections
 }

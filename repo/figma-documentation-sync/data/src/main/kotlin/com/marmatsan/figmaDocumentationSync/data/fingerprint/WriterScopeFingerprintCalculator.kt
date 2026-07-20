@@ -21,15 +21,27 @@ class WriterScopeFingerprintCalculator {
         catalogTargets: List<String>,
         scopes: List<String>
     ): Map<String, String> {
-        validateRuleTargets(policy, writerTargets)
+        validateRuleTargets(
+            policy = policy,
+            writerTargets = writerTargets
+        )
         require(Files.isDirectory(sourceRoot)) { "Figma writer source root does not exist: $sourceRoot" }
         val sourceFiles = Files.walk(repositoryRoot).use { paths ->
             paths.filter(Path::isRegularFile)
                 .sorted()
                 .filter { source ->
-                    val path = repositoryPath(repositoryRoot, source)
-                    matchesAny(path, policy.visualWriterPaths) &&
-                        !matchesAny(path, policy.transportOnlyPaths)
+                    val path = repositoryPath(
+                        repositoryRoot = repositoryRoot,
+                        source = source
+                    )
+                    matchesAny(
+                        path = path,
+                        patterns = policy.visualWriterPaths
+                    ) &&
+                        !matchesAny(
+                            path = path,
+                            patterns = policy.transportOnlyPaths
+                        )
                 }
                 .toList()
         }
@@ -39,9 +51,15 @@ class WriterScopeFingerprintCalculator {
 
         val sourcesByTarget = writerTargets.associateWith { mutableListOf<SourceFingerprint>() }
         sourceFiles.forEach { source ->
-            val path = repositoryPath(repositoryRoot, source)
+            val path = repositoryPath(
+                repositoryRoot = repositoryRoot,
+                source = source
+            )
             val matchedTargets = policy.visualTargetRules
-                .filter { rule -> matchesAny(path, rule.paths) }
+                .filter { rule -> matchesAny(
+                    path = path,
+                    patterns = rule.paths
+                ) }
                 .flatMap { rule -> rule.targets }
                 .distinct()
             val affectedTargets = matchedTargets.ifEmpty { writerTargets }
@@ -58,24 +76,48 @@ class WriterScopeFingerprintCalculator {
                 .sortedBy(SourceFingerprint::path)
                 .map { source ->
                     buildJsonObject {
-                        put("path", source.path)
-                        put("sourceHash", source.sourceHash)
+                        put(
+                            "path",
+                            source.path
+                        )
+                        put(
+                            "sourceHash",
+                            source.sourceHash
+                        )
                     }
                 }
             val body = buildJsonObject {
-                put("schemaVersion", SCHEMA_VERSION)
-                put("target", target)
-                put("sources", JsonArray(sourceJson))
+                put(
+                    "schemaVersion",
+                    SCHEMA_VERSION
+                )
+                put(
+                    "target",
+                    target
+                )
+                put(
+                    "sources",
+                    JsonArray(sourceJson)
+                )
             }
             Sha256Hash.of(CanonicalJson.stringify(body))
         }
 
         return (scopes + "metadata").distinct().associateWith { scope ->
-            targetFingerprints.getValue(targetForScope(scope, writerTargets, catalogTargets))
+            targetFingerprints.getValue(
+                targetForScope(
+                    scope = scope,
+                    writerTargets = writerTargets,
+                    catalogTargets = catalogTargets
+                )
+            )
         }
     }
 
-    private fun validateRuleTargets(policy: FigmaChangeImpactPolicy, writerTargets: List<String>) {
+    private fun validateRuleTargets(
+        policy: FigmaChangeImpactPolicy,
+        writerTargets: List<String>
+    ) {
         val unknownTargets = policy.visualTargetRules
             .flatMap { rule -> rule.targets }
             .distinct()
@@ -96,16 +138,32 @@ class WriterScopeFingerprintCalculator {
             ?: throw IllegalArgumentException("Unknown Figma writer execution scope '$scope'.")
     }
 
-    private fun repositoryPath(repositoryRoot: Path, source: Path): String =
-        repositoryRoot.relativize(source).toString().replace('\\', '/')
+    private fun repositoryPath(
+        repositoryRoot: Path,
+        source: Path
+    ): String =
+        repositoryRoot.relativize(source).toString().replace(
+            '\\',
+            '/'
+        )
 
-    private fun matchesAny(path: String, patterns: List<String>): Boolean =
-        patterns.any { pattern -> globRegex(pattern).matches(path) }
+    private fun matchesAny(
+        path: String,
+        patterns: List<String>
+    ): Boolean =
+        patterns.any { pattern -> globRegex(
+            pattern = pattern
+        ).matches(path) }
 
-    private fun globRegex(pattern: String): Regex = Regex(
+    private fun globRegex(
+        pattern: String
+    ): Regex = Regex(
         buildString {
             append('^')
-            pattern.replace('\\', '/').forEach { character ->
+            pattern.replace(
+                '\\',
+                '/'
+            ).forEach { character ->
                 when (character) {
                     '*' -> append(".*")
                     '?' -> append('.')

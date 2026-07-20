@@ -13,7 +13,9 @@ import kotlinx.serialization.json.JsonPrimitive
 
 /** Encodes an official writer payload in a valid one-pixel PNG text chunk. */
 class PayloadPngEncoder {
-    fun payloadJson(payload: OfficialSyncPayload): String {
+    fun payloadJson(
+        payload: OfficialSyncPayload
+    ): String {
         val json = JsonObject(
             linkedMapOf(
                 "payloadSchemaVersion" to JsonPrimitive(payload.payloadSchemaVersion),
@@ -27,10 +29,15 @@ class PayloadPngEncoder {
                 "transportHash" to JsonPrimitive(payload.transportHash)
             )
         )
-        return Json.encodeToString(JsonObject.serializer(), json).toAsciiJson()
+        return Json.encodeToString(
+            JsonObject.serializer(),
+            json
+        ).toAsciiJson()
     }
 
-    fun encode(payloadJson: String): ByteArray {
+    fun encode(
+        payloadJson: String
+    ): ByteArray {
         val encodedPayload = Base64.getEncoder().encodeToString(payloadJson.toByteArray(StandardCharsets.UTF_8))
         val textPayload = "$TEXT_KEYWORD\u0000$encodedPayload".toByteArray(StandardCharsets.ISO_8859_1)
         val ihdr = ByteBuffer.allocate(13)
@@ -44,22 +51,53 @@ class PayloadPngEncoder {
             .array()
         val compressedPixel = ByteArrayOutputStream().use { output ->
             DeflaterOutputStream(output).use { deflater ->
-                deflater.write(byteArrayOf(0, -1, -1, -1, -1))
+                deflater.write(
+                    byteArrayOf(
+                        0,
+                        -1,
+                        -1,
+                        -1,
+                        -1
+                    )
+                )
             }
             output.toByteArray()
         }
 
         return ByteArrayOutputStream().use { output ->
             output.write(PNG_SIGNATURE)
-            output.write(chunk("IHDR", ihdr))
-            output.write(chunk("tEXt", textPayload))
-            output.write(chunk("IDAT", compressedPixel))
-            output.write(chunk("IEND", byteArrayOf()))
+            output.write(
+                chunk(
+                    type = "IHDR",
+                    data = ihdr
+                )
+            )
+            output.write(
+                chunk(
+                    type = "tEXt",
+                    data = textPayload
+                )
+            )
+            output.write(
+                chunk(
+                    type = "IDAT",
+                    data = compressedPixel
+                )
+            )
+            output.write(
+                chunk(
+                    type = "IEND",
+                    data = byteArrayOf()
+                )
+            )
             output.toByteArray()
         }
     }
 
-    private fun chunk(type: String, data: ByteArray): ByteArray {
+    private fun chunk(
+        type: String,
+        data: ByteArray
+    ): ByteArray {
         val typeBytes = type.toByteArray(StandardCharsets.US_ASCII)
         val crc = CRC32().apply {
             update(typeBytes)
@@ -77,7 +115,12 @@ class PayloadPngEncoder {
         this@toAsciiJson.forEach { character ->
             if (character.code in 0x7f..0xffff) {
                 append("\\u")
-                append(character.code.toString(16).padStart(4, '0'))
+                append(
+                    character.code.toString(16).padStart(
+                        4,
+                        '0'
+                    )
+                )
             } else {
                 append(character)
             }
@@ -89,6 +132,15 @@ class PayloadPngEncoder {
         const val PAYLOAD_SCHEMA_VERSION = 3
         const val MAX_FIGMA_UPLOAD_ASSET_BYTES = 10 * 1024 * 1024
 
-        val PNG_SIGNATURE = byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10)
+        val PNG_SIGNATURE = byteArrayOf(
+            -119,
+            80,
+            78,
+            71,
+            13,
+            10,
+            26,
+            10
+        )
     }
 }

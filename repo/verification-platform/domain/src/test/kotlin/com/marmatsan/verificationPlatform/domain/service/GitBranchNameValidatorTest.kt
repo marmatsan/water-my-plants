@@ -3,7 +3,8 @@ package com.marmatsan.verificationPlatform.domain.service
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class GitBranchNameValidatorTest : FunSpec({
+class GitBranchNameValidatorTest : FunSpec(
+    {
     val validator = GitBranchNameValidator()
 
     test("normalizes supported local and remote Git prefixes") {
@@ -30,4 +31,5 @@ class GitBranchNameValidatorTest : FunSpec({
             "feature/<kebab-case>, fix/<kebab-case>, chore/<kebab-case>, " +
             "release/<x.y.z>, or hotfix/<kebab-case>."
     }
-})
+}
+)

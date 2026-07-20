@@ -29,8 +29,12 @@ class TeamCityFigmaSyncHandoffPreparer(
     private val clock: Clock = Clock.systemUTC(),
     private val executor: McpRunnerExecutor = McpRunnerExecutor()
 ) {
-    fun prepare(request: Request): Result {
-        val artifactDirectory = resolveArtifactDirectory(request)
+    fun prepare(
+        request: Request
+    ): Result {
+        val artifactDirectory = resolveArtifactDirectory(
+            request = request
+        )
         val artifacts = artifactReader.read(artifactDirectory.absolutePath)
         val validated = artifactValidator.validate(
             contract = artifacts.contract,
@@ -50,11 +54,26 @@ class TeamCityFigmaSyncHandoffPreparer(
             )
         )
         val dryRun = buildJsonObject {
-            put("manifestHash", inspection.manifestHash)
-            put("statePath", inspection.statePath)
-            put("reuseStaging", inspection.reuseStaging)
-            putNullable("decision", inspection.decision?.let(::JsonPrimitive))
-            put("executionFiles", JsonArray(inspection.executionFiles.map(::JsonPrimitive)))
+            put(
+                "manifestHash",
+                inspection.manifestHash
+            )
+            put(
+                "statePath",
+                inspection.statePath
+            )
+            put(
+                "reuseStaging",
+                inspection.reuseStaging
+            )
+            putNullable(
+                name = "decision",
+                value = inspection.decision?.let(::JsonPrimitive)
+            )
+            put(
+                "executionFiles",
+                JsonArray(inspection.executionFiles.map(::JsonPrimitive))
+            )
         }
         val nextUnit = inspection.executionFiles.firstOrNull() ?: "COMPLETE"
         val commandPrefix =
@@ -69,23 +88,65 @@ class TeamCityFigmaSyncHandoffPreparer(
             "-PfigmaExpectedGitSha=${validated.gitSha} " +
             "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
         val summary = buildJsonObject {
-            put("schemaVersion", 1)
-            put("preparedAt", clock.instant().toString())
-            putNullable("teamCityBuildId", request.buildId?.let(::JsonPrimitive))
-            put("gitSha", validated.gitSha)
-            put("modelHash", validated.modelHash)
-            put("decision", validated.decision.wireValue)
-            put("nextUnit", nextUnit)
-            put("artifactDirectory", artifacts.artifactDirectory.toString())
-            put("visualManifest", visualManifest.toString())
-            put("metadataManifest", artifacts.metadataManifestPath.toString())
-            put("plan", artifacts.planPath.toString())
-            put("dryRun", dryRun)
+            put(
+                "schemaVersion",
+                1
+            )
+            put(
+                "preparedAt",
+                clock.instant().toString()
+            )
+            putNullable(
+                name = "teamCityBuildId",
+                value = request.buildId?.let(::JsonPrimitive)
+            )
+            put(
+                "gitSha",
+                validated.gitSha
+            )
+            put(
+                "modelHash",
+                validated.modelHash
+            )
+            put(
+                "decision",
+                validated.decision.wireValue
+            )
+            put(
+                "nextUnit",
+                nextUnit
+            )
+            put(
+                "artifactDirectory",
+                artifacts.artifactDirectory.toString()
+            )
+            put(
+                "visualManifest",
+                visualManifest.toString()
+            )
+            put(
+                "metadataManifest",
+                artifacts.metadataManifestPath.toString()
+            )
+            put(
+                "plan",
+                artifacts.planPath.toString()
+            )
+            put(
+                "dryRun",
+                dryRun
+            )
             put(
                 "commands",
                 buildJsonObject {
-                    put("inspect", "$commandPrefix -PfigmaMcpDryRun=true")
-                    put("next", "$commandPrefix -PfigmaMcpNext=true")
+                    put(
+                        "inspect",
+                        "$commandPrefix -PfigmaMcpDryRun=true"
+                    )
+                    put(
+                        "next",
+                        "$commandPrefix -PfigmaMcpNext=true"
+                    )
                     put(
                         "recordSuccess",
                         "$commandPrefix -PfigmaMcpRecordSuccess=\"RUNNER_FILE.mcp.js\" " +
@@ -96,15 +157,27 @@ class TeamCityFigmaSyncHandoffPreparer(
                         "$commandPrefix -PfigmaMcpRecordFailure=\"RUNNER_FILE.mcp.js\" " +
                             "-PfigmaMcpSummary=\"SHORT_ERROR\""
                     )
-                    put("execute", commandPrefix)
-                    put("uploadPayload", uploadPayloadCommand)
-                    put("rerun", ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true")
+                    put(
+                        "execute",
+                        commandPrefix
+                    )
+                    put(
+                        "uploadPayload",
+                        uploadPayloadCommand
+                    )
+                    put(
+                        "rerun",
+                        ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true"
+                    )
                 }
             )
         }
         val summaryFile = artifacts.artifactDirectory.resolve("figma-sync-handoff.json").toFile()
         summaryFile.writeText(
-            prettyJson.encodeToString(JsonObject.serializer(), summary) + System.lineSeparator()
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                summary
+            ) + System.lineSeparator()
         )
 
         return Result(
@@ -114,7 +187,9 @@ class TeamCityFigmaSyncHandoffPreparer(
         )
     }
 
-    private fun resolveArtifactDirectory(request: Request): File {
+    private fun resolveArtifactDirectory(
+        request: Request
+    ): File {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
         }
@@ -142,16 +217,26 @@ class TeamCityFigmaSyncHandoffPreparer(
         val timestamp = downloadTimestamp.format(clock.instant())
         val output = request.destinationRoot.resolve("figma-sync-$buildId-$timestamp")
         require(output.mkdirs()) { "Could not create TeamCity artifact directory: ${output.path}" }
-        teamCityClient.downloadArtifacts(buildId, output)
-        expandSharedArchiveWhenNeeded(output)
+        teamCityClient.downloadArtifacts(
+            buildId,
+            output
+        )
+        expandSharedArchiveWhenNeeded(
+            directory = output
+        )
         return output.toPath().toAbsolutePath().normalize().toFile()
     }
 
-    private fun expandSharedArchiveWhenNeeded(directory: File) {
+    private fun expandSharedArchiveWhenNeeded(
+        directory: File
+    ) {
         val models = directory.findFiles("design-model.json")
         val archives = directory.findFiles(".shared_files.zip")
         if (models.isEmpty() && archives.size == 1) {
-            expandZip(archives.single(), directory.resolve("shared-files"))
+            expandZip(
+                archive = archives.single(),
+                destination = directory.resolve("shared-files")
+            )
         } else {
             require(archives.size <= 1) {
                 "TeamCity returned more than one .shared_files.zip artifact."
@@ -159,7 +244,10 @@ class TeamCityFigmaSyncHandoffPreparer(
         }
     }
 
-    private fun expandZip(archive: File, destination: File) {
+    private fun expandZip(
+        archive: File,
+        destination: File
+    ) {
         val root = destination.toPath().toAbsolutePath().normalize()
         Files.createDirectories(root)
         ZipInputStream(archive.inputStream().buffered()).use { zip ->
@@ -171,7 +259,11 @@ class TeamCityFigmaSyncHandoffPreparer(
                     Files.createDirectories(target)
                 } else {
                     Files.createDirectories(target.parent)
-                    Files.copy(zip, target, StandardCopyOption.REPLACE_EXISTING)
+                    Files.copy(
+                        zip,
+                        target,
+                        StandardCopyOption.REPLACE_EXISTING
+                    )
                 }
                 zip.closeEntry()
                 entry = zip.nextEntry
@@ -184,7 +276,11 @@ class TeamCityFigmaSyncHandoffPreparer(
         val artifactDirectory: File?,
         val destinationRoot: File,
         val expectedGitSha: String? = null,
-        val mainBranchAliases: Set<String> = setOf("main", "<default>", "refs/heads/main"),
+        val mainBranchAliases: Set<String> = setOf(
+            "main",
+            "<default>",
+            "refs/heads/main"
+        ),
         val requiredBuildTypeName: String = "Generate main design model"
     )
 
@@ -202,7 +298,9 @@ class TeamCityFigmaSyncHandoffPreparer(
     }
 }
 
-private fun File.findFiles(fileName: String): List<File> =
+private fun File.findFiles(
+    fileName: String
+): List<File> =
     Files.walk(toPath()).use { paths ->
         paths.filter { path -> Files.isRegularFile(path) && path.fileName.toString() == fileName }
             .map(java.nio.file.Path::toFile)
@@ -213,5 +311,8 @@ private fun kotlinx.serialization.json.JsonObjectBuilder.putNullable(
     name: String,
     value: JsonPrimitive?
 ) {
-    put(name, value ?: JsonNull)
+    put(
+        name,
+        value ?: JsonNull
+    )
 }

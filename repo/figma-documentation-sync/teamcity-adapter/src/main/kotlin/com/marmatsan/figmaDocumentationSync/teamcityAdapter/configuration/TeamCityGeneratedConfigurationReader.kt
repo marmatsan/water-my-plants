@@ -15,7 +15,9 @@ import org.w3c.dom.Element
 
 /** Reads the effective YAML and XML emitted by the TeamCity Kotlin DSL. */
 class TeamCityGeneratedConfigurationReader {
-    fun read(directory: File): CiConfiguration {
+    fun read(
+        directory: File
+    ): CiConfiguration {
         require(directory.isDirectory) {
             "TeamCity generated configuration directory does not exist: ${directory.path}"
         }
@@ -25,12 +27,17 @@ class TeamCityGeneratedConfigurationReader {
             .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
             .map(File::getParentFile)
             .toList()
-        val statusGates = readStatusGates(directory)
+        val statusGates = readStatusGates(
+            directory = directory
+        )
 
         return CiConfiguration(
             pipelines = pipelineDirectories
                 .map { pipelineDirectory ->
-                    readPipeline(pipelineDirectory, statusGates[pipelineDirectory.name])
+                    readPipeline(
+                        directory = pipelineDirectory,
+                        statusGate = statusGates[pipelineDirectory.name]
+                    )
                 }
                 .sortedBy(CiPipeline::id),
             vcsRoots = directory
@@ -46,8 +53,13 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readPipeline(directory: File, statusGate: StatusGate?): CiPipeline {
-        val projectDocument = readXml(directory.resolve(PROJECT_CONFIG_FILE_NAME))
+    private fun readPipeline(
+        directory: File,
+        statusGate: StatusGate?
+    ): CiPipeline {
+        val projectDocument = readXml(
+            file = directory.resolve(PROJECT_CONFIG_FILE_NAME)
+        )
         val buildTypeFiles = directory.resolve(BUILD_TYPES_DIRECTORY_NAME)
             .listFiles { file -> file.isFile && file.extension == XML_EXTENSION }
             ?.sortedBy(File::getName)
@@ -62,15 +74,21 @@ class TeamCityGeneratedConfigurationReader {
                 ?.trim()
                 .orEmpty(),
             triggers = statusGate?.triggers.orEmpty() +
-                buildTypeFiles.flatMap { file -> readTriggers(readXml(file)) },
+                buildTypeFiles.flatMap { file -> readTriggers(
+                    document = readXml(
+                        file = file
+                    )
+                ) },
             jobs = readJobs(
-                directory.resolve(PIPELINE_FILE_NAME),
-                statusGate?.publishedChecks.orEmpty()
+                file = directory.resolve(PIPELINE_FILE_NAME),
+                publishedChecks = statusGate?.publishedChecks.orEmpty()
             )
         )
     }
 
-    private fun readStatusGates(directory: File): Map<String, StatusGate> = directory
+    private fun readStatusGates(
+        directory: File
+    ): Map<String, StatusGate> = directory
         .walkTopDown()
         .filter { file ->
             file.isFile &&
@@ -81,8 +99,12 @@ class TeamCityGeneratedConfigurationReader {
         .mapNotNull(::readStatusGate)
         .associateBy(StatusGate::pipelineId)
 
-    private fun readStatusGate(file: File): StatusGate? {
-        val document = readXml(file)
+    private fun readStatusGate(
+        file: File
+    ): StatusGate? {
+        val document = readXml(
+            file = file
+        )
         val extensions = document.getElementsByTagName(BUILD_EXTENSION_ELEMENT)
         val publishers = (0 until extensions.length)
             .map { index -> extensions.item(index) as Element }
@@ -103,7 +125,9 @@ class TeamCityGeneratedConfigurationReader {
             "Expected a source build type id in TeamCity status gate ${file.path}"
         }
 
-        val publisherParameters = readParameters(publishers.single())
+        val publisherParameters = readParameters(
+            element = publishers.single()
+        )
         val checkName = publisherParameters[BUILD_CUSTOM_NAME_PARAMETER].orEmpty()
         require(checkName.isNotBlank()) {
             "Expected a custom GitHub check name in TeamCity status gate ${file.path}"
@@ -111,16 +135,22 @@ class TeamCityGeneratedConfigurationReader {
 
         return StatusGate(
             pipelineId = pipelineId,
-            triggers = readTriggers(document),
+            triggers = readTriggers(
+                document = document
+            ),
             publishedChecks = listOf(CiJob.PublishedCheck(checkName))
         )
     }
 
-    private fun readTriggers(document: Document): List<CiTrigger> {
+    private fun readTriggers(
+        document: Document
+    ): List<CiTrigger> {
         val triggers = document.getElementsByTagName(BUILD_TRIGGER_ELEMENT)
         return (0 until triggers.length).map { index ->
             val trigger = triggers.item(index) as Element
-            val parameters = readParameters(trigger)
+            val parameters = readParameters(
+                element = trigger
+            )
 
             when (val type = trigger.getAttribute(TYPE_ATTRIBUTE)) {
                 VCS_TRIGGER_TYPE -> CiTrigger(
@@ -149,8 +179,13 @@ class TeamCityGeneratedConfigurationReader {
         }
     }
 
-    private fun readJobs(file: File, publishedChecks: List<CiJob.PublishedCheck>): List<CiJob> {
-        val root = readYaml(file)
+    private fun readJobs(
+        file: File,
+        publishedChecks: List<CiJob.PublishedCheck>
+    ): List<CiJob> {
+        val root = readYaml(
+            file = file
+        )
         val jobs = root.requiredMap(JOBS_KEY).map { (jobId, value) ->
             val job = value.asStringMap("job '$jobId'")
             CiJob(
@@ -166,11 +201,15 @@ class TeamCityGeneratedConfigurationReader {
             )
         }
         return jobs.mapIndexed { index, job ->
-            if (index == jobs.lastIndex) job.copy(publishedChecks = publishedChecks) else job
+            if (index == jobs.lastIndex) job.copy(
+                publishedChecks = publishedChecks
+            ) else job
         }
     }
 
-    private fun readStep(value: Any?): CiJob.Step {
+    private fun readStep(
+        value: Any?
+    ): CiJob.Step {
         val step = value.asStringMap("step")
         return CiJob.Step(
             id = step.requiredString(ID_KEY),
@@ -179,7 +218,9 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readArtifact(value: Any?): CiJob.Artifact {
+    private fun readArtifact(
+        value: Any?
+    ): CiJob.Artifact {
         val artifact = value.asStringMap("artifact")
         return CiJob.Artifact(
             path = artifact.requiredString(PATH_KEY),
@@ -188,7 +229,9 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readDependency(value: Any?): CiJob.Dependency {
+    private fun readDependency(
+        value: Any?
+    ): CiJob.Dependency {
         val dependency = value.asStringMap("dependency")
         require(dependency.size == 1) { "Expected one TeamCity dependency per list item" }
         val (jobId, configurationValue) = dependency.entries.single()
@@ -201,8 +244,12 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readVcsRoot(file: File): CiVcsRoot {
-        val document = readXml(file)
+    private fun readVcsRoot(
+        file: File
+    ): CiVcsRoot {
+        val document = readXml(
+            file = file
+        )
         val root = document.documentElement
         val parameters = root.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
             (0 until nodes.length).associate { index ->
@@ -225,7 +272,9 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readParameters(element: Element): Map<String, String> =
+    private fun readParameters(
+        element: Element
+    ): Map<String, String> =
         element.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
             (0 until nodes.length).associate { index ->
                 val parameter = nodes.item(index) as Element
@@ -233,7 +282,9 @@ class TeamCityGeneratedConfigurationReader {
             }
         }
 
-    private fun readYaml(file: File): Map<String, Any?> {
+    private fun readYaml(
+        file: File
+    ): Map<String, Any?> {
         val settings = LoadSettings.builder()
             .setLabel(file.path)
             .build()
@@ -242,21 +293,40 @@ class TeamCityGeneratedConfigurationReader {
         }.asStringMap(file.name)
     }
 
-    private fun readXml(file: File): Document {
+    private fun readXml(
+        file: File
+    ): Document {
         require(file.isFile) { "TeamCity generated file does not exist: ${file.path}" }
         val factory = DocumentBuilderFactory.newInstance().apply {
-            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
-            setFeature("http://xml.org/sax/features/external-general-entities", false)
-            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "")
-            setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "")
+            setFeature(
+                "http://apache.org/xml/features/disallow-doctype-decl",
+                true
+            )
+            setFeature(
+                "http://xml.org/sax/features/external-general-entities",
+                false
+            )
+            setFeature(
+                "http://xml.org/sax/features/external-parameter-entities",
+                false
+            )
+            setAttribute(
+                XMLConstants.ACCESS_EXTERNAL_DTD,
+                ""
+            )
+            setAttribute(
+                XMLConstants.ACCESS_EXTERNAL_SCHEMA,
+                ""
+            )
             isXIncludeAware = false
             isExpandEntityReferences = false
         }
         return factory.newDocumentBuilder().parse(file)
     }
 
-    private fun Any?.asStringMap(context: String): Map<String, Any?> {
+    private fun Any?.asStringMap(
+        context: String
+    ): Map<String, Any?> {
         val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
         return source.entries.associate { (key, value) ->
             val stringKey = key as? String ?: error("Expected string key in $context")
@@ -264,20 +334,28 @@ class TeamCityGeneratedConfigurationReader {
         }
     }
 
-    private fun Map<String, Any?>.requiredMap(key: String): Map<String, Any?> =
+    private fun Map<String, Any?>.requiredMap(
+        key: String
+    ): Map<String, Any?> =
         get(key).asStringMap(key)
 
-    private fun Map<String, Any?>.optionalList(key: String): List<Any?> =
+    private fun Map<String, Any?>.optionalList(
+        key: String
+    ): List<Any?> =
         when (val value = get(key)) {
             null -> emptyList()
             is List<*> -> value
             else -> error("Expected YAML list '$key'")
         }
 
-    private fun Map<String, Any?>.requiredString(key: String): String =
+    private fun Map<String, Any?>.requiredString(
+        key: String
+    ): String =
         get(key) as? String ?: error("Expected YAML string '$key'")
 
-    private fun Map<String, Any?>.requiredBoolean(key: String): Boolean =
+    private fun Map<String, Any?>.requiredBoolean(
+        key: String
+    ): Boolean =
         get(key) as? Boolean ?: error("Expected YAML boolean '$key'")
 
     private companion object {

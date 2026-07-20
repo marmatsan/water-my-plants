@@ -19,11 +19,15 @@ interface RepositoryVersionsPort {
      * Reads the flat key/value view used by consumers that do not need section
      * grouping.
      */
-    fun readVersions(source: VersionsFileSource): Map<String, String>
+    fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String>
 
     /**
      * Reads the ordered section view used by `design-model.json` so Figma can
      * preserve the same version grouping seen in the source file.
      */
-    fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection>
+    fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection>
 }

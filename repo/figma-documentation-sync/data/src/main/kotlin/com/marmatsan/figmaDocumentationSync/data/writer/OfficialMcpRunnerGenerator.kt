@@ -38,7 +38,9 @@ class OfficialMcpRunnerGenerator(
     private val payloadEncoder: PayloadPngEncoder = PayloadPngEncoder(),
     private val policySource: FigmaChangeImpactPolicyDataSource = FigmaChangeImpactPolicyDataSource()
 ) {
-    fun generate(request: Request): Result {
+    fun generate(
+        request: Request
+    ): Result {
         require(request.transport in SUPPORTED_TRANSPORTS) {
             "Unsupported MCP transport '${request.transport}'. Expected png or chunks."
         }
@@ -50,16 +52,29 @@ class OfficialMcpRunnerGenerator(
         val outputRoot = Path.of(request.outputDirectory).toAbsolutePath().normalize()
         val modelElement = Json.parseToJsonElement(Files.readString(modelPath).removePrefix(UTF8_BOM))
         val designModel = modelElement.jsonObject
-        val modelJson = Json.encodeToString(JsonElement.serializer(), modelElement)
+        val modelJson = Json.encodeToString(
+            JsonElement.serializer(),
+            modelElement
+        )
         val script = Files.readString(scriptPath)
-        validateModel(designModel)
-        validateStagingEntry("designModelJson", modelJson)
-        validateStagingEntry("script", script)
+        validateModel(
+            designModel = designModel
+        )
+        validateStagingEntry(
+            key = "designModelJson",
+            value = modelJson
+        )
+        validateStagingEntry(
+            key = "script",
+            value = script
+        )
 
         val modelHash = designModel.requiredString("modelHash")
         val gitSha = designModel.requiredString("gitSha")
         val writerHash = Sha256Hash.of(script.toByteArray(StandardCharsets.UTF_8))
-        val transportHash = transportHash(request)
+        val transportHash = transportHash(
+            request = request
+        )
         val allTargetFingerprints = targetFingerprints.create(
             designModel = designModel,
             visualTargets = request.config.visualTargetNames,
@@ -100,7 +115,10 @@ class OfficialMcpRunnerGenerator(
             writeMetadata = true,
             fullVisualSync = false
         )
-        return Result(visualManifest = visual, metadataManifest = metadata)
+        return Result(
+            visualManifest = visual,
+            metadataManifest = metadata
+        )
     }
 
     private fun generateRunner(
@@ -110,10 +128,15 @@ class OfficialMcpRunnerGenerator(
         writeMetadata: Boolean,
         fullVisualSync: Boolean
     ): ExecutableRunnerManifest {
-        recreate(outputDirectory)
+        recreate(
+            directory = outputDirectory
+        )
         val sources = linkedMapOf<String, String>()
         val namespace = context.request.config.officialStagingNamespace
-        sources[CLEAR_STAGING_FILE] = renderer.clearStaging(context.request.config.metadataPageId, namespace)
+        sources[CLEAR_STAGING_FILE] = renderer.clearStaging(
+            context.request.config.metadataPageId,
+            namespace
+        )
 
         val payloadImage = if (context.request.transport == TRANSPORT_PNG) {
             val payload = OfficialSyncPayload(
@@ -132,7 +155,10 @@ class OfficialMcpRunnerGenerator(
                 "Official payload PNG is ${bytes.size} bytes and exceeds " +
                     "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes. Use chunk transport."
             }
-            Files.write(outputDirectory.resolve(PAYLOAD_PNG_FILE), bytes)
+            Files.write(
+                outputDirectory.resolve(PAYLOAD_PNG_FILE),
+                bytes
+            )
             val image = RunnerPayloadImage(
                 fileName = PAYLOAD_PNG_FILE,
                 byteLength = bytes.size,
@@ -143,18 +169,26 @@ class OfficialMcpRunnerGenerator(
                 metadataPageId = context.request.config.metadataPageId,
                 namespace = namespace,
                 payloadFileName = PAYLOAD_PNG_FILE,
-                identity = expectedIdentity(context)
+                identity = expectedIdentity(
+                    context = context
+                )
             )
             image
         } else {
-            addChunkSources(sources, context, namespace)
+            addChunkSources(
+                sources = sources,
+                context = context,
+                namespace = namespace
+            )
             null
         }
 
         sources[FINALIZE_STAGING_FILE] = renderer.finalizeStaging(
             metadataPageId = context.request.config.metadataPageId,
             namespace = namespace,
-            identity = expectedIdentity(context)
+            identity = expectedIdentity(
+                context = context
+            )
         )
         val executionScopes = addTargetSources(
             sources = sources,
@@ -164,7 +198,10 @@ class OfficialMcpRunnerGenerator(
             writeMetadata = writeMetadata,
             fullVisualSync = fullVisualSync
         )
-        sources.forEach { (fileName, source) -> Files.writeString(outputDirectory.resolve(fileName), source) }
+        sources.forEach { (fileName, source) -> Files.writeString(
+            outputDirectory.resolve(fileName),
+            source
+        ) }
         val fileHashes = sources.mapValues { (_, source) ->
             Sha256Hash.of(source.toByteArray(StandardCharsets.UTF_8))
         }
@@ -184,8 +221,14 @@ class OfficialMcpRunnerGenerator(
             fullVisualSync = fullVisualSync,
             allowPartial = false,
             metadataPageId = context.request.config.metadataPageId,
-            modelPath = portablePath(context.request.toolsDirectory, context.request.modelPath),
-            scriptPath = portablePath(context.request.toolsDirectory, context.request.scriptPath),
+            modelPath = portablePath(
+                toolsDirectory = context.request.toolsDirectory,
+                path = context.request.modelPath
+            ),
+            scriptPath = portablePath(
+                toolsDirectory = context.request.toolsDirectory,
+                path = context.request.scriptPath
+            ),
             modelHash = context.modelHash,
             gitSha = context.gitSha,
             designModelLength = context.modelJson.length,
@@ -201,7 +244,10 @@ class OfficialMcpRunnerGenerator(
             fileHashes = fileHashes,
             manifestHash = ""
         )
-        return manifestJson.finalizeAndWrite(manifestDraft, outputDirectory.resolve(MANIFEST_FILE).toString())
+        return manifestJson.finalizeAndWrite(
+            manifestDraft,
+            outputDirectory.resolve(MANIFEST_FILE).toString()
+        )
     }
 
     private fun addChunkSources(
@@ -209,12 +255,18 @@ class OfficialMcpRunnerGenerator(
         context: Context,
         namespace: String
     ) {
-        listOf("designModelJson" to context.modelJson, "script" to context.script).forEach { (key, value) ->
+        listOf(
+            "designModelJson" to context.modelJson,
+            "script" to context.script
+        ).forEach { (key, value) ->
             val chunks = value.chunked(context.request.chunkSize).ifEmpty { listOf("") }
             var previousLength = 0
             chunks.forEachIndexed { index, chunk ->
                 val prefix = if (key == "designModelJson") "10" else "20"
-                val fileName = "$prefix-$key-${(index + 1).toString().padStart(3, '0')}.mcp.js"
+                val fileName = "$prefix-$key-${(index + 1).toString().padStart(
+                    3,
+                    '0'
+                )}.mcp.js"
                 sources[fileName] = renderer.appendChunk(
                     metadataPageId = context.request.config.metadataPageId,
                     namespace = namespace,
@@ -241,22 +293,53 @@ class OfficialMcpRunnerGenerator(
         if (!fullVisualSync) {
             val target = targets.single()
             val fileName = "99-run-target.mcp.js"
-            sources[fileName] = targetSource(context, namespace, target, writeMetadata, target)
+            sources[fileName] = targetSource(
+                context = context,
+                namespace = namespace,
+                target = target,
+                writeMetadata = writeMetadata,
+                executionScope = target
+            )
             executionScopes[fileName] = target
             return executionScopes
         }
 
         targets.forEachIndexed { index, target ->
-            val roots = catalogRoots(context.designModel, target, context.request.config.catalogTargetNames)
+            val roots = catalogRoots(
+                designModel = context.designModel,
+                target = target,
+                catalogTargets = context.request.config.catalogTargetNames
+            )
             if (roots.isEmpty()) {
-                val fileName = "99-${index.toString().padStart(2, '0')}-${safeName(target)}.mcp.js"
-                sources[fileName] = targetSource(context, namespace, target, false, target)
+                val fileName = "99-${index.toString().padStart(
+                    2,
+                    '0'
+                )}-${safeName(
+                    value = target
+                )}.mcp.js"
+                sources[fileName] = targetSource(
+                    context = context,
+                    namespace = namespace,
+                    target = target,
+                    writeMetadata = false,
+                    executionScope = target
+                )
                 executionScopes[fileName] = target
             } else {
                 roots.forEachIndexed { rootIndex, root ->
                     val scope = "$target.$root"
-                    val fileName = "99-${index.toString().padStart(2, '0')}-" +
-                        "${rootIndex.toString().padStart(2, '0')}-${safeName(target)}-${safeName(root)}.mcp.js"
+                    val fileName = "99-${index.toString().padStart(
+                        2,
+                        '0'
+                    )}-" +
+                        "${rootIndex.toString().padStart(
+                            2,
+                            '0'
+                        )}-${safeName(
+                            value = target
+                        )}-${safeName(
+                            value = root
+                        )}.mcp.js"
                     sources[fileName] = targetSource(
                         context = context,
                         namespace = namespace,
@@ -268,7 +351,12 @@ class OfficialMcpRunnerGenerator(
                     executionScopes[fileName] = scope
                 }
                 val cleanupScope = "$target.cleanup"
-                val cleanupFile = "99-${index.toString().padStart(2, '0')}-99-${safeName(target)}-cleanup.mcp.js"
+                val cleanupFile = "99-${index.toString().padStart(
+                    2,
+                    '0'
+                )}-99-${safeName(
+                    value = target
+                )}-cleanup.mcp.js"
                 sources[cleanupFile] = targetSource(
                     context = context,
                     namespace = namespace,
@@ -293,27 +381,67 @@ class OfficialMcpRunnerGenerator(
         cleanupOnly: Boolean = false
     ): String {
         val executionMetadata = buildJsonObject {
-            put("writerHash", context.writerHash)
-            put("transportHash", context.transportHash)
-            put("targetFingerprints", context.targetFingerprints.toJsonObject())
-            put("writerScopeFingerprints", context.writerScopeFingerprints.toJsonObject())
-            put("writerScopeFingerprintSchemaVersion", WriterScopeFingerprintCalculator.SCHEMA_VERSION)
+            put(
+                "writerHash",
+                context.writerHash
+            )
+            put(
+                "transportHash",
+                context.transportHash
+            )
+            put(
+                "targetFingerprints",
+                context.targetFingerprints.toJsonObject()
+            )
+            put(
+                "writerScopeFingerprints",
+                context.writerScopeFingerprints.toJsonObject()
+            )
+            put(
+                "writerScopeFingerprintSchemaVersion",
+                WriterScopeFingerprintCalculator.SCHEMA_VERSION
+            )
         }
         val syncOptions = buildJsonObject {
-            put("targets", JsonArray(listOf(JsonPrimitive(target))))
-            put("writeMetadata", writeMetadata)
+            put(
+                "targets",
+                JsonArray(listOf(JsonPrimitive(target)))
+            )
+            put(
+                "writeMetadata",
+                writeMetadata
+            )
             if (roots.isNotEmpty()) {
-                put("catalogRootFilters", buildJsonObject { put(target, JsonArray(roots.map(::JsonPrimitive))) })
+                put(
+                    "catalogRootFilters",
+                    buildJsonObject { put(
+                        target,
+                        JsonArray(roots.map(::JsonPrimitive))
+                    ) }
+                )
             }
-            if (cleanupOnly) put("catalogCleanupOnlyTargets", JsonArray(listOf(JsonPrimitive(target))))
+            if (cleanupOnly) put(
+                "catalogCleanupOnlyTargets",
+                JsonArray(listOf(JsonPrimitive(target)))
+            )
             if (target.startsWith("ci.")) {
                 val ciConfig = context.request.config.ciVisualPlanConfig
                     ?: throw IllegalArgumentException(
                         "CI visual target '$target' requires CI visual plan project configuration."
                     )
-                put("ciVisualPlan", CiVisualPlanJson.create(context.designModel, ciConfig, target))
+                put(
+                    "ciVisualPlan",
+                    CiVisualPlanJson.create(
+                        context.designModel,
+                        ciConfig,
+                        target
+                    )
+                )
             }
-            put("executionMetadata", executionMetadata)
+            put(
+                "executionMetadata",
+                executionMetadata
+            )
         }
         return renderer.runTarget(
             metadataPageId = context.request.config.metadataPageId,
@@ -324,7 +452,9 @@ class OfficialMcpRunnerGenerator(
         )
     }
 
-    private fun expectedIdentity(context: Context): JsonObject = renderer.expectedIdentity(
+    private fun expectedIdentity(
+        context: Context
+    ): JsonObject = renderer.expectedIdentity(
         modelHash = context.modelHash,
         gitSha = context.gitSha,
         modelLength = context.modelJson.length,
@@ -333,11 +463,22 @@ class OfficialMcpRunnerGenerator(
         transportHash = context.transportHash
     )
 
-    private fun transportHash(request: Request): String {
+    private fun transportHash(
+        request: Request
+    ): String {
         val body = buildJsonObject {
-            put("contractVersion", TRANSPORT_CONTRACT_VERSION)
-            put("transport", request.transport)
-            put("chunkSize", if (request.transport == TRANSPORT_CHUNKS) JsonPrimitive(request.chunkSize) else JsonNull)
+            put(
+                "contractVersion",
+                TRANSPORT_CONTRACT_VERSION
+            )
+            put(
+                "transport",
+                request.transport
+            )
+            put(
+                "chunkSize",
+                if (request.transport == TRANSPORT_CHUNKS) JsonPrimitive(request.chunkSize) else JsonNull
+            )
             put(
                 "payloadSchemaVersion",
                 if (request.transport == TRANSPORT_PNG) {
@@ -346,7 +487,10 @@ class OfficialMcpRunnerGenerator(
                     JsonNull
                 }
             )
-            put("templates", renderer.templateHashes().toJsonObject())
+            put(
+                "templates",
+                renderer.templateHashes().toJsonObject()
+            )
         }
         return Sha256Hash.of(CanonicalJson.stringify(body))
     }
@@ -368,7 +512,9 @@ class OfficialMcpRunnerGenerator(
         return nodes.mapNotNull { node -> node.jsonObject[rootKey]?.jsonPrimitive?.contentOrNull }.distinct()
     }
 
-    private fun validateModel(designModel: JsonObject) {
+    private fun validateModel(
+        designModel: JsonObject
+    ) {
         require(designModel.requiredString("branch") == "main") {
             "MCP runners require a main design model. Found '${designModel.requiredString("branch")}'."
         }
@@ -376,14 +522,19 @@ class OfficialMcpRunnerGenerator(
         designModel.requiredString("modelHash")
     }
 
-    private fun validateStagingEntry(key: String, value: String) {
+    private fun validateStagingEntry(
+        key: String,
+        value: String
+    ) {
         require(value.length <= MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH) {
             "$key is ${value.length} characters and exceeds the " +
                 "$MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH-character sharedPluginData staging limit."
         }
     }
 
-    private fun recreate(directory: Path) {
+    private fun recreate(
+        directory: Path
+    ) {
         if (Files.exists(directory)) {
             Files.walk(directory).use { paths ->
                 paths.sorted(Comparator.reverseOrder()).forEach(Files::deleteIfExists)
@@ -392,17 +543,30 @@ class OfficialMcpRunnerGenerator(
         Files.createDirectories(directory)
     }
 
-    private fun portablePath(toolsDirectory: String, path: String): String {
+    private fun portablePath(
+        toolsDirectory: String,
+        path: String
+    ): String {
         val tools = Path.of(toolsDirectory).toAbsolutePath().normalize()
         val target = Path.of(path).toAbsolutePath().normalize()
         return runCatching { tools.relativize(target).toString() }
             .getOrDefault(target.toString())
-            .replace('\\', '/')
+            .replace(
+                '\\',
+                '/'
+            )
     }
 
-    private fun safeName(value: String): String = value.replace(Regex("[^A-Za-z0-9_-]+"), "-")
+    private fun safeName(
+        value: String
+    ): String = value.replace(
+        Regex("[^A-Za-z0-9_-]+"),
+        "-"
+    )
 
-    private fun JsonObject.requiredString(name: String): String =
+    private fun JsonObject.requiredString(
+        name: String
+    ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Design model is missing '$name'.")
 
@@ -458,6 +622,9 @@ class OfficialMcpRunnerGenerator(
         private const val STAGE_PAYLOAD_FILE = "10-stage-payload-from-png.mcp.js"
         private const val FINALIZE_STAGING_FILE = "90-finalize-staging.mcp.js"
 
-        private val SUPPORTED_TRANSPORTS = setOf(TRANSPORT_PNG, TRANSPORT_CHUNKS)
+        private val SUPPORTED_TRANSPORTS = setOf(
+            TRANSPORT_PNG,
+            TRANSPORT_CHUNKS
+        )
     }
 }

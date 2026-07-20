@@ -8,7 +8,8 @@ import com.marmatsan.dependencies.tree.node.Node
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class LibraryScopeTest : FunSpec({
+internal class LibraryScopeTest : FunSpec(
+    {
 
     test("artifact adds a single entry with version to the created library") {
         // GIVEN
@@ -17,22 +18,28 @@ internal class LibraryScopeTest : FunSpec({
 
         // WHEN
         scope.library("activity") {
-            artifact("activity-compose", version = "1.9.1")
+            artifact(
+                "activity-compose",
+                version = "1.9.1"
+            )
         }
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "activity",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("activity-compose", "1.9.1")
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "activity",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "activity-compose",
+                                "1.9.1"
                             )
                         )
                     )
                 )
             )
+        )
     }
 
     test("artifact adds multiple entries and keeps versionless artifacts and declaration order") {
@@ -42,26 +49,32 @@ internal class LibraryScopeTest : FunSpec({
 
         // WHEN
         scope.library("activity") {
-            artifact("activity-compose", version = "1.9.1")
+            artifact(
+                "activity-compose",
+                version = "1.9.1"
+            )
             artifact("activity-ktx")
         }
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "activity",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("activity-compose", "1.9.1")
-                            ),
-                            LibraryEntry.Single(
-                                Artifact("activity-ktx")
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "activity",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "activity-compose",
+                                "1.9.1"
                             )
+                        ),
+                        LibraryEntry.Single(
+                            Artifact("activity-ktx")
                         )
                     )
                 )
             )
+        )
     }
 
     test("artifactsBundle adds a bundle entry with alias and versionless artifacts") {
@@ -81,24 +94,24 @@ internal class LibraryScopeTest : FunSpec({
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "compose",
-                        entries = listOf(
-                            LibraryEntry.Bundle(
-                                ArtifactsBundle(
-                                    alias = "composeBundle",
-                                    artifacts = listOf(
-                                        Artifact("ui"),
-                                        Artifact("ui-graphics"),
-                                        Artifact("ui-tooling")
-                                    )
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose",
+                    entries = listOf(
+                        LibraryEntry.Bundle(
+                            ArtifactsBundle(
+                                alias = "composeBundle",
+                                artifacts = listOf(
+                                    Artifact("ui"),
+                                    Artifact("ui-graphics"),
+                                    Artifact("ui-tooling")
                                 )
                             )
                         )
                     )
                 )
             )
+        )
     }
 
     test("artifactsBundle propagates version to bundle and artifacts") {
@@ -118,24 +131,30 @@ internal class LibraryScopeTest : FunSpec({
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "compose",
-                        entries = listOf(
-                            LibraryEntry.Bundle(
-                                ArtifactsBundle(
-                                    alias = "composeBundle",
-                                    artifacts = listOf(
-                                        Artifact("ui", "1.7.0"),
-                                        Artifact("ui-graphics", "1.7.0")
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose",
+                    entries = listOf(
+                        LibraryEntry.Bundle(
+                            ArtifactsBundle(
+                                alias = "composeBundle",
+                                artifacts = listOf(
+                                    Artifact(
+                                        "ui",
+                                        "1.7.0"
                                     ),
-                                    version = "1.7.0"
-                                )
+                                    Artifact(
+                                        "ui-graphics",
+                                        "1.7.0"
+                                    )
+                                ),
+                                version = "1.7.0"
                             )
                         )
                     )
                 )
             )
+        )
     }
 
     test("artifactsBundle can be declared with artifact and keeps entry order") {
@@ -145,7 +164,10 @@ internal class LibraryScopeTest : FunSpec({
 
         // WHEN
         scope.library("compose") {
-            artifact("compose-bom", version = "2025.06.01")
+            artifact(
+                "compose-bom",
+                version = "2025.06.01"
+            )
             artifactsBundle(
                 "ui",
                 "ui-graphics",
@@ -155,26 +177,29 @@ internal class LibraryScopeTest : FunSpec({
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "compose",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("compose-bom", "2025.06.01")
-                            ),
-                            LibraryEntry.Bundle(
-                                ArtifactsBundle(
-                                    alias = "composeBundle",
-                                    artifacts = listOf(
-                                        Artifact("ui"),
-                                        Artifact("ui-graphics")
-                                    )
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "compose-bom",
+                                "2025.06.01"
+                            )
+                        ),
+                        LibraryEntry.Bundle(
+                            ArtifactsBundle(
+                                alias = "composeBundle",
+                                artifacts = listOf(
+                                    Artifact("ui"),
+                                    Artifact("ui-graphics")
                                 )
                             )
                         )
                     )
                 )
             )
+        )
     }
 
     test("library adds a child library node without entries when content is null") {
@@ -187,8 +212,8 @@ internal class LibraryScopeTest : FunSpec({
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(DependencyNode.Library("compose"))
-            )
+            Node(DependencyNode.Library("compose"))
+        )
     }
 
     test("library supports nested groups and preserves parent entries and children") {
@@ -198,7 +223,10 @@ internal class LibraryScopeTest : FunSpec({
 
         // WHEN
         scope.library("compose") {
-            artifact("compose-bom", version = "2025.06.01")
+            artifact(
+                "compose-bom",
+                version = "2025.06.01"
+            )
             library("ui") {
                 artifact("ui")
             }
@@ -206,29 +234,32 @@ internal class LibraryScopeTest : FunSpec({
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "compose",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("compose-bom", "2025.06.01")
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "compose-bom",
+                                "2025.06.01"
                             )
                         )
-                    ),
-                    children = mutableListOf(
-                        Node(
-                            DependencyNode.Library(
-                                libraryGroup = "ui",
-                                entries = listOf(
-                                    LibraryEntry.Single(
-                                        Artifact("ui")
-                                    )
+                    )
+                ),
+                children = mutableListOf(
+                    Node(
+                        DependencyNode.Library(
+                            libraryGroup = "ui",
+                            entries = listOf(
+                                LibraryEntry.Single(
+                                    Artifact("ui")
                                 )
                             )
                         )
                     )
                 )
             )
+        )
     }
 
     test("library keeps entries isolated between siblings and preserves sibling order") {
@@ -238,34 +269,47 @@ internal class LibraryScopeTest : FunSpec({
 
         // WHEN
         scope.library("activity") {
-            artifact("activity-compose", version = "1.9.1")
+            artifact(
+                "activity-compose",
+                version = "1.9.1"
+            )
         }
         scope.library("compose") {
-            artifact("compose-bom", version = "2025.06.01")
+            artifact(
+                "compose-bom",
+                version = "2025.06.01"
+            )
         }
 
         // THEN
         root.children shouldBe mutableListOf(
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "activity",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("activity-compose", "1.9.1")
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "activity",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "activity-compose",
+                                "1.9.1"
                             )
                         )
                     )
-                ),
-                Node(
-                    DependencyNode.Library(
-                        libraryGroup = "compose",
-                        entries = listOf(
-                            LibraryEntry.Single(
-                                Artifact("compose-bom", "2025.06.01")
+                )
+            ),
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = "compose",
+                    entries = listOf(
+                        LibraryEntry.Single(
+                            Artifact(
+                                "compose-bom",
+                                "2025.06.01"
                             )
                         )
                     )
                 )
             )
+        )
     }
-})
+}
+)

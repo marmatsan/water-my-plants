@@ -32,7 +32,9 @@ import org.gradle.work.DisableCachingByDefault
  * The task reads `FIGMA_FILE_CONTENT_ACCESS_TOKEN` at execution time and does
  * not model it as a cacheable input because the token is secret runtime state.
  */
-@DisableCachingByDefault(because = "The check reads Figma, Git, a secret token, and current-time runtime state")
+@DisableCachingByDefault(
+    because = "The check reads Figma, Git, a secret token, and current-time runtime state"
+)
 abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
     @get:Input
     abstract val metadataNodeUrl: Property<String>
@@ -118,8 +120,15 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
                 metadataNodeUrl = metadataNodeUrl.get(),
                 token = token,
                 metadataNamespace = metadataNamespace.get(),
-                branch = git("rev-parse", "--abbrev-ref", "HEAD"),
-                gitSha = git("rev-parse", "HEAD"),
+                branch = git(
+                    "rev-parse",
+                    "--abbrev-ref",
+                    "HEAD"
+                ),
+                gitSha = git(
+                    "rev-parse",
+                    "HEAD"
+                ),
                 generatedAt = Instant.now(),
                 primaryCatalogModelName = primaryCatalogModelName.get(),
                 dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
@@ -139,10 +148,21 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
         logger.lifecycle("Figma is synced at ${result.gitSha} (${result.modelHash}).")
     }
 
-    private fun git(vararg arguments: String): String {
+    private fun git(
+        vararg arguments: String
+    ): String {
         val rootDirectory = projectRootDirectory.get().asFile
-        val safeDirectory = rootDirectory.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+        val safeDirectory = rootDirectory.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(rootDirectory)
             .start()
         val output = ByteArrayOutputStream()

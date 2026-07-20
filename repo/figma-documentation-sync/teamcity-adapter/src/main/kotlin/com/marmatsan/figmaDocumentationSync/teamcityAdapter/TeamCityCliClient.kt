@@ -14,11 +14,22 @@ class TeamCityCliClient(
     private val workingDirectory: File? = null,
     private val execute: (List<String>, Map<String, String?>) -> CommandResult =
         { arguments, commandEnvironment ->
-            executeProcess(arguments, commandEnvironment, workingDirectory)
+            executeProcess(
+                arguments = arguments,
+                environment = commandEnvironment,
+                workingDirectory = workingDirectory
+            )
         }
 ) : TeamCityBuildArtifactClient, TeamCityRunClient {
-    override fun readBuild(buildId: Long): TeamCityBuild {
-        val root = executeJson("run", "view", buildId.toString(), "--json")
+    override fun readBuild(
+        buildId: Long
+    ): TeamCityBuild {
+        val root = executeJson(
+            "run",
+            "view",
+            buildId.toString(),
+            "--json"
+        )
         val buildType = root["buildType"]?.jsonObject
             ?: throw IllegalArgumentException("TeamCity build JSON is missing 'buildType'.")
 
@@ -55,8 +66,18 @@ class TeamCityCliClient(
         return root["build"]?.jsonArray.orEmpty().map { it.jsonObject.toTeamCityRun() }
     }
 
-    override fun startRun(buildTypeId: String, branch: String): TeamCityRun =
-        executeJson("run", "start", buildTypeId, "--branch", branch, "--json")
+    override fun startRun(
+        buildTypeId: String,
+        branch: String
+    ): TeamCityRun =
+        executeJson(
+            "run",
+            "start",
+            buildTypeId,
+            "--branch",
+            branch,
+            "--json"
+        )
             .toTeamCityRun()
 
     override fun watchRun(
@@ -82,10 +103,20 @@ class TeamCityCliClient(
         ).toTeamCityRun()
     }
 
-    override fun readRun(buildId: Long): TeamCityRun =
-        executeJson("run", "view", buildId.toString(), "--json").toTeamCityRun()
+    override fun readRun(
+        buildId: Long
+    ): TeamCityRun =
+        executeJson(
+            "run",
+            "view",
+            buildId.toString(),
+            "--json"
+        ).toTeamCityRun()
 
-    override fun downloadArtifacts(buildId: Long, outputDirectory: File) {
+    override fun downloadArtifacts(
+        buildId: Long,
+        outputDirectory: File
+    ) {
         outputDirectory.mkdirs()
         executeTeamCity(
             "run",
@@ -96,20 +127,34 @@ class TeamCityCliClient(
         )
     }
 
-    private fun executeTeamCity(vararg arguments: String): CommandResult {
-        val command = listOf("teamcity", "--no-color", "--no-input") + arguments
-        val result = execute(command, environment)
+    private fun executeTeamCity(
+        vararg arguments: String
+    ): CommandResult {
+        val command = listOf(
+            "teamcity",
+            "--no-color",
+            "--no-input"
+        ) + arguments
+        val result = execute(
+            command,
+            environment
+        )
         require(result.exitCode == 0) {
             "TeamCity CLI failed with exit code ${result.exitCode}: ${result.error.trim()}"
         }
         return result
     }
 
-    private fun executeJson(vararg arguments: String): JsonObject {
+    private fun executeJson(
+        vararg arguments: String
+    ): JsonObject {
         val result = executeTeamCity(*arguments)
         val root = runCatching { Json.parseToJsonElement(result.output).jsonObject }
             .getOrElse { error ->
-                throw IllegalArgumentException("TeamCity CLI returned invalid JSON.", error)
+                throw IllegalArgumentException(
+                    "TeamCity CLI returned invalid JSON.",
+                    error
+                )
             }
         root["error"]?.jsonObject?.let { error ->
             val message = error["message"]?.jsonPrimitive?.content ?: "unknown TeamCity CLI error"
@@ -153,14 +198,20 @@ class TeamCityCliClient(
     }
 }
 
-private fun JsonObject.requiredString(name: String): String =
+private fun JsonObject.requiredString(
+    name: String
+): String =
     this[name]?.jsonPrimitive?.content
         ?: throw IllegalArgumentException("TeamCity build JSON is missing '$name'.")
 
 private fun JsonObject.toTeamCityRun(): TeamCityRun =
     TeamCityRun(
-        id = requiredString("id").toLong(),
-        state = requiredString("state"),
+        id = requiredString(
+            name = "id"
+        ).toLong(),
+        state = requiredString(
+            name = "state"
+        ),
         status = this["status"]?.jsonPrimitive?.content,
         statusText = this["statusText"]?.jsonPrimitive?.content,
         branchName = this["branchName"]?.jsonPrimitive?.content,

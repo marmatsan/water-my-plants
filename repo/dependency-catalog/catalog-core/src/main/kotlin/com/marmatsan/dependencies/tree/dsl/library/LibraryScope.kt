@@ -28,7 +28,10 @@ class LibraryScope(
         version: String? = null
     ) {
         val newEntry = LibraryEntry.Single(
-            artifact = Artifact(artifact, version)
+            artifact = Artifact(
+                artifact,
+                version
+            )
         )
         entries = (entries ?: mutableListOf()).apply { add(newEntry) }
     }
@@ -56,7 +59,10 @@ class LibraryScope(
         val newEntry = LibraryEntry.Bundle(
             artifactsBundle = ArtifactsBundle(
                 alias = alias,
-                artifacts = artifacts.map { Artifact(it, version) },
+                artifacts = artifacts.map { Artifact(
+                    it,
+                    version
+                ) },
                 version = version
             )
         )
@@ -95,7 +101,9 @@ class LibraryScope(
         val node = Node(DependencyNode.Library(group))
         currentParent.add(node)
 
-        val childScope = LibraryScope(node)
+        val childScope = LibraryScope(
+            root = node
+        )
         content?.invoke(childScope)
 
         val updatedNodeValue = node.value.copy(

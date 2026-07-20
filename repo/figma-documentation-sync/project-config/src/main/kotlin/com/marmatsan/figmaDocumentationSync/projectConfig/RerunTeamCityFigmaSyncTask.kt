@@ -10,7 +10,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for validating or rerunning the official TeamCity Figma Sync pipeline. */
-@DisableCachingByDefault(because = "Reads and mutates external TeamCity run state")
+@DisableCachingByDefault(
+    because = "Reads and mutates external TeamCity run state"
+)
 abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
     @get:Input
     abstract val serverUrl: Property<String>

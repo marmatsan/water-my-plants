@@ -16,20 +16,47 @@ internal class FigmaChangeImpactClassifier {
     ): FigmaChangeImpact {
         val changedPaths = changeSet.changedPaths.map(::normalizePath)
         val documentationOnly = changedPaths.isNotEmpty() && changedPaths.all { path ->
-            matchesAny(path, policy.documentationOnlyPaths)
+            matchesAny(
+                path = path,
+                patterns = policy.documentationOnlyPaths
+            )
         }
         val transportOnly = !documentationOnly && changedPaths.isNotEmpty() && changedPaths.all { path ->
-            matchesAny(path, policy.documentationOnlyPaths) || matchesAny(path, policy.transportOnlyPaths)
+            matchesAny(
+                path = path,
+                patterns = policy.documentationOnlyPaths
+            ) || matchesAny(
+                path = path,
+                patterns = policy.transportOnlyPaths
+            )
         }
         val modelNeutralOnly = !documentationOnly && !transportOnly && changedPaths.isNotEmpty() &&
             changedPaths.all { path ->
-                matchesAny(path, policy.documentationOnlyPaths) ||
-                    matchesAny(path, policy.transportOnlyPaths) ||
-                    matchesAny(path, policy.modelNeutralPaths)
+                matchesAny(
+                    path = path,
+                    patterns = policy.documentationOnlyPaths
+                ) ||
+                    matchesAny(
+                        path = path,
+                        patterns = policy.transportOnlyPaths
+                    ) ||
+                    matchesAny(
+                        path = path,
+                        patterns = policy.modelNeutralPaths
+                    )
             }
-        val modelContentChanged = changedPaths.any { path -> matchesAny(path, policy.modelContentPaths) }
-        val visualWriterPaths = changedPaths.filter { path -> matchesAny(path, policy.visualWriterPaths) }
-        val affectedVisualTargets = affectedVisualTargets(visualWriterPaths, policy)
+        val modelContentChanged = changedPaths.any { path -> matchesAny(
+            path = path,
+            patterns = policy.modelContentPaths
+        ) }
+        val visualWriterPaths = changedPaths.filter { path -> matchesAny(
+            path = path,
+            patterns = policy.visualWriterPaths
+        ) }
+        val affectedVisualTargets = affectedVisualTargets(
+            visualWriterPaths = visualWriterPaths,
+            policy = policy
+        )
 
         val impact = when {
             documentationOnly -> FigmaImpact.DOCUMENTATION_ONLY
@@ -61,20 +88,35 @@ internal class FigmaChangeImpactClassifier {
     ): List<String> {
         val targets = linkedSetOf<String>()
         policy.visualTargetRules.forEach { rule ->
-            if (visualWriterPaths.any { path -> matchesAny(path, rule.paths) }) {
+            if (visualWriterPaths.any { path -> matchesAny(
+                path = path,
+                patterns = rule.paths
+            ) }) {
                 targets += rule.targets
             }
         }
         val hasUnmappedWriter = visualWriterPaths.any { path ->
-            policy.visualTargetRules.none { rule -> matchesAny(path, rule.paths) }
+            policy.visualTargetRules.none { rule -> matchesAny(
+                path = path,
+                patterns = rule.paths
+            ) }
         }
         return if (hasUnmappedWriter) listOf(ALL_TARGETS) else targets.toList()
     }
 
-    private fun matchesAny(path: String, patterns: List<String>): Boolean =
-        patterns.any { pattern -> globRegex(normalizePath(pattern)).matches(path) }
+    private fun matchesAny(
+        path: String,
+        patterns: List<String>
+    ): Boolean =
+        patterns.any { pattern -> globRegex(
+            pattern = normalizePath(
+                path = pattern
+            )
+        ).matches(path) }
 
-    private fun globRegex(pattern: String): Regex = Regex(
+    private fun globRegex(
+        pattern: String
+    ): Regex = Regex(
         buildString {
             append('^')
             pattern.forEach { character ->
@@ -89,7 +131,12 @@ internal class FigmaChangeImpactClassifier {
         RegexOption.IGNORE_CASE
     )
 
-    private fun normalizePath(path: String): String = path.trim().replace('\\', '/')
+    private fun normalizePath(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    )
 
     private companion object {
         const val ALL_TARGETS = "all"

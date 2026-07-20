@@ -2,7 +2,9 @@ package com.marmatsan.figmaDocumentationSync.data.ci.configuration
 
 /** Creates the CI adapter selected by the project configuration. */
 object CiConfigurationProviderFactory {
-    fun create(providerClassName: String): CiConfigurationProvider {
+    fun create(
+        providerClassName: String
+    ): CiConfigurationProvider {
         require(providerClassName.isNotBlank()) {
             "figmaDocumentationSync.ciConfigurationProviderClassName must not be blank"
         }

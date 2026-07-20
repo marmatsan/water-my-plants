@@ -19,7 +19,8 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class DependenciesCatalogTreesReaderTest : FunSpec({
+internal class DependenciesCatalogTreesReaderTest : FunSpec(
+    {
 
     test("readLibraryTree maps dependency library trees to catalog library trees") {
         // GIVEN
@@ -122,7 +123,9 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
     test("readLibraryTreeWithVersionAliases maps versions as property aliases") {
         // WHEN
-        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(rootDir = java.io.File("."))
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
+            rootDir = java.io.File(".")
+        )
 
         // THEN
         val activity = actualTree.roots
@@ -137,7 +140,9 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
 
     test("readPluginTreeWithVersionAliases maps plugin versions as property aliases") {
         // WHEN
-        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(rootDir = java.io.File("."))
+        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(
+            rootDir = java.io.File(".")
+        )
 
         // THEN
         actualTree.findPlugin("com.google.devtools.ksp").version shouldBe CatalogVersion("kspPluginVersion")
@@ -175,13 +180,27 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         )
 
         // WHEN
-        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(rootDir = rootDir)
+        val actualTree = dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
+            rootDir = rootDir
+        )
 
         // THEN
-        actualTree.findArtifact("androidx.core", "core-ktx").requiredByModules shouldBe listOf(":app")
-        actualTree.findArtifact("androidx.compose", "compose-bom").requiredByModules shouldBe listOf(":app")
-        actualTree.findBundle("androidx.compose.ui", "composeBundle").requiredByModules shouldBe listOf(":app")
-        actualTree.findArtifact("io.mockk", "mockk").requiredByModules shouldBe emptyList()
+        actualTree.findArtifact(
+            "androidx.core",
+            "core-ktx"
+        ).requiredByModules shouldBe listOf(":app")
+        actualTree.findArtifact(
+            "androidx.compose",
+            "compose-bom"
+        ).requiredByModules shouldBe listOf(":app")
+        actualTree.findBundle(
+            "androidx.compose.ui",
+            "composeBundle"
+        ).requiredByModules shouldBe listOf(":app")
+        actualTree.findArtifact(
+            "io.mockk",
+            "mockk"
+        ).requiredByModules shouldBe emptyList()
     }
 
     test("readLibraryTreeWithVersionAliases maps convention plugin providers to main build modules") {
@@ -286,7 +305,10 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
             ConventionPluginUsage(
                 pluginId = "com.marmatsan.compose",
                 pluginModule = ":gradle-plugins:compose",
-                requiredByModules = listOf(":app", ":core:ui")
+                requiredByModules = listOf(
+                    ":app",
+                    ":core:ui"
+                )
             )
         )
         val expectedUnusedUnitTestUsage = listOf(
@@ -296,11 +318,20 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
                 requiredByModules = emptyList()
             )
         )
-        actualTree.findArtifact("androidx.activity", "activity-compose")
+        actualTree.findArtifact(
+            "androidx.activity",
+            "activity-compose"
+        )
             .providedByConventionPlugins shouldBe expectedComposeUsage
-        actualTree.findBundle("androidx.compose.ui", "composeBundle")
+        actualTree.findBundle(
+            "androidx.compose.ui",
+            "composeBundle"
+        )
             .providedByConventionPlugins shouldBe expectedComposeUsage
-        actualTree.findArtifact("io.mockk", "mockk")
+        actualTree.findArtifact(
+            "io.mockk",
+            "mockk"
+        )
             .providedByConventionPlugins shouldBe expectedUnusedUnitTestUsage
     }
 
@@ -357,7 +388,10 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         )
 
         // THEN
-        val protobufKotlin = actualTree.findArtifact("com.google.protobuf", "protobuf-kotlin")
+        val protobufKotlin = actualTree.findArtifact(
+            "com.google.protobuf",
+            "protobuf-kotlin"
+        )
         protobufKotlin.requiredByModules shouldBe emptyList()
         protobufKotlin.providedByConventionPlugins shouldBe listOf(
             ConventionPluginUsage(
@@ -368,7 +402,10 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         )
         protobufKotlin.configuredByConventionPlugins shouldBe emptyList()
 
-        val protoc = actualTree.findArtifact("com.google.protobuf", "protoc")
+        val protoc = actualTree.findArtifact(
+            "com.google.protobuf",
+            "protoc"
+        )
         protoc.requiredByModules shouldBe emptyList()
         protoc.providedByConventionPlugins shouldBe emptyList()
         protoc.configuredByConventionPlugins shouldBe listOf(
@@ -416,7 +453,9 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         )
 
         // WHEN
-        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(rootDir = rootDir)
+        val actualTree = dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(
+            rootDir = rootDir
+        )
 
         // THEN
         actualTree.findPlugin("com.android.application").appliedToModules shouldBe listOf(":app")
@@ -515,29 +554,35 @@ internal class DependenciesCatalogTreesReaderTest : FunSpec({
         // THEN
         actualTree.findPlugin("org.jetbrains.kotlin.plugin.compose")
             .providedByConventionPlugins shouldBe listOf(
-            PluginCatalogNode.ConventionPluginUsage(
-                pluginId = "com.marmatsan.compose",
-                pluginModule = ":gradle-plugins:compose",
-                requiredByModules = listOf(":app", ":core:ui")
+                PluginCatalogNode.ConventionPluginUsage(
+                    pluginId = "com.marmatsan.compose",
+                    pluginModule = ":gradle-plugins:compose",
+                    requiredByModules = listOf(
+                        ":app",
+                        ":core:ui"
+                    )
+                )
             )
-        )
         actualTree.findPlugin("com.google.devtools.ksp")
             .providedByConventionPlugins shouldBe listOf(
-            PluginCatalogNode.ConventionPluginUsage(
-                pluginId = "com.marmatsan.android",
-                pluginModule = ":gradle-plugins:android",
-                requiredByModules = listOf(":onboarding:ui")
+                PluginCatalogNode.ConventionPluginUsage(
+                    pluginId = "com.marmatsan.android",
+                    pluginModule = ":gradle-plugins:android",
+                    requiredByModules = listOf(":onboarding:ui")
+                )
             )
-        )
         actualTree.findPlugin("org.jetbrains.dokka").providedByConventionPlugins shouldBe emptyList()
     }
-})
+}
+)
 
 private fun dependenciesCatalogTreesReader() =
     DependenciesCatalogTreesReader(
         gradleCatalogUsageReader = GradleCatalogUsageReader(),
         dependencyCatalogProvider = object : DependencyCatalogProvider {
-            override fun resolved(rootDir: File): DependencyCatalogTrees =
+            override fun resolved(
+                rootDir: File
+            ): DependencyCatalogTrees =
                 WaterMyPlantsCatalog.resolved(rootDir)
 
             override fun withVersionAliases(): DependencyCatalogTrees =
@@ -549,7 +594,9 @@ private fun LibraryCatalogTree.findArtifact(
     groupPath: String,
     artifact: String
 ): LibraryCatalogEntry.Artifact =
-    findLibraryNode(groupPath)
+    findLibraryNode(
+        groupPath = groupPath
+    )
         .entries
         .filterIsInstance<LibraryCatalogEntry.Artifact>()
         .first { entry -> entry.artifact == artifact }
@@ -558,12 +605,16 @@ private fun LibraryCatalogTree.findBundle(
     groupPath: String,
     alias: String
 ): LibraryCatalogEntry.ArtifactsBundle =
-    findLibraryNode(groupPath)
+    findLibraryNode(
+        groupPath = groupPath
+    )
         .entries
         .filterIsInstance<LibraryCatalogEntry.ArtifactsBundle>()
         .first { entry -> entry.alias == alias }
 
-private fun LibraryCatalogTree.findLibraryNode(groupPath: String): LibraryCatalogNode {
+private fun LibraryCatalogTree.findLibraryNode(
+    groupPath: String
+): LibraryCatalogNode {
     val segments = groupPath.split(".")
 
     return segments.foldIndexed(null as LibraryCatalogNode?) { index, node, segment ->
@@ -572,7 +623,9 @@ private fun LibraryCatalogTree.findLibraryNode(groupPath: String): LibraryCatalo
     } ?: error("Library group '$groupPath' was not found")
 }
 
-private fun PluginCatalogTree.findPlugin(pluginId: String): PluginCatalogNode {
+private fun PluginCatalogTree.findPlugin(
+    pluginId: String
+): PluginCatalogNode {
     val segments = pluginId.split(".")
 
     return segments.foldIndexed(null as PluginCatalogNode?) { index, node, segment ->

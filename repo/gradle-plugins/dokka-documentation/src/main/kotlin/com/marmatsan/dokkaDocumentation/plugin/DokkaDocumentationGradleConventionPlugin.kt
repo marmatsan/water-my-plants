@@ -8,14 +8,21 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 @Suppress("unused")
 class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         project.pluginManager.apply("org.jetbrains.dokka")
 
         val remoteSourceRootUrl = project.providers.gradleProperty(REMOTE_SOURCE_ROOT_URL_PROPERTY)
             .map { url -> url.trimEnd('/') }
 
         project.extensions.configure<DokkaExtension> {
-            moduleName.convention(project.path.removePrefix(":").replace(':', '/'))
+            moduleName.convention(
+                project.path.removePrefix(":").replace(
+                    ':',
+                    '/'
+                )
+            )
 
             dokkaSourceSets.configureEach {
                 documentedVisibilities.set(setOf(VisibilityModifier.Public))

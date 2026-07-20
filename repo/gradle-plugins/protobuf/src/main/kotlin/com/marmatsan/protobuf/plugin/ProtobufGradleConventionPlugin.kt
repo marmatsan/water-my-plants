@@ -11,7 +11,9 @@ import org.gradle.kotlin.dsl.getByType
 
 @Suppress("unused")
 class ProtobufGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         // Applied plugins
         project.pluginManager.apply("com.google.protobuf")
 

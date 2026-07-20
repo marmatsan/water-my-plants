@@ -3,7 +3,9 @@ plugins {
     `kotlin-dsl` apply false
 }
 
-@DisableCachingByDefault(because = "The verification task has no reusable output artifact")
+@DisableCachingByDefault(
+    because = "The verification task has no reusable output artifact"
+)
 abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     @get:Input
     abstract val mavenVersion: Property<String>
@@ -77,7 +79,10 @@ tasks.register<Exec>("verifyStagedPublication") {
 
     val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
     val wrapper = layout.projectDirectory.file(
-        if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+        if (System.getProperty("os.name").startsWith(
+            "Windows",
+            ignoreCase = true
+        )) {
             "../../gradlew.bat"
         } else {
             "../../gradlew"

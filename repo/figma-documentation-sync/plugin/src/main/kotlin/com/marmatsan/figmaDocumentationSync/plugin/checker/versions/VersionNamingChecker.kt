@@ -12,14 +12,20 @@ import me.tatarka.inject.annotations.Inject
 internal class VersionNamingChecker(
     private val repositoryVersionsPort: RepositoryVersionsPort
 ) {
-    fun check(request: VersionNamingCheckRequest): VersionNamingCheckResult {
+    fun check(
+        request: VersionNamingCheckRequest
+    ): VersionNamingCheckResult {
         val sections = repositoryVersionsPort.readVersionSections(
             VersionsFileSource(request.versionsFile.absolutePath)
         )
         val violations = mutableListOf<VersionNamingViolation>()
 
-        violations += checkSectionOrder(sections)
-        violations += checkMainProjectDependencies(sections)
+        violations += checkSectionOrder(
+            sections = sections
+        )
+        violations += checkMainProjectDependencies(
+            sections = sections
+        )
         violations += checkSuffixes(
             sections = sections,
             sectionName = LIBRARIES_SECTION,
@@ -31,10 +37,14 @@ internal class VersionNamingChecker(
             suffix = PLUGIN_VERSION_SUFFIX
         )
 
-        return VersionNamingCheckResult(violations = violations)
+        return VersionNamingCheckResult(
+            violations = violations
+        )
     }
 
-    private fun checkSectionOrder(sections: List<RepositoryVersionSection>): List<VersionNamingViolation> {
+    private fun checkSectionOrder(
+        sections: List<RepositoryVersionSection>
+    ): List<VersionNamingViolation> {
         val actualSectionNames = sections.map(RepositoryVersionSection::name)
         return if (actualSectionNames == EXPECTED_SECTION_NAMES) {
             emptyList()

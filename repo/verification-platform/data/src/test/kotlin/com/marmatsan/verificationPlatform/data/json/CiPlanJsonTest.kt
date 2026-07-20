@@ -6,7 +6,8 @@ import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class CiPlanJsonTest : FunSpec({
+class CiPlanJsonTest : FunSpec(
+    {
     test("round trips the versioned verification contract") {
         val expected = CiPlanFactory().create(
             changeSet = RepositoryChangeSet(
@@ -20,4 +21,5 @@ class CiPlanJsonTest : FunSpec({
 
         json.read(kotlinx.serialization.json.Json.encodeToString(expected)) shouldBe expected
     }
-})
+}
+)

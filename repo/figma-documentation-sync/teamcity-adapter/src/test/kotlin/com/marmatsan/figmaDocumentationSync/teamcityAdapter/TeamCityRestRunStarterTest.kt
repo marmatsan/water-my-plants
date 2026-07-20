@@ -6,7 +6,8 @@ import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import java.net.URI
 
-internal class TeamCityRestRunStarterTest : FunSpec({
+internal class TeamCityRestRunStarterTest : FunSpec(
+    {
     test("queues a run with Bearer and Cloudflare headers but no cookies") {
         var requestedUri: URI? = null
         var requestedHeaders: Map<String, String>? = null
@@ -33,7 +34,10 @@ internal class TeamCityRestRunStarterTest : FunSpec({
             )
         }
 
-        starter.startRun("WaterMyPlants_WaterMyPlantsFigmaSync", "main") shouldBe
+        starter.startRun(
+            "WaterMyPlants_WaterMyPlantsFigmaSync",
+            "main"
+        ) shouldBe
             TeamCityRun(
                 id = 1680,
                 state = "queued",
@@ -61,11 +65,17 @@ internal class TeamCityRestRunStarterTest : FunSpec({
             teamCityToken = "teamcity-token",
             cloudflareAccessToken = "cloudflare-token"
         ) { _, _, _ ->
-            TeamCityRestRunStarter.Response(statusCode = 302, body = "redirect")
+            TeamCityRestRunStarter.Response(
+                statusCode = 302,
+                body = "redirect"
+            )
         }
 
         val exception = shouldThrow<IllegalArgumentException> {
-            starter.startRun("WaterMyPlants_WaterMyPlantsFigmaSync", "main")
+            starter.startRun(
+                "WaterMyPlants_WaterMyPlantsFigmaSync",
+                "main"
+            )
         }
 
         exception.message shouldBe
@@ -78,11 +88,17 @@ internal class TeamCityRestRunStarterTest : FunSpec({
             teamCityToken = "teamcity-token",
             cloudflareAccessToken = "cloudflare-token"
         ) { _, _, _ ->
-            TeamCityRestRunStarter.Response(statusCode = 200, body = "not-json")
+            TeamCityRestRunStarter.Response(
+                statusCode = 200,
+                body = "not-json"
+            )
         }
 
         val exception = shouldThrow<IllegalArgumentException> {
-            starter.startRun("WaterMyPlants_WaterMyPlantsFigmaSync", "main")
+            starter.startRun(
+                "WaterMyPlants_WaterMyPlantsFigmaSync",
+                "main"
+            )
         }
 
         exception.message shouldBe "TeamCity REST returned invalid JSON."
@@ -99,4 +115,5 @@ internal class TeamCityRestRunStarterTest : FunSpec({
 
         exception.message shouldBe "The public TeamCity automation endpoint must use HTTPS."
     }
-})
+}
+)

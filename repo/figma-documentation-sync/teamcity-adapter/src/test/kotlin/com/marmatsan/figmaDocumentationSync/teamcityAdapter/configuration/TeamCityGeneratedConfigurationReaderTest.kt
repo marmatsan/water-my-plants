@@ -7,7 +7,8 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
+internal class TeamCityGeneratedConfigurationReaderTest : FunSpec(
+    {
 
     test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
         // GIVEN
@@ -64,8 +65,12 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
             </build-type>
             """.trimIndent()
         )
-        writeStatusGate(root)
-        writeVcsRoot(root)
+        writeStatusGate(
+            root = root
+        )
+        writeVcsRoot(
+            root = root
+        )
 
         // WHEN
         val configuration = TeamCityGeneratedConfigurationReader().read(root)
@@ -100,11 +105,17 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         vcsRoot.id shouldBe "Root_GitHub"
         vcsRoot.name shouldBe "water-my-plants"
         vcsRoot.defaultBranchRef shouldBe "refs/heads/main"
-        vcsRoot.branchSpec shouldBe listOf("#! fallbackToDefault: false", "+:refs/heads/(*)")
+        vcsRoot.branchSpec shouldBe listOf(
+            "#! fallbackToDefault: false",
+            "+:refs/heads/(*)"
+        )
     }
-})
+}
+)
 
-private fun writeStatusGate(root: File) {
+private fun writeStatusGate(
+    root: File
+) {
     val buildTypes = root.resolve("Root/buildTypes").apply { mkdirs() }
     buildTypes.resolve("Root_CiGate.xml").writeText(
         """
@@ -136,7 +147,9 @@ private fun writeStatusGate(root: File) {
     )
 }
 
-private fun writeVcsRoot(root: File) {
+private fun writeVcsRoot(
+    root: File
+) {
     val vcsRoots = root.resolve("Root/vcsRoots").apply { mkdirs() }
     vcsRoots.resolve("Root_GitHub.xml").writeText(
         """

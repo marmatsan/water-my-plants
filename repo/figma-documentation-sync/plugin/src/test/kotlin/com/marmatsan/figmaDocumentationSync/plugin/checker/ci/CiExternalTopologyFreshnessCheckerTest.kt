@@ -7,7 +7,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-internal class CiExternalTopologyFreshnessCheckerTest : FunSpec({
+internal class CiExternalTopologyFreshnessCheckerTest : FunSpec(
+    {
 
     test("check requests a warning only after the configured validation window") {
         val checker = CiExternalTopologyFreshnessChecker(FakeCiExternalTopologyPort)
@@ -22,10 +23,13 @@ internal class CiExternalTopologyFreshnessCheckerTest : FunSpec({
             currentDate = LocalDate.parse("2026-10-13")
         ).warningRequired shouldBe true
     }
-})
+}
+)
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
-    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+    override fun readTopology(
+        source: CiExternalTopologySource
+    ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(

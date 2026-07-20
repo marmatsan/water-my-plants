@@ -13,7 +13,10 @@ import java.time.LocalDate
 internal class CiWindowsRuntimeFreshnessChecker(
     private val ciWindowsRuntimePort: CiWindowsRuntimePort
 ) {
-    fun check(runtimeFile: File, currentDate: LocalDate): Result {
+    fun check(
+        runtimeFile: File,
+        currentDate: LocalDate
+    ): Result {
         val runtime = ciWindowsRuntimePort.readRuntime(
             CiWindowsRuntimeSource(runtimeFile.absolutePath)
         )

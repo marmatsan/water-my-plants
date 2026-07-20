@@ -14,6 +14,8 @@ import java.io.File
 class CiExternalTopologyDataSource(
     private val reader: CiExternalTopologyYamlReader
 ) : CiExternalTopologyPort {
-    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+    override fun readTopology(
+        source: CiExternalTopologySource
+    ): CiExternalTopology =
         reader.read(File(source.path))
 }

@@ -39,15 +39,24 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class FigmaDesignModelGeneratorTest : FunSpec({
+internal class FigmaDesignModelGeneratorTest : FunSpec(
+    {
 
     test("generate keeps the same model hash when only generatedAt changes") {
         // GIVEN
         val generator = generator()
 
         // WHEN
-        val first = generator.generate(request(generatedAt = Instant.parse("2026-06-19T10:15:30Z")))
-        val second = generator.generate(request(generatedAt = Instant.parse("2026-06-19T10:16:30Z")))
+        val first = generator.generate(
+            request(
+                generatedAt = Instant.parse("2026-06-19T10:15:30Z")
+            )
+        )
+        val second = generator.generate(
+            request(
+                generatedAt = Instant.parse("2026-06-19T10:16:30Z")
+            )
+        )
 
         // THEN
         first.modelHash shouldBe second.modelHash
@@ -60,8 +69,16 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val first = generator.generate(request(gitSha = "abc123"))
-        val second = generator.generate(request(gitSha = "def456"))
+        val first = generator.generate(
+            request(
+                gitSha = "abc123"
+            )
+        )
+        val second = generator.generate(
+            request(
+                gitSha = "def456"
+            )
+        )
 
         // THEN
         first.modelHash shouldBe first.model["modelHash"]?.jsonPrimitive?.content
@@ -123,7 +140,11 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
 
         sections?.map { section ->
             section.jsonObject["name"]?.jsonPrimitive?.content
-        } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
+        } shouldBe listOf(
+            "Main project dependencies",
+            "Libraries",
+            "Plugins"
+        )
     }
 
     test("generate writes convention plugin provenance for library artifacts") {
@@ -162,7 +183,10 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             Triple(
                 "com.marmatsan.compose",
                 ":gradle-plugins:compose",
-                listOf(":app", ":core:ui")
+                listOf(
+                    ":app",
+                    ":core:ui"
+                )
             )
         )
     }
@@ -240,7 +264,10 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             Triple(
                 "com.marmatsan.compose",
                 ":gradle-plugins:compose",
-                listOf(":app", ":core:ui")
+                listOf(
+                    ":app",
+                    ":core:ui"
+                )
             )
         )
     }
@@ -281,7 +308,8 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             ?.get("pipelines")?.jsonArray?.single()?.jsonObject
             ?.get("name")?.jsonPrimitive?.content shouldBe "CI"
     }
-})
+}
+)
 
 private fun generator(): FigmaDesignModelGenerator =
     FigmaDesignModelGenerator(
@@ -326,7 +354,9 @@ private fun request(
     )
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
-    override fun readVersions(source: VersionsFileSource): Map<String, String> =
+    override fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String> =
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
@@ -334,7 +364,9 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             "kspPluginVersion" to "2.3.9"
         )
 
-    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+    override fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
                 name = "Main project dependencies",
@@ -355,9 +387,13 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree {
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree {
         if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
-            return LibraryCatalogTree(roots = emptyList())
+            return LibraryCatalogTree(
+                roots = emptyList()
+            )
         }
 
         val conventionPluginUsages = if (
@@ -368,7 +404,10 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 ConventionPluginUsage(
                     pluginId = "com.marmatsan.compose",
                     pluginModule = ":gradle-plugins:compose",
-                    requiredByModules = listOf(":core:ui", ":app")
+                    requiredByModules = listOf(
+                        ":core:ui",
+                        ":app"
+                    )
                 )
             )
         } else {
@@ -407,9 +446,13 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         )
     }
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree {
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree {
         if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
-            return PluginCatalogTree(roots = emptyList())
+            return PluginCatalogTree(
+                roots = emptyList()
+            )
         }
 
         val conventionPluginUsages = if (
@@ -420,7 +463,10 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 PluginCatalogNode.ConventionPluginUsage(
                     pluginId = "com.marmatsan.compose",
                     pluginModule = ":gradle-plugins:compose",
-                    requiredByModules = listOf(":core:ui", ":app")
+                    requiredByModules = listOf(
+                        ":core:ui",
+                        ":app"
+                    )
                 )
             )
         } else {
@@ -441,12 +487,20 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
-    override fun readModules(source: ProjectModulesSource): Set<String> =
-        setOf(":onboarding:ui", ":app", ":core:ui")
+    override fun readModules(
+        source: ProjectModulesSource
+    ): Set<String> =
+        setOf(
+            ":onboarding:ui",
+            ":app",
+            ":core:ui"
+        )
 }
 
 private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort {
-    override fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency> =
+    override fun readModuleDependencies(
+        source: ProjectModuleDependenciesSource
+    ): Set<ModuleDependency> =
         setOf(
             ModuleDependency(
                 dependentModule = ":app",
@@ -456,7 +510,9 @@ private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort
 }
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
-    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+    override fun readTopology(
+        source: CiExternalTopologySource
+    ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(
@@ -476,7 +532,9 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
 }
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
-    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+    override fun readRuntime(
+        source: CiWindowsRuntimeSource
+    ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(
@@ -498,7 +556,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
 }
 
 private object FakeCiConfigurationPort : CiConfigurationPort {
-    override fun readConfiguration(source: CiGeneratedConfigurationSource): CiConfiguration =
+    override fun readConfiguration(
+        source: CiGeneratedConfigurationSource
+    ): CiConfiguration =
         CiConfiguration(
             pipelines = listOf(
                 CiPipeline(

@@ -7,7 +7,9 @@ data class CiTrigger(
     val dependencyPipelineId: String?,
     val afterSuccessfulBuildOnly: Boolean?
 ) {
-    enum class Type(val serializedName: String) {
+    enum class Type(
+        val serializedName: String
+    ) {
         Vcs("vcs"),
         PipelineFinish("pipeline finish"),
         Schedule("schedule")

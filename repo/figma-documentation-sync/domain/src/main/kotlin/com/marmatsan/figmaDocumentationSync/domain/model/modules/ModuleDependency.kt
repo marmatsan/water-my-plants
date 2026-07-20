@@ -20,11 +20,16 @@ data class ModuleDependency(
      * Orders dependency edges deterministically for stable JSON output and
      * stable Figma diffs.
      */
-    override fun compareTo(other: ModuleDependency): Int =
+    override fun compareTo(
+        other: ModuleDependency
+    ): Int =
         compareBy<ModuleDependency>(
             ModuleDependency::dependentModule,
             ModuleDependency::dependencyModule
-        ).compare(this, other)
+        ).compare(
+            this,
+            other
+        )
 
     /**
      * Renders the edge as a compact human-readable label used in diagnostics

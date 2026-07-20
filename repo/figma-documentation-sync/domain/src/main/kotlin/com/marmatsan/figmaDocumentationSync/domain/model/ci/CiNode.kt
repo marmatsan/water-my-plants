@@ -9,7 +9,9 @@ data class CiNode(
     val name: String,
     val description: String
 ) {
-    enum class Type(val serializedName: String) {
+    enum class Type(
+        val serializedName: String
+    ) {
         Actor("actor"),
         System("system"),
         GitReference("git reference"),

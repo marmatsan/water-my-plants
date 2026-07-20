@@ -14,8 +14,12 @@ class GitBranchNameValidator {
      * or CI provider.
      * @return normalized validation result with a stable failure explanation.
      */
-    fun validate(branchRef: String): GitBranchValidation {
-        val branch = normalize(branchRef)
+    fun validate(
+        branchRef: String
+    ): GitBranchValidation {
+        val branch = normalize(
+            branchRef = branchRef
+        )
         val providerManaged = PULL_REQUEST_REF.matches(branch)
         val valid = branch == MAIN_BRANCH ||
             providerManaged ||
@@ -36,8 +40,13 @@ class GitBranchNameValidator {
         )
     }
 
-    private fun normalize(branchRef: String): String {
-        val trimmed = branchRef.trim().replace('\\', '/')
+    private fun normalize(
+        branchRef: String
+    ): String {
+        val trimmed = branchRef.trim().replace(
+            '\\',
+            '/'
+        )
         return when {
             trimmed.startsWith("refs/remotes/origin/") -> trimmed.removePrefix("refs/remotes/origin/")
             trimmed.startsWith("refs/heads/") -> trimmed.removePrefix("refs/heads/")

@@ -15,24 +15,37 @@ class FileSystemDocumentationSource {
      *
      * @throws IllegalArgumentException when [repositoryRoot] is not a directory.
      */
-    fun read(repositoryRoot: File): DocumentationRepositorySnapshot {
+    fun read(
+        repositoryRoot: File
+    ): DocumentationRepositorySnapshot {
         val root = repositoryRoot.canonicalFile
         require(root.isDirectory) { "Documentation repository root is not a directory: $root" }
 
         val entries = mutableSetOf<String>()
         val documents = mutableListOf<DocumentationFile>()
         root.walkTopDown()
-            .onEnter { directory -> !isExcluded(root, directory) }
+            .onEnter { directory -> !isExcluded(
+                root = root,
+                directory = directory
+            ) }
             .forEach { entry ->
                 if (entry == root) return@forEach
                 val path = entry.relativeTo(root).invariantSeparatorsPath
                 entries.add(path)
                 if (entry.isFile &&
-                    entry.extension.equals("md", ignoreCase = true) &&
+                    entry.extension.equals(
+                        "md",
+                        ignoreCase = true
+                    ) &&
                     !path.startsWith("docs/templates/") &&
                     !path.contains("/docs/templates/")
                 ) {
-                    documents.add(DocumentationFile(path = path, content = entry.readText()))
+                    documents.add(
+                        DocumentationFile(
+                            path = path,
+                            content = entry.readText()
+                        )
+                    )
                 }
             }
 
@@ -42,7 +55,10 @@ class FileSystemDocumentationSource {
         )
     }
 
-    private fun isExcluded(root: File, directory: File): Boolean {
+    private fun isExcluded(
+        root: File,
+        directory: File
+    ): Boolean {
         if (directory == root) return false
         return directory.relativeTo(root).invariantSeparatorsPath
             .split('/')
@@ -50,6 +66,11 @@ class FileSystemDocumentationSource {
     }
 
     private companion object {
-        val EXCLUDED_DIRECTORIES = setOf(".git", "build", "node_modules", "tmp")
+        val EXCLUDED_DIRECTORIES = setOf(
+            ".git",
+            "build",
+            "node_modules",
+            "tmp"
+        )
     }
 }

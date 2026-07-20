@@ -12,7 +12,9 @@ fun Node<DependencyNode.Library>.toDependencyLibraries(): List<Dependency.Librar
             libraryNode.entries != null
         },
         mapNode = { libraryNode, libraryGroup ->
-            libraryNode.toDependencyLibrary(libraryGroup = libraryGroup)
+            libraryNode.toDependencyLibrary(
+                libraryGroup = libraryGroup
+            )
         }
     )
 
@@ -23,6 +25,8 @@ fun Node<DependencyNode.Plugin>.toDependencyPlugins(): List<Dependency.Plugin> =
             pluginNode.version != null
         },
         mapNode = { pluginNode, pluginId ->
-            pluginNode.toDependencyPlugin(pluginId = pluginId)
+            pluginNode.toDependencyPlugin(
+                pluginId = pluginId
+            )
         }
     )

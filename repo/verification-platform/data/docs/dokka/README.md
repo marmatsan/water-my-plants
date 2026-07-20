@@ -6,6 +6,15 @@ This module reads Git and Gradle state, serializes CI reports, formats TeamCity
 parameters and service messages, and calls the TeamCity queue API. It translates
 external systems into domain contracts but does not decide verification policy.
 
+# Package com.marmatsan.verificationPlatform.data.kotlin
+
+KtLint-backed parsing and formatting for repository-owned Kotlin source rules.
+The adapter enforces vertical declaration and call layout for `.kt` and `.kts`
+files. In `.kt` files it also indexes same-file functions and constructors so
+unambiguous positional calls can be rejected or rewritten with Kotlin parameter
+names. Calls that require compiler type resolution remain a compiler and review
+boundary.
+
 # Package com.marmatsan.verificationPlatform.data.git
 
 Git adapters that resolve committed repository changes.

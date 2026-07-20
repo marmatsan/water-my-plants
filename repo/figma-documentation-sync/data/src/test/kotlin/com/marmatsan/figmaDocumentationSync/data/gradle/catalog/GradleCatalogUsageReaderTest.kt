@@ -5,7 +5,8 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradleCatalogUsageReaderTest : FunSpec({
+internal class GradleCatalogUsageReaderTest : FunSpec(
+    {
 
     test("readConventionLibraryUsages maps wrapper catalog dependencies to convention modules") {
         // GIVEN
@@ -190,7 +191,10 @@ internal class GradleCatalogUsageReaderTest : FunSpec({
 
         // THEN
         usages shouldBe mapOf(
-            "com.marmatsan.android" to setOf(":app", ":core:ui"),
+            "com.marmatsan.android" to setOf(
+                ":app",
+                ":core:ui"
+            ),
             "com.marmatsan.compose" to setOf(":app")
         )
     }
@@ -244,7 +248,8 @@ internal class GradleCatalogUsageReaderTest : FunSpec({
         // THEN
         pluginIds shouldBe setOf("com.marmatsan.figmaDocumentationSync")
     }
-})
+}
+)
 
 private fun File.writeKotlinFile(
     path: String,

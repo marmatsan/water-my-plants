@@ -11,7 +11,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Queues the non-gating Infrastructure Health pipeline through a trusted TeamCity origin. */
-@DisableCachingByDefault(because = "Queues an external TeamCity pipeline")
+@DisableCachingByDefault(
+    because = "Queues an external TeamCity pipeline"
+)
 abstract class RunTeamCityInfrastructureHealthTask : DefaultTask() {
     /** Trusted TeamCity origin used by the REST adapter. */
     @get:Input

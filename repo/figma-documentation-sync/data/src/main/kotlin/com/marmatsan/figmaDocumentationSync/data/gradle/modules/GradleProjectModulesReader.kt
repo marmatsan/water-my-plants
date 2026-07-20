@@ -36,7 +36,9 @@ class GradleProjectModulesReader {
             emptySet()
         }
 
-        return (standaloneRootModule + includedModules + includedModules.existingAggregateModules(rootDir = settingsFile.parentFile))
+        return (standaloneRootModule + includedModules + includedModules.existingAggregateModules(
+            rootDir = settingsFile.parentFile
+        ))
             .map { module -> "$modulePathPrefix$module" }
             .toSet()
     }
@@ -64,7 +66,10 @@ class GradleProjectModulesReader {
     }
 
     private fun String.toRelativePath(): String =
-        removePrefix(":").replace(":", File.separator)
+        removePrefix(":").replace(
+            ":",
+            File.separator
+        )
 
     private companion object {
         const val BUILD_FILE_NAME = "build.gradle.kts"

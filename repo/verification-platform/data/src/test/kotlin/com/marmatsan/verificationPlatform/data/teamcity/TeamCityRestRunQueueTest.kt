@@ -8,7 +8,8 @@ import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import java.net.URI
 
-internal class TeamCityRestRunQueueTest : FunSpec({
+internal class TeamCityRestRunQueueTest : FunSpec(
+    {
     test("queues an infrastructure run through the loopback TeamCity origin") {
         var requestedUri: URI? = null
         var requestedHeaders: Map<String, String>? = null
@@ -59,7 +60,10 @@ internal class TeamCityRestRunQueueTest : FunSpec({
 
     test("rejects plain HTTP for a non-loopback TeamCity origin") {
         val failure = shouldThrow<IllegalArgumentException> {
-            TeamCityRestRunQueue("http://teamcity.example", "teamcity-token")
+            TeamCityRestRunQueue(
+                "http://teamcity.example",
+                "teamcity-token"
+            )
         }
 
         failure.message shouldBe "TeamCity automation requires HTTPS or an HTTP loopback origin."
@@ -70,13 +74,22 @@ internal class TeamCityRestRunQueueTest : FunSpec({
             serverUrl = "https://teamcity.example",
             teamCityToken = "teamcity-token"
         ) { _, _, _ ->
-            TeamCityRestRunQueue.Response(statusCode = 302, body = "redirect")
+            TeamCityRestRunQueue.Response(
+                statusCode = 302,
+                body = "redirect"
+            )
         }
 
         val failure = shouldThrow<IllegalArgumentException> {
-            queue.queue(TeamCityRunRequest("InfrastructureHealth", "main"))
+            queue.queue(
+                TeamCityRunRequest(
+                    "InfrastructureHealth",
+                    "main"
+                )
+            )
         }
 
         failure.message shouldBe "TeamCity REST queue request failed with HTTP 302: redirect"
     }
-})
+}
+)

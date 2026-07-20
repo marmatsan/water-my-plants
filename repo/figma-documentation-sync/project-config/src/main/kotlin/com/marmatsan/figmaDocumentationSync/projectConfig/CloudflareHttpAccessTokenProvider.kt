@@ -16,7 +16,12 @@ class CloudflareHttpAccessTokenProvider(
         clientSecret: String
     ): String {
         val endpoint = URI.create("${serverUrl.trimEnd('/')}/app/rest/server")
-        require(endpoint.scheme.equals("https", ignoreCase = true)) {
+        require(
+            endpoint.scheme.equals(
+                "https",
+                ignoreCase = true
+            )
+        ) {
             "The public TeamCity automation endpoint must use HTTPS."
         }
         val response = send(
@@ -55,7 +60,10 @@ class CloudflareHttpAccessTokenProvider(
             val response = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build()
-                .send(requestBuilder.build(), HttpResponse.BodyHandlers.discarding())
+                .send(
+                    requestBuilder.build(),
+                    HttpResponse.BodyHandlers.discarding()
+                )
             return CloudflareAccessResponse(
                 statusCode = response.statusCode(),
                 setCookieHeaders = response.headers().allValues("set-cookie")

@@ -4,7 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class TeamCityCliClientTest : FunSpec({
+internal class TeamCityCliClientTest : FunSpec(
+    {
     test("reads build identity through the TeamCity CLI JSON contract") {
         val commands = mutableListOf<List<String>>()
         val client = TeamCityCliClient { command, _ ->
@@ -52,10 +53,17 @@ internal class TeamCityCliClientTest : FunSpec({
         val commands = mutableListOf<List<String>>()
         val client = TeamCityCliClient { command, _ ->
             commands += command
-            TeamCityCliClient.CommandResult(exitCode = 0, output = "downloaded", error = "")
+            TeamCityCliClient.CommandResult(
+                exitCode = 0,
+                output = "downloaded",
+                error = ""
+            )
         }
 
-        client.downloadArtifacts(1573, output)
+        client.downloadArtifacts(
+            1573,
+            output
+        )
 
         output.isDirectory shouldBe true
         commands.single() shouldBe listOf(
@@ -81,7 +89,9 @@ internal class TeamCityCliClientTest : FunSpec({
             "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID" to null,
             "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null
         )
-        val client = TeamCityCliClient(environment = expectedEnvironment) { command, environment ->
+        val client = TeamCityCliClient(
+            environment = expectedEnvironment
+        ) { command, environment ->
             commands += command
             environments += environment
             TeamCityCliClient.CommandResult(
@@ -156,17 +166,41 @@ internal class TeamCityCliClientTest : FunSpec({
             )
         }
 
-        client.startRun("WaterMyPlants_WaterMyPlantsFigmaSync", "main").state shouldBe "queued"
-        client.watchRun(1581, pollIntervalSeconds = 10, timeoutMinutes = 60).status shouldBe "SUCCESS"
+        client.startRun(
+            "WaterMyPlants_WaterMyPlantsFigmaSync",
+            "main"
+        ).state shouldBe "queued"
+        client.watchRun(
+            1581,
+            pollIntervalSeconds = 10,
+            timeoutMinutes = 60
+        ).status shouldBe "SUCCESS"
         commands shouldBe listOf(
             listOf(
-                "teamcity", "--no-color", "--no-input", "run", "start",
-                "WaterMyPlants_WaterMyPlantsFigmaSync", "--branch", "main", "--json"
+                "teamcity",
+                "--no-color",
+                "--no-input",
+                "run",
+                "start",
+                "WaterMyPlants_WaterMyPlantsFigmaSync",
+                "--branch",
+                "main",
+                "--json"
             ),
             listOf(
-                "teamcity", "--no-color", "--no-input", "run", "watch", "1581",
-                "--interval", "10", "--timeout", "60m", "--json"
+                "teamcity",
+                "--no-color",
+                "--no-input",
+                "run",
+                "watch",
+                "1581",
+                "--interval",
+                "10",
+                "--timeout",
+                "60m",
+                "--json"
             )
         )
     }
-})
+}
+)

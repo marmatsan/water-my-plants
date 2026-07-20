@@ -5,11 +5,21 @@ import com.marmatsan.dependencies.tree.dsl.library.libraryTree
 internal fun libraryTrees(
     versions: Versions
 ) = listOf(
-    androidxLibrariesTree(versions),
-    comLibrariesTree(versions),
-    ioLibrariesTree(versions),
-    meLibrariesTree(versions),
-    orgLibrariesTree(versions)
+    androidxLibrariesTree(
+        versions = versions
+    ),
+    comLibrariesTree(
+        versions = versions
+    ),
+    ioLibrariesTree(
+        versions = versions
+    ),
+    meLibrariesTree(
+        versions = versions
+    ),
+    orgLibrariesTree(
+        versions = versions
+    )
 )
 
 private fun androidxLibrariesTree(

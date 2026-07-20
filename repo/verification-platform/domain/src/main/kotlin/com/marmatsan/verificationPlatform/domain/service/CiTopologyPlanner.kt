@@ -25,7 +25,10 @@ class CiTopologyPlanner {
      * @return a sequential or parallel preview containing every required unit
      * exactly once.
      */
-    fun create(plan: CiPlan, availableAgents: Int): CiExecutionTopology {
+    fun create(
+        plan: CiPlan,
+        availableAgents: Int
+    ): CiExecutionTopology {
         require(availableAgents >= 1) { "CI topology requires at least one available agent." }
 
         val requiredUnits = plan.verificationUnits.filter(VerificationUnit::required)
@@ -39,8 +42,13 @@ class CiTopologyPlanner {
             CiTopologyMode.MULTI_AGENT_PARALLEL
         }
         val lanes = when (mode) {
-            CiTopologyMode.SINGLE_AGENT_SEQUENTIAL -> singleAgentLanes(requiredUnits)
-            CiTopologyMode.MULTI_AGENT_PARALLEL -> multiAgentLanes(requiredUnits, availableAgents)
+            CiTopologyMode.SINGLE_AGENT_SEQUENTIAL -> singleAgentLanes(
+                requiredUnits = requiredUnits
+            )
+            CiTopologyMode.MULTI_AGENT_PARALLEL -> multiAgentLanes(
+                requiredUnits = requiredUnits,
+                availableAgents = availableAgents
+            )
         }
         check(lanes.flatMap(CiExecutionLane::verificationUnits) == requiredUnits.map(VerificationUnit::id)) {
             "CI topology must schedule every required verification unit exactly once and in plan order."
@@ -59,15 +67,26 @@ class CiTopologyPlanner {
         )
     }
 
-    private fun singleAgentLanes(requiredUnits: List<VerificationUnit>): List<CiExecutionLane> =
-        listOf(lane(VERIFY_LANE, requiredUnits, publishesAuthoritativeStatus = true))
+    private fun singleAgentLanes(
+        requiredUnits: List<VerificationUnit>
+    ): List<CiExecutionLane> =
+        listOf(
+            lane(
+                id = VERIFY_LANE,
+                units = requiredUnits,
+                publishesAuthoritativeStatus = true
+            )
+        )
 
     private fun multiAgentLanes(
         requiredUnits: List<VerificationUnit>,
         availableAgents: Int
     ): List<CiExecutionLane> {
         val laneIdByUnit = requiredUnits.associate { unit ->
-            unit.id to multiAgentLaneId(unit.id, availableAgents)
+            unit.id to multiAgentLaneId(
+                id = unit.id,
+                availableAgents = availableAgents
+            )
         }
         val orderedLaneIds = if (availableAgents == 2) TWO_AGENT_LANE_ORDER else MANY_AGENT_LANE_ORDER
         val unitsByLane = requiredUnits.groupBy { unit -> laneIdByUnit.getValue(unit.id) }
@@ -91,7 +110,10 @@ class CiTopologyPlanner {
         }
     }
 
-    private fun multiAgentLaneId(id: VerificationUnitId, availableAgents: Int): String =
+    private fun multiAgentLaneId(
+        id: VerificationUnitId,
+        availableAgents: Int
+    ): String =
         if (availableAgents == 2) {
             when (id) {
                 VerificationUnitId.GIT_WORKFLOW,

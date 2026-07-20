@@ -12,7 +12,9 @@ class DocumentationCoverageJson {
      * @throws kotlinx.serialization.SerializationException when the manifest is
      * malformed or does not satisfy the versioned JSON shape.
      */
-    fun read(source: String): List<DocumentationCoverageRule> =
+    fun read(
+        source: String
+    ): List<DocumentationCoverageRule> =
         format.decodeFromString<Manifest>(source).rules.map { rule ->
             DocumentationCoverageRule(
                 id = rule.id,

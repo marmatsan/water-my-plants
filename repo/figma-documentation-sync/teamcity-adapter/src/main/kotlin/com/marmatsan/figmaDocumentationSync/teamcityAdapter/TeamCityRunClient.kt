@@ -15,5 +15,7 @@ interface TeamCityRunClient : TeamCityRunStarter {
         timeoutMinutes: Int
     ): TeamCityRun
 
-    fun readRun(buildId: Long): TeamCityRun
+    fun readRun(
+        buildId: Long
+    ): TeamCityRun
 }

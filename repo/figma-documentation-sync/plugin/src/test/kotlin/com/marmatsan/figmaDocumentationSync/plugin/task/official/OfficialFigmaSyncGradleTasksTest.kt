@@ -11,7 +11,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
+internal class OfficialFigmaSyncGradleTasksTest : FunSpec(
+    {
     test("documentation-only scope skips model generation and metadata verification") {
         val project = Files.createTempDirectory("official-figma-sync-gradle").toFile()
         try {
@@ -23,7 +24,10 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
                 "-PfigmaChangedPaths=docs/example.md",
                 "--stacktrace"
             ).build()
-            val verification = project.runner("verifyOfficialFigmaSync", "--stacktrace").build()
+            val verification = project.runner(
+                "verifyOfficialFigmaSync",
+                "--stacktrace"
+            ).build()
             val scope = Json.parseToJsonElement(
                 project.resolve("build/reports/figma-sync/sync-scope.json").readText()
             ).jsonObject
@@ -82,9 +86,12 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
             project.deleteRecursively()
         }
     }
-})
+}
+)
 
-private fun File.runner(vararg arguments: String): GradleRunner =
+private fun File.runner(
+    vararg arguments: String
+): GradleRunner =
     GradleRunner.create()
         .withProjectDir(this)
         .withPluginClasspath()
@@ -123,12 +130,29 @@ private fun File.writeFixture() {
 
 private fun File.initializeGitRepository() {
     git("init")
-    git("checkout", "-b", "main")
-    git("add", ".")
-    git("-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-m", "Fixture")
+    git(
+        "checkout",
+        "-b",
+        "main"
+    )
+    git(
+        "add",
+        "."
+    )
+    git(
+        "-c",
+        "user.name=Test",
+        "-c",
+        "user.email=test@example.com",
+        "commit",
+        "-m",
+        "Fixture"
+    )
 }
 
-private fun File.git(vararg arguments: String) {
+private fun File.git(
+    vararg arguments: String
+) {
     val process = ProcessBuilder(listOf("git") + arguments)
         .directory(this)
         .start()

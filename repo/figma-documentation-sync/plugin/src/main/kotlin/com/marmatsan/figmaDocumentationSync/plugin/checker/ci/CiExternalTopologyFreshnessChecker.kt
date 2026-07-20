@@ -13,7 +13,10 @@ import me.tatarka.inject.annotations.Inject
 internal class CiExternalTopologyFreshnessChecker(
     private val ciExternalTopologyPort: CiExternalTopologyPort
 ) {
-    fun check(topologyFile: File, currentDate: LocalDate): Result {
+    fun check(
+        topologyFile: File,
+        currentDate: LocalDate
+    ): Result {
         val topology = ciExternalTopologyPort.readTopology(
             CiExternalTopologySource(topologyFile.absolutePath)
         )

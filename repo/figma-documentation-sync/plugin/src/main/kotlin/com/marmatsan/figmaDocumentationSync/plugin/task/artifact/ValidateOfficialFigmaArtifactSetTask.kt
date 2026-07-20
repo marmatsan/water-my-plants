@@ -19,7 +19,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Validates an official artifact set and writes its typed handoff identity. */
-@DisableCachingByDefault(because = "The output records absolute paths from the staged artifact set")
+@DisableCachingByDefault(
+    because = "The output records absolute paths from the staged artifact set"
+)
 abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.NONE)

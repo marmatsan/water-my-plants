@@ -23,14 +23,20 @@ val versions = java.util.Properties().apply {
     file("../dependency-catalog/versions.properties").inputStream().use(::load)
 }
 
-fun version(key: String): String = versions.getProperty(key)
+fun version(
+    key: String
+): String = versions.getProperty(key)
     ?: error("Missing version property '$key' in repo/dependency-catalog/versions.properties")
 
 fun VersionCatalogBuilder.library(
     alias: String,
     group: String,
     artifact: String
-) = library(alias, group, artifact)
+) = library(
+    alias,
+    group,
+    artifact
+)
 
 dependencyResolutionManagement {
     versionCatalogs {

@@ -15,14 +15,18 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 
-internal class McpRunnerExecutorTest : FunSpec({
+internal class McpRunnerExecutorTest : FunSpec(
+    {
     test("executes manifest files through the Kotlin MCP port and checkpoints each result") {
         val root = Files.createTempDirectory("mcp-runner-executor")
         val sources = linkedMapOf(
             "00-clear-staging.mcp.js" to "return { cleared: true };\n",
             "99-00-preflight.mcp.js" to "return { preflight: true };\n"
         )
-        sources.forEach { (file, source) -> Files.writeString(root.resolve(file), source) }
+        sources.forEach { (file, source) -> Files.writeString(
+            root.resolve(file),
+            source
+        ) }
         val draft = executableManifest(
             root = root.toString(),
             files = sources.keys.toList(),
@@ -36,7 +40,10 @@ internal class McpRunnerExecutorTest : FunSpec({
         )
         val client = RecordingMcpClient()
         val executor = McpRunnerExecutor(
-            clock = Clock.fixed(Instant.parse("2026-07-18T18:00:00Z"), ZoneOffset.UTC),
+            clock = Clock.fixed(
+                Instant.parse("2026-07-18T18:00:00Z"),
+                ZoneOffset.UTC
+            ),
             clientFactory = { _, _ -> client }
         )
 
@@ -59,14 +66,17 @@ internal class McpRunnerExecutorTest : FunSpec({
 
         root.toFile().deleteRecursively()
     }
-}) {
+}
+) {
     private class RecordingMcpClient : McpClientPort {
         val executedCode = mutableListOf<String>()
         var closed = false
 
         override suspend fun listToolNames(): List<String> = listOf("use_figma")
 
-        override suspend fun readTextResource(uri: String): String = "Use Figma safely."
+        override suspend fun readTextResource(
+            uri: String
+        ): String = "Use Figma safely."
 
         override suspend fun useFigma(
             fileKey: String,
@@ -75,13 +85,22 @@ internal class McpRunnerExecutorTest : FunSpec({
             skillNames: String
         ): McpToolResult {
             executedCode += code
-            return McpToolResult(isError = false, text = "ok")
+            return McpToolResult(
+                isError = false,
+                text = "ok"
+            )
         }
 
-        override suspend fun requestAssetUpload(fileKey: String, count: Int): McpToolResult =
+        override suspend fun requestAssetUpload(
+            fileKey: String,
+            count: Int
+        ): McpToolResult =
             error("Chunk transport must not upload assets")
 
-        override suspend fun uploadAsset(url: String, bytes: ByteArray) =
+        override suspend fun uploadAsset(
+            url: String,
+            bytes: ByteArray
+        ) =
             error("Chunk transport must not upload assets")
 
         override fun close() {

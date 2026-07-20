@@ -8,12 +8,16 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.RepositoryChange
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class FigmaChangeImpactClassifierTest : FunSpec({
+internal class FigmaChangeImpactClassifierTest : FunSpec(
+    {
     val classifier = FigmaChangeImpactClassifier()
 
     test("documentation changes do not require Gradle or Figma verification") {
         val result = classifier.classify(
-            changeSet("docs/documentation.md", "core/ui/docs/README.md"),
+            changeSet(
+                "docs/documentation.md",
+                "core/ui/docs/README.md"
+            ),
             policy()
         )
 
@@ -73,27 +77,40 @@ internal class FigmaChangeImpactClassifierTest : FunSpec({
     }
 
     test("model sources require full model verification") {
-        val result = classifier.classify(changeSet("app/build.gradle.kts"), policy())
+        val result = classifier.classify(
+            changeSet("app/build.gradle.kts"),
+            policy()
+        )
 
         result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
         result.impact shouldBe FigmaImpact.MODEL_CONTENT
     }
 
     test("unknown paths require full verification") {
-        val result = classifier.classify(changeSet("gradle.properties"), policy())
+        val result = classifier.classify(
+            changeSet("gradle.properties"),
+            policy()
+        )
 
         result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
         result.impact shouldBe FigmaImpact.UNKNOWN
     }
-})
+}
+)
 
-private fun changeSet(vararg paths: String) = RepositoryChangeSet(
+private fun changeSet(
+    vararg paths: String
+) = RepositoryChangeSet(
     comparisonBase = "base-sha",
     changedPaths = paths.toList()
 )
 
 private fun policy() = FigmaChangeImpactPolicy(
-    documentationOnlyPaths = listOf("docs/*.md", "*/docs/*.md", "*/*/docs/*.md"),
+    documentationOnlyPaths = listOf(
+        "docs/*.md",
+        "*/docs/*.md",
+        "*/*/docs/*.md"
+    ),
     transportOnlyPaths = listOf(
         "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*"
     ),

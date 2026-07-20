@@ -12,7 +12,9 @@ import java.time.LocalDate
  */
 @Inject
 class CiWindowsRuntimeYamlReader {
-    fun read(file: File): CiWindowsRuntime {
+    fun read(
+        file: File
+    ): CiWindowsRuntime {
         val settings = LoadSettings.builder()
             .setLabel(file.path)
             .build()
@@ -32,7 +34,9 @@ class CiWindowsRuntimeYamlReader {
         )
     }
 
-    private fun readService(value: Any?): CiWindowsRuntime.Service {
+    private fun readService(
+        value: Any?
+    ): CiWindowsRuntime.Service {
         val service = value.asStringMap("service")
         return CiWindowsRuntime.Service(
             id = service.requiredString("id"),
@@ -44,7 +48,9 @@ class CiWindowsRuntimeYamlReader {
         )
     }
 
-    private fun Any?.asStringMap(context: String): Map<String, Any?> {
+    private fun Any?.asStringMap(
+        context: String
+    ): Map<String, Any?> {
         val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
         return source.entries.associate { (key, value) ->
             val stringKey = key as? String ?: error("Expected string key in $context")
@@ -52,15 +58,23 @@ class CiWindowsRuntimeYamlReader {
         }
     }
 
-    private fun Map<String, Any?>.requiredMap(key: String): Map<String, Any?> =
+    private fun Map<String, Any?>.requiredMap(
+        key: String
+    ): Map<String, Any?> =
         get(key).asStringMap(key)
 
-    private fun Map<String, Any?>.requiredList(key: String): List<Any?> =
+    private fun Map<String, Any?>.requiredList(
+        key: String
+    ): List<Any?> =
         get(key) as? List<*> ?: error("Expected YAML list '$key'")
 
-    private fun Map<String, Any?>.requiredString(key: String): String =
+    private fun Map<String, Any?>.requiredString(
+        key: String
+    ): String =
         get(key) as? String ?: error("Expected YAML string '$key'")
 
-    private fun Map<String, Any?>.requiredInt(key: String): Int =
+    private fun Map<String, Any?>.requiredInt(
+        key: String
+    ): Int =
         (get(key) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
 }

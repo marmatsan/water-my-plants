@@ -17,5 +17,7 @@ interface ProjectModulesPort {
      * Returned values use Gradle path notation such as `:app` or
      * `:gradle-plugins:dependencies`.
      */
-    fun readModules(source: ProjectModulesSource): Set<String>
+    fun readModules(
+        source: ProjectModulesSource
+    ): Set<String>
 }

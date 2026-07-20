@@ -13,7 +13,8 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.provider.Provider
 import java.util.Optional
 
-internal class VersionCatalogExtensionTest : FunSpec({
+internal class VersionCatalogExtensionTest : FunSpec(
+    {
 
     test("requireDependencyNotation returns notation for an existing library alias") {
         // GIVEN
@@ -120,4 +121,5 @@ internal class VersionCatalogExtensionTest : FunSpec({
         }
         exception.message shouldContain "Bundle alias 'missingBundle' not found in version catalog named libs"
     }
-})
+}
+)

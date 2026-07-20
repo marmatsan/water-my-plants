@@ -9,7 +9,8 @@ import java.nio.file.Files
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 
-internal class WriterScopeFingerprintCalculatorTest : FunSpec({
+internal class WriterScopeFingerprintCalculatorTest : FunSpec(
+    {
     test("target-specific changes invalidate only their execution family") {
         val root = Files.createTempDirectory("writer-fingerprints")
         try {
@@ -22,9 +23,15 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec({
             sourceRoot.resolve("figma/figma-node-gateway.ts").writeText("export const shared = 1;\n")
             sourceRoot.resolve("preview.ts").writeText("export const preview = 1;\n")
 
-            val before = fingerprints(root, sourceRoot)
+            val before = fingerprints(
+                repositoryRoot = root,
+                sourceRoot = sourceRoot
+            )
             ciSource.writeText("export const ci = 2;\n")
-            val after = fingerprints(root, sourceRoot)
+            val after = fingerprints(
+                repositoryRoot = root,
+                sourceRoot = sourceRoot
+            )
 
             after["ci.overview"] shouldNotBe before["ci.overview"]
             after["preflight"] shouldBe before["preflight"]
@@ -49,9 +56,15 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec({
                 writeText("class CiVisualPlanner\n")
             }
 
-            val before = fingerprints(root, sourceRoot)
+            val before = fingerprints(
+                repositoryRoot = root,
+                sourceRoot = sourceRoot
+            )
             kotlinPlanner.writeText("class CiVisualPlannerV2\n")
-            val after = fingerprints(root, sourceRoot)
+            val after = fingerprints(
+                repositoryRoot = root,
+                sourceRoot = sourceRoot
+            )
 
             after["ci.overview"] shouldNotBe before["ci.overview"]
             after["versions"] shouldBe before["versions"]
@@ -59,9 +72,13 @@ internal class WriterScopeFingerprintCalculatorTest : FunSpec({
             root.toFile().deleteRecursively()
         }
     }
-})
+}
+)
 
-private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.nio.file.Path) =
+private fun fingerprints(
+    repositoryRoot: java.nio.file.Path,
+    sourceRoot: java.nio.file.Path
+) =
     WriterScopeFingerprintCalculator().create(
         sourceRoot = sourceRoot,
         repositoryRoot = repositoryRoot,
@@ -70,7 +87,10 @@ private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.ni
             transportOnlyPaths = listOf("repo/tools/src/preview.ts"),
             modelNeutralPaths = emptyList(),
             modelContentPaths = emptyList(),
-            visualWriterPaths = listOf("repo/tools/src/*", "repo/visual/*"),
+            visualWriterPaths = listOf(
+                "repo/tools/src/*",
+                "repo/visual/*"
+            ),
             visualTargetRules = listOf(
                 FigmaVisualTargetRule(
                     paths = listOf("repo/tools/src/figma/figma-ci-*"),
@@ -78,7 +98,10 @@ private fun fingerprints(repositoryRoot: java.nio.file.Path, sourceRoot: java.ni
                 ),
                 FigmaVisualTargetRule(
                     paths = listOf("repo/tools/src/figma/figma-catalog-*"),
-                    targets = listOf("preflight", "waterMyPlants.libraries")
+                    targets = listOf(
+                        "preflight",
+                        "waterMyPlants.libraries"
+                    )
                 ),
                 FigmaVisualTargetRule(
                     paths = listOf("repo/visual/*"),

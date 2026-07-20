@@ -134,7 +134,10 @@ abstract class figmaDocumentationSyncExtension @Inject constructor(
      */
     val includedBuilds: NamedDomainObjectContainer<FigmaDocumentationSyncIncludedBuild> =
         objects.domainObjectContainer(FigmaDocumentationSyncIncludedBuild::class.java) { buildName ->
-            objects.newInstance(FigmaDocumentationSyncIncludedBuild::class.java, buildName)
+            objects.newInstance(
+                FigmaDocumentationSyncIncludedBuild::class.java,
+                buildName
+            )
         }
 
     /**

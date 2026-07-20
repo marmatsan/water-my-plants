@@ -16,7 +16,9 @@ import org.gradle.work.DisableCachingByDefault
 /**
  * Emits a non-blocking warning when external CI topology validation is stale.
  */
-@DisableCachingByDefault(because = "The warning depends on the current UTC date")
+@DisableCachingByDefault(
+    because = "The warning depends on the current UTC date"
+)
 abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
     @get:InputFile
     @get:Optional

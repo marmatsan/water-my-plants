@@ -11,18 +11,28 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class VisualSyncPlanJsonTest : FunSpec({
+internal class VisualSyncPlanJsonTest : FunSpec(
+    {
     test("matches the canonical Node plan hash contract") {
         VisualSyncPlanJson().hash(body) shouldBe
             "sha256:d9091312e43a19325de59bf9f53623e86e5caecd9180b41ad63494617cf97a3a"
     }
 
     test("writes the complete plan with its canonical hash") {
-        val output = Files.createTempFile("visual-sync-plan", ".json")
+        val output = Files.createTempFile(
+            "visual-sync-plan",
+            ".json"
+        )
         try {
             val adapter = VisualSyncPlanJson()
             val hash = adapter.hash(body)
-            adapter.write(VisualSyncPlan(body, hash), output.toString())
+            adapter.write(
+                VisualSyncPlan(
+                    body,
+                    hash
+                ),
+                output.toString()
+            )
 
             val json = Json.parseToJsonElement(Files.readString(output)).jsonObject
             json.getValue("decision").jsonPrimitive.content shouldBe "partial"
@@ -50,7 +60,8 @@ internal class VisualSyncPlanJsonTest : FunSpec({
         metadata?.writerScopeFingerprints shouldBe mapOf("versions" to "sha256:scope")
         metadata?.writerScopeFingerprintSchemaVersion shouldBe 1
     }
-})
+}
+)
 
 private val body = VisualSyncPlanBody(
     schemaVersion = 1,
@@ -58,7 +69,10 @@ private val body = VisualSyncPlanBody(
     reason = "target-model-fingerprints-changed",
     requiresVisualWrite = true,
     requiresMetadataWrite = true,
-    executionScopes = listOf("preflight", "waterMyPlants.libraries.androidx"),
+    executionScopes = listOf(
+        "preflight",
+        "waterMyPlants.libraries.androidx"
+    ),
     identity = VisualSyncIdentity(
         modelHash = "sha256:model-new",
         writerHash = "sha256:writer-new",

@@ -16,7 +16,9 @@ import org.gradle.work.DisableCachingByDefault
  * Gradle verification task that fails when version keys do not match the
  * Figma dependency version naming contract.
  */
-@DisableCachingByDefault(because = "The verification task has no reusable output artifact")
+@DisableCachingByDefault(
+    because = "The verification task has no reusable output artifact"
+)
 abstract class CheckFigmaVersionNamingTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)

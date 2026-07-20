@@ -17,7 +17,9 @@ import me.tatarka.inject.annotations.Inject
 class ProjectModulesDataSource(
     private val gradleProjectModulesReader: GradleProjectModulesReader
 ) : ProjectModulesPort {
-    override fun readModules(source: ProjectModulesSource): Set<String> =
+    override fun readModules(
+        source: ProjectModulesSource
+    ): Set<String> =
         gradleProjectModulesReader.readModules(
             rootSettingsFile = File(source.rootSettingsFilePath),
             includedBuilds = source.includedBuilds.map { includedBuild ->

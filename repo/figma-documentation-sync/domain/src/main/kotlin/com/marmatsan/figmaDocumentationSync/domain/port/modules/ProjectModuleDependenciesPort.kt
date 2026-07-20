@@ -21,5 +21,7 @@ interface ProjectModuleDependenciesPort {
      * Implementations should return a set because duplicate declarations in
      * Gradle files do not represent distinct documentation edges.
      */
-    fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency>
+    fun readModuleDependencies(
+        source: ProjectModuleDependenciesSource
+    ): Set<ModuleDependency>
 }

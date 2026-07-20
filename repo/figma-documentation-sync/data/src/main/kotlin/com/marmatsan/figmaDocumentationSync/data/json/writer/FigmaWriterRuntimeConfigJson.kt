@@ -13,9 +13,15 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /** Reads the small project-config projection required by Kotlin runner infrastructure. */
 object FigmaWriterRuntimeConfigJson {
-    fun read(path: String): FigmaWriterRuntimeConfig = decode(Files.readString(Path.of(path)))
+    fun read(
+        path: String
+    ): FigmaWriterRuntimeConfig = decode(
+        source = Files.readString(Path.of(path))
+    )
 
-    fun decode(source: String): FigmaWriterRuntimeConfig {
+    fun decode(
+        source: String
+    ): FigmaWriterRuntimeConfig {
         val json = Json.parseToJsonElement(source.removePrefix(UTF8_BOM)).jsonObject
         require(json.requiredInt("schemaVersion") == SUPPORTED_SCHEMA_VERSION) {
             "Unsupported Figma writer project config schema ${json.requiredInt("schemaVersion")}; " +
@@ -50,15 +56,21 @@ object FigmaWriterRuntimeConfigJson {
         )
     }
 
-    private fun JsonObject.requiredString(name: String): String =
+    private fun JsonObject.requiredString(
+        name: String
+    ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private fun JsonObject.requiredInt(name: String): Int =
+    private fun JsonObject.requiredInt(
+        name: String
+    ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private fun JsonObject.requiredStringList(name: String): List<String> =
+    private fun JsonObject.requiredStringList(
+        name: String
+    ): List<String> =
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 

@@ -9,7 +9,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class FigmaWriterProjectConfigJsonTest : FunSpec({
+internal class FigmaWriterProjectConfigJsonTest : FunSpec(
+    {
     test("projects the typed Water My Plants writer config to the versioned JSON schema") {
         val root = Json.parseToJsonElement(
             FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
@@ -36,9 +37,15 @@ internal class FigmaWriterProjectConfigJsonTest : FunSpec({
 
         val firstCatalogTarget = root.getValue("CATALOG_TREE_TARGETS").jsonArray.first().jsonObject
         firstCatalogTarget.getValue("nodesPath").jsonArray.map { it.jsonPrimitive.content }
-            .shouldContainExactly("content", "catalogs", "waterMyPlants", "libraries")
+            .shouldContainExactly(
+                "content",
+                "catalogs",
+                "waterMyPlants",
+                "libraries"
+            )
     }
-}) {
+}
+) {
     companion object {
         private val expectedKeys = setOf(
             "schemaVersion",

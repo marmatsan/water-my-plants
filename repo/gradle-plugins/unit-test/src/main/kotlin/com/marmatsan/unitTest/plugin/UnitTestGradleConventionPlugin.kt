@@ -11,7 +11,9 @@ import org.gradle.kotlin.dsl.withType
 
 @Suppress("unused")
 class UnitTestGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")

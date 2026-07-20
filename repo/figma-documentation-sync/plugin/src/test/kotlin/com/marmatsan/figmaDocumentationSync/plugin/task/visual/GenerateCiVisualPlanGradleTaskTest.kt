@@ -10,7 +10,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-internal class GenerateCiVisualPlanGradleTaskTest : FunSpec({
+internal class GenerateCiVisualPlanGradleTaskTest : FunSpec(
+    {
     test("generates a target-scoped Kotlin plan from portable JSON inputs") {
         val project = Files.createTempDirectory("figma-ci-visual-plan-gradle").toFile()
         try {
@@ -42,7 +43,8 @@ internal class GenerateCiVisualPlanGradleTaskTest : FunSpec({
             project.deleteRecursively()
         }
     }
-})
+}
+)
 
 private val designModelFixture =
     """

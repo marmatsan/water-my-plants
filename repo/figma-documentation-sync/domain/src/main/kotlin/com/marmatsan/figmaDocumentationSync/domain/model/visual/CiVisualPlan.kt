@@ -48,12 +48,16 @@ data class CiVisualPlan(
         val label: String
     )
 
-    enum class Orientation(val wireValue: String) {
+    enum class Orientation(
+        val wireValue: String
+    ) {
         HORIZONTAL("horizontal"),
         GRID("grid")
     }
 
-    enum class Type(val wireValue: String) {
+    enum class Type(
+        val wireValue: String
+    ) {
         ACTOR("actor"),
         SYSTEM("system"),
         GIT_REFERENCE("git reference"),
@@ -64,7 +68,9 @@ data class CiVisualPlan(
         GATE("gate")
     }
 
-    enum class Environment(val wireValue: String) {
+    enum class Environment(
+        val wireValue: String
+    ) {
         GITHUB("github"),
         TEAMCITY("teamcity"),
         CLOUDFLARE("cloudflare"),

@@ -11,11 +11,18 @@ import kotlinx.serialization.json.put
 
 /** Renders the JavaScript boundary evaluated by Figma from packaged templates. */
 class McpRunnerSourceRenderer {
-    fun clearStaging(metadataPageId: String, namespace: String): String = render(
-        CLEAR_STAGING_TEMPLATE,
-        mapOf(
-            "METADATA_PAGE_ID" to quote(metadataPageId),
-            "NAMESPACE" to quote(namespace)
+    fun clearStaging(
+        metadataPageId: String,
+        namespace: String
+    ): String = render(
+        templateName = CLEAR_STAGING_TEMPLATE,
+        replacements = mapOf(
+            "METADATA_PAGE_ID" to quote(
+                value = metadataPageId
+            ),
+            "NAMESPACE" to quote(
+                value = namespace
+            )
         )
     )
 
@@ -28,12 +35,20 @@ class McpRunnerSourceRenderer {
         chunkCount: Int,
         previousLength: Int
     ): String = render(
-        APPEND_CHUNK_TEMPLATE,
-        mapOf(
-            "METADATA_PAGE_ID" to quote(metadataPageId),
-            "NAMESPACE" to quote(namespace),
-            "KEY" to quote(key),
-            "CHUNK" to quote(chunk),
+        templateName = APPEND_CHUNK_TEMPLATE,
+        replacements = mapOf(
+            "METADATA_PAGE_ID" to quote(
+                value = metadataPageId
+            ),
+            "NAMESPACE" to quote(
+                value = namespace
+            ),
+            "KEY" to quote(
+                value = key
+            ),
+            "CHUNK" to quote(
+                value = chunk
+            ),
             "CHUNK_LENGTH" to chunk.length.toString(),
             "PREVIOUS_LENGTH" to previousLength.toString(),
             "CHUNK_INDEX" to chunkIndex.toString(),
@@ -47,12 +62,20 @@ class McpRunnerSourceRenderer {
         payloadFileName: String,
         identity: JsonObject
     ): String = render(
-        STAGE_PAYLOAD_TEMPLATE,
-        mapOf(
-            "METADATA_PAGE_ID" to quote(metadataPageId),
-            "NAMESPACE" to quote(namespace),
-            "PAYLOAD_KEYWORD" to quote(PayloadPngEncoder.TEXT_KEYWORD),
-            "PAYLOAD_FILE_NAME" to quote(payloadFileName),
+        templateName = STAGE_PAYLOAD_TEMPLATE,
+        replacements = mapOf(
+            "METADATA_PAGE_ID" to quote(
+                value = metadataPageId
+            ),
+            "NAMESPACE" to quote(
+                value = namespace
+            ),
+            "PAYLOAD_KEYWORD" to quote(
+                value = PayloadPngEncoder.TEXT_KEYWORD
+            ),
+            "PAYLOAD_FILE_NAME" to quote(
+                value = payloadFileName
+            ),
             "EXPECTED_IDENTITY" to CanonicalJson.stringify(identity)
         )
     )
@@ -62,10 +85,14 @@ class McpRunnerSourceRenderer {
         namespace: String,
         identity: JsonObject
     ): String = render(
-        FINALIZE_STAGING_TEMPLATE,
-        mapOf(
-            "METADATA_PAGE_ID" to quote(metadataPageId),
-            "NAMESPACE" to quote(namespace),
+        templateName = FINALIZE_STAGING_TEMPLATE,
+        replacements = mapOf(
+            "METADATA_PAGE_ID" to quote(
+                value = metadataPageId
+            ),
+            "NAMESPACE" to quote(
+                value = namespace
+            ),
             "EXPECTED_IDENTITY" to CanonicalJson.stringify(identity)
         )
     )
@@ -77,13 +104,21 @@ class McpRunnerSourceRenderer {
         executionScope: String,
         modelTarget: String
     ): String = render(
-        RUN_TARGET_TEMPLATE,
-        mapOf(
-            "METADATA_PAGE_ID" to quote(metadataPageId),
-            "NAMESPACE" to quote(namespace),
+        templateName = RUN_TARGET_TEMPLATE,
+        replacements = mapOf(
+            "METADATA_PAGE_ID" to quote(
+                value = metadataPageId
+            ),
+            "NAMESPACE" to quote(
+                value = namespace
+            ),
             "SYNC_OPTIONS" to CanonicalJson.stringify(syncOptions),
-            "EXECUTION_SCOPE" to quote(executionScope),
-            "MODEL_TARGET" to quote(modelTarget)
+            "EXECUTION_SCOPE" to quote(
+                value = executionScope
+            ),
+            "MODEL_TARGET" to quote(
+                value = modelTarget
+            )
         )
     )
 
@@ -95,34 +130,73 @@ class McpRunnerSourceRenderer {
         writerHash: String,
         transportHash: String
     ): JsonObject = buildJsonObject {
-        put("payloadSchemaVersion", PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION)
-        put("designModelHash", modelHash)
-        put("designModelGitSha", gitSha)
-        put("designModelLength", modelLength.toString())
-        put("scriptLength", scriptLength.toString())
-        put("writerHash", writerHash)
-        put("transportHash", transportHash)
+        put(
+            "payloadSchemaVersion",
+            PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION
+        )
+        put(
+            "designModelHash",
+            modelHash
+        )
+        put(
+            "designModelGitSha",
+            gitSha
+        )
+        put(
+            "designModelLength",
+            modelLength.toString()
+        )
+        put(
+            "scriptLength",
+            scriptLength.toString()
+        )
+        put(
+            "writerHash",
+            writerHash
+        )
+        put(
+            "transportHash",
+            transportHash
+        )
     }
 
     fun templateHashes(): Map<String, String> = TEMPLATE_NAMES.associateWith { templateName ->
-        Sha256Hash.of(template(templateName).toByteArray(StandardCharsets.UTF_8))
+        Sha256Hash.of(
+            template(
+                name = templateName
+            ).toByteArray(StandardCharsets.UTF_8)
+        )
     }
 
-    private fun render(templateName: String, replacements: Map<String, String>): String {
-        val rendered = replacements.entries.fold(template(templateName)) { source, (name, value) ->
-            source.replace("@@$name@@", value)
+    private fun render(
+        templateName: String,
+        replacements: Map<String, String>
+    ): String {
+        val rendered = replacements.entries.fold(
+            template(
+                name = templateName
+            )
+        ) { source, (name, value) ->
+            source.replace(
+                "@@$name@@",
+                value
+            )
         }
         val unresolved = PLACEHOLDER.find(rendered)?.value
         require(unresolved == null) { "Runner template '$templateName' contains unresolved placeholder $unresolved." }
         return rendered.trimEnd() + "\n"
     }
 
-    private fun template(name: String): String = javaClass.getResourceAsStream("/figma-mcp/$name")
+    private fun template(
+        name: String
+    ): String = javaClass.getResourceAsStream("/figma-mcp/$name")
         ?.bufferedReader()
         ?.use { reader -> reader.readText() }
         ?: error("Missing packaged MCP runner template '$name'.")
 
-    private fun quote(value: String): String = JsonPrimitive(value).toString()
+    private fun quote(
+        value: String
+    ): String = JsonPrimitive(value).toString()
 
     private companion object {
         const val CLEAR_STAGING_TEMPLATE = "clear-staging.mcp.js.template"

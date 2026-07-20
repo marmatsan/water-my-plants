@@ -7,10 +7,14 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.time.LocalDate
 
-internal class CiWindowsRuntimeYamlReaderTest : FunSpec({
+internal class CiWindowsRuntimeYamlReaderTest : FunSpec(
+    {
 
     test("read maps the versioned Windows service runtime") {
-        val file = Files.createTempFile("windows-runtime", ".yaml").toFile().apply {
+        val file = Files.createTempFile(
+            "windows-runtime",
+            ".yaml"
+        ).toFile().apply {
             writeText(
                 """
                 schemaVersion: 1
@@ -32,7 +36,11 @@ internal class CiWindowsRuntimeYamlReaderTest : FunSpec({
         val runtime = CiWindowsRuntimeYamlReader().read(file)
 
         runtime.schemaVersion shouldBe 1
-        runtime.validation.lastValidatedOn shouldBe LocalDate.of(2026, 7, 16)
+        runtime.validation.lastValidatedOn shouldBe LocalDate.of(
+            2026,
+            7,
+            16
+        )
         runtime.validation.warnAfterDays shouldBe 90
         runtime.platform shouldBe "Windows"
         runtime.services.single() shouldBe CiWindowsRuntime.Service(
@@ -46,7 +54,10 @@ internal class CiWindowsRuntimeYamlReaderTest : FunSpec({
     }
 
     test("read rejects duplicate service ids") {
-        val file = Files.createTempFile("invalid-windows-runtime", ".yaml").toFile().apply {
+        val file = Files.createTempFile(
+            "invalid-windows-runtime",
+            ".yaml"
+        ).toFile().apply {
             writeText(
                 """
                 schemaVersion: 1
@@ -75,4 +86,5 @@ internal class CiWindowsRuntimeYamlReaderTest : FunSpec({
             CiWindowsRuntimeYamlReader().read(file)
         }.message shouldBe "CI Windows runtime service ids must be unique"
     }
-})
+}
+)

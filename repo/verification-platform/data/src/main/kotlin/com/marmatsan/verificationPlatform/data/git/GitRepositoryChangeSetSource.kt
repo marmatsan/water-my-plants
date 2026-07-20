@@ -15,10 +15,20 @@ class GitRepositoryChangeSetSource {
      * @throws IllegalStateException when Git cannot resolve the requested
      * revisions or diff.
      */
-    fun read(repositoryRoot: File, comparisonBaseOverride: String? = null): RepositoryChangeSet {
+    fun read(
+        repositoryRoot: File,
+        comparisonBaseOverride: String? = null
+    ): RepositoryChangeSet {
         val root = repositoryRoot.canonicalFile
-        val head = git(root, "rev-parse", "HEAD")
-        val base = comparisonBaseOverride?.takeIf(String::isNotBlank) ?: defaultBase(root, head)
+        val head = git(
+            root,
+            "rev-parse",
+            "HEAD"
+        )
+        val base = comparisonBaseOverride?.takeIf(String::isNotBlank) ?: defaultBase(
+            root = root,
+            head = head
+        )
         val changedFiles = git(
             root,
             "diff",
@@ -34,19 +44,52 @@ class GitRepositoryChangeSetSource {
         )
     }
 
-    private fun defaultBase(root: File, head: String): String {
-        git(root, "rev-parse", "--verify", "origin/main")
-        val main = git(root, "rev-parse", "origin/main")
+    private fun defaultBase(
+        root: File,
+        head: String
+    ): String {
+        git(
+            root,
+            "rev-parse",
+            "--verify",
+            "origin/main"
+        )
+        val main = git(
+            root,
+            "rev-parse",
+            "origin/main"
+        )
         return if (head == main) {
-            git(root, "rev-parse", "$head^")
+            git(
+                root,
+                "rev-parse",
+                "$head^"
+            )
         } else {
-            git(root, "merge-base", "HEAD", "origin/main")
+            git(
+                root,
+                "merge-base",
+                "HEAD",
+                "origin/main"
+            )
         }
     }
 
-    private fun git(root: File, vararg arguments: String): String {
-        val safeDirectory = root.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+    private fun git(
+        root: File,
+        vararg arguments: String
+    ): String {
+        val safeDirectory = root.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(root)
             .redirectErrorStream(true)
             .start()
@@ -58,5 +101,10 @@ class GitRepositoryChangeSetSource {
         return output.trim()
     }
 
-    private fun normalize(path: String): String = path.trim().replace('\\', '/')
+    private fun normalize(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    )
 }

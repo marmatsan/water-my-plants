@@ -11,14 +11,30 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
-internal class McpExecutionPlannerTest : FunSpec({
+internal class McpExecutionPlannerTest : FunSpec(
+    {
     val planner = McpExecutionPlanner()
 
     test("capability probe distinguishes read-only and write-capable endpoints") {
-        planner.capabilities(listOf("get_metadata", "get_screenshot")).writeCapable shouldBe false
-        val writable = planner.capabilities(listOf("upload_assets", "use_figma", "get_metadata"))
+        planner.capabilities(
+            listOf(
+                "get_metadata",
+                "get_screenshot"
+            )
+        ).writeCapable shouldBe false
+        val writable = planner.capabilities(
+            listOf(
+                "upload_assets",
+                "use_figma",
+                "get_metadata"
+            )
+        )
         writable.writeCapable shouldBe true
-        planner.requireWriteCapabilities(writable, manifest, manifest.files)
+        planner.requireWriteCapabilities(
+            writable,
+            manifest,
+            manifest.files
+        )
 
         shouldThrow<IllegalArgumentException> {
             planner.requireWriteCapabilities(
@@ -50,7 +66,9 @@ internal class McpExecutionPlannerTest : FunSpec({
 
         planner.selectExecutionFiles(
             manifest,
-            McpExecutionOptions(resume = true),
+            McpExecutionOptions(
+                resume = true
+            ),
             state,
             visualState = null
         ) shouldContainExactly manifest.files.drop(1)
@@ -74,7 +92,10 @@ internal class McpExecutionPlannerTest : FunSpec({
 
         planner.selectExecutionFiles(
             manifest,
-            McpExecutionOptions(resume = true, retryFailed = true),
+            McpExecutionOptions(
+                resume = true,
+                retryFailed = true
+            ),
             failed,
             visualState = null
         ) shouldContainExactly listOf("99-00-preflight.mcp.js")
@@ -118,7 +139,12 @@ internal class McpExecutionPlannerTest : FunSpec({
             now = "2026-07-18T18:00:00Z"
         )
         shouldThrow<IllegalArgumentException> {
-            planner.assertStateIdentity(manifest.copy(writerHash = "sha256:new-writer"), state)
+            planner.assertStateIdentity(
+                manifest.copy(
+                    writerHash = "sha256:new-writer"
+                ),
+                state
+            )
         }.message shouldBe "Checkpoint writerHash mismatch: sha256:writer != sha256:new-writer."
     }
 
@@ -139,16 +165,24 @@ internal class McpExecutionPlannerTest : FunSpec({
             "2026-07-18T18:00:01Z"
         )
         val altered = completed.copy(
-            completedFiles = listOf(completed.completedFiles.single().copy(fileHash = "sha256:altered"))
+            completedFiles = listOf(
+                completed.completedFiles.single().copy(
+                    fileHash = "sha256:altered"
+                )
+            )
         )
 
         shouldThrow<IllegalArgumentException> {
-            planner.assertStateIdentity(manifest, altered)
+            planner.assertStateIdentity(
+                manifest,
+                altered
+            )
         }.message shouldBe
             "Checkpoint file hash mismatch for '00-clear-staging.mcp.js': " +
             "sha256:altered != sha256:00."
     }
-})
+}
+)
 
 private val manifest = ExecutableRunnerManifest(
     path = "manifest.json",
@@ -156,7 +190,10 @@ private val manifest = ExecutableRunnerManifest(
     mode = "official",
     entrypoint = "trunk-sync",
     target = "preflight",
-    targets = listOf("preflight", "versions"),
+    targets = listOf(
+        "preflight",
+        "versions"
+    ),
     writeMetadata = false,
     transport = "png",
     namespace = "sync_staging",
@@ -174,7 +211,10 @@ private val manifest = ExecutableRunnerManifest(
     scriptLength = 200,
     writerHash = "sha256:writer",
     transportHash = "sha256:transport",
-    targetFingerprints = mapOf("preflight" to "sha256:model-preflight", "versions" to "sha256:model-versions"),
+    targetFingerprints = mapOf(
+        "preflight" to "sha256:model-preflight",
+        "versions" to "sha256:model-versions"
+    ),
     writerScopeFingerprints = mapOf(
         "preflight" to "sha256:writer-preflight",
         "versions" to "sha256:writer-versions",

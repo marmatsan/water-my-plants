@@ -15,7 +15,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class CatalogUsageCheckerTest : FunSpec({
+internal class CatalogUsageCheckerTest : FunSpec(
+    {
 
     test("check reports unused entries from dependency DSL and included-build catalogs") {
         // GIVEN
@@ -63,10 +64,13 @@ internal class CatalogUsageCheckerTest : FunSpec({
             )
         )
     }
-})
+}
+)
 
 private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> LibraryCatalogTree(
                 roots = listOf(
@@ -147,7 +151,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 error("Custom Gradle plugin inventories are not dependency catalogs")
         }
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> PluginCatalogTree(
                 roots = listOf(

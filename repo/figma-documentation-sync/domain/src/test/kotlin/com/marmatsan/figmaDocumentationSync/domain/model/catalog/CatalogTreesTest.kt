@@ -4,7 +4,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class CatalogTreesTest : FunSpec({
+internal class CatalogTreesTest : FunSpec(
+    {
 
     test("catalog version is visible by default when it has a value") {
         // WHEN
@@ -49,4 +50,5 @@ internal class CatalogTreesTest : FunSpec({
         // THEN
         node.artifactsVisible shouldBe true
     }
-})
+}
+)

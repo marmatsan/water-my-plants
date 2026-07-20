@@ -97,11 +97,19 @@ data class Node<T : DependencyNode>(
 
             if (shouldIncludeNode(node.value)) {
                 val fullPath = currentPath.joinToString(".")
-                results.add(mapNode(node.value, fullPath))
+                results.add(
+                    mapNode(
+                        node.value,
+                        fullPath
+                    )
+                )
             }
 
             node.children.forEach { child ->
-                visit(child, currentPath)
+                visit(
+                    node = child,
+                    path = currentPath
+                )
             }
         }
 
