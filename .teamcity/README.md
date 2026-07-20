@@ -386,6 +386,12 @@ GitHub branch protection should require only the `TeamCity CI` status check.
 The composite gate publishes the aggregated `CI` result as `TeamCity CI`, so it
 represents the complete pull request validation chain.
 
+Introducing or recovering the gate can create a circular dependency when
+GitHub already requires `TeamCity CI`. Follow the
+[`CI Gate` bootstrap runbook](../docs/runbooks/bootstrap-teamcity-ci-gate.md)
+to capture and temporarily narrow the ruleset, restore it as soon as TeamCity
+imports the gate, and verify the non-retroactive first execution.
+
 `Figma Sync` remains visible in TeamCity after changes reach `main`, but it does
 not currently publish `TeamCity Figma Sync` to GitHub. Do not add that status to
 GitHub branch protection.

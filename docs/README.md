@@ -37,3 +37,4 @@ them.
 - [Create A Release](runbooks/create-release.md)
 - [Ship A Production Hotfix](runbooks/ship-hotfix.md)
 - [Main Branch Protection](ci/main-branch-protection.md)
+- [Bootstrap The TeamCity CI Gate](runbooks/bootstrap-teamcity-ci-gate.md)
