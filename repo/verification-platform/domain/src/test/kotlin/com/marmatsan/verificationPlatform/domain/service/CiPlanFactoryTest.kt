@@ -17,7 +17,8 @@ class CiPlanFactoryTest : FunSpec({
         plan.scope shouldBe CiScope.TEAMCITY
         plan.fullVerification shouldBe true
         plan.requiredUnitIds() shouldContain VerificationUnitId.TEAMCITY_DSL
-        plan.gradleTasks() shouldBe listOf("checkDocumentation", "checkTeamCityDsl", "check")
+        plan.gradleTasks() shouldBe
+            listOf("checkGitWorkflow", "checkDocumentation", "checkTeamCityDsl", "check")
     }
 
     test("mixed changes keep all matching units") {
@@ -52,7 +53,8 @@ class CiPlanFactoryTest : FunSpec({
         plan.changedModules shouldBe listOf(":app")
         plan.affectedModules shouldBe listOf(":app")
         plan.fullVerification shouldBe false
-        plan.gradleTasks() shouldBe listOf("checkDocumentation", ":app:check", "checkFigmaCatalogUsage")
+        plan.gradleTasks() shouldBe
+            listOf("checkGitWorkflow", "checkDocumentation", ":app:check", "checkFigmaCatalogUsage")
     }
 
     test("unresolved module graph dependencies fail closed to root check") {
@@ -71,7 +73,7 @@ class CiPlanFactoryTest : FunSpec({
         plan.changedModules shouldBe emptyList()
         plan.affectedModules shouldBe emptyList()
         plan.fullVerification shouldBe true
-        plan.gradleTasks() shouldBe listOf("checkDocumentation", "check")
+        plan.gradleTasks() shouldBe listOf("checkGitWorkflow", "checkDocumentation", "check")
         plan.fallbackReason shouldBe
             "The Gradle module graph contains an unresolved dependency: :app -> :missing."
     }

@@ -53,6 +53,7 @@ commit structure in [`AGENTS.md`](../../AGENTS.md).
 4. Run the checks proportional to the change. The exhaustive default is:
 
    ```powershell
+   .\gradlew.bat checkGitWorkflow
    .\gradlew.bat check
    ```
 

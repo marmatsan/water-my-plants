@@ -114,6 +114,21 @@
         "docs/ci/windows-runtime-validation.md",
         "docs/ci/visual-model-contract.md"
       ]
+    },
+    {
+      "id": "git-workflow",
+      "sourcePaths": [
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/GitBranchValidation.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt",
+        "repo/verification-platform/data/src/main/kotlin/com/marmatsan/verificationPlatform/data/git/GitCurrentBranchSource.kt",
+        "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckGitWorkflowTask.kt"
+      ],
+      "documentationPaths": [
+        "docs/standards/git-workflow.md",
+        "repo/verification-platform/README.md",
+        "repo/verification-platform/docs/bdd/README.md",
+        ".teamcity/README.md"
+      ]
     }
   ]
 }

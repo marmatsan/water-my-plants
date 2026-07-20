@@ -10,6 +10,8 @@ sources:
   - docs/decisions/adr-0007-use-trunk-based-development.md
   - AGENTS.md
   - docs/ci/main-branch-protection.md
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckGitWorkflowTask.kt
 ---
 
 # Git Workflow Standard
@@ -91,8 +93,7 @@ Operational urgency changes prioritization, not the integrity of `main`.
 - GitHub protects `main` with strict `TeamCity CI`, linear history, pull request
   integration, and resolved review conversations.
 - Repository settings allow squash merge and delete merged branches.
-- `checkGitWorkflow` validates branch names when it is available in the
-  verification platform.
+- `checkGitWorkflow` validates branch names locally and in TeamCity.
 - `checkDocumentation` validates this standard and its linked documents.
 
 ## Sources

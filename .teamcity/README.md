@@ -77,11 +77,17 @@ The GitHub ruleset for `main` is documented in
 The pipeline:
 
 - monitors all branches;
+- passes TeamCity's server-resolved logical branch name to the Gradle-owned
+  `checkGitWorkflow` task, which validates developer branches and recognizes
+  provider-managed pull request refs without creating an implicit agent
+  requirement for a VCS-root-specific parameter;
 - discovers and validates the Windows agent toolchain and Android SDK before
   running repository verification, then exports the discovered SDK path only
   to later steps in the same TeamCity build;
 - generates the enforced `build/reports/ci/ci-plan.json` contract and exports
   only its allow-listed TeamCity parameters to subsequent steps;
+- validates the trunk-based branch contract before typed documentation and
+  change coverage through Kotlin Gradle tasks;
 - validates typed documentation and change coverage through the Kotlin
   `checkDocumentation` Gradle task: canonical placement, frontmatter, review
   dates, runbook and ADR sections, canonical sources, and local Markdown links;
@@ -89,12 +95,13 @@ The pipeline:
   Figma-sync implementation, dependency-catalog model, or CI topology must
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
-- exposes repository diff, TeamCity DSL, documentation, and module verification
-  as Gradle tasks selected by the Kotlin plan;
+- exposes Git workflow, repository diff, TeamCity DSL, documentation, and
+  module verification as Gradle tasks selected by the Kotlin plan;
 - uses the allow-listed `ci.plan.gradleTasks` parameter emitted by
-  `prepareTeamCityCiPlan` in one Gradle invocation: documentation-only changes
-  select `checkDocumentation` and `checkRepositoryDiff`, `.teamcity` changes
-  additionally select `checkTeamCityDsl`, and every non-documentation change
+  `prepareTeamCityCiPlan` in one Gradle invocation: every change first selects
+  `checkGitWorkflow`; documentation-only changes also select
+  `checkDocumentation` and `checkRepositoryDiff`; `.teamcity` changes
+  additionally select `checkTeamCityDsl`; and every non-documentation change
   retains targeted module checks or root `check`;
 - coalesces Figma-tooling and dependency-catalog units into that single heavy
   Gradle invocation while only one agent is available;
