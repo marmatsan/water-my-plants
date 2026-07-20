@@ -25,5 +25,5 @@ data class CiExecutionLane(
     val needs: List<String>,
     val capabilities: List<String>,
     val parallelSafe: Boolean,
-    val publishesAuthoritativeStatus: Boolean
+    val publishesAuthoritativeStatus: Boolean,
 )

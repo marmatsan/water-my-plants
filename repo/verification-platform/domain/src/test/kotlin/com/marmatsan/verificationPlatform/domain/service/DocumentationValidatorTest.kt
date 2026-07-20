@@ -9,152 +9,174 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
-class DocumentationValidatorTest : FunSpec(
-    {
-    test("valid typed documents and superseded ADRs pass") {
-        val result = validate(
-            documents = listOf(
-                DocumentationFile(
-                    path = "docs/standards/example.md",
-                    content = validStandard
-                ),
-                DocumentationFile(
-                    path = "docs/runbooks/example.md",
-                    content = validRunbook
-                ),
-                DocumentationFile(
-                    path = "docs/decisions/adr-0001-historical-decision.md",
-                    content = supersededAdr
-                )
-            ),
-            entries = setOf("source.txt")
-        )
+class DocumentationValidatorTest :
+    FunSpec(
+        {
+            test("valid typed documents and superseded ADRs pass") {
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "docs/standards/example.md",
+                                    content = validStandard,
+                                ),
+                                DocumentationFile(
+                                    path = "docs/runbooks/example.md",
+                                    content = validRunbook,
+                                ),
+                                DocumentationFile(
+                                    path = "docs/decisions/adr-0001-historical-decision.md",
+                                    content = supersededAdr,
+                                ),
+                            ),
+                        entries = setOf("source.txt"),
+                    )
 
-        result.errors shouldBe emptyList()
-        result.coverageViolations shouldBe emptyList()
-        result.validatedDocuments shouldContainExactly listOf(
-            "docs/decisions/adr-0001-historical-decision.md",
-            "docs/runbooks/example.md",
-            "docs/standards/example.md"
-        )
-    }
+                result.errors shouldBe emptyList()
+                result.coverageViolations shouldBe emptyList()
+                result.validatedDocuments shouldContainExactly
+                    listOf(
+                        "docs/decisions/adr-0001-historical-decision.md",
+                        "docs/runbooks/example.md",
+                        "docs/standards/example.md",
+                    )
+            }
 
-    test("typed documents outside canonical directories fail") {
-        val misplacedGuide = validStandard.replace(
-            "type: standard",
-            "type: guide"
-        )
+            test("typed documents outside canonical directories fail") {
+                val misplacedGuide =
+                    validStandard.replace(
+                        "type: standard",
+                        "type: guide",
+                    )
 
-        val result = validate(
-            documents = listOf(
-                DocumentationFile(
-                    path = "docs/misplaced.md",
-                    content = misplacedGuide
-                )
-            ),
-            entries = setOf("source.txt")
-        )
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "docs/misplaced.md",
+                                    content = misplacedGuide,
+                                ),
+                            ),
+                        entries = setOf("source.txt"),
+                    )
 
-        result.errors shouldContain "[docs/misplaced.md] Typed document is outside its canonical directory."
-    }
+                result.errors shouldContain "[docs/misplaced.md] Typed document is outside its canonical directory."
+            }
 
-    test("runbooks require recovery guidance") {
-        val incomplete = validRunbook.replace(
-            "## Recovery\nExample.\n",
-            ""
-        )
+            test("runbooks require recovery guidance") {
+                val incomplete =
+                    validRunbook.replace(
+                        "## Recovery\nExample.\n",
+                        "",
+                    )
 
-        val result = validate(
-            documents = listOf(
-                DocumentationFile(
-                    path = "docs/runbooks/incomplete.md",
-                    content = incomplete
-                )
-            ),
-            entries = setOf("source.txt")
-        )
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "docs/runbooks/incomplete.md",
+                                    content = incomplete,
+                                ),
+                            ),
+                        entries = setOf("source.txt"),
+                    )
 
-        result.errors shouldContain "[docs/runbooks/incomplete.md] Runbook section 'Recovery' is required."
-    }
+                result.errors shouldContain "[docs/runbooks/incomplete.md] Runbook section 'Recovery' is required."
+            }
 
-    test("broken local Markdown links fail") {
-        val result = validate(
-            documents = listOf(
-                DocumentationFile(
-                    path = "docs/standards/broken-link.md",
-                    content = "$validStandard\n[Missing](missing.md)\n"
-                )
-            ),
-            entries = setOf("source.txt")
-        )
+            test("broken local Markdown links fail") {
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "docs/standards/broken-link.md",
+                                    content = "$validStandard\n[Missing](missing.md)\n",
+                                ),
+                            ),
+                        entries = setOf("source.txt"),
+                    )
 
-        result.errors shouldContain
-            "[docs/standards/broken-link.md] Broken local Markdown link: missing.md"
-    }
+                result.errors shouldContain
+                    "[docs/standards/broken-link.md] Broken local Markdown link: missing.md"
+            }
 
-    test("coverage rules require a mapped documentation change") {
-        val rules = listOf(
-            DocumentationCoverageRule(
-                id = "example-rule",
-                sourcePaths = listOf("src/*"),
-                documentationPaths = listOf("docs/standards/example.md")
-            )
-        )
-        val snapshot = DocumentationRepositorySnapshot(
-            documents = listOf(
-                DocumentationFile(
-                    path = "docs/standards/example.md",
-                    content = validStandard
-                )
-            ),
-            repositoryEntries = setOf(
-                "source.txt",
-                "docs",
-                "docs/standards",
-                "docs/standards/example.md"
-            )
-        )
+            test("coverage rules require a mapped documentation change") {
+                val rules =
+                    listOf(
+                        DocumentationCoverageRule(
+                            id = "example-rule",
+                            sourcePaths = listOf("src/*"),
+                            documentationPaths = listOf("docs/standards/example.md"),
+                        ),
+                    )
+                val snapshot =
+                    DocumentationRepositorySnapshot(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "docs/standards/example.md",
+                                    content = validStandard,
+                                ),
+                            ),
+                        repositoryEntries =
+                            setOf(
+                                "source.txt",
+                                "docs",
+                                "docs/standards",
+                                "docs/standards/example.md",
+                            ),
+                    )
 
-        val missing = DocumentationValidator().validate(
-            snapshot = snapshot,
-            coverageRules = rules,
-            changedPaths = listOf("src/feature.kt"),
-            currentDate = today
-        )
-        val satisfied = DocumentationValidator().validate(
-            snapshot = snapshot,
-            coverageRules = rules,
-            changedPaths = listOf(
-                "src/feature.kt",
-                "docs/standards/example.md"
-            ),
-            currentDate = today
-        )
+                val missing =
+                    DocumentationValidator().validate(
+                        snapshot = snapshot,
+                        coverageRules = rules,
+                        changedPaths = listOf("src/feature.kt"),
+                        currentDate = today,
+                    )
+                val satisfied =
+                    DocumentationValidator().validate(
+                        snapshot = snapshot,
+                        coverageRules = rules,
+                        changedPaths =
+                            listOf(
+                                "src/feature.kt",
+                                "docs/standards/example.md",
+                            ),
+                        currentDate = today,
+                    )
 
-        missing.coverageViolations.map { violation -> violation.rule } shouldBe listOf("example-rule")
-        satisfied.coverageViolations shouldBe emptyList()
-    }
-}
-) {
+                missing.coverageViolations.map { violation -> violation.rule } shouldBe listOf("example-rule")
+                satisfied.coverageViolations shouldBe emptyList()
+            }
+        },
+    ) {
     companion object {
-        private val today = LocalDate.of(
-            2026,
-            7,
-            20
-        )
+        private val today =
+            LocalDate.of(
+                2026,
+                7,
+                20,
+            )
 
         private fun validate(
             documents: List<DocumentationFile>,
-            entries: Set<String>
+            entries: Set<String>,
         ) = DocumentationValidator().validate(
-            snapshot = DocumentationRepositorySnapshot(
-                documents = documents,
-                repositoryEntries = entries + documents.map { document -> document.path }
-            ),
-            currentDate = today
+            snapshot =
+                DocumentationRepositorySnapshot(
+                    documents = documents,
+                    repositoryEntries = entries + documents.map { document -> document.path },
+                ),
+            currentDate = today,
         )
 
-        private val validStandard = """
+        private val validStandard =
+            """
             ---
             title: Example standard
             type: standard
@@ -172,9 +194,10 @@ class DocumentationValidatorTest : FunSpec(
             ## Rules
 
             Example.
-        """.trimIndent()
+            """.trimIndent()
 
-        private val validRunbook = """
+        private val validRunbook =
+            """
             ---
             title: Example operation
             type: runbook
@@ -203,9 +226,10 @@ class DocumentationValidatorTest : FunSpec(
             Example.
             ## Sources
             Example.
-        """.trimIndent()
+            """.trimIndent()
 
-        private val supersededAdr = """
+        private val supersededAdr =
+            """
             ---
             title: Historical decision
             type: adr
@@ -230,6 +254,6 @@ class DocumentationValidatorTest : FunSpec(
             Historical alternatives.
             ## Supersession
             Superseded by a current decision.
-        """.trimIndent()
+            """.trimIndent()
     }
 }

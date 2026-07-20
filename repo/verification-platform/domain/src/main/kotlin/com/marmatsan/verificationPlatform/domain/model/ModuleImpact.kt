@@ -12,7 +12,7 @@ package com.marmatsan.verificationPlatform.domain.model
 data class ModuleImpact(
     val changedModules: List<String>,
     val affectedModules: List<String>,
-    val fallbackReason: String?
+    val fallbackReason: String?,
 ) {
     /** Whether module impact can be used for targeted verification. */
     val isValid: Boolean

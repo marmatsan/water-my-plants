@@ -17,48 +17,51 @@ class GradleProjectModuleGraphSource {
      * @throws IllegalArgumentException when called with a non-root project.
      */
     fun read(
-        rootProject: Project
+        rootProject: Project,
     ): RepositoryModuleGraph {
         require(rootProject == rootProject.rootProject) {
             "The CI module graph must be read from the root project."
         }
 
-        val moduleProjects = rootProject.subprojects
-            .filter { project -> project.buildFile.isFile }
-            .sortedBy(Project::getPath)
-        val modules = moduleProjects.map { project ->
-            RepositoryModule(
-                id = project.path,
-                directory = rootProject.relativePath(project.projectDir).replace(
-                    '\\',
-                    '/'
+        val moduleProjects =
+            rootProject.subprojects
+                .filter { project -> project.buildFile.isFile }
+                .sortedBy(Project::getPath)
+        val modules =
+            moduleProjects.map { project ->
+                RepositoryModule(
+                    id = project.path,
+                    directory =
+                        rootProject.relativePath(project.projectDir).replace(
+                            '\\',
+                            '/',
+                        ),
                 )
-            )
-        }
-        val dependencies = moduleProjects
-            .flatMap { dependentProject ->
-                dependentProject.configurations.flatMap { configuration ->
-                    configuration.dependencies
-                        .withType(ProjectDependency::class.java)
-                        .map { dependency ->
-                            ModuleDependency(
-                                dependentModule = dependentProject.path,
-                                dependencyModule = dependency.path
-                            )
-                        }
-                }
             }
-            .distinct()
-            .sortedWith(
-                compareBy(
-                    ModuleDependency::dependentModule,
-                    ModuleDependency::dependencyModule
+        val dependencies =
+            moduleProjects
+                .flatMap { dependentProject ->
+                    dependentProject.configurations.flatMap { configuration ->
+                        configuration.dependencies
+                            .withType(ProjectDependency::class.java)
+                            .map { dependency ->
+                                ModuleDependency(
+                                    dependentModule = dependentProject.path,
+                                    dependencyModule = dependency.path,
+                                )
+                            }
+                    }
+                }.distinct()
+                .sortedWith(
+                    compareBy(
+                        ModuleDependency::dependentModule,
+                        ModuleDependency::dependencyModule,
+                    ),
                 )
-            )
 
         return RepositoryModuleGraph(
             modules = modules,
-            dependencies = dependencies
+            dependencies = dependencies,
         )
     }
 }

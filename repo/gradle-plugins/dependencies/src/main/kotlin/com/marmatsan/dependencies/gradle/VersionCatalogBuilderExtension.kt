@@ -22,13 +22,13 @@ import org.gradle.api.initialization.dsl.VersionCatalogBuilder
  * @param libraries Flattened library dependencies, usually produced by a dependency tree traversal.
  */
 fun VersionCatalogBuilder.registerLibraries(
-    libraries: List<Dependency.Library>
+    libraries: List<Dependency.Library>,
 ) {
     libraries.forEach { library ->
         library.entries?.forEach { entry ->
             registerLibraryEntry(
                 libraryGroup = library.libraryGroup,
-                entry = entry
+                entry = entry,
             )
         }
     }
@@ -43,14 +43,14 @@ fun VersionCatalogBuilder.registerLibraries(
  * @param plugins Flattened plugin dependencies, usually produced by a dependency tree traversal.
  */
 fun VersionCatalogBuilder.registerPlugins(
-    plugins: List<Dependency.Plugin>
+    plugins: List<Dependency.Plugin>,
 ) {
     plugins.forEach { plugin ->
         plugin(
             plugin.pluginId,
-            plugin.pluginId
+            plugin.pluginId,
         ).version(
-            plugin.version
+            plugin.version,
         )
     }
 }
@@ -65,18 +65,22 @@ fun VersionCatalogBuilder.registerPlugins(
  */
 private fun VersionCatalogBuilder.registerLibraryEntry(
     libraryGroup: String,
-    entry: LibraryEntry
+    entry: LibraryEntry,
 ) {
     when (entry) {
-        is LibraryEntry.Single -> registerLibrary(
-            libraryGroup = libraryGroup,
-            artifact = entry.artifact
-        )
+        is LibraryEntry.Single -> {
+            registerLibrary(
+                libraryGroup = libraryGroup,
+                artifact = entry.artifact,
+            )
+        }
 
-        is LibraryEntry.Bundle -> registerLibraryBundle(
-            libraryGroup = libraryGroup,
-            bundle = entry.artifactsBundle
-        )
+        is LibraryEntry.Bundle -> {
+            registerLibraryBundle(
+                libraryGroup = libraryGroup,
+                bundle = entry.artifactsBundle,
+            )
+        }
     }
 }
 
@@ -92,19 +96,20 @@ private fun VersionCatalogBuilder.registerLibraryEntry(
  */
 private fun VersionCatalogBuilder.registerLibraryBundle(
     libraryGroup: String,
-    bundle: ArtifactsBundle
+    bundle: ArtifactsBundle,
 ) {
-    val aliases = bundle.artifacts.map { artifact ->
-        registerLibrary(
-            libraryGroup = libraryGroup,
-            artifact = artifact,
-            version = bundle.version
-        )
-    }
+    val aliases =
+        bundle.artifacts.map { artifact ->
+            registerLibrary(
+                libraryGroup = libraryGroup,
+                artifact = artifact,
+                version = bundle.version,
+            )
+        }
 
     bundle(
         bundle.alias,
-        aliases
+        aliases,
     )
 }
 
@@ -125,11 +130,11 @@ private fun VersionCatalogBuilder.registerLibraryBundle(
 private fun VersionCatalogBuilder.registerLibraryAlias(
     libraryAlias: String,
     libraryGroup: String,
-    artifact: String
+    artifact: String,
 ) = library(
     libraryAlias,
     libraryGroup,
-    artifact
+    artifact,
 )
 
 /**
@@ -143,11 +148,14 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
  * @param version The optional version string to assign. If `null`, the library is declared without a version
  */
 private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
-    version: String? = null
-) = if (version == null) withoutVersion() else version(
-    version
-)
-
+    version: String? = null,
+) = if (version == null) {
+    withoutVersion()
+} else {
+    version(
+        version,
+    )
+}
 
 /**
  * Registers a library dependency in the current [VersionCatalogBuilder].
@@ -183,19 +191,21 @@ private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
 private fun VersionCatalogBuilder.registerLibrary(
     libraryGroup: String,
     artifact: Artifact,
-    version: String? = artifact.version
+    version: String? = artifact.version,
 ): String {
-    val libraryAlias = libraryAlias(
-        libraryGroup = libraryGroup,
-        artifact = artifact.artifact
-    )
-    val libraryAliasBuilder = registerLibraryAlias(
-        libraryAlias = libraryAlias,
-        libraryGroup = libraryGroup,
-        artifact = artifact.artifact
-    )
+    val libraryAlias =
+        libraryAlias(
+            libraryGroup = libraryGroup,
+            artifact = artifact.artifact,
+        )
+    val libraryAliasBuilder =
+        registerLibraryAlias(
+            libraryAlias = libraryAlias,
+            libraryGroup = libraryGroup,
+            artifact = artifact.artifact,
+        )
     libraryAliasBuilder.registerLibraryVersion(
-        version = version
+        version = version,
     )
     return libraryAlias
 }
@@ -220,36 +230,41 @@ private fun VersionCatalogBuilder.registerLibrary(
  */
 internal fun libraryAlias(
     libraryGroup: String,
-    artifact: String
+    artifact: String,
 ): String {
     val groupSegments = libraryGroup.split(".")
     var groupSuffix = ""
     var artifactAliasSegment: String? = null
 
     for (index in groupSegments.lastIndex downTo 0) {
-        groupSuffix = if (groupSuffix.isEmpty()) {
-            groupSegments[index]
-        } else {
-            "${groupSegments[index]}-$groupSuffix"
-        }
+        groupSuffix =
+            if (groupSuffix.isEmpty()) {
+                groupSegments[index]
+            } else {
+                "${groupSegments[index]}-$groupSuffix"
+            }
 
-        artifactAliasSegment = when {
-            artifact == groupSuffix -> ""
-            artifact.startsWith(
-                prefix = "$groupSuffix-"
-            ) -> artifact.removePrefix("$groupSuffix-")
-            else -> null
-        }
+        artifactAliasSegment =
+            when {
+                artifact == groupSuffix -> ""
+
+                artifact.startsWith(
+                    prefix = "$groupSuffix-",
+                ) -> artifact.removePrefix("$groupSuffix-")
+
+                else -> null
+            }
 
         if (artifactAliasSegment != null) {
             break
         }
     }
 
-    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace(
-        "-",
-        "."
-    )
+    val normalizedArtifactAliasSegment =
+        (artifactAliasSegment ?: artifact).replace(
+            "-",
+            ".",
+        )
 
     return if (artifactAliasSegment?.isEmpty() == true) {
         libraryGroup

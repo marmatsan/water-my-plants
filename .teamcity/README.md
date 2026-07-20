@@ -2,6 +2,13 @@
 
 This directory is the source of truth for TeamCity project settings.
 
+The Kotlin DSL follows the repository
+[Kotlin standard](../docs/standards/kotlin.md). Mechanical formatting does not
+change pipeline topology, but every formatting migration still runs
+`checkTeamCityDsl` and reviews the generated configuration before merge. The
+repository-wide KtLint adoption preserved the pipeline, trigger, dependency,
+and status-publisher contracts described below.
+
 The contract used to derive the Figma representation of CI from these settings
 is documented in
 [`docs/ci/visual-model-contract.md`](../docs/ci/visual-model-contract.md).

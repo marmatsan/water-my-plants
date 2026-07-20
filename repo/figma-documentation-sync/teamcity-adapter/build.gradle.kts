@@ -36,7 +36,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(
-                components["java"]
+                components["java"],
             )
             artifactId = "figma-documentation-sync-teamcity-adapter"
 
@@ -55,10 +55,14 @@ publishing {
     repositories {
         maven {
             name = "staging"
-            url = uri(
-                providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
-                    ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
-            )
+            url =
+                uri(
+                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+                        ?: rootProject.layout.buildDirectory
+                            .dir("publication-repository")
+                            .get()
+                            .asFile,
+                )
         }
     }
 }

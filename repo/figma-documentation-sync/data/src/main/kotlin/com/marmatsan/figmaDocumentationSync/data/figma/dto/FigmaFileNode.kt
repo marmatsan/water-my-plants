@@ -1,6 +1,5 @@
 package com.marmatsan.figmaDocumentationSync.data.figma.dto
 
-
 import kotlinx.serialization.Serializable
 
 /**
@@ -11,5 +10,5 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class FigmaFileNode(
-    val document: FigmaNode? = null
+    val document: FigmaNode? = null,
 )

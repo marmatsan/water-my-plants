@@ -5,6 +5,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlanBo
 /** Canonical hashing boundary for a language-neutral visual sync plan. */
 fun interface VisualSyncPlanHasher {
     fun hash(
-        body: VisualSyncPlanBody
+        body: VisualSyncPlanBody,
     ): String
 }

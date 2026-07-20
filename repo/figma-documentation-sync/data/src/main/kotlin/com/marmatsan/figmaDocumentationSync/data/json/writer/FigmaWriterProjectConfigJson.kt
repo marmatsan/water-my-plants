@@ -16,302 +16,305 @@ object FigmaWriterProjectConfigJson {
     private val prettyJson = Json { prettyPrint = true }
 
     fun encode(
-        config: FigmaWriterProjectConfig
+        config: FigmaWriterProjectConfig,
     ): String =
         prettyJson.encodeToString(
             JsonObject.serializer(),
-            config.toJson()
+            config.toJson(),
         ) + System.lineSeparator()
 
     private fun FigmaWriterProjectConfig.toJson(): JsonObject {
-        val catalogTargetNames = catalogTreeTargets.map(
-            transform = FigmaCatalogTreeTargetConfig::name
-        )
+        val catalogTargetNames =
+            catalogTreeTargets.map(
+                transform = FigmaCatalogTreeTargetConfig::name,
+            )
         return buildJsonObject {
             put(
                 "schemaVersion",
-                1
+                1,
             )
             put(
                 "METADATA_PAGE_ID",
-                metadataPageId
+                metadataPageId,
             )
             put(
                 "METADATA_NAMESPACE",
-                metadataNamespace
+                metadataNamespace,
             )
             put(
                 "FIGMA_FILE_KEY",
-                figmaFileKey
+                figmaFileKey,
             )
             put(
                 "PROJECT_DISPLAY_NAME",
-                projectDisplayName
+                projectDisplayName,
             )
             put(
                 "MCP_CLIENT_NAME",
-                mcpClientName
+                mcpClientName,
             )
             put(
                 "OFFICIAL_STAGING_NAMESPACE",
-                "${metadataNamespace}_staging"
+                "${metadataNamespace}_staging",
             )
             put(
                 "PREVIEW_STAGING_NAMESPACE",
-                "${metadataNamespace}_preview"
+                "${metadataNamespace}_preview",
             )
             put(
                 "CI_DOCUMENTATION_PAGE_ID",
-                ciDocumentationPageId
+                ciDocumentationPageId,
             )
             put(
                 "CI_NODE_COMPONENT_ID",
-                ciNodeComponentId
+                ciNodeComponentId,
             )
             put(
                 "CI_ICON_COMPONENT_SET_ID",
-                ciIconComponentSetId
+                ciIconComponentSetId,
             )
             put(
                 "CI_VARIABLE_COLLECTION_NAME",
-                ciVariableCollectionName
+                ciVariableCollectionName,
             )
             put(
                 "CI_VARIABLE_MODE_NAMES",
-                ciVariableModeNames.toJsonArray()
+                ciVariableModeNames.toJsonArray(),
             )
             put(
                 "CI_NODE_INSTANCE_NAME",
-                ciNodeInstanceName
+                ciNodeInstanceName,
             )
             put(
                 "CI_ICON_INSTANCE_NAME",
-                ciIconInstanceName
+                ciIconInstanceName,
             )
             put(
                 "CI_ICON_ENVIRONMENT_PROPERTY",
-                ciIconEnvironmentProperty
+                ciIconEnvironmentProperty,
             )
             put(
                 "CI_ICON_ENVIRONMENTS",
-                ciIconEnvironments.toJsonArray()
+                ciIconEnvironments.toJsonArray(),
             )
             put(
                 "CI_CONNECTOR_NAME",
-                ciConnectorName
+                ciConnectorName,
             )
             put(
                 "CI_CONNECTOR_LABEL_NAME",
-                ciConnectorLabelName
+                ciConnectorLabelName,
             )
             put(
                 "CI_CONNECTOR_TEMPLATE_SECTION_ID",
-                ciConnectorTemplateSectionId
+                ciConnectorTemplateSectionId,
             )
             put(
                 "CI_NODE_PROPS",
-                ciNodeProps.toJsonObject()
+                ciNodeProps.toJsonObject(),
             )
             put(
                 "VERSIONS_COLLECTION_NAME",
-                versionsCollectionName
+                versionsCollectionName,
             )
             put(
                 "VERSIONS_COLLECTION_NAMES",
-                listOf(versionsCollectionName).toJsonArray()
+                listOf(versionsCollectionName).toJsonArray(),
             )
             put(
                 "VERSION_ALIAS_MODE_NAME",
-                versionAliasModeName
+                versionAliasModeName,
             )
             put(
                 "VERSION_NUMBER_MODE_NAME",
-                versionNumberModeName
+                versionNumberModeName,
             )
             put(
                 "OUTLINE_COLOR_VARIABLE_NAME",
-                outlineColorVariableName
+                outlineColorVariableName,
             )
             put(
                 "DEPENDENCY_VERSION_COMPONENT_ID",
-                dependencyVersionComponentId
+                dependencyVersionComponentId,
             )
             put(
                 "PROJECT_VERSION_COMPONENT_ID",
-                dependencyVersionComponentId
+                dependencyVersionComponentId,
             )
             put(
                 "DEPENDENCY_VERSION_INSTANCE_NAMES",
-                dependencyVersionInstanceNames.toJsonArray()
+                dependencyVersionInstanceNames.toJsonArray(),
             )
             put(
                 "DEPENDENCY_VERSION_PROPS",
-                dependencyVersionProps.toJsonObject()
+                dependencyVersionProps.toJsonObject(),
             )
             put(
                 "PARENT_SECTION_SIBLING_GAP",
-                parentSectionSiblingGap
+                parentSectionSiblingGap,
             )
             put(
                 "PARENT_SECTION_NODE_IDS",
-                parentSectionNodeIds.toJsonArray()
+                parentSectionNodeIds.toJsonArray(),
             )
             put(
                 "SECTION_SIBLING_GAP",
-                sectionSiblingGap
+                sectionSiblingGap,
             )
             put(
                 "TREE_NODE_COMPONENT_IDS",
-                treeNodeComponentIds.toJsonObject()
+                treeNodeComponentIds.toJsonObject(),
             )
             put(
                 "CONNECTOR_TEMPLATE_NAME",
-                connectorTemplateName
+                connectorTemplateName,
             )
             put(
                 "HEADER_INSTANCE_NAME",
-                headerInstanceName
+                headerInstanceName,
             )
             put(
                 "HEADER_LINK_PROPERTY_NAME",
-                headerLinkPropertyName
+                headerLinkPropertyName,
             )
             put(
                 "GITHUB_MAIN_BLOB_URL",
-                githubMainBlobUrl
+                githubMainBlobUrl,
             )
             put(
                 "GITHUB_MAIN_TREE_URL",
-                githubMainTreeUrl
+                githubMainTreeUrl,
             )
             put(
                 "CI_CONFIGURATION_MODEL_NAME",
-                ciConfigurationModelName
+                ciConfigurationModelName,
             )
             put(
                 "CI_PIPELINE_NAME",
-                ciPipelineName
+                ciPipelineName,
             )
             put(
                 "FIGMA_PIPELINE_NAME",
-                figmaPipelineName
+                figmaPipelineName,
             )
             put(
                 "TEAMCITY_SOURCE",
-                teamCitySource
+                teamCitySource,
             )
             put(
                 "TOPOLOGY_SOURCE",
-                topologySource
+                topologySource,
             )
             put(
                 "WINDOWS_RUNTIME_SOURCE",
-                windowsRuntimeSource
+                windowsRuntimeSource,
             )
             put(
                 "WINDOWS_RUNTIME_RUNBOOK_SOURCE",
-                windowsRuntimeRunbookSource
+                windowsRuntimeRunbookSource,
             )
             put(
                 "VISUAL_CONTRACT_SOURCE",
-                visualContractSource
+                visualContractSource,
             )
             put(
                 "BRANCH_PROTECTION_SOURCE",
-                branchProtectionSource
+                branchProtectionSource,
             )
             put(
                 "OFFICIAL_SYNC_SOURCE",
-                officialSyncSource
+                officialSyncSource,
             )
             put(
                 "OFFICIAL_DESIGN_MODEL_PATH",
-                officialDesignModelPath
+                officialDesignModelPath,
             )
             put(
                 "REPOSITORY_ROOT_RELATIVE_TO_TOOLS",
-                repositoryRootRelativeToTools
+                repositoryRootRelativeToTools,
             )
             put(
                 "CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY",
-                changeImpactPolicyRelativeToRepository
+                changeImpactPolicyRelativeToRepository,
             )
             put(
                 "HEADER_SECTION_TARGETS",
-                headerSectionTargets.toHeaderTargetsJson()
+                headerSectionTargets.toHeaderTargetsJson(),
             )
             put(
                 "VERSION_SECTION_TARGETS",
-                versionSectionTargets.toVersionTargetsJson()
+                versionSectionTargets.toVersionTargetsJson(),
             )
             put(
                 "TREE_NODE_PROPS",
-                treeNodeProps.toJsonObject()
+                treeNodeProps.toJsonObject(),
             )
             put(
                 "ARTIFACT_PROPS",
-                artifactProps.toJsonObject()
+                artifactProps.toJsonObject(),
             )
             put(
                 "ARTIFACTS_BUNDLE_PROPS",
-                artifactsBundleProps.toJsonObject()
+                artifactsBundleProps.toJsonObject(),
             )
             put(
                 "ARTIFACT_INSTANCE_NAME",
-                artifactInstanceName
+                artifactInstanceName,
             )
             put(
                 "ARTIFACTS_BUNDLE_INSTANCE_NAME",
-                artifactsBundleInstanceName
+                artifactsBundleInstanceName,
             )
             put(
                 "USAGE_CHIP_COMPONENT_SET_ID",
-                usageChipComponentSetId
+                usageChipComponentSetId,
             )
             put(
                 "USAGE_CHIP_INSTANCE_NAME",
-                usageChipInstanceName
+                usageChipInstanceName,
             )
             put(
                 "TOOL_ARTIFACT_USAGE_INSTANCE_NAME",
-                toolArtifactUsageInstanceName
+                toolArtifactUsageInstanceName,
             )
             put(
                 "TOOL_ARTIFACT_USAGE_PROPS",
-                toolArtifactUsageProps.toJsonObject()
+                toolArtifactUsageProps.toJsonObject(),
             )
             put(
                 "USAGE_CHIP_PROPS",
-                usageChipProps.toJsonObject()
+                usageChipProps.toJsonObject(),
             )
             put(
                 "USAGE_CHIP_KINDS",
-                usageChipKinds.toJsonObject()
+                usageChipKinds.toJsonObject(),
             )
             put(
                 "CATALOG_TREE_TARGETS",
-                catalogTreeTargets.toCatalogTargetsJson()
+                catalogTreeTargets.toCatalogTargetsJson(),
             )
             put(
                 "CI_VISUAL_TARGET_NAMES",
-                ciVisualTargetNames.toJsonArray()
+                ciVisualTargetNames.toJsonArray(),
             )
             put(
                 "CATALOG_TARGET_NAMES",
-                catalogTargetNames.toJsonArray()
+                catalogTargetNames.toJsonArray(),
             )
             put(
                 "WRITER_TARGET_NAMES",
-                (listOf(
-                    "preflight",
-                    "headers",
-                    "versions"
-                ) +
-                    catalogTargetNames + ciVisualTargetNames + "metadata").toJsonArray()
+                (
+                    listOf(
+                        "preflight",
+                        "headers",
+                        "versions",
+                    ) +
+                        catalogTargetNames + ciVisualTargetNames + "metadata"
+                ).toJsonArray(),
             )
             put(
                 "DEFAULT_FIXTURE_TARGETS",
-                defaultFixtureTargets.toJsonObject()
+                defaultFixtureTargets.toJsonObject(),
             )
         }
     }
@@ -321,7 +324,7 @@ object FigmaWriterProjectConfigJson {
             buildJsonObject {
                 put(
                     "sectionNodeId",
-                    target.sectionNodeId
+                    target.sectionNodeId,
                 )
                 put(
                     "links",
@@ -330,15 +333,15 @@ object FigmaWriterProjectConfigJson {
                             buildJsonObject {
                                 put(
                                     "label",
-                                    link.label
+                                    link.label,
                                 )
                                 put(
                                     "url",
-                                    link.url
+                                    link.url,
                                 )
                             }
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }.let(::JsonArray)
@@ -348,11 +351,11 @@ object FigmaWriterProjectConfigJson {
             buildJsonObject {
                 put(
                     "parentNodeId",
-                    target.parentNodeId
+                    target.parentNodeId,
                 )
                 put(
                     "variableFolder",
-                    target.variableFolder
+                    target.variableFolder,
                 )
             }
         }.let(::JsonObject)
@@ -362,39 +365,44 @@ object FigmaWriterProjectConfigJson {
             buildJsonObject {
                 put(
                     "name",
-                    target.name
+                    target.name,
                 )
                 put(
                     "sectionNodeId",
-                    target.sectionNodeId
+                    target.sectionNodeId,
                 )
                 put(
                     "type",
-                    target.type.wireValue
+                    target.type.wireValue,
                 )
                 put(
                     "lifecycle",
-                    target.lifecycle.wireValue
+                    target.lifecycle.wireValue,
                 )
                 put(
                     "nodesPath",
-                    target.nodesPath.toJsonArray()
+                    target.nodesPath.toJsonArray(),
                 )
-                if (target.gradlePluginNodes) put(
-                    "gradlePluginNodes",
-                    true
-                )
-                if (target.warnWhenUnused) put(
-                    "warnWhenUnused",
-                    true
-                )
+                if (target.gradlePluginNodes) {
+                    put(
+                        "gradlePluginNodes",
+                        true,
+                    )
+                }
+                if (target.warnWhenUnused) {
+                    put(
+                        "warnWhenUnused",
+                        true,
+                    )
+                }
             }
         }.let(::JsonArray)
 
     private fun Map<String, String>.toJsonObject(): JsonObject =
         mapValues { (_, value) -> JsonPrimitive(value) }.let(::JsonObject)
 
-    private fun List<String>.toJsonArray(): JsonArray = map(
-        transform = ::JsonPrimitive
-    ).let(::JsonArray)
+    private fun List<String>.toJsonArray(): JsonArray =
+        map(
+            transform = ::JsonPrimitive,
+        ).let(::JsonArray)
 }

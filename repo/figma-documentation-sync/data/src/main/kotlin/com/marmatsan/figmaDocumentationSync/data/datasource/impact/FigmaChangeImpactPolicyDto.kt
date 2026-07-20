@@ -10,11 +10,11 @@ internal data class FigmaChangeImpactPolicyDto(
     val figmaModelNeutralPaths: List<String>,
     val figmaModelContentPaths: List<String>,
     val figmaVisualWriterPaths: List<String>,
-    val figmaVisualTargetRules: List<VisualTargetRuleDto>
+    val figmaVisualTargetRules: List<VisualTargetRuleDto>,
 ) {
     @Serializable
     data class VisualTargetRuleDto(
         val paths: List<String>,
-        val targets: List<String>
+        val targets: List<String>,
     )
 }

@@ -1,9 +1,9 @@
 package com.marmatsan.verificationPlatform.data.json
 
 import com.marmatsan.verificationPlatform.domain.model.CiExecutionTopology
-import java.io.File
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
 
 /** Serializes and deserializes the versioned CI execution-topology contract. */
 class CiExecutionTopologyJson {
@@ -15,7 +15,7 @@ class CiExecutionTopologyJson {
      */
     fun write(
         topology: CiExecutionTopology,
-        output: File
+        output: File,
     ) {
         output.parentFile.mkdirs()
         output.writeText(format.encodeToString(topology) + System.lineSeparator())
@@ -28,13 +28,14 @@ class CiExecutionTopologyJson {
      * not satisfy the serialized contract.
      */
     fun read(
-        source: String
+        source: String,
     ): CiExecutionTopology = format.decodeFromString(source)
 
     private companion object {
-        val format = Json {
-            prettyPrint = true
-            encodeDefaults = true
-        }
+        val format =
+            Json {
+                prettyPrint = true
+                encodeDefaults = true
+            }
     }
 }

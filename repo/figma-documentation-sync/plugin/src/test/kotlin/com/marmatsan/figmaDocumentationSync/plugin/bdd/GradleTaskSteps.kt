@@ -6,9 +6,6 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.nio.file.Files
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -16,9 +13,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.nio.file.Files
 
 class GradleTaskSteps : En {
-
     private lateinit var projectDir: File
     private lateinit var designModelFile: File
     private lateinit var result: BuildResult
@@ -27,9 +26,10 @@ class GradleTaskSteps : En {
     init {
         Given("a temporary Gradle project exists") {
             projectDir = Files.createTempDirectory("figma-documentation-sync-bdd").toFile()
-            designModelFile = projectDir.resolve(
-                relative = "build/reports/figma-sync/design-model.json"
-            )
+            designModelFile =
+                projectDir.resolve(
+                    relative = "build/reports/figma-sync/design-model.json",
+                )
             officialFigmaSyncGenerationAuthorized = false
         }
 
@@ -39,23 +39,25 @@ class GradleTaskSteps : En {
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin") {
             projectDir.writeBuildFile(
-                ciDocumentationEnabled = true
+                ciDocumentationEnabled = true,
             )
         }
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin without CI documentation") {
             projectDir.writeBuildFile(
-                ciDocumentationEnabled = false
+                ciDocumentationEnabled = false,
             )
         }
 
         Given("the temporary Gradle project has no CI documentation inputs") {
-            projectDir.resolve(
-                relative = "docs/ci"
-            ).deleteRecursively()
-            projectDir.resolve(
-                relative = ".teamcity"
-            ).deleteRecursively()
+            projectDir
+                .resolve(
+                    relative = "docs/ci",
+                ).deleteRecursively()
+            projectDir
+                .resolve(
+                    relative = ".teamcity",
+                ).deleteRecursively()
         }
 
         Given("the temporary Gradle project is a git repository") {
@@ -89,65 +91,72 @@ class GradleTaskSteps : En {
         }
 
         Then("the written design model contains the current git sha") {
-            writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe projectDir.git(
-                "rev-parse",
-                "HEAD"
-            )
+            writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe
+                projectDir.git(
+                    "rev-parse",
+                    "HEAD",
+                )
         }
 
         Then("the written design model contains content") {
-            writtenDesignModel()["content"]!!.jsonObject.keys shouldContainAll listOf(
-                "versions",
-                "versionSections",
-                "catalogs",
-                "modules",
-                "moduleDependencies",
-                "ci"
-            )
+            writtenDesignModel()["content"]!!.jsonObject.keys shouldContainAll
+                listOf(
+                    "versions",
+                    "versionSections",
+                    "catalogs",
+                    "modules",
+                    "moduleDependencies",
+                    "ci",
+                )
         }
 
         Then("the written design model contains portable content without CI") {
             val contentKeys = writtenDesignModel()["content"]!!.jsonObject.keys
 
-            contentKeys shouldContainAll listOf(
-                "versions",
-                "versionSections",
-                "catalogs",
-                "modules",
-                "moduleDependencies"
-            )
+            contentKeys shouldContainAll
+                listOf(
+                    "versions",
+                    "versionSections",
+                    "catalogs",
+                    "modules",
+                    "moduleDependencies",
+                )
             contentKeys.contains("ci") shouldBe false
         }
 
         Then("the written design model contains repository infrastructure modules") {
-            val modules = writtenDesignModel()["content"]!!
-                .jsonObject["modules"]!!
-                .jsonArray
-                .map { module -> module.jsonPrimitive.content }
+            val modules =
+                writtenDesignModel()["content"]!!
+                    .jsonObject["modules"]!!
+                    .jsonArray
+                    .map { module -> module.jsonPrimitive.content }
 
-            modules shouldContainAll listOf(
-                ":dependency-catalog:catalog-core",
-                ":dependency-catalog:water-my-plants-catalog",
-                ":figma-documentation-sync:data",
-                ":figma-documentation-sync:domain",
-                ":figma-documentation-sync:plugin",
-                ":gradle-plugins:android"
-            )
+            modules shouldContainAll
+                listOf(
+                    ":dependency-catalog:catalog-core",
+                    ":dependency-catalog:water-my-plants-catalog",
+                    ":figma-documentation-sync:data",
+                    ":figma-documentation-sync:domain",
+                    ":figma-documentation-sync:plugin",
+                    ":gradle-plugins:android",
+                )
 
-            val dependencies = writtenDesignModel()["content"]!!
-                .jsonObject["moduleDependencies"]!!
-                .jsonObject["dependencyCatalog"]!!
-                .jsonArray
-                .map { dependency ->
-                    val dependencyObject = dependency.jsonObject
-                    dependencyObject["dependentModule"]!!.jsonPrimitive.content to
-                        dependencyObject["dependencyModule"]!!.jsonPrimitive.content
-                }
+            val dependencies =
+                writtenDesignModel()["content"]!!
+                    .jsonObject["moduleDependencies"]!!
+                    .jsonObject["dependencyCatalog"]!!
+                    .jsonArray
+                    .map { dependency ->
+                        val dependencyObject = dependency.jsonObject
+                        dependencyObject["dependentModule"]!!.jsonPrimitive.content to
+                            dependencyObject["dependencyModule"]!!.jsonPrimitive.content
+                    }
 
-            dependencies shouldBe listOf(
-                ":dependency-catalog:water-my-plants-catalog" to
-                    ":dependency-catalog:catalog-core"
-            )
+            dependencies shouldBe
+                listOf(
+                    ":dependency-catalog:water-my-plants-catalog" to
+                        ":dependency-catalog:catalog-core",
+                )
         }
 
         Then("the written design model contains a model hash") {
@@ -160,7 +169,7 @@ class GradleTaskSteps : En {
                 if (::projectDir.isInitialized) {
                     projectDir.deleteRecursively()
                 }
-            }
+            },
         )
     }
 
@@ -168,25 +177,25 @@ class GradleTaskSteps : En {
         Json.parseToJsonElement(designModelFile.readText()).jsonObject
 
     private fun gradleRunner(): GradleRunner =
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments(
                 "generateFigmaDesignModel",
-                "--stacktrace"
-            )
-            .withEnvironment(gradleEnvironment())
+                "--stacktrace",
+            ).withEnvironment(gradleEnvironment())
 
     private fun gradleEnvironment(): Map<String, String> =
         System.getenv().toMutableMap().apply {
             if (officialFigmaSyncGenerationAuthorized) {
                 put(
                     "FIGMA_DOCUMENTATION_SYNC_OFFICIAL",
-                    "true"
+                    "true",
                 )
                 put(
                     "FIGMA_DOCUMENTATION_SYNC_BRANCH",
-                    "main"
+                    "main",
                 )
             } else {
                 remove("FIGMA_DOCUMENTATION_SYNC_OFFICIAL")
@@ -195,25 +204,26 @@ class GradleTaskSteps : En {
         }
 
     private fun File.writeBuildFile(
-        ciDocumentationEnabled: Boolean
+        ciDocumentationEnabled: Boolean,
     ) {
-        val ciDocumentationConfiguration = if (ciDocumentationEnabled) {
-            """
-            ciDocumentationEnabled.set(true)
-            ciConfigurationModelName.set("teamCity")
-            ciConfigurationProviderClassName.set(EmptyCiConfigurationProvider::class.java.name)
-            ciExternalTopologyFile.set(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
-            ciWindowsRuntimeFile.set(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
-            ciGeneratedConfigurationDirectory.set(
-                layout.projectDirectory.dir(".teamcity/target/generated-configs")
-            )
-            """.trimIndent()
-        } else {
-            ""
-        }
+        val ciDocumentationConfiguration =
+            if (ciDocumentationEnabled) {
+                """
+                ciDocumentationEnabled.set(true)
+                ciConfigurationModelName.set("teamCity")
+                ciConfigurationProviderClassName.set(EmptyCiConfigurationProvider::class.java.name)
+                ciExternalTopologyFile.set(layout.projectDirectory.file("docs/ci/external-topology.yaml"))
+                ciWindowsRuntimeFile.set(layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
+                ciGeneratedConfigurationDirectory.set(
+                    layout.projectDirectory.dir(".teamcity/target/generated-configs")
+                )
+                """.trimIndent()
+            } else {
+                ""
+            }
 
         resolve(
-            relative = "build.gradle.kts"
+            relative = "build.gradle.kts",
         ).writeText(
             """
             import com.marmatsan.figmaDocumentationSync.data.ci.configuration.EmptyCiConfigurationProvider
@@ -256,13 +266,13 @@ class GradleTaskSteps : En {
                     publishesConventionPlugins.set(true)
                 }
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
     private fun File.writeRepositoryModelFiles() {
         resolve(
-            relative = "settings.gradle.kts"
+            relative = "settings.gradle.kts",
         ).writeText(
             """
             pluginManagement {
@@ -284,31 +294,31 @@ class GradleTaskSteps : En {
             rootProject.name = "figma-documentation-sync-bdd"
             include(":app")
             include(":core:ui")
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "app"
+            relative = "app",
         ).mkdirs()
         resolve(
-            relative = "app/build.gradle.kts"
+            relative = "app/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "core/ui"
+            relative = "core/ui",
         ).mkdirs()
         resolve(
-            relative = "core/ui/build.gradle.kts"
+            relative = "core/ui/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/gradle-plugins"
+            relative = "repo/gradle-plugins",
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog"
+            relative = "repo/dependency-catalog",
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync"
+            relative = "repo/figma-documentation-sync",
         ).mkdirs()
         resolve(
-            relative = "repo/gradle-plugins/settings.gradle.kts"
+            relative = "repo/gradle-plugins/settings.gradle.kts",
         ).writeText(
             """
             dependencyResolutionManagement {
@@ -321,52 +331,52 @@ class GradleTaskSteps : En {
             }
 
             include(":android")
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "repo/gradle-plugins/android"
+            relative = "repo/gradle-plugins/android",
         ).mkdirs()
         resolve(
-            relative = "repo/gradle-plugins/android/build.gradle.kts"
+            relative = "repo/gradle-plugins/android/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/settings.gradle.kts"
+            relative = "repo/dependency-catalog/settings.gradle.kts",
         ).writeText(
             """
             rootProject.name = "dependency-catalog"
             enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
             include(":catalog-core", ":water-my-plants-catalog")
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "repo/dependency-catalog/catalog-core"
+            relative = "repo/dependency-catalog/catalog-core",
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/catalog-core/build.gradle.kts"
+            relative = "repo/dependency-catalog/catalog-core/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/water-my-plants-catalog"
+            relative = "repo/dependency-catalog/water-my-plants-catalog",
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts"
+            relative = "repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts",
         ).writeText(
             """
             dependencies {
                 implementation(projects.catalogCore)
             }
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "repo/dependency-catalog/versions.properties"
+            relative = "repo/dependency-catalog/versions.properties",
         ).writeText(
             """
             ## Main project dependencies
             androidGradlePluginVersion=9.2.1
             kotlinVersion=2.4.0
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "repo/figma-documentation-sync/settings.gradle.kts"
+            relative = "repo/figma-documentation-sync/settings.gradle.kts",
         ).writeText(
             """
             rootProject.name = "figma-documentation-sync"
@@ -381,31 +391,31 @@ class GradleTaskSteps : En {
             }
 
             include(":data", ":domain", ":plugin")
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "repo/figma-documentation-sync/data"
+            relative = "repo/figma-documentation-sync/data",
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/data/build.gradle.kts"
+            relative = "repo/figma-documentation-sync/data/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/figma-documentation-sync/domain"
+            relative = "repo/figma-documentation-sync/domain",
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/domain/build.gradle.kts"
+            relative = "repo/figma-documentation-sync/domain/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/figma-documentation-sync/plugin"
+            relative = "repo/figma-documentation-sync/plugin",
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/plugin/build.gradle.kts"
+            relative = "repo/figma-documentation-sync/plugin/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "docs/ci"
+            relative = "docs/ci",
         ).mkdirs()
         resolve(
-            relative = "docs/ci/external-topology.yaml"
+            relative = "docs/ci/external-topology.yaml",
         ).writeText(
             """
             schemaVersion: 1
@@ -418,10 +428,10 @@ class GradleTaskSteps : En {
                 name: Operator
                 description: Initiates manual CI actions.
             connections: []
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = "docs/ci/windows-runtime.yaml"
+            relative = "docs/ci/windows-runtime.yaml",
         ).writeText(
             """
             schemaVersion: 1
@@ -436,29 +446,29 @@ class GradleTaskSteps : En {
                 service: TeamCity
                 startup: Automatic
                 identity: NT SERVICE\TeamCity
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci"
+            relative = ".teamcity/target/generated-configs/Root_Ci",
         ).mkdirs()
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci/project-config.xml"
+            relative = ".teamcity/target/generated-configs/Root_Ci/project-config.xml",
         ).writeText(
             """
             <project>
               <name>CI</name>
             </project>
-            """.trimIndent()
+            """.trimIndent(),
         )
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci/pipeline.yml"
+            relative = ".teamcity/target/generated-configs/Root_Ci/pipeline.yml",
         ).writeText(
             """
             version: 1
             jobs:
               verify:
                 name: Verify
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -467,11 +477,11 @@ class GradleTaskSteps : En {
         git(
             "checkout",
             "-b",
-            "main"
+            "main",
         )
         git(
             "add",
-            "."
+            ".",
         )
         git(
             "-c",
@@ -480,16 +490,17 @@ class GradleTaskSteps : En {
             "user.email=bdd@example.com",
             "commit",
             "-m",
-            "Initial fixture"
+            "Initial fixture",
         )
     }
 
     private fun File.git(
-        vararg arguments: String
+        vararg arguments: String,
     ): String {
-        val process = ProcessBuilder(listOf("git") + arguments)
-            .directory(this)
-            .start()
+        val process =
+            ProcessBuilder(listOf("git") + arguments)
+                .directory(this)
+                .start()
         val output = ByteArrayOutputStream()
         val error = ByteArrayOutputStream()
         process.inputStream.use { input -> input.copyTo(output) }

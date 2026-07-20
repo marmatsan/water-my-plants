@@ -26,7 +26,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Writes the deterministic Figma impact of the current Git change set. */
 @DisableCachingByDefault(
-    because = "The default input is the current Git revision graph"
+    because = "The default input is the current Git revision graph",
 )
 abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
     @get:InputFile
@@ -51,53 +51,59 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
     fun classify() {
         val component = figmaDocumentationSyncComponent::class.create()
         val policy = component.changeImpactPolicyPort.read(policyFile.get().asFile.absolutePath)
-        val changeSet = changedPathsOverride.get().takeIf(List<String>::isNotEmpty)?.let { paths ->
-            RepositoryChangeSet(
-                comparisonBase = comparisonBaseOverride.orNull,
-                changedPaths = paths
+        val changeSet =
+            changedPathsOverride.get().takeIf(List<String>::isNotEmpty)?.let { paths ->
+                RepositoryChangeSet(
+                    comparisonBase = comparisonBaseOverride.orNull,
+                    changedPaths = paths,
+                )
+            } ?: component.repositoryChangeSetPort.read(projectRootDirectory.get().asFile.absolutePath)
+        val impact =
+            component.changeImpactClassifier.classify(
+                changeSet = changeSet,
+                policy = policy,
             )
-        } ?: component.repositoryChangeSetPort.read(projectRootDirectory.get().asFile.absolutePath)
-        val impact = component.changeImpactClassifier.classify(
-            changeSet = changeSet,
-            policy = policy
-        )
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         output.writeText(
             prettyJson.encodeToString(
                 JsonObject.serializer(),
-                impact.toJson()
-            ) + System.lineSeparator()
+                impact.toJson(),
+            ) + System.lineSeparator(),
         )
 
         logger.lifecycle(
             "Classified Figma change impact as ${impact.impact.wireValue} " +
-                "(${impact.scope.wireValue})."
+                "(${impact.scope.wireValue}).",
         )
     }
 
-    private fun FigmaChangeImpact.toJson() = JsonObject(
-        linkedMapOf(
-            "scope" to JsonPrimitive(scope.wireValue),
-            "figmaImpact" to JsonPrimitive(impact.wireValue),
-            "affectedVisualTargets" to JsonArray(
-                affectedVisualTargets.map(
-                    transform = ::JsonPrimitive
-                )
+    private fun FigmaChangeImpact.toJson() =
+        JsonObject(
+            linkedMapOf(
+                "scope" to JsonPrimitive(scope.wireValue),
+                "figmaImpact" to JsonPrimitive(impact.wireValue),
+                "affectedVisualTargets" to
+                    JsonArray(
+                        affectedVisualTargets.map(
+                            transform = ::JsonPrimitive,
+                        ),
+                    ),
+                "comparisonBase" to (comparisonBase?.let(::JsonPrimitive) ?: JsonNull),
+                "changedPaths" to
+                    JsonArray(
+                        changedPaths.map(
+                            transform = ::JsonPrimitive,
+                        ),
+                    ),
             ),
-            "comparisonBase" to (comparisonBase?.let(::JsonPrimitive) ?: JsonNull),
-            "changedPaths" to JsonArray(
-                changedPaths.map(
-                    transform = ::JsonPrimitive
-                )
-            )
         )
-    )
 
     private companion object {
-        val prettyJson = Json {
-            prettyPrint = true
-            explicitNulls = true
-        }
+        val prettyJson =
+            Json {
+                prettyPrint = true
+                explicitNulls = true
+            }
     }
 }

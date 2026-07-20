@@ -9,7 +9,7 @@ import kotlinx.serialization.json.jsonPrimitive
 object FigmaSyncMetadataJson {
     fun read(
         sharedPluginData: Map<String, Map<String, String>>,
-        namespace: String
+        namespace: String,
     ): FigmaSyncMetadata? {
         val metadata = sharedPluginData[namespace] ?: return null
         return FigmaSyncMetadata(
@@ -17,7 +17,7 @@ object FigmaSyncMetadataJson {
             writerHash = metadata["writerHash"],
             targetFingerprints = metadata["targetFingerprints"].toStringMapOrNull(),
             writerScopeFingerprints = metadata["writerScopeFingerprints"].toStringMapOrNull(),
-            writerScopeFingerprintSchemaVersion = metadata["writerScopeFingerprintSchemaVersion"]?.toIntOrNull()
+            writerScopeFingerprintSchemaVersion = metadata["writerScopeFingerprintSchemaVersion"]?.toIntOrNull(),
         )
     }
 

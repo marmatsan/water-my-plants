@@ -14,13 +14,13 @@ data class CiConnection(
     val policy: String?,
     val path: String?,
     val automation: Automation,
-    val annotation: String?
+    val annotation: String?,
 ) {
     enum class Automation(
-        val serializedName: String
+        val serializedName: String,
     ) {
         Manual("manual"),
         Automatic("automatic"),
-        OperatorAssisted("operator-assisted")
+        OperatorAssisted("operator-assisted"),
     }
 }

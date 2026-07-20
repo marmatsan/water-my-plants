@@ -23,5 +23,5 @@ package com.marmatsan.figmaDocumentationSync.domain.port.modules
 data class ProjectModuleDependenciesSource(
     val rootDirPath: String,
     val scope: ProjectModuleDependenciesScope,
-    val modulePathPrefix: String = ""
+    val modulePathPrefix: String = "",
 )

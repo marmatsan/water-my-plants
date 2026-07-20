@@ -20,7 +20,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Validates an official artifact set and writes its typed handoff identity. */
 @DisableCachingByDefault(
-    because = "The output records absolute paths from the staged artifact set"
+    because = "The output records absolute paths from the staged artifact set",
 )
 abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
     @get:InputDirectory
@@ -37,19 +37,23 @@ abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
     @TaskAction
     fun validateArtifactSet() {
         val component = figmaDocumentationSyncComponent::class.create()
-        val artifacts = component.officialFigmaArtifactSetReader.read(
-            artifactDirectory.get().asFile.absolutePath
-        )
-        val validated = component.officialFigmaArtifactContractValidator.validate(
-            contract = artifacts.contract,
-            expectedGitSha = expectedGitSha.orNull
-        )
-        val visualManifestPath = requireNotNull(artifacts.visualManifestPath) {
-            "Official artifact set does not contain one visual manifest."
-        }
-        val metadataManifestPath = requireNotNull(artifacts.metadataManifestPath) {
-            "Official artifact set does not contain one metadata manifest."
-        }
+        val artifacts =
+            component.officialFigmaArtifactSetReader.read(
+                artifactDirectory.get().asFile.absolutePath,
+            )
+        val validated =
+            component.officialFigmaArtifactContractValidator.validate(
+                contract = artifacts.contract,
+                expectedGitSha = expectedGitSha.orNull,
+            )
+        val visualManifestPath =
+            requireNotNull(artifacts.visualManifestPath) {
+                "Official artifact set does not contain one visual manifest."
+            }
+        val metadataManifestPath =
+            requireNotNull(artifacts.metadataManifestPath) {
+                "Official artifact set does not contain one metadata manifest."
+            }
 
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
@@ -67,19 +71,21 @@ abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
                         "planPath" to JsonPrimitive(artifacts.planPath.toString()),
                         "visualManifestPath" to JsonPrimitive(visualManifestPath.toString()),
                         "metadataManifestPath" to JsonPrimitive(metadataManifestPath.toString()),
-                        "visualStatePath" to JsonPrimitive(
-                            visualManifestPath.parent.resolve(
-                                "execution-state.json"
-                            ).toString()
-                        )
-                    )
-                )
-            ) + System.lineSeparator()
+                        "visualStatePath" to
+                            JsonPrimitive(
+                                visualManifestPath.parent
+                                    .resolve(
+                                        "execution-state.json",
+                                    ).toString(),
+                            ),
+                    ),
+                ),
+            ) + System.lineSeparator(),
         )
 
         logger.lifecycle(
             "Validated official Figma artifact set at ${validated.gitSha} " +
-                "(${validated.decision.wireValue})."
+                "(${validated.decision.wireValue}).",
         )
     }
 

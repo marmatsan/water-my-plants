@@ -1,10 +1,12 @@
 pluginManagement {
-    val pluginRepository = providers
-        .gradleProperty("figmaDocumentationSyncPublicationRepository")
-        .get()
-    val catalogRepository = providers
-        .gradleProperty("figmaDocumentationSyncCatalogPublicationRepository")
-        .getOrElse(pluginRepository)
+    val pluginRepository =
+        providers
+            .gradleProperty("figmaDocumentationSyncPublicationRepository")
+            .get()
+    val catalogRepository =
+        providers
+            .gradleProperty("figmaDocumentationSyncCatalogPublicationRepository")
+            .getOrElse(pluginRepository)
 
     repositories {
         maven { url = uri(pluginRepository) }
@@ -15,9 +17,10 @@ pluginManagement {
     }
 
     plugins {
-        id("com.marmatsan.figmaDocumentationSync") version providers
-            .gradleProperty("figmaDocumentationSyncVersion")
-            .get()
+        id("com.marmatsan.figmaDocumentationSync") version
+            providers
+                .gradleProperty("figmaDocumentationSyncVersion")
+                .get()
     }
 }
 
@@ -27,12 +30,13 @@ dependencyResolutionManagement {
             url = uri(providers.gradleProperty("figmaDocumentationSyncPublicationRepository").get())
         }
         maven {
-            url = uri(
-                providers
-                    .gradleProperty("figmaDocumentationSyncCatalogPublicationRepository")
-                    .orElse(providers.gradleProperty("figmaDocumentationSyncPublicationRepository"))
-                    .get()
-            )
+            url =
+                uri(
+                    providers
+                        .gradleProperty("figmaDocumentationSyncCatalogPublicationRepository")
+                        .orElse(providers.gradleProperty("figmaDocumentationSyncPublicationRepository"))
+                        .get(),
+                )
         }
         google()
         mavenCentral()

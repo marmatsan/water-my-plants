@@ -11,6 +11,6 @@ import org.junit.platform.suite.api.Suite
 @SelectPackages("com.marmatsan.figmaDocumentationSync.plugin.bdd")
 @ConfigurationParameter(
     key = GLUE_PROPERTY_NAME,
-    value = "com.marmatsan.figmaDocumentationSync.plugin.bdd"
+    value = "com.marmatsan.figmaDocumentationSync.plugin.bdd",
 )
 class RunCucumberTest

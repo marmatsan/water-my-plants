@@ -9,5 +9,5 @@ data class McpExecutionState(
     val completedFiles: List<McpCompletedFile>,
     val plannedFiles: List<String>,
     val failedFile: String?,
-    val failure: McpExecutionFailure? = null
+    val failure: McpExecutionFailure? = null,
 )

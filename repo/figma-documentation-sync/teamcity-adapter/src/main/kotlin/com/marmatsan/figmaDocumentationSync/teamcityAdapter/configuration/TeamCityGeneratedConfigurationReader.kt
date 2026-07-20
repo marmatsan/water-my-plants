@@ -5,124 +5,137 @@ import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiPipeline
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiTrigger
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiVcsRoot
-import java.io.File
-import javax.xml.XMLConstants
-import javax.xml.parsers.DocumentBuilderFactory
 import org.snakeyaml.engine.v2.api.Load
 import org.snakeyaml.engine.v2.api.LoadSettings
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+import java.io.File
+import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
 
 /** Reads the effective YAML and XML emitted by the TeamCity Kotlin DSL. */
 class TeamCityGeneratedConfigurationReader {
     fun read(
-        directory: File
+        directory: File,
     ): CiConfiguration {
         require(directory.isDirectory) {
             "TeamCity generated configuration directory does not exist: ${directory.path}"
         }
 
-        val pipelineDirectories = directory
-            .walkTopDown()
-            .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
-            .map(
-                transform = File::getParentFile
+        val pipelineDirectories =
+            directory
+                .walkTopDown()
+                .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
+                .map(
+                    transform = File::getParentFile,
+                ).toList()
+        val statusGates =
+            readStatusGates(
+                directory = directory,
             )
-            .toList()
-        val statusGates = readStatusGates(
-            directory = directory
-        )
 
         return CiConfiguration(
-            pipelines = pipelineDirectories
-                .map { pipelineDirectory ->
-                    readPipeline(
-                        directory = pipelineDirectory,
-                        statusGate = statusGates[pipelineDirectory.name]
-                    )
-                }
-                .sortedBy(CiPipeline::id),
-            vcsRoots = directory
-                .walkTopDown()
-                .filter { file ->
-                    file.isFile &&
-                        file.extension == XML_EXTENSION &&
-                        file.parentFile.name == VCS_ROOTS_DIRECTORY_NAME
-                }
-                .map(
-                    transform = ::readVcsRoot
-                )
-                .toList()
-                .sortedBy(CiVcsRoot::id)
+            pipelines =
+                pipelineDirectories
+                    .map { pipelineDirectory ->
+                        readPipeline(
+                            directory = pipelineDirectory,
+                            statusGate = statusGates[pipelineDirectory.name],
+                        )
+                    }.sortedBy(CiPipeline::id),
+            vcsRoots =
+                directory
+                    .walkTopDown()
+                    .filter { file ->
+                        file.isFile &&
+                            file.extension == XML_EXTENSION &&
+                            file.parentFile.name == VCS_ROOTS_DIRECTORY_NAME
+                    }.map(
+                        transform = ::readVcsRoot,
+                    ).toList()
+                    .sortedBy(CiVcsRoot::id),
         )
     }
 
     private fun readPipeline(
         directory: File,
-        statusGate: StatusGate?
+        statusGate: StatusGate?,
     ): CiPipeline {
-        val projectDocument = readXml(
-            file = directory.resolve(
-                relative = PROJECT_CONFIG_FILE_NAME
+        val projectDocument =
+            readXml(
+                file =
+                    directory.resolve(
+                        relative = PROJECT_CONFIG_FILE_NAME,
+                    ),
             )
-        )
-        val buildTypeFiles = directory.resolve(
-            relative = BUILD_TYPES_DIRECTORY_NAME
-        )
-            .listFiles { file -> file.isFile && file.extension == XML_EXTENSION }
-            ?.sortedBy(File::getName)
-            .orEmpty()
+        val buildTypeFiles =
+            directory
+                .resolve(
+                    relative = BUILD_TYPES_DIRECTORY_NAME,
+                ).listFiles { file -> file.isFile && file.extension == XML_EXTENSION }
+                ?.sortedBy(File::getName)
+                .orEmpty()
 
         return CiPipeline(
             id = directory.name,
-            name = projectDocument.documentElement
-                .getElementsByTagName(NAME_ELEMENT)
-                .item(0)
-                ?.textContent
-                ?.trim()
-                .orEmpty(),
-            triggers = statusGate?.triggers.orEmpty() +
-                buildTypeFiles.flatMap { file -> readTriggers(
-                    document = readXml(
-                        file = file
-                    )
-                ) },
-            jobs = readJobs(
-                file = directory.resolve(
-                    relative = PIPELINE_FILE_NAME
+            name =
+                projectDocument.documentElement
+                    .getElementsByTagName(NAME_ELEMENT)
+                    .item(0)
+                    ?.textContent
+                    ?.trim()
+                    .orEmpty(),
+            triggers =
+                statusGate?.triggers.orEmpty() +
+                    buildTypeFiles.flatMap { file ->
+                        readTriggers(
+                            document =
+                                readXml(
+                                    file = file,
+                                ),
+                        )
+                    },
+            jobs =
+                readJobs(
+                    file =
+                        directory.resolve(
+                            relative = PIPELINE_FILE_NAME,
+                        ),
+                    publishedChecks = statusGate?.publishedChecks.orEmpty(),
                 ),
-                publishedChecks = statusGate?.publishedChecks.orEmpty()
-            )
         )
     }
 
     private fun readStatusGates(
-        directory: File
-    ): Map<String, StatusGate> = directory
-        .walkTopDown()
-        .filter { file ->
-            file.isFile &&
-                file.extension == XML_EXTENSION &&
-                file.parentFile.name == BUILD_TYPES_DIRECTORY_NAME &&
-                !file.parentFile.parentFile.resolve(
-                    relative = PIPELINE_FILE_NAME
-                ).isFile
-        }
-        .mapNotNull(::readStatusGate)
-        .associateBy(StatusGate::pipelineId)
+        directory: File,
+    ): Map<String, StatusGate> =
+        directory
+            .walkTopDown()
+            .filter { file ->
+                file.isFile &&
+                    file.extension == XML_EXTENSION &&
+                    file.parentFile.name == BUILD_TYPES_DIRECTORY_NAME &&
+                    !file.parentFile.parentFile
+                        .resolve(
+                            relative = PIPELINE_FILE_NAME,
+                        ).isFile
+            }.mapNotNull(::readStatusGate)
+            .associateBy(StatusGate::pipelineId)
 
     private fun readStatusGate(
-        file: File
+        file: File,
     ): StatusGate? {
-        val document = readXml(
-            file = file
-        )
+        val document =
+            readXml(
+                file = file,
+            )
         val extensions = document.getElementsByTagName(BUILD_EXTENSION_ELEMENT)
-        val publishers = (0 until extensions.length)
-            .map { index -> extensions.item(index) as Element }
-            .filter { extension ->
-                extension.getAttribute(TYPE_ATTRIBUTE) == COMMIT_STATUS_PUBLISHER_TYPE
-            }
+        val publishers =
+            (0 until extensions.length)
+                .map { index -> extensions.item(index) as Element }
+                .filter { extension ->
+                    extension.getAttribute(TYPE_ATTRIBUTE) == COMMIT_STATUS_PUBLISHER_TYPE
+                }
         if (publishers.isEmpty()) return null
         require(publishers.size == 1) {
             "Expected one Commit Status Publisher in TeamCity status gate ${file.path}"
@@ -137,9 +150,10 @@ class TeamCityGeneratedConfigurationReader {
             "Expected a source build type id in TeamCity status gate ${file.path}"
         }
 
-        val publisherParameters = readParameters(
-            element = publishers.single()
-        )
+        val publisherParameters =
+            readParameters(
+                element = publishers.single(),
+            )
         val checkName = publisherParameters[BUILD_CUSTOM_NAME_PARAMETER].orEmpty()
         require(checkName.isNotBlank()) {
             "Expected a custom GitHub check name in TeamCity status gate ${file.path}"
@@ -147,181 +161,226 @@ class TeamCityGeneratedConfigurationReader {
 
         return StatusGate(
             pipelineId = pipelineId,
-            triggers = readTriggers(
-                document = document
-            ),
-            publishedChecks = listOf(
-                CiJob.PublishedCheck(
-                    name = checkName
-                )
-            )
+            triggers =
+                readTriggers(
+                    document = document,
+                ),
+            publishedChecks =
+                listOf(
+                    CiJob.PublishedCheck(
+                        name = checkName,
+                    ),
+                ),
         )
     }
 
     private fun readTriggers(
-        document: Document
+        document: Document,
     ): List<CiTrigger> {
         val triggers = document.getElementsByTagName(BUILD_TRIGGER_ELEMENT)
         return (0 until triggers.length).map { index ->
             val trigger = triggers.item(index) as Element
-            val parameters = readParameters(
-                element = trigger
-            )
+            val parameters =
+                readParameters(
+                    element = trigger,
+                )
 
             when (val type = trigger.getAttribute(TYPE_ATTRIBUTE)) {
-                VCS_TRIGGER_TYPE -> CiTrigger(
-                    type = CiTrigger.Type.Vcs,
-                    branchFilter = parameters[BRANCH_FILTER_PARAMETER],
-                    dependencyPipelineId = null,
-                    afterSuccessfulBuildOnly = null
-                )
+                VCS_TRIGGER_TYPE -> {
+                    CiTrigger(
+                        type = CiTrigger.Type.Vcs,
+                        branchFilter = parameters[BRANCH_FILTER_PARAMETER],
+                        dependencyPipelineId = null,
+                        afterSuccessfulBuildOnly = null,
+                    )
+                }
 
-                BUILD_DEPENDENCY_TRIGGER_TYPE -> CiTrigger(
-                    type = CiTrigger.Type.PipelineFinish,
-                    branchFilter = parameters[BRANCH_FILTER_PARAMETER],
-                    dependencyPipelineId = parameters[DEPENDS_ON_PARAMETER],
-                    afterSuccessfulBuildOnly = parameters[AFTER_SUCCESS_PARAMETER]?.toBooleanStrict()
-                )
+                BUILD_DEPENDENCY_TRIGGER_TYPE -> {
+                    CiTrigger(
+                        type = CiTrigger.Type.PipelineFinish,
+                        branchFilter = parameters[BRANCH_FILTER_PARAMETER],
+                        dependencyPipelineId = parameters[DEPENDS_ON_PARAMETER],
+                        afterSuccessfulBuildOnly = parameters[AFTER_SUCCESS_PARAMETER]?.toBooleanStrict(),
+                    )
+                }
 
-                SCHEDULING_TRIGGER_TYPE -> CiTrigger(
-                    type = CiTrigger.Type.Schedule,
-                    branchFilter = parameters[BRANCH_FILTER_PARAMETER],
-                    dependencyPipelineId = null,
-                    afterSuccessfulBuildOnly = null
-                )
+                SCHEDULING_TRIGGER_TYPE -> {
+                    CiTrigger(
+                        type = CiTrigger.Type.Schedule,
+                        branchFilter = parameters[BRANCH_FILTER_PARAMETER],
+                        dependencyPipelineId = null,
+                        afterSuccessfulBuildOnly = null,
+                    )
+                }
 
-                else -> error("Unsupported TeamCity trigger type '$type'")
+                else -> {
+                    error("Unsupported TeamCity trigger type '$type'")
+                }
             }
         }
     }
 
     private fun readJobs(
         file: File,
-        publishedChecks: List<CiJob.PublishedCheck>
+        publishedChecks: List<CiJob.PublishedCheck>,
     ): List<CiJob> {
-        val root = readYaml(
-            file = file
-        )
-        val jobs = root.requiredMap(
-            key = JOBS_KEY
-        ).map { (jobId, value) ->
-            val job = value.asStringMap(
-                context = "job '$jobId'"
+        val root =
+            readYaml(
+                file = file,
             )
-            CiJob(
-                id = jobId,
-                name = job.requiredString(NAME_KEY),
-                steps = job.optionalList(
-                    key = STEPS_KEY
-                ).map(
-                    transform = ::readStep
-                ),
-                repositoryIds = job.optionalList(
-                    key = REPOSITORIES_KEY
-                ).map { repository ->
-                    repository.asStringMap(
-                        context = "repository"
-                    ).keys.single()
-                },
-                artifacts = job.optionalList(
-                    key = FILES_PUBLICATION_KEY
-                ).map(
-                    transform = ::readArtifact
-                ),
-                dependencies = job.optionalList(
-                    key = DEPENDENCIES_KEY
-                ).map(
-                    transform = ::readDependency
-                ),
-                publishedChecks = emptyList()
-            )
-        }
+        val jobs =
+            root
+                .requiredMap(
+                    key = JOBS_KEY,
+                ).map { (jobId, value) ->
+                    val job =
+                        value.asStringMap(
+                            context = "job '$jobId'",
+                        )
+                    CiJob(
+                        id = jobId,
+                        name = job.requiredString(NAME_KEY),
+                        steps =
+                            job
+                                .optionalList(
+                                    key = STEPS_KEY,
+                                ).map(
+                                    transform = ::readStep,
+                                ),
+                        repositoryIds =
+                            job
+                                .optionalList(
+                                    key = REPOSITORIES_KEY,
+                                ).map { repository ->
+                                    repository
+                                        .asStringMap(
+                                            context = "repository",
+                                        ).keys
+                                        .single()
+                                },
+                        artifacts =
+                            job
+                                .optionalList(
+                                    key = FILES_PUBLICATION_KEY,
+                                ).map(
+                                    transform = ::readArtifact,
+                                ),
+                        dependencies =
+                            job
+                                .optionalList(
+                                    key = DEPENDENCIES_KEY,
+                                ).map(
+                                    transform = ::readDependency,
+                                ),
+                        publishedChecks = emptyList(),
+                    )
+                }
         return jobs.mapIndexed { index, job ->
-            if (index == jobs.lastIndex) job.copy(
-                publishedChecks = publishedChecks
-            ) else job
+            if (index == jobs.lastIndex) {
+                job.copy(
+                    publishedChecks = publishedChecks,
+                )
+            } else {
+                job
+            }
         }
     }
 
     private fun readStep(
-        value: Any?
+        value: Any?,
     ): CiJob.Step {
-        val step = value.asStringMap(
-            context = "step"
-        )
+        val step =
+            value.asStringMap(
+                context = "step",
+            )
         return CiJob.Step(
             id = step.requiredString(ID_KEY),
             name = step.requiredString(NAME_KEY),
-            command = step.requiredString(SCRIPT_CONTENT_KEY)
+            command = step.requiredString(SCRIPT_CONTENT_KEY),
         )
     }
 
     private fun readArtifact(
-        value: Any?
+        value: Any?,
     ): CiJob.Artifact {
-        val artifact = value.asStringMap(
-            context = "artifact"
-        )
+        val artifact =
+            value.asStringMap(
+                context = "artifact",
+            )
         return CiJob.Artifact(
             path = artifact.requiredString(PATH_KEY),
             publish = artifact.requiredBoolean(PUBLISH_ARTIFACT_KEY),
-            shareWithJobs = artifact.requiredBoolean(SHARE_WITH_JOBS_KEY)
+            shareWithJobs = artifact.requiredBoolean(SHARE_WITH_JOBS_KEY),
         )
     }
 
     private fun readDependency(
-        value: Any?
+        value: Any?,
     ): CiJob.Dependency {
-        val dependency = value.asStringMap(
-            context = "dependency"
-        )
+        val dependency =
+            value.asStringMap(
+                context = "dependency",
+            )
         require(dependency.size == 1) { "Expected one TeamCity dependency per list item" }
         val (jobId, configurationValue) = dependency.entries.single()
-        val configuration = configurationValue.asStringMap(
-            context = "dependency '$jobId'"
-        )
+        val configuration =
+            configurationValue.asStringMap(
+                context = "dependency '$jobId'",
+            )
         return CiJob.Dependency(
             jobId = jobId,
-            artifactPaths = configuration.optionalList(
-                key = FILES_KEY
-            ).map { artifactPath ->
-                artifactPath as? String ?: error("Expected TeamCity dependency artifact path")
-            }
+            artifactPaths =
+                configuration
+                    .optionalList(
+                        key = FILES_KEY,
+                    ).map { artifactPath ->
+                        artifactPath as? String ?: error("Expected TeamCity dependency artifact path")
+                    },
         )
     }
 
     private fun readVcsRoot(
-        file: File
+        file: File,
     ): CiVcsRoot {
-        val document = readXml(
-            file = file
-        )
+        val document =
+            readXml(
+                file = file,
+            )
         val root = document.documentElement
-        val parameters = root.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
-            (0 until nodes.length).associate { index ->
-                val parameter = nodes.item(index) as Element
-                parameter.getAttribute(NAME_ATTRIBUTE) to parameter.getAttribute(VALUE_ATTRIBUTE)
-                    .ifEmpty { parameter.textContent.trim() }
+        val parameters =
+            root.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
+                (0 until nodes.length).associate { index ->
+                    val parameter = nodes.item(index) as Element
+                    parameter.getAttribute(NAME_ATTRIBUTE) to
+                        parameter
+                            .getAttribute(VALUE_ATTRIBUTE)
+                            .ifEmpty { parameter.textContent.trim() }
+                }
             }
-        }
 
         return CiVcsRoot(
             id = file.nameWithoutExtension,
-            name = root.getElementsByTagName(NAME_ELEMENT).item(0).textContent.trim(),
+            name =
+                root
+                    .getElementsByTagName(NAME_ELEMENT)
+                    .item(0)
+                    .textContent
+                    .trim(),
             url = parameters.getValue(URL_PARAMETER),
             defaultBranchRef = parameters.getValue(BRANCH_PARAMETER),
-            branchSpec = parameters.getValue(BRANCH_SPEC_PARAMETER)
-                .lineSequence()
-                .map(
-                    transform = String::trim
-                )
-                .filter(String::isNotEmpty)
-                .toList()
+            branchSpec =
+                parameters
+                    .getValue(BRANCH_SPEC_PARAMETER)
+                    .lineSequence()
+                    .map(
+                        transform = String::trim,
+                    ).filter(String::isNotEmpty)
+                    .toList(),
         )
     }
 
     private fun readParameters(
-        element: Element
+        element: Element,
     ): Map<String, String> =
         element.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
             (0 until nodes.length).associate { index ->
@@ -331,53 +390,58 @@ class TeamCityGeneratedConfigurationReader {
         }
 
     private fun readYaml(
-        file: File
+        file: File,
     ): Map<String, Any?> {
-        val settings = LoadSettings.builder()
-            .setLabel(file.path)
-            .build()
-        return file.inputStream().use { input ->
-            Load(settings).loadFromInputStream(input)
-        }.asStringMap(
-            context = file.name
-        )
+        val settings =
+            LoadSettings
+                .builder()
+                .setLabel(file.path)
+                .build()
+        return file
+            .inputStream()
+            .use { input ->
+                Load(settings).loadFromInputStream(input)
+            }.asStringMap(
+                context = file.name,
+            )
     }
 
     private fun readXml(
-        file: File
+        file: File,
     ): Document {
         require(file.isFile) { "TeamCity generated file does not exist: ${file.path}" }
-        val factory = DocumentBuilderFactory.newInstance().apply {
-            setFeature(
-                "http://apache.org/xml/features/disallow-doctype-decl",
-                true
-            )
-            setFeature(
-                "http://xml.org/sax/features/external-general-entities",
-                false
-            )
-            setFeature(
-                "http://xml.org/sax/features/external-parameter-entities",
-                false
-            )
-            setAttribute(
-                XMLConstants.ACCESS_EXTERNAL_DTD,
-                ""
-            )
-            setAttribute(
-                XMLConstants.ACCESS_EXTERNAL_SCHEMA,
-                ""
-            )
-            isXIncludeAware = false
-            isExpandEntityReferences = false
-        }
+        val factory =
+            DocumentBuilderFactory.newInstance().apply {
+                setFeature(
+                    "http://apache.org/xml/features/disallow-doctype-decl",
+                    true,
+                )
+                setFeature(
+                    "http://xml.org/sax/features/external-general-entities",
+                    false,
+                )
+                setFeature(
+                    "http://xml.org/sax/features/external-parameter-entities",
+                    false,
+                )
+                setAttribute(
+                    XMLConstants.ACCESS_EXTERNAL_DTD,
+                    "",
+                )
+                setAttribute(
+                    XMLConstants.ACCESS_EXTERNAL_SCHEMA,
+                    "",
+                )
+                isXIncludeAware = false
+                isExpandEntityReferences = false
+            }
         return factory.newDocumentBuilder().parse(
-            file
+            file,
         )
     }
 
     private fun Any?.asStringMap(
-        context: String
+        context: String,
     ): Map<String, Any?> {
         val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
         return source.entries.associate { (key, value) ->
@@ -387,37 +451,40 @@ class TeamCityGeneratedConfigurationReader {
     }
 
     private fun Map<String, Any?>.requiredMap(
-        key: String
+        key: String,
     ): Map<String, Any?> =
         get(
-            key = key
+            key = key,
         ).asStringMap(
-            context = key
+            context = key,
         )
 
     private fun Map<String, Any?>.optionalList(
-        key: String
+        key: String,
     ): List<Any?> =
-        when (val value = get(
-            key = key
-        )) {
+        when (
+            val value =
+                get(
+                    key = key,
+                )
+        ) {
             null -> emptyList()
             is List<*> -> value
             else -> error("Expected YAML list '$key'")
         }
 
     private fun Map<String, Any?>.requiredString(
-        key: String
+        key: String,
     ): String =
         get(
-            key = key
+            key = key,
         ) as? String ?: error("Expected YAML string '$key'")
 
     private fun Map<String, Any?>.requiredBoolean(
-        key: String
+        key: String,
     ): Boolean =
         get(
-            key = key
+            key = key,
         ) as? Boolean ?: error("Expected YAML boolean '$key'")
 
     private companion object {
@@ -463,6 +530,6 @@ class TeamCityGeneratedConfigurationReader {
     private data class StatusGate(
         val pipelineId: String,
         val triggers: List<CiTrigger>,
-        val publishedChecks: List<CiJob.PublishedCheck>
+        val publishedChecks: List<CiJob.PublishedCheck>,
     )
 }

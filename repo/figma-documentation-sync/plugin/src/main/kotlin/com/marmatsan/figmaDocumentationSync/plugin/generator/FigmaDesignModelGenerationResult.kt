@@ -11,5 +11,5 @@ import kotlinx.serialization.json.JsonObject
  */
 internal data class FigmaDesignModelGenerationResult(
     val model: JsonObject,
-    val modelHash: String
+    val modelHash: String,
 )

@@ -119,7 +119,7 @@ The pull request `Verify` job shows:
 - affected `:<module>:check` tasks plus `checkFigmaCatalogUsage` when the module
   graph permits targeted verification;
 - `check` as the fail-closed fallback;
-- the repository-owned checks, including `checkKotlinFunctionArguments`, and
+- the repository-owned checks, including `checkKotlinStyle`, and
   the included-build aggregate wired into the root `check` lifecycle.
 
 The post-merge Figma jobs show the exact phased task entry points. The visual

@@ -20,5 +20,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.figma
  */
 data class FigmaNodeReference(
     val fileKey: String,
-    val nodeId: String
+    val nodeId: String,
 )

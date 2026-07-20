@@ -2,7 +2,6 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.mcp
 
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterRuntimeConfigJson
 import com.marmatsan.figmaDocumentationSync.data.mcp.McpRunnerExecutor
-import javax.inject.Inject
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -18,57 +17,62 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import javax.inject.Inject
 
 /** Probes the local MCP endpoint through the official Kotlin SDK transport. */
 @DisableCachingByDefault(
-    because = "Connects to a local MCP endpoint"
+    because = "Connects to a local MCP endpoint",
 )
-abstract class ProbeFigmaMcpTask @Inject constructor() : DefaultTask() {
-    @get:Input
-    abstract val endpoint: Property<String>
+abstract class ProbeFigmaMcpTask
+    @Inject
+    constructor() : DefaultTask() {
+        @get:Input
+        abstract val endpoint: Property<String>
 
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val writerProjectConfigFile: RegularFileProperty
+        @get:InputFile
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val writerProjectConfigFile: RegularFileProperty
 
-    @TaskAction
-    fun probe() {
-        val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)
-        val capabilities = McpRunnerExecutor().probe(
-            endpoint = endpoint.get(),
-            clientName = config.mcpClientName
-        )
-        val output = buildJsonObject {
-            put(
-                "toolNames",
-                JsonArray(
-                    capabilities.toolNames.map(
-                        transform = ::JsonPrimitive
-                    )
+        @TaskAction
+        fun probe() {
+            val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)
+            val capabilities =
+                McpRunnerExecutor().probe(
+                    endpoint = endpoint.get(),
+                    clientName = config.mcpClientName,
                 )
-            )
-            put(
-                "canUseFigma",
-                capabilities.canUseFigma
-            )
-            put(
-                "canUploadAssets",
-                capabilities.canUploadAssets
-            )
-            put(
-                "writeCapable",
-                capabilities.writeCapable
+            val output =
+                buildJsonObject {
+                    put(
+                        "toolNames",
+                        JsonArray(
+                            capabilities.toolNames.map(
+                                transform = ::JsonPrimitive,
+                            ),
+                        ),
+                    )
+                    put(
+                        "canUseFigma",
+                        capabilities.canUseFigma,
+                    )
+                    put(
+                        "canUploadAssets",
+                        capabilities.canUploadAssets,
+                    )
+                    put(
+                        "writeCapable",
+                        capabilities.writeCapable,
+                    )
+                }
+            logger.lifecycle(
+                prettyJson.encodeToString(
+                    JsonObject.serializer(),
+                    output,
+                ),
             )
         }
-        logger.lifecycle(
-            prettyJson.encodeToString(
-                JsonObject.serializer(),
-                output
-            )
-        )
-    }
 
-    private companion object {
-        val prettyJson = Json { prettyPrint = true }
+        private companion object {
+            val prettyJson = Json { prettyPrint = true }
+        }
     }
-}

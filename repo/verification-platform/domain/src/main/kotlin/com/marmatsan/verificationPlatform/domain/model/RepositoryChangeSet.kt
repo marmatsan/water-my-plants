@@ -12,5 +12,5 @@ package com.marmatsan.verificationPlatform.domain.model
 data class RepositoryChangeSet(
     val comparisonBase: String?,
     val head: String,
-    val changedFiles: List<String>
+    val changedFiles: List<String>,
 )

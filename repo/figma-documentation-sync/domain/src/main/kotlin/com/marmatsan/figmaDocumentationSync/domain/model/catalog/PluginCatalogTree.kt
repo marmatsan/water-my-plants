@@ -17,5 +17,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.catalog
  * @property roots Top-level plugin-id nodes.
  */
 data class PluginCatalogTree(
-    val roots: List<PluginCatalogNode>
+    val roots: List<PluginCatalogNode>,
 )

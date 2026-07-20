@@ -13,5 +13,5 @@ package com.marmatsan.figmaDocumentationSync.domain.port.modules
  */
 enum class ProjectModuleDependenciesScope {
     Main,
-    IncludedBuild
+    IncludedBuild,
 }

@@ -21,7 +21,7 @@ import org.gradle.api.tasks.UntrackedTask
 
 /** Writes the provider-neutral CI plan for the committed repository change. */
 @UntrackedTask(
-    because = "The plan depends on Git revision state outside Gradle inputs"
+    because = "The plan depends on Git revision state outside Gradle inputs",
 )
 abstract class GenerateCiPlanTask : DefaultTask() {
     /** Repository checkout whose committed Git state is classified. */
@@ -48,44 +48,50 @@ abstract class GenerateCiPlanTask : DefaultTask() {
     /** Reads committed changes, creates the plan, and writes [outputFile]. */
     @TaskAction
     fun generate() {
-        val changeSet = GitRepositoryChangeSetSource().read(
-            repositoryRoot = repositoryRoot.get().asFile,
-            comparisonBaseOverride = comparisonBaseOverride.orNull
-        )
-        val moduleGraph = RepositoryModuleGraph(
-            modules = moduleDirectories.get().map { (id, directory) ->
-                RepositoryModule(
-                    id = id,
-                    directory = directory
-                )
-            },
-            dependencies = moduleDependencyEdges.get().map { edge ->
-                val parts = edge.split(
-                    EDGE_SEPARATOR,
-                    limit = 2
-                )
-                check(parts.size == 2) { "Invalid serialized module dependency: $edge" }
-                ModuleDependency(
-                    dependentModule = parts.first(),
-                    dependencyModule = parts.last()
-                )
-            }
-        )
-        val plan = CiPlanFactory().create(
-            changeSet,
-            moduleGraph
-        )
+        val changeSet =
+            GitRepositoryChangeSetSource().read(
+                repositoryRoot = repositoryRoot.get().asFile,
+                comparisonBaseOverride = comparisonBaseOverride.orNull,
+            )
+        val moduleGraph =
+            RepositoryModuleGraph(
+                modules =
+                    moduleDirectories.get().map { (id, directory) ->
+                        RepositoryModule(
+                            id = id,
+                            directory = directory,
+                        )
+                    },
+                dependencies =
+                    moduleDependencyEdges.get().map { edge ->
+                        val parts =
+                            edge.split(
+                                EDGE_SEPARATOR,
+                                limit = 2,
+                            )
+                        check(parts.size == 2) { "Invalid serialized module dependency: $edge" }
+                        ModuleDependency(
+                            dependentModule = parts.first(),
+                            dependencyModule = parts.last(),
+                        )
+                    },
+            )
+        val plan =
+            CiPlanFactory().create(
+                changeSet,
+                moduleGraph,
+            )
         val output = outputFile.get().asFile
         CiPlanJson().write(
             plan,
-            output
+            output,
         )
 
         logger.lifecycle(
             "CI plan generated: scope={}, fullVerification={}, output={}",
             plan.scope,
             plan.fullVerification,
-            output.absolutePath
+            output.absolutePath,
         )
     }
 

@@ -8,5 +8,5 @@ import java.io.File
  * @property versionsFile Source `repo/dependency-catalog/versions.properties` file.
  */
 internal data class VersionNamingCheckRequest(
-    val versionsFile: File
+    val versionsFile: File,
 )

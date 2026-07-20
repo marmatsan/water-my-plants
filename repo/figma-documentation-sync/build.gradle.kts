@@ -4,7 +4,7 @@ plugins {
 }
 
 @DisableCachingByDefault(
-    because = "The verification task has no reusable output artifact"
+    because = "The verification task has no reusable output artifact",
 )
 abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     @get:Input
@@ -16,13 +16,14 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
 
     @TaskAction
     fun verifyVersions() {
-        val npmVersion = Regex("\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
-            .find(packageJson.get().asFile.readText())
-            ?.groupValues
-            ?.get(
-                index = 1
-            )
-            ?: error("Missing version in tools/package.json")
+        val npmVersion =
+            Regex("\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
+                .find(packageJson.get().asFile.readText())
+                ?.groupValues
+                ?.get(
+                    index = 1,
+                )
+                ?: error("Missing version in tools/package.json")
         val expectedVersion = mavenVersion.get()
         check(npmVersion == expectedVersion) {
             "Publication version mismatch: Maven=$expectedVersion, npm=$npmVersion"
@@ -30,34 +31,45 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     }
 }
 
-val publicationGroup = providers
-    .gradleProperty("figmaDocumentationSyncGroup")
-    .getOrElse("com.marmatsan.figma-documentation-sync")
-val publicationVersion = providers
-    .gradleProperty("figmaDocumentationSyncVersion")
-    .getOrElse("0.1.0-SNAPSHOT")
-val configuredPublicationRepository = providers
-    .gradleProperty("figmaDocumentationSyncPublicationRepository")
-    .orNull
-val stagingPublicationRepository = configuredPublicationRepository
-    ?: layout.buildDirectory.dir("publication-repository").get().asFile.absolutePath
-val catalogStagingPublicationRepository = configuredPublicationRepository
-    ?: layout.projectDirectory.dir("../dependency-catalog/build/publication-repository").asFile.absolutePath
+val publicationGroup =
+    providers
+        .gradleProperty("figmaDocumentationSyncGroup")
+        .getOrElse("com.marmatsan.figma-documentation-sync")
+val publicationVersion =
+    providers
+        .gradleProperty("figmaDocumentationSyncVersion")
+        .getOrElse("0.1.0-SNAPSHOT")
+val configuredPublicationRepository =
+    providers
+        .gradleProperty("figmaDocumentationSyncPublicationRepository")
+        .orNull
+val stagingPublicationRepository =
+    configuredPublicationRepository
+        ?: layout.buildDirectory
+            .dir("publication-repository")
+            .get()
+            .asFile.absolutePath
+val catalogStagingPublicationRepository =
+    configuredPublicationRepository
+        ?: layout.projectDirectory
+            .dir("../dependency-catalog/build/publication-repository")
+            .asFile.absolutePath
 
 allprojects {
     group = publicationGroup
     version = publicationVersion
 }
 
-val verifyPublicationVersionAlignment = tasks.register<VerifyPublicationVersionAlignmentTask>(
-    "verifyPublicationVersionAlignment"
-) {
-    group = "verification"
-    description = "Checks that Maven and npm publication versions remain aligned."
+val verifyPublicationVersionAlignment =
+    tasks.register<VerifyPublicationVersionAlignmentTask>(
+        "verifyPublicationVersionAlignment",
+    ) {
+        group = "verification"
+        description = "Checks that Maven and npm publication versions remain aligned."
 
-    mavenVersion.set(publicationVersion)
-    packageJson.set(layout.projectDirectory.file("tools/package.json"))
-}
+        mavenVersion.set(publicationVersion)
+        packageJson.set(layout.projectDirectory.file("tools/package.json"))
+    }
 
 tasks.register("publishPortablePublicationToStagingRepository") {
     group = "publishing"
@@ -69,8 +81,9 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":data:publishAllPublicationsToStagingRepository",
         ":plugin:publishAllPublicationsToStagingRepository",
         ":teamcity-adapter:publishAllPublicationsToStagingRepository",
-        gradle.includedBuild("dependency-catalog")
-            .task(":catalog-core:publishAllPublicationsToStagingRepository")
+        gradle
+            .includedBuild("dependency-catalog")
+            .task(":catalog-core:publishAllPublicationsToStagingRepository"),
     )
 }
 
@@ -80,16 +93,18 @@ tasks.register<Exec>("verifyStagedPublication") {
     dependsOn("publishPortablePublicationToStagingRepository")
 
     val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
-    val wrapper = layout.projectDirectory.file(
-        if (System.getProperty("os.name").startsWith(
-            "Windows",
-            ignoreCase = true
-        )) {
-            "../../gradlew.bat"
-        } else {
-            "../../gradlew"
-        }
-    )
+    val wrapper =
+        layout.projectDirectory.file(
+            if (System.getProperty("os.name").startsWith(
+                    "Windows",
+                    ignoreCase = true,
+                )
+            ) {
+                "../../gradlew.bat"
+            } else {
+                "../../gradlew"
+            },
+        )
 
     workingDir(sampleDirectory)
     commandLine(
@@ -99,6 +114,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "-PfigmaDocumentationSyncVersion=$publicationVersion",
         "-PfigmaDocumentationSyncPublicationRepository=$stagingPublicationRepository",
         "-PfigmaDocumentationSyncCatalogPublicationRepository=$catalogStagingPublicationRepository",
-        "--stacktrace"
+        "--stacktrace",
     )
 }

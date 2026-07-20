@@ -5,8 +5,8 @@ import com.marmatsan.figmaDocumentationSync.domain.model.modules.ModuleDependenc
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesScope
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesSource
-import java.io.File
 import me.tatarka.inject.annotations.Inject
+import java.io.File
 
 /**
  * Adapter that exposes Gradle module dependency parsing through
@@ -17,18 +17,23 @@ import me.tatarka.inject.annotations.Inject
  */
 @Inject
 class ProjectModuleDependenciesDataSource(
-    private val gradleModuleDependenciesReader: GradleModuleDependenciesReader
+    private val gradleModuleDependenciesReader: GradleModuleDependenciesReader,
 ) : ProjectModuleDependenciesPort {
     override fun readModuleDependencies(
-        source: ProjectModuleDependenciesSource
+        source: ProjectModuleDependenciesSource,
     ): Set<ModuleDependency> =
         when (source.scope) {
-            ProjectModuleDependenciesScope.Main -> gradleModuleDependenciesReader.readMain(
-                rootDir = File(source.rootDirPath)
-            )
-            ProjectModuleDependenciesScope.IncludedBuild -> gradleModuleDependenciesReader.readIncludedBuild(
-                rootDir = File(source.rootDirPath),
-                modulePathPrefix = source.modulePathPrefix
-            )
+            ProjectModuleDependenciesScope.Main -> {
+                gradleModuleDependenciesReader.readMain(
+                    rootDir = File(source.rootDirPath),
+                )
+            }
+
+            ProjectModuleDependenciesScope.IncludedBuild -> {
+                gradleModuleDependenciesReader.readIncludedBuild(
+                    rootDir = File(source.rootDirPath),
+                    modulePathPrefix = source.modulePathPrefix,
+                )
+            }
         }
 }

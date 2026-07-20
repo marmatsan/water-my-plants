@@ -3,39 +3,39 @@ package com.marmatsan.dependencies
 import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 
 internal fun pluginTrees(
-    versions: Versions
+    versions: Versions,
 ) = listOf(
     comPluginTree(
-        versions = versions
+        versions = versions,
     ),
     dePluginTree(
-        versions = versions
+        versions = versions,
     ),
     orgPluginTree(
-        versions = versions
-    )
+        versions = versions,
+    ),
 )
 
 private fun comPluginTree(
-    versions: Versions
+    versions: Versions,
 ) = pluginTree(
-    rootId = "com"
+    rootId = "com",
 ) {
     plugin("android") {
         plugin(
             id = "application",
-            version = versions.androidGradlePluginVersion
+            version = versions.androidGradlePluginVersion,
         )
         plugin(
             id = "library",
-            version = versions.androidGradlePluginVersion
+            version = versions.androidGradlePluginVersion,
         )
     }
     plugin("figma") {
         plugin("code") {
             plugin(
                 id = "connect",
-                version = versions.figmaCodeConnectPluginVersion
+                version = versions.figmaCodeConnectPluginVersion,
             )
         }
     }
@@ -43,44 +43,44 @@ private fun comPluginTree(
         plugin("devtools") {
             plugin(
                 id = "ksp",
-                version = versions.kspPluginVersion
+                version = versions.kspPluginVersion,
             )
         }
         plugin(
             id = "protobuf",
-            version = versions.protobufPluginVersion
+            version = versions.protobufPluginVersion,
         )
     }
 }
 
 private fun dePluginTree(
-    versions: Versions
+    versions: Versions,
 ) = pluginTree(
-    rootId = "de"
+    rootId = "de",
 ) {
     plugin("mannodermaus") {
         plugin(
             id = "android-junit5",
-            version = versions.junit5PluginVersion
+            version = versions.junit5PluginVersion,
         )
     }
 }
 
 private fun orgPluginTree(
-    versions: Versions
+    versions: Versions,
 ) = pluginTree(
-    rootId = "org"
+    rootId = "org",
 ) {
     plugin("jetbrains") {
         plugin(
             id = "dokka",
-            version = versions.dokkaPluginVersion
+            version = versions.dokkaPluginVersion,
         )
         plugin("kotlin") {
             plugin("plugin") {
                 plugin(
                     id = "compose",
-                    version = versions.kotlinVersion
+                    version = versions.kotlinVersion,
                 )
             }
         }

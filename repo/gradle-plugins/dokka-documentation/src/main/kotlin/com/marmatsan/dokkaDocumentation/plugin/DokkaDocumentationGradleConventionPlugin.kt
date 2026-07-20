@@ -9,19 +9,21 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 @Suppress("unused")
 class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         project.pluginManager.apply("org.jetbrains.dokka")
 
-        val remoteSourceRootUrl = project.providers.gradleProperty(REMOTE_SOURCE_ROOT_URL_PROPERTY)
-            .map { url -> url.trimEnd('/') }
+        val remoteSourceRootUrl =
+            project.providers
+                .gradleProperty(REMOTE_SOURCE_ROOT_URL_PROPERTY)
+                .map { url -> url.trimEnd('/') }
 
         project.extensions.configure<DokkaExtension> {
             moduleName.convention(
                 project.path.removePrefix(":").replace(
                     ':',
-                    '/'
-                )
+                    '/',
+                ),
             )
 
             dokkaSourceSets.configureEach {
@@ -36,10 +38,11 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
                         localDirectory.set(localSourceDirectory)
                         remoteUrl(
                             remoteSourceRootUrl.map { sourceRootUrl ->
-                                "$sourceRootUrl/" + localSourceDirectory.asFile
-                                    .relativeTo(project.rootProject.projectDir)
-                                    .invariantSeparatorsPath
-                            }
+                                "$sourceRootUrl/" +
+                                    localSourceDirectory.asFile
+                                        .relativeTo(project.rootProject.projectDir)
+                                        .invariantSeparatorsPath
+                            },
                         )
                         remoteLineSuffix.set("#L")
                     }

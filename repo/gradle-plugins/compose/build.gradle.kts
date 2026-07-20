@@ -16,14 +16,14 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     implementation(projects.dependencies)
 
-    /* Build */
+    // Build
     compileOnly(libs.com.android.tools.build.gradle)
     compileOnly(libs.org.jetbrains.kotlin.gradle.plugin)
 
-    /* Testing */
+    // Testing
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
@@ -36,6 +36,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.compose"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.ComposeGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.ComposeGradleConventionPlugin"
     }
 }

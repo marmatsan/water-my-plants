@@ -8,7 +8,7 @@ package com.marmatsan.verificationPlatform.domain.model
  */
 data class DocumentationFile(
     val path: String,
-    val content: String
+    val content: String,
 )
 
 /**
@@ -20,7 +20,7 @@ data class DocumentationFile(
  */
 data class DocumentationRepositorySnapshot(
     val documents: List<DocumentationFile>,
-    val repositoryEntries: Set<String>
+    val repositoryEntries: Set<String>,
 )
 
 /**
@@ -33,7 +33,7 @@ data class DocumentationRepositorySnapshot(
 data class DocumentationCoverageRule(
     val id: String,
     val sourcePaths: List<String>,
-    val documentationPaths: List<String>
+    val documentationPaths: List<String>,
 )
 
 /**
@@ -46,7 +46,7 @@ data class DocumentationCoverageRule(
 data class DocumentationCoverageViolation(
     val rule: String,
     val changedSources: List<String>,
-    val requiredDocumentation: List<String>
+    val requiredDocumentation: List<String>,
 )
 
 /**
@@ -63,7 +63,7 @@ data class DocumentationValidationResult(
     val validatedDocuments: List<String>,
     val errors: List<String>,
     val warnings: List<String>,
-    val coverageViolations: List<DocumentationCoverageViolation>
+    val coverageViolations: List<DocumentationCoverageViolation>,
 ) {
     /** Whether no structural or coverage failure was found. */
     val isSuccessful: Boolean

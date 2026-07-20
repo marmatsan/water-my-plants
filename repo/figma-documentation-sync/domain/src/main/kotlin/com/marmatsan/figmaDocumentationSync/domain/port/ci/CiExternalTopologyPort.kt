@@ -7,6 +7,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiExternalTopology
  */
 interface CiExternalTopologyPort {
     fun readTopology(
-        source: CiExternalTopologySource
+        source: CiExternalTopologySource,
     ): CiExternalTopology
 }

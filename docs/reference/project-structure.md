@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-20
+last-reviewed: 2026-07-21
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -130,6 +130,11 @@ their diff. This includes formatting-only edits. Review this inventory whenever
 those paths change; if the dependency graph is unchanged, refresh the review
 date and keep the existing topology instead of inventing an architectural
 change or weakening the coverage rule.
+
+All product and repository-infrastructure Kotlin sources follow the shared
+[Kotlin standard](../standards/kotlin.md). The repository-wide KtLint adoption
+changed source layout but did not change the module inventory or dependency
+directions recorded above.
 
 The `project-config` test suite receives the language-neutral writer runtime
 fixture from `tools/fixtures/contracts/` as a test-only system property. This

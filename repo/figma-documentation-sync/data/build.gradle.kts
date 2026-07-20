@@ -1,7 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
-import java.net.URI
 import org.gradle.api.publish.maven.MavenPublication
+import java.net.URI
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -51,7 +51,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(
-                components["java"]
+                components["java"],
             )
             artifactId = "figma-documentation-sync-data"
 
@@ -70,10 +70,14 @@ publishing {
     repositories {
         maven {
             name = "staging"
-            url = uri(
-                providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
-                    ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
-            )
+            url =
+                uri(
+                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+                        ?: rootProject.layout.buildDirectory
+                            .dir("publication-repository")
+                            .get()
+                            .asFile,
+                )
         }
     }
 }
@@ -83,7 +87,7 @@ dokka {
 
     dokkaPublications.html {
         includes.from(
-            "docs/dokka/README.md"
+            "docs/dokka/README.md",
         )
     }
 
@@ -93,8 +97,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/figma-documentation-sync/data/src/main/kotlin"
-                )
+                        "repo/figma-documentation-sync/data/src/main/kotlin",
+                ),
             )
             remoteLineSuffix.set("#L")
         }

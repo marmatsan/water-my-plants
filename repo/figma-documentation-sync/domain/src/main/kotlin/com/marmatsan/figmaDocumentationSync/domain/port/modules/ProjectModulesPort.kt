@@ -18,6 +18,6 @@ interface ProjectModulesPort {
      * `:gradle-plugins:dependencies`.
      */
     fun readModules(
-        source: ProjectModulesSource
+        source: ProjectModulesSource,
     ): Set<String>
 }

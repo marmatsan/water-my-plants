@@ -13,7 +13,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for preparing an official TeamCity Figma Sync handoff. */
 @DisableCachingByDefault(
-    because = "Downloads and inspects official TeamCity artifacts"
+    because = "Downloads and inspects official TeamCity artifacts",
 )
 abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
     @get:Input
@@ -39,16 +39,18 @@ abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
 
     @TaskAction
     fun prepare() {
-        val result = TeamCityFigmaSyncHandoffPreparer().prepare(
-            request = TeamCityFigmaSyncHandoffPreparer.Request(
-                buildId = buildId.orNull,
-                artifactDirectory = artifactDirectory.orNull?.asFile,
-                destinationRoot = destinationRoot.get().asFile,
-                expectedGitSha = expectedGitSha.orNull,
-                mainBranchAliases = mainBranchAliases.get().toSet(),
-                requiredBuildTypeName = requiredBuildTypeName.get()
+        val result =
+            TeamCityFigmaSyncHandoffPreparer().prepare(
+                request =
+                    TeamCityFigmaSyncHandoffPreparer.Request(
+                        buildId = buildId.orNull,
+                        artifactDirectory = artifactDirectory.orNull?.asFile,
+                        destinationRoot = destinationRoot.get().asFile,
+                        expectedGitSha = expectedGitSha.orNull,
+                        mainBranchAliases = mainBranchAliases.get().toSet(),
+                        requiredBuildTypeName = requiredBuildTypeName.get(),
+                    ),
             )
-        )
         logger.lifecycle("Figma Sync handoff prepared: ${result.summaryFile.path}")
     }
 }

@@ -3,8 +3,8 @@ package com.marmatsan.figmaDocumentationSync.data.datasource.modules
 import com.marmatsan.figmaDocumentationSync.data.gradle.modules.GradleProjectModulesReader
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesSource
-import java.io.File
 import me.tatarka.inject.annotations.Inject
+import java.io.File
 
 /**
  * Adapter that discovers Gradle module paths from root and included-build
@@ -15,18 +15,19 @@ import me.tatarka.inject.annotations.Inject
  */
 @Inject
 class ProjectModulesDataSource(
-    private val gradleProjectModulesReader: GradleProjectModulesReader
+    private val gradleProjectModulesReader: GradleProjectModulesReader,
 ) : ProjectModulesPort {
     override fun readModules(
-        source: ProjectModulesSource
+        source: ProjectModulesSource,
     ): Set<String> =
         gradleProjectModulesReader.readModules(
             rootSettingsFile = File(source.rootSettingsFilePath),
-            includedBuilds = source.includedBuilds.map { includedBuild ->
-                GradleProjectModulesReader.IncludedBuild(
-                    settingsFile = File(includedBuild.settingsFilePath),
-                    modulePathPrefix = includedBuild.modulePathPrefix
-                )
-            }
+            includedBuilds =
+                source.includedBuilds.map { includedBuild ->
+                    GradleProjectModulesReader.IncludedBuild(
+                        settingsFile = File(includedBuild.settingsFilePath),
+                        modulePathPrefix = includedBuild.modulePathPrefix,
+                    )
+                },
         )
 }

@@ -32,5 +32,5 @@ data class ExecutableRunnerManifest(
     val payloadImage: RunnerPayloadImage?,
     val files: List<String>,
     val fileHashes: Map<String, String>,
-    val manifestHash: String
+    val manifestHash: String,
 )

@@ -31,45 +31,50 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 /** Requires named repository calls and vertical function argument layout. */
 internal class MultilineFunctionArgumentsRule(
     private val compactShortFunctionTypes: Boolean,
-    private val callableSignatures: KotlinCallableSignatureIndex
+    private val callableSignatures: KotlinCallableSignatureIndex,
 ) : Rule(
-    ruleId = RuleId("water-my-plants:multiline-function-arguments"),
-    about = About(
-        maintainer = "Water My Plants",
-        repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-        issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues"
-    )
-), RuleAutocorrectApproveHandler {
+        ruleId = RuleId("water-my-plants:multiline-function-arguments"),
+        about =
+            About(
+                maintainer = "Water My Plants",
+                repositoryUrl = "https://github.com/marmatsan/water-my-plants",
+                issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
+            ),
+    ),
+    RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val listKind = when (node.elementType) {
-            VALUE_ARGUMENT_LIST -> ListKind.ARGUMENT
-            VALUE_PARAMETER_LIST -> ListKind.PARAMETER
-            else -> return
-        }
+        val listKind =
+            when (node.elementType) {
+                VALUE_ARGUMENT_LIST -> ListKind.ARGUMENT
+                VALUE_PARAMETER_LIST -> ListKind.PARAMETER
+                else -> return
+            }
         var children = node.children()
         var items = children.filter { child -> child.elementType == listKind.itemType }
         var closingParenthesis = children.lastOrNull { child -> child.elementType == RPAR }
         if (listKind == ListKind.ARGUMENT) {
             node.ensureNamedArguments(
                 items = items,
-                emit = emit
+                emit = emit,
             )
             children = node.children()
             items = children.filter { child -> child.elementType == listKind.itemType }
             closingParenthesis = children.lastOrNull { child -> child.elementType == RPAR }
         }
         if (listKind == ListKind.PARAMETER && node.isFunctionTypeParameterList()) {
-            val compactText = items.joinToString(
-                prefix = "(",
-                postfix = ")",
-                separator = ", "
-            ) { item -> item.text.normalizedInlineWhitespace() }
+            val compactText =
+                items.joinToString(
+                    prefix = "(",
+                    postfix = ")",
+                    separator = ", ",
+                ) { item -> item.text.normalizedInlineWhitespace() }
             if (node.lineLengthWith(
-                replacement = compactText
-            ) <= MAX_LINE_LENGTH) {
+                    replacement = compactText,
+                ) <= MAX_LINE_LENGTH
+            ) {
                 if (
                     compactShortFunctionTypes &&
                     node.text.contains('\n') &&
@@ -79,11 +84,11 @@ internal class MultilineFunctionArgumentsRule(
                     emit(
                         node.startOffset,
                         "Function type parameters may remain inline within the repository line limit.",
-                        true
+                        true,
                     ).ifAutocorrectAllowed {
                         node.compactFunctionTypeWhitespace(
                             items = items,
-                            closingParenthesis = closingParenthesis
+                            closingParenthesis = closingParenthesis,
                         )
                     }
                 }
@@ -94,7 +99,7 @@ internal class MultilineFunctionArgumentsRule(
             !listKind.requiresMultiline(
                 itemCount = items.size,
                 hasNamedArgument = items.any { item -> item.isNamedArgument() },
-                isAlreadyMultiline = node.text.contains('\n')
+                isAlreadyMultiline = node.text.contains('\n'),
             ) ||
             children.none { child -> child.elementType == LPAR } ||
             closingParenthesis == null
@@ -108,19 +113,19 @@ internal class MultilineFunctionArgumentsRule(
             item.ensureNewlineBefore(
                 indent = itemIndent,
                 message = listKind.itemMessage,
-                emit = emit
+                emit = emit,
             )
         }
         closingParenthesis.ensureNewlineBefore(
             indent = baseIndent,
             message = "A multiline function parameter or argument list must close on a separate line.",
-            emit = emit
+            emit = emit,
         )
     }
 
     private fun ASTNode.ensureNamedArguments(
         items: List<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val argumentList = psi as? KtValueArgumentList ?: return
         if (argumentList.containingFile.name.endsWith(".kts")) {
@@ -137,21 +142,24 @@ internal class MultilineFunctionArgumentsRule(
         if (!callableName.matches(KOTLIN_IDENTIFIER)) {
             return
         }
-        val arguments = items.map { item ->
-            KotlinCallArgument(
-                argumentName = (item.psi as? KtValueArgument)
-                    ?.getArgumentName()
-                    ?.asName
-                    ?.asString()
-            )
-        }
-        val parameterNames = callableSignatures.positionalParameterNames(
-            sourceIdentifier =
-                "${argumentList.containingKtFile.packageFqName.asString()}/" +
-                    argumentList.containingKtFile.name,
-            callableName = callableName,
-            arguments = arguments
-        ) ?: return
+        val arguments =
+            items.map { item ->
+                KotlinCallArgument(
+                    argumentName =
+                        (item.psi as? KtValueArgument)
+                            ?.getArgumentName()
+                            ?.asName
+                            ?.asString(),
+                )
+            }
+        val parameterNames =
+            callableSignatures.positionalParameterNames(
+                sourceIdentifier =
+                    "${argumentList.containingKtFile.packageFqName.asString()}/" +
+                        argumentList.containingKtFile.name,
+                callableName = callableName,
+                arguments = arguments,
+            ) ?: return
         items.zip(parameterNames).forEach { (item, parameterName) ->
             if (parameterName == null || item.isNamedArgument()) {
                 return@forEach
@@ -159,10 +167,10 @@ internal class MultilineFunctionArgumentsRule(
             emit(
                 item.startOffset,
                 "Calls to repository Kotlin functions must use named arguments.",
-                true
+                true,
             ).ifAutocorrectAllowed {
                 item.replaceWithNamedArgument(
-                    parameterName = parameterName
+                    parameterName = parameterName,
                 )
             }
         }
@@ -172,57 +180,57 @@ internal class MultilineFunctionArgumentsRule(
         (parent as? KtQualifiedExpression)?.selectorExpression == this
 
     private fun KtCallExpression.isInsideImplicitReceiverScope(): Boolean {
-        val enclosingLambda = generateSequence(parent) { element -> element.parent }
-            .filterIsInstance<KtLambdaExpression>()
-            .firstOrNull() ?: return false
+        val enclosingLambda =
+            generateSequence(parent) { element -> element.parent }
+                .filterIsInstance<KtLambdaExpression>()
+                .firstOrNull() ?: return false
         val lambdaArgument = enclosingLambda.parent as? KtLambdaArgument ?: return false
         val scopeCall = lambdaArgument.parent as? KtCallExpression ?: return false
         return scopeCall.calleeExpression?.text in IMPLICIT_RECEIVER_SCOPE_FUNCTIONS
     }
 
     private fun ASTNode.replaceWithNamedArgument(
-        parameterName: String
+        parameterName: String,
     ) {
         val argument = psi as? KtValueArgument ?: return
-        val replacement = KtPsiFactory(
-            project = argument.project,
-            markGenerated = false
-        ).createArgument("$parameterName = ${argument.text}")
+        val replacement =
+            KtPsiFactory(
+                project = argument.project,
+                markGenerated = false,
+            ).createArgument("$parameterName = ${argument.text}")
         treeParent?.replaceChild(
             this,
-            replacement.node.clone() as ASTNode
+            replacement.node.clone() as ASTNode,
         )
     }
 
     private fun ASTNode.ensureNewlineBefore(
         indent: String,
         message: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val previousLeaf = prevLeaf
-        if (
-            previousLeaf?.isWhiteSpaceWithNewline20 == true &&
-            previousLeaf.text.substringAfterLast('\n') == indent
-        ) {
+        if (previousLeaf?.isWhiteSpaceWithNewline20 == true) {
             return
         }
 
         emit(
             startOffset,
             message,
-            true
+            true,
         ).ifAutocorrectAllowed {
-            val whitespace = if (previousLeaf?.isWhiteSpaceWithNewline20 == true) {
-                previousLeaf.text.substringBeforeLast('\n') + "\n$indent"
-            } else {
-                "\n$indent"
-            }
+            val whitespace =
+                if (previousLeaf?.isWhiteSpaceWithNewline20 == true) {
+                    previousLeaf.text.substringBeforeLast('\n') + "\n$indent"
+                } else {
+                    "\n$indent"
+                }
             if (previousLeaf?.isWhiteSpace20 == true) {
                 previousLeaf.replaceTextWith(whitespace)
             } else {
                 treeParent?.addChild(
                     PsiWhiteSpaceImpl(whitespace),
-                    this
+                    this,
                 )
             }
         }
@@ -230,25 +238,25 @@ internal class MultilineFunctionArgumentsRule(
 
     private fun ASTNode.compactFunctionTypeWhitespace(
         items: List<ASTNode>,
-        closingParenthesis: ASTNode?
+        closingParenthesis: ASTNode?,
     ) {
         items.forEachIndexed { index, item ->
             item.prevLeaf
                 ?.takeIf { leaf -> leaf.isWhiteSpace20 }
                 ?.replaceOrRemoveWhitespace(
-                    replacement = if (index == 0) "" else " "
+                    replacement = if (index == 0) "" else " ",
                 )
         }
         closingParenthesis
             ?.prevLeaf
             ?.takeIf { leaf -> leaf.isWhiteSpace20 }
             ?.replaceOrRemoveWhitespace(
-                replacement = ""
+                replacement = "",
             )
     }
 
     private fun ASTNode.replaceOrRemoveWhitespace(
-        replacement: String
+        replacement: String,
     ) {
         if (replacement.isEmpty()) {
             treeParent?.removeChild(this)
@@ -259,58 +267,70 @@ internal class MultilineFunctionArgumentsRule(
 
     private fun ASTNode.lineIndent(): String {
         val source = psi.containingFile.text
-        val safeOffset = startOffset.coerceIn(
-            0,
-            source.length
-        )
-        val lineStart = source.lastIndexOf(
-            '\n',
-            safeOffset - 1
-        ) + 1
-        return source.substring(
-            lineStart,
-            safeOffset
-        ).takeWhile { character -> character == ' ' || character == '\t' }
+        val safeOffset =
+            startOffset.coerceIn(
+                0,
+                source.length,
+            )
+        val lineStart =
+            source.lastIndexOf(
+                '\n',
+                safeOffset - 1,
+            ) + 1
+        return source
+            .substring(
+                lineStart,
+                safeOffset,
+            ).takeWhile { character -> character == ' ' || character == '\t' }
     }
 
     private fun ASTNode.lineLengthWith(
-        replacement: String
+        replacement: String,
     ): Int {
         val source = psi.containingFile.text
-        val safeStartOffset = startOffset.coerceIn(
-            0,
-            source.length
-        )
-        val safeEndOffset = (startOffset + textLength).coerceIn(
-            safeStartOffset,
-            source.length
-        )
-        val lineStart = source.lastIndexOf(
-            '\n',
-            safeStartOffset - 1
-        ) + 1
-        val lineEnd = source.indexOf(
-            '\n',
-            safeEndOffset
-        ).let { index -> if (index == -1) source.length else index }
-        return source.substring(
-            lineStart,
-            safeStartOffset
-        ).length + replacement.length + source.substring(
-            safeEndOffset,
-            lineEnd
-        ).length
+        val safeStartOffset =
+            startOffset.coerceIn(
+                0,
+                source.length,
+            )
+        val safeEndOffset =
+            (startOffset + textLength).coerceIn(
+                safeStartOffset,
+                source.length,
+            )
+        val lineStart =
+            source.lastIndexOf(
+                '\n',
+                safeStartOffset - 1,
+            ) + 1
+        val lineEnd =
+            source
+                .indexOf(
+                    '\n',
+                    safeEndOffset,
+                ).let { index -> if (index == -1) source.length else index }
+        return source
+            .substring(
+                lineStart,
+                safeStartOffset,
+            ).length + replacement.length +
+            source
+                .substring(
+                    safeEndOffset,
+                    lineEnd,
+                ).length
     }
 
-    private fun ASTNode.children(): List<ASTNode> = buildList {
-        var child = firstChildNode
-        while (child != null) {
-            add(
-                element = child
-            )
-            child = child.treeNext
+    private fun ASTNode.children(): List<ASTNode> =
+        buildList {
+            var child = firstChildNode
+            while (child != null) {
+                add(
+                    element = child,
+                )
+                child = child.treeNext
+            }
         }
-    }
 
     private fun ASTNode.isFunctionTypeParameterList(): Boolean =
         generateSequence(treeParent) { parent -> parent.treeParent }
@@ -319,7 +339,7 @@ internal class MultilineFunctionArgumentsRule(
     private fun String.normalizedInlineWhitespace(): String =
         replace(
             Regex("\\s+"),
-            " "
+            " ",
         ).trim()
 
     private companion object {
@@ -327,37 +347,44 @@ internal class MultilineFunctionArgumentsRule(
         const val MAX_LINE_LENGTH = 120
         const val INDENT = "    "
         val KOTLIN_IDENTIFIER = Regex("[A-Za-z_][A-Za-z0-9_]*")
-        val IMPLICIT_RECEIVER_SCOPE_FUNCTIONS = setOf(
-            "apply",
-            "run",
-            "with"
-        )
+        val IMPLICIT_RECEIVER_SCOPE_FUNCTIONS =
+            setOf(
+                "apply",
+                "run",
+                "with",
+            )
     }
 
     private enum class ListKind(
         val itemType: org.jetbrains.kotlin.com.intellij.psi.tree.IElementType,
-        val itemMessage: String
+        val itemMessage: String,
     ) {
         PARAMETER(
             itemType = VALUE_PARAMETER,
-            itemMessage = "Every function parameter must start on a separate line."
+            itemMessage = "Every function parameter must start on a separate line.",
         ),
         ARGUMENT(
             itemType = VALUE_ARGUMENT,
-            itemMessage = "Function arguments must each start on a separate line."
-        );
+            itemMessage = "Function arguments must each start on a separate line.",
+        ),
+        ;
 
         fun requiresMultiline(
             itemCount: Int,
             hasNamedArgument: Boolean,
-            isAlreadyMultiline: Boolean
-        ): Boolean = when (this) {
-            PARAMETER -> itemCount > 0
-            ARGUMENT ->
-                itemCount >= MINIMUM_MULTILINE_ARGUMENT_COUNT ||
-                    hasNamedArgument ||
-                    isAlreadyMultiline
-        }
+            isAlreadyMultiline: Boolean,
+        ): Boolean =
+            when (this) {
+                PARAMETER -> {
+                    itemCount > 0
+                }
+
+                ARGUMENT -> {
+                    itemCount >= MINIMUM_MULTILINE_ARGUMENT_COUNT ||
+                        hasNamedArgument ||
+                        isAlreadyMultiline
+                }
+            }
     }
 
     private fun ASTNode.isNamedArgument(): Boolean =

@@ -9,22 +9,23 @@ import com.marmatsan.onboarding.ui.component.AssetsDots
 import com.marmatsan.onboarding.ui.component.AssetsDotsVariant
 
 @FigmaConnect(
-    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62873%3A2745"
+    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62873%3A2745",
 )
 class AssetsDotsDoc {
     @FigmaProperty(
         type = FigmaType.Enum,
-        value = "dots"
+        value = "dots",
     )
-    val variant: AssetsDotsVariant = Figma.mapping(
-        "dots1" to AssetsDotsVariant.Dots1,
-        "dots2" to AssetsDotsVariant.Dots2
-    )
+    val variant: AssetsDotsVariant =
+        Figma.mapping(
+            "dots1" to AssetsDotsVariant.Dots1,
+            "dots2" to AssetsDotsVariant.Dots2,
+        )
 
     @Composable
     fun Example() {
         AssetsDots(
-            variant = variant
+            variant = variant,
         )
     }
 }

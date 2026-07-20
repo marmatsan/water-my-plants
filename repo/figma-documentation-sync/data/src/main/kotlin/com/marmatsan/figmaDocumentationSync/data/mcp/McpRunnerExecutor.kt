@@ -10,11 +10,11 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpExecutionOpti
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpExecutionState
 import com.marmatsan.figmaDocumentationSync.domain.port.writer.McpClientPort
 import com.marmatsan.figmaDocumentationSync.domain.service.writer.McpExecutionPlanner
+import kotlinx.coroutines.runBlocking
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Clock
-import kotlinx.coroutines.runBlocking
 
 /** Filesystem and MCP orchestration for one deterministic, checkpointed runner execution. */
 class McpRunnerExecutor(
@@ -23,34 +23,44 @@ class McpRunnerExecutor(
     private val planJson: VisualSyncPlanJson = VisualSyncPlanJson(),
     private val planner: McpExecutionPlanner = McpExecutionPlanner(),
     private val clock: Clock = Clock.systemUTC(),
-    private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect
+    private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect,
 ) {
     fun probe(
         endpoint: String,
-        clientName: String
+        clientName: String,
     ): McpCapabilities {
-        val client = clientFactory(
-            endpoint,
-            clientName
-        )
-        return client.use { connected -> runBlocking { planner.capabilities(
-            toolNames = connected.listToolNames()
-        ) } }
+        val client =
+            clientFactory(
+                endpoint,
+                clientName,
+            )
+        return client.use { connected ->
+            runBlocking {
+                planner.capabilities(
+                    toolNames = connected.listToolNames(),
+                )
+            }
+        }
     }
 
     fun inspect(
-        request: Request
+        request: Request,
     ): Inspection {
-        val loaded = load(
-            request = request
-        )
+        val loaded =
+            load(
+                request = request,
+            )
         return Inspection(
             manifestHash = loaded.manifest.manifestHash,
             statePath = loaded.statePath.toString(),
             reuseStaging = request.options.reuseStaging,
-            decision = loaded.plan?.body?.decision?.wireValue,
+            decision =
+                loaded.plan
+                    ?.body
+                    ?.decision
+                    ?.wireValue,
             executionScopes = loaded.plan?.body?.executionScopes,
-            executionFiles = loaded.executionFiles
+            executionFiles = loaded.executionFiles,
         )
     }
 
@@ -58,200 +68,226 @@ class McpRunnerExecutor(
         request: Request,
         file: String,
         success: Boolean,
-        summary: String
+        summary: String,
     ): McpExecutionState {
-        val loaded = load(
-            request = request
-        )
+        val loaded =
+            load(
+                request = request,
+            )
         require(file in loaded.manifest.files) { "Recorded file '$file' is not in the runner manifest." }
         val now = clock.instant().toString()
-        val initial = planner.createOrResumeState(
-            manifest = loaded.manifest,
-            existingState = loaded.existingState,
-            options = request.options.copy(
-                resume = loaded.existingState != null
-            ),
-            executionFiles = loaded.executionFiles.ifEmpty {
-                loaded.existingState?.plannedFiles ?: loaded.manifest.files
-            },
-            now = now
-        )
-        val state = if (success) {
-            planner.recordSuccess(
-                state = initial,
+        val initial =
+            planner.createOrResumeState(
                 manifest = loaded.manifest,
-                file = file,
-                durationMs = 0,
-                summary = summary,
-                now = now
+                existingState = loaded.existingState,
+                options =
+                    request.options.copy(
+                        resume = loaded.existingState != null,
+                    ),
+                executionFiles =
+                    loaded.executionFiles.ifEmpty {
+                        loaded.existingState?.plannedFiles ?: loaded.manifest.files
+                    },
+                now = now,
             )
-        } else {
-            planner.recordFailure(
-                state = initial,
-                file = file,
-                durationMs = 0,
-                message = summary,
-                now = now
-            )
-        }
+        val state =
+            if (success) {
+                planner.recordSuccess(
+                    state = initial,
+                    manifest = loaded.manifest,
+                    file = file,
+                    durationMs = 0,
+                    summary = summary,
+                    now = now,
+                )
+            } else {
+                planner.recordFailure(
+                    state = initial,
+                    file = file,
+                    durationMs = 0,
+                    message = summary,
+                    now = now,
+                )
+            }
         stateJson.writeAtomic(
             state = state,
-            path = loaded.statePath.toString()
+            path = loaded.statePath.toString(),
         )
         return state
     }
 
     fun execute(
-        request: Request
+        request: Request,
     ): Result {
-        val loaded = load(
-            request = request
-        )
-        var state = planner.createOrResumeState(
-            manifest = loaded.manifest,
-            existingState = loaded.existingState,
-            options = request.options,
-            executionFiles = loaded.executionFiles,
-            now = clock.instant().toString()
-        )
+        val loaded =
+            load(
+                request = request,
+            )
+        var state =
+            planner.createOrResumeState(
+                manifest = loaded.manifest,
+                existingState = loaded.existingState,
+                options = request.options,
+                executionFiles = loaded.executionFiles,
+                now = clock.instant().toString(),
+            )
         if (loaded.executionFiles.isEmpty()) {
             stateJson.writeAtomic(
                 state = state,
-                path = loaded.statePath.toString()
+                path = loaded.statePath.toString(),
             )
             return Result(
                 state = state,
                 executionFiles = emptyList(),
-                toolNames = emptyList()
+                toolNames = emptyList(),
             )
         }
 
-        val client = clientFactory(
-            request.endpoint,
-            request.clientName
-        )
-        val toolNames = client.use { connected ->
-            runBlocking {
-                val capabilities = planner.capabilities(
-                    toolNames = connected.listToolNames()
-                )
-                planner.requireWriteCapabilities(
-                    capabilities = capabilities,
-                    manifest = loaded.manifest,
-                    executionFiles = loaded.executionFiles
-                )
-                val guidance = connected.readTextResource(
-                    uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI
-                )
-                require(guidance.isNotBlank()) {
-                    "Write-capable Figma MCP endpoint did not provide required " +
-                        McpExecutionPlanner.FIGMA_USE_SKILL_URI + "."
-                }
-
-                loaded.executionFiles.forEach { file ->
-                    val startedAt = System.nanoTime()
-                    try {
-                        if (file == McpExecutionPlanner.PAYLOAD_STAGE_FILE) {
-                            uploadPayload(
-                                client = connected,
-                                manifest = loaded.manifest,
-                                runnerDirectory = loaded.runnerDirectory,
-                                fileKey = request.fileKey
-                            )
-                        }
-                        val source = Files.readString(
-                            loaded.runnerDirectory.resolve(
-                                file
-                            )
+        val client =
+            clientFactory(
+                request.endpoint,
+                request.clientName,
+            )
+        val toolNames =
+            client.use { connected ->
+                runBlocking {
+                    val capabilities =
+                        planner.capabilities(
+                            toolNames = connected.listToolNames(),
                         )
-                        assertContentHash(
-                            expectedHash = loaded.manifest.fileHashes.getValue(file),
-                            content = source,
-                            label = file
+                    planner.requireWriteCapabilities(
+                        capabilities = capabilities,
+                        manifest = loaded.manifest,
+                        executionFiles = loaded.executionFiles,
+                    )
+                    val guidance =
+                        connected.readTextResource(
+                            uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI,
                         )
-                        val toolResult = connected.useFigma(
-                            fileKey = request.fileKey,
-                            code = source,
-                            description = "${request.projectDisplayName} Figma Sync: $file",
-                            skillNames = "resource:figma-use"
-                        )
-                        require(!toolResult.isError) {
-                            toolResult.text.ifBlank { "Figma MCP reported an error for $file." }
-                        }
-                        state = planner.recordSuccess(
-                            state = state,
-                            manifest = loaded.manifest,
-                            file = file,
-                            durationMs = elapsedMilliseconds(
-                                startedAt = startedAt
-                            ),
-                            summary = toolResult.text,
-                            now = clock.instant().toString()
-                        )
-                        stateJson.writeAtomic(
-                            state = state,
-                            path = loaded.statePath.toString()
-                        )
-                    } catch (
-                        failure: Exception
-                    ) {
-                        state = planner.recordFailure(
-                            state = state,
-                            file = file,
-                            durationMs = elapsedMilliseconds(
-                                startedAt = startedAt
-                            ),
-                            message = failure.message ?: failure::class.simpleName.orEmpty(),
-                            now = clock.instant().toString()
-                        )
-                        stateJson.writeAtomic(
-                            state = state,
-                            path = loaded.statePath.toString()
-                        )
-                        throw failure
+                    require(guidance.isNotBlank()) {
+                        "Write-capable Figma MCP endpoint did not provide required " +
+                            McpExecutionPlanner.FIGMA_USE_SKILL_URI + "."
                     }
+
+                    loaded.executionFiles.forEach { file ->
+                        val startedAt = System.nanoTime()
+                        try {
+                            if (file == McpExecutionPlanner.PAYLOAD_STAGE_FILE) {
+                                uploadPayload(
+                                    client = connected,
+                                    manifest = loaded.manifest,
+                                    runnerDirectory = loaded.runnerDirectory,
+                                    fileKey = request.fileKey,
+                                )
+                            }
+                            val source =
+                                Files.readString(
+                                    loaded.runnerDirectory.resolve(
+                                        file,
+                                    ),
+                                )
+                            assertContentHash(
+                                expectedHash = loaded.manifest.fileHashes.getValue(file),
+                                content = source,
+                                label = file,
+                            )
+                            val toolResult =
+                                connected.useFigma(
+                                    fileKey = request.fileKey,
+                                    code = source,
+                                    description = "${request.projectDisplayName} Figma Sync: $file",
+                                    skillNames = "resource:figma-use",
+                                )
+                            require(!toolResult.isError) {
+                                toolResult.text.ifBlank { "Figma MCP reported an error for $file." }
+                            }
+                            state =
+                                planner.recordSuccess(
+                                    state = state,
+                                    manifest = loaded.manifest,
+                                    file = file,
+                                    durationMs =
+                                        elapsedMilliseconds(
+                                            startedAt = startedAt,
+                                        ),
+                                    summary = toolResult.text,
+                                    now = clock.instant().toString(),
+                                )
+                            stateJson.writeAtomic(
+                                state = state,
+                                path = loaded.statePath.toString(),
+                            )
+                        } catch (
+                            failure: Exception,
+                        ) {
+                            state =
+                                planner.recordFailure(
+                                    state = state,
+                                    file = file,
+                                    durationMs =
+                                        elapsedMilliseconds(
+                                            startedAt = startedAt,
+                                        ),
+                                    message = failure.message ?: failure::class.simpleName.orEmpty(),
+                                    now = clock.instant().toString(),
+                                )
+                            stateJson.writeAtomic(
+                                state = state,
+                                path = loaded.statePath.toString(),
+                            )
+                            throw failure
+                        }
+                    }
+                    capabilities.toolNames
                 }
-                capabilities.toolNames
             }
-        }
         return Result(
             state = state,
             executionFiles = loaded.executionFiles,
-            toolNames = toolNames
+            toolNames = toolNames,
         )
     }
 
     private fun load(
-        request: Request
+        request: Request,
     ): Loaded {
-        val manifestPath = Path.of(
-            request.manifestPath
-        ).toAbsolutePath().normalize()
+        val manifestPath =
+            Path
+                .of(
+                    request.manifestPath,
+                ).toAbsolutePath()
+                .normalize()
         val runnerDirectory = requireNotNull(manifestPath.parent) { "Manifest has no parent directory." }
         val manifest = manifestJson.read(manifestPath.toString())
-        val statePath = request.statePath?.let(Path::of)?.toAbsolutePath()?.normalize()
-            ?: runnerDirectory.resolve(
-                DEFAULT_STATE_FILE
+        val statePath =
+            request.statePath
+                ?.let(Path::of)
+                ?.toAbsolutePath()
+                ?.normalize()
+                ?: runnerDirectory.resolve(
+                    DEFAULT_STATE_FILE,
+                )
+        val existingState =
+            stateJson.readOptional(
+                path = statePath.toString(),
             )
-        val existingState = stateJson.readOptional(
-            path = statePath.toString()
-        )
         val visualState = request.visualStatePath?.let(stateJson::readOptional)
         val plan = request.planPath?.let(planJson::read)
-        val executionFiles = planner.selectExecutionFiles(
-            manifest = manifest,
-            options = request.options,
-            existingState = existingState,
-            visualState = visualState,
-            syncPlan = plan
-        )
+        val executionFiles =
+            planner.selectExecutionFiles(
+                manifest = manifest,
+                options = request.options,
+                existingState = existingState,
+                visualState = visualState,
+                syncPlan = plan,
+            )
         return Loaded(
             manifest = manifest,
             runnerDirectory = runnerDirectory,
             statePath = statePath,
             existingState = existingState,
             plan = plan,
-            executionFiles = executionFiles
+            executionFiles = executionFiles,
         )
     }
 
@@ -259,50 +295,56 @@ class McpRunnerExecutor(
         client: McpClientPort,
         manifest: ExecutableRunnerManifest,
         runnerDirectory: Path,
-        fileKey: String
+        fileKey: String,
     ) {
-        val payload = requireNotNull(manifest.payloadImage) {
-            "PNG runner manifest does not declare payloadImage."
-        }
-        val response = client.requestAssetUpload(
-            fileKey = fileKey,
-            count = 1
-        )
-        require(!response.isError) { response.text.ifBlank { "upload_assets failed." } }
-        val uploadUrl = URL_PATTERN.find(response.text)?.value
-            ?: error("upload_assets did not return an upload URL.")
-        val bytes = Files.readAllBytes(
-            runnerDirectory.resolve(
-                payload.fileName
+        val payload =
+            requireNotNull(manifest.payloadImage) {
+                "PNG runner manifest does not declare payloadImage."
+            }
+        val response =
+            client.requestAssetUpload(
+                fileKey = fileKey,
+                count = 1,
             )
-        )
-        val actualHash = Sha256Hash.of(
-            value = bytes
-        )
+        require(!response.isError) { response.text.ifBlank { "upload_assets failed." } }
+        val uploadUrl =
+            URL_PATTERN.find(response.text)?.value
+                ?: error("upload_assets did not return an upload URL.")
+        val bytes =
+            Files.readAllBytes(
+                runnerDirectory.resolve(
+                    payload.fileName,
+                ),
+            )
+        val actualHash =
+            Sha256Hash.of(
+                value = bytes,
+            )
         require(actualHash == payload.sha256) {
             "MCP content hash mismatch for '${payload.fileName}': $actualHash != ${payload.sha256}."
         }
         client.uploadAsset(
             url = uploadUrl,
-            bytes = bytes
+            bytes = bytes,
         )
     }
 
     private fun assertContentHash(
         expectedHash: String,
         content: String,
-        label: String
+        label: String,
     ) {
-        val actualHash = Sha256Hash.of(
-            value = content.toByteArray(StandardCharsets.UTF_8)
-        )
+        val actualHash =
+            Sha256Hash.of(
+                value = content.toByteArray(StandardCharsets.UTF_8),
+            )
         require(actualHash == expectedHash) {
             "MCP content hash mismatch for '$label': $actualHash != $expectedHash."
         }
     }
 
     private fun elapsedMilliseconds(
-        startedAt: Long
+        startedAt: Long,
     ): Long = (System.nanoTime() - startedAt) / 1_000_000
 
     data class Request(
@@ -314,7 +356,7 @@ class McpRunnerExecutor(
         val statePath: String? = null,
         val visualStatePath: String? = null,
         val planPath: String? = null,
-        val options: McpExecutionOptions = McpExecutionOptions()
+        val options: McpExecutionOptions = McpExecutionOptions(),
     )
 
     data class Inspection(
@@ -323,13 +365,13 @@ class McpRunnerExecutor(
         val reuseStaging: Boolean,
         val decision: String?,
         val executionScopes: List<String>?,
-        val executionFiles: List<String>
+        val executionFiles: List<String>,
     )
 
     data class Result(
         val state: McpExecutionState,
         val executionFiles: List<String>,
-        val toolNames: List<String>
+        val toolNames: List<String>,
     )
 
     private data class Loaded(
@@ -338,7 +380,7 @@ class McpRunnerExecutor(
         val statePath: Path,
         val existingState: McpExecutionState?,
         val plan: com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlan?,
-        val executionFiles: List<String>
+        val executionFiles: List<String>,
     )
 
     private companion object {

@@ -13,7 +13,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Exports an existing CI plan through the reviewed TeamCity parameter allow-list. */
 @DisableCachingByDefault(
-    because = "TeamCity service messages must be emitted on every execution"
+    because = "TeamCity service messages must be emitted on every execution",
 )
 abstract class PrepareTeamCityCiPlanTask : DefaultTask() {
     /** Provider-neutral plan whose allow-listed values are exported to TeamCity. */
@@ -27,16 +27,17 @@ abstract class PrepareTeamCityCiPlanTask : DefaultTask() {
         val plan = CiPlanJson().read(planFile.get().asFile.readText())
         val parameters = TeamCityCiPlanParameters().create(plan)
 
-        TeamCityServiceMessageFormatter().setParameters(
-            parameters = parameters
-        ).forEach(logger::lifecycle)
+        TeamCityServiceMessageFormatter()
+            .setParameters(
+                parameters = parameters,
+            ).forEach(logger::lifecycle)
 
         val requiredUnits = plan.verificationUnits.filter { it.required }.joinToString { it.id.name }
         logger.lifecycle(
             "TeamCity CI plan prepared: scope={}, mode={}, requiredUnits={}",
             plan.scope,
             plan.mode,
-            requiredUnits
+            requiredUnits,
         )
     }
 }

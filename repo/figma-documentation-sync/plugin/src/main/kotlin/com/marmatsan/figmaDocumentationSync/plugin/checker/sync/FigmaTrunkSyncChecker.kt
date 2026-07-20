@@ -19,7 +19,7 @@ import org.gradle.api.GradleException
 @Inject
 internal class FigmaTrunkSyncChecker(
     private val figmaFileContentClient: FigmaFileContentClient,
-    private val figmaDesignModelGenerator: FigmaDesignModelGenerator
+    private val figmaDesignModelGenerator: FigmaDesignModelGenerator,
 ) {
     /**
      * Generates the expected model and compares it with Figma metadata.
@@ -28,58 +28,63 @@ internal class FigmaTrunkSyncChecker(
      * of sync.
      */
     fun check(
-        request: FigmaTrunkSyncCheckRequest
+        request: FigmaTrunkSyncCheckRequest,
     ): FigmaTrunkSyncCheckResult {
-        val expected = figmaDesignModelGenerator.generate(
-            request = FigmaDesignModelGenerationRequest(
-                branch = request.branch,
-                gitSha = request.gitSha,
-                generatedAt = request.generatedAt,
-                primaryCatalogModelName = request.primaryCatalogModelName,
-                dependencyCatalogProviderClassName = request.dependencyCatalogProviderClassName,
-                ciDocumentationEnabled = request.ciDocumentationEnabled,
-                ciConfigurationModelName = request.ciConfigurationModelName,
-                ciConfigurationProviderClassName = request.ciConfigurationProviderClassName,
-                versionsFile = request.versionsFile,
-                rootSettingsFile = request.rootSettingsFile,
-                ciExternalTopologyFile = request.ciExternalTopologyFile,
-                ciWindowsRuntimeFile = request.ciWindowsRuntimeFile,
-                ciGeneratedConfigurationDirectory = request.ciGeneratedConfigurationDirectory,
-                projectRootDirectory = request.projectRootDirectory,
-                includedBuilds = request.includedBuilds
+        val expected =
+            figmaDesignModelGenerator.generate(
+                request =
+                    FigmaDesignModelGenerationRequest(
+                        branch = request.branch,
+                        gitSha = request.gitSha,
+                        generatedAt = request.generatedAt,
+                        primaryCatalogModelName = request.primaryCatalogModelName,
+                        dependencyCatalogProviderClassName = request.dependencyCatalogProviderClassName,
+                        ciDocumentationEnabled = request.ciDocumentationEnabled,
+                        ciConfigurationModelName = request.ciConfigurationModelName,
+                        ciConfigurationProviderClassName = request.ciConfigurationProviderClassName,
+                        versionsFile = request.versionsFile,
+                        rootSettingsFile = request.rootSettingsFile,
+                        ciExternalTopologyFile = request.ciExternalTopologyFile,
+                        ciWindowsRuntimeFile = request.ciWindowsRuntimeFile,
+                        ciGeneratedConfigurationDirectory = request.ciGeneratedConfigurationDirectory,
+                        projectRootDirectory = request.projectRootDirectory,
+                        includedBuilds = request.includedBuilds,
+                    ),
             )
-        )
-        val metadataNode = FigmaNodeUrl.parse(
-            url = request.metadataNodeUrl
-        )
-        val figmaMetadata = figmaFileContentClient
-            .getNodeContent(
-                fileKey = metadataNode.fileKey,
-                token = request.token,
-                nodeId = metadataNode.nodeId,
-                pluginData = "shared"
+        val metadataNode =
+            FigmaNodeUrl.parse(
+                url = request.metadataNodeUrl,
             )
-            .sharedPluginData[request.metadataNamespace]
-            ?: throw GradleException(
-                "Figma sync metadata namespace '${request.metadataNamespace}' was not found."
-            )
+        val figmaMetadata =
+            figmaFileContentClient
+                .getNodeContent(
+                    fileKey = metadataNode.fileKey,
+                    token = request.token,
+                    nodeId = metadataNode.nodeId,
+                    pluginData = "shared",
+                ).sharedPluginData[request.metadataNamespace]
+                ?: throw GradleException(
+                    "Figma sync metadata namespace '${request.metadataNamespace}' was not found.",
+                )
 
-        val figmaModelHash = figmaMetadata[MODEL_HASH_KEY]
-            ?: throw GradleException("Figma sync metadata key '$MODEL_HASH_KEY' was not found.")
-        val figmaGitSha = figmaMetadata[GIT_SHA_KEY]
-            ?: throw GradleException("Figma sync metadata key '$GIT_SHA_KEY' was not found.")
+        val figmaModelHash =
+            figmaMetadata[MODEL_HASH_KEY]
+                ?: throw GradleException("Figma sync metadata key '$MODEL_HASH_KEY' was not found.")
+        val figmaGitSha =
+            figmaMetadata[GIT_SHA_KEY]
+                ?: throw GradleException("Figma sync metadata key '$GIT_SHA_KEY' was not found.")
 
         if (figmaModelHash != expected.modelHash) {
             throw GradleException(
                 "Figma is out of sync with ${request.branch}. " +
                     "Expected modelHash ${expected.modelHash}, found $figmaModelHash. " +
-                    "Run the Figma MCP sync step with the latest design-model.json."
+                    "Run the Figma MCP sync step with the latest design-model.json.",
             )
         }
 
         return FigmaTrunkSyncCheckResult(
             modelHash = figmaModelHash,
-            gitSha = figmaGitSha
+            gitSha = figmaGitSha,
         )
     }
 

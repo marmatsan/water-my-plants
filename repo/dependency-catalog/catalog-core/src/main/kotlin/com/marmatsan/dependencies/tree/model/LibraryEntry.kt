@@ -8,14 +8,13 @@ package com.marmatsan.dependencies.tree.model
  * corresponding aliases and bundles.
  */
 sealed interface LibraryEntry {
-
     /**
      * An entry that registers one artifact alias under the current library group.
      *
      * @property artifact Artifact to register.
      */
     data class Single(
-        val artifact: Artifact
+        val artifact: Artifact,
     ) : LibraryEntry
 
     /**
@@ -24,6 +23,6 @@ sealed interface LibraryEntry {
      * @property artifactsBundle Bundle to register.
      */
     data class Bundle(
-        val artifactsBundle: ArtifactsBundle
+        val artifactsBundle: ArtifactsBundle,
     ) : LibraryEntry
 }

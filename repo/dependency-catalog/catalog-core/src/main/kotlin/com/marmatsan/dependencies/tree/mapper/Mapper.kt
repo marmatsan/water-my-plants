@@ -14,11 +14,12 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
  * @return A [Dependency.Library] equivalent to this [DependencyNode.Library].
  */
 fun DependencyNode.Library.toDependencyLibrary(
-    libraryGroup: String
-): Dependency.Library = Dependency.Library(
-    libraryGroup = libraryGroup,
-    entries = entries
-)
+    libraryGroup: String,
+): Dependency.Library =
+    Dependency.Library(
+        libraryGroup = libraryGroup,
+        entries = entries,
+    )
 
 /**
  * Maps a [DependencyNode.Plugin] node payload into a [Dependency.Plugin].
@@ -31,10 +32,11 @@ fun DependencyNode.Library.toDependencyLibrary(
  * @throws IllegalArgumentException When this node does not declare a plugin version.
  */
 fun DependencyNode.Plugin.toDependencyPlugin(
-    pluginId: String
+    pluginId: String,
 ) = Dependency.Plugin(
     pluginId = pluginId,
-    version = requireNotNull(version) {
-        "Plugin node '$pluginId' must declare a version to be mapped to Dependency.Plugin"
-    }
+    version =
+        requireNotNull(version) {
+            "Plugin node '$pluginId' must declare a version to be mapped to Dependency.Plugin"
+        },
 )

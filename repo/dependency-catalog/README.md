@@ -69,6 +69,14 @@ distribution task:
 .\gradlew.bat :figma-documentation-sync:verifyStagedPublication
 ```
 
+## Kotlin Source Standard
+
+This included build follows the repository
+[Kotlin standard](../../docs/standards/kotlin.md). The repository-wide KtLint
+migration changed source layout only; it did not change catalog coordinates,
+tree structure, dependency direction, version aliases, or the public facade
+described above.
+
 ## Sources Of Truth
 
 - Version values: `versions.properties`.

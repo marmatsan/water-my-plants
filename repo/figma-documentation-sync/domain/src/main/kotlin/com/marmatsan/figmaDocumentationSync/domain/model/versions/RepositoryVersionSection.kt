@@ -14,5 +14,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.versions
  */
 data class RepositoryVersionSection(
     val name: String,
-    val versions: Map<String, String>
+    val versions: Map<String, String>,
 )

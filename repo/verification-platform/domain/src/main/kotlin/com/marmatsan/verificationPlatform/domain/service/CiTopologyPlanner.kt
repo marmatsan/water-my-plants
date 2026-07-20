@@ -27,7 +27,7 @@ class CiTopologyPlanner {
      */
     fun create(
         plan: CiPlan,
-        availableAgents: Int
+        availableAgents: Int,
     ): CiExecutionTopology {
         require(availableAgents >= 1) { "CI topology requires at least one available agent." }
 
@@ -36,24 +36,32 @@ class CiTopologyPlanner {
             "CI topology requires publish-reports as the authoritative final unit."
         }
 
-        val mode = if (availableAgents == 1) {
-            CiTopologyMode.SINGLE_AGENT_SEQUENTIAL
-        } else {
-            CiTopologyMode.MULTI_AGENT_PARALLEL
-        }
-        val lanes = when (mode) {
-            CiTopologyMode.SINGLE_AGENT_SEQUENTIAL -> singleAgentLanes(
-                requiredUnits = requiredUnits
-            )
-            CiTopologyMode.MULTI_AGENT_PARALLEL -> multiAgentLanes(
-                requiredUnits = requiredUnits,
-                availableAgents = availableAgents
-            )
-        }
+        val mode =
+            if (availableAgents == 1) {
+                CiTopologyMode.SINGLE_AGENT_SEQUENTIAL
+            } else {
+                CiTopologyMode.MULTI_AGENT_PARALLEL
+            }
+        val lanes =
+            when (mode) {
+                CiTopologyMode.SINGLE_AGENT_SEQUENTIAL -> {
+                    singleAgentLanes(
+                        requiredUnits = requiredUnits,
+                    )
+                }
+
+                CiTopologyMode.MULTI_AGENT_PARALLEL -> {
+                    multiAgentLanes(
+                        requiredUnits = requiredUnits,
+                        availableAgents = availableAgents,
+                    )
+                }
+            }
         check(
-            lanes.flatMap(CiExecutionLane::verificationUnits) == requiredUnits.map(
-                transform = VerificationUnit::id
-            )
+            lanes.flatMap(CiExecutionLane::verificationUnits) ==
+                requiredUnits.map(
+                    transform = VerificationUnit::id,
+                ),
         ) {
             "CI topology must schedule every required verification unit exactly once and in plan order."
         }
@@ -67,31 +75,33 @@ class CiTopologyPlanner {
             availableAgents = availableAgents,
             mode = mode,
             lanes = lanes,
-            authoritativeStatusPublisherLaneId = statusPublisher.id
+            authoritativeStatusPublisherLaneId = statusPublisher.id,
         )
     }
 
     private fun singleAgentLanes(
-        requiredUnits: List<VerificationUnit>
+        requiredUnits: List<VerificationUnit>,
     ): List<CiExecutionLane> =
         listOf(
             lane(
                 id = VERIFY_LANE,
                 units = requiredUnits,
-                publishesAuthoritativeStatus = true
-            )
+                publishesAuthoritativeStatus = true,
+            ),
         )
 
     private fun multiAgentLanes(
         requiredUnits: List<VerificationUnit>,
-        availableAgents: Int
+        availableAgents: Int,
     ): List<CiExecutionLane> {
-        val laneIdByUnit = requiredUnits.associate { unit ->
-            unit.id to multiAgentLaneId(
-                id = unit.id,
-                availableAgents = availableAgents
-            )
-        }
+        val laneIdByUnit =
+            requiredUnits.associate { unit ->
+                unit.id to
+                    multiAgentLaneId(
+                        id = unit.id,
+                        availableAgents = availableAgents,
+                    )
+            }
         val orderedLaneIds = if (availableAgents == 2) TWO_AGENT_LANE_ORDER else MANY_AGENT_LANE_ORDER
         val unitsByLane = requiredUnits.groupBy { unit -> laneIdByUnit.getValue(unit.id) }
 
@@ -99,45 +109,58 @@ class CiTopologyPlanner {
             val units = unitsByLane[laneId].orEmpty()
             if (units.isEmpty()) return@mapNotNull null
 
-            val dependencies = units
-                .flatMap(VerificationUnit::needs)
-                .mapNotNull(laneIdByUnit::get)
-                .filterNot { dependencyLaneId -> dependencyLaneId == laneId }
-                .distinct()
+            val dependencies =
+                units
+                    .flatMap(VerificationUnit::needs)
+                    .mapNotNull(laneIdByUnit::get)
+                    .filterNot { dependencyLaneId -> dependencyLaneId == laneId }
+                    .distinct()
 
             lane(
                 id = laneId,
                 units = units,
                 needs = dependencies,
-                publishesAuthoritativeStatus = laneId == GATE_LANE
+                publishesAuthoritativeStatus = laneId == GATE_LANE,
             )
         }
     }
 
     private fun multiAgentLaneId(
         id: VerificationUnitId,
-        availableAgents: Int
+        availableAgents: Int,
     ): String =
         if (availableAgents == 2) {
             when (id) {
                 VerificationUnitId.GIT_WORKFLOW,
-                VerificationUnitId.DOCUMENTATION -> DOCUMENTATION_LANE
+                VerificationUnitId.DOCUMENTATION,
+                -> DOCUMENTATION_LANE
+
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE
+
                 VerificationUnitId.PUBLISH_REPORTS -> GATE_LANE
+
                 VerificationUnitId.REPOSITORY_DIFF,
                 VerificationUnitId.TEAMCITY_DSL,
                 VerificationUnitId.FIGMA_TOOLING,
-                VerificationUnitId.DEPENDENCY_CATALOG -> SUPPLEMENTAL_LANE
+                VerificationUnitId.DEPENDENCY_CATALOG,
+                -> SUPPLEMENTAL_LANE
             }
         } else {
             when (id) {
                 VerificationUnitId.GIT_WORKFLOW,
-                VerificationUnitId.DOCUMENTATION -> DOCUMENTATION_LANE
+                VerificationUnitId.DOCUMENTATION,
+                -> DOCUMENTATION_LANE
+
                 VerificationUnitId.REPOSITORY_DIFF,
-                VerificationUnitId.TEAMCITY_DSL -> REPOSITORY_LANE
+                VerificationUnitId.TEAMCITY_DSL,
+                -> REPOSITORY_LANE
+
                 VerificationUnitId.FIGMA_TOOLING,
-                VerificationUnitId.DEPENDENCY_CATALOG -> TOOLING_LANE
+                VerificationUnitId.DEPENDENCY_CATALOG,
+                -> TOOLING_LANE
+
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE
+
                 VerificationUnitId.PUBLISH_REPORTS -> GATE_LANE
             }
         }
@@ -146,16 +169,17 @@ class CiTopologyPlanner {
         id: String,
         units: List<VerificationUnit>,
         needs: List<String> = emptyList(),
-        publishesAuthoritativeStatus: Boolean
+        publishesAuthoritativeStatus: Boolean,
     ) = CiExecutionLane(
         id = id,
-        verificationUnits = units.map(
-            transform = VerificationUnit::id
-        ),
+        verificationUnits =
+            units.map(
+                transform = VerificationUnit::id,
+            ),
         needs = needs,
         capabilities = units.flatMap(VerificationUnit::capabilities).distinct(),
         parallelSafe = units.all(VerificationUnit::parallelSafe),
-        publishesAuthoritativeStatus = publishesAuthoritativeStatus
+        publishesAuthoritativeStatus = publishesAuthoritativeStatus,
     )
 
     private companion object {
@@ -167,18 +191,20 @@ class CiTopologyPlanner {
         const val TOOLING_LANE = "tooling-verification"
         const val GRADLE_LANE = "gradle-verification"
         const val GATE_LANE = "ci-gate"
-        val TWO_AGENT_LANE_ORDER = listOf(
-            DOCUMENTATION_LANE,
-            SUPPLEMENTAL_LANE,
-            GRADLE_LANE,
-            GATE_LANE
-        )
-        val MANY_AGENT_LANE_ORDER = listOf(
-            DOCUMENTATION_LANE,
-            REPOSITORY_LANE,
-            TOOLING_LANE,
-            GRADLE_LANE,
-            GATE_LANE
-        )
+        val TWO_AGENT_LANE_ORDER =
+            listOf(
+                DOCUMENTATION_LANE,
+                SUPPLEMENTAL_LANE,
+                GRADLE_LANE,
+                GATE_LANE,
+            )
+        val MANY_AGENT_LANE_ORDER =
+            listOf(
+                DOCUMENTATION_LANE,
+                REPOSITORY_LANE,
+                TOOLING_LANE,
+                GRADLE_LANE,
+                GATE_LANE,
+            )
     }
 }

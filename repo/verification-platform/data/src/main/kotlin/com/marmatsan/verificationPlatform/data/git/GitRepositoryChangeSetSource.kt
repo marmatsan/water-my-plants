@@ -17,84 +17,91 @@ class GitRepositoryChangeSetSource {
      */
     fun read(
         repositoryRoot: File,
-        comparisonBaseOverride: String? = null
+        comparisonBaseOverride: String? = null,
     ): RepositoryChangeSet {
         val root = repositoryRoot.canonicalFile
-        val head = git(
-            root,
-            "rev-parse",
-            "HEAD"
-        )
-        val base = comparisonBaseOverride?.takeIf(String::isNotBlank) ?: defaultBase(
-            root = root,
-            head = head
-        )
-        val changedFiles = git(
-            root,
-            "diff",
-            "--name-only",
-            "--diff-filter=ACMRD",
-            "$base..$head"
-        ).lineSequence().map(
-            transform = ::normalize
-        ).filter(String::isNotBlank).toList()
+        val head =
+            git(
+                root,
+                "rev-parse",
+                "HEAD",
+            )
+        val base =
+            comparisonBaseOverride?.takeIf(String::isNotBlank) ?: defaultBase(
+                root = root,
+                head = head,
+            )
+        val changedFiles =
+            git(
+                root,
+                "diff",
+                "--name-only",
+                "--diff-filter=ACMRD",
+                "$base..$head",
+            ).lineSequence()
+                .map(
+                    transform = ::normalize,
+                ).filter(String::isNotBlank)
+                .toList()
 
         return RepositoryChangeSet(
             comparisonBase = base,
             head = head,
-            changedFiles = changedFiles
+            changedFiles = changedFiles,
         )
     }
 
     private fun defaultBase(
         root: File,
-        head: String
+        head: String,
     ): String {
         git(
             root,
             "rev-parse",
             "--verify",
-            "origin/main"
+            "origin/main",
         )
-        val main = git(
-            root,
-            "rev-parse",
-            "origin/main"
-        )
+        val main =
+            git(
+                root,
+                "rev-parse",
+                "origin/main",
+            )
         return if (head == main) {
             git(
                 root,
                 "rev-parse",
-                "$head^"
+                "$head^",
             )
         } else {
             git(
                 root,
                 "merge-base",
                 "HEAD",
-                "origin/main"
+                "origin/main",
             )
         }
     }
 
     private fun git(
         root: File,
-        vararg arguments: String
+        vararg arguments: String,
     ): String {
-        val safeDirectory = root.absolutePath.replace(
-            '\\',
-            '/'
-        )
-        val process = ProcessBuilder(
-            listOf(
-                "git",
-                "-c",
-                "safe.directory=$safeDirectory"
-            ) + arguments
-        )
-            .directory(root)
-            .redirectErrorStream(true)
-            .start()
+        val safeDirectory =
+            root.absolutePath.replace(
+                '\\',
+                '/',
+            )
+        val process =
+            ProcessBuilder(
+                listOf(
+                    "git",
+                    "-c",
+                    "safe.directory=$safeDirectory",
+                ) + arguments,
+            ).directory(root)
+                .redirectErrorStream(true)
+                .start()
         val output = process.inputStream.bufferedReader().use { it.readText() }
         val exitCode = process.waitFor()
         check(exitCode == 0) {
@@ -104,9 +111,10 @@ class GitRepositoryChangeSetSource {
     }
 
     private fun normalize(
-        path: String
-    ): String = path.trim().replace(
-        '\\',
-        '/'
-    )
+        path: String,
+    ): String =
+        path.trim().replace(
+            '\\',
+            '/',
+        )
 }

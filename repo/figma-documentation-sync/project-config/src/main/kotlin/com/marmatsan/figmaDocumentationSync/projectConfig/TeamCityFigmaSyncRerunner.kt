@@ -7,10 +7,10 @@ import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRunClient
 class TeamCityFigmaSyncRerunner(
     private val teamCityClient: TeamCityRunClient,
     private val buildTypeId: String = "WaterMyPlants_WaterMyPlantsFigmaSync",
-    private val branch: String = "main"
+    private val branch: String = "main",
 ) {
     fun rerun(
-        request: Request = Request()
+        request: Request = Request(),
     ): TeamCityFigmaSyncRerunResult {
         require(request.pollIntervalSeconds in 1..300) {
             "TeamCity polling interval must be between 1 and 300 seconds."
@@ -23,112 +23,127 @@ class TeamCityFigmaSyncRerunner(
             return result(
                 run = null,
                 state = "Validated",
-                reused = false
+                reused = false,
             )
         }
         if (activeRun != null) {
-            val run = if (request.waitForCompletion) waitForSuccess(
-                run = activeRun,
-                request = request
-            ) else activeRun
+            val run =
+                if (request.waitForCompletion) {
+                    waitForSuccess(
+                        run = activeRun,
+                        request = request,
+                    )
+                } else {
+                    activeRun
+                }
             return result(
                 run = run,
                 state = run.state,
-                reused = true
+                reused = true,
             )
         }
 
-        val queuedRun = try {
-            teamCityClient.startRun(
-                buildTypeId = buildTypeId,
-                branch = branch
-            )
-        } catch (
-            startError: RuntimeException
-        ) {
-            findActiveRun() ?: throw startError
-        }
-        val run = if (request.waitForCompletion) waitForSuccess(
-            run = queuedRun,
-            request = request
-        ) else queuedRun
+        val queuedRun =
+            try {
+                teamCityClient.startRun(
+                    buildTypeId = buildTypeId,
+                    branch = branch,
+                )
+            } catch (
+                startError: RuntimeException,
+            ) {
+                findActiveRun() ?: throw startError
+            }
+        val run =
+            if (request.waitForCompletion) {
+                waitForSuccess(
+                    run = queuedRun,
+                    request = request,
+                )
+            } else {
+                queuedRun
+            }
         return result(
             run = run,
             state = run.state,
-            reused = false
+            reused = false,
         )
     }
 
     private fun findActiveRun(): TeamCityRun? =
         listOf(
             "running",
-            "queued"
+            "queued",
         ).firstNotNullOfOrNull { status ->
-            teamCityClient.listRuns(
-                buildTypeId = buildTypeId,
-                branch = branch,
-                status = status,
-                limit = 1
-            ).firstOrNull()
+            teamCityClient
+                .listRuns(
+                    buildTypeId = buildTypeId,
+                    branch = branch,
+                    status = status,
+                    limit = 1,
+                ).firstOrNull()
         }
 
     private fun waitForSuccess(
         run: TeamCityRun,
-        request: Request
+        request: Request,
     ): TeamCityRun {
-        val finished = try {
-            teamCityClient.watchRun(
-                buildId = run.id,
-                pollIntervalSeconds = request.pollIntervalSeconds,
-                timeoutMinutes = request.timeoutMinutes
-            )
-        } catch (
-            watchError: RuntimeException
-        ) {
-            val current = runCatching { teamCityClient.readRun(
-                buildId = run.id
-            ) }
-                .getOrElse { throw watchError }
-            if (current.state == "finished" && current.status != "SUCCESS") {
-                throw failedRun(
-                    run = current
+        val finished =
+            try {
+                teamCityClient.watchRun(
+                    buildId = run.id,
+                    pollIntervalSeconds = request.pollIntervalSeconds,
+                    timeoutMinutes = request.timeoutMinutes,
                 )
+            } catch (
+                watchError: RuntimeException,
+            ) {
+                val current =
+                    runCatching {
+                        teamCityClient.readRun(
+                            buildId = run.id,
+                        )
+                    }.getOrElse { throw watchError }
+                if (current.state == "finished" && current.status != "SUCCESS") {
+                    throw failedRun(
+                        run = current,
+                    )
+                }
+                throw watchError
             }
-            throw watchError
-        }
         if (finished.status != "SUCCESS") {
             throw failedRun(
-                run = finished
+                run = finished,
             )
         }
         return finished
     }
 
     private fun failedRun(
-        run: TeamCityRun
+        run: TeamCityRun,
     ): IllegalStateException =
         IllegalStateException(
             "TeamCity Figma Sync run ${run.id} finished with status '${run.status}': " +
-                (run.statusText ?: "no status text")
+                (run.statusText ?: "no status text"),
         )
 
     private fun result(
         run: TeamCityRun?,
         state: String,
-        reused: Boolean
+        reused: Boolean,
     ): TeamCityFigmaSyncRerunResult =
         TeamCityFigmaSyncRerunResult(
             runId = run?.id,
             webUrl = run?.webUrl,
             branch = branch,
             state = state,
-            reused = reused
+            reused = reused,
         )
 
     data class Request(
         val validateOnly: Boolean = false,
         val waitForCompletion: Boolean = false,
         val pollIntervalSeconds: Int = 10,
-        val timeoutMinutes: Int = 60
+        val timeoutMinutes: Int = 60,
     )
 }

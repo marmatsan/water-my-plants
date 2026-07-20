@@ -11,7 +11,6 @@ dependencies {
     implementation(projects.data) {
         exclude(
             group = "com.pinterest.ktlint",
-            module = "ktlint-rule-engine"
         )
     }
     implementation(gradleApi())
@@ -36,7 +35,7 @@ dokka {
     dokkaPublications.html {
         failOnWarning.set(true)
         includes.from(
-            "docs/dokka/README.md"
+            "docs/dokka/README.md",
         )
     }
 
@@ -48,8 +47,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/verification-platform/plugin/src/main/kotlin"
-                )
+                        "repo/verification-platform/plugin/src/main/kotlin",
+                ),
             )
             remoteLineSuffix.set("#L")
         }

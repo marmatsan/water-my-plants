@@ -15,71 +15,85 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 
-internal class McpRunnerExecutorTest : FunSpec(
-    {
-    test("executes manifest files through the Kotlin MCP port and checkpoints each result") {
-        val root = Files.createTempDirectory("mcp-runner-executor")
-        val sources = linkedMapOf(
-            "00-clear-staging.mcp.js" to "return { cleared: true };\n",
-            "99-00-preflight.mcp.js" to "return { preflight: true };\n"
-        )
-        sources.forEach { (file, source) -> Files.writeString(
-            root.resolve(
-                file
-            ),
-            source
-        ) }
-        val draft = executableManifest(
-            root = root.toString(),
-            files = sources.keys.toList(),
-            hashes = sources.mapValues { (_, source) ->
-                Sha256Hash.of(
-                    value = source.toByteArray(StandardCharsets.UTF_8)
-                )
+internal class McpRunnerExecutorTest :
+    FunSpec(
+        {
+            test("executes manifest files through the Kotlin MCP port and checkpoints each result") {
+                val root = Files.createTempDirectory("mcp-runner-executor")
+                val sources =
+                    linkedMapOf(
+                        "00-clear-staging.mcp.js" to "return { cleared: true };\n",
+                        "99-00-preflight.mcp.js" to "return { preflight: true };\n",
+                    )
+                sources.forEach { (file, source) ->
+                    Files.writeString(
+                        root.resolve(
+                            file,
+                        ),
+                        source,
+                    )
+                }
+                val draft =
+                    executableManifest(
+                        root = root.toString(),
+                        files = sources.keys.toList(),
+                        hashes =
+                            sources.mapValues { (_, source) ->
+                                Sha256Hash.of(
+                                    value = source.toByteArray(StandardCharsets.UTF_8),
+                                )
+                            },
+                    )
+                val manifest =
+                    ExecutableRunnerManifestJson().finalizeAndWrite(
+                        draft = draft,
+                        outputPath =
+                            root
+                                .resolve(
+                                    "manifest.json",
+                                ).toString(),
+                    )
+                val client = RecordingMcpClient()
+                val executor =
+                    McpRunnerExecutor(
+                        clock =
+                            Clock.fixed(
+                                Instant.parse(
+                                    "2026-07-18T18:00:00Z",
+                                ),
+                                ZoneOffset.UTC,
+                            ),
+                        clientFactory = { _, _ -> client },
+                    )
+
+                val result =
+                    executor.execute(
+                        McpRunnerExecutor.Request(
+                            manifestPath = manifest.path,
+                            fileKey = "file-key",
+                            clientName = "test-client",
+                            projectDisplayName = "Test Project",
+                        ),
+                    )
+
+                client.executedCode shouldContainExactly sources.values.toList()
+                result.executionFiles shouldContainExactly sources.keys.toList()
+                result.state.completedFiles.map { entry -> entry.file } shouldContainExactly sources.keys.toList()
+                McpExecutionStateJson()
+                    .readOptional(
+                        path =
+                            root
+                                .resolve(
+                                    "execution-state.json",
+                                ).toString(),
+                    )?.completedFiles
+                    ?.size shouldBe 2
+                client.closed shouldBe true
+
+                root.toFile().deleteRecursively()
             }
-        )
-        val manifest = ExecutableRunnerManifestJson().finalizeAndWrite(
-            draft = draft,
-            outputPath = root.resolve(
-                "manifest.json"
-            ).toString()
-        )
-        val client = RecordingMcpClient()
-        val executor = McpRunnerExecutor(
-            clock = Clock.fixed(
-                Instant.parse(
-                    "2026-07-18T18:00:00Z"
-                ),
-                ZoneOffset.UTC
-            ),
-            clientFactory = { _, _ -> client }
-        )
-
-        val result = executor.execute(
-            McpRunnerExecutor.Request(
-                manifestPath = manifest.path,
-                fileKey = "file-key",
-                clientName = "test-client",
-                projectDisplayName = "Test Project"
-            )
-        )
-
-        client.executedCode shouldContainExactly sources.values.toList()
-        result.executionFiles shouldContainExactly sources.keys.toList()
-        result.state.completedFiles.map { entry -> entry.file } shouldContainExactly sources.keys.toList()
-        McpExecutionStateJson().readOptional(
-            path = root.resolve(
-                "execution-state.json"
-            ).toString()
-        )
-            ?.completedFiles
-            ?.size shouldBe 2
-        client.closed shouldBe true
-
-        root.toFile().deleteRecursively()
-    }
-}
-) {
+        },
+    ) {
     private class RecordingMcpClient : McpClientPort {
         val executedCode = mutableListOf<String>()
         var closed = false
@@ -87,31 +101,31 @@ internal class McpRunnerExecutorTest : FunSpec(
         override suspend fun listToolNames(): List<String> = listOf("use_figma")
 
         override suspend fun readTextResource(
-            uri: String
+            uri: String,
         ): String = "Use Figma safely."
 
         override suspend fun useFigma(
             fileKey: String,
             code: String,
             description: String,
-            skillNames: String
+            skillNames: String,
         ): McpToolResult {
             executedCode += code
             return McpToolResult(
                 isError = false,
-                text = "ok"
+                text = "ok",
             )
         }
 
         override suspend fun requestAssetUpload(
             fileKey: String,
-            count: Int
+            count: Int,
         ): McpToolResult =
             error("Chunk transport must not upload assets")
 
         override suspend fun uploadAsset(
             url: String,
-            bytes: ByteArray
+            bytes: ByteArray,
         ) =
             error("Chunk transport must not upload assets")
 
@@ -124,7 +138,7 @@ internal class McpRunnerExecutorTest : FunSpec(
 private fun executableManifest(
     root: String,
     files: List<String>,
-    hashes: Map<String, String>
+    hashes: Map<String, String>,
 ) = ExecutableRunnerManifest(
     path = "$root/manifest.json",
     schemaVersion = 3,
@@ -150,14 +164,15 @@ private fun executableManifest(
     writerHash = "sha256:writer",
     transportHash = "sha256:transport",
     targetFingerprints = mapOf("preflight" to "sha256:model-preflight"),
-    writerScopeFingerprints = mapOf(
-        "preflight" to "sha256:writer-preflight",
-        "metadata" to "sha256:writer-metadata"
-    ),
+    writerScopeFingerprints =
+        mapOf(
+            "preflight" to "sha256:writer-preflight",
+            "metadata" to "sha256:writer-metadata",
+        ),
     writerScopeFingerprintSchemaVersion = 1,
     executionScopes = mapOf("99-00-preflight.mcp.js" to "preflight"),
     payloadImage = null,
     files = files,
     fileHashes = hashes,
-    manifestHash = ""
+    manifestHash = "",
 )

@@ -36,5 +36,5 @@ enum class VerificationUnitId {
 
     /** Publish plans and verification evidence through the final CI gate. */
     @SerialName("publish-reports")
-    PUBLISH_REPORTS
+    PUBLISH_REPORTS,
 }

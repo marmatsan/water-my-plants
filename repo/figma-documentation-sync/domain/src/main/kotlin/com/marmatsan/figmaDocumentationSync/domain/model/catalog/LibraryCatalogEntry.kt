@@ -24,7 +24,7 @@ sealed interface LibraryCatalogEntry {
     data class ConventionPluginUsage(
         val pluginId: String,
         val pluginModule: String,
-        val requiredByModules: List<String> = emptyList()
+        val requiredByModules: List<String> = emptyList(),
     )
 
     /**
@@ -41,7 +41,7 @@ sealed interface LibraryCatalogEntry {
     data class ConventionPluginConfigurationUsage(
         val pluginId: String,
         val pluginModule: String,
-        val target: String
+        val target: String,
     )
 
     /**
@@ -61,7 +61,7 @@ sealed interface LibraryCatalogEntry {
         val version: CatalogVersion,
         val requiredByModules: List<String> = emptyList(),
         val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList(),
-        val configuredByConventionPlugins: List<ConventionPluginConfigurationUsage> = emptyList()
+        val configuredByConventionPlugins: List<ConventionPluginConfigurationUsage> = emptyList(),
     ) : LibraryCatalogEntry
 
     /**
@@ -83,6 +83,6 @@ sealed interface LibraryCatalogEntry {
         val artifacts: List<String>,
         val version: CatalogVersion,
         val requiredByModules: List<String> = emptyList(),
-        val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList()
+        val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList(),
     ) : LibraryCatalogEntry
 }

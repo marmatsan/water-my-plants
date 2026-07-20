@@ -5,13 +5,13 @@ data class CiTrigger(
     val type: Type,
     val branchFilter: String?,
     val dependencyPipelineId: String?,
-    val afterSuccessfulBuildOnly: Boolean?
+    val afterSuccessfulBuildOnly: Boolean?,
 ) {
     enum class Type(
-        val serializedName: String
+        val serializedName: String,
     ) {
         Vcs("vcs"),
         PipelineFinish("pipeline finish"),
-        Schedule("schedule")
+        Schedule("schedule"),
     }
 }

@@ -8,7 +8,7 @@ import me.tatarka.inject.annotations.Inject
 class OfficialFigmaArtifactContractValidator {
     fun validate(
         contract: OfficialFigmaArtifactContract,
-        expectedGitSha: String? = null
+        expectedGitSha: String? = null,
     ): Result {
         val model = contract.model
         require(model.branch == MAIN_BRANCH) {
@@ -21,7 +21,7 @@ class OfficialFigmaArtifactContractValidator {
             requireEqual(
                 actual = model.gitSha,
                 expected = expected,
-                description = "CI revision"
+                description = "CI revision",
             )
         }
 
@@ -29,17 +29,17 @@ class OfficialFigmaArtifactContractValidator {
         requireEqual(
             actual = scope.scope,
             expected = FULL_VERIFICATION,
-            description = "Figma change scope"
+            description = "Figma change scope",
         )
         requireEqual(
             actual = scope.gitSha,
             expected = model.gitSha,
-            description = "Scope gitSha"
+            description = "Scope gitSha",
         )
         requireEqual(
             actual = scope.modelHash,
             expected = model.modelHash,
-            description = "Scope modelHash"
+            description = "Scope modelHash",
         )
 
         val visualManifests = contract.manifests.filter { it.fullVisualSync }
@@ -54,62 +54,63 @@ class OfficialFigmaArtifactContractValidator {
         validateManifest(
             name = "visual",
             manifest = visual,
-            model = model
+            model = model,
         )
         validateManifest(
             name = "metadata",
             manifest = metadata,
-            model = model
+            model = model,
         )
         requireEqual(
             actual = visual.writeMetadata,
             expected = false,
-            description = "Visual manifest metadata flag"
+            description = "Visual manifest metadata flag",
         )
         requireEqual(
             actual = metadata.writeMetadata,
             expected = true,
-            description = "Metadata manifest metadata flag"
+            description = "Metadata manifest metadata flag",
         )
 
         validateSharedIdentity(
             contract = contract,
             visual = visual,
-            metadata = metadata
+            metadata = metadata,
         )
-        val decision = OfficialFigmaArtifactContract.Decision.fromWireValue(
-            value = contract.plan.decision
-        )
-            ?: throw IllegalArgumentException(
-                "Unsupported visual sync decision '${contract.plan.decision}'."
+        val decision =
+            OfficialFigmaArtifactContract.Decision.fromWireValue(
+                value = contract.plan.decision,
             )
+                ?: throw IllegalArgumentException(
+                    "Unsupported visual sync decision '${contract.plan.decision}'.",
+                )
 
         return Result(
             gitSha = model.gitSha,
             modelHash = model.modelHash,
-            decision = decision
+            decision = decision,
         )
     }
 
     private fun validateManifest(
         name: String,
         manifest: OfficialFigmaArtifactContract.Manifest,
-        model: OfficialFigmaArtifactContract.Model
+        model: OfficialFigmaArtifactContract.Model,
     ) {
         requireEqual(
             actual = manifest.mode,
             expected = "official",
-            description = "$name manifest mode"
+            description = "$name manifest mode",
         )
         requireEqual(
             actual = manifest.gitSha,
             expected = model.gitSha,
-            description = "$name manifest gitSha"
+            description = "$name manifest gitSha",
         )
         requireEqual(
             actual = manifest.modelHash,
             expected = model.modelHash,
-            description = "$name manifest modelHash"
+            description = "$name manifest modelHash",
         )
         require(manifest.manifestHash.isNotBlank()) { "$name manifest requires a manifestHash." }
     }
@@ -117,71 +118,71 @@ class OfficialFigmaArtifactContractValidator {
     private fun validateSharedIdentity(
         contract: OfficialFigmaArtifactContract,
         visual: OfficialFigmaArtifactContract.Manifest,
-        metadata: OfficialFigmaArtifactContract.Manifest
+        metadata: OfficialFigmaArtifactContract.Manifest,
     ) {
         val scope = contract.scope
         val plan = contract.plan
         requireEqual(
             actual = metadata.writerHash,
             expected = visual.writerHash,
-            description = "Metadata manifest writerHash"
+            description = "Metadata manifest writerHash",
         )
         requireEqual(
             actual = scope.writerHash,
             expected = visual.writerHash,
-            description = "Scope writerHash"
+            description = "Scope writerHash",
         )
         requireEqual(
             actual = plan.identity.writerHash,
             expected = visual.writerHash,
-            description = "Visual plan writerHash"
+            description = "Visual plan writerHash",
         )
         requireEqual(
             actual = metadata.transportHash,
             expected = visual.transportHash,
-            description = "Metadata manifest transportHash"
+            description = "Metadata manifest transportHash",
         )
         requireEqual(
             actual = scope.transportHash,
             expected = visual.transportHash,
-            description = "Scope transportHash"
+            description = "Scope transportHash",
         )
         requireEqual(
             actual = plan.identity.transportHash,
             expected = visual.transportHash,
-            description = "Visual plan transportHash"
+            description = "Visual plan transportHash",
         )
         requireEqual(
             actual = plan.identity.modelHash,
             expected = contract.model.modelHash,
-            description = "Visual plan modelHash"
+            description = "Visual plan modelHash",
         )
         requireEqual(
             actual = plan.manifestHash,
             expected = visual.manifestHash,
-            description = "Visual plan manifestHash"
+            description = "Visual plan manifestHash",
         )
         requireEqual(
             actual = scope.visualRunnerManifestHash,
             expected = visual.manifestHash,
-            description = "Scope visual manifestHash"
+            description = "Scope visual manifestHash",
         )
         requireEqual(
             actual = scope.metadataRunnerManifestHash,
             expected = metadata.manifestHash,
-            description = "Scope metadata manifestHash"
+            description = "Scope metadata manifestHash",
         )
         requireEqual(
             actual = scope.visualSyncDecision,
             expected = plan.decision,
-            description = "Scope visual decision"
+            description = "Scope visual decision",
         )
     }
 
     private fun requireEqual(
         actual: Any?,
         expected: Any?,
-        description: String
+        description: String,
     ) {
         require(actual == expected) {
             "$description mismatch: expected '$expected', found '$actual'."
@@ -191,7 +192,7 @@ class OfficialFigmaArtifactContractValidator {
     data class Result(
         val gitSha: String,
         val modelHash: String,
-        val decision: OfficialFigmaArtifactContract.Decision
+        val decision: OfficialFigmaArtifactContract.Decision,
     )
 
     private companion object {

@@ -16,7 +16,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     implementation(projects.dependencies)
 
     // Kotest
@@ -31,6 +31,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.bddTest"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.BddTestGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.BddTestGradleConventionPlugin"
     }
 }

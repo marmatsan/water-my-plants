@@ -11,6 +11,6 @@ import org.junit.platform.suite.api.Suite
 @SelectPackages("com.marmatsan.verificationPlatform.domain.bdd")
 @ConfigurationParameter(
     key = GLUE_PROPERTY_NAME,
-    value = "com.marmatsan.verificationPlatform.domain.bdd"
+    value = "com.marmatsan.verificationPlatform.domain.bdd",
 )
 class RunCucumberTest

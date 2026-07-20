@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     // Core
     implementation(projects.core.ui)
 }

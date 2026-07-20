@@ -5,5 +5,5 @@ data class RunnerPayloadImage(
     val fileName: String,
     val byteLength: Int,
     val sha256: String,
-    val textKeyword: String
+    val textKeyword: String,
 )

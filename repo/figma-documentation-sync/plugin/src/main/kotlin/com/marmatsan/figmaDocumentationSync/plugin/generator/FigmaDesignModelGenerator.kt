@@ -2,12 +2,12 @@ package com.marmatsan.figmaDocumentationSync.plugin.generator
 
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimeSource
-import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
-import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesScope
@@ -40,7 +40,7 @@ internal class FigmaDesignModelGenerator(
     private val projectModuleDependenciesPort: ProjectModuleDependenciesPort,
     private val ciExternalTopologyPort: CiExternalTopologyPort,
     private val ciWindowsRuntimePort: CiWindowsRuntimePort,
-    private val ciConfigurationPort: CiConfigurationPort
+    private val ciConfigurationPort: CiConfigurationPort,
 ) {
     /**
      * Generates the complete model and stable model hash for [request].
@@ -51,86 +51,93 @@ internal class FigmaDesignModelGenerator(
      * a Figma sync.
      */
     fun generate(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
     ): FigmaDesignModelGenerationResult {
-        val content = buildContent(
-            request = request
-        )
-        val hashInput = buildJsonObject {
-            put(
-                "schemaVersion",
-                SCHEMA_VERSION
+        val content =
+            buildContent(
+                request = request,
             )
-            put(
-                "content",
-                content
+        val hashInput =
+            buildJsonObject {
+                put(
+                    "schemaVersion",
+                    SCHEMA_VERSION,
+                )
+                put(
+                    "content",
+                    content,
+                )
+            }
+        val modelHash =
+            FigmaDesignModelHash.compute(
+                model = hashInput,
             )
-        }
-        val modelHash = FigmaDesignModelHash.compute(
-            model = hashInput
-        )
-        val model = buildJsonObject {
-            put(
-                "schemaVersion",
-                SCHEMA_VERSION
-            )
-            put(
-                "branch",
-                request.branch
-            )
-            put(
-                "gitSha",
-                request.gitSha
-            )
-            put(
-                "generatedAt",
-                request.generatedAt.toString()
-            )
-            put(
-                "content",
-                content
-            )
-            put(
-                "modelHash",
-                modelHash
-            )
-        }
+        val model =
+            buildJsonObject {
+                put(
+                    "schemaVersion",
+                    SCHEMA_VERSION,
+                )
+                put(
+                    "branch",
+                    request.branch,
+                )
+                put(
+                    "gitSha",
+                    request.gitSha,
+                )
+                put(
+                    "generatedAt",
+                    request.generatedAt.toString(),
+                )
+                put(
+                    "content",
+                    content,
+                )
+                put(
+                    "modelHash",
+                    modelHash,
+                )
+            }
 
         return FigmaDesignModelGenerationResult(
             model = model,
-            modelHash = modelHash
+            modelHash = modelHash,
         )
     }
 
     private fun buildContent(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
     ) =
         buildJsonObject {
-            val includedBuilds = request.includedBuilds.map(
-                transform = FigmaDesignModelIncludedBuildSource::toDomainSource
-            )
-            val versionSections = repositoryVersionsPort
-                .readVersionSections(
-                    source = VersionsFileSource(
-                        path = request.versionsFile.absolutePath
-                    )
+            val includedBuilds =
+                request.includedBuilds.map(
+                    transform = FigmaDesignModelIncludedBuildSource::toDomainSource,
                 )
+            val versionSections =
+                repositoryVersionsPort
+                    .readVersionSections(
+                        source =
+                            VersionsFileSource(
+                                path = request.versionsFile.absolutePath,
+                            ),
+                    )
             put(
                 "versions",
                 versionSections
                     .flatMap { section -> section.versions.entries }
                     .associate { entry -> entry.key to entry.value }
-                    .toVersionsJson()
+                    .toVersionsJson(),
             )
             put(
                 "versionSections",
-                versionSections.toVersionSectionsJson()
+                versionSections.toVersionSectionsJson(),
             )
             put(
                 "catalogs",
                 buildCatalogs(
-                    request = request
-                )
+                    request = request,
+                ),
             )
             put(
                 "modules",
@@ -138,86 +145,90 @@ internal class FigmaDesignModelGenerator(
                     .readModules(
                         ProjectModulesSource(
                             rootSettingsFilePath = request.rootSettingsFile.absolutePath,
-                            includedBuilds = includedBuilds
-                        )
-                    )
-                    .toSortedJsonArray()
+                            includedBuilds = includedBuilds,
+                        ),
+                    ).toSortedJsonArray(),
             )
             put(
                 "moduleDependencies",
                 buildModuleDependencies(
-                    request = request
-                )
+                    request = request,
+                ),
             )
             if (request.ciDocumentationEnabled) {
                 put(
                     "ci",
                     buildCi(
-                        request = request
-                    )
+                        request = request,
+                    ),
                 )
             }
         }
 
     private fun buildCi(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
     ) =
         buildJsonObject {
             put(
                 "externalTopology",
                 ciExternalTopologyPort
                     .readTopology(
-                        source = CiExternalTopologySource(
-                            path = request.ciExternalTopologyFile.requireCiInput(
-                                name = "external topology"
-                            ).absolutePath
-                        )
-                    )
-                    .toDesignJson()
+                        source =
+                            CiExternalTopologySource(
+                                path =
+                                    request.ciExternalTopologyFile
+                                        .requireCiInput(
+                                            name = "external topology",
+                                        ).absolutePath,
+                            ),
+                    ).toDesignJson(),
             )
             put(
                 "windowsRuntime",
                 ciWindowsRuntimePort
                     .readRuntime(
-                        source = CiWindowsRuntimeSource(
-                            filePath = request.ciWindowsRuntimeFile.requireCiInput(
-                                name = "Windows runtime"
-                            ).absolutePath
-                        )
-                    )
-                    .toDesignJson()
+                        source =
+                            CiWindowsRuntimeSource(
+                                filePath =
+                                    request.ciWindowsRuntimeFile
+                                        .requireCiInput(
+                                            name = "Windows runtime",
+                                        ).absolutePath,
+                            ),
+                    ).toDesignJson(),
             )
             put(
                 request.ciConfigurationModelName.requireCiInput(
-                    name = "configuration model name"
+                    name = "configuration model name",
                 ),
                 ciConfigurationPort
                     .readConfiguration(
-                        source = CiGeneratedConfigurationSource(
-                            directoryPath = request.ciGeneratedConfigurationDirectory
-                                .requireCiInput(
-                                    name = "generated configuration"
-                                )
-                                .absolutePath,
-                            providerClassName = request.ciConfigurationProviderClassName
-                                .requireCiInput(
-                                    name = "configuration provider class name"
-                                )
-                        )
-                    )
-                    .toDesignJson()
+                        source =
+                            CiGeneratedConfigurationSource(
+                                directoryPath =
+                                    request.ciGeneratedConfigurationDirectory
+                                        .requireCiInput(
+                                            name = "generated configuration",
+                                        ).absolutePath,
+                                providerClassName =
+                                    request.ciConfigurationProviderClassName
+                                        .requireCiInput(
+                                            name = "configuration provider class name",
+                                        ),
+                            ),
+                    ).toDesignJson(),
             )
         }
 
     private fun buildCatalogs(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
     ) =
         buildJsonObject {
-            val conventionPluginIncludedBuilds = request.includedBuilds
-                .map(
-                    transform = FigmaDesignModelIncludedBuildSource::toDomainSource
-                )
-                .filter(IncludedBuildSource::publishesConventionPlugins)
+            val conventionPluginIncludedBuilds =
+                request.includedBuilds
+                    .map(
+                        transform = FigmaDesignModelIncludedBuildSource::toDomainSource,
+                    ).filter(IncludedBuildSource::publishesConventionPlugins)
             put(
                 request.primaryCatalogModelName,
                 buildJsonObject {
@@ -228,10 +239,9 @@ internal class FigmaDesignModelGenerator(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
                                     rootDirPath = request.projectRootDirectory.absolutePath,
                                     providerClassName = request.dependencyCatalogProviderClassName,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                                )
-                            )
-                            .toDesignJson()
+                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+                                ),
+                            ).toDesignJson(),
                     )
                     put(
                         "plugins",
@@ -240,10 +250,9 @@ internal class FigmaDesignModelGenerator(
                                 ProjectCatalogTreeSource.DependenciesDslVersionAliases(
                                     rootDirPath = request.projectRootDirectory.absolutePath,
                                     providerClassName = request.dependencyCatalogProviderClassName,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                                )
-                            )
-                            .toDesignJson()
+                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+                                ),
+                            ).toDesignJson(),
                     )
                     put(
                         "customGradleConventionPlugins",
@@ -251,22 +260,20 @@ internal class FigmaDesignModelGenerator(
                             .readPluginTree(
                                 ProjectCatalogTreeSource.CustomGradleConventionPlugins(
                                     rootDirPath = request.projectRootDirectory.absolutePath,
-                                    includedBuilds = conventionPluginIncludedBuilds
-                                )
-                            )
-                            .toDesignJson()
+                                    includedBuilds = conventionPluginIncludedBuilds,
+                                ),
+                            ).toDesignJson(),
                     )
                     put(
                         "customGradlePlugins",
                         projectCatalogTreesPort
                             .readPluginTree(
                                 ProjectCatalogTreeSource.CustomGradlePlugins(
-                                    rootDirPath = request.projectRootDirectory.absolutePath
-                                )
-                            )
-                            .toDesignJson()
+                                    rootDirPath = request.projectRootDirectory.absolutePath,
+                                ),
+                            ).toDesignJson(),
                     )
-                }
+                },
             )
             request.includedBuilds
                 .filter(FigmaDesignModelIncludedBuildSource::publishesCatalogs)
@@ -274,31 +281,32 @@ internal class FigmaDesignModelGenerator(
                     put(
                         includedBuild.modelName,
                         buildJsonObject {
-                            val source = ProjectCatalogTreeSource.IncludedBuildSettings(
-                                includedBuild = includedBuild.toDomainSource()
-                            )
+                            val source =
+                                ProjectCatalogTreeSource.IncludedBuildSettings(
+                                    includedBuild = includedBuild.toDomainSource(),
+                                )
                             val libraries = projectCatalogTreesPort.readLibraryTree(source)
                             val plugins = projectCatalogTreesPort.readPluginTree(source)
 
                             if (libraries.roots.isNotEmpty()) {
                                 put(
                                     "libraries",
-                                    libraries.toDesignJson()
+                                    libraries.toDesignJson(),
                                 )
                             }
                             if (plugins.roots.isNotEmpty()) {
                                 put(
                                     "plugins",
-                                    plugins.toDesignJson()
+                                    plugins.toDesignJson(),
                                 )
                             }
-                        }
+                        },
                     )
                 }
         }
 
     private fun buildModuleDependencies(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
     ) =
         buildJsonObject {
             put(
@@ -307,10 +315,9 @@ internal class FigmaDesignModelGenerator(
                     .readModuleDependencies(
                         ProjectModuleDependenciesSource(
                             rootDirPath = request.projectRootDirectory.absolutePath,
-                            scope = ProjectModuleDependenciesScope.Main
-                        )
-                    )
-                    .toModuleDependenciesJson()
+                            scope = ProjectModuleDependenciesScope.Main,
+                        ),
+                    ).toModuleDependenciesJson(),
             )
             request.includedBuilds
                 .forEach { includedBuild ->
@@ -321,10 +328,9 @@ internal class FigmaDesignModelGenerator(
                                 ProjectModuleDependenciesSource(
                                     rootDirPath = includedBuild.rootDirectory.absolutePath,
                                     scope = ProjectModuleDependenciesScope.IncludedBuild,
-                                    modulePathPrefix = includedBuild.modulePathPrefix
-                                )
-                            )
-                            .toModuleDependenciesJson()
+                                    modulePathPrefix = includedBuild.modulePathPrefix,
+                                ),
+                            ).toModuleDependenciesJson(),
                     )
                 }
         }
@@ -335,14 +341,14 @@ internal class FigmaDesignModelGenerator(
 }
 
 private fun java.io.File?.requireCiInput(
-    name: String
+    name: String,
 ): java.io.File =
     requireNotNull(this) {
         "CI documentation is enabled, but its $name input is not configured."
     }
 
 private fun String?.requireCiInput(
-    name: String
+    name: String,
 ): String =
     requireNotNull(this?.takeIf(String::isNotBlank)) {
         "CI documentation is enabled, but its $name input is not configured."

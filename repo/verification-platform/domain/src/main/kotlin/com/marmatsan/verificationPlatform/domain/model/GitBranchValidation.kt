@@ -13,5 +13,5 @@ data class GitBranchValidation(
     val branch: String,
     val valid: Boolean,
     val providerManaged: Boolean,
-    val message: String?
+    val message: String?,
 )

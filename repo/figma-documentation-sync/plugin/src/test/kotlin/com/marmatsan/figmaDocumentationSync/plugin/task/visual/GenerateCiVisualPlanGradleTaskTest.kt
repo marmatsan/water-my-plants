@@ -2,59 +2,73 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.visual
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import java.nio.file.Files
 
-internal class GenerateCiVisualPlanGradleTaskTest : FunSpec(
-    {
-    test("generates a target-scoped Kotlin plan from portable JSON inputs") {
-        val project = Files.createTempDirectory("figma-ci-visual-plan-gradle").toFile()
-        try {
-            project.resolve(
-                relative = "settings.gradle.kts"
-            ).writeText("rootProject.name = \"ci-visual-plan-test\"")
-            project.resolve(
-                relative = "build.gradle.kts"
-            ).writeText(
-                "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }"
-            )
-            val model = project.resolve(
-                relative = "design-model.json"
-            ).apply { writeText(designModelFixture) }
-            val config = project.resolve(
-                relative = "writer-project-config.json"
-            ).apply { writeText(writerConfigFixture) }
-            val output = project.resolve(
-                relative = "build/ci-visual-plan.json"
-            )
+internal class GenerateCiVisualPlanGradleTaskTest :
+    FunSpec(
+        {
+            test("generates a target-scoped Kotlin plan from portable JSON inputs") {
+                val project = Files.createTempDirectory("figma-ci-visual-plan-gradle").toFile()
+                try {
+                    project
+                        .resolve(
+                            relative = "settings.gradle.kts",
+                        ).writeText("rootProject.name = \"ci-visual-plan-test\"")
+                    project
+                        .resolve(
+                            relative = "build.gradle.kts",
+                        ).writeText(
+                            "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }",
+                        )
+                    val model =
+                        project
+                            .resolve(
+                                relative = "design-model.json",
+                            ).apply { writeText(designModelFixture) }
+                    val config =
+                        project
+                            .resolve(
+                                relative = "writer-project-config.json",
+                            ).apply { writeText(writerConfigFixture) }
+                    val output =
+                        project.resolve(
+                            relative = "build/ci-visual-plan.json",
+                        )
 
-            val result = GradleRunner.create()
-                .withProjectDir(project)
-                .withPluginClasspath()
-                .withArguments(
-                    "generateFigmaCiVisualPlan",
-                    "-PfigmaCiVisualDesignModel=${model.absolutePath}",
-                    "-PfigmaWriterProjectConfig=${config.absolutePath}",
-                    "-PfigmaCiVisualTarget=ci.windowsRuntime",
-                    "-PfigmaCiVisualPlanOutput=${output.absolutePath}"
-                )
-                .build()
+                    val result =
+                        GradleRunner
+                            .create()
+                            .withProjectDir(project)
+                            .withPluginClasspath()
+                            .withArguments(
+                                "generateFigmaCiVisualPlan",
+                                "-PfigmaCiVisualDesignModel=${model.absolutePath}",
+                                "-PfigmaWriterProjectConfig=${config.absolutePath}",
+                                "-PfigmaCiVisualTarget=ci.windowsRuntime",
+                                "-PfigmaCiVisualPlanOutput=${output.absolutePath}",
+                            ).build()
 
-            result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
-            val plan = Json.parseToJsonElement(output.readText()).jsonObject
-            plan.getValue("sections").jsonArray.single().jsonObject
-                .getValue("target").jsonPrimitive.content shouldBe "ci.windowsRuntime"
-        } finally {
-            project.deleteRecursively()
-        }
-    }
-}
-)
+                    result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
+                    val plan = Json.parseToJsonElement(output.readText()).jsonObject
+                    plan
+                        .getValue("sections")
+                        .jsonArray
+                        .single()
+                        .jsonObject
+                        .getValue("target")
+                        .jsonPrimitive.content shouldBe "ci.windowsRuntime"
+                } finally {
+                    project.deleteRecursively()
+                }
+            }
+        },
+    )
 
 private val designModelFixture =
     """

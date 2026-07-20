@@ -7,100 +7,110 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradlePluginTreeReaderTest : FunSpec(
-    {
+internal class GradlePluginTreeReaderTest :
+    FunSpec(
+        {
 
-    test("readPluginTree detects regular Gradle plugins and ignores convention plugins") {
-        // GIVEN
-        val rootDir = Files.createTempDirectory("gradle-plugin-tree").toFile()
-        rootDir.writeSettingsFile(
-            path = "repo/gradle-plugins"
-        )
-        rootDir.writeSettingsFile(
-            path = "repo/figma-documentation-sync"
-        )
-        rootDir.writeGradlePluginBuildFile(
-            path = "repo/figma-documentation-sync/plugin",
-            pluginName = "com.marmatsan.figmaDocumentationSync",
-            implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin"
-        )
-        rootDir.writeGradlePluginBuildFile(
-            path = "repo/gradle-plugins/analytics",
-            pluginName = "com.marmatsan.analytics",
-            implementationClass = "\${pluginName}.plugin.AnalyticsGradlePlugin"
-        )
-        rootDir.writeGradlePluginBuildFile(
-            path = "repo/gradle-plugins/android",
-            pluginName = "com.marmatsan.android",
-            implementationClass = "\${pluginName}.plugin.AndroidGradleConventionPlugin"
-        )
-
-        // WHEN
-        val actualTree = GradlePluginTreeReader().readPluginTree(
-            rootDir = rootDir,
-            includedPluginIds = setOf("com.marmatsan.figmaDocumentationSync"),
-            usageByPluginId = emptyMap()
-        )
-
-        // THEN
-        actualTree shouldBe PluginCatalogTree(
-            roots = listOf(
-                PluginCatalogNode(
-                    id = "com",
-                    children = listOf(
-                        PluginCatalogNode(
-                            id = "marmatsan",
-                            children = listOf(
-                                PluginCatalogNode(
-                                    id = "figmaDocumentationSync"
-                                )
-                            )
-                        )
-                    )
+            test("readPluginTree detects regular Gradle plugins and ignores convention plugins") {
+                // GIVEN
+                val rootDir = Files.createTempDirectory("gradle-plugin-tree").toFile()
+                rootDir.writeSettingsFile(
+                    path = "repo/gradle-plugins",
                 )
-            )
-        )
-    }
-}
-)
+                rootDir.writeSettingsFile(
+                    path = "repo/figma-documentation-sync",
+                )
+                rootDir.writeGradlePluginBuildFile(
+                    path = "repo/figma-documentation-sync/plugin",
+                    pluginName = "com.marmatsan.figmaDocumentationSync",
+                    implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin",
+                )
+                rootDir.writeGradlePluginBuildFile(
+                    path = "repo/gradle-plugins/analytics",
+                    pluginName = "com.marmatsan.analytics",
+                    implementationClass = "\${pluginName}.plugin.AnalyticsGradlePlugin",
+                )
+                rootDir.writeGradlePluginBuildFile(
+                    path = "repo/gradle-plugins/android",
+                    pluginName = "com.marmatsan.android",
+                    implementationClass = "\${pluginName}.plugin.AndroidGradleConventionPlugin",
+                )
+
+                // WHEN
+                val actualTree =
+                    GradlePluginTreeReader().readPluginTree(
+                        rootDir = rootDir,
+                        includedPluginIds = setOf("com.marmatsan.figmaDocumentationSync"),
+                        usageByPluginId = emptyMap(),
+                    )
+
+                // THEN
+                actualTree shouldBe
+                    PluginCatalogTree(
+                        roots =
+                            listOf(
+                                PluginCatalogNode(
+                                    id = "com",
+                                    children =
+                                        listOf(
+                                            PluginCatalogNode(
+                                                id = "marmatsan",
+                                                children =
+                                                    listOf(
+                                                        PluginCatalogNode(
+                                                            id = "figmaDocumentationSync",
+                                                        ),
+                                                    ),
+                                            ),
+                                        ),
+                                ),
+                            ),
+                    )
+            }
+        },
+    )
 
 private fun File.writeSettingsFile(
-    path: String
+    path: String,
 ) {
-    val directory = resolve(
-        relative = path
-    )
+    val directory =
+        resolve(
+            relative = path,
+        )
     directory.mkdirs()
-    directory.resolve(
-        relative = "settings.gradle.kts"
-    ).writeText("rootProject.name = \"${directory.name}\"")
+    directory
+        .resolve(
+            relative = "settings.gradle.kts",
+        ).writeText("rootProject.name = \"${directory.name}\"")
 }
 
 private fun File.writeGradlePluginBuildFile(
     path: String,
     pluginName: String,
-    implementationClass: String
+    implementationClass: String,
 ) {
-    val directory = resolve(
-        relative = path
-    )
+    val directory =
+        resolve(
+            relative = path,
+        )
     directory.mkdirs()
-    directory.resolve(
-        relative = "build.gradle.kts"
-    ).writeText(
-        """
-        plugins {
-            `kotlin-dsl`
-            `java-gradle-plugin`
-        }
-
-        gradlePlugin {
-            val pluginName = "$pluginName"
-            plugins.register(pluginName) {
-                id = pluginName
-                implementationClass = "$implementationClass"
+    directory
+        .resolve(
+            relative = "build.gradle.kts",
+        ).writeText(
+            """
+            plugins {
+                `kotlin-dsl`
+                `java-gradle-plugin`
             }
-        }
-        """.trimIndent()
-    )
+
+            gradlePlugin {
+                val pluginName = "$pluginName"
+                plugins.register(pluginName) {
+                    id = pluginName
+                    implementationClass = "$implementationClass"
+                }
+            }
+            """.trimIndent(),
+        )
 }

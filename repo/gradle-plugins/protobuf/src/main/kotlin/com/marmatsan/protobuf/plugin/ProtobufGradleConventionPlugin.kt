@@ -12,7 +12,7 @@ import org.gradle.kotlin.dsl.getByType
 @Suppress("unused")
 class ProtobufGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         // Applied plugins
         project.pluginManager.apply("com.google.protobuf")
@@ -21,10 +21,11 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         project.extensions.configure<ProtobufExtension>("protobuf") {
             protoc {
-                artifact = libs.requireDependencyNotation(
-                    libraryGroup = "com.google.protobuf",
-                    artifact = "protoc"
-                )
+                artifact =
+                    libs.requireDependencyNotation(
+                        libraryGroup = "com.google.protobuf",
+                        artifact = "protoc",
+                    )
             }
 
             generateProtoTasks {
@@ -43,13 +44,14 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            val libs = withVersionCatalog(
-                libs = libs
-            )
+            val libs =
+                withVersionCatalog(
+                    libs = libs,
+                )
 
             libs.implementation(
                 libraryGroup = "com.google.protobuf",
-                artifact = "protobuf-kotlin"
+                artifact = "protobuf-kotlin",
             )
         }
     }

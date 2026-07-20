@@ -6,22 +6,22 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogN
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiExternalTopology
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiConfiguration
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiPipeline
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDocumentationSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDocumentationSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
+import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologySource
+import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimeSource
-import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
-import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesSource
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPort
@@ -37,17 +37,16 @@ import io.cucumber.java8.En
 import io.cucumber.java8.StepDefinitionBody.A1
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import java.io.File
-import java.time.Instant
-import java.time.LocalDate
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.File
+import java.time.Instant
+import java.time.LocalDate
 
 @Suppress("ObjectLiteralToLambda")
 class DesignModelSteps : En {
-
     private var repositoryVersionsAvailable = false
     private var repositoryCatalogTreesAvailable = false
     private var repositoryProjectModulesAvailable = false
@@ -99,85 +98,87 @@ class DesignModelSteps : En {
             "the design model is generated at {instant}",
             object : A1<Instant> {
                 override fun accept(
-                    generatedAt: Instant
+                    generatedAt: Instant,
                 ) {
                     generateFirstModel(
-                        generatedAt = generatedAt
+                        generatedAt = generatedAt,
                     )
                 }
-            }
+            },
         )
 
         When(
             "the design model is generated again at {instant}",
             object : A1<Instant> {
                 override fun accept(
-                    generatedAt: Instant
+                    generatedAt: Instant,
                 ) {
                     generateSecondModel(
-                        generatedAt = generatedAt
+                        generatedAt = generatedAt,
                     )
                 }
-            }
+            },
         )
 
         When(
             "the design model is generated for git sha {word}",
             object : A1<String> {
                 override fun accept(
-                    gitSha: String
+                    gitSha: String,
                 ) {
                     generateFirstModel(
-                        gitSha = gitSha
+                        gitSha = gitSha,
                     )
                 }
-            }
+            },
         )
 
         When(
             "the design model is generated again for git sha {word}",
             object : A1<String> {
                 override fun accept(
-                    gitSha: String
+                    gitSha: String,
                 ) {
                     generateSecondModel(
-                        gitSha = gitSha
+                        gitSha = gitSha,
                     )
                 }
-            }
+            },
         )
 
         Then("the generated model contains repository metadata") {
-            firstResult.model.keys shouldContainAll listOf(
-                "schemaVersion",
-                "branch",
-                "gitSha",
-                "generatedAt",
-                "content",
-                "modelHash"
-            )
+            firstResult.model.keys shouldContainAll
+                listOf(
+                    "schemaVersion",
+                    "branch",
+                    "gitSha",
+                    "generatedAt",
+                    "content",
+                    "modelHash",
+                )
         }
 
         Then(
             "the generated model content contains:",
             object : A1<DataTable> {
                 override fun accept(
-                    contentKeys: DataTable
+                    contentKeys: DataTable,
                 ) {
                     firstResult.content.keys shouldContainAll contentKeys.asList()
                 }
-            }
+            },
         )
 
         Then("the version keys are sorted") {
             firstResult.content["versions"]
                 ?.jsonObject
                 ?.keys
-                ?.toList() shouldBe listOf(
+                ?.toList() shouldBe
+                listOf(
                     "activityComposeLibraryVersion",
                     "androidGradlePluginVersion",
                     "kotlinVersion",
-                    "kspPluginVersion"
+                    "kspPluginVersion",
                 )
         }
 
@@ -186,20 +187,22 @@ class DesignModelSteps : En {
                 ?.jsonArray
                 ?.map { section ->
                     section.jsonObject["name"]?.jsonPrimitive?.content
-                } shouldBe listOf(
+                } shouldBe
+                listOf(
                     "Main project dependencies",
                     "Libraries",
-                    "Plugins"
+                    "Plugins",
                 )
         }
 
         Then("the CI model contains external topology Windows runtime and effective TeamCity configuration") {
             firstResult.content["ci"]!!
                 .jsonObject
-                .keys shouldContainAll listOf(
+                .keys shouldContainAll
+                listOf(
                     "externalTopology",
                     "windowsRuntime",
-                    "teamCity"
+                    "teamCity",
                 )
         }
 
@@ -221,47 +224,51 @@ class DesignModelSteps : En {
 
     private fun generateFirstModel(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT
+        generatedAt: Instant = DEFAULT_GENERATED_AT,
     ) {
-        firstResult = generateModel(
-            gitSha = gitSha,
-            generatedAt = generatedAt
-        )
+        firstResult =
+            generateModel(
+                gitSha = gitSha,
+                generatedAt = generatedAt,
+            )
     }
 
     private fun generateSecondModel(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT
+        generatedAt: Instant = DEFAULT_GENERATED_AT,
     ) {
-        secondResult = generateModel(
-            gitSha = gitSha,
-            generatedAt = generatedAt
-        )
+        secondResult =
+            generateModel(
+                gitSha = gitSha,
+                generatedAt = generatedAt,
+            )
     }
 
     private fun generateModel(
         gitSha: String,
-        generatedAt: Instant
+        generatedAt: Instant,
     ): FigmaDesignModelGenerationResult {
         requireRepositorySources()
         return generator.generate(
-            request = request(
-                gitSha = gitSha,
-                generatedAt = generatedAt
-            )
+            request =
+                request(
+                    gitSha = gitSha,
+                    generatedAt = generatedAt,
+                ),
         )
     }
 
     private fun configureGenerator() {
-        generator = FigmaDesignModelGenerator(
-            repositoryVersionsPort = FakeRepositoryVersionsPort,
-            projectCatalogTreesPort = FakeProjectCatalogTreesPort,
-            projectModulesPort = FakeProjectModulesPort,
-            projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
-            ciExternalTopologyPort = FakeCiExternalTopologyPort,
-            ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
-            ciConfigurationPort = FakeCiConfigurationPort
-        )
+        generator =
+            FigmaDesignModelGenerator(
+                repositoryVersionsPort = FakeRepositoryVersionsPort,
+                projectCatalogTreesPort = FakeProjectCatalogTreesPort,
+                projectModulesPort = FakeProjectModulesPort,
+                projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
+                ciExternalTopologyPort = FakeCiExternalTopologyPort,
+                ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
+                ciConfigurationPort = FakeCiConfigurationPort,
+            )
     }
 
     private fun requireRepositorySources() {
@@ -276,7 +283,7 @@ class DesignModelSteps : En {
 
     private fun request(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT
+        generatedAt: Instant = DEFAULT_GENERATED_AT,
     ): FigmaDesignModelGenerationRequest =
         FigmaDesignModelGenerationRequest(
             branch = "main",
@@ -293,191 +300,207 @@ class DesignModelSteps : En {
             ciWindowsRuntimeFile = File("docs/ci/windows-runtime.yaml"),
             ciGeneratedConfigurationDirectory = File(".teamcity/target/generated-configs"),
             projectRootDirectory = File("."),
-            includedBuilds = listOf(
-                FigmaDesignModelIncludedBuildSource(
-                    modelName = "gradlePlugins",
-                    settingsFile = File("repo/gradle-plugins/settings.gradle.kts"),
-                    rootDirectory = File("repo/gradle-plugins"),
-                    modulePathPrefix = ":gradle-plugins",
-                    publishesCatalogs = true,
-                    publishesConventionPlugins = true
-                )
-            )
+            includedBuilds =
+                listOf(
+                    FigmaDesignModelIncludedBuildSource(
+                        modelName = "gradlePlugins",
+                        settingsFile = File("repo/gradle-plugins/settings.gradle.kts"),
+                        rootDirectory = File("repo/gradle-plugins"),
+                        modulePathPrefix = ":gradle-plugins",
+                        publishesCatalogs = true,
+                        publishesConventionPlugins = true,
+                    ),
+                ),
         )
 
     private companion object {
-        val DEFAULT_GENERATED_AT: Instant = Instant.parse(
-            "2026-06-19T10:15:30Z"
-        )
+        val DEFAULT_GENERATED_AT: Instant =
+            Instant.parse(
+                "2026-06-19T10:15:30Z",
+            )
     }
 }
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
     override fun readVersions(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): Map<String, String> =
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
             "androidGradlePluginVersion" to "9.2.1",
-            "kspPluginVersion" to "2.3.9"
+            "kspPluginVersion" to "2.3.9",
         )
 
     override fun readVersionSections(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
                 name = "Main project dependencies",
-                versions = mapOf(
-                    "androidGradlePluginVersion" to "9.2.1",
-                    "kotlinVersion" to "2.4.0"
-                )
+                versions =
+                    mapOf(
+                        "androidGradlePluginVersion" to "9.2.1",
+                        "kotlinVersion" to "2.4.0",
+                    ),
             ),
             RepositoryVersionSection(
                 name = "Libraries",
-                versions = mapOf("activityComposeLibraryVersion" to "1.13.0")
+                versions = mapOf("activityComposeLibraryVersion" to "1.13.0"),
             ),
             RepositoryVersionSection(
                 name = "Plugins",
-                versions = mapOf("kspPluginVersion" to "2.3.9")
-            )
+                versions = mapOf("kspPluginVersion" to "2.3.9"),
+            ),
         )
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
     override fun readLibraryTree(
-        source: ProjectCatalogTreeSource
+        source: ProjectCatalogTreeSource,
     ): LibraryCatalogTree =
         LibraryCatalogTree(
-            roots = listOf(
-                LibraryCatalogNode(
-                    group = "org.jetbrains.kotlin",
-                    entries = listOf(
-                        LibraryCatalogEntry.Artifact(
-                            artifact = "kotlin-stdlib",
-                            version = CatalogVersion(
-                                value = "2.4.0"
+            roots =
+                listOf(
+                    LibraryCatalogNode(
+                        group = "org.jetbrains.kotlin",
+                        entries =
+                            listOf(
+                                LibraryCatalogEntry.Artifact(
+                                    artifact = "kotlin-stdlib",
+                                    version =
+                                        CatalogVersion(
+                                            value = "2.4.0",
+                                        ),
+                                    requiredByModules = listOf(":app"),
+                                ),
                             ),
-                            requiredByModules = listOf(":app")
-                        )
-                    )
-                )
-            )
+                    ),
+                ),
         )
 
     override fun readPluginTree(
-        source: ProjectCatalogTreeSource
+        source: ProjectCatalogTreeSource,
     ): PluginCatalogTree =
         PluginCatalogTree(
-            roots = listOf(
-                PluginCatalogNode(
-                    id = "org.jetbrains.kotlin.android",
-                    version = CatalogVersion(
-                        value = "2.4.0"
+            roots =
+                listOf(
+                    PluginCatalogNode(
+                        id = "org.jetbrains.kotlin.android",
+                        version =
+                            CatalogVersion(
+                                value = "2.4.0",
+                            ),
+                        appliedToModules = listOf(":app"),
                     ),
-                    appliedToModules = listOf(":app")
-                )
-            )
+                ),
         )
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
     override fun readModules(
-        source: ProjectModulesSource
+        source: ProjectModulesSource,
     ): Set<String> =
         setOf(
             ":onboarding:ui",
             ":app",
-            ":core:ui"
+            ":core:ui",
         )
 }
 
 private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort {
     override fun readModuleDependencies(
-        source: ProjectModuleDependenciesSource
+        source: ProjectModuleDependenciesSource,
     ): Set<ModuleDependency> =
         setOf(
             ModuleDependency(
                 dependentModule = ":app",
-                dependencyModule = ":core:ui"
-            )
+                dependencyModule = ":core:ui",
+            ),
         )
 }
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
     override fun readTopology(
-        source: CiExternalTopologySource
+        source: CiExternalTopologySource,
     ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
-            validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse(
-                    "2026-07-14"
+            validation =
+                CiExternalTopology.Validation(
+                    lastValidatedOn =
+                        LocalDate.parse(
+                            "2026-07-14",
+                        ),
+                    warnAfterDays = 90,
                 ),
-                warnAfterDays = 90
-            ),
-            nodes = listOf(
-                CiNode(
-                    id = "operator",
-                    type = CiNode.Type.Actor,
-                    name = "Operator",
-                    description = "Initiates manual CI actions."
-                )
-            ),
-            connections = emptyList()
+            nodes =
+                listOf(
+                    CiNode(
+                        id = "operator",
+                        type = CiNode.Type.Actor,
+                        name = "Operator",
+                        description = "Initiates manual CI actions.",
+                    ),
+                ),
+            connections = emptyList(),
         )
 }
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
     override fun readRuntime(
-        source: CiWindowsRuntimeSource
+        source: CiWindowsRuntimeSource,
     ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
-            validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse(
-                    "2026-07-16"
+            validation =
+                CiWindowsRuntime.Validation(
+                    lastValidatedOn =
+                        LocalDate.parse(
+                            "2026-07-16",
+                        ),
+                    warnAfterDays = 90,
                 ),
-                warnAfterDays = 90
-            ),
             platform = "Windows",
-            services = listOf(
-                CiWindowsRuntime.Service(
-                    id = "teamcity-server",
-                    name = "TeamCity Server",
-                    description = "Hosts TeamCity.",
-                    service = "TeamCity",
-                    startup = "Automatic",
-                    identity = "NT SERVICE\\TeamCity"
-                )
-            )
+            services =
+                listOf(
+                    CiWindowsRuntime.Service(
+                        id = "teamcity-server",
+                        name = "TeamCity Server",
+                        description = "Hosts TeamCity.",
+                        service = "TeamCity",
+                        startup = "Automatic",
+                        identity = "NT SERVICE\\TeamCity",
+                    ),
+                ),
         )
 }
 
 private object FakeCiConfigurationPort : CiConfigurationPort {
     override fun readConfiguration(
-        source: CiGeneratedConfigurationSource
+        source: CiGeneratedConfigurationSource,
     ): CiConfiguration =
         CiConfiguration(
-            pipelines = listOf(
-                CiPipeline(
-                    id = "Root_Ci",
-                    name = "CI",
-                    triggers = emptyList(),
-                    jobs = listOf(
-                        CiJob(
-                            id = "verify",
-                            name = "Verify",
-                            steps = emptyList(),
-                            repositoryIds = emptyList(),
-                            artifacts = emptyList(),
-                            dependencies = emptyList(),
-                            publishedChecks = emptyList()
-                        )
-                    )
-                )
-            ),
-            vcsRoots = emptyList()
+            pipelines =
+                listOf(
+                    CiPipeline(
+                        id = "Root_Ci",
+                        name = "CI",
+                        triggers = emptyList(),
+                        jobs =
+                            listOf(
+                                CiJob(
+                                    id = "verify",
+                                    name = "Verify",
+                                    steps = emptyList(),
+                                    repositoryIds = emptyList(),
+                                    artifacts = emptyList(),
+                                    dependencies = emptyList(),
+                                    publishedChecks = emptyList(),
+                                ),
+                            ),
+                    ),
+                ),
+            vcsRoots = emptyList(),
         )
 }

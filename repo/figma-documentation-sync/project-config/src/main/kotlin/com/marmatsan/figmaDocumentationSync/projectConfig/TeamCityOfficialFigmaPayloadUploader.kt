@@ -14,10 +14,10 @@ class TeamCityOfficialFigmaPayloadUploader(
     private val artifactReader: OfficialFigmaArtifactSetReader = OfficialFigmaArtifactSetReader(),
     private val manifestJson: ExecutableRunnerManifestJson = ExecutableRunnerManifestJson(),
     private val uploadPng: (String, ByteArray) -> Unit =
-        KtorFigmaPngAssetUploader()::uploadBlocking
+        KtorFigmaPngAssetUploader()::uploadBlocking,
 ) {
     fun upload(
-        request: Request
+        request: Request,
     ): Result {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
@@ -27,20 +27,23 @@ class TeamCityOfficialFigmaPayloadUploader(
                 "figmaExpectedGitSha is required with figmaArtifactDirectory."
             }
         }
-        val handoff = handoffPreparer.prepare(
-            request = TeamCityFigmaSyncHandoffPreparer.Request(
-                buildId = request.buildId,
-                artifactDirectory = request.artifactDirectory,
-                destinationRoot = request.destinationRoot,
-                expectedGitSha = request.expectedGitSha,
-                mainBranchAliases = request.mainBranchAliases,
-                requiredBuildTypeName = request.requiredBuildTypeName
+        val handoff =
+            handoffPreparer.prepare(
+                request =
+                    TeamCityFigmaSyncHandoffPreparer.Request(
+                        buildId = request.buildId,
+                        artifactDirectory = request.artifactDirectory,
+                        destinationRoot = request.destinationRoot,
+                        expectedGitSha = request.expectedGitSha,
+                        mainBranchAliases = request.mainBranchAliases,
+                        requiredBuildTypeName = request.requiredBuildTypeName,
+                    ),
             )
-        )
         val artifacts = artifactReader.read(handoff.artifactDirectory.absolutePath)
-        val manifestPath = requireNotNull(artifacts.visualManifestPath) {
-            "Official artifact set does not contain one visual manifest."
-        }
+        val manifestPath =
+            requireNotNull(artifacts.visualManifestPath) {
+                "Official artifact set does not contain one visual manifest."
+            }
         val manifest = manifestJson.read(manifestPath.toString())
         require(manifest.mode == "official" && manifest.fullVisualSync && !manifest.writeMetadata) {
             "Figma payload upload requires the official full visual manifest."
@@ -48,16 +51,19 @@ class TeamCityOfficialFigmaPayloadUploader(
         require(manifest.transport == PNG_TRANSPORT) {
             "Figma payload upload requires PNG transport; found '${manifest.transport}'."
         }
-        val payload = requireNotNull(manifest.payloadImage) {
-            "Official visual manifest does not declare a PNG payload."
-        }
+        val payload =
+            requireNotNull(manifest.payloadImage) {
+                "Official visual manifest does not declare a PNG payload."
+            }
         require(File(payload.fileName).name == payload.fileName) {
             "Official PNG payload must use a file name without path segments."
         }
         val runnerDirectory = requireNotNull(manifestPath.parent).toAbsolutePath().normalize()
-        val payloadPath = runnerDirectory.resolve(
-            payload.fileName
-        ).normalize()
+        val payloadPath =
+            runnerDirectory
+                .resolve(
+                    payload.fileName,
+                ).normalize()
         require(payloadPath.parent == runnerDirectory && Files.isRegularFile(payloadPath)) {
             "Official PNG payload does not exist beside its visual manifest."
         }
@@ -65,16 +71,17 @@ class TeamCityOfficialFigmaPayloadUploader(
         require(bytes.size == payload.byteLength) {
             "Official PNG payload length mismatch: ${bytes.size} != ${payload.byteLength}."
         }
-        val actualHash = Sha256Hash.of(
-            value = bytes
-        )
+        val actualHash =
+            Sha256Hash.of(
+                value = bytes,
+            )
         require(actualHash == payload.sha256) {
             "Official PNG payload hash mismatch: $actualHash != ${payload.sha256}."
         }
 
         uploadPng(
             request.uploadUrl,
-            bytes
+            bytes,
         )
         return Result(
             buildId = request.buildId,
@@ -83,7 +90,7 @@ class TeamCityOfficialFigmaPayloadUploader(
             payloadFileName = payload.fileName,
             payloadByteLength = payload.byteLength,
             payloadSha256 = payload.sha256,
-            artifactDirectory = handoff.artifactDirectory
+            artifactDirectory = handoff.artifactDirectory,
         )
     }
 
@@ -93,12 +100,13 @@ class TeamCityOfficialFigmaPayloadUploader(
         val uploadUrl: String,
         val destinationRoot: File,
         val expectedGitSha: String? = null,
-        val mainBranchAliases: Set<String> = setOf(
-            "main",
-            "<default>",
-            "refs/heads/main"
-        ),
-        val requiredBuildTypeName: String = "Generate main design model"
+        val mainBranchAliases: Set<String> =
+            setOf(
+                "main",
+                "<default>",
+                "refs/heads/main",
+            ),
+        val requiredBuildTypeName: String = "Generate main design model",
     )
 
     data class Result(
@@ -108,7 +116,7 @@ class TeamCityOfficialFigmaPayloadUploader(
         val payloadFileName: String,
         val payloadByteLength: Int,
         val payloadSha256: String,
-        val artifactDirectory: File
+        val artifactDirectory: File,
     )
 
     private companion object {

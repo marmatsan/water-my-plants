@@ -19,72 +19,88 @@ enum class AssetsLeafVariant {
     Leaf2,
     Leaf3,
     Leaf4,
-    Leaf5
+    Leaf5,
 }
 
 @Composable
 fun AssetsLeaf(
     variant: AssetsLeafVariant,
     modifier: Modifier = Modifier,
-    tintColor: Color? = null
+    tintColor: Color? = null,
 ) {
     val colorFilter = tintColor?.let { ColorFilter.tint(it) }
-    val (resId, width, height) = when (variant) {
-        AssetsLeafVariant.Leaf1 -> Triple(
-            R.drawable.assets_leaf_leaf1,
-            50.dp,
-            87.dp
-        )
-        AssetsLeafVariant.Leaf2 -> Triple(
-            R.drawable.assets_leaf_leaf2,
-            122.dp,
-            83.dp
-        )
-        AssetsLeafVariant.Leaf3 -> Triple(
-            R.drawable.assets_leaf_leaf3,
-            167.11.dp,
-            116.86.dp
-        )
-        AssetsLeafVariant.Leaf4 -> Triple(
-            R.drawable.assets_leaf_leaf4,
-            109.839.dp,
-            111.949.dp
-        )
-        AssetsLeafVariant.Leaf5 -> Triple(
-            R.drawable.assets_leaf_leaf5,
-            98.107.dp,
-            124.907.dp
-        )
-    }
+    val (resId, width, height) =
+        when (variant) {
+            AssetsLeafVariant.Leaf1 -> {
+                Triple(
+                    R.drawable.assets_leaf_leaf1,
+                    50.dp,
+                    87.dp,
+                )
+            }
+
+            AssetsLeafVariant.Leaf2 -> {
+                Triple(
+                    R.drawable.assets_leaf_leaf2,
+                    122.dp,
+                    83.dp,
+                )
+            }
+
+            AssetsLeafVariant.Leaf3 -> {
+                Triple(
+                    R.drawable.assets_leaf_leaf3,
+                    167.11.dp,
+                    116.86.dp,
+                )
+            }
+
+            AssetsLeafVariant.Leaf4 -> {
+                Triple(
+                    R.drawable.assets_leaf_leaf4,
+                    109.839.dp,
+                    111.949.dp,
+                )
+            }
+
+            AssetsLeafVariant.Leaf5 -> {
+                Triple(
+                    R.drawable.assets_leaf_leaf5,
+                    98.107.dp,
+                    124.907.dp,
+                )
+            }
+        }
 
     Image(
-        painter = painterResource(
-            id = resId
-        ),
+        painter =
+            painterResource(
+                id = resId,
+            ),
         contentDescription = null,
-        modifier = modifier.size(
-            width = width,
-            height = height
-        ),
+        modifier =
+            modifier.size(
+                width = width,
+                height = height,
+            ),
         contentScale = ContentScale.Fit,
-        colorFilter = colorFilter
+        colorFilter = colorFilter,
     )
 }
 
 @Preview(
-    showBackground = true
+    showBackground = true,
 )
 @Composable
 private fun AssetsLeafPreview(
     @PreviewParameter(AssetsLeafPreviewParameterProvider::class)
-    variant: AssetsLeafVariant
+    variant: AssetsLeafVariant,
 ) {
     AssetsLeaf(
-        variant = variant
+        variant = variant,
     )
 }
 
-private class AssetsLeafPreviewParameterProvider :
-    PreviewParameterProvider<AssetsLeafVariant> {
+private class AssetsLeafPreviewParameterProvider : PreviewParameterProvider<AssetsLeafVariant> {
     override val values = AssetsLeafVariant.entries.asSequence()
 }

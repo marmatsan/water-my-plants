@@ -17,54 +17,65 @@ import kotlinx.coroutines.runBlocking
 /** Official Kotlin MCP SDK adapter for the local Streamable HTTP endpoint. */
 class KotlinSdkMcpClient private constructor(
     private val httpClient: HttpClient,
-    private val client: Client
+    private val client: Client,
 ) : McpClientPort {
     private val assetUploader = KtorFigmaPngAssetUploader()
 
     override suspend fun listToolNames(): List<String> = client.listTools().tools.map { tool -> tool.name }
 
     override suspend fun readTextResource(
-        uri: String
-    ): String = client.readResource(
-        ReadResourceRequest(
-            ReadResourceRequestParams(
-                uri = uri
-            )
-        )
-    ).contents.filterIsInstance<TextResourceContents>().joinToString("\n") { content -> content.text }.trim()
+        uri: String,
+    ): String =
+        client
+            .readResource(
+                ReadResourceRequest(
+                    ReadResourceRequestParams(
+                        uri = uri,
+                    ),
+                ),
+            ).contents
+            .filterIsInstance<TextResourceContents>()
+            .joinToString("\n") { content -> content.text }
+            .trim()
 
     override suspend fun useFigma(
         fileKey: String,
         code: String,
         description: String,
-        skillNames: String
-    ): McpToolResult = client.callTool(
-        name = USE_FIGMA_TOOL,
-        arguments = mapOf(
-            "fileKey" to fileKey,
-            "code" to code,
-            "description" to description,
-            "skillNames" to skillNames
-        )
-    ).toDomain()
+        skillNames: String,
+    ): McpToolResult =
+        client
+            .callTool(
+                name = USE_FIGMA_TOOL,
+                arguments =
+                    mapOf(
+                        "fileKey" to fileKey,
+                        "code" to code,
+                        "description" to description,
+                        "skillNames" to skillNames,
+                    ),
+            ).toDomain()
 
     override suspend fun requestAssetUpload(
         fileKey: String,
-        count: Int
-    ): McpToolResult = client.callTool(
-        name = UPLOAD_ASSETS_TOOL,
-        arguments = mapOf(
-            "fileKey" to fileKey,
-            "count" to count
-        )
-    ).toDomain()
+        count: Int,
+    ): McpToolResult =
+        client
+            .callTool(
+                name = UPLOAD_ASSETS_TOOL,
+                arguments =
+                    mapOf(
+                        "fileKey" to fileKey,
+                        "count" to count,
+                    ),
+            ).toDomain()
 
     override suspend fun uploadAsset(
         url: String,
-        bytes: ByteArray
+        bytes: ByteArray,
     ) = assetUploader.upload(
         url = url,
-        bytes = bytes
+        bytes = bytes,
     )
 
     override fun close() {
@@ -72,33 +83,39 @@ class KotlinSdkMcpClient private constructor(
         httpClient.close()
     }
 
-    private fun io.modelcontextprotocol.kotlin.sdk.types.CallToolResult.toDomain(): McpToolResult = McpToolResult(
-        isError = isError == true,
-        text = content.filterIsInstance<TextContent>().joinToString("\n") { value -> value.text }.trim()
-    )
+    private fun io.modelcontextprotocol.kotlin.sdk.types.CallToolResult.toDomain(): McpToolResult =
+        McpToolResult(
+            isError = isError == true,
+            text = content.filterIsInstance<TextContent>().joinToString("\n") { value -> value.text }.trim(),
+        )
 
     companion object {
         fun connect(
             endpoint: String,
-            clientName: String
+            clientName: String,
         ): KotlinSdkMcpClient {
             val httpClient = HttpClient(CIO) { install(SSE) }
-            val client = Client(
-                clientInfo = Implementation(
-                    name = clientName,
-                    version = CLIENT_VERSION
+            val client =
+                Client(
+                    clientInfo =
+                        Implementation(
+                            name = clientName,
+                            version = CLIENT_VERSION,
+                        ),
                 )
-            )
-            val transport = StreamableHttpClientTransport(
-                client = httpClient,
-                url = endpoint
-            )
-            runBlocking { client.connect(
-                transport = transport
-            ) }
+            val transport =
+                StreamableHttpClientTransport(
+                    client = httpClient,
+                    url = endpoint,
+                )
+            runBlocking {
+                client.connect(
+                    transport = transport,
+                )
+            }
             return KotlinSdkMcpClient(
                 httpClient = httpClient,
-                client = client
+                client = client,
             )
         }
 

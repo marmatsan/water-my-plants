@@ -2,8 +2,8 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
 
 /** Visual node family rendered for a configured dependency catalog target. */
 enum class FigmaCatalogTreeTargetType(
-    val wireValue: String
+    val wireValue: String,
 ) {
     LIBRARY("Library"),
-    PLUGIN("Plugin")
+    PLUGIN("Plugin"),
 }
