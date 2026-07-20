@@ -45,9 +45,11 @@ The generated JSON stores this aggregate under `content.ci`:
 - `windowsRuntime` contains the versioned Windows service inventory;
 - `teamCity` contains the effective generated pipelines and VCS roots.
 
-The official TeamCity jobs must run `teamcity-configs:generate` before Gradle
-generates the model or checks its hash. Gradle consumes the generated directory
-as a declared input; it does not invoke Maven implicitly.
+The official Figma model jobs must materialize the effective TeamCity
+configuration before Gradle generates the model or checks its hash. Gradle
+consumes that generated directory as a declared input. The independent CI
+verification task `checkTeamCityDsl` may invoke the Maven wrapper explicitly;
+it does not participate in Figma model generation.
 
 The external topology YAML must not duplicate TeamCity pipeline or job
 definitions. It must not contain tokens, secrets, credential references,

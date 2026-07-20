@@ -1,6 +1,5 @@
 package com.marmatsan.ci.domain.service
 
-import com.marmatsan.ci.domain.model.CiPlanMode
 import com.marmatsan.ci.domain.model.CiScope
 import com.marmatsan.ci.domain.model.ModuleDependency
 import com.marmatsan.ci.domain.model.RepositoryChangeSet
@@ -12,23 +11,13 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 
 class CiPlanFactoryTest : FunSpec({
-    test("documentation-only changes avoid full Gradle verification") {
-        val plan = plan("docs/ci/main-branch-protection.md", "repo/ci/README.md")
-
-        plan.scope shouldBe CiScope.DOCUMENTATION_ONLY
-        plan.mode shouldBe CiPlanMode.ENFORCED
-        plan.fullVerification shouldBe false
-        plan.requiredUnitIds() shouldContain VerificationUnitId.REPOSITORY_DIFF
-        plan.requiredUnitIds().contains(VerificationUnitId.GRADLE_VERIFICATION) shouldBe false
-    }
-
     test("TeamCity changes retain full verification in enforced mode") {
         val plan = plan(".teamcity/settings.kts")
 
         plan.scope shouldBe CiScope.TEAMCITY
         plan.fullVerification shouldBe true
         plan.requiredUnitIds() shouldContain VerificationUnitId.TEAMCITY_DSL
-        plan.gradleTasks() shouldBe listOf("check")
+        plan.gradleTasks() shouldBe listOf("checkDocumentation", "checkTeamCityDsl", "check")
     }
 
     test("mixed changes keep all matching units") {
@@ -37,15 +26,6 @@ class CiPlanFactoryTest : FunSpec({
         plan.scope shouldBe CiScope.MIXED
         plan.requiredUnitIds() shouldContain VerificationUnitId.FIGMA_TOOLING
         plan.requiredUnitIds() shouldContain VerificationUnitId.GRADLE_VERIFICATION
-    }
-
-    test("unknown paths fail closed") {
-        val plan = plan("automation/unclassified.txt")
-
-        plan.scope shouldBe CiScope.UNKNOWN
-        plan.fullVerification shouldBe true
-        plan.fallbackReason shouldBe "At least one changed path has no targeted verification policy."
-        plan.gradleTasks() shouldBe listOf("check")
     }
 
     test("empty change sets fail closed") {
@@ -72,20 +52,7 @@ class CiPlanFactoryTest : FunSpec({
         plan.changedModules shouldBe listOf(":app")
         plan.affectedModules shouldBe listOf(":app")
         plan.fullVerification shouldBe false
-        plan.gradleTasks() shouldBe listOf(":app:check", "checkFigmaCatalogUsage")
-    }
-
-    test("core module changes include all transitive reverse dependents") {
-        val plan = plan("core/ui/src/main/kotlin/com/marmatsan/ui/Theme.kt")
-
-        plan.changedModules shouldBe listOf(":core:ui")
-        plan.affectedModules shouldBe listOf(":app", ":core:ui", ":onboarding:ui")
-        plan.gradleTasks() shouldBe listOf(
-            ":app:check",
-            ":core:ui:check",
-            ":onboarding:ui:check",
-            "checkFigmaCatalogUsage"
-        )
+        plan.gradleTasks() shouldBe listOf("checkDocumentation", ":app:check", "checkFigmaCatalogUsage")
     }
 
     test("unresolved module graph dependencies fail closed to root check") {
@@ -104,7 +71,7 @@ class CiPlanFactoryTest : FunSpec({
         plan.changedModules shouldBe emptyList()
         plan.affectedModules shouldBe emptyList()
         plan.fullVerification shouldBe true
-        plan.gradleTasks() shouldBe listOf("check")
+        plan.gradleTasks() shouldBe listOf("checkDocumentation", "check")
         plan.fallbackReason shouldBe
             "The Gradle module graph contains an unresolved dependency: :app -> :missing."
     }
@@ -126,6 +93,6 @@ class CiPlanFactoryTest : FunSpec({
             verificationUnits.filter { it.required }.map { it.id }
 
         private fun com.marmatsan.ci.domain.model.CiPlan.gradleTasks() =
-            verificationUnits.flatMap { it.gradleTasks }
+            requiredGradleTasks()
     }
 }

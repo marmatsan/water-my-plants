@@ -82,21 +82,20 @@ The pipeline:
   to later steps in the same TeamCity build;
 - generates the enforced `build/reports/ci/ci-plan.json` contract and exports
   only its allow-listed TeamCity parameters to subsequent steps;
-- validates typed documentation and change coverage after planning: canonical
-  placement, frontmatter, review dates, runbook and ADR sections, canonical
-  sources, and local Markdown links are checked by
-  `.teamcity/scripts/validate-documentation.ps1`;
+- validates typed documentation and change coverage through the Kotlin
+  `checkDocumentation` Gradle task: canonical placement, frontmatter, review
+  dates, runbook and ADR sections, canonical sources, and local Markdown links;
 - validates documentation coverage before full Gradle verification: changes to TeamCity,
   Figma-sync implementation, dependency-catalog model, or CI topology must
   update their mapped canonical documentation in
   [`.teamcity/documentation-coverage.json`](documentation-coverage.json);
-- exposes repository diff, TeamCity DSL, documentation, and Gradle verification
-  as separate sequential steps inside the same `Verify` job;
-- uses allow-listed parameters emitted by `prepareTeamCityCiPlan` in small
-  inline Windows command adapters:
-  documentation-only changes run `git diff --check`, `.teamcity` changes also
-  generate the Kotlin DSL with the Maven wrapper, and every non-documentation
-  change runs one Gradle invocation with the plan's validated task list;
+- exposes repository diff, TeamCity DSL, documentation, and module verification
+  as Gradle tasks selected by the Kotlin plan;
+- uses the allow-listed `ci.plan.gradleTasks` parameter emitted by
+  `prepareTeamCityCiPlan` in one Gradle invocation: documentation-only changes
+  select `checkDocumentation` and `checkRepositoryDiff`, `.teamcity` changes
+  additionally select `checkTeamCityDsl`, and every non-documentation change
+  retains targeted module checks or root `check`;
 - coalesces Figma-tooling and dependency-catalog units into that single heavy
   Gradle invocation while only one agent is available;
 - keeps the future multi-agent topology inactive. The Kotlin-only
@@ -121,10 +120,10 @@ capability parity and artifact handoff, and keep the single-agent DSL available
 until the parallel topology is green. Merely increasing the agent pool does not
 change job concurrency.
 
-TeamCity runs the remaining capability and documentation adapters with Windows
-PowerShell 5.1 (`powershell.exe`). Those scripts must not depend on APIs
-available only in newer .NET or PowerShell versions. Change classification and
-step selection are Kotlin-owned.
+TeamCity retains PowerShell only for Windows agent and infrastructure adapters
+that must run before or outside Gradle. Repository verification policy,
+documentation validation, change classification, and task selection are
+Kotlin-owned.
 
 `CI` does not run `generateFigmaDesignModel` and does not publish
 `build/reports/figma-sync/design-model.json`. Figma represents the stable
@@ -321,28 +320,23 @@ repositories:
     path: ""
 ```
 
-The generated CI job should expose the planner and allow-listed verification
-steps separately:
+The generated CI job should expose planning and one fail-closed Gradle
+verification step:
 
 ```yaml
 - name: Generate verification plan
   script-content: .\gradlew.bat prepareTeamCityCiPlan --stacktrace
-- name: Validate documentation
-  script-content: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\validate-documentation.ps1 -FailOnCoverageGap
-- name: Run Gradle verification
-  script-content: .\gradlew.bat %ci.unit.gradle-verification.tasks% --stacktrace
+- name: Run planned Gradle checks
+  script-content: .\gradlew.bat %ci.plan.gradleTasks% --stacktrace
 ```
 
-Conditional steps use `ci.unit.*.required` parameters emitted by the planner.
-The skip/run check is part of each visible generated command because TeamCity
-2026.1 Pipeline generation does not serialize inherited build-step conditions.
-Every parameter referenced by step content is also declared on the job so it
-does not become an unresolved automatic agent requirement. Heavy verification
-defaults to enabled and the Kotlin plan replaces those defaults at runtime.
-The Gradle command receives only task names validated by the Kotlin TeamCity
-adapter; arbitrary command content is never read from `ci-plan.json`.
-Commands remain defined in versioned TeamCity DSL; the JSON plan never carries
-shell content.
+`ci.plan.gradleTasks` has a fail-closed `check` default so unresolved runtime
+replacement cannot weaken verification or become an automatic agent
+requirement. The Gradle command receives only task names validated by the
+Kotlin TeamCity adapter; arbitrary command content is never read from
+`ci-plan.json`. Provider-specific work such as Maven-based TeamCity generation
+is encapsulated behind an allow-listed Gradle task rather than embedded in the
+provider pipeline.
 
 Do not perform `git init`, `git fetch`, or `git checkout` from build script
 content. Repository checkout belongs in the Pipeline DSL through job

@@ -13,18 +13,23 @@ import org.gradle.work.DisableCachingByDefault
 /** Queues the non-gating Infrastructure Health pipeline through a trusted TeamCity origin. */
 @DisableCachingByDefault(because = "Queues an external TeamCity pipeline")
 abstract class RunTeamCityInfrastructureHealthTask : DefaultTask() {
+    /** Trusted TeamCity origin used by the REST adapter. */
     @get:Input
     abstract val serverUrl: Property<String>
 
+    /** Stable TeamCity build configuration identifier to queue. */
     @get:Input
     abstract val buildTypeId: Property<String>
 
+    /** Branch specification assigned to the queued build. */
     @get:Input
     abstract val branch: Property<String>
 
+    /** Bearer token read from the environment and intentionally excluded from inputs. */
     @get:Internal
     abstract val teamCityToken: Property<String>
 
+    /** Validates the request and queues the configured non-gating build. */
     @TaskAction
     fun queue() {
         val result = QueueTeamCityRun(

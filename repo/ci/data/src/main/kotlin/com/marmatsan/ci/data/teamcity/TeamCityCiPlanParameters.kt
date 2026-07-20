@@ -7,6 +7,14 @@ import com.marmatsan.ci.domain.model.VerificationUnitId
 
 /** Maps the provider-neutral plan to allow-listed TeamCity build parameters. */
 class TeamCityCiPlanParameters {
+    /**
+     * Converts [plan] into the fixed TeamCity parameter contract.
+     *
+     * Only reviewed parameter names are emitted. Selected Gradle tasks are
+     * validated against an identifier allow-list before becoming a parameter.
+     *
+     * @throws IllegalArgumentException when a selected task is not allow-listed.
+     */
     fun create(plan: CiPlan): Map<String, String> = linkedMapOf(
         "ci.plan.schemaVersion" to plan.schemaVersion.toString(),
         "ci.plan.mode" to plan.mode.externalName(),
@@ -17,7 +25,7 @@ class TeamCityCiPlanParameters {
         "ci.plan.fallbackReason" to plan.fallbackReason.orEmpty(),
         "ci.plan.changedModules" to plan.changedModules.joinToString(","),
         "ci.plan.affectedModules" to plan.affectedModules.joinToString(","),
-        "ci.unit.gradle-verification.tasks" to validatedGradleTasks(plan)
+        "ci.plan.gradleTasks" to validatedGradleTasks(plan.requiredGradleTasks())
     ).apply {
         plan.verificationUnits.forEach { unit ->
             put("ci.unit.${unit.id.externalName()}.required", unit.required.toString())
@@ -49,10 +57,7 @@ class TeamCityCiPlanParameters {
         VerificationUnitId.PUBLISH_REPORTS -> "publish-reports"
     }
 
-    private fun validatedGradleTasks(plan: CiPlan): String {
-        val tasks = plan.verificationUnits
-            .single { unit -> unit.id == VerificationUnitId.GRADLE_VERIFICATION }
-            .gradleTasks
+    private fun validatedGradleTasks(tasks: List<String>): String {
         require(tasks.all(GRADLE_TASK::matches)) {
             "The CI plan contains a Gradle task outside the TeamCity allow-list."
         }

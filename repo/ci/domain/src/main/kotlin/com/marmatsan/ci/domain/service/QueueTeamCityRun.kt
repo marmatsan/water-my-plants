@@ -4,10 +4,21 @@ import com.marmatsan.ci.domain.model.TeamCityQueuedRun
 import com.marmatsan.ci.domain.model.TeamCityRunRequest
 import com.marmatsan.ci.domain.port.TeamCityRunQueue
 
-/** Validates and queues an explicit TeamCity build configuration on one branch. */
+/**
+ * Validates and queues an explicit TeamCity build configuration on one branch.
+ *
+ * @property runQueue provider boundary used only after identifiers satisfy the
+ * domain allow-list.
+ */
 class QueueTeamCityRun(
     private val runQueue: TeamCityRunQueue
 ) {
+    /**
+     * Validates [request] and delegates it to the configured queue adapter.
+     *
+     * @throws IllegalArgumentException when the build type or branch contains
+     * characters outside the reviewed allow-list.
+     */
     fun execute(request: TeamCityRunRequest): TeamCityQueuedRun {
         require(BUILD_TYPE_ID.matches(request.buildTypeId)) {
             "TeamCity build type id contains unsupported characters."

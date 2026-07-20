@@ -7,7 +7,11 @@
         "AGENTS.md",
         "docs/documentation.md",
         "docs/templates/*.md",
-        ".teamcity/scripts/validate-documentation.ps1"
+        "repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/model/DocumentationValidation.kt",
+        "repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/service/DocumentationValidator.kt",
+        "repo/ci/data/src/main/kotlin/com/marmatsan/ci/data/documentation/*",
+        "repo/ci/data/src/main/kotlin/com/marmatsan/ci/data/json/DocumentationCoverageJson.kt",
+        "repo/ci/plugin/src/main/kotlin/com/marmatsan/ci/plugin/CheckDocumentationTask.kt"
       ],
       "documentationPaths": [
         "docs/documentation.md",

@@ -25,7 +25,8 @@ parallel without changing this contract.
 
 ## Contract
 
-`generateCiPlan` writes `build/reports/ci/ci-plan.json` with:
+`generateCiPlan` writes schema version `2` to
+`build/reports/ci/ci-plan.json` with:
 
 | Field | Meaning |
 |-------|---------|
@@ -49,7 +50,8 @@ Stable verification unit identifiers are `documentation`, `repository-diff`,
 
 - Unknown or empty change sets require full verification.
 - Plan output contains no executable shell commands.
-- CI adapters map stable identifiers to versioned, reviewed commands.
+- Every executable verification unit maps to reviewed Gradle task names.
+- CI adapters validate and flatten those tasks without reimplementing policy.
 - Documentation validation remains repository-wide because its coverage rules
   relate implementation paths to required documentation changes.
 - Documentation-only classification is deliberately narrow. Unknown Markdown
@@ -66,24 +68,26 @@ Stable verification unit identifiers are `documentation`, `repository-diff`,
 
 ## TeamCity Execution
 
-The current single-agent adapter executes one `Verify` job with visible,
-sequential steps. `prepareTeamCityCiPlan` emits allow-listed build parameters;
-later steps consume only those parameters through small inline Windows command
-adapters:
+The current single-agent adapter executes one `Verify` job.
+`prepareTeamCityCiPlan` emits `ci.plan.gradleTasks` as an ordered,
+de-duplicated, allow-listed task list. TeamCity passes that value to one Gradle
+invocation after agent preflight and does not implement individual verification
+rules:
 
 | Plan unit | TeamCity execution |
 |-----------|--------------------|
-| `documentation` | Always run the repository documentation validator. |
-| `repository-diff` | Run `git diff --check` for documentation-only changes. |
-| `teamcity-dsl` | Generate the TeamCity Kotlin DSL with the Maven wrapper when `.teamcity` changes. |
+| `documentation` | Always select `checkDocumentation`. |
+| `repository-diff` | Select `checkRepositoryDiff` for documentation-only changes. |
+| `teamcity-dsl` | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution. |
 | `figma-tooling` | Coalesced into the heavy Gradle verification on the single agent. |
 | `dependency-catalog` | Coalesced into the heavy Gradle verification on the single agent. |
-| `gradle-verification` | Run affected module checks plus catalog usage for safe module-only changes; otherwise run root `check`. |
+| `gradle-verification` | Select affected module checks plus catalog usage for safe module-only changes; otherwise select root `check`. |
 | `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
 
-This topology keeps one checkout, one agent allocation, and one authoritative
-GitHub status. Coalesced units remain explicit in the JSON so a later
-multi-agent adapter can split them without changing classification policy.
+This topology keeps one checkout, one agent allocation, one Gradle-owned
+verification API, and one authoritative GitHub status. Coalesced units remain
+explicit in the JSON so a later multi-agent adapter can split them without
+changing classification policy.
 
 ## Multi-Agent Topology Preview
 

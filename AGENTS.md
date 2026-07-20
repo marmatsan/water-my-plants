@@ -55,7 +55,7 @@ because both are part of the contract used by the Figma sync pipeline.
   workflows to guides and operational execution or recovery to runbooks.
 - Keep Figma and rendered UML as derived publication surfaces linked to their
   versioned repository sources.
-- Run `pwsh -NoProfile -File .teamcity/scripts/validate-documentation.ps1`
+- Run `.\gradlew.bat checkDocumentation`
   after adding, moving, or editing documentation.
 
 ## UML Documentation

@@ -1,6 +1,11 @@
 package com.marmatsan.ci.domain.model
 
-/** Identifies the TeamCity build configuration and branch that must be queued. */
+/**
+ * Identifies the TeamCity build configuration and branch that must be queued.
+ *
+ * @property buildTypeId stable TeamCity build configuration identifier.
+ * @property branch branch specification sent to the TeamCity queue API.
+ */
 data class TeamCityRunRequest(
     val buildTypeId: String,
     val branch: String

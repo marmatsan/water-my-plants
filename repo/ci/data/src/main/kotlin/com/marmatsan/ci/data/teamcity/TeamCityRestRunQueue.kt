@@ -15,7 +15,14 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.put
 
-/** Bearer-authenticated TeamCity REST adapter that never follows redirects. */
+/**
+ * Bearer-authenticated TeamCity REST adapter that never follows redirects.
+ *
+ * @param serverUrl trusted TeamCity origin. HTTPS is required except for HTTP
+ * loopback addresses used by the local server.
+ * @param teamCityToken bearer token sent only to the validated origin.
+ * @param post injectable HTTP boundary used by focused adapter tests.
+ */
 class TeamCityRestRunQueue(
     serverUrl: String,
     private val teamCityToken: String,
@@ -27,6 +34,12 @@ class TeamCityRestRunQueue(
         require(teamCityToken.isNotBlank()) { "TeamCity automation token must not be blank." }
     }
 
+    /**
+     * Queues [request] through TeamCity's `buildQueue` REST resource.
+     *
+     * @throws IllegalArgumentException when TeamCity rejects the request or
+     * returns a malformed response.
+     */
     override fun queue(request: TeamCityRunRequest): TeamCityQueuedRun {
         val uri = serverUri.resolve("/app/rest/buildQueue")
         val headers = mapOf(
@@ -55,6 +68,13 @@ class TeamCityRestRunQueue(
         }
     }
 
+    /**
+     * HTTP result required by the queue adapter.
+     *
+     * @property statusCode numeric HTTP response status.
+     * @property body response body used for success parsing or bounded error
+     * reporting.
+     */
     data class Response(
         val statusCode: Int,
         val body: String

@@ -4,7 +4,14 @@ import com.marmatsan.ci.data.gradle.GradleProjectModuleGraphSource
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/** Registers the reviewed Gradle entry points for repository CI planning. */
 class CiGradlePlugin : Plugin<Project> {
+    /**
+     * Applies the CI composition root to [project].
+     *
+     * The plugin must be applied to the root project because module-graph
+     * discovery and report locations are repository-wide concerns.
+     */
     override fun apply(project: Project) {
         require(project == project.rootProject) {
             "com.marmatsan.ci must be applied to the root project."
@@ -29,6 +36,43 @@ class CiGradlePlugin : Plugin<Project> {
                         "${dependency.dependentModule}->${dependency.dependencyModule}"
                     }
                 )
+            }
+        }
+
+        val checkDocumentation = project.tasks.register(
+            "checkDocumentation",
+            CheckDocumentationTask::class.java
+        ) { task ->
+            task.group = "verification"
+            task.description = "Validates typed documentation, links, sources, and committed change coverage."
+            task.dependsOn(generateCiPlan)
+            task.repositoryRoot.set(project.layout.projectDirectory)
+            task.coverageManifest.set(project.layout.projectDirectory.file(".teamcity/documentation-coverage.json"))
+            task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
+        }
+
+        project.tasks.register("checkRepositoryDiff", CheckRepositoryDiffTask::class.java) { task ->
+            task.group = "verification"
+            task.description = "Checks committed documentation-only diffs for whitespace errors."
+            task.dependsOn(checkDocumentation)
+            task.repositoryRoot.set(project.layout.projectDirectory)
+            task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
+        }
+
+        val checkTeamCityDsl = project.tasks.register("checkTeamCityDsl", CheckTeamCityDslTask::class.java) { task ->
+            task.group = "verification"
+            task.description = "Generates and validates the effective TeamCity Kotlin DSL."
+            task.dependsOn(checkDocumentation)
+            task.repositoryRoot.set(project.layout.projectDirectory)
+            task.teamCityPom.set(project.layout.projectDirectory.file(".teamcity/pom.xml"))
+        }
+
+        project.gradle.projectsEvaluated {
+            project.allprojects.forEach { candidate ->
+                candidate.tasks.matching { task -> task.name == "check" }.configureEach { task ->
+                    task.dependsOn(checkDocumentation)
+                    task.mustRunAfter(checkTeamCityDsl)
+                }
             }
         }
 

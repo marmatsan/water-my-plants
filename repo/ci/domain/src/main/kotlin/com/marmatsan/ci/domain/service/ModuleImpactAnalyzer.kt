@@ -6,6 +6,16 @@ import com.marmatsan.ci.domain.model.RepositoryModuleGraph
 
 /** Resolves changed Gradle modules and their transitive reverse dependents. */
 class ModuleImpactAnalyzer {
+    /**
+     * Calculates the modules that must be verified for [changedFiles].
+     *
+     * Invalid, empty, duplicate, or unresolved graph state produces an invalid
+     * [ModuleImpact] with a fail-closed reason instead of a partial result.
+     *
+     * @param changedFiles normalized or platform-native repository paths.
+     * @param graph provider-neutral Gradle project graph.
+     * @return deterministic changed and affected module identifiers.
+     */
     fun analyze(changedFiles: List<String>, graph: RepositoryModuleGraph): ModuleImpact {
         validate(graph)?.let { reason ->
             return ModuleImpact(
@@ -37,6 +47,12 @@ class ModuleImpactAnalyzer {
         )
     }
 
+    /**
+     * Finds the most specific module directory that owns [path].
+     *
+     * @return the owning module, or `null` when the path is outside every
+     * module in [graph].
+     */
     fun moduleFor(path: String, graph: RepositoryModuleGraph): RepositoryModule? {
         val normalizedPath = normalize(path)
         return graph.modules

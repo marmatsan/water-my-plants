@@ -20,7 +20,7 @@ class TeamCityCiPlanParametersTest : FunSpec({
         )
 
         TeamCityCiPlanParameters().create(plan) shouldBe linkedMapOf(
-            "ci.plan.schemaVersion" to "1",
+            "ci.plan.schemaVersion" to "2",
             "ci.plan.mode" to "enforced",
             "ci.plan.scope" to "teamcity",
             "ci.plan.comparisonBase" to "base-sha",
@@ -29,7 +29,7 @@ class TeamCityCiPlanParametersTest : FunSpec({
             "ci.plan.fallbackReason" to "",
             "ci.plan.changedModules" to "",
             "ci.plan.affectedModules" to "",
-            "ci.unit.gradle-verification.tasks" to "check",
+            "ci.plan.gradleTasks" to "checkDocumentation checkTeamCityDsl check",
             "ci.unit.documentation.required" to "true",
             "ci.unit.repository-diff.required" to "false",
             "ci.unit.teamcity-dsl.required" to "true",
@@ -54,8 +54,8 @@ class TeamCityCiPlanParametersTest : FunSpec({
 
         parameters["ci.plan.changedModules"] shouldBe ":core:ui"
         parameters["ci.plan.affectedModules"] shouldBe ":app,:core:ui,:onboarding:ui"
-        parameters["ci.unit.gradle-verification.tasks"] shouldBe
-            ":app:check :core:ui:check :onboarding:ui:check checkFigmaCatalogUsage"
+        parameters["ci.plan.gradleTasks"] shouldBe
+            "checkDocumentation :app:check :core:ui:check :onboarding:ui:check checkFigmaCatalogUsage"
     }
 
     test("rejects Gradle task values that could inject shell content") {

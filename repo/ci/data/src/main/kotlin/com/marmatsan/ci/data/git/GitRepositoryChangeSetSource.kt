@@ -5,6 +5,16 @@ import java.io.File
 
 /** Reads the committed change set used by CI without depending on a CI provider. */
 class GitRepositoryChangeSetSource {
+    /**
+     * Resolves the committed diff ending at `HEAD` in [repositoryRoot].
+     *
+     * [comparisonBaseOverride] takes precedence when supplied. Otherwise the
+     * adapter compares a branch with its merge base against `origin/main`, or
+     * compares `main` with its first parent when `HEAD` equals `origin/main`.
+     *
+     * @throws IllegalStateException when Git cannot resolve the requested
+     * revisions or diff.
+     */
     fun read(repositoryRoot: File, comparisonBaseOverride: String? = null): RepositoryChangeSet {
         val root = repositoryRoot.canonicalFile
         val head = git(root, "rev-parse", "HEAD")
