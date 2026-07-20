@@ -73,9 +73,15 @@ therefore add or update KDoc in the same change.
 .\gradlew.bat prepareTeamCityCiPlan
 ```
 
-`checkGitWorkflow` validates local symbolic `HEAD` or the complete CI VCS ref
-against the trunk-based branch contract. Provider-managed pull request refs are
-accepted because TeamCity also validates the corresponding source branch build.
+`checkTeamCityDsl` also rejects generated Pipeline YAML that encodes
+`commit-status-publisher` as a job feature. Its YAML schema does not allow that
+feature type. The task also verifies that the generated classic `CI Gate` is a
+composite build with the only CI VCS trigger, a snapshot dependency on the
+modern `CI` Pipeline, and the versioned `TeamCity CI` status publisher.
+`checkGitWorkflow` validates local symbolic `HEAD` or TeamCity's logical branch
+name against the trunk-based branch contract. Provider-managed pull request
+refs are accepted because TeamCity also validates the corresponding source
+branch build.
 `generateCiPlan` is deliberately untracked and always writes the
 provider-neutral JSON contract from the current committed `HEAD`.
 `generateCiTopologyPreview` projects its required units into agent lanes under

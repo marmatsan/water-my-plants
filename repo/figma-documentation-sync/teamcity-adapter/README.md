@@ -3,7 +3,11 @@
 `teamcity-adapter` is the optional Kotlin boundary between generated TeamCity
 configuration and the portable `figma-documentation-sync` CI model. It owns every
 TeamCity YAML/XML parsing rule required to populate pipelines, jobs, triggers,
-artifacts, published checks, dependencies, and VCS roots.
+artifacts, dependencies, and VCS roots. It also reads versioned classic status
+gates: a gate's VCS trigger and Commit Status Publisher are mapped onto the
+Pipeline selected by its snapshot dependency. This preserves the effective CI
+contract without encoding `commit-status-publisher` as an unsupported Pipeline
+YAML job feature.
 
 It also exposes typed operational boundaries without PowerShell orchestration.
 `TeamCityCliClient` inspects and downloads successful TeamCity artifact sets,

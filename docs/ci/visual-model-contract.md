@@ -26,14 +26,15 @@ All visual labels and descriptions use English.
 
 The visual model aggregates sources without duplicating their ownership:
 
-- `.teamcity/settings.kts` owns pipelines, jobs, triggers, branch filters,
-  commands, artifacts, and GitHub status publishers.
+- `.teamcity/settings.kts` owns pipelines, classic build configurations, jobs,
+  triggers, snapshot dependencies, build features, branch filters, commands,
+  artifacts, and repository attachment.
 - TeamCity generated configuration is an unversioned extraction input. Files
   under `.teamcity/target/generated-configs` must not be committed.
 - `docs/ci/external-topology.yaml` owns external systems and connections that
   are not represented by TeamCity DSL, including Cloudflare access and tunnel
-  boundaries, user and CLI access, the GitHub webhook ingress, and the external
-  MCP-operated Figma write.
+  boundaries, user and CLI access, the GitHub webhook ingress, the GitHub status
+  transport boundary, and the external MCP-operated Figma write.
 - `docs/ci/windows-runtime.yaml` owns the reviewed Windows service inventory,
   startup modes, and service identities for the local CI host.
 - The generated `design-model.json` aggregates these sources for the visual sync.
@@ -182,9 +183,10 @@ repository-owned handoff downloads and validates the official artifact, then
 selects the next checkpoint unit without writing Figma. It is represented as a
 technical annotation on the handoff connection, not as another domain artifact.
 
-`TeamCity CI` participates in the pull request merge gate. `TeamCity Figma
-Sync` is a post-merge documentation status and must not be represented as a pull
-request requirement.
+`TeamCity CI` is published by the versioned classic `CI Gate` and participates
+in the pull request merge gate. `Figma Sync` is post-merge documentation
+verification and does not currently publish a GitHub status or participate in
+pull request requirements.
 
 ## External Topology Validation
 

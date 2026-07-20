@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter.configuration
 
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiTrigger
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -8,7 +9,7 @@ import java.nio.file.Files
 
 internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
 
-    test("read translates TeamCity pipelines jobs triggers artifacts checks and VCS roots") {
+    test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
         // GIVEN
         val root = Files.createTempDirectory("teamcity-generated").toFile()
         val pipeline = root.resolve("Root_Ci").apply { mkdirs() }
@@ -30,9 +31,6 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
                     name: Run Gradle check
                     id: RUNNER_1
                     type: script
-                features:
-                  - type: commit-status-publisher
-                    build_custom_name: TeamCity CI
                 repositories:
                   - Root_GitHub:
                       enabled: true
@@ -53,11 +51,6 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
             <build-type>
               <settings>
                 <build-triggers>
-                  <build-trigger id="TRIGGER_1" type="vcsTrigger">
-                    <parameters>
-                      <param name="branchFilter" value="+:*" />
-                    </parameters>
-                  </build-trigger>
                   <build-trigger id="TRIGGER_2" type="schedulingTrigger">
                     <parameters>
                       <param name="branchFilter" value="+:&lt;default&gt;" />
@@ -71,6 +64,7 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
             </build-type>
             """.trimIndent()
         )
+        writeStatusGate(root)
         writeVcsRoot(root)
 
         // WHEN
@@ -100,7 +94,7 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         job.repositoryIds shouldBe listOf("Root_GitHub")
         job.artifacts.single().path shouldBe "build/report.json"
         job.dependencies.single().artifactPaths shouldBe listOf("build/input.json")
-        job.publishedChecks.single().name shouldBe "TeamCity CI"
+        job.publishedChecks shouldBe listOf(CiJob.PublishedCheck("TeamCity CI"))
 
         val vcsRoot = configuration.vcsRoots.single()
         vcsRoot.id shouldBe "Root_GitHub"
@@ -109,6 +103,38 @@ internal class TeamCityGeneratedConfigurationReaderTest : FunSpec({
         vcsRoot.branchSpec shouldBe listOf("#! fallbackToDefault: false", "+:refs/heads/(*)")
     }
 })
+
+private fun writeStatusGate(root: File) {
+    val buildTypes = root.resolve("Root/buildTypes").apply { mkdirs() }
+    buildTypes.resolve("Root_CiGate.xml").writeText(
+        """
+        <build-type>
+          <settings>
+            <options>
+              <option name="buildConfigurationType" value="COMPOSITE" />
+            </options>
+            <build-triggers>
+              <build-trigger id="TRIGGER_1" type="vcsTrigger">
+                <parameters>
+                  <param name="branchFilter" value="+:*" />
+                </parameters>
+              </build-trigger>
+            </build-triggers>
+            <build-extensions>
+              <extension id="BUILD_EXT_1" type="commit-status-publisher">
+                <parameters>
+                  <param name="build_custom_name" value="TeamCity CI" />
+                </parameters>
+              </extension>
+            </build-extensions>
+            <dependencies>
+              <depend-on sourceBuildTypeId="Root_Ci" />
+            </dependencies>
+          </settings>
+        </build-type>
+        """.trimIndent()
+    )
+}
 
 private fun writeVcsRoot(root: File) {
     val vcsRoots = root.resolve("Root/vcsRoots").apply { mkdirs() }

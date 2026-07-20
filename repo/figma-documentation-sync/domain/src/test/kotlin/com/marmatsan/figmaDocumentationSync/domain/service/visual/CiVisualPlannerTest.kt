@@ -56,6 +56,14 @@ internal class CiVisualPlannerTest : FunSpec({
         section.connections.map(CiVisualPlan.Connection::label).contains("Rerun via HTTPS client") shouldBe true
     }
 
+    test("does not invent a Figma status when no versioned publisher exists") {
+        val overview = planner.create(topology(), windowsRuntime(), configuration(), visualConfig)
+            .sections.single { it.target == "ci.overview" }
+
+        overview.nodes.any { it.name == "TeamCity Figma Sync" } shouldBe false
+        overview.connections.any { it.id == "overview-model-check" } shouldBe false
+    }
+
     test("maps explicit external and Windows environments") {
         planner.externalEnvironment("operator") shouldBe CiVisualPlan.Environment.OPERATOR
         planner.externalEnvironment("codex-mcp-client") shouldBe CiVisualPlan.Environment.CODEX
@@ -100,8 +108,7 @@ private fun configuration() = CiConfiguration(
                     id = "check",
                     name = "Check Figma trunk sync",
                     steps = listOf(CiJob.Step("RUNNER_1", "Check", ".\\gradlew.bat checkFigmaTrunkSync")),
-                    dependencies = listOf(CiJob.Dependency("generate", listOf("build/reports/figma-sync"))),
-                    checks = listOf(CiJob.PublishedCheck("TeamCity Figma Sync"))
+                    dependencies = listOf(CiJob.Dependency("generate", listOf("build/reports/figma-sync")))
                 ),
                 job(
                     id = "generate",

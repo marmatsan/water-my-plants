@@ -1,7 +1,7 @@
 schemaVersion: 1
 
 validation:
-  lastValidatedOn: "2026-07-14"
+  lastValidatedOn: "2026-07-20"
   warnAfterDays: 90
 
 nodes:
@@ -129,8 +129,8 @@ connections:
   - id: github-check-publication
     source: teamcity-server
     target: github-repository
-    label: Publish checks and statuses
-    description: Publishes TeamCity CI results for pull requests and post-merge documentation.
+    label: Publish commit statuses
+    description: Publishes the versioned CI Gate result for pull requests and main revisions.
     protocol: HTTPS
     authentication:
       - GitHub App installation token
