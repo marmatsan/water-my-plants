@@ -117,7 +117,8 @@ The pipeline:
   `checkFigmaVersionNaming`, which is wired into the Gradle `check` lifecycle;
 - blocks unused dependency catalog entries through `checkFigmaCatalogUsage`,
   which is wired into the Gradle `check` lifecycle;
-- publishes the `TeamCity CI` GitHub status from `Verify`.
+- reports `Verify` through the versioned composite `CI Gate`, which publishes
+  the required `TeamCity CI` GitHub status.
 
 When more agents are provisioned, use the executable preview contract in
 [`docs/reference/ci-verification-plan.md`](../docs/reference/ci-verification-plan.md#multi-agent-topology-preview)
@@ -165,7 +166,8 @@ The pipeline:
   job artifacts;
 - runs `Check Figma trunk sync` against the metadata currently stored in Figma
   only when the model can change;
-- publishes the optional `TeamCity Figma Sync` GitHub status on `main`.
+- remains outside pull request branch protection; it does not publish a GitHub
+  status until it has its own versioned classic status gate.
 
 For a documentation-only or transport-only `main` revision, the first Figma job
 publishes only a `sync-scope.json` artifact and the final job exits successfully
@@ -213,9 +215,10 @@ headless visual write. See
 [`visual-sync-efficiency.md`](../repo/figma-documentation-sync/docs/runbooks/visual-sync-efficiency.md).
 
 Use a Finish Build Trigger for this chain, not a direct VCS trigger on
-`Figma Sync`. The trigger watches `CI`, requires a successful watched build, and
-uses `+:<default>` as its branch filter. This prevents the Figma verification
-pipeline from running before `main` has passed the normal CI pipeline.
+`Figma Sync`. The trigger watches `CI Gate`, requires a successful watched
+build, and uses `+:<default>` as its branch filter. This prevents the Figma
+verification pipeline from running before `main` has passed the normal CI
+pipeline.
 
 Keep job reuse disabled:
 
@@ -262,11 +265,11 @@ Tunnel when an independent outage signal is required.
 
 ### Queue And Cache Behaviour
 
-Keep TeamCity's built-in build queue optimization enabled for the VCS trigger.
-It coalesces obsolete queued runs when a newer revision arrives. The Pipeline
-DSL used by this repository has no typed, versioned setting to cancel a job that
-has already started; do not add a self-cancellation REST script because it can
-race with a newer revision and cancel the wrong run.
+Keep TeamCity's built-in build queue optimization enabled for the `CI Gate` VCS
+trigger. It coalesces obsolete queued runs when a newer revision arrives. The
+Pipeline DSL used by this repository has no typed, versioned setting to cancel
+a job that has already started; do not add a self-cancellation REST script
+because it can race with a newer revision and cancel the wrong run.
 
 The repository enables Gradle configuration cache and build cache in
 [`gradle.properties`](../gradle.properties). The current TeamCity DSL artifact
@@ -363,25 +366,29 @@ settings root, and TeamCity can apply settings-path checkout rules such as
 
 ## GitHub Status Publishing
 
-GitHub status publishing uses the native TeamCity Pipelines repository
-integration. Keep `Publish status to repository` enabled for the main GitHub
-repository in TeamCity. The versioned Kotlin DSL attaches the existing GitHub
-VCS root to each pipeline; it does not encode Commit Status Publisher as a job
-feature.
+GitHub status publishing is owned by the classic composite `CI Gate` in
+`.teamcity/settings.kts`. The gate attaches the GitHub VCS root, owns the only
+all-branch VCS trigger, snapshot-depends on the `CI` Pipeline without reusing an
+older result, and configures Commit Status Publisher with the custom name
+`TeamCity CI`.
+
+Do not enable `Publish status to repository` from the Pipeline UI. Versioned
+settings make the Pipeline read-only, and the current Pipeline Kotlin DSL does
+not expose that repository toggle. The UI therefore cannot persist the change;
+the classic gate keeps the complete status contract reviewable in Git.
 
 Do not add `commit-status-publisher` under `Job.features`. TeamCity Pipelines
-does not include that value in the YAML feature enum because status publication
-is already integrated at repository level. Emitting it produces a YAML schema
-error and disables the visual editor.
+does not include that value in the YAML feature enum. Emitting it produces a
+YAML schema error and disables the visual editor. The feature is valid only in
+the generated XML for the classic `CI Gate`.
 
 GitHub branch protection should require only the `TeamCity CI` status check.
-The native integration publishes the final `CI` result as `TeamCity CI`, so it
-represents the pull request validation chain.
+The composite gate publishes the aggregated `CI` result as `TeamCity CI`, so it
+represents the complete pull request validation chain.
 
-The same integration publishes `Figma Sync` as `TeamCity Figma Sync` so `main`
-commits show whether post-merge Figma documentation verification passed. Do
-not require that status in GitHub branch protection because the pipeline runs
-after changes reach `main`.
+`Figma Sync` remains visible in TeamCity after changes reach `main`, but it does
+not currently publish `TeamCity Figma Sync` to GitHub. Do not add that status to
+GitHub branch protection.
 
 Do not add a raw GitHub token to the repository. The VCS root credentials or a
 TeamCity-managed GitHub App token must provide permission to write commit
@@ -431,12 +438,14 @@ For this project, the generated pipeline should:
 - reference only one Git VCS root for the GitHub repository;
 - emit job-level `repositories` entries;
 - emit direct Gradle script content;
-- omit `commit-status-publisher` from every job because repository status
-  publication is native Pipeline configuration;
+- omit `commit-status-publisher` from every Pipeline job;
+- emit `CI Gate` as a classic composite build configuration with the only
+  all-branch VCS trigger, a fresh snapshot dependency on `CI`, and the
+  `TeamCity CI` Commit Status Publisher;
 - avoid generating or publishing `design-model.json` from `CI`;
 - keep `Figma Sync` as a separate default-branch pipeline;
 - set the official Figma design model environment guard only on `Figma Sync`;
-- emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI`, with
+- emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI Gate`, with
   `afterSuccessfulBuildOnly=true`;
 - emit a daily fallback trigger and Windows-agent requirement for
   `Infrastructure Health`, while the separate workstation adapter owns the
@@ -637,9 +646,10 @@ account changes, reset the server `git` cache from
 the reset in the server log, then send a VCS commit-hook notification or push a
 new commit.
 
-If GitHub receives no status check, inspect `teamcity-commit-status.log` and
-confirm that `Publish status to repository` remains enabled for the pipeline's
-main GitHub repository.
+If GitHub receives no status check, inspect `teamcity-commit-status.log`, then
+verify that generated `CI Gate` XML contains the `commit-status-publisher`
+extension and that the attached GitHub VCS root can write commit statuses. Do
+not try to repair the status from the read-only Pipeline UI.
 
 If `Figma Sync` fails on `main`, check whether the Figma MCP visual sync has
 been run with the latest `design-model.json` artifact from

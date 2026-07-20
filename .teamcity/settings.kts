@@ -40,6 +40,7 @@ project {
     }
 
     pipeline(WaterMyPlantsCi)
+    buildType(WaterMyPlantsCiGate)
     pipeline(WaterMyPlantsFigmaSync)
     pipeline(WaterMyPlantsInfrastructureHealth)
 }
@@ -52,9 +53,10 @@ project {
  * the only authoritative `design-model.json` must come from the post-merge
  * `Figma Sync` pipeline on `main`.
  *
- * The final job publishes the `TeamCity CI` GitHub status required by branch
- * protection. Each job declares the [GitHub] repository explicitly so TeamCity
- * performs a native checkout before executing Gradle.
+ * [WaterMyPlantsCiGate] owns automatic triggering and publishes the final
+ * `TeamCity CI` GitHub status required by branch protection. Each job declares
+ * the [GitHub] repository explicitly so TeamCity performs a native checkout
+ * before executing Gradle.
  */
 object WaterMyPlantsCi : Pipeline({
     id("WaterMyPlantsCi")
@@ -62,12 +64,6 @@ object WaterMyPlantsCi : Pipeline({
 
     repositories {
         repository(GitHub, enabledByDefault = true)
-    }
-
-    triggers {
-        trigger(PipelineVcsTrigger {
-            branchFilter = "+:*"
-        })
     }
 
     job {
@@ -115,6 +111,43 @@ object WaterMyPlantsCi : Pipeline({
 })
 
 /**
+ * Versioned GitHub status gate for [WaterMyPlantsCi].
+ *
+ * TeamCity Pipelines publishes repository statuses through a server-side
+ * repository toggle that is not exposed by the current Pipeline Kotlin DSL.
+ * This step-less classic composite build keeps the complete contract in
+ * versioned settings: its VCS trigger queues a fresh CI pipeline revision, its
+ * snapshot dependency aggregates the result, and Commit Status Publisher emits
+ * the required `TeamCity CI` status without adding an unsupported Pipeline YAML
+ * job feature.
+ */
+object WaterMyPlantsCiGate : BuildType({
+    id("WaterMyPlantsCiGate")
+    name = "CI Gate"
+    type = BuildTypeSettings.Type.COMPOSITE
+
+    vcs {
+        root(GitHub)
+    }
+
+    triggers {
+        trigger(PipelineVcsTrigger {
+            branchFilter = "+:*"
+        })
+    }
+
+    dependencies {
+        snapshot(WaterMyPlantsCi) {
+            reuseBuilds = ReuseBuilds.NO
+        }
+    }
+
+    features {
+        feature(GitHubCommitStatusPublisher("TeamCity CI"))
+    }
+})
+
+/**
  * Post-merge Figma synchronization verification pipeline.
  *
  * This pipeline is scoped to `main` because Figma is derived documentation for
@@ -123,9 +156,9 @@ object WaterMyPlantsCi : Pipeline({
  * The MCP-operated visual sync still runs outside TeamCity; this pipeline
  * either verifies the metadata after Figma has been updated or fails visibly
  * until the MCP sync is run with the `Generate main design model` artifact and
- * the pipeline is rerun. The final job publishes an optional GitHub status so
- * the post-merge documentation state is visible on `main` commits without
- * becoming a pull request merge gate.
+ * the pipeline is rerun. It remains visible in TeamCity but does not publish a
+ * GitHub status. Status publication is deliberately limited to
+ * [WaterMyPlantsCiGate] until this pipeline also has a versioned classic gate.
  */
 object WaterMyPlantsFigmaSync : Pipeline({
     id("WaterMyPlantsFigmaSync")
@@ -137,7 +170,7 @@ object WaterMyPlantsFigmaSync : Pipeline({
 
     triggers {
         trigger(PipelineFinishBuildTrigger {
-            buildType = "${WaterMyPlantsCi.id}"
+            buildType = "${WaterMyPlantsCiGate.id}"
             successfulOnly = true
             branchFilter = "+:<default>"
         })
@@ -282,6 +315,23 @@ object WaterMyPlantsInfrastructureHealth : Pipeline({
         }
     }
 })
+
+/**
+ * Classic Commit Status Publisher feature for the repository GitHub root.
+ *
+ * This feature belongs only to classic [BuildType] instances. Pipeline jobs
+ * must not use it because `commit-status-publisher` is not part of the Pipeline
+ * YAML job-feature enum.
+ */
+class GitHubCommitStatusPublisher(statusCheckName: String) : BuildFeature() {
+    init {
+        type = "commit-status-publisher"
+        param("publisherId", "githubStatusPublisher")
+        param("github_host", "https://api.github.com")
+        param("github_authentication_type", "vcsRoot")
+        param("build_custom_name", statusCheckName)
+    }
+}
 
 /**
  * GitHub repository VCS root used by both versioned settings and pipeline jobs.

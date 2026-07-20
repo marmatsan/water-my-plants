@@ -74,9 +74,10 @@ therefore add or update KDoc in the same change.
 ```
 
 `checkTeamCityDsl` also rejects generated Pipeline YAML that encodes
-`commit-status-publisher` as a job feature. TeamCity Pipelines owns repository
-status publication natively, and its YAML schema does not allow that feature
-type.
+`commit-status-publisher` as a job feature. Its YAML schema does not allow that
+feature type. The task also verifies that the generated classic `CI Gate` is a
+composite build with the only CI VCS trigger, a snapshot dependency on the
+modern `CI` Pipeline, and the versioned `TeamCity CI` status publisher.
 `checkGitWorkflow` validates local symbolic `HEAD` or TeamCity's logical branch
 name against the trunk-based branch contract. Provider-managed pull request
 refs are accepted because TeamCity also validates the corresponding source

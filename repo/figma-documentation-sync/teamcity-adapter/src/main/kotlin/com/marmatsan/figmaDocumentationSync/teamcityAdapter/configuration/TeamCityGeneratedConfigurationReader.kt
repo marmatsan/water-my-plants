@@ -25,10 +25,13 @@ class TeamCityGeneratedConfigurationReader {
             .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
             .map(File::getParentFile)
             .toList()
+        val statusGates = readStatusGates(directory)
 
         return CiConfiguration(
             pipelines = pipelineDirectories
-                .map(::readPipeline)
+                .map { pipelineDirectory ->
+                    readPipeline(pipelineDirectory, statusGates[pipelineDirectory.name])
+                }
                 .sortedBy(CiPipeline::id),
             vcsRoots = directory
                 .walkTopDown()
@@ -43,7 +46,7 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
-    private fun readPipeline(directory: File): CiPipeline {
+    private fun readPipeline(directory: File, statusGate: StatusGate?): CiPipeline {
         val projectDocument = readXml(directory.resolve(PROJECT_CONFIG_FILE_NAME))
         val buildTypeFiles = directory.resolve(BUILD_TYPES_DIRECTORY_NAME)
             .listFiles { file -> file.isFile && file.extension == XML_EXTENSION }
@@ -58,8 +61,58 @@ class TeamCityGeneratedConfigurationReader {
                 ?.textContent
                 ?.trim()
                 .orEmpty(),
-            triggers = buildTypeFiles.flatMap { file -> readTriggers(readXml(file)) },
-            jobs = readJobs(directory.resolve(PIPELINE_FILE_NAME))
+            triggers = statusGate?.triggers.orEmpty() +
+                buildTypeFiles.flatMap { file -> readTriggers(readXml(file)) },
+            jobs = readJobs(
+                directory.resolve(PIPELINE_FILE_NAME),
+                statusGate?.publishedChecks.orEmpty()
+            )
+        )
+    }
+
+    private fun readStatusGates(directory: File): Map<String, StatusGate> = directory
+        .walkTopDown()
+        .filter { file ->
+            file.isFile &&
+                file.extension == XML_EXTENSION &&
+                file.parentFile.name == BUILD_TYPES_DIRECTORY_NAME &&
+                !file.parentFile.parentFile.resolve(PIPELINE_FILE_NAME).isFile
+        }
+        .mapNotNull(::readStatusGate)
+        .associateBy(StatusGate::pipelineId)
+
+    private fun readStatusGate(file: File): StatusGate? {
+        val document = readXml(file)
+        val extensions = document.getElementsByTagName(BUILD_EXTENSION_ELEMENT)
+        val publishers = (0 until extensions.length)
+            .map { index -> extensions.item(index) as Element }
+            .filter { extension ->
+                extension.getAttribute(TYPE_ATTRIBUTE) == COMMIT_STATUS_PUBLISHER_TYPE
+            }
+        if (publishers.isEmpty()) return null
+        require(publishers.size == 1) {
+            "Expected one Commit Status Publisher in TeamCity status gate ${file.path}"
+        }
+
+        val dependencies = document.getElementsByTagName(DEPEND_ON_ELEMENT)
+        require(dependencies.length == 1) {
+            "Expected one snapshot dependency in TeamCity status gate ${file.path}"
+        }
+        val pipelineId = (dependencies.item(0) as Element).getAttribute(SOURCE_BUILD_TYPE_ID_ATTRIBUTE)
+        require(pipelineId.isNotBlank()) {
+            "Expected a source build type id in TeamCity status gate ${file.path}"
+        }
+
+        val publisherParameters = readParameters(publishers.single())
+        val checkName = publisherParameters[BUILD_CUSTOM_NAME_PARAMETER].orEmpty()
+        require(checkName.isNotBlank()) {
+            "Expected a custom GitHub check name in TeamCity status gate ${file.path}"
+        }
+
+        return StatusGate(
+            pipelineId = pipelineId,
+            triggers = readTriggers(document),
+            publishedChecks = listOf(CiJob.PublishedCheck(checkName))
         )
     }
 
@@ -67,14 +120,7 @@ class TeamCityGeneratedConfigurationReader {
         val triggers = document.getElementsByTagName(BUILD_TRIGGER_ELEMENT)
         return (0 until triggers.length).map { index ->
             val trigger = triggers.item(index) as Element
-            val parameters = trigger
-                .getElementsByTagName(PARAM_ELEMENT)
-                .let { nodes ->
-                    (0 until nodes.length).associate { parameterIndex ->
-                        val parameter = nodes.item(parameterIndex) as Element
-                        parameter.getAttribute(NAME_ATTRIBUTE) to parameter.getAttribute(VALUE_ATTRIBUTE)
-                    }
-                }
+            val parameters = readParameters(trigger)
 
             when (val type = trigger.getAttribute(TYPE_ATTRIBUTE)) {
                 VCS_TRIGGER_TYPE -> CiTrigger(
@@ -103,9 +149,9 @@ class TeamCityGeneratedConfigurationReader {
         }
     }
 
-    private fun readJobs(file: File): List<CiJob> {
+    private fun readJobs(file: File, publishedChecks: List<CiJob.PublishedCheck>): List<CiJob> {
         val root = readYaml(file)
-        return root.requiredMap(JOBS_KEY).map { (jobId, value) ->
+        val jobs = root.requiredMap(JOBS_KEY).map { (jobId, value) ->
             val job = value.asStringMap("job '$jobId'")
             CiJob(
                 id = jobId,
@@ -118,6 +164,9 @@ class TeamCityGeneratedConfigurationReader {
                 dependencies = job.optionalList(DEPENDENCIES_KEY).map(::readDependency),
                 publishedChecks = emptyList()
             )
+        }
+        return jobs.mapIndexed { index, job ->
+            if (index == jobs.lastIndex) job.copy(publishedChecks = publishedChecks) else job
         }
     }
 
@@ -176,6 +225,14 @@ class TeamCityGeneratedConfigurationReader {
         )
     }
 
+    private fun readParameters(element: Element): Map<String, String> =
+        element.getElementsByTagName(PARAM_ELEMENT).let { nodes ->
+            (0 until nodes.length).associate { index ->
+                val parameter = nodes.item(index) as Element
+                parameter.getAttribute(NAME_ATTRIBUTE) to parameter.getAttribute(VALUE_ATTRIBUTE)
+            }
+        }
+
     private fun readYaml(file: File): Map<String, Any?> {
         val settings = LoadSettings.builder()
             .setLabel(file.path)
@@ -231,16 +288,21 @@ class TeamCityGeneratedConfigurationReader {
         const val XML_EXTENSION = "xml"
         const val NAME_ELEMENT = "name"
         const val BUILD_TRIGGER_ELEMENT = "build-trigger"
+        const val BUILD_EXTENSION_ELEMENT = "extension"
+        const val DEPEND_ON_ELEMENT = "depend-on"
         const val PARAM_ELEMENT = "param"
         const val NAME_ATTRIBUTE = "name"
         const val VALUE_ATTRIBUTE = "value"
         const val TYPE_ATTRIBUTE = "type"
+        const val SOURCE_BUILD_TYPE_ID_ATTRIBUTE = "sourceBuildTypeId"
         const val VCS_TRIGGER_TYPE = "vcsTrigger"
         const val BUILD_DEPENDENCY_TRIGGER_TYPE = "buildDependencyTrigger"
         const val SCHEDULING_TRIGGER_TYPE = "schedulingTrigger"
+        const val COMMIT_STATUS_PUBLISHER_TYPE = "commit-status-publisher"
         const val BRANCH_FILTER_PARAMETER = "branchFilter"
         const val DEPENDS_ON_PARAMETER = "dependsOn"
         const val AFTER_SUCCESS_PARAMETER = "afterSuccessfulBuildOnly"
+        const val BUILD_CUSTOM_NAME_PARAMETER = "build_custom_name"
         const val URL_PARAMETER = "url"
         const val BRANCH_PARAMETER = "branch"
         const val BRANCH_SPEC_PARAMETER = "branchSpec"
@@ -257,4 +319,10 @@ class TeamCityGeneratedConfigurationReader {
         const val SHARE_WITH_JOBS_KEY = "share-with-jobs"
         const val FILES_KEY = "files"
     }
+
+    private data class StatusGate(
+        val pipelineId: String,
+        val triggers: List<CiTrigger>,
+        val publishedChecks: List<CiJob.PublishedCheck>
+    )
 }

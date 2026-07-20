@@ -37,18 +37,33 @@ class CiVisualPlanner {
         figmaPipeline: CiPipeline,
         config: CiVisualPlanConfig
     ): CiVisualPlan.Section {
-        val ciCheck = publishedChecks(ciPipeline).firstOrNull() ?: "TeamCity CI"
-        val figmaCheck = publishedChecks(figmaPipeline).firstOrNull() ?: "TeamCity Figma Sync"
-        val nodes = listOf(
+        val ciCheck = requireNotNull(publishedChecks(ciPipeline).firstOrNull()) {
+            "CI pipeline '${ciPipeline.name}' must expose its versioned required status"
+        }
+        val figmaCheck = publishedChecks(figmaPipeline).firstOrNull()
+        val nodes = mutableListOf(
             visualNode("overview-pr", CiVisualPlan.Type.GIT_REFERENCE, CiVisualPlan.Environment.GITHUB, "Pull Request", "Proposes a reviewed change to the repository.", config.branchProtectionSource, 0, 0, config),
             pipelineNode("overview-ci", ciPipeline, 1, 0, config),
             visualNode("overview-ci-check", CiVisualPlan.Type.CHECK, CiVisualPlan.Environment.TEAMCITY, ciCheck, "Reports CI verification to GitHub.", config.teamCitySource, 2, 0, config),
             visualNode("overview-gate", CiVisualPlan.Type.GATE, CiVisualPlan.Environment.GITHUB, "Pull request merge gate", "Requires the CI check before merge.", config.branchProtectionSource, 3, 0, config),
             visualNode("overview-main", CiVisualPlan.Type.GIT_REFERENCE, CiVisualPlan.Environment.GITHUB, "main", "Stable trunk after the reviewed merge.", config.branchProtectionSource, 4, 0, config),
             pipelineNode("overview-figma", figmaPipeline, 5, 0, config),
-            visualNode("overview-model", CiVisualPlan.Type.ARTIFACT, CiVisualPlan.Environment.JSON, "design-model.json", "Carries the repository documentation snapshot.", config.teamCitySource, 6, 0, config),
-            visualNode("overview-figma-check", CiVisualPlan.Type.CHECK, CiVisualPlan.Environment.TEAMCITY, figmaCheck, "Reports whether Figma metadata matches main.", config.teamCitySource, 7, 0, config)
+            visualNode("overview-model", CiVisualPlan.Type.ARTIFACT, CiVisualPlan.Environment.JSON, "design-model.json", "Carries the repository documentation snapshot.", config.teamCitySource, 6, 0, config)
         )
+        if (figmaCheck != null) {
+            nodes += visualNode("overview-figma-check", CiVisualPlan.Type.CHECK, CiVisualPlan.Environment.TEAMCITY, figmaCheck, "Reports whether Figma metadata matches main.", config.teamCitySource, 7, 0, config)
+        }
+        val connections = mutableListOf(
+            connection("overview-pr-trigger", "overview-pr", "overview-ci", triggerLabel(ciPipeline)),
+            connection("overview-ci-check", "overview-ci", "overview-ci-check", "Publish check"),
+            connection("overview-check-gate", "overview-ci-check", "overview-gate", "Required check"),
+            connection("overview-gate-main", "overview-gate", "overview-main", "Merge"),
+            connection("overview-main-figma", "overview-main", "overview-figma", triggerLabel(figmaPipeline)),
+            connection("overview-figma-model", "overview-figma", "overview-model", "Generate and publish")
+        )
+        if (figmaCheck != null) {
+            connections += connection("overview-model-check", "overview-model", "overview-figma-check", "Verify model hash")
+        }
         return section(
             target = "ci.overview",
             name = "Overview",
@@ -56,15 +71,7 @@ class CiVisualPlanner {
             sources = listOf(config.visualContractSource),
             orientation = CiVisualPlan.Orientation.HORIZONTAL,
             nodes = nodes,
-            connections = listOf(
-                connection("overview-pr-trigger", "overview-pr", "overview-ci", triggerLabel(ciPipeline)),
-                connection("overview-ci-check", "overview-ci", "overview-ci-check", "Publish check"),
-                connection("overview-check-gate", "overview-ci-check", "overview-gate", "Required check"),
-                connection("overview-gate-main", "overview-gate", "overview-main", "Merge"),
-                connection("overview-main-figma", "overview-main", "overview-figma", triggerLabel(figmaPipeline)),
-                connection("overview-figma-model", "overview-figma", "overview-model", "Generate and publish"),
-                connection("overview-model-check", "overview-model", "overview-figma-check", "Verify model hash")
-            ),
+            connections = connections,
             config = config
         )
     }
