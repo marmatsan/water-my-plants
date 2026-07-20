@@ -10,7 +10,7 @@ sources:
   - repo/gradle-plugins/unit-test
   - repo/gradle-plugins/bdd-test
   - app/src/test/resources/features
-  - repo/ci/domain/src/test/resources/com/marmatsan/ci/domain/bdd
+  - repo/verification-platform/domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd
   - repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd
 ---
 
@@ -95,5 +95,5 @@ module's `dokkaGenerate` task; modules with strict coverage include it in
 - `repo/gradle-plugins/unit-test/`
 - `repo/gradle-plugins/bdd-test/`
 - `app/src/test/resources/features/`
-- `repo/ci/domain/src/test/resources/com/marmatsan/ci/domain/bdd/`
+- `repo/verification-platform/domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/`
 - `repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/`

@@ -12,8 +12,8 @@ review dates warn; structural or link errors fail the task.
 
 The task consumes `build/reports/ci/ci-plan.json`, which resolves the committed
 revision range against `origin/main`, and evaluates every affected coverage
-rule. Filesystem traversal and manifest parsing live in `repo/ci/data`; Gradle
-composition lives in `repo/ci/plugin`. No PowerShell runtime is required for
+rule. Filesystem traversal and manifest parsing live in `repo/verification-platform/data`; Gradle
+composition lives in `repo/verification-platform/plugin`. No PowerShell runtime is required for
 documentation validation. Figma scope is classified separately by the portable
 `classifyFigmaChangeImpact` Gradle task and
 `repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json`.
@@ -40,7 +40,7 @@ The contract is deliberately conservative:
   be rendered and published to Figma before its merge is complete.
 
 When adding a documentation coverage area, add a narrow rule to the manifest
-and focused Kotlin cases under `repo/ci/domain` and `repo/ci/data`. When adding
+and focused Kotlin cases under `repo/verification-platform/domain` and `repo/verification-platform/data`. When adding
 a Figma-relevant source area, update
 `repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json`
 and the Kotlin classifier

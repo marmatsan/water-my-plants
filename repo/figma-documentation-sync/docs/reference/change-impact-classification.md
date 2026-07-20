@@ -120,5 +120,5 @@ agents.
 The classifier does not validate documentation coverage, generate the design
 model, execute MCP, write Figma metadata, or authorize publication from a
 branch. Documentation coverage remains owned by the Gradle
-`checkDocumentation` task and its Kotlin implementation under `repo/ci`;
+`checkDocumentation` task and its Kotlin implementation under `repo/verification-platform`;
 official publication remains restricted to TeamCity Figma Sync on `main`.

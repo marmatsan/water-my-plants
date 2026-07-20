@@ -38,7 +38,7 @@ internal class FigmaChangeImpactClassifierTest : FunSpec({
     test("model-neutral tooling still requires normal repository verification") {
         val result = classifier.classify(
             changeSet(
-                "repo/ci/plugin/src/main/kotlin/com/marmatsan/ci/plugin/CheckDocumentationTask.kt",
+                "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt",
                 "docs/ci/documentation-coverage.md"
             ),
             policy()
@@ -97,7 +97,7 @@ private fun policy() = FigmaChangeImpactPolicy(
     transportOnlyPaths = listOf(
         "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*"
     ),
-    modelNeutralPaths = listOf("repo/ci/*"),
+    modelNeutralPaths = listOf("repo/verification-platform/*"),
     modelContentPaths = listOf("*/build.gradle.kts"),
     visualWriterPaths = listOf("repo/figma-documentation-sync/tools/src/*"),
     visualTargetRules = listOf(

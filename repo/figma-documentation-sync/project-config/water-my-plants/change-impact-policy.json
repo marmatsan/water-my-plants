@@ -30,7 +30,7 @@
   "figmaModelNeutralPaths": [
     ".teamcity/documentation-coverage.json",
     ".teamcity/scripts/tests/*",
-    "repo/ci/*",
+    "repo/verification-platform/*",
     "repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/impact/*",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/impact/*",

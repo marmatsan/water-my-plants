@@ -7,11 +7,11 @@
         "AGENTS.md",
         "docs/documentation.md",
         "docs/templates/*.md",
-        "repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/model/DocumentationValidation.kt",
-        "repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/service/DocumentationValidator.kt",
-        "repo/ci/data/src/main/kotlin/com/marmatsan/ci/data/documentation/*",
-        "repo/ci/data/src/main/kotlin/com/marmatsan/ci/data/json/DocumentationCoverageJson.kt",
-        "repo/ci/plugin/src/main/kotlin/com/marmatsan/ci/plugin/CheckDocumentationTask.kt"
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/DocumentationValidation.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/DocumentationValidator.kt",
+        "repo/verification-platform/data/src/main/kotlin/com/marmatsan/verificationPlatform/data/documentation/*",
+        "repo/verification-platform/data/src/main/kotlin/com/marmatsan/verificationPlatform/data/json/DocumentationCoverageJson.kt",
+        "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt"
       ],
       "documentationPaths": [
         "docs/documentation.md",
@@ -40,20 +40,20 @@
       "documentationPaths": [".teamcity/README.md", "docs/runbooks/teamcity-cloudflare-access.md"]
     },
     {
-      "id": "ci-planner",
+      "id": "verification-platform",
       "sourcePaths": [
-        "repo/ci/*",
-        "repo/ci/domain/src/*",
-        "repo/ci/data/src/*",
-        "repo/ci/plugin/src/*",
-        "repo/ci/build.gradle.kts",
-        "repo/ci/domain/build.gradle.kts",
-        "repo/ci/data/build.gradle.kts",
-        "repo/ci/plugin/build.gradle.kts",
-        "repo/ci/settings.gradle.kts"
+        "repo/verification-platform/*",
+        "repo/verification-platform/domain/src/*",
+        "repo/verification-platform/data/src/*",
+        "repo/verification-platform/plugin/src/*",
+        "repo/verification-platform/build.gradle.kts",
+        "repo/verification-platform/domain/build.gradle.kts",
+        "repo/verification-platform/data/build.gradle.kts",
+        "repo/verification-platform/plugin/build.gradle.kts",
+        "repo/verification-platform/settings.gradle.kts"
       ],
       "documentationPaths": [
-        "repo/ci/README.md",
+        "repo/verification-platform/README.md",
         "docs/reference/ci-verification-plan.md",
         ".teamcity/README.md"
       ]
