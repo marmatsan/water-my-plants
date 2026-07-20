@@ -4,8 +4,8 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificatio
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
-import com.marmatsan.figmaDocumentationSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.artifact.ValidateOfficialFigmaArtifactSetTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.ci.CheckCiExternalTopologyFreshnessTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.generate.GenerateFigmaDesignModelTask
@@ -19,12 +19,12 @@ import com.marmatsan.figmaDocumentationSync.plugin.task.versions.CheckFigmaVersi
 import com.marmatsan.figmaDocumentationSync.plugin.task.visual.GenerateCiVisualPlanTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.Exec
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import java.io.File
 
 /**
@@ -44,41 +44,44 @@ import java.io.File
 @Suppress("unused")
 class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         project.pluginManager.apply("base")
 
         val extension = project.extensions.create<figmaDocumentationSyncExtension>("figmaDocumentationSync")
 
-        val includedBuildSources = extension.includedBuildSources(
-            project = project
-        )
+        val includedBuildSources =
+            extension.includedBuildSources(
+                project = project,
+            )
 
         project.tasks.register<GenerateCiVisualPlanTask>("generateFigmaCiVisualPlan") {
             group = "documentation"
             description = "Generates the Kotlin-owned CI visual plan consumed by the Figma adapter."
 
             designModelFile.set(
-                project.layout.file(
-                    project.providers.gradleProperty("figmaCiVisualDesignModel").map(
-                        ::File
-                    )
-                ).orElse(extension.designModelFile)
+                project.layout
+                    .file(
+                        project.providers.gradleProperty("figmaCiVisualDesignModel").map(
+                            ::File,
+                        ),
+                    ).orElse(extension.designModelFile),
             )
             writerProjectConfigFile.set(
                 project.layout.file(
                     project.providers.gradleProperty("figmaWriterProjectConfig").map(
-                        ::File
-                    )
-                )
+                        ::File,
+                    ),
+                ),
             )
             target.convention(project.providers.gradleProperty("figmaCiVisualTarget"))
             outputFile.set(
-                project.layout.file(
-                    project.providers.gradleProperty("figmaCiVisualPlanOutput").map(
-                        ::File
-                    )
-                ).orElse(project.layout.buildDirectory.file("reports/figma-sync/ci-visual-plan.json"))
+                project.layout
+                    .file(
+                        project.providers.gradleProperty("figmaCiVisualPlanOutput").map(
+                            ::File,
+                        ),
+                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/ci-visual-plan.json")),
             )
         }
 
@@ -90,13 +93,20 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             projectRootDirectory.set(project.layout.projectDirectory)
             outputFile.set(extension.changeImpactFile)
             changedPathsOverride.convention(
-                project.providers.gradleProperty("figmaChangedPaths")
-                    .map { value -> value.split(',').map(
-                        transform = String::trim
-                    ).filter(String::isNotEmpty) }
-                    .orElse(emptyList())
+                project.providers
+                    .gradleProperty("figmaChangedPaths")
+                    .map { value ->
+                        value
+                            .split(',')
+                            .map(
+                                transform = String::trim,
+                            ).filter(String::isNotEmpty)
+                    }.orElse(emptyList()),
             )
-            project.providers.gradleProperty("figmaComparisonBase").orNull?.let(comparisonBaseOverride::set)
+            project.providers
+                .gradleProperty("figmaComparisonBase")
+                .orNull
+                ?.let(comparisonBaseOverride::set)
             outputs.upToDateWhen { false }
         }
 
@@ -107,17 +117,18 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             artifactDirectory.set(
                 project.layout.dir(
                     project.providers.gradleProperty("figmaArtifactDirectory").map(
-                        ::File
-                    )
-                )
+                        ::File,
+                    ),
+                ),
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
             outputFile.set(
-                project.layout.file(
-                    project.providers.gradleProperty("figmaArtifactValidationOutput").map(
-                        ::File
-                    )
-                ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json"))
+                project.layout
+                    .file(
+                        project.providers.gradleProperty("figmaArtifactValidationOutput").map(
+                            ::File,
+                        ),
+                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json")),
             )
         }
 
@@ -130,37 +141,37 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             statePath.convention(project.providers.gradleProperty("figmaMcpState"))
             visualStatePath.convention(project.providers.gradleProperty("figmaMcpVisualState"))
             endpoint.convention(
-                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp")
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp"),
             )
             resume.convention(
                 booleanProperty(
                     project = project,
-                    name = "figmaMcpResume"
-                )
+                    name = "figmaMcpResume",
+                ),
             )
             retryFailed.convention(
                 booleanProperty(
                     project = project,
-                    name = "figmaMcpRetryFailed"
-                )
+                    name = "figmaMcpRetryFailed",
+                ),
             )
             reuseStaging.convention(
                 booleanProperty(
                     project = project,
-                    name = "figmaMcpReuseStaging"
-                )
+                    name = "figmaMcpReuseStaging",
+                ),
             )
             dryRun.convention(
                 booleanProperty(
                     project = project,
-                    name = "figmaMcpDryRun"
-                )
+                    name = "figmaMcpDryRun",
+                ),
             )
             next.convention(
                 booleanProperty(
                     project = project,
-                    name = "figmaMcpNext"
-                )
+                    name = "figmaMcpNext",
+                ),
             )
             from.convention(project.providers.gradleProperty("figmaMcpFrom"))
             recordSuccess.convention(project.providers.gradleProperty("figmaMcpRecordSuccess"))
@@ -169,9 +180,9 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             writerProjectConfigFile.set(
                 project.layout.file(
                     project.providers.gradleProperty("figmaWriterProjectConfig").map(
-                        ::File
-                    )
-                )
+                        ::File,
+                    ),
+                ),
             )
         }
 
@@ -180,48 +191,50 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             description = "Probes the local MCP endpoint with the official Kotlin SDK client."
 
             endpoint.convention(
-                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp")
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse("http://127.0.0.1:3845/mcp"),
             )
             writerProjectConfigFile.set(
                 project.layout.file(
                     project.providers.gradleProperty("figmaWriterProjectConfig").map(
-                        ::File
-                    )
+                        ::File,
+                    ),
+                ),
+            )
+        }
+
+        val checkFigmaCatalogUsage =
+            project.tasks.register<CheckFigmaCatalogUsageTask>("checkFigmaCatalogUsage") {
+                group = "verification"
+                description = "Checks that dependency catalog entries rendered in Figma are used by the repository."
+
+                primaryCatalogModelName.set(extension.primaryCatalogModelName)
+                dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+                rootSettingsFile.set(extension.rootSettingsFile)
+                includedBuildSettingsFiles.from(
+                    includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
                 )
-            )
-        }
+                includedBuildModelNames.set(
+                    includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
+                )
+                includedBuildModulePathPrefixes.set(
+                    includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
+                )
+                includedBuildPublishesCatalogs.set(
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
+                )
+                includedBuildPublishesConventionPlugins.set(
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
+                )
+                projectRootDirectory.set(project.layout.projectDirectory)
+                includedBuildSourcesProvider = includedBuildSources
+            }
+        val checkFigmaVersionNaming =
+            project.tasks.register<CheckFigmaVersionNamingTask>("checkFigmaVersionNaming") {
+                group = "verification"
+                description = "Checks that dependency version keys follow the Figma section naming contract."
 
-        val checkFigmaCatalogUsage = project.tasks.register<CheckFigmaCatalogUsageTask>("checkFigmaCatalogUsage") {
-            group = "verification"
-            description = "Checks that dependency catalog entries rendered in Figma are used by the repository."
-
-            primaryCatalogModelName.set(extension.primaryCatalogModelName)
-            dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
-            rootSettingsFile.set(extension.rootSettingsFile)
-            includedBuildSettingsFiles.from(
-                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
-            )
-            includedBuildModelNames.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
-            )
-            includedBuildModulePathPrefixes.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
-            )
-            includedBuildPublishesCatalogs.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
-            )
-            includedBuildPublishesConventionPlugins.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
-            )
-            projectRootDirectory.set(project.layout.projectDirectory)
-            includedBuildSourcesProvider = includedBuildSources
-        }
-        val checkFigmaVersionNaming = project.tasks.register<CheckFigmaVersionNamingTask>("checkFigmaVersionNaming") {
-            group = "verification"
-            description = "Checks that dependency version keys follow the Figma section naming contract."
-
-            versionsFile.set(extension.versionsFile)
-        }
+                versionsFile.set(extension.versionsFile)
+            }
         val checkCiExternalTopologyFreshness =
             project.tasks.register<CheckCiExternalTopologyFreshnessTask>("checkCiExternalTopologyFreshness") {
                 group = "verification"
@@ -266,19 +279,19 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
             ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
-                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
+                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
             )
             includedBuildModelNames.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
+                includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
             )
             includedBuildModulePathPrefixes.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
             )
             includedBuildPublishesCatalogs.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
             )
             includedBuildPublishesConventionPlugins.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
             )
             projectRootDirectory.set(project.layout.projectDirectory)
             includedBuildSourcesProvider = includedBuildSources
@@ -287,7 +300,8 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
 
         project.tasks.register<CheckFigmaTrunkSyncTask>("checkFigmaTrunkSync") {
             group = "verification"
-            description = "Checks that Figma sync metadata matches the design model generated from the current checkout."
+            description =
+                "Checks that Figma sync metadata matches the design model generated from the current checkout."
 
             metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
             metadataNamespace.set(extension.metadataNamespace)
@@ -302,19 +316,19 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
             ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
             includedBuildSettingsFiles.from(
-                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
+                includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
             )
             includedBuildModelNames.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
+                includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
             )
             includedBuildModulePathPrefixes.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+                includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
             )
             includedBuildPublishesCatalogs.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
             )
             includedBuildPublishesConventionPlugins.set(
-                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
+                includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
             )
             projectRootDirectory.set(project.layout.projectDirectory)
             includedBuildSourcesProvider = includedBuildSources
@@ -331,7 +345,7 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
         val teamCityPhasedOfficialExecution =
             booleanProperty(
                 project = project,
-                name = "figmaOfficialTeamCityPhasedExecution"
+                name = "figmaOfficialTeamCityPhasedExecution",
             )
 
         val classifyOfficialFigmaSyncChangeImpact =
@@ -344,13 +358,20 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 projectRootDirectory.set(project.layout.projectDirectory)
                 outputFile.set(extension.changeImpactFile)
                 changedPathsOverride.convention(
-                    project.providers.gradleProperty("figmaChangedPaths")
-                        .map { value -> value.split(',').map(
-                            transform = String::trim
-                        ).filter(String::isNotEmpty) }
-                        .orElse(emptyList())
+                    project.providers
+                        .gradleProperty("figmaChangedPaths")
+                        .map { value ->
+                            value
+                                .split(',')
+                                .map(
+                                    transform = String::trim,
+                                ).filter(String::isNotEmpty)
+                        }.orElse(emptyList()),
                 )
-                project.providers.gradleProperty("figmaComparisonBase").orNull?.let(comparisonBaseOverride::set)
+                project.providers
+                    .gradleProperty("figmaComparisonBase")
+                    .orNull
+                    ?.let(comparisonBaseOverride::set)
                 outputs.upToDateWhen { false }
             }
 
@@ -367,7 +388,7 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                     extension.ciDocumentationEnabled.get() &&
                         extension.ciConfigurationCommand.get().isNotEmpty() &&
                         isFullVerification(
-                            changeImpactFile = extension.changeImpactFile.get().asFile
+                            changeImpactFile = extension.changeImpactFile.get().asFile,
                         )
                 }
                 workingDir(extension.ciConfigurationWorkingDirectory)
@@ -389,7 +410,7 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 }
                 onlyIf("Figma change impact requires full verification") {
                     isFullVerification(
-                        changeImpactFile = extension.changeImpactFile.get().asFile
+                        changeImpactFile = extension.changeImpactFile.get().asFile,
                     )
                 }
 
@@ -405,19 +426,19 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
                 ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
                 includedBuildSettingsFiles.from(
-                    includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
                 )
                 includedBuildModelNames.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
                 )
                 includedBuildModulePathPrefixes.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
                 )
                 includedBuildPublishesCatalogs.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
                 )
                 includedBuildPublishesConventionPlugins.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
                 )
                 projectRootDirectory.set(project.layout.projectDirectory)
                 includedBuildSourcesProvider = includedBuildSources
@@ -444,12 +465,14 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             visualSyncPlanFile.set(project.layout.buildDirectory.file("reports/figma-sync/visual-sync-plan.json"))
             scopeFile.set(project.layout.buildDirectory.file("reports/figma-sync/sync-scope.json"))
             runnerTransport.convention(
-                project.providers.gradleProperty("figmaMcpTransport").orElse("png")
+                project.providers.gradleProperty("figmaMcpTransport").orElse("png"),
             )
             runnerChunkSize.convention(
-                project.providers.gradleProperty("figmaMcpChunkSize").map(
-                    String::toInt
-                ).orElse(12_000)
+                project.providers
+                    .gradleProperty("figmaMcpChunkSize")
+                    .map(
+                        String::toInt,
+                    ).orElse(12_000),
             )
             outputs.upToDateWhen { false }
         }
@@ -478,7 +501,9 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                     dependsOn(validateOfficialFigmaSyncScope)
                 }
                 onlyIf("Validated Figma scope requires full verification") {
-                    verifiedOfficialScopeFile.get().asFile
+                    verifiedOfficialScopeFile
+                        .get()
+                        .asFile
                         .readText()
                         .trim() == FigmaVerificationScope.FULL_VERIFICATION.wireValue
                 }
@@ -496,19 +521,19 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
                 ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
                 includedBuildSettingsFiles.from(
-                    includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
                 )
                 includedBuildModelNames.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
                 )
                 includedBuildModulePathPrefixes.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
                 )
                 includedBuildPublishesCatalogs.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
                 )
                 includedBuildPublishesConventionPlugins.set(
-                    includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
+                    includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
                 )
                 projectRootDirectory.set(project.layout.projectDirectory)
                 includedBuildSourcesProvider = includedBuildSources
@@ -523,26 +548,28 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     }
 
     private fun isFullVerification(
-        changeImpactFile: File
+        changeImpactFile: File,
     ): Boolean =
-        figmaDocumentationSyncComponent::class.create().officialFigmaSyncScopeJson
+        figmaDocumentationSyncComponent::class
+            .create()
+            .officialFigmaSyncScopeJson
             .readChangeImpact(
-                sourcePath = changeImpactFile.absolutePath
-            )
-            .scope == FigmaVerificationScope.FULL_VERIFICATION
+                sourcePath = changeImpactFile.absolutePath,
+            ).scope == FigmaVerificationScope.FULL_VERIFICATION
 
     private fun booleanProperty(
         project: Project,
-        name: String
+        name: String,
     ) =
-        project.providers.gradleProperty(name).map(
-            String::toBoolean
-        ).orElse(false)
-
+        project.providers
+            .gradleProperty(name)
+            .map(
+                String::toBoolean,
+            ).orElse(false)
 }
 
 private fun figmaDocumentationSyncExtension.includedBuildSources(
-    project: Project
+    project: Project,
 ) =
     project.provider {
         includedBuilds
@@ -555,7 +582,7 @@ private fun figmaDocumentationSyncExtension.includedBuildSources(
                     rootDirectory = includedBuild.rootDirectory.get().asFile,
                     modulePathPrefix = includedBuild.modulePathPrefix.get(),
                     publishesCatalogs = includedBuild.publishesCatalogs.get(),
-                    publishesConventionPlugins = includedBuild.publishesConventionPlugins.get()
+                    publishesConventionPlugins = includedBuild.publishesConventionPlugins.get(),
                 )
             }
     }

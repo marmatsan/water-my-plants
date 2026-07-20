@@ -5,42 +5,47 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import java.nio.file.Files
 
-class FileSystemDocumentationSourceTest : FunSpec(
-    {
-    test("reads authored Markdown and excludes templates and generated trees") {
-        val root = Files.createTempDirectory("ci-documentation-source").toFile()
-        try {
-            root.resolve(
-                relative = "docs/standards/example.md"
-            ).apply {
-                parentFile.mkdirs()
-                writeText("# Standard")
-            }
-            root.resolve(
-                relative = "docs/templates/standard.md"
-            ).apply {
-                parentFile.mkdirs()
-                writeText("# Template")
-            }
-            root.resolve(
-                relative = "module/build/generated.md"
-            ).apply {
-                parentFile.mkdirs()
-                writeText("# Generated")
-            }
-            root.resolve(
-                relative = "source.txt"
-            ).writeText("source")
+class FileSystemDocumentationSourceTest :
+    FunSpec(
+        {
+            test("reads authored Markdown and excludes templates and generated trees") {
+                val root = Files.createTempDirectory("ci-documentation-source").toFile()
+                try {
+                    root
+                        .resolve(
+                            relative = "docs/standards/example.md",
+                        ).apply {
+                            parentFile.mkdirs()
+                            writeText("# Standard")
+                        }
+                    root
+                        .resolve(
+                            relative = "docs/templates/standard.md",
+                        ).apply {
+                            parentFile.mkdirs()
+                            writeText("# Template")
+                        }
+                    root
+                        .resolve(
+                            relative = "module/build/generated.md",
+                        ).apply {
+                            parentFile.mkdirs()
+                            writeText("# Generated")
+                        }
+                    root
+                        .resolve(
+                            relative = "source.txt",
+                        ).writeText("source")
 
-            val snapshot = FileSystemDocumentationSource().read(root)
+                    val snapshot = FileSystemDocumentationSource().read(root)
 
-            snapshot.documents.map { document -> document.path } shouldContain "docs/standards/example.md"
-            snapshot.documents.map { document -> document.path } shouldNotContain "docs/templates/standard.md"
-            snapshot.repositoryEntries shouldContain "source.txt"
-            snapshot.repositoryEntries shouldNotContain "module/build/generated.md"
-        } finally {
-            root.deleteRecursively()
-        }
-    }
-}
-)
+                    snapshot.documents.map { document -> document.path } shouldContain "docs/standards/example.md"
+                    snapshot.documents.map { document -> document.path } shouldNotContain "docs/templates/standard.md"
+                    snapshot.repositoryEntries shouldContain "source.txt"
+                    snapshot.repositoryEntries shouldNotContain "module/build/generated.md"
+                } finally {
+                    root.deleteRecursively()
+                }
+            }
+        },
+    )

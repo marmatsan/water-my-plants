@@ -12,8 +12,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaSyncMetadat
 import com.marmatsan.figmaDocumentationSync.domain.service.writer.VisualSyncPlanner
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
-import java.io.ByteArrayOutputStream
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -29,10 +27,12 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 /** Builds the official MCP runner artifacts and writes their shared sync scope. */
 @DisableCachingByDefault(
-    because = "Builds the TypeScript Figma boundary and generates official runner artifacts"
+    because = "Builds the TypeScript Figma boundary and generates official runner artifacts",
 )
 abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     @get:InputFile
@@ -85,119 +85,133 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     fun prepare() {
         val component = figmaDocumentationSyncComponent::class.create()
         val scopeJson = component.officialFigmaSyncScopeJson
-        val impact = scopeJson.readChangeImpact(
-            sourcePath = changeImpactFile.get().asFile.absolutePath
-        )
-        val gitSha = capture(
-            projectRootDirectory.get().asFile,
-            "git",
-            "rev-parse",
-            "HEAD"
-        )
-
-        val scope = if (impact.scope == FigmaVerificationScope.FULL_VERIFICATION) {
-            val model = designModelFile.get().asFile
-            if (!model.isFile) {
-                throw GradleException("Missing official Figma design model artifact: ${model.path}")
-            }
-
-            val tools = toolsDirectory.get().asFile
-            val projectConfig = writerProjectConfigFile.orNull?.asFile
-                ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
-            run(
-                tools,
-                npmExecutable(),
-                "ci"
+        val impact =
+            scopeJson.readChangeImpact(
+                sourcePath = changeImpactFile.get().asFile.absolutePath,
             )
-            buildWriter(
-                tools = tools,
-                projectConfig = projectConfig
+        val gitSha =
+            capture(
+                projectRootDirectory.get().asFile,
+                "git",
+                "rev-parse",
+                "HEAD",
             )
 
-            val runnerDirectory = runnerOutputDirectory.get().asFile
-            val writerScript = tools.resolve(
-                relative = "sync-trunk-design-model.mcp.js"
-            )
-            if (!writerScript.isFile) {
-                throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
-            }
-            OfficialMcpRunnerGenerator().generate(
-                request = OfficialMcpRunnerGenerator.Request(
-                    modelPath = model.absolutePath,
-                    scriptPath = writerScript.absolutePath,
-                    outputDirectory = runnerDirectory.absolutePath,
-                    toolsDirectory = tools.absolutePath,
-                    writerSourceDirectory = tools.resolve(
-                        relative = "src"
-                    ).absolutePath,
-                    repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
-                    changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
-                    config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
-                    transport = runnerTransport.get(),
-                    chunkSize = runnerChunkSize.get()
+        val scope =
+            if (impact.scope == FigmaVerificationScope.FULL_VERIFICATION) {
+                val model = designModelFile.get().asFile
+                if (!model.isFile) {
+                    throw GradleException("Missing official Figma design model artifact: ${model.path}")
+                }
+
+                val tools = toolsDirectory.get().asFile
+                val projectConfig =
+                    writerProjectConfigFile.orNull?.asFile
+                        ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
+                run(
+                    tools,
+                    npmExecutable(),
+                    "ci",
                 )
-            )
+                buildWriter(
+                    tools = tools,
+                    projectConfig = projectConfig,
+                )
 
-            val manifests = scopeJson.readRunnerManifests(
-                rootPath = runnerDirectory.absolutePath
-            )
-            val visualManifest = manifests.singleOrNull { manifest -> manifest.fullVisualSync }
-                ?: throw GradleException("Official visual MCP runner manifest was not generated exactly once.")
-            val metadataManifest = manifests.singleOrNull { manifest -> manifest.writeMetadata }
-                ?: throw GradleException("Official metadata MCP runner manifest was not generated exactly once.")
-            val plan = visualSyncPlanFile.get().asFile
-            val planJson = VisualSyncPlanJson()
-            val visualPlan = VisualSyncPlanner(
-                planHasher = planJson
-            ).create(
-                visualManifest,
-                readPreviousMetadata()
-            )
-            planJson.write(
-                visualPlan,
-                plan.absolutePath
-            )
+                val runnerDirectory = runnerOutputDirectory.get().asFile
+                val writerScript =
+                    tools.resolve(
+                        relative = "sync-trunk-design-model.mcp.js",
+                    )
+                if (!writerScript.isFile) {
+                    throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
+                }
+                OfficialMcpRunnerGenerator().generate(
+                    request =
+                        OfficialMcpRunnerGenerator.Request(
+                            modelPath = model.absolutePath,
+                            scriptPath = writerScript.absolutePath,
+                            outputDirectory = runnerDirectory.absolutePath,
+                            toolsDirectory = tools.absolutePath,
+                            writerSourceDirectory =
+                                tools
+                                    .resolve(
+                                        relative = "src",
+                                    ).absolutePath,
+                            repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
+                            changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
+                            config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
+                            transport = runnerTransport.get(),
+                            chunkSize = runnerChunkSize.get(),
+                        ),
+                )
 
-            OfficialFigmaSyncScope(
-                scope = impact.scope,
-                figmaImpact = impact.impact,
-                affectedVisualTargets = impact.affectedVisualTargets,
-                comparisonBase = impact.comparisonBase,
-                gitSha = gitSha,
-                modelHash = visualManifest.modelHash,
-                writerHash = visualManifest.writerHash,
-                transportHash = visualManifest.transportHash,
-                targetFingerprints = visualManifest.targetFingerprints,
-                writerScopeFingerprints = visualManifest.writerScopeFingerprints,
-                writerScopeFingerprintSchemaVersion = visualManifest.writerScopeFingerprintSchemaVersion,
-                visualRunnerManifestHash = visualManifest.manifestHash,
-                metadataRunnerManifestHash = metadataManifest.manifestHash,
-                visualSyncDecision = visualPlan.body.decision.wireValue,
-                visualSyncPlanHash = visualPlan.planHash
-            )
-        } else {
-            OfficialFigmaSyncScope(
-                scope = impact.scope,
-                figmaImpact = impact.impact,
-                affectedVisualTargets = impact.affectedVisualTargets,
-                comparisonBase = impact.comparisonBase,
-                gitSha = gitSha,
-                modelHash = null,
-                writerHash = null,
-                transportHash = null,
-                targetFingerprints = null,
-                writerScopeFingerprints = null,
-                writerScopeFingerprintSchemaVersion = null,
-                visualRunnerManifestHash = null,
-                metadataRunnerManifestHash = null,
-                visualSyncDecision = null,
-                visualSyncPlanHash = null
-            )
-        }
+                val manifests =
+                    scopeJson.readRunnerManifests(
+                        rootPath = runnerDirectory.absolutePath,
+                    )
+                val visualManifest =
+                    manifests.singleOrNull { manifest -> manifest.fullVisualSync }
+                        ?: throw GradleException("Official visual MCP runner manifest was not generated exactly once.")
+                val metadataManifest =
+                    manifests.singleOrNull { manifest -> manifest.writeMetadata }
+                        ?: throw GradleException(
+                            "Official metadata MCP runner manifest was not generated exactly once.",
+                        )
+                val plan = visualSyncPlanFile.get().asFile
+                val planJson = VisualSyncPlanJson()
+                val visualPlan =
+                    VisualSyncPlanner(
+                        planHasher = planJson,
+                    ).create(
+                        visualManifest,
+                        readPreviousMetadata(),
+                    )
+                planJson.write(
+                    visualPlan,
+                    plan.absolutePath,
+                )
+
+                OfficialFigmaSyncScope(
+                    scope = impact.scope,
+                    figmaImpact = impact.impact,
+                    affectedVisualTargets = impact.affectedVisualTargets,
+                    comparisonBase = impact.comparisonBase,
+                    gitSha = gitSha,
+                    modelHash = visualManifest.modelHash,
+                    writerHash = visualManifest.writerHash,
+                    transportHash = visualManifest.transportHash,
+                    targetFingerprints = visualManifest.targetFingerprints,
+                    writerScopeFingerprints = visualManifest.writerScopeFingerprints,
+                    writerScopeFingerprintSchemaVersion = visualManifest.writerScopeFingerprintSchemaVersion,
+                    visualRunnerManifestHash = visualManifest.manifestHash,
+                    metadataRunnerManifestHash = metadataManifest.manifestHash,
+                    visualSyncDecision = visualPlan.body.decision.wireValue,
+                    visualSyncPlanHash = visualPlan.planHash,
+                )
+            } else {
+                OfficialFigmaSyncScope(
+                    scope = impact.scope,
+                    figmaImpact = impact.impact,
+                    affectedVisualTargets = impact.affectedVisualTargets,
+                    comparisonBase = impact.comparisonBase,
+                    gitSha = gitSha,
+                    modelHash = null,
+                    writerHash = null,
+                    transportHash = null,
+                    targetFingerprints = null,
+                    writerScopeFingerprints = null,
+                    writerScopeFingerprintSchemaVersion = null,
+                    visualRunnerManifestHash = null,
+                    metadataRunnerManifestHash = null,
+                    visualSyncDecision = null,
+                    visualSyncPlanHash = null,
+                )
+            }
 
         scopeJson.write(
             scope,
-            scopeFile.get().asFile.absolutePath
+            scopeFile.get().asFile.absolutePath,
         )
         logger.lifecycle("Prepared official Figma Sync scope: ${scope.scope.wireValue}")
     }
@@ -206,50 +220,52 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
         val nodeUrl = metadataNodeUrl.orNull ?: return null
         val namespace = metadataNamespace.orNull ?: return null
-        val reference = FigmaNodeUrl.parse(
-            url = nodeUrl
-        )
-        val node = runCatching {
-            FigmaFileContentClient().getNodeContent(
-                fileKey = reference.fileKey,
-                token = token,
-                nodeId = reference.nodeId,
-                pluginData = "shared"
+        val reference =
+            FigmaNodeUrl.parse(
+                url = nodeUrl,
             )
-        }.onFailure { failure ->
-            logger.warn("Figma metadata is unavailable; selecting a full visual sync: ${failure.message}")
-        }.getOrNull() ?: return null
+        val node =
+            runCatching {
+                FigmaFileContentClient().getNodeContent(
+                    fileKey = reference.fileKey,
+                    token = token,
+                    nodeId = reference.nodeId,
+                    pluginData = "shared",
+                )
+            }.onFailure { failure ->
+                logger.warn("Figma metadata is unavailable; selecting a full visual sync: ${failure.message}")
+            }.getOrNull() ?: return null
         return FigmaSyncMetadataJson.read(
             node.sharedPluginData,
-            namespace
+            namespace,
         )
     }
 
     private fun buildWriter(
         tools: File,
-        projectConfig: File
+        projectConfig: File,
     ) {
         run(
             tools,
             "node",
             "bin/build.mjs",
             "--project-config-json=${projectConfig.absolutePath}",
-            "--output-dir=."
+            "--output-dir=.",
         )
     }
 
     private fun run(
         directory: File,
-        vararg command: String
+        vararg command: String,
     ) {
-        val process = ProcessBuilder(
-            platformCommand(
-                command = command.toList()
-            )
-        )
-            .directory(directory)
-            .inheritIO()
-            .start()
+        val process =
+            ProcessBuilder(
+                platformCommand(
+                    command = command.toList(),
+                ),
+            ).directory(directory)
+                .inheritIO()
+                .start()
         val exitCode = process.waitFor()
         if (exitCode != 0) {
             throw GradleException("Command '${command.joinToString(" ")}' failed with exit code $exitCode.")
@@ -258,15 +274,15 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
     private fun capture(
         directory: File,
-        vararg command: String
+        vararg command: String,
     ): String {
-        val process = ProcessBuilder(
-            platformCommand(
-                command = command.toList()
-            )
-        )
-            .directory(directory)
-            .start()
+        val process =
+            ProcessBuilder(
+                platformCommand(
+                    command = command.toList(),
+                ),
+            ).directory(directory)
+                .start()
         val output = ByteArrayOutputStream()
         val error = ByteArrayOutputStream()
         process.inputStream.use { input -> input.copyTo(output) }
@@ -274,23 +290,25 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         val exitCode = process.waitFor()
         if (exitCode != 0) {
             throw GradleException(
-                "Command '${command.joinToString(" ")}' failed with exit code $exitCode: ${error.toString().trim()}"
+                "Command '${command.joinToString(" ")}' failed with exit code $exitCode: ${error.toString().trim()}",
             )
         }
         return output.toString().trim()
     }
 
     private fun platformCommand(
-        command: List<String>
+        command: List<String>,
     ): List<String> =
-        if (isWindows() && command.first().endsWith(
-            ".cmd",
-            ignoreCase = true
-        )) {
+        if (isWindows() &&
+            command.first().endsWith(
+                ".cmd",
+                ignoreCase = true,
+            )
+        ) {
             listOf(
                 "cmd.exe",
                 "/d",
-                "/c"
+                "/c",
             ) + command
         } else {
             command
@@ -298,10 +316,11 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
 
     private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
 
-    private fun isWindows(): Boolean = System.getProperty("os.name").startsWith(
-        "Windows",
-        ignoreCase = true
-    )
+    private fun isWindows(): Boolean =
+        System.getProperty("os.name").startsWith(
+            "Windows",
+            ignoreCase = true,
+        )
 
     private companion object {
         const val FIGMA_TOKEN_ENVIRONMENT_VARIABLE = "FIGMA_FILE_CONTENT_ACCESS_TOKEN"

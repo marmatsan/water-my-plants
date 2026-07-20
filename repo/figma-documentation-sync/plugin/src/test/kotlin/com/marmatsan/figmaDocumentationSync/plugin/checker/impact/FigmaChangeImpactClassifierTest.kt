@@ -8,125 +8,144 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.RepositoryChange
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class FigmaChangeImpactClassifierTest : FunSpec(
-    {
-    val classifier = FigmaChangeImpactClassifier()
+internal class FigmaChangeImpactClassifierTest :
+    FunSpec(
+        {
+            val classifier = FigmaChangeImpactClassifier()
 
-    test("documentation changes do not require Gradle or Figma verification") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "docs/documentation.md",
-                "core/ui/docs/README.md"
-            ),
-            policy = policy()
-        )
+            test("documentation changes do not require Gradle or Figma verification") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "docs/documentation.md",
+                                "core/ui/docs/README.md",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.DOCUMENTATION_ONLY
-        result.impact shouldBe FigmaImpact.DOCUMENTATION_ONLY
-        result.affectedVisualTargets shouldBe emptyList()
-    }
+                result.scope shouldBe FigmaVerificationScope.DOCUMENTATION_ONLY
+                result.impact shouldBe FigmaImpact.DOCUMENTATION_ONLY
+                result.affectedVisualTargets shouldBe emptyList()
+            }
 
-    test("transport changes do not request a visual rewrite") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt",
-                "repo/figma-documentation-sync/docs/runbooks/mcp-chunk-transport.md"
-            ),
-            policy = policy()
-        )
+            test("transport changes do not request a visual rewrite") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt",
+                                "repo/figma-documentation-sync/docs/runbooks/mcp-chunk-transport.md",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.TRANSPORT_ONLY
-        result.impact shouldBe FigmaImpact.TRANSPORT_ONLY
-    }
+                result.scope shouldBe FigmaVerificationScope.TRANSPORT_ONLY
+                result.impact shouldBe FigmaImpact.TRANSPORT_ONLY
+            }
 
-    test("model-neutral tooling still requires normal repository verification") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt",
-                "docs/ci/documentation-coverage.md"
-            ),
-            policy = policy()
-        )
+            test("model-neutral tooling still requires normal repository verification") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt",
+                                "docs/ci/documentation-coverage.md",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.MODEL_NEUTRAL
-        result.impact shouldBe FigmaImpact.MODEL_NEUTRAL
-    }
+                result.scope shouldBe FigmaVerificationScope.MODEL_NEUTRAL
+                result.impact shouldBe FigmaImpact.MODEL_NEUTRAL
+            }
 
-    test("a mapped visual writer selects only its configured targets") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "repo/figma-documentation-sync/tools/src/figma/figma-version-sync-gateway.ts",
-                "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md"
-            ),
-            policy = policy()
-        )
+            test("a mapped visual writer selects only its configured targets") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "repo/figma-documentation-sync/tools/src/figma/figma-version-sync-gateway.ts",
+                                "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
-        result.impact shouldBe FigmaImpact.VISUAL_TARGETS
-        result.affectedVisualTargets shouldBe listOf("versions")
-    }
+                result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
+                result.impact shouldBe FigmaImpact.VISUAL_TARGETS
+                result.affectedVisualTargets shouldBe listOf("versions")
+            }
 
-    test("an unmapped visual writer fails closed to all targets") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts"
-            ),
-            policy = policy()
-        )
+            test("an unmapped visual writer fails closed to all targets") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.impact shouldBe FigmaImpact.VISUAL_TARGETS
-        result.affectedVisualTargets shouldBe listOf("all")
-    }
+                result.impact shouldBe FigmaImpact.VISUAL_TARGETS
+                result.affectedVisualTargets shouldBe listOf("all")
+            }
 
-    test("model sources require full model verification") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "app/build.gradle.kts"
-            ),
-            policy = policy()
-        )
+            test("model sources require full model verification") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "app/build.gradle.kts",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
-        result.impact shouldBe FigmaImpact.MODEL_CONTENT
-    }
+                result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
+                result.impact shouldBe FigmaImpact.MODEL_CONTENT
+            }
 
-    test("unknown paths require full verification") {
-        val result = classifier.classify(
-            changeSet = changeSet(
-                "gradle.properties"
-            ),
-            policy = policy()
-        )
+            test("unknown paths require full verification") {
+                val result =
+                    classifier.classify(
+                        changeSet =
+                            changeSet(
+                                "gradle.properties",
+                            ),
+                        policy = policy(),
+                    )
 
-        result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
-        result.impact shouldBe FigmaImpact.UNKNOWN
-    }
-}
-)
+                result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
+                result.impact shouldBe FigmaImpact.UNKNOWN
+            }
+        },
+    )
 
 private fun changeSet(
-    vararg paths: String
+    vararg paths: String,
 ) = RepositoryChangeSet(
     comparisonBase = "base-sha",
-    changedPaths = paths.toList()
+    changedPaths = paths.toList(),
 )
 
-private fun policy() = FigmaChangeImpactPolicy(
-    documentationOnlyPaths = listOf(
-        "docs/*.md",
-        "*/docs/*.md",
-        "*/*/docs/*.md"
-    ),
-    transportOnlyPaths = listOf(
-        "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*"
-    ),
-    modelNeutralPaths = listOf("repo/verification-platform/*"),
-    modelContentPaths = listOf("*/build.gradle.kts"),
-    visualWriterPaths = listOf("repo/figma-documentation-sync/tools/src/*"),
-    visualTargetRules = listOf(
-        FigmaVisualTargetRule(
-            paths = listOf("repo/figma-documentation-sync/tools/src/figma/figma-version-*"),
-            targets = listOf("versions")
-        )
+private fun policy() =
+    FigmaChangeImpactPolicy(
+        documentationOnlyPaths =
+            listOf(
+                "docs/*.md",
+                "*/docs/*.md",
+                "*/*/docs/*.md",
+            ),
+        transportOnlyPaths =
+            listOf(
+                "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*",
+            ),
+        modelNeutralPaths = listOf("repo/verification-platform/*"),
+        modelContentPaths = listOf("*/build.gradle.kts"),
+        visualWriterPaths = listOf("repo/figma-documentation-sync/tools/src/*"),
+        visualTargetRules =
+            listOf(
+                FigmaVisualTargetRule(
+                    paths = listOf("repo/figma-documentation-sync/tools/src/figma/figma-version-*"),
+                    targets = listOf("versions"),
+                ),
+            ),
     )
-)

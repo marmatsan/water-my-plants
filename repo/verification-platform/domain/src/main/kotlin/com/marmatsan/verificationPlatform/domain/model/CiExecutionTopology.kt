@@ -30,5 +30,5 @@ data class CiExecutionTopology(
     val availableAgents: Int,
     val mode: CiTopologyMode,
     val lanes: List<CiExecutionLane>,
-    val authoritativeStatusPublisherLaneId: String
+    val authoritativeStatusPublisherLaneId: String,
 )

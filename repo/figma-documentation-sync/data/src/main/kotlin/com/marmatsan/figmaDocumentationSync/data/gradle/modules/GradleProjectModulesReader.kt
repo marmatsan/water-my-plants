@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.data.gradle.modules
 
-import java.io.File
 import me.tatarka.inject.annotations.Inject
+import java.io.File
 
 /**
  * Reads Gradle module paths from the root build and configured included builds.
@@ -13,57 +13,66 @@ import me.tatarka.inject.annotations.Inject
 class GradleProjectModulesReader {
     fun readModules(
         rootSettingsFile: File,
-        includedBuilds: List<IncludedBuild>
+        includedBuilds: List<IncludedBuild>,
     ): Set<String> {
         val rootModules = rootSettingsFile.readIncludedModules()
-        val includedBuildModules = includedBuilds.flatMap { includedBuild ->
-            includedBuild.readIncludedBuildModules()
-        }
+        val includedBuildModules =
+            includedBuilds.flatMap { includedBuild ->
+                includedBuild.readIncludedBuildModules()
+            }
 
         return (rootModules + includedBuildModules).toSortedSet()
     }
 
     data class IncludedBuild(
         val settingsFile: File,
-        val modulePathPrefix: String
+        val modulePathPrefix: String,
     )
 
     private fun IncludedBuild.readIncludedBuildModules(): Set<String> {
         val includedModules = settingsFile.readIncludedModules()
-        val standaloneRootModule = if (includedModules.isEmpty() && settingsFile.parentFile.resolve(
-            relative = BUILD_FILE_NAME
-        ).isFile) {
-            setOf(STANDALONE_ROOT_MODULE)
-        } else {
-            emptySet()
-        }
+        val standaloneRootModule =
+            if (includedModules.isEmpty() &&
+                settingsFile.parentFile
+                    .resolve(
+                        relative = BUILD_FILE_NAME,
+                    ).isFile
+            ) {
+                setOf(STANDALONE_ROOT_MODULE)
+            } else {
+                emptySet()
+            }
 
-        return (standaloneRootModule + includedModules + includedModules.existingAggregateModules(
-            rootDir = settingsFile.parentFile
-        ))
-            .map { module -> "$modulePathPrefix$module" }
+        return (
+            standaloneRootModule + includedModules +
+                includedModules.existingAggregateModules(
+                    rootDir = settingsFile.parentFile,
+                )
+        ).map { module -> "$modulePathPrefix$module" }
             .toSet()
     }
 
     private fun File.readIncludedModules(): Set<String> =
         stringLiteralRegex
             .findAll(
-                input = readText()
-            )
-            .map { match -> match.groupValues[1] }
-            .filter { value -> value.startsWith(
-                prefix = ":"
-            ) }
-            .toSet()
+                input = readText(),
+            ).map { match -> match.groupValues[1] }
+            .filter { value ->
+                value.startsWith(
+                    prefix = ":",
+                )
+            }.toSet()
 
     private fun Set<String>.existingAggregateModules(
-        rootDir: File
+        rootDir: File,
     ): Set<String> =
         flatMap { module -> module.parentModules() }
-            .filter { module -> rootDir.resolve(
-                relative = module.toRelativePath()
-            ).isDirectory }
-            .toSet()
+            .filter { module ->
+                rootDir
+                    .resolve(
+                        relative = module.toRelativePath(),
+                    ).isDirectory
+            }.toSet()
 
     private fun String.parentModules(): List<String> {
         val segments = split(":").filter(String::isNotBlank)
@@ -76,7 +85,7 @@ class GradleProjectModulesReader {
     private fun String.toRelativePath(): String =
         removePrefix(":").replace(
             ":",
-            File.separator
+            File.separator,
         )
 
     private companion object {

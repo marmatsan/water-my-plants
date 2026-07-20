@@ -7,5 +7,5 @@ data class TeamCityRun(
     val status: String?,
     val statusText: String?,
     val branchName: String?,
-    val webUrl: String?
+    val webUrl: String?,
 )

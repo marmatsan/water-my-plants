@@ -9,7 +9,7 @@ data class CiWindowsRuntime(
     val schemaVersion: Int,
     val validation: Validation,
     val platform: String,
-    val services: List<Service>
+    val services: List<Service>,
 ) {
     init {
         require(schemaVersion > 0) { "CI Windows runtime schemaVersion must be positive" }
@@ -17,9 +17,10 @@ data class CiWindowsRuntime(
         require(platform.isNotBlank()) { "CI Windows runtime platform must not be blank" }
         require(services.isNotEmpty()) { "CI Windows runtime must declare at least one service" }
 
-        val serviceIds = services.map(
-            transform = Service::id
-        )
+        val serviceIds =
+            services.map(
+                transform = Service::id,
+            )
         require(serviceIds.size == serviceIds.toSet().size) {
             "CI Windows runtime service ids must be unique"
         }
@@ -27,7 +28,7 @@ data class CiWindowsRuntime(
 
     data class Validation(
         val lastValidatedOn: LocalDate,
-        val warnAfterDays: Int
+        val warnAfterDays: Int,
     )
 
     data class Service(
@@ -36,7 +37,7 @@ data class CiWindowsRuntime(
         val description: String,
         val service: String,
         val startup: String,
-        val identity: String
+        val identity: String,
     ) {
         init {
             require(id.isNotBlank()) { "CI Windows runtime service id must not be blank" }

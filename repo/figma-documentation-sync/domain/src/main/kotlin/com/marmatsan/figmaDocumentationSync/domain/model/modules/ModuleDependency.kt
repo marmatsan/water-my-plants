@@ -14,21 +14,21 @@ package com.marmatsan.figmaDocumentationSync.domain.model.modules
  */
 data class ModuleDependency(
     val dependentModule: String,
-    val dependencyModule: String
+    val dependencyModule: String,
 ) : Comparable<ModuleDependency> {
     /**
      * Orders dependency edges deterministically for stable JSON output and
      * stable Figma diffs.
      */
     override fun compareTo(
-        other: ModuleDependency
+        other: ModuleDependency,
     ): Int =
         compareBy<ModuleDependency>(
             ModuleDependency::dependentModule,
-            ModuleDependency::dependencyModule
+            ModuleDependency::dependencyModule,
         ).compare(
             this,
-            other
+            other,
         )
 
     /**

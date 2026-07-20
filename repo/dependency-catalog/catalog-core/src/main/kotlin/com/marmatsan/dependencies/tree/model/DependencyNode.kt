@@ -12,7 +12,6 @@ package com.marmatsan.dependencies.tree.model
  * - [Plugin] contributes one segment to a Gradle plugin id path.
  */
 sealed class DependencyNode {
-
     /**
      * Represents one segment in a library group tree.
      *
@@ -25,7 +24,7 @@ sealed class DependencyNode {
      */
     data class Library(
         val libraryGroup: String,
-        val entries: List<LibraryEntry>? = null
+        val entries: List<LibraryEntry>? = null,
     ) : DependencyNode()
 
     /**
@@ -40,6 +39,6 @@ sealed class DependencyNode {
      */
     data class Plugin(
         val pluginId: String,
-        val version: String? = null
+        val version: String? = null,
     ) : DependencyNode()
 }

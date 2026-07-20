@@ -15,7 +15,7 @@ data class Margin(
     val medium: Dp = 16.dp,
     val mediumIncreased: Dp = 24.dp,
     val large: Dp = 32.dp,
-    val extraLarge: Dp = 64.dp
+    val extraLarge: Dp = 64.dp,
 )
 
 val LocalMargin = compositionLocalOf { Margin() }

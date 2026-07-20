@@ -8,5 +8,5 @@ package com.marmatsan.verificationPlatform.domain.model
  */
 data class RepositoryModule(
     val id: String,
-    val directory: String
+    val directory: String,
 )

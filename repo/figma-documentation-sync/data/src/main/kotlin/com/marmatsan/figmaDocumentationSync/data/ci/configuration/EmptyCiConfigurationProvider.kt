@@ -6,10 +6,10 @@ import java.io.File
 /** No-op adapter for portable plugin fixtures that exercise CI model wiring. */
 class EmptyCiConfigurationProvider : CiConfigurationProvider {
     override fun read(
-        directory: File
+        directory: File,
     ): CiConfiguration =
         CiConfiguration(
             pipelines = emptyList(),
-            vcsRoots = emptyList()
+            vcsRoots = emptyList(),
         )
 }

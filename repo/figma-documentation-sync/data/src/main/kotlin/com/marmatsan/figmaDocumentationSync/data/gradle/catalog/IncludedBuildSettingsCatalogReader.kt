@@ -6,8 +6,8 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogN
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
-import java.io.File
 import me.tatarka.inject.annotations.Inject
+import java.io.File
 
 /**
  * Parses catalogs declared inside an included-build `settings.gradle.kts`.
@@ -23,20 +23,21 @@ class IncludedBuildSettingsCatalogReader {
      */
     fun readLibraryTree(
         settingsFile: File,
-        usageByAlias: Map<String, Set<String>> = emptyMap()
+        usageByAlias: Map<String, Set<String>> = emptyMap(),
     ): LibraryCatalogTree {
         val content = settingsFile.readText()
-        val libsBlock = content.extractCreateBlockOrNull(
-            catalogName = "libs"
-        )
-            ?: return LibraryCatalogTree(
-                roots = emptyList()
+        val libsBlock =
+            content.extractCreateBlockOrNull(
+                catalogName = "libs",
             )
+                ?: return LibraryCatalogTree(
+                    roots = emptyList(),
+                )
 
         return libsBlock
             .readLibraryDeclarations()
             .toLibraryCatalogTree(
-                usageByAlias = usageByAlias
+                usageByAlias = usageByAlias,
             )
     }
 
@@ -45,141 +46,146 @@ class IncludedBuildSettingsCatalogReader {
      */
     fun readPluginTree(
         settingsFile: File,
-        usageByAlias: Map<String, Set<String>> = emptyMap()
+        usageByAlias: Map<String, Set<String>> = emptyMap(),
     ): PluginCatalogTree {
         val content = settingsFile.readText()
-        val pluginsBlock = content.extractCreateBlockOrNull(
-            catalogName = "plugins"
-        )
-            ?: return PluginCatalogTree(
-                roots = emptyList()
+        val pluginsBlock =
+            content.extractCreateBlockOrNull(
+                catalogName = "plugins",
             )
+                ?: return PluginCatalogTree(
+                    roots = emptyList(),
+                )
 
         return pluginsBlock
             .readPluginDeclarations()
             .toPluginCatalogTree(
-                usageByAlias = usageByAlias
+                usageByAlias = usageByAlias,
             )
     }
 
     private fun String.readLibraryDeclarations(): List<LibraryDeclaration> =
         libraryDeclarationRegex
             .findAll(
-                input = this
-            )
-            .map { match ->
+                input = this,
+            ).map { match ->
                 LibraryDeclaration(
                     alias = match.groupValues[1],
                     group = match.groupValues[2],
                     artifact = match.groupValues[3],
-                    version = match.groupValues[4].takeIf(String::isNotBlank)
+                    version = match.groupValues[4].takeIf(String::isNotBlank),
                 )
-            }
-            .toList()
+            }.toList()
 
     private fun String.readPluginDeclarations(): List<PluginDeclaration> =
         pluginDeclarationRegex
             .findAll(
-                input = this
-            )
-            .map { match ->
+                input = this,
+            ).map { match ->
                 PluginDeclaration(
                     alias = match.groupValues[1],
                     id = match.groupValues[2],
-                    version = match.groupValues[3]
+                    version = match.groupValues[3],
                 )
-            }
-            .toList()
+            }.toList()
 
     private fun List<LibraryDeclaration>.toLibraryCatalogTree(
-        usageByAlias: Map<String, Set<String>>
+        usageByAlias: Map<String, Set<String>>,
     ): LibraryCatalogTree {
         val roots = mutableMapOf<String, MutableLibraryCatalogNode>()
 
         forEach { declaration ->
             val segments = declaration.group.split(".")
-            val root = roots.getOrPut(segments.first()) {
-                MutableLibraryCatalogNode(
-                    group = segments.first()
-                )
-            }
-            val leaf = segments
-                .drop(1)
-                .fold(root) { node, segment ->
-                    node.children.getOrPut(segment) {
-                        MutableLibraryCatalogNode(
-                            group = segment
-                        )
-                    }
+            val root =
+                roots.getOrPut(segments.first()) {
+                    MutableLibraryCatalogNode(
+                        group = segments.first(),
+                    )
                 }
+            val leaf =
+                segments
+                    .drop(1)
+                    .fold(root) { node, segment ->
+                        node.children.getOrPut(segment) {
+                            MutableLibraryCatalogNode(
+                                group = segment,
+                            )
+                        }
+                    }
 
-            leaf.entries += LibraryCatalogEntry.Artifact(
-                artifact = declaration.artifact,
-                version = CatalogVersion(
-                    value = declaration.version
-                ),
-                requiredByModules = usageByAlias[declaration.alias].orEmpty().sorted()
-            )
+            leaf.entries +=
+                LibraryCatalogEntry.Artifact(
+                    artifact = declaration.artifact,
+                    version =
+                        CatalogVersion(
+                            value = declaration.version,
+                        ),
+                    requiredByModules = usageByAlias[declaration.alias].orEmpty().sorted(),
+                )
         }
 
         return LibraryCatalogTree(
-            roots = roots.values
-                .map(
-                    transform = MutableLibraryCatalogNode::toCatalogNode
-                )
-                .sortedBy(LibraryCatalogNode::group)
+            roots =
+                roots.values
+                    .map(
+                        transform = MutableLibraryCatalogNode::toCatalogNode,
+                    ).sortedBy(LibraryCatalogNode::group),
         )
     }
 
     private fun List<PluginDeclaration>.toPluginCatalogTree(
-        usageByAlias: Map<String, Set<String>>
+        usageByAlias: Map<String, Set<String>>,
     ): PluginCatalogTree {
         val roots = mutableMapOf<String, MutablePluginCatalogNode>()
 
         forEach { declaration ->
             val segments = declaration.id.split(".")
-            val root = roots.getOrPut(segments.first()) {
-                MutablePluginCatalogNode(
-                    id = segments.first()
-                )
-            }
-            val leaf = segments
-                .drop(1)
-                .fold(root) { node, segment ->
-                    node.children.getOrPut(segment) {
-                        MutablePluginCatalogNode(
-                            id = segment
-                        )
-                    }
+            val root =
+                roots.getOrPut(segments.first()) {
+                    MutablePluginCatalogNode(
+                        id = segments.first(),
+                    )
                 }
+            val leaf =
+                segments
+                    .drop(1)
+                    .fold(root) { node, segment ->
+                        node.children.getOrPut(segment) {
+                            MutablePluginCatalogNode(
+                                id = segment,
+                            )
+                        }
+                    }
 
-            leaf.version = CatalogVersion(
-                value = declaration.version
-            )
+            leaf.version =
+                CatalogVersion(
+                    value = declaration.version,
+                )
             leaf.appliedToModules += usageByAlias[declaration.alias].orEmpty()
         }
 
         return PluginCatalogTree(
-            roots = roots.values
-                .map(
-                    transform = MutablePluginCatalogNode::toCatalogNode
-                )
-                .sortedBy(PluginCatalogNode::id)
+            roots =
+                roots.values
+                    .map(
+                        transform = MutablePluginCatalogNode::toCatalogNode,
+                    ).sortedBy(PluginCatalogNode::id),
         )
     }
 
     private fun String.extractCreateBlockOrNull(
-        catalogName: String
+        catalogName: String,
     ): String? {
         val createCall = """create("$catalogName")"""
         val createCallIndex = indexOf(createCall)
 
         if (createCallIndex < 0) return null
 
-        val blockStart = indexOf(
-            '{',
-            startIndex = createCallIndex
-        )
+        val blockStart =
+            indexOf(
+                '{',
+                startIndex = createCallIndex,
+            )
 
         require(blockStart >= 0) {
             "Catalog '$catalogName' has no body in included-build settings.gradle.kts"
@@ -189,13 +195,16 @@ class IncludedBuildSettingsCatalogReader {
 
         for (index in blockStart until length) {
             when (this[index]) {
-                '{' -> depth++
+                '{' -> {
+                    depth++
+                }
+
                 '}' -> {
                     depth--
                     if (depth == 0) {
                         return substring(
                             blockStart + 1,
-                            index
+                            index,
                         )
                     }
                 }
@@ -209,17 +218,17 @@ class IncludedBuildSettingsCatalogReader {
         val alias: String,
         val group: String,
         val artifact: String,
-        val version: String?
+        val version: String?,
     )
 
     private data class PluginDeclaration(
         val alias: String,
         val id: String,
-        val version: String
+        val version: String,
     )
 
     private class MutableLibraryCatalogNode(
-        val group: String
+        val group: String,
     ) {
         val entries: MutableList<LibraryCatalogEntry> = mutableListOf()
         val children: MutableMap<String, MutableLibraryCatalogNode> = mutableMapOf()
@@ -228,16 +237,16 @@ class IncludedBuildSettingsCatalogReader {
             LibraryCatalogNode(
                 group = group,
                 entries = entries,
-                children = children.values
-                    .map(
-                        transform = MutableLibraryCatalogNode::toCatalogNode
-                    )
-                    .sortedBy(LibraryCatalogNode::group)
+                children =
+                    children.values
+                        .map(
+                            transform = MutableLibraryCatalogNode::toCatalogNode,
+                        ).sortedBy(LibraryCatalogNode::group),
             )
     }
 
     private class MutablePluginCatalogNode(
-        val id: String
+        val id: String,
     ) {
         var version: CatalogVersion? = null
         val appliedToModules: MutableSet<String> = mutableSetOf()
@@ -248,23 +257,25 @@ class IncludedBuildSettingsCatalogReader {
                 id = id,
                 version = version,
                 appliedToModules = appliedToModules.sorted(),
-                children = children.values
-                    .map(
-                        transform = MutablePluginCatalogNode::toCatalogNode
-                    )
-                    .sortedBy(PluginCatalogNode::id)
+                children =
+                    children.values
+                        .map(
+                            transform = MutablePluginCatalogNode::toCatalogNode,
+                        ).sortedBy(PluginCatalogNode::id),
             )
     }
 
     private companion object {
-        val libraryDeclarationRegex = Regex(
-            """library\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*group\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"\s*\)\s*\.\s*(?:version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)|withoutVersion\s*\(\s*\))""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val libraryDeclarationRegex =
+            Regex(
+                """library\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*group\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"\s*\)\s*\.\s*(?:version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)|withoutVersion\s*\(\s*\))""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
 
-        val pluginDeclarationRegex = Regex(
-            """plugin\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*id\s*=\s*"([^"]+)"\s*\)\s*\.\s*version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)""",
-            RegexOption.DOT_MATCHES_ALL
-        )
+        val pluginDeclarationRegex =
+            Regex(
+                """plugin\s*\(\s*alias\s*=\s*"([^"]+)"\s*,\s*id\s*=\s*"([^"]+)"\s*\)\s*\.\s*version\s*\(\s*version\s*\(\s*"([^"]+)"\s*\)\s*\)""",
+                RegexOption.DOT_MATCHES_ALL,
+            )
     }
 }

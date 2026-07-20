@@ -24,5 +24,5 @@ data class IncludedBuildSource(
     val rootDirPath: String,
     val modulePathPrefix: String,
     val publishesCatalogs: Boolean = true,
-    val publishesConventionPlugins: Boolean = false
+    val publishesConventionPlugins: Boolean = false,
 )

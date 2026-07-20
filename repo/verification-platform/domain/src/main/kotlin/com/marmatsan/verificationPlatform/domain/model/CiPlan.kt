@@ -38,16 +38,17 @@ data class CiPlan(
     val affectedModules: List<String>,
     val verificationUnits: List<VerificationUnit>,
     val fullVerification: Boolean,
-    val fallbackReason: String?
+    val fallbackReason: String?,
 ) {
     /**
      * Returns the ordered, de-duplicated Gradle entry points for every required
      * verification unit.
      */
-    fun requiredGradleTasks(): List<String> = verificationUnits
-        .asSequence()
-        .filter(VerificationUnit::required)
-        .flatMap { unit -> unit.gradleTasks.asSequence() }
-        .distinct()
-        .toList()
+    fun requiredGradleTasks(): List<String> =
+        verificationUnits
+            .asSequence()
+            .filter(VerificationUnit::required)
+            .flatMap { unit -> unit.gradleTasks.asSequence() }
+            .distinct()
+            .toList()
 }

@@ -8,13 +8,13 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogN
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiExternalTopology
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
-import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiConfiguration
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiExternalTopology
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiPipeline
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiVcsRoot
+import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
 import com.marmatsan.figmaDocumentationSync.domain.model.modules.ModuleDependency
 import com.marmatsan.figmaDocumentationSync.domain.model.versions.RepositoryVersionSection
 import kotlinx.serialization.json.JsonArray
@@ -33,7 +33,7 @@ internal fun Map<String, String>.toVersionsJson(): JsonObject =
         toSortedMap().forEach { (name, version) ->
             put(
                 name,
-                version
+                version,
             )
         }
     }
@@ -47,15 +47,14 @@ internal fun List<RepositoryVersionSection>.toVersionSectionsJson(): JsonArray =
         buildJsonObject {
             put(
                 "name",
-                section.name
+                section.name,
             )
             put(
                 "versions",
-                section.versions.toVersionsJson()
+                section.versions.toVersionsJson(),
             )
         }
-    }
-        .let(::JsonArray)
+    }.let(::JsonArray)
 
 /**
  * Converts a library catalog tree to the array consumed by Figma dependency
@@ -65,32 +64,30 @@ internal fun LibraryCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(LibraryCatalogNode::group))
         .map(
-            transform = LibraryCatalogNode::toDesignJson
-        )
-        .let(::JsonArray)
+            transform = LibraryCatalogNode::toDesignJson,
+        ).let(::JsonArray)
 
 private fun LibraryCatalogNode.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "group",
-            group
+            group,
         )
         put(
             "artifactsVisible",
-            artifactsVisible
+            artifactsVisible,
         )
         put(
             "entries",
-            entries.toEntriesJson()
+            entries.toEntriesJson(),
         )
         put(
             "children",
             children
                 .sortedWith(compareBy(LibraryCatalogNode::group))
                 .map(
-                    transform = LibraryCatalogNode::toDesignJson
-                )
-                .let(::JsonArray)
+                    transform = LibraryCatalogNode::toDesignJson,
+                ).let(::JsonArray),
         )
     }
 
@@ -98,80 +95,84 @@ private fun List<LibraryCatalogEntry>.toEntriesJson(): JsonArray =
     sortedWith(
         compareBy<LibraryCatalogEntry>(
             { entry -> entry.sortKind },
-            { entry -> entry.sortKey }
-        )
-    )
-        .map(
-            transform = LibraryCatalogEntry::toDesignJson
-        )
-        .let(::JsonArray)
+            { entry -> entry.sortKey },
+        ),
+    ).map(
+        transform = LibraryCatalogEntry::toDesignJson,
+    ).let(::JsonArray)
 
 private val LibraryCatalogEntry.sortKind: String
-    get() = when (this) {
-        is LibraryCatalogEntry.Artifact -> "artifact"
-        is LibraryCatalogEntry.ArtifactsBundle -> "bundle"
-    }
+    get() =
+        when (this) {
+            is LibraryCatalogEntry.Artifact -> "artifact"
+            is LibraryCatalogEntry.ArtifactsBundle -> "bundle"
+        }
 
 private val LibraryCatalogEntry.sortKey: String
-    get() = when (this) {
-        is LibraryCatalogEntry.Artifact -> artifact
-        is LibraryCatalogEntry.ArtifactsBundle -> alias
-    }
+    get() =
+        when (this) {
+            is LibraryCatalogEntry.Artifact -> artifact
+            is LibraryCatalogEntry.ArtifactsBundle -> alias
+        }
 
 private fun LibraryCatalogEntry.toDesignJson(): JsonObject =
     when (this) {
-        is LibraryCatalogEntry.Artifact -> buildJsonObject {
-            put(
-                "type",
-                "artifact"
-            )
-            put(
-                "artifact",
-                artifact
-            )
-            put(
-                "version",
-                version.toDesignJson()
-            )
-            put(
-                "requiredByModules",
-                requiredByModules.toSortedJsonArray()
-            )
-            put(
-                "providedByConventionPlugins",
-                providedByConventionPlugins.toDesignJson()
-            )
-            put(
-                "configuredByConventionPlugins",
-                configuredByConventionPlugins.toConfigurationUsageDesignJson()
-            )
+        is LibraryCatalogEntry.Artifact -> {
+            buildJsonObject {
+                put(
+                    "type",
+                    "artifact",
+                )
+                put(
+                    "artifact",
+                    artifact,
+                )
+                put(
+                    "version",
+                    version.toDesignJson(),
+                )
+                put(
+                    "requiredByModules",
+                    requiredByModules.toSortedJsonArray(),
+                )
+                put(
+                    "providedByConventionPlugins",
+                    providedByConventionPlugins.toDesignJson(),
+                )
+                put(
+                    "configuredByConventionPlugins",
+                    configuredByConventionPlugins.toConfigurationUsageDesignJson(),
+                )
+            }
         }
 
-        is LibraryCatalogEntry.ArtifactsBundle -> buildJsonObject {
-            put(
-                "type",
-                "bundle"
-            )
-            put(
-                "alias",
-                alias
-            )
-            put(
-                "artifacts",
-                artifacts.sorted().toJsonArray()
-            )
-            put(
-                "version",
-                version.toDesignJson()
-            )
-            put(
-                "requiredByModules",
-                requiredByModules.toSortedJsonArray()
-            )
-            put(
-                "providedByConventionPlugins",
-                providedByConventionPlugins.toDesignJson()
-            )
+        is LibraryCatalogEntry.ArtifactsBundle -> {
+            buildJsonObject {
+                put(
+                    "type",
+                    "bundle",
+                )
+                put(
+                    "alias",
+                    alias,
+                )
+                put(
+                    "artifacts",
+                    artifacts.sorted().toJsonArray(),
+                )
+                put(
+                    "version",
+                    version.toDesignJson(),
+                )
+                put(
+                    "requiredByModules",
+                    requiredByModules.toSortedJsonArray(),
+                )
+                put(
+                    "providedByConventionPlugins",
+                    providedByConventionPlugins.toDesignJson(),
+                )
+            }
         }
     }
 
@@ -179,52 +180,48 @@ private fun List<ConventionPluginUsage>.toDesignJson(): JsonArray =
     sortedWith(
         compareBy<ConventionPluginUsage>(
             { usage -> usage.pluginId },
-            { usage -> usage.pluginModule }
-        )
-    )
-        .map { usage ->
-            buildJsonObject {
-                put(
-                    "pluginId",
-                    usage.pluginId
-                )
-                put(
-                    "pluginModule",
-                    usage.pluginModule
-                )
-                put(
-                    "requiredByModules",
-                    usage.requiredByModules.toSortedJsonArray()
-                )
-            }
+            { usage -> usage.pluginModule },
+        ),
+    ).map { usage ->
+        buildJsonObject {
+            put(
+                "pluginId",
+                usage.pluginId,
+            )
+            put(
+                "pluginModule",
+                usage.pluginModule,
+            )
+            put(
+                "requiredByModules",
+                usage.requiredByModules.toSortedJsonArray(),
+            )
         }
-        .let(::JsonArray)
+    }.let(::JsonArray)
 
 private fun List<ConventionPluginConfigurationUsage>.toConfigurationUsageDesignJson(): JsonArray =
     sortedWith(
         compareBy<ConventionPluginConfigurationUsage>(
             { usage -> usage.pluginId },
             { usage -> usage.pluginModule },
-            { usage -> usage.target }
-        )
-    )
-        .map { usage ->
-            buildJsonObject {
-                put(
-                    "pluginId",
-                    usage.pluginId
-                )
-                put(
-                    "pluginModule",
-                    usage.pluginModule
-                )
-                put(
-                    "target",
-                    usage.target
-                )
-            }
+            { usage -> usage.target },
+        ),
+    ).map { usage ->
+        buildJsonObject {
+            put(
+                "pluginId",
+                usage.pluginId,
+            )
+            put(
+                "pluginModule",
+                usage.pluginModule,
+            )
+            put(
+                "target",
+                usage.target,
+            )
         }
-        .let(::JsonArray)
+    }.let(::JsonArray)
 
 /**
  * Converts a plugin catalog tree to the array consumed by Figma plugin tree
@@ -234,36 +231,34 @@ internal fun PluginCatalogTree.toDesignJson(): JsonArray =
     roots
         .sortedWith(compareBy(PluginCatalogNode::id))
         .map(
-            transform = PluginCatalogNode::toDesignJson
-        )
-        .let(::JsonArray)
+            transform = PluginCatalogNode::toDesignJson,
+        ).let(::JsonArray)
 
 private fun PluginCatalogNode.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "id",
-            id
+            id,
         )
         put(
             "version",
-            version?.toDesignJson() ?: JsonNull
+            version?.toDesignJson() ?: JsonNull,
         )
         put(
             "appliedToModules",
-            appliedToModules.toSortedJsonArray()
+            appliedToModules.toSortedJsonArray(),
         )
         put(
             "providedByConventionPlugins",
-            providedByConventionPlugins.toPluginConventionUsageDesignJson()
+            providedByConventionPlugins.toPluginConventionUsageDesignJson(),
         )
         put(
             "children",
             children
                 .sortedWith(compareBy(PluginCatalogNode::id))
                 .map(
-                    transform = PluginCatalogNode::toDesignJson
-                )
-                .let(::JsonArray)
+                    transform = PluginCatalogNode::toDesignJson,
+                ).let(::JsonArray),
         )
     }
 
@@ -271,36 +266,34 @@ private fun List<PluginCatalogNode.ConventionPluginUsage>.toPluginConventionUsag
     sortedWith(
         compareBy<PluginCatalogNode.ConventionPluginUsage>(
             { usage -> usage.pluginId },
-            { usage -> usage.pluginModule }
-        )
-    )
-        .map { usage ->
-            buildJsonObject {
-                put(
-                    "pluginId",
-                    usage.pluginId
-                )
-                put(
-                    "pluginModule",
-                    usage.pluginModule
-                )
-                put(
-                    "requiredByModules",
-                    usage.requiredByModules.toSortedJsonArray()
-                )
-            }
+            { usage -> usage.pluginModule },
+        ),
+    ).map { usage ->
+        buildJsonObject {
+            put(
+                "pluginId",
+                usage.pluginId,
+            )
+            put(
+                "pluginModule",
+                usage.pluginModule,
+            )
+            put(
+                "requiredByModules",
+                usage.requiredByModules.toSortedJsonArray(),
+            )
         }
-        .let(::JsonArray)
+    }.let(::JsonArray)
 
 private fun CatalogVersion.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "value",
-            value?.let(::JsonPrimitive) ?: JsonNull
+            value?.let(::JsonPrimitive) ?: JsonNull,
         )
         put(
             "visible",
-            visible
+            visible,
         )
     }
 
@@ -312,7 +305,7 @@ internal fun Collection<String>.toSortedJsonArray(): JsonArray =
 
 private fun Collection<String>.toJsonArray(): JsonArray =
     map(
-        transform = ::JsonPrimitive
+        transform = ::JsonPrimitive,
     ).let(::JsonArray)
 
 /**
@@ -324,15 +317,14 @@ internal fun Collection<ModuleDependency>.toModuleDependenciesJson(): JsonArray 
             buildJsonObject {
                 put(
                     "dependentModule",
-                    dependency.dependentModule
+                    dependency.dependentModule,
                 )
                 put(
                     "dependencyModule",
-                    dependency.dependencyModule
+                    dependency.dependencyModule,
                 )
             }
-        }
-        .let(::JsonArray)
+        }.let(::JsonArray)
 
 /**
  * Converts the versioned external CI topology to its stable model shape.
@@ -341,20 +333,20 @@ internal fun CiExternalTopology.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "schemaVersion",
-            schemaVersion
+            schemaVersion,
         )
         put(
             "validation",
             buildJsonObject {
                 put(
                     "lastValidatedOn",
-                    validation.lastValidatedOn.toString()
+                    validation.lastValidatedOn.toString(),
                 )
                 put(
                     "warnAfterDays",
-                    validation.warnAfterDays
+                    validation.warnAfterDays,
                 )
-            }
+            },
         )
         put(
             "nodes",
@@ -364,23 +356,22 @@ internal fun CiExternalTopology.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "id",
-                            node.id
+                            node.id,
                         )
                         put(
                             "type",
-                            node.type.serializedName
+                            node.type.serializedName,
                         )
                         put(
                             "name",
-                            node.name
+                            node.name,
                         )
                         put(
                             "description",
-                            node.description
+                            node.description,
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
         put(
             "connections",
@@ -390,51 +381,50 @@ internal fun CiExternalTopology.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "id",
-                            connection.id
+                            connection.id,
                         )
                         put(
                             "source",
-                            connection.sourceNodeId
+                            connection.sourceNodeId,
                         )
                         put(
                             "target",
-                            connection.targetNodeId
+                            connection.targetNodeId,
                         )
                         put(
                             "label",
-                            connection.label
+                            connection.label,
                         )
                         put(
                             "description",
-                            connection.description
+                            connection.description,
                         )
                         put(
                             "protocol",
-                            connection.protocol.toJsonPrimitiveOrNull()
+                            connection.protocol.toJsonPrimitiveOrNull(),
                         )
                         put(
                             "authentication",
-                            connection.authentication.toSortedJsonArray()
+                            connection.authentication.toSortedJsonArray(),
                         )
                         put(
                             "policy",
-                            connection.policy.toJsonPrimitiveOrNull()
+                            connection.policy.toJsonPrimitiveOrNull(),
                         )
                         put(
                             "path",
-                            connection.path.toJsonPrimitiveOrNull()
+                            connection.path.toJsonPrimitiveOrNull(),
                         )
                         put(
                             "automation",
-                            connection.automation.serializedName
+                            connection.automation.serializedName,
                         )
                         put(
                             "annotation",
-                            connection.annotation.toJsonPrimitiveOrNull()
+                            connection.annotation.toJsonPrimitiveOrNull(),
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
     }
 
@@ -445,24 +435,24 @@ internal fun CiWindowsRuntime.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "schemaVersion",
-            schemaVersion
+            schemaVersion,
         )
         put(
             "validation",
             buildJsonObject {
                 put(
                     "lastValidatedOn",
-                    validation.lastValidatedOn.toString()
+                    validation.lastValidatedOn.toString(),
                 )
                 put(
                     "warnAfterDays",
-                    validation.warnAfterDays
+                    validation.warnAfterDays,
                 )
-            }
+            },
         )
         put(
             "platform",
-            platform
+            platform,
         )
         put(
             "services",
@@ -472,31 +462,30 @@ internal fun CiWindowsRuntime.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "id",
-                            service.id
+                            service.id,
                         )
                         put(
                             "name",
-                            service.name
+                            service.name,
                         )
                         put(
                             "description",
-                            service.description
+                            service.description,
                         )
                         put(
                             "service",
-                            service.service
+                            service.service,
                         )
                         put(
                             "startup",
-                            service.startup
+                            service.startup,
                         )
                         put(
                             "identity",
-                            service.identity
+                            service.identity,
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
     }
 
@@ -510,9 +499,8 @@ internal fun CiConfiguration.toDesignJson(): JsonObject =
             pipelines
                 .sortedBy(CiPipeline::id)
                 .map(
-                    transform = CiPipeline::toDesignJson
-                )
-                .let(::JsonArray)
+                    transform = CiPipeline::toDesignJson,
+                ).let(::JsonArray),
         )
         put(
             "vcsRoots",
@@ -522,27 +510,26 @@ internal fun CiConfiguration.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "id",
-                            vcsRoot.id
+                            vcsRoot.id,
                         )
                         put(
                             "name",
-                            vcsRoot.name
+                            vcsRoot.name,
                         )
                         put(
                             "url",
-                            vcsRoot.url
+                            vcsRoot.url,
                         )
                         put(
                             "defaultBranchRef",
-                            vcsRoot.defaultBranchRef
+                            vcsRoot.defaultBranchRef,
                         )
                         put(
                             "branchSpec",
-                            vcsRoot.branchSpec.toJsonArray()
+                            vcsRoot.branchSpec.toJsonArray(),
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
     }
 
@@ -550,11 +537,11 @@ private fun CiPipeline.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "id",
-            id
+            id,
         )
         put(
             "name",
-            name
+            name,
         )
         put(
             "triggers",
@@ -563,32 +550,30 @@ private fun CiPipeline.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "type",
-                            trigger.type.serializedName
+                            trigger.type.serializedName,
                         )
                         put(
                             "branchFilter",
-                            trigger.branchFilter.toJsonPrimitiveOrNull()
+                            trigger.branchFilter.toJsonPrimitiveOrNull(),
                         )
                         put(
                             "dependencyPipelineId",
-                            trigger.dependencyPipelineId.toJsonPrimitiveOrNull()
+                            trigger.dependencyPipelineId.toJsonPrimitiveOrNull(),
                         )
                         put(
                             "afterSuccessfulBuildOnly",
-                            trigger.afterSuccessfulBuildOnly?.let(::JsonPrimitive) ?: JsonNull
+                            trigger.afterSuccessfulBuildOnly?.let(::JsonPrimitive) ?: JsonNull,
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
         put(
             "jobs",
             jobs
                 .sortedBy(CiJob::id)
                 .map(
-                    transform = CiJob::toDesignJson
-                )
-                .let(::JsonArray)
+                    transform = CiJob::toDesignJson,
+                ).let(::JsonArray),
         )
     }
 
@@ -596,34 +581,35 @@ private fun CiJob.toDesignJson(): JsonObject =
     buildJsonObject {
         put(
             "id",
-            id
+            id,
         )
         put(
             "name",
-            name
+            name,
         )
         put(
             "steps",
-            steps.map { step ->
-                buildJsonObject {
-                    put(
-                        "id",
-                        step.id
-                    )
-                    put(
-                        "name",
-                        step.name
-                    )
-                    put(
-                        "command",
-                        step.command
-                    )
-                }
-            }.let(::JsonArray)
+            steps
+                .map { step ->
+                    buildJsonObject {
+                        put(
+                            "id",
+                            step.id,
+                        )
+                        put(
+                            "name",
+                            step.name,
+                        )
+                        put(
+                            "command",
+                            step.command,
+                        )
+                    }
+                }.let(::JsonArray),
         )
         put(
             "repositoryIds",
-            repositoryIds.toSortedJsonArray()
+            repositoryIds.toSortedJsonArray(),
         )
         put(
             "artifacts",
@@ -633,19 +619,18 @@ private fun CiJob.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "path",
-                            artifact.path
+                            artifact.path,
                         )
                         put(
                             "publish",
-                            artifact.publish
+                            artifact.publish,
                         )
                         put(
                             "shareWithJobs",
-                            artifact.shareWithJobs
+                            artifact.shareWithJobs,
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
         put(
             "dependencies",
@@ -655,25 +640,27 @@ private fun CiJob.toDesignJson(): JsonObject =
                     buildJsonObject {
                         put(
                             "jobId",
-                            dependency.jobId
+                            dependency.jobId,
                         )
                         put(
                             "artifactPaths",
-                            dependency.artifactPaths.toSortedJsonArray()
+                            dependency.artifactPaths.toSortedJsonArray(),
                         )
                     }
-                }
-                .let(::JsonArray)
+                }.let(::JsonArray),
         )
         put(
             "publishedChecks",
             publishedChecks
                 .sortedBy(CiJob.PublishedCheck::name)
-                .map { check -> buildJsonObject { put(
-                    "name",
-                    check.name
-                ) } }
-                .let(::JsonArray)
+                .map { check ->
+                    buildJsonObject {
+                        put(
+                            "name",
+                            check.name,
+                        )
+                    }
+                }.let(::JsonArray),
         )
     }
 

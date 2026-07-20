@@ -6,5 +6,5 @@ data class CiVcsRoot(
     val name: String,
     val url: String,
     val defaultBranchRef: String,
-    val branchSpec: List<String>
+    val branchSpec: List<String>,
 )

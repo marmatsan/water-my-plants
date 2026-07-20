@@ -13,7 +13,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Validates the current branch against the repository Git workflow. */
 @DisableCachingByDefault(
-    because = "Git branch validation depends on checkout state"
+    because = "Git branch validation depends on checkout state",
 )
 abstract class CheckGitWorkflowTask : DefaultTask() {
     /** Repository checkout whose branch is validated. */
@@ -28,10 +28,11 @@ abstract class CheckGitWorkflowTask : DefaultTask() {
     /** Resolves and validates the current branch name. */
     @TaskAction
     fun checkGitWorkflow() {
-        val branch = GitCurrentBranchSource().read(
-            repositoryRoot = repositoryRoot.get().asFile,
-            branchOverride = branchOverride.orNull
-        )
+        val branch =
+            GitCurrentBranchSource().read(
+                repositoryRoot = repositoryRoot.get().asFile,
+                branchOverride = branchOverride.orNull,
+            )
         val validation = GitBranchNameValidator().validate(branch)
         check(validation.valid) { validation.message ?: "Git workflow validation failed." }
 
@@ -39,7 +40,7 @@ abstract class CheckGitWorkflowTask : DefaultTask() {
         logger.lifecycle(
             "Git workflow validation passed for {} '{}'.",
             source,
-            validation.branch
+            validation.branch,
         )
     }
 }

@@ -10,77 +10,87 @@ import me.tatarka.inject.annotations.Inject
  */
 @Inject
 internal class VersionNamingChecker(
-    private val repositoryVersionsPort: RepositoryVersionsPort
+    private val repositoryVersionsPort: RepositoryVersionsPort,
 ) {
     fun check(
-        request: VersionNamingCheckRequest
+        request: VersionNamingCheckRequest,
     ): VersionNamingCheckResult {
-        val sections = repositoryVersionsPort.readVersionSections(
-            source = VersionsFileSource(
-                path = request.versionsFile.absolutePath
+        val sections =
+            repositoryVersionsPort.readVersionSections(
+                source =
+                    VersionsFileSource(
+                        path = request.versionsFile.absolutePath,
+                    ),
             )
-        )
         val violations = mutableListOf<VersionNamingViolation>()
 
-        violations += checkSectionOrder(
-            sections = sections
-        )
-        violations += checkMainProjectDependencies(
-            sections = sections
-        )
-        violations += checkSuffixes(
-            sections = sections,
-            sectionName = LIBRARIES_SECTION,
-            suffix = LIBRARY_VERSION_SUFFIX
-        )
-        violations += checkSuffixes(
-            sections = sections,
-            sectionName = PLUGINS_SECTION,
-            suffix = PLUGIN_VERSION_SUFFIX
-        )
+        violations +=
+            checkSectionOrder(
+                sections = sections,
+            )
+        violations +=
+            checkMainProjectDependencies(
+                sections = sections,
+            )
+        violations +=
+            checkSuffixes(
+                sections = sections,
+                sectionName = LIBRARIES_SECTION,
+                suffix = LIBRARY_VERSION_SUFFIX,
+            )
+        violations +=
+            checkSuffixes(
+                sections = sections,
+                sectionName = PLUGINS_SECTION,
+                suffix = PLUGIN_VERSION_SUFFIX,
+            )
 
         return VersionNamingCheckResult(
-            violations = violations
+            violations = violations,
         )
     }
 
     private fun checkSectionOrder(
-        sections: List<RepositoryVersionSection>
+        sections: List<RepositoryVersionSection>,
     ): List<VersionNamingViolation> {
-        val actualSectionNames = sections.map(
-            transform = RepositoryVersionSection::name
-        )
+        val actualSectionNames =
+            sections.map(
+                transform = RepositoryVersionSection::name,
+            )
         return if (actualSectionNames == EXPECTED_SECTION_NAMES) {
             emptyList()
         } else {
             listOf(
                 VersionNamingViolation(
-                    message = "Expected version sections in order: ${EXPECTED_SECTION_NAMES.joinToString()}. " +
-                        "Found: ${actualSectionNames.joinToString()}."
-                )
+                    message =
+                        "Expected version sections in order: ${EXPECTED_SECTION_NAMES.joinToString()}. " +
+                            "Found: ${actualSectionNames.joinToString()}.",
+                ),
             )
         }
     }
 
     private fun checkMainProjectDependencies(
-        sections: List<RepositoryVersionSection>
+        sections: List<RepositoryVersionSection>,
     ): List<VersionNamingViolation> {
-        val keys = sections
-            .firstOrNull { section -> section.name == MAIN_PROJECT_DEPENDENCIES_SECTION }
-            ?.versions
-            ?.keys
-            .orEmpty()
-            .toSet()
+        val keys =
+            sections
+                .firstOrNull { section -> section.name == MAIN_PROJECT_DEPENDENCIES_SECTION }
+                ?.versions
+                ?.keys
+                .orEmpty()
+                .toSet()
 
         return if (keys == MAIN_PROJECT_DEPENDENCIES_KEYS.toSet()) {
             emptyList()
         } else {
             listOf(
                 VersionNamingViolation(
-                    message = "$MAIN_PROJECT_DEPENDENCIES_SECTION must declare only " +
-                        "${MAIN_PROJECT_DEPENDENCIES_KEYS.joinToString()}." +
-                        " Found: ${keys.sorted().joinToString()}."
-                )
+                    message =
+                        "$MAIN_PROJECT_DEPENDENCIES_SECTION must declare only " +
+                            "${MAIN_PROJECT_DEPENDENCIES_KEYS.joinToString()}." +
+                            " Found: ${keys.sorted().joinToString()}.",
+                ),
             )
         }
     }
@@ -88,7 +98,7 @@ internal class VersionNamingChecker(
     private fun checkSuffixes(
         sections: List<RepositoryVersionSection>,
         sectionName: String,
-        suffix: String
+        suffix: String,
     ): List<VersionNamingViolation> =
         sections
             .firstOrNull { section -> section.name == sectionName }
@@ -98,7 +108,7 @@ internal class VersionNamingChecker(
             .filterNot { key -> key.endsWith(suffix) }
             .map { key ->
                 VersionNamingViolation(
-                    message = "$sectionName version key '$key' must end with '$suffix'."
+                    message = "$sectionName version key '$key' must end with '$suffix'.",
                 )
             }
 
@@ -109,14 +119,16 @@ internal class VersionNamingChecker(
         const val LIBRARY_VERSION_SUFFIX = "LibraryVersion"
         const val PLUGIN_VERSION_SUFFIX = "PluginVersion"
 
-        val EXPECTED_SECTION_NAMES = listOf(
-            MAIN_PROJECT_DEPENDENCIES_SECTION,
-            LIBRARIES_SECTION,
-            PLUGINS_SECTION
-        )
-        val MAIN_PROJECT_DEPENDENCIES_KEYS = listOf(
-            "androidGradlePluginVersion",
-            "kotlinVersion"
-        )
+        val EXPECTED_SECTION_NAMES =
+            listOf(
+                MAIN_PROJECT_DEPENDENCIES_SECTION,
+                LIBRARIES_SECTION,
+                PLUGINS_SECTION,
+            )
+        val MAIN_PROJECT_DEPENDENCIES_KEYS =
+            listOf(
+                "androidGradlePluginVersion",
+                "kotlinVersion",
+            )
     }
 }

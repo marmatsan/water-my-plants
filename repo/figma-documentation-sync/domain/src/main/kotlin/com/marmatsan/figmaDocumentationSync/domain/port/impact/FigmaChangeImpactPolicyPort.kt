@@ -5,6 +5,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaChangeImpac
 /** Loads the versioned Figma change-impact policy from an external source. */
 fun interface FigmaChangeImpactPolicyPort {
     fun read(
-        sourcePath: String
+        sourcePath: String,
     ): FigmaChangeImpactPolicy
 }

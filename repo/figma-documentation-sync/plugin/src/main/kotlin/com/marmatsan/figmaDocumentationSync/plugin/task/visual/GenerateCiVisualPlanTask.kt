@@ -35,17 +35,19 @@ abstract class GenerateCiVisualPlanTask : DefaultTask() {
 
     @TaskAction
     fun generate() {
-        val runtimeConfig = FigmaWriterRuntimeConfigJson.read(
-            writerProjectConfigFile.get().asFile.absolutePath
-        )
-        val visualConfig = runtimeConfig.ciVisualPlanConfig
-            ?: throw GradleException("The writer project config does not declare CI visual targets.")
+        val runtimeConfig =
+            FigmaWriterRuntimeConfigJson.read(
+                writerProjectConfigFile.get().asFile.absolutePath,
+            )
+        val visualConfig =
+            runtimeConfig.ciVisualPlanConfig
+                ?: throw GradleException("The writer project config does not declare CI visual targets.")
         val destination = outputFile.get().asFile
         CiVisualPlanJson.write(
             designModelPath = designModelFile.get().asFile.absolutePath,
             config = visualConfig,
             target = target.orNull,
-            outputPath = destination.absolutePath
+            outputPath = destination.absolutePath,
         )
         logger.lifecycle("Wrote Kotlin CI visual plan to ${destination.path}")
     }

@@ -11,30 +11,33 @@ import java.time.LocalDate
  */
 @Inject
 internal class CiWindowsRuntimeFreshnessChecker(
-    private val ciWindowsRuntimePort: CiWindowsRuntimePort
+    private val ciWindowsRuntimePort: CiWindowsRuntimePort,
 ) {
     fun check(
         runtimeFile: File,
-        currentDate: LocalDate
+        currentDate: LocalDate,
     ): Result {
-        val runtime = ciWindowsRuntimePort.readRuntime(
-            source = CiWindowsRuntimeSource(
-                filePath = runtimeFile.absolutePath
+        val runtime =
+            ciWindowsRuntimePort.readRuntime(
+                source =
+                    CiWindowsRuntimeSource(
+                        filePath = runtimeFile.absolutePath,
+                    ),
             )
-        )
-        val warningDate = runtime.validation.lastValidatedOn
-            .plusDays(runtime.validation.warnAfterDays.toLong())
+        val warningDate =
+            runtime.validation.lastValidatedOn
+                .plusDays(runtime.validation.warnAfterDays.toLong())
 
         return Result(
             lastValidatedOn = runtime.validation.lastValidatedOn,
             warningDate = warningDate,
-            warningRequired = currentDate.isAfter(warningDate)
+            warningRequired = currentDate.isAfter(warningDate),
         )
     }
 
     data class Result(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,
-        val warningRequired: Boolean
+        val warningRequired: Boolean,
     )
 }

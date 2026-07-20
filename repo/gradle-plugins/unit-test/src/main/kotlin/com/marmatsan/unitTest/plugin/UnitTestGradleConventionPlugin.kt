@@ -12,9 +12,8 @@ import org.gradle.kotlin.dsl.withType
 @Suppress("unused")
 class UnitTestGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
-
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
@@ -24,27 +23,28 @@ class UnitTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            val libs = withVersionCatalog(
-                libs = libs
-            )
+            val libs =
+                withVersionCatalog(
+                    libs = libs,
+                )
 
             // Kotest
             libs.testImplementation(
                 libraryGroup = "io.kotest",
-                artifact = "kotest-runner-junit5"
+                artifact = "kotest-runner-junit5",
             )
             libs.testImplementation(
                 libraryGroup = "io.kotest",
-                artifact = "kotest-assertions-core"
+                artifact = "kotest-assertions-core",
             )
             libs.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",
-                artifact = "junit-platform-launcher"
+                artifact = "junit-platform-launcher",
             )
             // Mockk
             libs.testImplementation(
                 libraryGroup = "io.mockk",
-                artifact = "mockk"
+                artifact = "mockk",
             )
         }
     }

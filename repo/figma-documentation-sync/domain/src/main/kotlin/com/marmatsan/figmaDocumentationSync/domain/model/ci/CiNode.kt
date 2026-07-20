@@ -7,10 +7,10 @@ data class CiNode(
     val id: String,
     val type: Type,
     val name: String,
-    val description: String
+    val description: String,
 ) {
     enum class Type(
-        val serializedName: String
+        val serializedName: String,
     ) {
         Actor("actor"),
         System("system"),
@@ -19,6 +19,6 @@ data class CiNode(
         Job("job"),
         Artifact("artifact"),
         Check("check"),
-        Gate("gate")
+        Gate("gate"),
     }
 }

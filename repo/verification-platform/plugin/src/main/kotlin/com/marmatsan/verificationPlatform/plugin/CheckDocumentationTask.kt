@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Validates repository documentation and committed change coverage in Kotlin. */
 @DisableCachingByDefault(
-    because = "Documentation coverage depends on the committed Git change set"
+    because = "Documentation coverage depends on the committed Git change set",
 )
 abstract class CheckDocumentationTask : DefaultTask() {
     /** Repository checkout containing Markdown and canonical source files. */
@@ -40,27 +40,29 @@ abstract class CheckDocumentationTask : DefaultTask() {
         val root = repositoryRoot.get().asFile
         val plan = CiPlanJson().read(planFile.get().asFile.readText())
         val rules = DocumentationCoverageJson().read(coverageManifest.get().asFile.readText())
-        val result = DocumentationValidator().validate(
-            snapshot = FileSystemDocumentationSource().read(root),
-            coverageRules = rules,
-            changedPaths = plan.changedFiles
-        )
+        val result =
+            DocumentationValidator().validate(
+                snapshot = FileSystemDocumentationSource().read(root),
+                coverageRules = rules,
+                changedPaths = plan.changedFiles,
+            )
 
         result.warnings.forEach(logger::warn)
         if (result.errors.isNotEmpty()) {
             throw GradleException("Documentation validation failed:\n${result.errors.joinToString("\n")}")
         }
         if (result.coverageViolations.isNotEmpty()) {
-            val details = result.coverageViolations.joinToString("\n") { violation ->
-                "[${violation.rule}] changed: ${violation.changedSources.joinToString()}; " +
-                    "update one of: ${violation.requiredDocumentation.joinToString()}"
-            }
+            val details =
+                result.coverageViolations.joinToString("\n") { violation ->
+                    "[${violation.rule}] changed: ${violation.changedSources.joinToString()}; " +
+                        "update one of: ${violation.requiredDocumentation.joinToString()}"
+                }
             throw GradleException("Documentation coverage is incomplete.\n$details")
         }
 
         logger.lifecycle(
             "Documentation validation passed for {} typed documents.",
-            result.validatedDocuments.size
+            result.validatedDocuments.size,
         )
     }
 }

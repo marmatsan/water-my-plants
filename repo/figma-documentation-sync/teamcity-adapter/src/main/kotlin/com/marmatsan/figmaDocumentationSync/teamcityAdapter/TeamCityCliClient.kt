@@ -1,12 +1,12 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
-import java.io.ByteArrayOutputStream
-import java.io.File
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 /** TeamCity CLI adapter used by local Kotlin operational tasks. */
 class TeamCityCliClient(
@@ -17,21 +17,24 @@ class TeamCityCliClient(
             executeProcess(
                 arguments = arguments,
                 environment = commandEnvironment,
-                workingDirectory = workingDirectory
+                workingDirectory = workingDirectory,
             )
-        }
-) : TeamCityBuildArtifactClient, TeamCityRunClient {
+        },
+) : TeamCityBuildArtifactClient,
+    TeamCityRunClient {
     override fun readBuild(
-        buildId: Long
+        buildId: Long,
     ): TeamCityBuild {
-        val root = executeJson(
-            "run",
-            "view",
-            buildId.toString(),
-            "--json"
-        )
-        val buildType = root["buildType"]?.jsonObject
-            ?: throw IllegalArgumentException("TeamCity build JSON is missing 'buildType'.")
+        val root =
+            executeJson(
+                "run",
+                "view",
+                buildId.toString(),
+                "--json",
+            )
+        val buildType =
+            root["buildType"]?.jsonObject
+                ?: throw IllegalArgumentException("TeamCity build JSON is missing 'buildType'.")
 
         return TeamCityBuild(
             id = root.requiredString("id").toLong(),
@@ -39,7 +42,7 @@ class TeamCityCliClient(
             status = root.requiredString("status"),
             branchName = root.requiredString("branchName"),
             buildTypeName = buildType.requiredString("name"),
-            webUrl = root["webUrl"]?.jsonPrimitive?.content
+            webUrl = root["webUrl"]?.jsonPrimitive?.content,
         )
     }
 
@@ -47,28 +50,29 @@ class TeamCityCliClient(
         buildTypeId: String,
         branch: String,
         status: String,
-        limit: Int
+        limit: Int,
     ): List<TeamCityRun> {
         require(limit > 0) { "TeamCity run list limit must be positive." }
-        val root = executeJson(
-            "run",
-            "list",
-            "--job",
-            buildTypeId,
-            "--branch",
-            branch,
-            "--status",
-            status,
-            "--limit",
-            limit.toString(),
-            "--json"
-        )
+        val root =
+            executeJson(
+                "run",
+                "list",
+                "--job",
+                buildTypeId,
+                "--branch",
+                branch,
+                "--status",
+                status,
+                "--limit",
+                limit.toString(),
+                "--json",
+            )
         return root["build"]?.jsonArray.orEmpty().map { it.jsonObject.toTeamCityRun() }
     }
 
     override fun startRun(
         buildTypeId: String,
-        branch: String
+        branch: String,
     ): TeamCityRun =
         executeJson(
             "run",
@@ -76,14 +80,13 @@ class TeamCityCliClient(
             buildTypeId,
             "--branch",
             branch,
-            "--json"
-        )
-            .toTeamCityRun()
+            "--json",
+        ).toTeamCityRun()
 
     override fun watchRun(
         buildId: Long,
         pollIntervalSeconds: Int,
-        timeoutMinutes: Int
+        timeoutMinutes: Int,
     ): TeamCityRun {
         require(pollIntervalSeconds in 1..300) {
             "TeamCity polling interval must be between 1 and 300 seconds."
@@ -99,23 +102,23 @@ class TeamCityCliClient(
             pollIntervalSeconds.toString(),
             "--timeout",
             "${timeoutMinutes}m",
-            "--json"
+            "--json",
         ).toTeamCityRun()
     }
 
     override fun readRun(
-        buildId: Long
+        buildId: Long,
     ): TeamCityRun =
         executeJson(
             "run",
             "view",
             buildId.toString(),
-            "--json"
+            "--json",
         ).toTeamCityRun()
 
     override fun downloadArtifacts(
         buildId: Long,
-        outputDirectory: File
+        outputDirectory: File,
     ) {
         outputDirectory.mkdirs()
         executeTeamCity(
@@ -123,22 +126,24 @@ class TeamCityCliClient(
             "download",
             buildId.toString(),
             "--output",
-            outputDirectory.absolutePath
+            outputDirectory.absolutePath,
         )
     }
 
     private fun executeTeamCity(
-        vararg arguments: String
+        vararg arguments: String,
     ): CommandResult {
-        val command = listOf(
-            "teamcity",
-            "--no-color",
-            "--no-input"
-        ) + arguments
-        val result = execute(
-            command,
-            environment
-        )
+        val command =
+            listOf(
+                "teamcity",
+                "--no-color",
+                "--no-input",
+            ) + arguments
+        val result =
+            execute(
+                command,
+                environment,
+            )
         require(result.exitCode == 0) {
             "TeamCity CLI failed with exit code ${result.exitCode}: ${result.error.trim()}"
         }
@@ -146,18 +151,20 @@ class TeamCityCliClient(
     }
 
     private fun executeJson(
-        vararg arguments: String
+        vararg arguments: String,
     ): JsonObject {
-        val result = executeTeamCity(
-            arguments = *arguments
-        )
-        val root = runCatching { Json.parseToJsonElement(result.output).jsonObject }
-            .getOrElse { error ->
-                throw IllegalArgumentException(
-                    "TeamCity CLI returned invalid JSON.",
-                    error
-                )
-            }
+        val result =
+            executeTeamCity(
+                arguments = *arguments,
+            )
+        val root =
+            runCatching { Json.parseToJsonElement(result.output).jsonObject }
+                .getOrElse { error ->
+                    throw IllegalArgumentException(
+                        "TeamCity CLI returned invalid JSON.",
+                        error,
+                    )
+                }
         root["error"]?.jsonObject?.let { error ->
             val message = error["message"]?.jsonPrimitive?.content ?: "unknown TeamCity CLI error"
             throw IllegalArgumentException("TeamCity CLI failed: $message")
@@ -168,14 +175,14 @@ class TeamCityCliClient(
     data class CommandResult(
         val exitCode: Int,
         val output: String,
-        val error: String
+        val error: String,
     )
 
     private companion object {
         fun executeProcess(
             arguments: List<String>,
             environment: Map<String, String?>,
-            workingDirectory: File?
+            workingDirectory: File?,
         ): CommandResult {
             val processBuilder = ProcessBuilder(arguments)
             workingDirectory?.let(processBuilder::directory)
@@ -194,28 +201,30 @@ class TeamCityCliClient(
             return CommandResult(
                 exitCode = process.waitFor(),
                 output = output.toString().trim(),
-                error = error.toString().trim()
+                error = error.toString().trim(),
             )
         }
     }
 }
 
 private fun JsonObject.requiredString(
-    name: String
+    name: String,
 ): String =
     this[name]?.jsonPrimitive?.content
         ?: throw IllegalArgumentException("TeamCity build JSON is missing '$name'.")
 
 private fun JsonObject.toTeamCityRun(): TeamCityRun =
     TeamCityRun(
-        id = requiredString(
-            name = "id"
-        ).toLong(),
-        state = requiredString(
-            name = "state"
-        ),
+        id =
+            requiredString(
+                name = "id",
+            ).toLong(),
+        state =
+            requiredString(
+                name = "state",
+            ),
         status = this["status"]?.jsonPrimitive?.content,
         statusText = this["statusText"]?.jsonPrimitive?.content,
         branchName = this["branchName"]?.jsonPrimitive?.content,
-        webUrl = this["webUrl"]?.jsonPrimitive?.content
+        webUrl = this["webUrl"]?.jsonPrimitive?.content,
     )

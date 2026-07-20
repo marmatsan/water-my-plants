@@ -4,6 +4,6 @@ package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 fun interface TeamCityRunStarter {
     fun startRun(
         buildTypeId: String,
-        branch: String
+        branch: String,
     ): TeamCityRun
 }

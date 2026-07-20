@@ -4,5 +4,5 @@ package com.marmatsan.figmaDocumentationSync.projectConfig
 data class TeamCityAutomationCredentials(
     val serverUrl: String,
     val teamCityToken: String,
-    val cloudflareAccessToken: String
+    val cloudflareAccessToken: String,
 )

@@ -7,23 +7,23 @@ interface McpClientPort : AutoCloseable {
     suspend fun listToolNames(): List<String>
 
     suspend fun readTextResource(
-        uri: String
+        uri: String,
     ): String
 
     suspend fun useFigma(
         fileKey: String,
         code: String,
         description: String,
-        skillNames: String
+        skillNames: String,
     ): McpToolResult
 
     suspend fun requestAssetUpload(
         fileKey: String,
-        count: Int
+        count: Int,
     ): McpToolResult
 
     suspend fun uploadAsset(
         url: String,
-        bytes: ByteArray
+        bytes: ByteArray,
     )
 }

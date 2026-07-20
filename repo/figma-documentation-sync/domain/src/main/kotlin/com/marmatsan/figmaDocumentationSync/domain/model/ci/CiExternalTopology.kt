@@ -9,20 +9,22 @@ data class CiExternalTopology(
     val schemaVersion: Int,
     val validation: Validation,
     val nodes: List<CiNode>,
-    val connections: List<CiConnection>
+    val connections: List<CiConnection>,
 ) {
     init {
         require(schemaVersion > 0) { "CI topology schemaVersion must be positive" }
         require(validation.warnAfterDays > 0) { "CI topology warnAfterDays must be positive" }
 
-        val nodeIds = nodes.map(
-            transform = CiNode::id
-        )
+        val nodeIds =
+            nodes.map(
+                transform = CiNode::id,
+            )
         require(nodeIds.size == nodeIds.toSet().size) { "CI topology node ids must be unique" }
 
-        val connectionIds = connections.map(
-            transform = CiConnection::id
-        )
+        val connectionIds =
+            connections.map(
+                transform = CiConnection::id,
+            )
         require(connectionIds.size == connectionIds.toSet().size) {
             "CI topology connection ids must be unique"
         }
@@ -39,6 +41,6 @@ data class CiExternalTopology(
 
     data class Validation(
         val lastValidatedOn: LocalDate,
-        val warnAfterDays: Int
+        val warnAfterDays: Int,
     )
 }

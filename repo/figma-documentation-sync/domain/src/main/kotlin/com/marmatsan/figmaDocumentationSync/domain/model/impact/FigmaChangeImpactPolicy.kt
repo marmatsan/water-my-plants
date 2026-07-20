@@ -7,5 +7,5 @@ data class FigmaChangeImpactPolicy(
     val modelNeutralPaths: List<String>,
     val modelContentPaths: List<String>,
     val visualWriterPaths: List<String>,
-    val visualTargetRules: List<FigmaVisualTargetRule>
+    val visualTargetRules: List<FigmaVisualTargetRule>,
 )

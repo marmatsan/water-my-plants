@@ -1,16 +1,15 @@
 package com.marmatsan.dependencies.tree.dsl.library
 
-import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.TreeBuilder
-import com.marmatsan.dependencies.tree.node.Node
 import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.ArtifactsBundle
+import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
+import com.marmatsan.dependencies.tree.node.Node
 
 class LibraryScope(
-    root: Node<DependencyNode.Library>
+    root: Node<DependencyNode.Library>,
 ) : TreeBuilder<DependencyNode.Library>(root) {
-
     private var entries: MutableList<LibraryEntry>? = null
 
     /**
@@ -25,17 +24,22 @@ class LibraryScope(
      */
     fun artifact(
         artifact: String,
-        version: String? = null
+        version: String? = null,
     ) {
-        val newEntry = LibraryEntry.Single(
-            artifact = Artifact(
-                artifact,
-                version
+        val newEntry =
+            LibraryEntry.Single(
+                artifact =
+                    Artifact(
+                        artifact,
+                        version,
+                    ),
             )
-        )
-        entries = (entries ?: mutableListOf()).apply { add(
-            element = newEntry
-        ) }
+        entries =
+            (entries ?: mutableListOf()).apply {
+                add(
+                    element = newEntry,
+                )
+            }
     }
 
     /**
@@ -56,21 +60,29 @@ class LibraryScope(
     fun artifactsBundle(
         vararg artifacts: String,
         alias: String,
-        version: String? = null
+        version: String? = null,
     ) {
-        val newEntry = LibraryEntry.Bundle(
-            artifactsBundle = ArtifactsBundle(
-                alias = alias,
-                artifacts = artifacts.map { Artifact(
-                    it,
-                    version
-                ) },
-                version = version
+        val newEntry =
+            LibraryEntry.Bundle(
+                artifactsBundle =
+                    ArtifactsBundle(
+                        alias = alias,
+                        artifacts =
+                            artifacts.map {
+                                Artifact(
+                                    it,
+                                    version,
+                                )
+                            },
+                        version = version,
+                    ),
             )
-        )
-        entries = (entries ?: mutableListOf()).apply { add(
-            element = newEntry
-        ) }
+        entries =
+            (entries ?: mutableListOf()).apply {
+                add(
+                    element = newEntry,
+                )
+            }
     }
 
     /**
@@ -100,31 +112,35 @@ class LibraryScope(
      */
     fun library(
         group: String,
-        content: (LibraryScope.() -> Unit)? = null
+        content: (LibraryScope.() -> Unit)? = null,
     ) {
-        val node = Node(
-            DependencyNode.Library(
-                libraryGroup = group
+        val node =
+            Node(
+                DependencyNode.Library(
+                    libraryGroup = group,
+                ),
             )
-        )
         currentParent.add(
-            child = node
+            child = node,
         )
 
-        val childScope = LibraryScope(
-            root = node
-        )
+        val childScope =
+            LibraryScope(
+                root = node,
+            )
         content?.invoke(
-            childScope
+            childScope,
         )
 
-        val updatedNodeValue = node.value.copy(
-            entries = childScope.entries?.toList()
-        )
-        val updatedNode = Node(
-            value = updatedNodeValue,
-            children = node.children
-        )
+        val updatedNodeValue =
+            node.value.copy(
+                entries = childScope.entries?.toList(),
+            )
+        val updatedNode =
+            Node(
+                value = updatedNodeValue,
+                children = node.children,
+            )
 
         val siblings = currentParent.children
 
@@ -132,7 +148,7 @@ class LibraryScope(
             siblings[siblings.lastIndex] = updatedNode
         } else {
             siblings.add(
-                element = updatedNode
+                element = updatedNode,
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.marmatsan.figmaDocumentationSync.data.figma.dto
 
-
 import kotlinx.serialization.Serializable
 
 /**
@@ -17,5 +16,5 @@ data class FigmaNode(
     val visible: Boolean = true,
     val characters: String? = null,
     val sharedPluginData: Map<String, Map<String, String>> = emptyMap(),
-    val children: List<FigmaNode> = emptyList()
+    val children: List<FigmaNode> = emptyList(),
 )

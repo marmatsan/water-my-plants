@@ -5,18 +5,20 @@ import com.marmatsan.dependencies.tree.node.Node
 
 fun libraryTree(
     rootGroup: String,
-    content: LibraryScope.() -> Unit
+    content: LibraryScope.() -> Unit,
 ): Node<DependencyNode.Library> {
-    val root = Node(
-        DependencyNode.Library(
-            libraryGroup = rootGroup
+    val root =
+        Node(
+            DependencyNode.Library(
+                libraryGroup = rootGroup,
+            ),
         )
-    )
-    val scope = LibraryScope(
-        root = root
-    )
+    val scope =
+        LibraryScope(
+            root = root,
+        )
     content.invoke(
-        scope
+        scope,
     )
     return root
 }

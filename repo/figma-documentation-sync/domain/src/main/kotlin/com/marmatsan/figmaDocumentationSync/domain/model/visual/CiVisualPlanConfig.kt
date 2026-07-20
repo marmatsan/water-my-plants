@@ -13,5 +13,5 @@ data class CiVisualPlanConfig(
     val visualContractSource: String,
     val branchProtectionSource: String,
     val officialSyncSource: String,
-    val officialDesignModelPath: String
+    val officialDesignModelPath: String,
 )

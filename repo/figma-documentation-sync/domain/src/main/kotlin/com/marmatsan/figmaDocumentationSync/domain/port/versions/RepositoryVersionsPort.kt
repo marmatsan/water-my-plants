@@ -20,7 +20,7 @@ interface RepositoryVersionsPort {
      * grouping.
      */
     fun readVersions(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): Map<String, String>
 
     /**
@@ -28,6 +28,6 @@ interface RepositoryVersionsPort {
      * preserve the same version grouping seen in the source file.
      */
     fun readVersionSections(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): List<RepositoryVersionSection>
 }

@@ -5,5 +5,5 @@ import com.marmatsan.dependencies.tree.node.Node
 
 data class DependencyCatalogTrees(
     val libraries: List<Node<DependencyNode.Library>>,
-    val plugins: List<Node<DependencyNode.Plugin>>
+    val plugins: List<Node<DependencyNode.Plugin>>,
 )

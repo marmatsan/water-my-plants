@@ -5,12 +5,12 @@ data class OfficialFigmaArtifactContract(
     val model: Model,
     val scope: Scope,
     val plan: Plan,
-    val manifests: List<Manifest>
+    val manifests: List<Manifest>,
 ) {
     data class Model(
         val branch: String,
         val gitSha: String,
-        val modelHash: String
+        val modelHash: String,
     )
 
     data class Scope(
@@ -21,19 +21,19 @@ data class OfficialFigmaArtifactContract(
         val transportHash: String,
         val visualRunnerManifestHash: String,
         val metadataRunnerManifestHash: String,
-        val visualSyncDecision: String
+        val visualSyncDecision: String,
     )
 
     data class Plan(
         val decision: String,
         val manifestHash: String,
-        val identity: Identity
+        val identity: Identity,
     )
 
     data class Identity(
         val modelHash: String,
         val writerHash: String,
-        val transportHash: String
+        val transportHash: String,
     )
 
     data class Manifest(
@@ -44,19 +44,20 @@ data class OfficialFigmaArtifactContract(
         val writerHash: String,
         val transportHash: String,
         val fullVisualSync: Boolean,
-        val writeMetadata: Boolean
+        val writeMetadata: Boolean,
     )
 
     enum class Decision(
-        val wireValue: String
+        val wireValue: String,
     ) {
         NONE("none"),
         PARTIAL("partial"),
-        FULL("full");
+        FULL("full"),
+        ;
 
         companion object {
             fun fromWireValue(
-                value: String
+                value: String,
             ): Decision? = entries.firstOrNull { it.wireValue == value }
         }
     }

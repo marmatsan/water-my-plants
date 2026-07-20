@@ -12,34 +12,38 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlan
 /** Selects atomic runner files and evolves compatible execution checkpoints. */
 class McpExecutionPlanner {
     fun capabilities(
-        toolNames: List<String>
+        toolNames: List<String>,
     ): McpCapabilities {
         val sorted = toolNames.distinct().sorted()
         return McpCapabilities(
             toolNames = sorted,
             canUseFigma = REQUIRED_WRITE_TOOL in sorted,
-            canUploadAssets = REQUIRED_UPLOAD_TOOL in sorted
+            canUploadAssets = REQUIRED_UPLOAD_TOOL in sorted,
         )
     }
 
     fun requireWriteCapabilities(
         capabilities: McpCapabilities,
         manifest: ExecutableRunnerManifest,
-        executionFiles: List<String>
+        executionFiles: List<String>,
     ) {
-        val missing = buildList {
-            if (!capabilities.canUseFigma) add(
-                element = REQUIRED_WRITE_TOOL
-            )
-            if (needsPayloadUpload(
-                manifest = manifest,
-                executionFiles = executionFiles
-            ) && !capabilities.canUploadAssets) {
-                add(
-                    element = REQUIRED_UPLOAD_TOOL
-                )
+        val missing =
+            buildList {
+                if (!capabilities.canUseFigma) {
+                    add(
+                        element = REQUIRED_WRITE_TOOL,
+                    )
+                }
+                if (needsPayloadUpload(
+                        manifest = manifest,
+                        executionFiles = executionFiles,
+                    ) && !capabilities.canUploadAssets
+                ) {
+                    add(
+                        element = REQUIRED_UPLOAD_TOOL,
+                    )
+                }
             }
-        }
         require(missing.isEmpty()) {
             "MCP endpoint is read-only for this runner; missing tool(s): ${missing.joinToString(", ")}. " +
                 "Keep the Codex-operated Figma write path until the local endpoint advertises them."
@@ -51,7 +55,7 @@ class McpExecutionPlanner {
         options: McpExecutionOptions,
         existingState: McpExecutionState?,
         visualState: McpExecutionState?,
-        syncPlan: VisualSyncPlan? = null
+        syncPlan: VisualSyncPlan? = null,
     ): List<String> {
         var files = manifest.files.filter { file -> file.endsWith(".mcp.js") }
 
@@ -59,17 +63,29 @@ class McpExecutionPlanner {
             require(syncPlan.body.manifestHash == manifest.manifestHash) {
                 "Visual sync plan manifestHash does not match the runner manifest."
             }
-            files = when (syncPlan.body.decision.wireValue) {
-                "none" -> emptyList()
-                "partial" -> {
-                    val scopes = syncPlan.body.executionScopes.toSet()
-                    files.filter { file -> !file.startsWith(
-                        prefix = "99-"
-                    ) || manifest.executionScopes[file] in scopes }
+            files =
+                when (syncPlan.body.decision.wireValue) {
+                    "none" -> {
+                        emptyList()
+                    }
+
+                    "partial" -> {
+                        val scopes = syncPlan.body.executionScopes.toSet()
+                        files.filter { file ->
+                            !file.startsWith(
+                                prefix = "99-",
+                            ) || manifest.executionScopes[file] in scopes
+                        }
+                    }
+
+                    "full" -> {
+                        files
+                    }
+
+                    else -> {
+                        error("Unknown visual sync plan decision '${syncPlan.body.decision.wireValue}'.")
+                    }
                 }
-                "full" -> files
-                else -> error("Unknown visual sync plan decision '${syncPlan.body.decision.wireValue}'.")
-            }
         }
 
         if (options.reuseStaging) {
@@ -78,11 +94,14 @@ class McpExecutionPlanner {
             }
             assertCompletedVisualState(
                 metadataManifest = manifest,
-                visualState = visualState
+                visualState = visualState,
             )
-            files = files.filter { file -> file.startsWith(
-                prefix = "99-"
-            ) }
+            files =
+                files.filter { file ->
+                    file.startsWith(
+                        prefix = "99-",
+                    )
+                }
         }
 
         options.from?.let { firstFile ->
@@ -92,9 +111,10 @@ class McpExecutionPlanner {
         }
 
         if (options.retryFailed) {
-            val failedFile = requireNotNull(existingState?.failedFile) {
-                "--retry-failed requires a checkpoint with failedFile."
-            }
+            val failedFile =
+                requireNotNull(existingState?.failedFile) {
+                    "--retry-failed requires a checkpoint with failedFile."
+                }
             require(failedFile in files) { "Checkpoint failed file '$failedFile' is not in this manifest." }
             return listOf(failedFile)
         }
@@ -102,11 +122,13 @@ class McpExecutionPlanner {
         if (options.resume && existingState != null) {
             assertStateIdentity(
                 manifest = manifest,
-                state = existingState
+                state = existingState,
             )
-            val completed = existingState.completedFiles.map(
-                transform = McpCompletedFile::file
-            ).toSet()
+            val completed =
+                existingState.completedFiles
+                    .map(
+                        transform = McpCompletedFile::file,
+                    ).toSet()
             files = files.filterNot(completed::contains)
         }
         return files
@@ -117,29 +139,30 @@ class McpExecutionPlanner {
         existingState: McpExecutionState?,
         options: McpExecutionOptions,
         executionFiles: List<String>,
-        now: String
+        now: String,
     ): McpExecutionState {
         if ((options.resume || options.retryFailed) && existingState != null) {
             assertStateIdentity(
                 manifest = manifest,
-                state = existingState
+                state = existingState,
             )
             return existingState.copy(
                 failedFile = null,
                 failure = null,
-                updatedAt = now
+                updatedAt = now,
             )
         }
         return McpExecutionState(
             schemaVersion = STATE_SCHEMA_VERSION,
-            identity = executionIdentity(
-                manifest = manifest
-            ),
+            identity =
+                executionIdentity(
+                    manifest = manifest,
+                ),
             startedAt = now,
             updatedAt = now,
             completedFiles = emptyList(),
             plannedFiles = executionFiles,
-            failedFile = null
+            failedFile = null,
         )
     }
 
@@ -149,20 +172,22 @@ class McpExecutionPlanner {
         file: String,
         durationMs: Long,
         summary: String?,
-        now: String
+        now: String,
     ): McpExecutionState {
-        val completed = state.completedFiles.filterNot { entry -> entry.file == file } + McpCompletedFile(
-            file = file,
-            fileHash = manifest.fileHashes.getValue(file),
-            durationMs = durationMs,
-            completedAt = now,
-            summary = summary?.take(MAX_SUMMARY_LENGTH)
-        )
+        val completed =
+            state.completedFiles.filterNot { entry -> entry.file == file } +
+                McpCompletedFile(
+                    file = file,
+                    fileHash = manifest.fileHashes.getValue(file),
+                    durationMs = durationMs,
+                    completedAt = now,
+                    summary = summary?.take(MAX_SUMMARY_LENGTH),
+                )
         return state.copy(
             completedFiles = completed,
             failedFile = null,
             failure = null,
-            updatedAt = now
+            updatedAt = now,
         )
     }
 
@@ -171,41 +196,46 @@ class McpExecutionPlanner {
         file: String,
         durationMs: Long,
         message: String,
-        now: String
-    ): McpExecutionState = state.copy(
-        failedFile = file,
-        failure = McpExecutionFailure(
-            message = message,
-            durationMs = durationMs,
-            failedAt = now
-        ),
-        updatedAt = now
-    )
+        now: String,
+    ): McpExecutionState =
+        state.copy(
+            failedFile = file,
+            failure =
+                McpExecutionFailure(
+                    message = message,
+                    durationMs = durationMs,
+                    failedAt = now,
+                ),
+            updatedAt = now,
+        )
 
     fun executionIdentity(
-        manifest: ExecutableRunnerManifest
-    ): McpExecutionIdentity = McpExecutionIdentity(
-        modelHash = manifest.modelHash,
-        gitSha = manifest.gitSha,
-        writerHash = manifest.writerHash,
-        transportHash = manifest.transportHash,
-        manifestHash = manifest.manifestHash
-    )
+        manifest: ExecutableRunnerManifest,
+    ): McpExecutionIdentity =
+        McpExecutionIdentity(
+            modelHash = manifest.modelHash,
+            gitSha = manifest.gitSha,
+            writerHash = manifest.writerHash,
+            transportHash = manifest.transportHash,
+            manifestHash = manifest.manifestHash,
+        )
 
     fun assertStateIdentity(
         manifest: ExecutableRunnerManifest,
-        state: McpExecutionState
+        state: McpExecutionState,
     ) {
-        val expected = executionIdentity(
-            manifest = manifest
-        )
-        val values = listOf(
-            "modelHash" to (state.identity.modelHash to expected.modelHash),
-            "gitSha" to (state.identity.gitSha to expected.gitSha),
-            "writerHash" to (state.identity.writerHash to expected.writerHash),
-            "transportHash" to (state.identity.transportHash to expected.transportHash),
-            "manifestHash" to (state.identity.manifestHash to expected.manifestHash)
-        )
+        val expected =
+            executionIdentity(
+                manifest = manifest,
+            )
+        val values =
+            listOf(
+                "modelHash" to (state.identity.modelHash to expected.modelHash),
+                "gitSha" to (state.identity.gitSha to expected.gitSha),
+                "writerHash" to (state.identity.writerHash to expected.writerHash),
+                "transportHash" to (state.identity.transportHash to expected.transportHash),
+                "manifestHash" to (state.identity.manifestHash to expected.manifestHash),
+            )
         values.forEach { (key, valuesForKey) ->
             require(valuesForKey.first == valuesForKey.second) {
                 "Checkpoint $key mismatch: ${valuesForKey.first} != ${valuesForKey.second}."
@@ -228,37 +258,47 @@ class McpExecutionPlanner {
 
     fun assertCompletedVisualState(
         metadataManifest: ExecutableRunnerManifest,
-        visualState: McpExecutionState?
+        visualState: McpExecutionState?,
     ) {
-        val state = requireNotNull(visualState) {
-            "--reuse-staging requires --visual-state from the completed visual runner."
-        }
-        val expected = executionIdentity(
-            manifest = metadataManifest
-        )
-        val compatible = listOf(
-            "modelHash" to (state.identity.modelHash to expected.modelHash),
-            "gitSha" to (state.identity.gitSha to expected.gitSha),
-            "writerHash" to (state.identity.writerHash to expected.writerHash),
-            "transportHash" to (state.identity.transportHash to expected.transportHash)
-        )
+        val state =
+            requireNotNull(visualState) {
+                "--reuse-staging requires --visual-state from the completed visual runner."
+            }
+        val expected =
+            executionIdentity(
+                manifest = metadataManifest,
+            )
+        val compatible =
+            listOf(
+                "modelHash" to (state.identity.modelHash to expected.modelHash),
+                "gitSha" to (state.identity.gitSha to expected.gitSha),
+                "writerHash" to (state.identity.writerHash to expected.writerHash),
+                "transportHash" to (state.identity.transportHash to expected.transportHash),
+            )
         compatible.forEach { (key, valuesForKey) ->
             require(valuesForKey.first == valuesForKey.second) {
                 "Visual checkpoint $key does not match the metadata manifest."
             }
         }
-        val completedFiles = state.completedFiles.map(
-            transform = McpCompletedFile::file
-        ).filter { it.startsWith(
-            prefix = "99-"
-        ) }.toSet()
-        val plannedFiles = state.plannedFiles.filter { it.startsWith(
-            prefix = "99-"
-        ) }
+        val completedFiles =
+            state.completedFiles
+                .map(
+                    transform = McpCompletedFile::file,
+                ).filter {
+                    it.startsWith(
+                        prefix = "99-",
+                    )
+                }.toSet()
+        val plannedFiles =
+            state.plannedFiles.filter {
+                it.startsWith(
+                    prefix = "99-",
+                )
+            }
         require(
             plannedFiles.isNotEmpty() &&
                 plannedFiles.all(completedFiles::contains) &&
-                state.failedFile == null
+                state.failedFile == null,
         ) {
             "Visual checkpoint is not complete enough to authorize staging reuse."
         }
@@ -266,7 +306,7 @@ class McpExecutionPlanner {
 
     private fun needsPayloadUpload(
         manifest: ExecutableRunnerManifest,
-        executionFiles: List<String>
+        executionFiles: List<String>,
     ): Boolean = manifest.transport == "png" && PAYLOAD_STAGE_FILE in executionFiles
 
     companion object {

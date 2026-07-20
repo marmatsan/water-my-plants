@@ -4,7 +4,7 @@ package com.marmatsan.figmaDocumentationSync.plugin.checker.catalog
  * Result of checking declared dependency catalogs for entries that are not used.
  */
 internal data class CatalogUsageCheckResult(
-    val unusedEntries: List<UnusedCatalogEntry>
+    val unusedEntries: List<UnusedCatalogEntry>,
 ) {
     val isSuccessful: Boolean = unusedEntries.isEmpty()
 }
@@ -15,5 +15,5 @@ internal data class CatalogUsageCheckResult(
  */
 internal data class UnusedCatalogEntry(
     val catalogName: String,
-    val entry: String
+    val entry: String,
 )

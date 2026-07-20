@@ -14,7 +14,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Runs the committed whitespace diff check selected by the CI plan. */
 @DisableCachingByDefault(
-    because = "Git diff verification depends on committed repository state"
+    because = "Git diff verification depends on committed repository state",
 )
 abstract class CheckRepositoryDiffTask : DefaultTask() {
     /** Repository checkout whose committed diff is verified. */
@@ -30,18 +30,19 @@ abstract class CheckRepositoryDiffTask : DefaultTask() {
     @TaskAction
     fun checkRepositoryDiff() {
         val plan = CiPlanJson().read(planFile.get().asFile.readText())
-        val comparisonBase = checkNotNull(plan.comparisonBase) {
-            "Repository diff verification requires a comparison base."
-        }
+        val comparisonBase =
+            checkNotNull(plan.comparisonBase) {
+                "Repository diff verification requires a comparison base."
+            }
         GitRepositoryDiffChecker().check(
             repositoryRoot = repositoryRoot.get().asFile,
             comparisonBase = comparisonBase,
-            head = plan.head
+            head = plan.head,
         )
         logger.lifecycle(
             "Repository diff verification passed for {}..{}.",
             comparisonBase,
-            plan.head
+            plan.head,
         )
     }
 }

@@ -32,5 +32,5 @@ enum class CiScope {
 
     /** At least one path or graph condition cannot be classified safely. */
     @SerialName("unknown")
-    UNKNOWN
+    UNKNOWN,
 }

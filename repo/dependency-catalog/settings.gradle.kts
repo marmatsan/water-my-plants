@@ -7,9 +7,10 @@ pluginManagement {
         gradlePluginPortal()
     }
 
-    val versions = java.util.Properties().apply {
-        file("versions.properties").inputStream().use(::load)
-    }
+    val versions =
+        java.util.Properties().apply {
+            file("versions.properties").inputStream().use(::load)
+        }
 
     plugins {
         id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
@@ -30,5 +31,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     ":catalog-core",
-    ":water-my-plants-catalog"
+    ":water-my-plants-catalog",
 )

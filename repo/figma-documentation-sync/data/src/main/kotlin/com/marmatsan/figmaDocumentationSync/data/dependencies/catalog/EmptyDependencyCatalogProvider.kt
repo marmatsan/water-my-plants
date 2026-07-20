@@ -6,7 +6,7 @@ import java.io.File
 /** Portable adapter for repositories that do not publish a primary catalog. */
 class EmptyDependencyCatalogProvider : DependencyCatalogProvider {
     override fun resolved(
-        rootDir: File
+        rootDir: File,
     ): DependencyCatalogTrees = emptyCatalog()
 
     override fun withVersionAliases(): DependencyCatalogTrees = emptyCatalog()
@@ -14,6 +14,6 @@ class EmptyDependencyCatalogProvider : DependencyCatalogProvider {
     private fun emptyCatalog(): DependencyCatalogTrees =
         DependencyCatalogTrees(
             libraries = emptyList(),
-            plugins = emptyList()
+            plugins = emptyList(),
         )
 }

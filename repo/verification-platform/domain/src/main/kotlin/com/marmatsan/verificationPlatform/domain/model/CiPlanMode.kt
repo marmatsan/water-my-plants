@@ -12,5 +12,5 @@ enum class CiPlanMode {
 
     /** Allows a reviewed provider adapter to execute the selected work. */
     @SerialName("enforced")
-    ENFORCED
+    ENFORCED,
 }

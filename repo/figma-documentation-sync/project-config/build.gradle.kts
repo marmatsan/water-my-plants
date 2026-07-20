@@ -29,7 +29,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
     systemProperty(
         "figmaDocumentationSyncWriterRuntimeContract",
-        rootProject.file("tools/fixtures/contracts/writer-runtime-contract.json").absolutePath
+        rootProject.file("tools/fixtures/contracts/writer-runtime-contract.json").absolutePath,
     )
 }
 

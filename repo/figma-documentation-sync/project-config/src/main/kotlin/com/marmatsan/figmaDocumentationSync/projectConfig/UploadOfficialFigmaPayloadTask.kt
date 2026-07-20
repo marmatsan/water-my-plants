@@ -14,7 +14,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for uploading one verified official TeamCity PNG payload. */
 @DisableCachingByDefault(
-    because = "Downloads an official artifact and uploads its PNG to Figma"
+    because = "Downloads an official artifact and uploads its PNG to Figma",
 )
 abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
     @get:Input
@@ -55,31 +55,36 @@ abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
                 "figmaExpectedGitSha is required with figmaArtifactDirectory."
             }
         }
-        val teamCityClient = TeamCityCliClient(
-            workingDirectory = projectDirectory.get().asFile
-        )
-        val handoffPreparer = TeamCityFigmaSyncHandoffPreparer(
-            teamCityClient = teamCityClient
-        )
-        val result = TeamCityOfficialFigmaPayloadUploader(
-            handoffPreparer = handoffPreparer
-        ).upload(
-            TeamCityOfficialFigmaPayloadUploader.Request(
-                buildId = buildId.orNull,
-                artifactDirectory = artifacts,
-                uploadUrl = uploadUrl.get(),
-                destinationRoot = destinationRoot.get().asFile,
-                expectedGitSha = expectedGitSha.orNull,
-                mainBranchAliases = mainBranchAliases.get().toSet(),
-                requiredBuildTypeName = requiredBuildTypeName.get()
+        val teamCityClient =
+            TeamCityCliClient(
+                workingDirectory = projectDirectory.get().asFile,
             )
-        )
+        val handoffPreparer =
+            TeamCityFigmaSyncHandoffPreparer(
+                teamCityClient = teamCityClient,
+            )
+        val result =
+            TeamCityOfficialFigmaPayloadUploader(
+                handoffPreparer = handoffPreparer,
+            ).upload(
+                TeamCityOfficialFigmaPayloadUploader.Request(
+                    buildId = buildId.orNull,
+                    artifactDirectory = artifacts,
+                    uploadUrl = uploadUrl.get(),
+                    destinationRoot = destinationRoot.get().asFile,
+                    expectedGitSha = expectedGitSha.orNull,
+                    mainBranchAliases = mainBranchAliases.get().toSet(),
+                    requiredBuildTypeName = requiredBuildTypeName.get(),
+                ),
+            )
         logger.lifecycle(
             "Uploaded official Figma payload from " +
-                (result.buildId?.let { build -> "TeamCity build $build" }
-                    ?: "the validated artifact directory") + ": " +
+                (
+                    result.buildId?.let { build -> "TeamCity build $build" }
+                        ?: "the validated artifact directory"
+                ) + ": " +
                 "${result.payloadFileName} (${result.payloadByteLength} bytes, " +
-                "${result.payloadSha256}); gitSha=${result.gitSha}, modelHash=${result.modelHash}."
+                "${result.payloadSha256}); gitSha=${result.gitSha}, modelHash=${result.modelHash}.",
         )
     }
 }

@@ -7,6 +7,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
  */
 interface CiWindowsRuntimePort {
     fun readRuntime(
-        source: CiWindowsRuntimeSource
+        source: CiWindowsRuntimeSource,
     ): CiWindowsRuntime
 }

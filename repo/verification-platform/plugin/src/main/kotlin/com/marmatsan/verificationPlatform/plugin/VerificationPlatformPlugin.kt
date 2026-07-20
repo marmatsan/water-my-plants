@@ -13,86 +13,94 @@ class VerificationPlatformPlugin : Plugin<Project> {
      * discovery and report locations are repository-wide concerns.
      */
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         require(project == project.rootProject) {
             "com.marmatsan.verificationPlatform must be applied to the root project."
         }
 
-        val generateCiPlan = project.tasks.register(
-            "generateCiPlan",
-            GenerateCiPlanTask::class.java
-        ) { task ->
-            task.group = "verification"
-            task.description = "Generates the provider-neutral CI verification plan."
-            task.repositoryRoot.set(project.layout.projectDirectory)
-            project.providers.gradleProperty("ciComparisonBase").orNull?.let(task.comparisonBaseOverride::set)
-            task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
-        }
+        val generateCiPlan =
+            project.tasks.register(
+                "generateCiPlan",
+                GenerateCiPlanTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Generates the provider-neutral CI verification plan."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                project.providers
+                    .gradleProperty("ciComparisonBase")
+                    .orNull
+                    ?.let(task.comparisonBaseOverride::set)
+                task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
+            }
 
         project.gradle.projectsEvaluated {
             val graph = GradleProjectModuleGraphSource().read(project)
             generateCiPlan.configure { task ->
                 task.moduleDirectories.set(
-                    graph.modules.associate { module -> module.id to module.directory }
+                    graph.modules.associate { module -> module.id to module.directory },
                 )
                 task.moduleDependencyEdges.set(
                     graph.dependencies.map { dependency ->
                         "${dependency.dependentModule}->${dependency.dependencyModule}"
-                    }
+                    },
                 )
             }
         }
 
-        val checkGitWorkflow = project.tasks.register(
-            "checkGitWorkflow",
-            CheckGitWorkflowTask::class.java
-        ) { task ->
-            task.group = "verification"
-            task.description = "Validates the current branch against the trunk-based Git workflow."
-            task.repositoryRoot.set(project.layout.projectDirectory)
-            task.branchOverride.convention(
-                project.providers.gradleProperty("gitWorkflowBranch")
-                    .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH"))
-            )
-        }
+        val checkGitWorkflow =
+            project.tasks.register(
+                "checkGitWorkflow",
+                CheckGitWorkflowTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Validates the current branch against the trunk-based Git workflow."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.branchOverride.convention(
+                    project.providers
+                        .gradleProperty("gitWorkflowBranch")
+                        .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH")),
+                )
+            }
 
         val verificationPlatformBuild = project.gradle.includedBuild("verification-platform")
-        val checkKotlinFunctionArguments = project.tasks.register(
-            "checkKotlinFunctionArguments"
-        ) { task ->
-            task.group = "verification"
-            task.description = "Checks repository Kotlin function parameters and arguments for vertical layout."
-            task.dependsOn(
-                verificationPlatformBuild.task(":data:checkRepositoryKotlinFunctionArguments")
-            )
-        }
+        val checkKotlinStyle =
+            project.tasks.register(
+                "checkKotlinStyle",
+            ) { task ->
+                task.group = "verification"
+                task.description = "Checks repository Kotlin sources with the canonical KtLint rules."
+                task.dependsOn(
+                    verificationPlatformBuild.task(":data:checkRepositoryKotlinStyle"),
+                )
+            }
         project.tasks.register(
-            "formatKotlinFunctionArguments"
+            "formatKotlinStyle",
         ) { task ->
             task.group = "formatting"
-            task.description = "Formats repository Kotlin function parameters and arguments vertically."
+            task.description = "Formats repository Kotlin sources with the canonical KtLint rules."
             task.dependsOn(
-                verificationPlatformBuild.task(":data:formatRepositoryKotlinFunctionArguments")
+                verificationPlatformBuild.task(":data:formatRepositoryKotlinStyle"),
             )
         }
 
-        val checkDocumentation = project.tasks.register(
-            "checkDocumentation",
-            CheckDocumentationTask::class.java
-        ) { task ->
-            task.group = "verification"
-            task.description = "Validates typed documentation, links, sources, and committed change coverage."
-            task.dependsOn(checkGitWorkflow)
-            task.dependsOn(generateCiPlan)
-            task.repositoryRoot.set(project.layout.projectDirectory)
-            task.coverageManifest.set(project.layout.projectDirectory.file(".teamcity/documentation-coverage.json"))
-            task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
-        }
+        val checkDocumentation =
+            project.tasks.register(
+                "checkDocumentation",
+                CheckDocumentationTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Validates typed documentation, links, sources, and committed change coverage."
+                task.dependsOn(checkGitWorkflow)
+                task.dependsOn(generateCiPlan)
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.coverageManifest.set(project.layout.projectDirectory.file(".teamcity/documentation-coverage.json"))
+                task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
+            }
 
         project.tasks.register(
             "checkRepositoryDiff",
-            CheckRepositoryDiffTask::class.java
+            CheckRepositoryDiffTask::class.java,
         ) { task ->
             task.group = "verification"
             task.description = "Checks committed documentation-only diffs for whitespace errors."
@@ -101,22 +109,23 @@ class VerificationPlatformPlugin : Plugin<Project> {
             task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
         }
 
-        val checkTeamCityDsl = project.tasks.register(
-            "checkTeamCityDsl",
-            CheckTeamCityDslTask::class.java
-        ) { task ->
-            task.group = "verification"
-            task.description = "Generates and validates the effective TeamCity Kotlin DSL."
-            task.dependsOn(checkDocumentation)
-            task.repositoryRoot.set(project.layout.projectDirectory)
-            task.teamCityPom.set(project.layout.projectDirectory.file(".teamcity/pom.xml"))
-        }
+        val checkTeamCityDsl =
+            project.tasks.register(
+                "checkTeamCityDsl",
+                CheckTeamCityDslTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Generates and validates the effective TeamCity Kotlin DSL."
+                task.dependsOn(checkDocumentation)
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.teamCityPom.set(project.layout.projectDirectory.file(".teamcity/pom.xml"))
+            }
 
         project.gradle.projectsEvaluated {
             project.allprojects.forEach { candidate ->
                 candidate.tasks.matching { task -> task.name == "check" }.configureEach { task ->
                     task.dependsOn(checkDocumentation)
-                    task.dependsOn(checkKotlinFunctionArguments)
+                    task.dependsOn(checkKotlinStyle)
                     task.mustRunAfter(checkTeamCityDsl)
                 }
             }
@@ -124,7 +133,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
 
         project.tasks.register(
             "prepareTeamCityCiPlan",
-            PrepareTeamCityCiPlanTask::class.java
+            PrepareTeamCityCiPlanTask::class.java,
         ) { task ->
             task.group = "verification"
             task.description = "Generates the CI plan and exports its allow-listed TeamCity parameters."
@@ -134,38 +143,42 @@ class VerificationPlatformPlugin : Plugin<Project> {
 
         project.tasks.register(
             "generateCiTopologyPreview",
-            GenerateCiTopologyPreviewTask::class.java
+            GenerateCiTopologyPreviewTask::class.java,
         ) { task ->
             task.group = "verification"
             task.description = "Previews provider-neutral CI lanes without changing active TeamCity jobs."
             task.dependsOn(generateCiPlan)
             task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
             task.availableAgents.convention(
-                project.providers.gradleProperty("ciAvailableAgents").map(
-                    String::toInt
-                ).orElse(1)
+                project.providers
+                    .gradleProperty("ciAvailableAgents")
+                    .map(
+                        String::toInt,
+                    ).orElse(1),
             )
             task.outputFile.convention(
-                project.layout.buildDirectory.file("reports/ci/ci-topology-preview.json")
+                project.layout.buildDirectory.file("reports/ci/ci-topology-preview.json"),
             )
         }
 
         project.tasks.register(
             "runTeamCityInfrastructureHealth",
-            RunTeamCityInfrastructureHealthTask::class.java
+            RunTeamCityInfrastructureHealthTask::class.java,
         ) { task ->
             task.group = "verification"
             task.description = "Queues the non-gating TeamCity Infrastructure Health pipeline."
             task.serverUrl.convention(
-                project.providers.gradleProperty("teamCityInfrastructureHealthServerUrl")
-                    .orElse("http://127.0.0.1:8111")
+                project.providers
+                    .gradleProperty("teamCityInfrastructureHealthServerUrl")
+                    .orElse("http://127.0.0.1:8111"),
             )
             task.buildTypeId.convention(
-                project.providers.gradleProperty("teamCityInfrastructureHealthBuildTypeId")
-                    .orElse("WaterMyPlants_WaterMyPlantsInfrastructureHealth")
+                project.providers
+                    .gradleProperty("teamCityInfrastructureHealthBuildTypeId")
+                    .orElse("WaterMyPlants_WaterMyPlantsInfrastructureHealth"),
             )
             task.branch.convention(
-                project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main")
+                project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main"),
             )
             task.teamCityToken.convention(project.providers.environmentVariable("TEAMCITY_TOKEN"))
         }

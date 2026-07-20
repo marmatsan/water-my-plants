@@ -1,11 +1,9 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.generate
 
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
+import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
-import java.io.ByteArrayOutputStream
-import java.time.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.gradle.api.DefaultTask
@@ -17,16 +15,18 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import java.io.ByteArrayOutputStream
+import java.time.Instant
 
 /**
  * Gradle task that writes the official `main` branch `design-model.json` artifact.
@@ -38,7 +38,7 @@ import org.gradle.work.DisableCachingByDefault
  * branch models cannot be mistaken for the official Figma publication input.
  */
 @DisableCachingByDefault(
-    because = "Generation records Git, environment, and current-time runtime state"
+    because = "Generation records Git, environment, and current-time runtime state",
 )
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:Input
@@ -117,64 +117,68 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     fun generate() {
         val branch = officialBranch()
         requireMainBranch(
-            branch = branch
+            branch = branch,
         )
         requireCompatibleGitCheckout(
-            branch = branch
+            branch = branch,
         )
 
-        val result = figmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
-            request = FigmaDesignModelGenerationRequest(
-                branch = branch,
-                gitSha = git(
-                    "rev-parse",
-                    "HEAD"
-                ),
-                generatedAt = Instant.now(),
-                primaryCatalogModelName = primaryCatalogModelName.get(),
-                dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
-                ciDocumentationEnabled = ciDocumentationEnabled.get(),
-                ciConfigurationModelName = ciConfigurationModelName.orNull,
-                ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
-                versionsFile = versionsFile.get().asFile,
-                rootSettingsFile = rootSettingsFile.get().asFile,
-                ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
-                ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
-                ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
-                projectRootDirectory = projectRootDirectory.get().asFile,
-                includedBuilds = includedBuildSources()
+        val result =
+            figmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
+                request =
+                    FigmaDesignModelGenerationRequest(
+                        branch = branch,
+                        gitSha =
+                            git(
+                                "rev-parse",
+                                "HEAD",
+                            ),
+                        generatedAt = Instant.now(),
+                        primaryCatalogModelName = primaryCatalogModelName.get(),
+                        dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                        ciDocumentationEnabled = ciDocumentationEnabled.get(),
+                        ciConfigurationModelName = ciConfigurationModelName.orNull,
+                        ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
+                        versionsFile = versionsFile.get().asFile,
+                        rootSettingsFile = rootSettingsFile.get().asFile,
+                        ciExternalTopologyFile = ciExternalTopologyFile.orNull?.asFile,
+                        ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
+                        ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
+                        projectRootDirectory = projectRootDirectory.get().asFile,
+                        includedBuilds = includedBuildSources(),
+                    ),
             )
-        )
 
         val file = outputFile.get().asFile
         file.parentFile.mkdirs()
         file.writeText(
             prettyJson.encodeToString(
                 JsonElement.serializer(),
-                result.model
-            ) + System.lineSeparator()
+                result.model,
+            ) + System.lineSeparator(),
         )
 
         logger.lifecycle("Generated Figma design model at ${file.path} (${result.modelHash}).")
     }
 
     private fun git(
-        vararg arguments: String
+        vararg arguments: String,
     ): String {
         val rootDirectory = projectRootDirectory.get().asFile
-        val safeDirectory = rootDirectory.absolutePath.replace(
-            '\\',
-            '/'
-        )
-        val process = ProcessBuilder(
-            listOf(
-                "git",
-                "-c",
-                "safe.directory=$safeDirectory"
-            ) + arguments
-        )
-            .directory(rootDirectory)
-            .start()
+        val safeDirectory =
+            rootDirectory.absolutePath.replace(
+                '\\',
+                '/',
+            )
+        val process =
+            ProcessBuilder(
+                listOf(
+                    "git",
+                    "-c",
+                    "safe.directory=$safeDirectory",
+                ) + arguments,
+            ).directory(rootDirectory)
+                .start()
         val output = ByteArrayOutputStream()
         val error = ByteArrayOutputStream()
         process.inputStream.use { input -> input.copyTo(output) }
@@ -183,7 +187,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
 
         if (exitValue != 0) {
             throw GradleException(
-                "Failed to run git ${arguments.joinToString(" ")}: ${error.toString().trim()}"
+                "Failed to run git ${arguments.joinToString(" ")}: ${error.toString().trim()}",
             )
         }
 
@@ -199,7 +203,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json from " +
                     "the configured CI Figma Sync adapter. Missing " +
-                    "$OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true."
+                    "$OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true.",
             )
         }
 
@@ -207,52 +211,55 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         if (rawBranch.isBlank()) {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json when " +
-                    "$BRANCH_ENVIRONMENT_VARIABLE identifies the CI checkout branch."
+                    "$BRANCH_ENVIRONMENT_VARIABLE identifies the CI checkout branch.",
             )
         }
 
         return normalizeBranch(
-            branch = rawBranch
+            branch = rawBranch,
         )
     }
 
     private fun requireMainBranch(
-        branch: String
+        branch: String,
     ) {
         if (branch != MAIN_BRANCH) {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json from " +
                     "'$MAIN_BRANCH'. Current branch is '$branch'. Use the configured CI Figma Sync " +
-                    "adapter on '$MAIN_BRANCH' to produce the artifact consumed by the Figma sync."
+                    "adapter on '$MAIN_BRANCH' to produce the artifact consumed by the Figma sync.",
             )
         }
     }
 
     private fun requireCompatibleGitCheckout(
-        branch: String
+        branch: String,
     ) {
-        val gitBranch = normalizeBranch(
-            branch = git(
-                "rev-parse",
-                "--abbrev-ref",
-                "HEAD"
+        val gitBranch =
+            normalizeBranch(
+                branch =
+                    git(
+                        "rev-parse",
+                        "--abbrev-ref",
+                        "HEAD",
+                    ),
             )
-        )
         if (gitBranch != DETACHED_HEAD && gitBranch != branch) {
             throw GradleException(
                 "CI declared Figma design model branch '$branch', but the Git checkout is " +
-                    "'$gitBranch'. Fix the CI checkout before generating design-model.json."
+                    "'$gitBranch'. Fix the CI checkout before generating design-model.json.",
             )
         }
     }
 
     private fun normalizeBranch(
-        branch: String
+        branch: String,
     ): String {
-        val normalized = branch
-            .removePrefix("refs/heads/")
-            .removePrefix("refs/remotes/")
-            .removePrefix("origin/")
+        val normalized =
+            branch
+                .removePrefix("refs/heads/")
+                .removePrefix("refs/remotes/")
+                .removePrefix("origin/")
 
         return if (normalized == ciDefaultBranchAlias.orNull) MAIN_BRANCH else normalized
     }
@@ -263,9 +270,10 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         const val OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE = "FIGMA_DOCUMENTATION_SYNC_OFFICIAL"
         const val BRANCH_ENVIRONMENT_VARIABLE = "FIGMA_DOCUMENTATION_SYNC_BRANCH"
 
-        val prettyJson = Json {
-            prettyPrint = true
-            explicitNulls = true
-        }
+        val prettyJson =
+            Json {
+                prettyPrint = true
+                explicitNulls = true
+            }
     }
 }

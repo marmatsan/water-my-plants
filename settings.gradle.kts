@@ -31,18 +31,21 @@ plugins {
 
 rootProject.name = "water-my-plants"
 
-val appModule = listOf(
-    ":app"
-)
-val coreModule = listOf(
-    ":core:ui"
-)
-val onboardingModule = listOf(
-    ":onboarding:ui"
-)
+val appModule =
+    listOf(
+        ":app",
+    )
+val coreModule =
+    listOf(
+        ":core:ui",
+    )
+val onboardingModule =
+    listOf(
+        ":onboarding:ui",
+    )
 
 include(
     *appModule.toTypedArray(),
     *coreModule.toTypedArray(),
-    *onboardingModule.toTypedArray()
+    *onboardingModule.toTypedArray(),
 )

@@ -9,7 +9,7 @@ tasks.named("check") {
     dependsOn(
         ":domain:check",
         ":data:check",
-        ":plugin:check"
+        ":plugin:check",
     )
 }
 
@@ -19,6 +19,6 @@ tasks.register("dokkaGenerate") {
     dependsOn(
         ":domain:dokkaGenerate",
         ":data:dokkaGenerate",
-        ":plugin:dokkaGenerate"
+        ":plugin:dokkaGenerate",
     )
 }

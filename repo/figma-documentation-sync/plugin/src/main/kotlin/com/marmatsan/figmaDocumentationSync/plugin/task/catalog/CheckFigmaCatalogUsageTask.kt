@@ -10,8 +10,8 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -26,7 +26,7 @@ import org.gradle.work.DisableCachingByDefault
  * not used by any module, convention plugin, or tool configuration.
  */
 @DisableCachingByDefault(
-    because = "The check inspects repository sources outside its declared settings inputs"
+    because = "The check inspects repository sources outside its declared settings inputs",
 )
 abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     @get:Input
@@ -63,24 +63,27 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
 
     @TaskAction
     fun checkCatalogUsage() {
-        val result = figmaDocumentationSyncComponent::class.create().catalogUsageChecker.check(
-            CatalogUsageCheckRequest(
-                projectRootDirectory = projectRootDirectory.get().asFile,
-                primaryCatalogModelName = primaryCatalogModelName.get(),
-                dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
-                includedBuilds = includedBuildSources()
+        val result =
+            figmaDocumentationSyncComponent::class.create().catalogUsageChecker.check(
+                CatalogUsageCheckRequest(
+                    projectRootDirectory = projectRootDirectory.get().asFile,
+                    primaryCatalogModelName = primaryCatalogModelName.get(),
+                    dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                    includedBuilds = includedBuildSources(),
+                ),
             )
-        )
 
         if (!result.isSuccessful) {
             throw GradleException(
                 buildString {
                     appendLine("Unused dependency catalog entries found.")
-                    appendLine("Remove each entry or make it used by a module, convention plugin, or tool configuration:")
+                    appendLine(
+                        "Remove each entry or make it used by a module, convention plugin, or tool configuration:",
+                    )
                     result.unusedEntries.forEach { entry ->
                         appendLine("- ${entry.catalogName}: ${entry.entry}")
                     }
-                }.trimEnd()
+                }.trimEnd(),
             )
         }
 

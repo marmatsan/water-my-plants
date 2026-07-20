@@ -16,7 +16,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     implementation(projects.dependencies)
 
     // Kotest
@@ -31,6 +31,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.unitTest"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.UnitTestGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.UnitTestGradleConventionPlugin"
     }
 }

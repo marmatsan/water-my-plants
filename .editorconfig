@@ -7,6 +7,9 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 max_line_length = 120
+ktlint_code_style = ktlint_official
+ktlint_standard_function-signature = disabled
+ktlint_function_naming_ignore_when_annotated_with = Composable
 ij_kotlin_call_parameters_wrap = on_every_item
 ij_kotlin_method_parameters_wrap = on_every_item
 ij_kotlin_right_margin = 120
@@ -14,3 +17,12 @@ ij_kotlin_align_multiline_parameters = false
 ij_kotlin_align_multiline_parameters_in_calls = false
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
+
+[.teamcity/*.kts]
+ktlint_standard_no-wildcard-imports = disabled
+
+[app/src/**/*.kt]
+ktlint_standard_package-name = disabled
+
+[onboarding/ui/src/main/kotlin/**/figma/*.figma.kt]
+ktlint_standard_filename = disabled

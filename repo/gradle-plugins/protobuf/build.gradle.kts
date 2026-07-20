@@ -16,10 +16,10 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     implementation(projects.dependencies)
 
-    /* Protobuf */
+    // Protobuf
     implementation(libs.com.google.protobuf.gradle.plugin)
 
     // Kotest
@@ -34,6 +34,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.protobuf"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.ProtobufGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.ProtobufGradleConventionPlugin"
     }
 }

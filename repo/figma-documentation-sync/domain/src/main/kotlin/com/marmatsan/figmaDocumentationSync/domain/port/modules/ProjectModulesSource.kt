@@ -28,5 +28,5 @@ import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSour
  */
 data class ProjectModulesSource(
     val rootSettingsFilePath: String,
-    val includedBuilds: List<IncludedBuildSource> = emptyList()
+    val includedBuilds: List<IncludedBuildSource> = emptyList(),
 )

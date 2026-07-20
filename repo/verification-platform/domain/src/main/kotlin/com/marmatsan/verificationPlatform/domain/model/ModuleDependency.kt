@@ -8,5 +8,5 @@ package com.marmatsan.verificationPlatform.domain.model
  */
 data class ModuleDependency(
     val dependentModule: String,
-    val dependencyModule: String
+    val dependencyModule: String,
 )

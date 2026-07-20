@@ -12,6 +12,6 @@ fun interface TeamCityRunQueue {
      * responses instead of fabricating a successful run.
      */
     fun queue(
-        request: TeamCityRunRequest
+        request: TeamCityRunRequest,
     ): TeamCityQueuedRun
 }

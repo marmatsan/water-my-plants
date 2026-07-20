@@ -6,5 +6,5 @@ data class McpCompletedFile(
     val fileHash: String,
     val durationMs: Long,
     val completedAt: String,
-    val summary: String?
+    val summary: String?,
 )

@@ -13,28 +13,30 @@ import org.gradle.kotlin.dsl.hasPlugin
 
 @Suppress("unused")
 class ComposeGradleConventionPlugin : Plugin<Project> {
-
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
                 configureApplicationExtension(
-                    extension = project.extensions.getByType<ApplicationExtension>()
+                    extension = project.extensions.getByType<ApplicationExtension>(),
                 )
             }
 
             else -> {
                 configureLibraryExtension(
-                    extension = project.extensions.getByType<LibraryExtension>()
+                    extension = project.extensions.getByType<LibraryExtension>(),
                 )
             }
         }
 
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(
-            String::toBoolean
-        ).getOrElse(false)) {
+        if (project.providers
+                .gradleProperty("figmaCodeConnectEnabled")
+                .map(
+                    String::toBoolean,
+                ).getOrElse(false)
+        ) {
             project.pluginManager.apply("com.figma.code.connect")
         }
 
@@ -42,55 +44,56 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            val libs = withVersionCatalog(
-                libs = libs
-            )
+            val libs =
+                withVersionCatalog(
+                    libs = libs,
+                )
 
-            /* Compose libraries managed by Compose BOM */
+            // Compose libraries managed by Compose BOM
             libs.implementationPlatform(
                 libraryGroup = "androidx.compose",
-                artifact = "compose-bom"
+                artifact = "compose-bom",
             )
             libs.implementation(
                 libraryGroup = "androidx.compose.material3",
-                artifact = "material3"
+                artifact = "material3",
             )
             libs.implementation(
                 libraryGroup = "androidx.compose.material",
-                artifact = "material-icons-core"
+                artifact = "material-icons-core",
             )
             libs.implementationBundle(
-                bundle = "composeBundle"
+                bundle = "composeBundle",
             )
 
-            /* Other Compose libraries */
+            // Other Compose libraries
             libs.implementation(
                 libraryGroup = "androidx.activity",
-                artifact = "activity-compose"
+                artifact = "activity-compose",
             )
             libs.implementation(
                 libraryGroup = "androidx.lifecycle",
-                artifact = "lifecycle-viewmodel-compose"
+                artifact = "lifecycle-viewmodel-compose",
             )
             libs.implementation(
                 libraryGroup = "androidx.lifecycle",
-                artifact = "lifecycle-runtime-compose"
+                artifact = "lifecycle-runtime-compose",
             )
             libs.implementation(
                 libraryGroup = "androidx.navigation",
-                artifact = "navigation-compose"
+                artifact = "navigation-compose",
             )
 
-            /* Figma Code Connect */
+            // Figma Code Connect
             libs.implementation(
                 libraryGroup = "com.figma.code.connect",
-                artifact = "code-connect-lib"
+                artifact = "code-connect-lib",
             )
         }
     }
 
     private fun configureApplicationExtension(
-        extension: ApplicationExtension
+        extension: ApplicationExtension,
     ) {
         extension.apply {
             defaultConfig {
@@ -106,7 +109,7 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
     }
 
     private fun configureLibraryExtension(
-        extension: LibraryExtension
+        extension: LibraryExtension,
     ) {
         extension.apply {
             defaultConfig {

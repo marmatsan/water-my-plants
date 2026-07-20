@@ -13,35 +13,41 @@ object ShapeDefaults {
     val extraLarge = 28.dp
 }
 
-val Shapes = Shapes(
-    extraSmall = RoundedCornerShape(
-        topStart = ShapeDefaults.extraSmall,
-        topEnd = ShapeDefaults.extraSmall,
-        bottomStart = ShapeDefaults.extraSmall,
-        bottomEnd = ShapeDefaults.extraSmall
-    ),
-    small = RoundedCornerShape(
-        topStart = ShapeDefaults.small,
-        topEnd = ShapeDefaults.small,
-        bottomStart = ShapeDefaults.small,
-        bottomEnd = ShapeDefaults.small
-    ),
-    medium = RoundedCornerShape(
-        topStart = ShapeDefaults.medium,
-        topEnd = ShapeDefaults.medium,
-        bottomStart = ShapeDefaults.medium,
-        bottomEnd = ShapeDefaults.medium
-    ),
-    large = RoundedCornerShape(
-        topStart = ShapeDefaults.large,
-        topEnd = ShapeDefaults.large,
-        bottomStart = ShapeDefaults.large,
-        bottomEnd = ShapeDefaults.large
-    ),
-    extraLarge = RoundedCornerShape(
-        topStart = ShapeDefaults.extraLarge,
-        topEnd = ShapeDefaults.extraLarge,
-        bottomStart = ShapeDefaults.extraLarge,
-        bottomEnd = ShapeDefaults.extraLarge
+val Shapes =
+    Shapes(
+        extraSmall =
+            RoundedCornerShape(
+                topStart = ShapeDefaults.extraSmall,
+                topEnd = ShapeDefaults.extraSmall,
+                bottomStart = ShapeDefaults.extraSmall,
+                bottomEnd = ShapeDefaults.extraSmall,
+            ),
+        small =
+            RoundedCornerShape(
+                topStart = ShapeDefaults.small,
+                topEnd = ShapeDefaults.small,
+                bottomStart = ShapeDefaults.small,
+                bottomEnd = ShapeDefaults.small,
+            ),
+        medium =
+            RoundedCornerShape(
+                topStart = ShapeDefaults.medium,
+                topEnd = ShapeDefaults.medium,
+                bottomStart = ShapeDefaults.medium,
+                bottomEnd = ShapeDefaults.medium,
+            ),
+        large =
+            RoundedCornerShape(
+                topStart = ShapeDefaults.large,
+                topEnd = ShapeDefaults.large,
+                bottomStart = ShapeDefaults.large,
+                bottomEnd = ShapeDefaults.large,
+            ),
+        extraLarge =
+            RoundedCornerShape(
+                topStart = ShapeDefaults.extraLarge,
+                topEnd = ShapeDefaults.extraLarge,
+                bottomStart = ShapeDefaults.extraLarge,
+                bottomEnd = ShapeDefaults.extraLarge,
+            ),
     )
-)

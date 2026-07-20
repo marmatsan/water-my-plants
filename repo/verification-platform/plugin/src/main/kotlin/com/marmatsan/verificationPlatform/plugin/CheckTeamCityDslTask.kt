@@ -1,7 +1,5 @@
 package com.marmatsan.verificationPlatform.plugin
 
-import java.util.Locale
-import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -12,10 +10,12 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 import org.gradle.work.DisableCachingByDefault
+import java.util.Locale
+import javax.inject.Inject
 
 /** Exposes TeamCity Kotlin DSL generation through the Gradle verification API. */
 @DisableCachingByDefault(
-    because = "The Maven plugin writes and validates provider-generated configuration"
+    because = "The Maven plugin writes and validates provider-generated configuration",
 )
 abstract class CheckTeamCityDslTask : DefaultTask() {
     /** Repository checkout containing the Maven wrapper and TeamCity project. */
@@ -35,35 +35,39 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
     @TaskAction
     fun checkTeamCityDsl() {
         val root = repositoryRoot.get().asFile
-        val wrapper = root.resolve(
-            relative = if (isWindows()) "mvnw.cmd" else "mvnw"
-        )
+        val wrapper =
+            root.resolve(
+                relative = if (isWindows()) "mvnw.cmd" else "mvnw",
+            )
         check(wrapper.isFile) { "Maven wrapper was not found: $wrapper" }
 
-        execOperations.exec { spec ->
-            spec.workingDir(root)
-            spec.commandLine(
-                wrapper.absolutePath,
-                "-f",
-                teamCityPom.get().asFile.absolutePath,
-                "teamcity-configs:generate"
-            )
-        }.assertNormalExitValue()
+        execOperations
+            .exec { spec ->
+                spec.workingDir(root)
+                spec.commandLine(
+                    wrapper.absolutePath,
+                    "-f",
+                    teamCityPom.get().asFile.absolutePath,
+                    "teamcity-configs:generate",
+                )
+            }.assertNormalExitValue()
         validateGeneratedTeamCityConfiguration(
-            directory = root.resolve(
-                relative = GENERATED_CONFIG_DIRECTORY
-            )
+            directory =
+                root.resolve(
+                    relative = GENERATED_CONFIG_DIRECTORY,
+                ),
         )
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
     }
 
     private fun validateGeneratedTeamCityConfiguration(
-        directory: java.io.File
+        directory: java.io.File,
     ) {
-        val pipelineFiles = directory
-            .walkTopDown()
-            .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
-            .toList()
+        val pipelineFiles =
+            directory
+                .walkTopDown()
+                .filter { file -> file.isFile && file.name == PIPELINE_FILE_NAME }
+                .toList()
         check(pipelineFiles.isNotEmpty()) {
             "TeamCity generation did not produce any $PIPELINE_FILE_NAME files under $directory"
         }
@@ -76,13 +80,15 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
             }
         }
 
-        val buildTypeFiles = directory
-            .walkTopDown()
-            .filter { file -> file.isFile && file.extension == XML_EXTENSION }
-            .toList()
-        val ciGate = buildTypeFiles.singleOrNull { file ->
-            file.name.endsWith("_${CI_GATE_ID}.$XML_EXTENSION")
-        }
+        val buildTypeFiles =
+            directory
+                .walkTopDown()
+                .filter { file -> file.isFile && file.extension == XML_EXTENSION }
+                .toList()
+        val ciGate =
+            buildTypeFiles.singleOrNull { file ->
+                file.name.endsWith("_${CI_GATE_ID}.$XML_EXTENSION")
+            }
         check(ciGate != null) {
             "TeamCity generation did not produce the versioned $CI_GATE_ID build configuration."
         }
@@ -97,9 +103,10 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
             "${ciGate.path} does not snapshot-depend on $CI_PIPELINE_ID."
         }
 
-        val ciPipeline = buildTypeFiles.singleOrNull { file ->
-            file.name.endsWith("_${CI_PIPELINE_ID}.$XML_EXTENSION")
-        }
+        val ciPipeline =
+            buildTypeFiles.singleOrNull { file ->
+                file.name.endsWith("_${CI_PIPELINE_ID}.$XML_EXTENSION")
+            }
         check(ciPipeline != null) {
             "TeamCity generation did not produce the $CI_PIPELINE_ID pipeline head."
         }
@@ -120,11 +127,12 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
         const val UNSUPPORTED_STATUS_PUBLISHER = "type: commit-status-publisher"
         const val VCS_TRIGGER_FRAGMENT = "type=\"vcsTrigger\""
         val CI_PIPELINE_DEPENDENCY_REGEX = Regex("sourceBuildTypeId=\"[^\"]*${CI_PIPELINE_ID}\"")
-        val REQUIRED_CI_GATE_FRAGMENTS = listOf(
-            "name=\"buildConfigurationType\" value=\"COMPOSITE\"",
-            VCS_TRIGGER_FRAGMENT,
-            "type=\"commit-status-publisher\"",
-            "name=\"build_custom_name\" value=\"TeamCity CI\""
-        )
+        val REQUIRED_CI_GATE_FRAGMENTS =
+            listOf(
+                "name=\"buildConfigurationType\" value=\"COMPOSITE\"",
+                VCS_TRIGGER_FRAGMENT,
+                "type=\"commit-status-publisher\"",
+                "name=\"build_custom_name\" value=\"TeamCity CI\"",
+            )
     }
 }

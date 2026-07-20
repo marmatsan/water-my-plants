@@ -3,7 +3,6 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.official
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
-import java.io.ByteArrayOutputStream
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -15,10 +14,11 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import java.io.ByteArrayOutputStream
 
 /** Validates that the consumed sync scope belongs to the current checkout. */
 @DisableCachingByDefault(
-    because = "The current Git revision is runtime state"
+    because = "The current Git revision is runtime state",
 )
 abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
     @get:InputFile
@@ -37,20 +37,24 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
     /** Rejects stale scope/model artifacts and publishes the validated scope for the conditional checker. */
     @TaskAction
     fun validate() {
-        val scope = figmaDocumentationSyncComponent::class.create().officialFigmaSyncScopeJson
-            .read(scopeFile.get().asFile.absolutePath)
-        val currentGitSha = git(
-            "rev-parse",
-            "HEAD"
-        )
+        val scope =
+            figmaDocumentationSyncComponent::class
+                .create()
+                .officialFigmaSyncScopeJson
+                .read(scopeFile.get().asFile.absolutePath)
+        val currentGitSha =
+            git(
+                "rev-parse",
+                "HEAD",
+            )
         if (scope.gitSha != currentGitSha) {
             throw GradleException(
-                "Figma Sync scope artifact belongs to '${scope.gitSha}', not '$currentGitSha'."
+                "Figma Sync scope artifact belongs to '${scope.gitSha}', not '$currentGitSha'.",
             )
         }
         if (scope.scope == FigmaVerificationScope.FULL_VERIFICATION && !designModelFile.get().asFile.isFile) {
             throw GradleException(
-                "Missing official Figma design model artifact: ${designModelFile.get().asFile.path}"
+                "Missing official Figma design model artifact: ${designModelFile.get().asFile.path}",
             )
         }
 
@@ -65,22 +69,23 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
     }
 
     private fun git(
-        vararg arguments: String
+        vararg arguments: String,
     ): String {
         val root = projectRootDirectory.get().asFile
-        val safeDirectory = root.absolutePath.replace(
-            '\\',
-            '/'
-        )
-        val process = ProcessBuilder(
-            listOf(
-                "git",
-                "-c",
-                "safe.directory=$safeDirectory"
-            ) + arguments
-        )
-            .directory(root)
-            .start()
+        val safeDirectory =
+            root.absolutePath.replace(
+                '\\',
+                '/',
+            )
+        val process =
+            ProcessBuilder(
+                listOf(
+                    "git",
+                    "-c",
+                    "safe.directory=$safeDirectory",
+                ) + arguments,
+            ).directory(root)
+                .start()
         val output = ByteArrayOutputStream()
         val error = ByteArrayOutputStream()
         process.inputStream.use { input -> input.copyTo(output) }

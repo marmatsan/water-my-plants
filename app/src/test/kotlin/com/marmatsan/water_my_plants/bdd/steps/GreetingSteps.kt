@@ -6,7 +6,6 @@ import io.cucumber.java8.En
 import io.kotest.matchers.shouldBe
 
 class GreetingSteps : En {
-
     private lateinit var name: String
     private lateinit var message: String
 
@@ -16,9 +15,10 @@ class GreetingSteps : En {
         }
 
         When("the greeting is requested") {
-            val useCase = GreetingUseCase(
-                repository = GreetingRepository()
-            )
+            val useCase =
+                GreetingUseCase(
+                    repository = GreetingRepository(),
+                )
 
             message = useCase(name)
         }

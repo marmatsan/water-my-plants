@@ -11,7 +11,7 @@ import com.marmatsan.verificationPlatform.domain.port.TeamCityRunQueue
  * domain allow-list.
  */
 class QueueTeamCityRun(
-    private val runQueue: TeamCityRunQueue
+    private val runQueue: TeamCityRunQueue,
 ) {
     /**
      * Validates [request] and delegates it to the configured queue adapter.
@@ -20,7 +20,7 @@ class QueueTeamCityRun(
      * characters outside the reviewed allow-list.
      */
     fun execute(
-        request: TeamCityRunRequest
+        request: TeamCityRunRequest,
     ): TeamCityQueuedRun {
         require(BUILD_TYPE_ID.matches(request.buildTypeId)) {
             "TeamCity build type id contains unsupported characters."
@@ -29,7 +29,7 @@ class QueueTeamCityRun(
             "TeamCity branch contains unsupported characters."
         }
         return runQueue.queue(
-            request = request
+            request = request,
         )
     }
 

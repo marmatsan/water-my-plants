@@ -8,20 +8,22 @@ package com.marmatsan.figmaDocumentationSync.domain.model.ci
  */
 data class CiConfiguration(
     val pipelines: List<CiPipeline>,
-    val vcsRoots: List<CiVcsRoot>
+    val vcsRoots: List<CiVcsRoot>,
 ) {
     init {
         require(
-            pipelines.map(
-                transform = CiPipeline::id
-            ).let { ids -> ids.size == ids.toSet().size }
+            pipelines
+                .map(
+                    transform = CiPipeline::id,
+                ).let { ids -> ids.size == ids.toSet().size },
         ) {
             "CI pipeline ids must be unique"
         }
         require(
-            vcsRoots.map(
-                transform = CiVcsRoot::id
-            ).let { ids -> ids.size == ids.toSet().size }
+            vcsRoots
+                .map(
+                    transform = CiVcsRoot::id,
+                ).let { ids -> ids.size == ids.toSet().size },
         ) {
             "CI VCS root ids must be unique"
         }

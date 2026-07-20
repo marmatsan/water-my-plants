@@ -12,10 +12,10 @@ repositories {
 }
 
 dependencies {
-    /* Modules */
+    // Modules
     implementation(projects.dependencies)
 
-    /* Libraries */
+    // Libraries
     compileOnly(libs.com.android.tools.build.gradle)
     compileOnly(libs.org.jetbrains.kotlin.gradle.plugin)
 }
@@ -24,6 +24,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.android"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.AndroidGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.AndroidGradleConventionPlugin"
     }
 }

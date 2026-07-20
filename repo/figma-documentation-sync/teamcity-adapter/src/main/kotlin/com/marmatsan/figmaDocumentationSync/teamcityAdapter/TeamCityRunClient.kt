@@ -6,16 +6,16 @@ interface TeamCityRunClient : TeamCityRunStarter {
         buildTypeId: String,
         branch: String,
         status: String,
-        limit: Int = 1
+        limit: Int = 1,
     ): List<TeamCityRun>
 
     fun watchRun(
         buildId: Long,
         pollIntervalSeconds: Int,
-        timeoutMinutes: Int
+        timeoutMinutes: Int,
     ): TeamCityRun
 
     fun readRun(
-        buildId: Long
+        buildId: Long,
     ): TeamCityRun
 }

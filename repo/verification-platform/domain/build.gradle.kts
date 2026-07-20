@@ -23,23 +23,23 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     systemProperty(
         "cucumber.junit-platform.naming-strategy",
-        "long"
+        "long",
     )
     systemProperty(
         "cucumber.plugin",
-        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
+        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json",
     )
 
     System.getProperty("cucumber.filter.tags")?.let { tags ->
         systemProperty(
             "cucumber.filter.tags",
-            tags
+            tags,
         )
     }
     System.getProperty("cucumber.features")?.let { features ->
         systemProperty(
             "cucumber.features",
-            features
+            features,
         )
     }
 }
@@ -54,7 +54,7 @@ dokka {
     dokkaPublications.html {
         failOnWarning.set(true)
         includes.from(
-            "docs/dokka/README.md"
+            "docs/dokka/README.md",
         )
     }
 
@@ -66,8 +66,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/verification-platform/domain/src/main/kotlin"
-                )
+                        "repo/verification-platform/domain/src/main/kotlin",
+                ),
             )
             remoteLineSuffix.set("#L")
         }

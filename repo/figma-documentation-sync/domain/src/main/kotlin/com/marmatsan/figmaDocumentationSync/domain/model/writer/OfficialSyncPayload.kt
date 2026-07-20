@@ -10,5 +10,5 @@ data class OfficialSyncPayload(
     val script: String,
     val scriptLength: Int,
     val writerHash: String,
-    val transportHash: String
+    val transportHash: String,
 )

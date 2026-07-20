@@ -12,60 +12,60 @@ import org.gradle.kotlin.dsl.withType
 @Suppress("unused")
 class BddTestGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
-
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.tasks.withType<Test> {
             useJUnitPlatform()
             systemProperty(
                 "cucumber.junit-platform.naming-strategy",
-                "long"
+                "long",
             )
             systemProperty(
                 "cucumber.plugin",
-                "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
+                "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json",
             )
 
             System.getProperty("cucumber.filter.tags")?.let { tags ->
                 systemProperty(
                     "cucumber.filter.tags",
-                    tags
+                    tags,
                 )
             }
             System.getProperty("cucumber.features")?.let { features ->
                 systemProperty(
                     "cucumber.features",
-                    features
+                    features,
                 )
             }
         }
 
         project.dependencies {
-            val libs = withVersionCatalog(
-                libs = libs
-            )
+            val libs =
+                withVersionCatalog(
+                    libs = libs,
+                )
 
             libs.testImplementationPlatform(
                 libraryGroup = "io.cucumber",
-                artifact = "cucumber-bom"
+                artifact = "cucumber-bom",
             )
             libs.testImplementation(
                 libraryGroup = "io.cucumber",
-                artifact = "cucumber-java8"
+                artifact = "cucumber-java8",
             )
             libs.testImplementation(
                 libraryGroup = "io.cucumber",
-                artifact = "cucumber-junit-platform-engine"
+                artifact = "cucumber-junit-platform-engine",
             )
             libs.testImplementation(
                 libraryGroup = "org.junit.platform",
-                artifact = "junit-platform-suite"
+                artifact = "junit-platform-suite",
             )
             libs.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",
-                artifact = "junit-platform-launcher"
+                artifact = "junit-platform-launcher",
             )
         }
     }

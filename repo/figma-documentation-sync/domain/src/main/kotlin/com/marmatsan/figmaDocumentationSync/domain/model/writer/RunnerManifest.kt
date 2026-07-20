@@ -12,5 +12,5 @@ data class RunnerManifest(
     val writerScopeFingerprints: Map<String, String>,
     val writerScopeFingerprintSchemaVersion: Int,
     val executionScopes: Map<String, String>,
-    val manifestHash: String
+    val manifestHash: String,
 )

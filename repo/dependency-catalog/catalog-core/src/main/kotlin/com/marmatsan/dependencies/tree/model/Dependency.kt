@@ -11,7 +11,6 @@ package com.marmatsan.dependencies.tree.model
  * - [Plugin] represents a Gradle plugin id plus its version.
  */
 sealed class Dependency {
-
     /**
      * Represents a library dependency group ready to be registered in a version catalog.
      *
@@ -24,7 +23,7 @@ sealed class Dependency {
      */
     data class Library(
         val libraryGroup: String,
-        val entries: List<LibraryEntry>? = null
+        val entries: List<LibraryEntry>? = null,
     ) : Dependency()
 
     /**
@@ -35,6 +34,6 @@ sealed class Dependency {
      */
     data class Plugin(
         val pluginId: String,
-        val version: String
+        val version: String,
     ) : Dependency()
 }

@@ -30,6 +30,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.dokkaDocumentation"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.DokkaDocumentationGradleConventionPlugin"
+        implementationClass = "$pluginName.plugin.DokkaDocumentationGradleConventionPlugin"
     }
 }

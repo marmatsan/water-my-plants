@@ -24,7 +24,7 @@ import java.io.File
  */
 class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     override fun apply(
-        project: Project
+        project: Project,
     ) {
         project.pluginManager.apply("com.marmatsan.figmaDocumentationSync")
         val writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
@@ -34,13 +34,13 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 "https://www.figma.com/design/${writerConfig.figmaFileKey}/Water-My-Plants" +
                     "?node-id=${writerConfig.metadataPageId.replace(
                         ':',
-                        '-'
-                    )}"
+                        '-',
+                    )}",
             )
             metadataNamespace.set(writerConfig.metadataNamespace)
             primaryCatalogModelName.set("waterMyPlants")
             dependencyCatalogProviderClassName.set(
-                WaterMyPlantsDependencyCatalogProvider::class.java.name
+                WaterMyPlantsDependencyCatalogProvider::class.java.name,
             )
             ciDocumentationEnabled.set(true)
             ciConfigurationModelName.set("teamCity")
@@ -50,18 +50,18 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             ciExternalTopologyFile.set(project.layout.projectDirectory.file("docs/ci/external-topology.yaml"))
             ciWindowsRuntimeFile.set(project.layout.projectDirectory.file("docs/ci/windows-runtime.yaml"))
             ciGeneratedConfigurationDirectory.set(
-                project.layout.projectDirectory.dir(".teamcity/target/generated-configs")
+                project.layout.projectDirectory.dir(".teamcity/target/generated-configs"),
             )
             changeImpactPolicyFile.set(
                 project.layout.projectDirectory.file(
-                    "repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json"
-                )
+                    "repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json",
+                ),
             )
             toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-documentation-sync/tools"))
             ciConfigurationCommand.set(
                 teamCityConfigurationCommand(
-                    project = project
-                )
+                    project = project,
+                ),
             )
 
             includedBuilds.register("dependency-catalog") {
@@ -74,7 +74,9 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
 
             includedBuilds.register("figma-documentation-sync") {
                 modelName.set("figmaDocumentationSync")
-                settingsFile.set(project.layout.projectDirectory.file("repo/figma-documentation-sync/settings.gradle.kts"))
+                settingsFile.set(
+                    project.layout.projectDirectory.file("repo/figma-documentation-sync/settings.gradle.kts"),
+                )
                 rootDirectory.set(project.layout.projectDirectory.dir("repo/figma-documentation-sync"))
                 modulePathPrefix.set(":figma-documentation-sync")
             }
@@ -95,8 +97,8 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 configurationJson.set(FigmaWriterProjectConfigJson.encode(writerConfig))
                 outputFile.set(
                     project.layout.buildDirectory.file(
-                        "generated/figma-documentation-sync/writer-project-config.json"
-                    )
+                        "generated/figma-documentation-sync/writer-project-config.json",
+                    ),
                 )
             }
 
@@ -114,7 +116,7 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                     "node",
                     "bin/build.mjs",
                     "--project-config-json=${generatedWriterProjectConfigFile.get().asFile.absolutePath}",
-                    "--output-dir=."
+                    "--output-dir=.",
                 )
             }
         }
@@ -127,12 +129,12 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             workingDir(toolsDirectory)
             commandLine(
                 npmExecutable(),
-                "test"
+                "test",
             )
             doFirst {
                 environment(
                     "FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG",
-                    generatedWriterProjectConfigFile.get().asFile.absolutePath
+                    generatedWriterProjectConfigFile.get().asFile.absolutePath,
                 )
             }
         }
@@ -162,30 +164,31 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
             buildId.convention(
                 project.providers.gradleProperty("figmaTeamCityBuildId").map(
-                    String::toLong
-                )
+                    String::toLong,
+                ),
             )
             artifactDirectory.set(
                 project.layout.dir(
                     project.providers.gradleProperty("figmaArtifactDirectory").map(
-                        ::File
-                    )
-                )
+                        ::File,
+                    ),
+                ),
             )
             destinationRoot.convention(
-                project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
-                        ::File
-                    )
-                ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
+                project.layout
+                    .dir(
+                        project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                            ::File,
+                        ),
+                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity")),
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
             mainBranchAliases.set(
                 listOf(
                     "main",
                     "<default>",
-                    "refs/heads/main"
-                )
+                    "refs/heads/main",
+                ),
             )
             requiredBuildTypeName.set("Generate main design model")
         }
@@ -195,23 +198,24 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
             buildId.convention(
                 project.providers.gradleProperty("figmaTeamCityBuildId").map(
-                    String::toLong
-                )
+                    String::toLong,
+                ),
             )
             artifactDirectory.set(
                 project.layout.dir(
                     project.providers.gradleProperty("figmaArtifactDirectory").map(
-                        ::File
-                    )
-                )
+                        ::File,
+                    ),
+                ),
             )
             uploadUrl.convention(project.providers.gradleProperty("figmaMcpUploadUrl"))
             destinationRoot.convention(
-                project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
-                        ::File
-                    )
-                ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
+                project.layout
+                    .dir(
+                        project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                            ::File,
+                        ),
+                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity")),
             )
             projectDirectory.set(project.layout.projectDirectory)
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
@@ -219,8 +223,8 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 listOf(
                     "main",
                     "<default>",
-                    "refs/heads/main"
-                )
+                    "refs/heads/main",
+                ),
             )
             requiredBuildTypeName.set("Generate main design model")
         }
@@ -229,36 +233,37 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Validates or reruns the official TeamCity Figma Sync pipeline."
             serverUrl.convention(
-                project.providers.gradleProperty("figmaTeamCityServerUrl")
-                    .orElse("https://teamcity.marmatsan.dev")
+                project.providers
+                    .gradleProperty("figmaTeamCityServerUrl")
+                    .orElse("https://teamcity.marmatsan.dev"),
             )
             validateOnly.convention(
-                project.providers.gradleProperty("figmaTeamCityValidateOnly")
+                project.providers
+                    .gradleProperty("figmaTeamCityValidateOnly")
                     .map(
-                        String::toBoolean
-                    )
-                    .orElse(false)
+                        String::toBoolean,
+                    ).orElse(false),
             )
             waitForCompletion.convention(
-                project.providers.gradleProperty("figmaTeamCityWait")
+                project.providers
+                    .gradleProperty("figmaTeamCityWait")
                     .map(
-                        String::toBoolean
-                    )
-                    .orElse(false)
+                        String::toBoolean,
+                    ).orElse(false),
             )
             pollIntervalSeconds.convention(
-                project.providers.gradleProperty("figmaTeamCityPollIntervalSeconds")
+                project.providers
+                    .gradleProperty("figmaTeamCityPollIntervalSeconds")
                     .map(
-                        String::toInt
-                    )
-                    .orElse(10)
+                        String::toInt,
+                    ).orElse(10),
             )
             timeoutMinutes.convention(
-                project.providers.gradleProperty("figmaTeamCityTimeoutMinutes")
+                project.providers
+                    .gradleProperty("figmaTeamCityTimeoutMinutes")
                     .map(
-                        String::toInt
-                    )
-                    .orElse(60)
+                        String::toInt,
+                    ).orElse(60),
             )
             buildTypeId.set("WaterMyPlants_WaterMyPlantsFigmaSync")
             branch.set("main")
@@ -266,30 +271,38 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     }
 
     private fun teamCityConfigurationCommand(
-        project: Project
+        project: Project,
     ): List<String> {
-        val wrapper = project.layout.projectDirectory
-            .file(if (isWindows()) "mvnw.cmd" else "mvnw")
-            .asFile
-            .absolutePath
-        val arguments = listOf(
-            wrapper,
-            "-f",
-            project.layout.projectDirectory.file(".teamcity/pom.xml").asFile.absolutePath,
-            "teamcity-configs:generate"
-        )
+        val wrapper =
+            project.layout.projectDirectory
+                .file(if (isWindows()) "mvnw.cmd" else "mvnw")
+                .asFile
+                .absolutePath
+        val arguments =
+            listOf(
+                wrapper,
+                "-f",
+                project.layout.projectDirectory
+                    .file(".teamcity/pom.xml")
+                    .asFile.absolutePath,
+                "teamcity-configs:generate",
+            )
 
-        return if (isWindows()) listOf(
-            "cmd.exe",
-            "/d",
-            "/c"
-        ) + arguments else arguments
+        return if (isWindows()) {
+            listOf(
+                "cmd.exe",
+                "/d",
+                "/c",
+            ) + arguments
+        } else {
+            arguments
+        }
     }
 
     private fun isWindows(): Boolean =
         System.getProperty("os.name").startsWith(
             "Windows",
-            ignoreCase = true
+            ignoreCase = true,
         )
 
     private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"

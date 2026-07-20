@@ -1,7 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
-import java.net.URI
 import org.gradle.api.publish.maven.MavenPublication
+import java.net.URI
 
 plugins {
     `kotlin-dsl`
@@ -21,23 +21,23 @@ tasks.withType<Test> {
     useJUnitPlatform()
     systemProperty(
         "cucumber.junit-platform.naming-strategy",
-        "long"
+        "long",
     )
     systemProperty(
         "cucumber.plugin",
-        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
+        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json",
     )
 
     System.getProperty("cucumber.filter.tags")?.let { tags ->
         systemProperty(
             "cucumber.filter.tags",
-            tags
+            tags,
         )
     }
     System.getProperty("cucumber.features")?.let { features ->
         systemProperty(
             "cucumber.features",
-            features
+            features,
         )
     }
 }
@@ -70,7 +70,7 @@ gradlePlugin {
     val pluginName = "com.marmatsan.figmaDocumentationSync"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin"
+        implementationClass = "$pluginName.plugin.gradle.FigmaDocumentationSyncGradlePlugin"
         displayName = "Figma Documentation Sync"
         description = "Generates and verifies a portable Gradle repository model for Figma documentation."
     }
@@ -96,10 +96,14 @@ publishing {
     repositories {
         maven {
             name = "staging"
-            url = uri(
-                providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
-                    ?: rootProject.layout.buildDirectory.dir("publication-repository").get().asFile
-            )
+            url =
+                uri(
+                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+                        ?: rootProject.layout.buildDirectory
+                            .dir("publication-repository")
+                            .get()
+                            .asFile,
+                )
         }
     }
 }
@@ -109,7 +113,7 @@ dokka {
 
     dokkaPublications.html {
         includes.from(
-            "docs/dokka/README.md"
+            "docs/dokka/README.md",
         )
     }
 
@@ -119,8 +123,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/figma-documentation-sync/plugin/src/main/kotlin"
-                )
+                        "repo/figma-documentation-sync/plugin/src/main/kotlin",
+                ),
             )
             remoteLineSuffix.set("#L")
         }

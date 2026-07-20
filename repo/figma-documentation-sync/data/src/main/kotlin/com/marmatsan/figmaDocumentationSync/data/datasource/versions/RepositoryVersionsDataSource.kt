@@ -1,6 +1,5 @@
 package com.marmatsan.figmaDocumentationSync.data.datasource.versions
 
-
 import com.marmatsan.figmaDocumentationSync.data.properties.versions.VersionsPropertiesReader
 import com.marmatsan.figmaDocumentationSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
@@ -17,17 +16,17 @@ import java.io.File
  */
 @Inject
 class RepositoryVersionsDataSource(
-    private val versionsPropertiesReader: VersionsPropertiesReader
+    private val versionsPropertiesReader: VersionsPropertiesReader,
 ) : RepositoryVersionsPort {
     override fun readVersions(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): Map<String, String> =
         versionsPropertiesReader.read(File(source.path))
 
     override fun readVersionSections(
-        source: VersionsFileSource
+        source: VersionsFileSource,
     ): List<RepositoryVersionSection> =
         versionsPropertiesReader.readSections(
-            file = File(source.path)
+            file = File(source.path),
         )
 }

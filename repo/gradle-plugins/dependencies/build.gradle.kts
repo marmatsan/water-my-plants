@@ -32,6 +32,6 @@ gradlePlugin {
     val pluginName = "com.marmatsan.dependencies"
     plugins.register(pluginName) {
         id = pluginName
-        implementationClass = "${pluginName}.plugin.DependenciesPlugin"
+        implementationClass = "$pluginName.plugin.DependenciesPlugin"
     }
 }

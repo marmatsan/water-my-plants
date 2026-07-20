@@ -3,8 +3,8 @@ package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
 import com.marmatsan.figmaDocumentationSync.data.gradle.nestedGradleBuildRoots
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
-import java.io.File
 import me.tatarka.inject.annotations.Inject
+import java.io.File
 
 /**
  * Discovers regular Gradle plugin ids implemented by repository-owned included
@@ -18,57 +18,60 @@ class GradlePluginTreeReader {
     fun readPluginTree(
         rootDir: File,
         includedPluginIds: Set<String> = emptySet(),
-        usageByPluginId: Map<String, Set<String>> = emptyMap()
+        usageByPluginId: Map<String, Set<String>> = emptyMap(),
     ): PluginCatalogTree {
-        val pluginIds = rootDir
-            .nestedGradleBuildRoots()
-            .flatMap(File::walkTopDown)
-            .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
-            .map { file -> file.readText() }
-            .filter { content -> content.hasRegularGradlePluginImplementation() }
-            .map { content -> content.pluginIds() }
-            .flatten()
-            .filter { pluginId -> includedPluginIds.isEmpty() || pluginId in includedPluginIds }
-            .toSet()
+        val pluginIds =
+            rootDir
+                .nestedGradleBuildRoots()
+                .flatMap(File::walkTopDown)
+                .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
+                .map { file -> file.readText() }
+                .filter { content -> content.hasRegularGradlePluginImplementation() }
+                .map { content -> content.pluginIds() }
+                .flatten()
+                .filter { pluginId -> includedPluginIds.isEmpty() || pluginId in includedPluginIds }
+                .toSet()
 
         return PluginCatalogTree(
-            roots = pluginIds.toPluginCatalogNodes(
-                usageByPluginId = usageByPluginId
-            )
+            roots =
+                pluginIds.toPluginCatalogNodes(
+                    usageByPluginId = usageByPluginId,
+                ),
         )
     }
 
     private fun String.pluginIds(): Sequence<String> =
         sequenceOf(
             PluginNameRegex,
-            PluginIdRegex
-        )
-            .flatMap { regex -> regex.findAll(
-                input = this
-            ) }
-            .map { match -> match.groupValues[1] }
+            PluginIdRegex,
+        ).flatMap { regex ->
+            regex.findAll(
+                input = this,
+            )
+        }.map { match -> match.groupValues[1] }
 
     private fun String.hasRegularGradlePluginImplementation(): Boolean =
-        ImplementationClassRegex.findAll(
-            input = this
-        )
-            .map { match -> match.groupValues[1] }
+        ImplementationClassRegex
+            .findAll(
+                input = this,
+            ).map { match -> match.groupValues[1] }
             .any { implementationClass -> !implementationClass.endsWith(CONVENTION_PLUGIN_SUFFIX) }
 
     private fun Set<String>.toPluginCatalogNodes(
-        usageByPluginId: Map<String, Set<String>>
+        usageByPluginId: Map<String, Set<String>>,
     ): List<PluginCatalogNode> =
         map { pluginId -> pluginId.split(".") }
-            .fold(emptyList<PluginCatalogNode>()) { nodes, segments -> nodes.withPath(
-                segments = segments,
-                usageByPluginId = usageByPluginId
-            ) }
-            .sortedBy(PluginCatalogNode::id)
+            .fold(emptyList<PluginCatalogNode>()) { nodes, segments ->
+                nodes.withPath(
+                    segments = segments,
+                    usageByPluginId = usageByPluginId,
+                )
+            }.sortedBy(PluginCatalogNode::id)
 
     private fun List<PluginCatalogNode>.withPath(
         segments: List<String>,
         usageByPluginId: Map<String, Set<String>>,
-        parentId: String = ""
+        parentId: String = "",
     ): List<PluginCatalogNode> {
         if (segments.isEmpty()) {
             return this
@@ -76,37 +79,39 @@ class GradlePluginTreeReader {
 
         val head = segments.first()
         val tail = segments.drop(1)
-        val pluginId = listOf(
-            parentId,
-            head
-        )
-            .filter(String::isNotBlank)
-            .joinToString(".")
+        val pluginId =
+            listOf(
+                parentId,
+                head,
+            ).filter(String::isNotBlank)
+                .joinToString(".")
         val existingNode = firstOrNull { node -> node.id == head }
-        val updatedNode = existingNode
-            ?.copy(
-                appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
-                children = existingNode.children.withPath(
-                    segments = tail,
-                    usageByPluginId = usageByPluginId,
-                    parentId = pluginId
+        val updatedNode =
+            existingNode
+                ?.copy(
+                    appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
+                    children =
+                        existingNode.children.withPath(
+                            segments = tail,
+                            usageByPluginId = usageByPluginId,
+                            parentId = pluginId,
+                        ),
                 )
-            )
-            ?: PluginCatalogNode(
-                id = head,
-                appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
-                children = emptyList<PluginCatalogNode>().withPath(
-                    segments = tail,
-                    usageByPluginId = usageByPluginId,
-                    parentId = pluginId
+                ?: PluginCatalogNode(
+                    id = head,
+                    appliedToModules = usageByPluginId[pluginId].orEmpty().sorted(),
+                    children =
+                        emptyList<PluginCatalogNode>().withPath(
+                            segments = tail,
+                            usageByPluginId = usageByPluginId,
+                            parentId = pluginId,
+                        ),
                 )
-            )
 
         return filterNot { node -> node.id == head }
             .plus(
-                element = updatedNode
-            )
-            .sortedBy(PluginCatalogNode::id)
+                element = updatedNode,
+            ).sortedBy(PluginCatalogNode::id)
     }
 
     private companion object {

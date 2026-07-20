@@ -12,5 +12,5 @@ enum class CiTopologyMode {
 
     /** Independent units are separated into lanes that may run concurrently. */
     @SerialName("multi-agent-parallel")
-    MULTI_AGENT_PARALLEL
+    MULTI_AGENT_PARALLEL,
 }

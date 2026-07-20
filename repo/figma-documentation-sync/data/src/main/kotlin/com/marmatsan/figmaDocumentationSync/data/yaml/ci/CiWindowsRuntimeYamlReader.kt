@@ -13,55 +13,66 @@ import java.time.LocalDate
 @Inject
 class CiWindowsRuntimeYamlReader {
     fun read(
-        file: File
+        file: File,
     ): CiWindowsRuntime {
-        val settings = LoadSettings.builder()
-            .setLabel(file.path)
-            .build()
-        val root = file.inputStream().use { input ->
-            Load(settings).loadFromInputStream(input)
-        }.asStringMap(
-            context = "root"
-        )
-        val validation = root.requiredMap(
-            key = "validation"
-        )
+        val settings =
+            LoadSettings
+                .builder()
+                .setLabel(file.path)
+                .build()
+        val root =
+            file
+                .inputStream()
+                .use { input ->
+                    Load(settings).loadFromInputStream(input)
+                }.asStringMap(
+                    context = "root",
+                )
+        val validation =
+            root.requiredMap(
+                key = "validation",
+            )
 
         return CiWindowsRuntime(
             schemaVersion = root.requiredInt("schemaVersion"),
-            validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse(
-                    validation.requiredString("lastValidatedOn")
+            validation =
+                CiWindowsRuntime.Validation(
+                    lastValidatedOn =
+                        LocalDate.parse(
+                            validation.requiredString("lastValidatedOn"),
+                        ),
+                    warnAfterDays = validation.requiredInt("warnAfterDays"),
                 ),
-                warnAfterDays = validation.requiredInt("warnAfterDays")
-            ),
             platform = root.requiredString("platform"),
-            services = root.requiredList(
-                key = "services"
-            ).map(
-                transform = ::readService
-            )
+            services =
+                root
+                    .requiredList(
+                        key = "services",
+                    ).map(
+                        transform = ::readService,
+                    ),
         )
     }
 
     private fun readService(
-        value: Any?
+        value: Any?,
     ): CiWindowsRuntime.Service {
-        val service = value.asStringMap(
-            context = "service"
-        )
+        val service =
+            value.asStringMap(
+                context = "service",
+            )
         return CiWindowsRuntime.Service(
             id = service.requiredString("id"),
             name = service.requiredString("name"),
             description = service.requiredString("description"),
             service = service.requiredString("service"),
             startup = service.requiredString("startup"),
-            identity = service.requiredString("identity")
+            identity = service.requiredString("identity"),
         )
     }
 
     private fun Any?.asStringMap(
-        context: String
+        context: String,
     ): Map<String, Any?> {
         val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
         return source.entries.associate { (key, value) ->
@@ -71,32 +82,34 @@ class CiWindowsRuntimeYamlReader {
     }
 
     private fun Map<String, Any?>.requiredMap(
-        key: String
+        key: String,
     ): Map<String, Any?> =
         get(
-            key = key
+            key = key,
         ).asStringMap(
-            context = key
+            context = key,
         )
 
     private fun Map<String, Any?>.requiredList(
-        key: String
+        key: String,
     ): List<Any?> =
         get(
-            key = key
+            key = key,
         ) as? List<*> ?: error("Expected YAML list '$key'")
 
     private fun Map<String, Any?>.requiredString(
-        key: String
+        key: String,
     ): String =
         get(
-            key = key
+            key = key,
         ) as? String ?: error("Expected YAML string '$key'")
 
     private fun Map<String, Any?>.requiredInt(
-        key: String
+        key: String,
     ): Int =
-        (get(
-            key = key
-        ) as? Number)?.toInt() ?: error("Expected YAML integer '$key'")
+        (
+            get(
+                key = key,
+            ) as? Number
+        )?.toInt() ?: error("Expected YAML integer '$key'")
 }

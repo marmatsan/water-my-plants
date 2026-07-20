@@ -16,5 +16,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.catalog
  * @property roots Top-level group-id nodes.
  */
 data class LibraryCatalogTree(
-    val roots: List<LibraryCatalogNode>
+    val roots: List<LibraryCatalogNode>,
 )

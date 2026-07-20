@@ -12,5 +12,5 @@ data class TeamCityQueuedRun(
     val id: Long,
     val state: String,
     val branch: String,
-    val webUrl: String?
+    val webUrl: String?,
 )

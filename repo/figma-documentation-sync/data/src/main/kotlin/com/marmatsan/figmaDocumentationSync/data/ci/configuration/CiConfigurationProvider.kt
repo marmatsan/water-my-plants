@@ -11,6 +11,6 @@ import java.io.File
  */
 interface CiConfigurationProvider {
     fun read(
-        directory: File
+        directory: File,
     ): CiConfiguration
 }
