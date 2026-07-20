@@ -13,6 +13,7 @@ pluginManagement {
     plugins {
         id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
         id("org.jetbrains.kotlin.plugin.serialization") version versions.getProperty("kotlinVersion")
+        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
     }
 }
 
@@ -48,6 +49,26 @@ dependencyResolutionManagement {
                 "org.junit.jupiter.platform.launcher",
                 "org.junit.platform",
                 "junit-platform-launcher"
+            ).withoutVersion()
+            library(
+                "org.junit.platform.suite",
+                "org.junit.platform",
+                "junit-platform-suite"
+            ).withoutVersion()
+            library(
+                "io.cucumber.bom",
+                "io.cucumber",
+                "cucumber-bom"
+            ).version(versions.getProperty("cucumberLibraryVersion"))
+            library(
+                "io.cucumber.java8",
+                "io.cucumber",
+                "cucumber-java8"
+            ).withoutVersion()
+            library(
+                "io.cucumber.junit.platform.engine",
+                "io.cucumber",
+                "cucumber-junit-platform-engine"
             ).withoutVersion()
         }
     }

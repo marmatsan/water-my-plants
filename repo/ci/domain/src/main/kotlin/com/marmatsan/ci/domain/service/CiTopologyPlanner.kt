@@ -8,8 +8,23 @@ import com.marmatsan.ci.domain.model.CiTopologyMode
 import com.marmatsan.ci.domain.model.VerificationUnit
 import com.marmatsan.ci.domain.model.VerificationUnitId
 
-/** Pure scheduler that preserves unit dependencies while previewing agent allocation. */
+/**
+ * Projects a verification plan onto the currently available build agents.
+ *
+ * The projection is preview-only and preserves every required unit plus one
+ * authoritative status publisher. The stable behavior is documented by
+ * `ci-execution-topology.feature`.
+ */
 class CiTopologyPlanner {
+    /**
+     * Creates an execution topology without changing the authority of [plan].
+     *
+     * @param plan provider-neutral verification plan to schedule.
+     * @param availableAgents number of compatible agents available to a future
+     * provider adapter; must be at least one.
+     * @return a sequential or parallel preview containing every required unit
+     * exactly once.
+     */
     fun create(plan: CiPlan, availableAgents: Int): CiExecutionTopology {
         require(availableAgents >= 1) { "CI topology requires at least one available agent." }
 

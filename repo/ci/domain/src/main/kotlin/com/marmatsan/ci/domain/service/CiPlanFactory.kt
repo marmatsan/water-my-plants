@@ -8,8 +8,23 @@ import com.marmatsan.ci.domain.model.RepositoryModuleGraph
 import com.marmatsan.ci.domain.model.VerificationUnit
 import com.marmatsan.ci.domain.model.VerificationUnitId
 
-/** Pure classifier that turns repository paths into provider-neutral verification units. */
+/**
+ * Selects provider-neutral verification for one committed repository change.
+ *
+ * The factory applies the fail-closed behavior documented by
+ * `ci-verification-plan.feature`: unknown paths or an invalid module graph keep
+ * full repository verification, while safely classified application changes
+ * may select affected module tasks.
+ */
 class CiPlanFactory {
+    /**
+     * Creates the authoritative verification plan for [changeSet].
+     *
+     * @param changeSet committed paths and revisions being compared.
+     * @param moduleGraph modules and dependency edges used to calculate impact.
+     * @return a provider-neutral plan whose required units can be consumed by a
+     * CI adapter.
+     */
     fun create(changeSet: RepositoryChangeSet, moduleGraph: RepositoryModuleGraph): CiPlan {
         val changedFiles = changeSet.changedFiles.map(::normalize).distinct().sorted()
         val moduleImpactAnalyzer = ModuleImpactAnalyzer()

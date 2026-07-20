@@ -14,6 +14,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
+/** Writes a non-authoritative agent-lane projection of an existing CI plan. */
 @DisableCachingByDefault(because = "The preview is a diagnostic projection of a Git-derived CI plan")
 abstract class GenerateCiTopologyPreviewTask : DefaultTask() {
     @get:InputFile

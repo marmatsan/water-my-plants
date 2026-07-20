@@ -37,10 +37,24 @@ aggregator so existing consumers do not need to know its internal projects.
 The generated contract is documented in
 [`docs/reference/ci-verification-plan.md`](../../docs/reference/ci-verification-plan.md).
 
+## Executable Behavior And API Documentation
+
+The domain BDD suite describes the stable verification-selection and
+agent-topology behavior in language independent from Kotlin implementation
+details. Its feature files, step definitions, and behavior-to-API map are
+documented in [`docs/bdd/README.md`](docs/bdd/README.md).
+
+Dokka complements those scenarios with generated Kotlin API documentation for
+`domain`, `data`, and `plugin`. Gherkin remains the source of truth for what CI
+guarantees; KDoc and Dokka explain the types and entry points that provide the
+guarantee. Generated HTML remains under each module's `build/dokka/` directory
+and is not committed.
+
 ## Verification
 
 ```powershell
 .\gradlew.bat :ci:domain:check :ci:data:check :ci:plugin:check
+.\gradlew.bat :ci:dokkaGenerate
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan

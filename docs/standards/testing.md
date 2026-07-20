@@ -4,12 +4,14 @@ type: standard
 scope: repository
 owner: quality
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-20
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
   - repo/gradle-plugins/bdd-test
   - app/src/test/resources/features
+  - repo/ci/domain/src/test/resources/com/marmatsan/ci/domain/bdd
+  - repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd
 ---
 
 # Testing Standard
@@ -27,12 +29,39 @@ sources:
 
 ## Tooling
 
-- Kotlin unit and integration tests use Kotest and MockK through the repository
-  convention plugins.
+- Kotlin unit and integration tests use Kotest and MockK. Root Android modules
+  receive them through repository convention plugins; autonomous included
+  builds declare the equivalent test dependencies locally.
 - Tests use explicit `GIVEN`, `WHEN`, and `THEN` sections.
-- Cucumber is reserved for executable business behavior. Feature files use
-  domain language and must not encode implementation paths or class names.
+- Cucumber is reserved for executable business behavior and stable
+  cross-boundary contracts. Feature files use domain language and must not
+  encode implementation classes or technical inventories.
 - `@wip` scenarios MUST NOT reach release-ready `main`.
+
+## BDD And TDD Workflow
+
+- Product and infrastructure behavior MUST be clarified with concrete examples
+  before implementation when a change introduces or alters an observable rule.
+- A `.feature` file SHOULD be created or updated before production code when
+  the behavior is important enough to remain executable living documentation.
+- Implementation details SHOULD be developed in short TDD cycles with the
+  smallest deterministic Kotlin test that drives the design.
+- Gherkin MUST NOT replace focused unit, adapter-contract, integration, Compose
+  UI, or Gradle functional tests.
+- Exact assertions SHOULD NOT be duplicated between Cucumber scenarios and
+  lower-level tests. Keep representative behavior in Gherkin and edge cases in
+  the narrowest suitable Kotlin test.
+
+## Living Documentation
+
+- Gherkin describes what behavior the system guarantees and why it matters.
+- KDoc and generated Dokka describe the public Kotlin API, parameters,
+  invariants, and technical usage that implement those guarantees.
+- Module README files describe ownership, boundaries, dependencies, and where
+  to find the executable behavior and API reference.
+- Dokka text MUST NOT restate scenarios line by line. It SHOULD link a public
+  entry point to its behavior contract when that relationship is useful.
+- Generated Dokka HTML is a build artifact and MUST NOT be committed.
 
 ## Reliability
 
@@ -47,10 +76,13 @@ sources:
 
 Run the smallest affected test task while iterating and `./gradlew check` before
 merge. BDD changes additionally run `:app:testDebugUnitTest` or the owning
-module's equivalent task.
+module's equivalent task. Changes to documented public Kotlin APIs SHOULD run
+the owning module's `dokkaGenerate` task.
 
 ## Sources
 
 - `repo/gradle-plugins/unit-test/`
 - `repo/gradle-plugins/bdd-test/`
 - `app/src/test/resources/features/`
+- `repo/ci/domain/src/test/resources/com/marmatsan/ci/domain/bdd/`
+- `repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/`

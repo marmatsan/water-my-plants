@@ -2,7 +2,13 @@ package com.marmatsan.ci.domain.model
 
 import kotlinx.serialization.Serializable
 
-/** Provider-neutral verification plan generated for one repository revision. */
+/**
+ * Provider-neutral verification selected for one repository revision.
+ *
+ * [verificationUnits] is the executable contract consumed by provider
+ * adapters. [fullVerification] and [fallbackReason] make conservative
+ * fail-closed decisions explicit and reviewable.
+ */
 @Serializable
 data class CiPlan(
     val schemaVersion: Int,

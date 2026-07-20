@@ -4,6 +4,7 @@ import com.marmatsan.ci.data.gradle.GradleProjectModuleGraphSource
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+/** Registers the reviewed Gradle entry points for repository CI planning. */
 class CiGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         require(project == project.rootProject) {

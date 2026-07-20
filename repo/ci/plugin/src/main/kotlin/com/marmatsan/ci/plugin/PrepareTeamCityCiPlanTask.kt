@@ -11,6 +11,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
+/** Exports an existing CI plan through the reviewed TeamCity parameter allow-list. */
 @DisableCachingByDefault(because = "TeamCity service messages must be emitted on every execution")
 abstract class PrepareTeamCityCiPlanTask : DefaultTask() {
     @get:InputFile
