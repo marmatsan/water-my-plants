@@ -4,11 +4,15 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class VersionsPropertiesReaderTest : FunSpec({
+internal class VersionsPropertiesReaderTest : FunSpec(
+    {
 
     test("readSections keeps version groups in file order") {
         // GIVEN
-        val versionsFile = Files.createTempFile("versions", ".properties").toFile()
+        val versionsFile = Files.createTempFile(
+            "versions",
+            ".properties"
+        ).toFile()
         versionsFile.writeText(
             """
             ## Main project dependencies
@@ -24,7 +28,9 @@ internal class VersionsPropertiesReaderTest : FunSpec({
         val reader = VersionsPropertiesReader()
 
         // WHEN
-        val sections = reader.readSections(versionsFile)
+        val sections = reader.readSections(
+            file = versionsFile
+        )
 
         // THEN
         sections.map { section -> section.name } shouldBe listOf(
@@ -34,4 +40,5 @@ internal class VersionsPropertiesReaderTest : FunSpec({
         )
         sections[1].versions shouldBe mapOf("kotestLibraryVersion" to "6.2.1")
     }
-})
+}
+)

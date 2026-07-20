@@ -121,8 +121,13 @@ The collection's `type_label` string supplies the visible type label for each
 mode.
 It binds the exposed `name`, `description`, `steps`, and `source` text
 properties and controls `show steps` and `show source` from actual model
-content. Commands are summarized for display; the `source` row links to the
-canonical file on GitHub `main`, where the literal DSL remains available.
+content. Repository-owned Gradle entry points use their exact task identifiers;
+the pull request job expands `ci.plan.gradleTasks` into its documented dynamic
+selection paths, relevant root `check` dependencies, and included-build
+aggregate. Non-Gradle commands keep concise operational names. The `source` row
+links to the canonical file on GitHub `main`, where literal commands and
+arguments remain available. Task conditions use `[full]`, and Gradle
+dependencies use `depends on:` so neither is confused with TeamCity step order.
 
 Every `.ci node` instance is the only child of a managed group. Native Figma
 connectors are cloned from the existing `simple-solid_arrow` template because
@@ -201,6 +206,10 @@ other CI child sections remain untouched.
 
 Preflight for a CI target validates the destination page, the `.ci node`
 component properties, and all required `ci/cd` modes before visual mutation.
+CI model fixtures must remain complete even when a test generates only one
+target-scoped visual plan: the planner validates the aggregate CI contract,
+including the authoritative `TeamCity CI` published check, before it filters
+the requested target.
 
 ## Version Visual Sync
 

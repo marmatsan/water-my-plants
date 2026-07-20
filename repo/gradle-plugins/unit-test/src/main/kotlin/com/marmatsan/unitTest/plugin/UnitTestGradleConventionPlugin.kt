@@ -11,7 +11,9 @@ import org.gradle.kotlin.dsl.withType
 
 @Suppress("unused")
 class UnitTestGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
 
         // Applied libs
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -22,7 +24,9 @@ class UnitTestGradleConventionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             // Kotest
             libs.testImplementation(

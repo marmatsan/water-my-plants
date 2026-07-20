@@ -13,15 +13,27 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /** Reads the small project-config projection required by Kotlin runner infrastructure. */
 object FigmaWriterRuntimeConfigJson {
-    fun read(path: String): FigmaWriterRuntimeConfig = decode(Files.readString(Path.of(path)))
+    fun read(
+        path: String
+    ): FigmaWriterRuntimeConfig = decode(
+        source = Files.readString(
+            Path.of(
+                path
+            )
+        )
+    )
 
-    fun decode(source: String): FigmaWriterRuntimeConfig {
+    fun decode(
+        source: String
+    ): FigmaWriterRuntimeConfig {
         val json = Json.parseToJsonElement(source.removePrefix(UTF8_BOM)).jsonObject
         require(json.requiredInt("schemaVersion") == SUPPORTED_SCHEMA_VERSION) {
             "Unsupported Figma writer project config schema ${json.requiredInt("schemaVersion")}; " +
                 "expected $SUPPORTED_SCHEMA_VERSION."
         }
-        val ciTargets = json.requiredStringList("CI_VISUAL_TARGET_NAMES")
+        val ciTargets = json.requiredStringList(
+            name = "CI_VISUAL_TARGET_NAMES"
+        )
         return FigmaWriterRuntimeConfig(
             metadataPageId = json.requiredString("METADATA_PAGE_ID"),
             metadataNamespace = json.requiredString("METADATA_NAMESPACE"),
@@ -31,8 +43,12 @@ object FigmaWriterRuntimeConfigJson {
             repositoryRootRelativeToTools = json.requiredString("REPOSITORY_ROOT_RELATIVE_TO_TOOLS"),
             changeImpactPolicyRelativeToRepository =
                 json.requiredString("CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY"),
-            writerTargetNames = json.requiredStringList("WRITER_TARGET_NAMES"),
-            catalogTargetNames = json.requiredStringList("CATALOG_TARGET_NAMES"),
+            writerTargetNames = json.requiredStringList(
+                name = "WRITER_TARGET_NAMES"
+            ),
+            catalogTargetNames = json.requiredStringList(
+                name = "CATALOG_TARGET_NAMES"
+            ),
             ciVisualPlanConfig = if (ciTargets.isEmpty()) null else CiVisualPlanConfig(
                 configurationModelName = json.requiredString("CI_CONFIGURATION_MODEL_NAME"),
                 ciPipelineName = json.requiredString("CI_PIPELINE_NAME"),
@@ -50,15 +66,21 @@ object FigmaWriterRuntimeConfigJson {
         )
     }
 
-    private fun JsonObject.requiredString(name: String): String =
+    private fun JsonObject.requiredString(
+        name: String
+    ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private fun JsonObject.requiredInt(name: String): Int =
+    private fun JsonObject.requiredInt(
+        name: String
+    ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private fun JsonObject.requiredStringList(name: String): List<String> =
+    private fun JsonObject.requiredStringList(
+        name: String
+    ): List<String> =
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 

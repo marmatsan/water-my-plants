@@ -25,13 +25,25 @@ class McpRunnerExecutor(
     private val clock: Clock = Clock.systemUTC(),
     private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect
 ) {
-    fun probe(endpoint: String, clientName: String): McpCapabilities {
-        val client = clientFactory(endpoint, clientName)
-        return client.use { connected -> runBlocking { planner.capabilities(connected.listToolNames()) } }
+    fun probe(
+        endpoint: String,
+        clientName: String
+    ): McpCapabilities {
+        val client = clientFactory(
+            endpoint,
+            clientName
+        )
+        return client.use { connected -> runBlocking { planner.capabilities(
+            toolNames = connected.listToolNames()
+        ) } }
     }
 
-    fun inspect(request: Request): Inspection {
-        val loaded = load(request)
+    fun inspect(
+        request: Request
+    ): Inspection {
+        val loaded = load(
+            request = request
+        )
         return Inspection(
             manifestHash = loaded.manifest.manifestHash,
             statePath = loaded.statePath.toString(),
@@ -42,30 +54,59 @@ class McpRunnerExecutor(
         )
     }
 
-    fun record(request: Request, file: String, success: Boolean, summary: String): McpExecutionState {
-        val loaded = load(request)
+    fun record(
+        request: Request,
+        file: String,
+        success: Boolean,
+        summary: String
+    ): McpExecutionState {
+        val loaded = load(
+            request = request
+        )
         require(file in loaded.manifest.files) { "Recorded file '$file' is not in the runner manifest." }
         val now = clock.instant().toString()
         val initial = planner.createOrResumeState(
             manifest = loaded.manifest,
             existingState = loaded.existingState,
-            options = request.options.copy(resume = loaded.existingState != null),
+            options = request.options.copy(
+                resume = loaded.existingState != null
+            ),
             executionFiles = loaded.executionFiles.ifEmpty {
                 loaded.existingState?.plannedFiles ?: loaded.manifest.files
             },
             now = now
         )
         val state = if (success) {
-            planner.recordSuccess(initial, loaded.manifest, file, 0, summary, now)
+            planner.recordSuccess(
+                state = initial,
+                manifest = loaded.manifest,
+                file = file,
+                durationMs = 0,
+                summary = summary,
+                now = now
+            )
         } else {
-            planner.recordFailure(initial, file, 0, summary, now)
+            planner.recordFailure(
+                state = initial,
+                file = file,
+                durationMs = 0,
+                message = summary,
+                now = now
+            )
         }
-        stateJson.writeAtomic(state, loaded.statePath.toString())
+        stateJson.writeAtomic(
+            state = state,
+            path = loaded.statePath.toString()
+        )
         return state
     }
 
-    fun execute(request: Request): Result {
-        val loaded = load(request)
+    fun execute(
+        request: Request
+    ): Result {
+        val loaded = load(
+            request = request
+        )
         var state = planner.createOrResumeState(
             manifest = loaded.manifest,
             existingState = loaded.existingState,
@@ -74,16 +115,34 @@ class McpRunnerExecutor(
             now = clock.instant().toString()
         )
         if (loaded.executionFiles.isEmpty()) {
-            stateJson.writeAtomic(state, loaded.statePath.toString())
-            return Result(state = state, executionFiles = emptyList(), toolNames = emptyList())
+            stateJson.writeAtomic(
+                state = state,
+                path = loaded.statePath.toString()
+            )
+            return Result(
+                state = state,
+                executionFiles = emptyList(),
+                toolNames = emptyList()
+            )
         }
 
-        val client = clientFactory(request.endpoint, request.clientName)
+        val client = clientFactory(
+            request.endpoint,
+            request.clientName
+        )
         val toolNames = client.use { connected ->
             runBlocking {
-                val capabilities = planner.capabilities(connected.listToolNames())
-                planner.requireWriteCapabilities(capabilities, loaded.manifest, loaded.executionFiles)
-                val guidance = connected.readTextResource(McpExecutionPlanner.FIGMA_USE_SKILL_URI)
+                val capabilities = planner.capabilities(
+                    toolNames = connected.listToolNames()
+                )
+                planner.requireWriteCapabilities(
+                    capabilities = capabilities,
+                    manifest = loaded.manifest,
+                    executionFiles = loaded.executionFiles
+                )
+                val guidance = connected.readTextResource(
+                    uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI
+                )
                 require(guidance.isNotBlank()) {
                     "Write-capable Figma MCP endpoint did not provide required " +
                         McpExecutionPlanner.FIGMA_USE_SKILL_URI + "."
@@ -93,10 +152,23 @@ class McpRunnerExecutor(
                     val startedAt = System.nanoTime()
                     try {
                         if (file == McpExecutionPlanner.PAYLOAD_STAGE_FILE) {
-                            uploadPayload(connected, loaded.manifest, loaded.runnerDirectory, request.fileKey)
+                            uploadPayload(
+                                client = connected,
+                                manifest = loaded.manifest,
+                                runnerDirectory = loaded.runnerDirectory,
+                                fileKey = request.fileKey
+                            )
                         }
-                        val source = Files.readString(loaded.runnerDirectory.resolve(file))
-                        assertContentHash(loaded.manifest.fileHashes.getValue(file), source, file)
+                        val source = Files.readString(
+                            loaded.runnerDirectory.resolve(
+                                file
+                            )
+                        )
+                        assertContentHash(
+                            expectedHash = loaded.manifest.fileHashes.getValue(file),
+                            content = source,
+                            label = file
+                        )
                         val toolResult = connected.useFigma(
                             fileKey = request.fileKey,
                             code = source,
@@ -110,36 +182,60 @@ class McpRunnerExecutor(
                             state = state,
                             manifest = loaded.manifest,
                             file = file,
-                            durationMs = elapsedMilliseconds(startedAt),
+                            durationMs = elapsedMilliseconds(
+                                startedAt = startedAt
+                            ),
                             summary = toolResult.text,
                             now = clock.instant().toString()
                         )
-                        stateJson.writeAtomic(state, loaded.statePath.toString())
-                    } catch (failure: Exception) {
+                        stateJson.writeAtomic(
+                            state = state,
+                            path = loaded.statePath.toString()
+                        )
+                    } catch (
+                        failure: Exception
+                    ) {
                         state = planner.recordFailure(
                             state = state,
                             file = file,
-                            durationMs = elapsedMilliseconds(startedAt),
+                            durationMs = elapsedMilliseconds(
+                                startedAt = startedAt
+                            ),
                             message = failure.message ?: failure::class.simpleName.orEmpty(),
                             now = clock.instant().toString()
                         )
-                        stateJson.writeAtomic(state, loaded.statePath.toString())
+                        stateJson.writeAtomic(
+                            state = state,
+                            path = loaded.statePath.toString()
+                        )
                         throw failure
                     }
                 }
                 capabilities.toolNames
             }
         }
-        return Result(state = state, executionFiles = loaded.executionFiles, toolNames = toolNames)
+        return Result(
+            state = state,
+            executionFiles = loaded.executionFiles,
+            toolNames = toolNames
+        )
     }
 
-    private fun load(request: Request): Loaded {
-        val manifestPath = Path.of(request.manifestPath).toAbsolutePath().normalize()
+    private fun load(
+        request: Request
+    ): Loaded {
+        val manifestPath = Path.of(
+            request.manifestPath
+        ).toAbsolutePath().normalize()
         val runnerDirectory = requireNotNull(manifestPath.parent) { "Manifest has no parent directory." }
         val manifest = manifestJson.read(manifestPath.toString())
         val statePath = request.statePath?.let(Path::of)?.toAbsolutePath()?.normalize()
-            ?: runnerDirectory.resolve(DEFAULT_STATE_FILE)
-        val existingState = stateJson.readOptional(statePath.toString())
+            ?: runnerDirectory.resolve(
+                DEFAULT_STATE_FILE
+            )
+        val existingState = stateJson.readOptional(
+            path = statePath.toString()
+        )
         val visualState = request.visualStatePath?.let(stateJson::readOptional)
         val plan = request.planPath?.let(planJson::read)
         val executionFiles = planner.selectExecutionFiles(
@@ -168,26 +264,46 @@ class McpRunnerExecutor(
         val payload = requireNotNull(manifest.payloadImage) {
             "PNG runner manifest does not declare payloadImage."
         }
-        val response = client.requestAssetUpload(fileKey, 1)
+        val response = client.requestAssetUpload(
+            fileKey = fileKey,
+            count = 1
+        )
         require(!response.isError) { response.text.ifBlank { "upload_assets failed." } }
         val uploadUrl = URL_PATTERN.find(response.text)?.value
             ?: error("upload_assets did not return an upload URL.")
-        val bytes = Files.readAllBytes(runnerDirectory.resolve(payload.fileName))
-        val actualHash = Sha256Hash.of(bytes)
+        val bytes = Files.readAllBytes(
+            runnerDirectory.resolve(
+                payload.fileName
+            )
+        )
+        val actualHash = Sha256Hash.of(
+            value = bytes
+        )
         require(actualHash == payload.sha256) {
             "MCP content hash mismatch for '${payload.fileName}': $actualHash != ${payload.sha256}."
         }
-        client.uploadAsset(uploadUrl, bytes)
+        client.uploadAsset(
+            url = uploadUrl,
+            bytes = bytes
+        )
     }
 
-    private fun assertContentHash(expectedHash: String, content: String, label: String) {
-        val actualHash = Sha256Hash.of(content.toByteArray(StandardCharsets.UTF_8))
+    private fun assertContentHash(
+        expectedHash: String,
+        content: String,
+        label: String
+    ) {
+        val actualHash = Sha256Hash.of(
+            value = content.toByteArray(StandardCharsets.UTF_8)
+        )
         require(actualHash == expectedHash) {
             "MCP content hash mismatch for '$label': $actualHash != $expectedHash."
         }
     }
 
-    private fun elapsedMilliseconds(startedAt: Long): Long = (System.nanoTime() - startedAt) / 1_000_000
+    private fun elapsedMilliseconds(
+        startedAt: Long
+    ): Long = (System.nanoTime() - startedAt) / 1_000_000
 
     data class Request(
         val manifestPath: String,

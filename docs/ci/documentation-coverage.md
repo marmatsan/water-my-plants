@@ -31,6 +31,10 @@ Gradle verification contract used locally and by CI.
 The contract is deliberately conservative:
 
 - An unknown path is never documentation-only.
+- Coverage matching is path-based, not semantic. A formatting-only change to a
+  covered source such as a module `build.gradle.kts` still requires reviewing
+  and updating one accepted documentation path; do not bypass the rule because
+  runtime behavior is unchanged.
 - If `origin/main` is unavailable, plan generation fails instead of guessing a
   diff.
 - Updating unrelated Markdown does not satisfy a rule.

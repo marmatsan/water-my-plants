@@ -13,7 +13,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for uploading one verified official TeamCity PNG payload. */
-@DisableCachingByDefault(because = "Downloads an official artifact and uploads its PNG to Figma")
+@DisableCachingByDefault(
+    because = "Downloads an official artifact and uploads its PNG to Figma"
+)
 abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
     @get:Input
     @get:Optional
@@ -53,8 +55,12 @@ abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
                 "figmaExpectedGitSha is required with figmaArtifactDirectory."
             }
         }
-        val teamCityClient = TeamCityCliClient(workingDirectory = projectDirectory.get().asFile)
-        val handoffPreparer = TeamCityFigmaSyncHandoffPreparer(teamCityClient = teamCityClient)
+        val teamCityClient = TeamCityCliClient(
+            workingDirectory = projectDirectory.get().asFile
+        )
+        val handoffPreparer = TeamCityFigmaSyncHandoffPreparer(
+            teamCityClient = teamCityClient
+        )
         val result = TeamCityOfficialFigmaPayloadUploader(
             handoffPreparer = handoffPreparer
         ).upload(

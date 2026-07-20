@@ -8,16 +8,42 @@ class TeamCityServiceMessageFormatter {
      * Parameters are sorted by name to keep logs deterministic. TeamCity
      * control characters are escaped according to the service-message format.
      */
-    fun setParameters(parameters: Map<String, String>): List<String> =
+    fun setParameters(
+        parameters: Map<String, String>
+    ): List<String> =
         parameters.toSortedMap().map { (name, value) ->
-            "##teamcity[setParameter name='${escape(name)}' value='${escape(value)}']"
+            "##teamcity[setParameter name='${escape(
+                value = name
+            )}' value='${escape(
+                value = value
+            )}']"
         }
 
-    private fun escape(value: String): String = value
-        .replace("|", "||")
-        .replace("'", "|'")
-        .replace("\n", "|n")
-        .replace("\r", "|r")
-        .replace("[", "|[")
-        .replace("]", "|]")
+    private fun escape(
+        value: String
+    ): String = value
+        .replace(
+            "|",
+            "||"
+        )
+        .replace(
+            "'",
+            "|'"
+        )
+        .replace(
+            "\n",
+            "|n"
+        )
+        .replace(
+            "\r",
+            "|r"
+        )
+        .replace(
+            "[",
+            "|["
+        )
+        .replace(
+            "]",
+            "|]"
+        )
 }

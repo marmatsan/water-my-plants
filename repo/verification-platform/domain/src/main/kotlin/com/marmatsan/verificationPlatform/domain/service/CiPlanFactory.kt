@@ -25,20 +25,35 @@ class CiPlanFactory {
      * @return a provider-neutral plan whose required units can be consumed by a
      * CI adapter.
      */
-    fun create(changeSet: RepositoryChangeSet, moduleGraph: RepositoryModuleGraph): CiPlan {
-        val changedFiles = changeSet.changedFiles.map(::normalize).distinct().sorted()
+    fun create(
+        changeSet: RepositoryChangeSet,
+        moduleGraph: RepositoryModuleGraph
+    ): CiPlan {
+        val changedFiles = changeSet.changedFiles.map(
+            transform = ::normalize
+        ).distinct().sorted()
         val moduleImpactAnalyzer = ModuleImpactAnalyzer()
         val moduleImpact = moduleImpactAnalyzer.analyze(
             changedFiles = changedFiles.filterNot(::isDocumentation),
             graph = moduleGraph
         )
         val categories = changedFiles.map { path ->
-            category(path, moduleGraph, moduleImpactAnalyzer)
+            category(
+                path = path,
+                moduleGraph = moduleGraph,
+                moduleImpactAnalyzer = moduleImpactAnalyzer
+            )
         }.toSet()
         val documentationOnly = changedFiles.isNotEmpty() && categories == setOf(PathCategory.DOCUMENTATION)
-        val moduleGraphInvalid = changedFiles.any { path -> !isDocumentation(path) } && !moduleImpact.isValid
+        val moduleGraphInvalid = changedFiles.any { path -> !isDocumentation(
+            path = path
+        ) } && !moduleImpact.isValid
         val unknown = changedFiles.isEmpty() || PathCategory.UNKNOWN in categories || moduleGraphInvalid
-        val scope = scope(categories, documentationOnly, unknown)
+        val scope = scope(
+            categories = categories,
+            documentationOnly = documentationOnly,
+            unknown = unknown
+        )
         val targetedModuleVerification =
             !unknown &&
                 PathCategory.APPLICATION in categories &&
@@ -95,7 +110,11 @@ class CiPlanFactory {
             id = VerificationUnitId.DOCUMENTATION,
             required = true,
             needs = listOf(VerificationUnitId.GIT_WORKFLOW),
-            capabilities = listOf("java", "android-sdk", "git"),
+            capabilities = listOf(
+                "java",
+                "android-sdk",
+                "git"
+            ),
             gradleTasks = listOf(CHECK_DOCUMENTATION),
             reasons = listOf("Documentation structure and coverage are repository-wide invariants.")
         ),
@@ -104,39 +123,67 @@ class CiPlanFactory {
             required = documentationOnly,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("git"),
-            gradleTasks = requiredTasks(documentationOnly, CHECK_REPOSITORY_DIFF),
-            reasons = requiredReasons(documentationOnly, "Every changed path is documentation-only.")
+            gradleTasks = requiredTasks(
+                required = documentationOnly,
+                CHECK_REPOSITORY_DIFF
+            ),
+            reasons = requiredReasons(
+                required = documentationOnly,
+                reason = "Every changed path is documentation-only."
+            )
         ),
         unit(
             id = VerificationUnitId.TEAMCITY_DSL,
             required = PathCategory.TEAMCITY in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
-            capabilities = listOf("java", "maven-wrapper"),
-            gradleTasks = requiredTasks(PathCategory.TEAMCITY in categories, CHECK_TEAMCITY_DSL),
-            reasons = requiredReasons(PathCategory.TEAMCITY in categories, "TeamCity configuration changed.")
+            capabilities = listOf(
+                "java",
+                "maven-wrapper"
+            ),
+            gradleTasks = requiredTasks(
+                required = PathCategory.TEAMCITY in categories,
+                CHECK_TEAMCITY_DSL
+            ),
+            reasons = requiredReasons(
+                required = PathCategory.TEAMCITY in categories,
+                reason = "TeamCity configuration changed."
+            )
         ),
         unit(
             id = VerificationUnitId.FIGMA_TOOLING,
             required = PathCategory.FIGMA in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
-            capabilities = listOf("java", "android-sdk", "node"),
-            reasons = requiredReasons(PathCategory.FIGMA in categories, "Figma Documentation Sync implementation changed.")
+            capabilities = listOf(
+                "java",
+                "android-sdk",
+                "node"
+            ),
+            reasons = requiredReasons(
+                required = PathCategory.FIGMA in categories,
+                reason = "Figma Documentation Sync implementation changed."
+            )
         ),
         unit(
             id = VerificationUnitId.DEPENDENCY_CATALOG,
             required = PathCategory.DEPENDENCY_INFRASTRUCTURE in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
-            capabilities = listOf("java", "android-sdk"),
+            capabilities = listOf(
+                "java",
+                "android-sdk"
+            ),
             reasons = requiredReasons(
-                PathCategory.DEPENDENCY_INFRASTRUCTURE in categories,
-                "Dependency catalog or Gradle infrastructure changed."
+                required = PathCategory.DEPENDENCY_INFRASTRUCTURE in categories,
+                reason = "Dependency catalog or Gradle infrastructure changed."
             )
         ),
         unit(
             id = VerificationUnitId.GRADLE_VERIFICATION,
             required = !documentationOnly,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
-            capabilities = listOf("java", "android-sdk"),
+            capabilities = listOf(
+                "java",
+                "android-sdk"
+            ),
             gradleTasks = when {
                 documentationOnly -> emptyList()
                 targetedModuleVerification ->
@@ -188,10 +235,16 @@ class CiPlanFactory {
         reasons = reasons
     )
 
-    private fun requiredReasons(required: Boolean, reason: String): List<String> =
+    private fun requiredReasons(
+        required: Boolean,
+        reason: String
+    ): List<String> =
         if (required) listOf(reason) else emptyList()
 
-    private fun requiredTasks(required: Boolean, vararg tasks: String): List<String> =
+    private fun requiredTasks(
+        required: Boolean,
+        vararg tasks: String
+    ): List<String> =
         if (required) tasks.toList() else emptyList()
 
     private fun category(
@@ -199,13 +252,26 @@ class CiPlanFactory {
         moduleGraph: RepositoryModuleGraph,
         moduleImpactAnalyzer: ModuleImpactAnalyzer
     ): PathCategory = when {
-        isDocumentation(path) -> PathCategory.DOCUMENTATION
-        path.startsWith(".teamcity/") -> PathCategory.TEAMCITY
-        path.startsWith("repo/figma-documentation-sync/") -> PathCategory.FIGMA
-        path.startsWith("repo/dependency-catalog/") ||
-            path.startsWith("repo/gradle-plugins/") ||
+        isDocumentation(
+            path = path
+        ) -> PathCategory.DOCUMENTATION
+        path.startsWith(
+            prefix = ".teamcity/"
+        ) -> PathCategory.TEAMCITY
+        path.startsWith(
+            prefix = "repo/figma-documentation-sync/"
+        ) -> PathCategory.FIGMA
+        path.startsWith(
+            prefix = "repo/dependency-catalog/"
+        ) ||
+            path.startsWith(
+                prefix = "repo/gradle-plugins/"
+            ) ||
             path in ROOT_GRADLE_FILES -> PathCategory.DEPENDENCY_INFRASTRUCTURE
-        moduleImpactAnalyzer.moduleFor(path, moduleGraph) != null -> PathCategory.APPLICATION
+        moduleImpactAnalyzer.moduleFor(
+            path = path,
+            graph = moduleGraph
+        ) != null -> PathCategory.APPLICATION
         else -> PathCategory.UNKNOWN
     }
 
@@ -224,23 +290,54 @@ class CiPlanFactory {
         else -> CiScope.UNKNOWN
     }
 
-    private fun isDocumentation(path: String): Boolean {
-        if (!path.endsWith(".md", ignoreCase = true)) return false
+    private fun isDocumentation(
+        path: String
+    ): Boolean {
+        if (!path.endsWith(
+            ".md",
+            ignoreCase = true
+        )) return false
 
         val segments = path.split('/')
-        return path.equals("README.md", ignoreCase = true) ||
-            path.equals("AGENTS.md", ignoreCase = true) ||
-            path.equals(".teamcity/README.md", ignoreCase = true) ||
-            path.endsWith("/AGENTS.md", ignoreCase = true) ||
-            segments.any { segment -> segment.equals("docs", ignoreCase = true) } ||
+        return path.equals(
+            "README.md",
+            ignoreCase = true
+        ) ||
+            path.equals(
+                "AGENTS.md",
+                ignoreCase = true
+            ) ||
+            path.equals(
+                ".teamcity/README.md",
+                ignoreCase = true
+            ) ||
+            path.endsWith(
+                "/AGENTS.md",
+                ignoreCase = true
+            ) ||
+            segments.any { segment -> segment.equals(
+                "docs",
+                ignoreCase = true
+            ) } ||
             (
                 segments.size == 3 &&
-                    segments.first().equals("repo", ignoreCase = true) &&
-                    segments.last().equals("README.md", ignoreCase = true)
+                    segments.first().equals(
+                        "repo",
+                        ignoreCase = true
+                    ) &&
+                    segments.last().equals(
+                        "README.md",
+                        ignoreCase = true
+                    )
                 )
     }
 
-    private fun normalize(path: String): String = path.trim().replace('\\', '/')
+    private fun normalize(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    )
 
     private enum class PathCategory {
         DOCUMENTATION,
@@ -258,6 +355,10 @@ class CiPlanFactory {
         const val CHECK_REPOSITORY_DIFF = "checkRepositoryDiff"
         const val CHECK_TEAMCITY_DSL = "checkTeamCityDsl"
         const val CHECK_FIGMA_CATALOG_USAGE = "checkFigmaCatalogUsage"
-        val ROOT_GRADLE_FILES = setOf("settings.gradle.kts", "build.gradle.kts", "gradle.properties")
+        val ROOT_GRADLE_FILES = setOf(
+            "settings.gradle.kts",
+            "build.gradle.kts",
+            "gradle.properties"
+        )
     }
 }

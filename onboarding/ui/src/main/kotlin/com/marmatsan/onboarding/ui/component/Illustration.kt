@@ -198,7 +198,9 @@ private fun Illustration3(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun IllustrationPreview(
     @PreviewParameter(IllustrationPreviewParameterProvider::class)

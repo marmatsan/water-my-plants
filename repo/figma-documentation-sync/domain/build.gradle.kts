@@ -35,7 +35,9 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            from(
+                components["java"]
+            )
             artifactId = "figma-documentation-sync-domain"
 
             pom {
@@ -65,11 +67,15 @@ dokka {
     moduleName.set("figmaDocumentationSync-domain")
 
     dokkaPublications.html {
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {
-        samples.from(file("src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/samples/DomainKDocSamples.kt"))
+        samples.from(
+            file("src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/samples/DomainKDocSamples.kt")
+        )
 
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))

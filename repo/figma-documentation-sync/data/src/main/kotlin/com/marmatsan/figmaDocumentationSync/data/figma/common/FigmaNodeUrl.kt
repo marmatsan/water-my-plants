@@ -14,7 +14,9 @@ object FigmaNodeUrl {
      * Parses URLs shaped like
      * `https://www.figma.com/design/<file-key>/<name>?node-id=123-456`.
      */
-    fun parse(url: String): FigmaNodeReference {
+    fun parse(
+        url: String
+    ): FigmaNodeReference {
         val uri = URI(url)
         val pathSegments = uri.path
             .split("/")
@@ -29,11 +31,17 @@ object FigmaNodeUrl {
         val nodeId = uri.query
             ?.split("&")
             ?.mapNotNull { parameter ->
-                val parts = parameter.split("=", limit = 2)
+                val parts = parameter.split(
+                    "=",
+                    limit = 2
+                )
                 if (parts.firstOrNull() == "node-id") parts.getOrNull(1) else null
             }
             ?.firstOrNull()
-            ?.replace('-', ':')
+            ?.replace(
+                '-',
+                ':'
+            )
             ?: error("Figma URL '$url' does not contain a node-id query parameter")
 
         return FigmaNodeReference(

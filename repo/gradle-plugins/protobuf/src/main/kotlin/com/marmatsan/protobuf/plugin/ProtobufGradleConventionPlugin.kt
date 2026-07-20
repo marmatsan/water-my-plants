@@ -11,7 +11,9 @@ import org.gradle.kotlin.dsl.getByType
 
 @Suppress("unused")
 class ProtobufGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         // Applied plugins
         project.pluginManager.apply("com.google.protobuf")
 
@@ -41,7 +43,9 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
 
         // Applied libs
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             libs.implementation(
                 libraryGroup = "com.google.protobuf",

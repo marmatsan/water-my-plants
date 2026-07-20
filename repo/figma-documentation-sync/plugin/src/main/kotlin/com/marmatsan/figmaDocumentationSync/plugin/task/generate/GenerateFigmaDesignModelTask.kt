@@ -37,7 +37,9 @@ import org.gradle.work.DisableCachingByDefault
  * the configured CI Figma Sync adapter on `main` so local or short-lived
  * branch models cannot be mistaken for the official Figma publication input.
  */
-@DisableCachingByDefault(because = "Generation records Git, environment, and current-time runtime state")
+@DisableCachingByDefault(
+    because = "Generation records Git, environment, and current-time runtime state"
+)
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
@@ -114,13 +116,20 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @TaskAction
     fun generate() {
         val branch = officialBranch()
-        requireMainBranch(branch)
-        requireCompatibleGitCheckout(branch)
+        requireMainBranch(
+            branch = branch
+        )
+        requireCompatibleGitCheckout(
+            branch = branch
+        )
 
         val result = figmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
-            FigmaDesignModelGenerationRequest(
+            request = FigmaDesignModelGenerationRequest(
                 branch = branch,
-                gitSha = git("rev-parse", "HEAD"),
+                gitSha = git(
+                    "rev-parse",
+                    "HEAD"
+                ),
                 generatedAt = Instant.now(),
                 primaryCatalogModelName = primaryCatalogModelName.get(),
                 dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
@@ -139,15 +148,31 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
 
         val file = outputFile.get().asFile
         file.parentFile.mkdirs()
-        file.writeText(prettyJson.encodeToString(JsonElement.serializer(), result.model) + System.lineSeparator())
+        file.writeText(
+            prettyJson.encodeToString(
+                JsonElement.serializer(),
+                result.model
+            ) + System.lineSeparator()
+        )
 
         logger.lifecycle("Generated Figma design model at ${file.path} (${result.modelHash}).")
     }
 
-    private fun git(vararg arguments: String): String {
+    private fun git(
+        vararg arguments: String
+    ): String {
         val rootDirectory = projectRootDirectory.get().asFile
-        val safeDirectory = rootDirectory.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+        val safeDirectory = rootDirectory.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(rootDirectory)
             .start()
         val output = ByteArrayOutputStream()
@@ -186,10 +211,14 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
             )
         }
 
-        return normalizeBranch(rawBranch)
+        return normalizeBranch(
+            branch = rawBranch
+        )
     }
 
-    private fun requireMainBranch(branch: String) {
+    private fun requireMainBranch(
+        branch: String
+    ) {
         if (branch != MAIN_BRANCH) {
             throw GradleException(
                 "generateFigmaDesignModel may only create the official design-model.json from " +
@@ -199,8 +228,16 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         }
     }
 
-    private fun requireCompatibleGitCheckout(branch: String) {
-        val gitBranch = normalizeBranch(git("rev-parse", "--abbrev-ref", "HEAD"))
+    private fun requireCompatibleGitCheckout(
+        branch: String
+    ) {
+        val gitBranch = normalizeBranch(
+            branch = git(
+                "rev-parse",
+                "--abbrev-ref",
+                "HEAD"
+            )
+        )
         if (gitBranch != DETACHED_HEAD && gitBranch != branch) {
             throw GradleException(
                 "CI declared Figma design model branch '$branch', but the Git checkout is " +
@@ -209,7 +246,9 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         }
     }
 
-    private fun normalizeBranch(branch: String): String {
+    private fun normalizeBranch(
+        branch: String
+    ): String {
         val normalized = branch
             .removePrefix("refs/heads/")
             .removePrefix("refs/remotes/")

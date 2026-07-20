@@ -14,19 +14,27 @@ import org.gradle.kotlin.dsl.hasPlugin
 @Suppress("unused")
 class ComposeGradleConventionPlugin : Plugin<Project> {
 
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
-                configureApplicationExtension(project.extensions.getByType<ApplicationExtension>())
+                configureApplicationExtension(
+                    extension = project.extensions.getByType<ApplicationExtension>()
+                )
             }
 
             else -> {
-                configureLibraryExtension(project.extensions.getByType<LibraryExtension>())
+                configureLibraryExtension(
+                    extension = project.extensions.getByType<LibraryExtension>()
+                )
             }
         }
 
         project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
-        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(String::toBoolean).getOrElse(false)) {
+        if (project.providers.gradleProperty("figmaCodeConnectEnabled").map(
+            String::toBoolean
+        ).getOrElse(false)) {
             project.pluginManager.apply("com.figma.code.connect")
         }
 
@@ -34,7 +42,9 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             /* Compose libraries managed by Compose BOM */
             libs.implementationPlatform(

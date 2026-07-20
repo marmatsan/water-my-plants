@@ -31,10 +31,16 @@ class CiPlanningSteps : En {
             plan = createPlan()
         }
         When("execution is planned for {int} available agent") { availableAgents: Int ->
-            topology = CiTopologyPlanner().create(plan, availableAgents)
+            topology = CiTopologyPlanner().create(
+                plan,
+                availableAgents
+            )
         }
         When("execution is planned for {int} available agents") { availableAgents: Int ->
-            topology = CiTopologyPlanner().create(plan, availableAgents)
+            topology = CiTopologyPlanner().create(
+                plan,
+                availableAgents
+            )
         }
         Then("the plan scope is {word}") { expectedScope: String ->
             plan.scope shouldBe CiScope.valueOf(expectedScope)

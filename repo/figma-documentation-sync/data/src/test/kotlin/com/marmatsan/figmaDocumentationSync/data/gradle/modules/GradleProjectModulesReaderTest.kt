@@ -5,12 +5,13 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradleProjectModulesReaderTest : FunSpec({
+internal class GradleProjectModulesReaderTest : FunSpec(
+    {
 
     test("readModules returns root and included build modules") {
         // GIVEN
         val rootSettingsFile = settingsFile(
-            """
+            content = """
             include(
                 ":app",
                 ":core:core_ui"
@@ -18,7 +19,7 @@ internal class GradleProjectModulesReaderTest : FunSpec({
             """.trimIndent()
         )
         val includedBuildSettingsFile = settingsFile(
-            """
+            content = """
             include(
                 ":android",
                 ":catalog:data"
@@ -26,7 +27,9 @@ internal class GradleProjectModulesReaderTest : FunSpec({
             """.trimIndent()
         )
         includedBuildSettingsFile.parentFile
-            .resolve("catalog")
+            .resolve(
+                relative = "catalog"
+            )
             .mkdirs()
 
         // WHEN
@@ -52,10 +55,16 @@ internal class GradleProjectModulesReaderTest : FunSpec({
 
     test("readModules returns standalone included build root module") {
         // GIVEN
-        val rootSettingsFile = settingsFile("")
-        val includedBuildSettingsFile = settingsFile("")
+        val rootSettingsFile = settingsFile(
+            content = ""
+        )
+        val includedBuildSettingsFile = settingsFile(
+            content = ""
+        )
         includedBuildSettingsFile.parentFile
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText("")
 
         // WHEN
@@ -75,9 +84,11 @@ internal class GradleProjectModulesReaderTest : FunSpec({
 
     test("readModules returns dependency catalog submodules without a root module") {
         // GIVEN
-        val rootSettingsFile = settingsFile("")
+        val rootSettingsFile = settingsFile(
+            content = ""
+        )
         val includedBuildSettingsFile = settingsFile(
-            """
+            content = """
             include(
                 ":catalog-core",
                 ":water-my-plants-catalog"
@@ -102,11 +113,16 @@ internal class GradleProjectModulesReaderTest : FunSpec({
             ":dependency-catalog:water-my-plants-catalog"
         )
     }
-})
+}
+)
 
-private fun settingsFile(content: String): File =
+private fun settingsFile(
+    content: String
+): File =
     Files.createTempDirectory("gradle-project-modules-reader")
-        .resolve("settings.gradle.kts")
+        .resolve(
+            "settings.gradle.kts"
+        )
         .toFile()
         .apply {
             writeText(content)

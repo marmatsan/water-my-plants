@@ -8,7 +8,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class CiVisualPlanJsonTest : FunSpec({
+internal class CiVisualPlanJsonTest : FunSpec(
+    {
     test("adapts the language-neutral design model to one target-scoped Kotlin plan") {
         val designModel = Json.parseToJsonElement(
             """
@@ -41,7 +42,20 @@ internal class CiVisualPlanJsonTest : FunSpec({
                   "teamCity": {
                     "vcsRoots": [],
                     "pipelines": [
-                      {"id":"Root_Ci","name":"CI","triggers":[],"jobs":[]},
+                      {
+                        "id":"Root_Ci",
+                        "name":"CI",
+                        "triggers":[],
+                        "jobs":[{
+                          "id":"verify",
+                          "name":"Verify",
+                          "steps":[],
+                          "repositoryIds":[],
+                          "artifacts":[],
+                          "dependencies":[],
+                          "publishedChecks":[{"name":"TeamCity CI"}]
+                        }]
+                      },
                       {"id":"Root_FigmaSync","name":"Figma Sync","triggers":[],"jobs":[]}
                     ]
                   }
@@ -51,7 +65,11 @@ internal class CiVisualPlanJsonTest : FunSpec({
             """.trimIndent()
         ).jsonObject
 
-        val plan = CiVisualPlanJson.create(designModel, config, "ci.windowsRuntime")
+        val plan = CiVisualPlanJson.create(
+            designModel,
+            config,
+            "ci.windowsRuntime"
+        )
 
         plan["parentName"]?.jsonPrimitive?.content shouldBe
             "Continuous Integration and Design Documentation"
@@ -61,7 +79,8 @@ internal class CiVisualPlanJsonTest : FunSpec({
         val node = sections.single().jsonObject["nodes"]!!.jsonArray.single().jsonObject
         node["environment"]?.jsonPrimitive?.content shouldBe "teamcity"
     }
-})
+}
+)
 
 private val config = CiVisualPlanConfig(
     configurationModelName = "teamCity",

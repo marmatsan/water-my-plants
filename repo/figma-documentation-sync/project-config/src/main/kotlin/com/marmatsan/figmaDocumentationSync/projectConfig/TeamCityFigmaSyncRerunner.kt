@@ -9,7 +9,9 @@ class TeamCityFigmaSyncRerunner(
     private val buildTypeId: String = "WaterMyPlants_WaterMyPlantsFigmaSync",
     private val branch: String = "main"
 ) {
-    fun rerun(request: Request = Request()): TeamCityFigmaSyncRerunResult {
+    fun rerun(
+        request: Request = Request()
+    ): TeamCityFigmaSyncRerunResult {
         require(request.pollIntervalSeconds in 1..300) {
             "TeamCity polling interval must be between 1 and 300 seconds."
         }
@@ -18,24 +20,50 @@ class TeamCityFigmaSyncRerunner(
         }
         val activeRun = findActiveRun()
         if (request.validateOnly) {
-            return result(run = null, state = "Validated", reused = false)
+            return result(
+                run = null,
+                state = "Validated",
+                reused = false
+            )
         }
         if (activeRun != null) {
-            val run = if (request.waitForCompletion) waitForSuccess(activeRun, request) else activeRun
-            return result(run = run, state = run.state, reused = true)
+            val run = if (request.waitForCompletion) waitForSuccess(
+                run = activeRun,
+                request = request
+            ) else activeRun
+            return result(
+                run = run,
+                state = run.state,
+                reused = true
+            )
         }
 
         val queuedRun = try {
-            teamCityClient.startRun(buildTypeId, branch)
-        } catch (startError: RuntimeException) {
+            teamCityClient.startRun(
+                buildTypeId = buildTypeId,
+                branch = branch
+            )
+        } catch (
+            startError: RuntimeException
+        ) {
             findActiveRun() ?: throw startError
         }
-        val run = if (request.waitForCompletion) waitForSuccess(queuedRun, request) else queuedRun
-        return result(run = run, state = run.state, reused = false)
+        val run = if (request.waitForCompletion) waitForSuccess(
+            run = queuedRun,
+            request = request
+        ) else queuedRun
+        return result(
+            run = run,
+            state = run.state,
+            reused = false
+        )
     }
 
     private fun findActiveRun(): TeamCityRun? =
-        listOf("running", "queued").firstNotNullOfOrNull { status ->
+        listOf(
+            "running",
+            "queued"
+        ).firstNotNullOfOrNull { status ->
             teamCityClient.listRuns(
                 buildTypeId = buildTypeId,
                 branch = branch,
@@ -54,21 +82,31 @@ class TeamCityFigmaSyncRerunner(
                 pollIntervalSeconds = request.pollIntervalSeconds,
                 timeoutMinutes = request.timeoutMinutes
             )
-        } catch (watchError: RuntimeException) {
-            val current = runCatching { teamCityClient.readRun(run.id) }
+        } catch (
+            watchError: RuntimeException
+        ) {
+            val current = runCatching { teamCityClient.readRun(
+                buildId = run.id
+            ) }
                 .getOrElse { throw watchError }
             if (current.state == "finished" && current.status != "SUCCESS") {
-                throw failedRun(current)
+                throw failedRun(
+                    run = current
+                )
             }
             throw watchError
         }
         if (finished.status != "SUCCESS") {
-            throw failedRun(finished)
+            throw failedRun(
+                run = finished
+            )
         }
         return finished
     }
 
-    private fun failedRun(run: TeamCityRun): IllegalStateException =
+    private fun failedRun(
+        run: TeamCityRun
+    ): IllegalStateException =
         IllegalStateException(
             "TeamCity Figma Sync run ${run.id} finished with status '${run.status}': " +
                 (run.statusText ?: "no status text")

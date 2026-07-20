@@ -13,7 +13,10 @@ class CiPlanJson {
      * Default and explicit `null` values remain present so adapters observe the
      * complete schema. Missing parent directories are created.
      */
-    fun write(plan: CiPlan, output: File) {
+    fun write(
+        plan: CiPlan,
+        output: File
+    ) {
         output.parentFile.mkdirs()
         output.writeText(format.encodeToString(plan) + System.lineSeparator())
     }
@@ -24,7 +27,9 @@ class CiPlanJson {
      * @throws kotlinx.serialization.SerializationException when the JSON does
      * not satisfy the serialized contract.
      */
-    fun read(source: String): CiPlan = format.decodeFromString(source)
+    fun read(
+        source: String
+    ): CiPlan = format.decodeFromString(source)
 
     private companion object {
         val format = Json {

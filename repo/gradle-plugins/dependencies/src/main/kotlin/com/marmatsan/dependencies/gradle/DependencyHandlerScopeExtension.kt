@@ -21,7 +21,9 @@ class VersionCatalogDependencyHandler internal constructor(
     fun implementationBundle(
         bundle: String
     ) {
-        libs.requireBundle(bundle).get().forEach { dependency ->
+        libs.requireBundle(
+            alias = bundle
+        ).get().forEach { dependency ->
             dependencies.implementation(dependency)
         }
     }

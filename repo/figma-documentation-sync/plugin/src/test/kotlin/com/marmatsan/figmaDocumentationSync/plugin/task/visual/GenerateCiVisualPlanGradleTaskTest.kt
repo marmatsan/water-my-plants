@@ -10,17 +10,28 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-internal class GenerateCiVisualPlanGradleTaskTest : FunSpec({
+internal class GenerateCiVisualPlanGradleTaskTest : FunSpec(
+    {
     test("generates a target-scoped Kotlin plan from portable JSON inputs") {
         val project = Files.createTempDirectory("figma-ci-visual-plan-gradle").toFile()
         try {
-            project.resolve("settings.gradle.kts").writeText("rootProject.name = \"ci-visual-plan-test\"")
-            project.resolve("build.gradle.kts").writeText(
+            project.resolve(
+                relative = "settings.gradle.kts"
+            ).writeText("rootProject.name = \"ci-visual-plan-test\"")
+            project.resolve(
+                relative = "build.gradle.kts"
+            ).writeText(
                 "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }"
             )
-            val model = project.resolve("design-model.json").apply { writeText(designModelFixture) }
-            val config = project.resolve("writer-project-config.json").apply { writeText(writerConfigFixture) }
-            val output = project.resolve("build/ci-visual-plan.json")
+            val model = project.resolve(
+                relative = "design-model.json"
+            ).apply { writeText(designModelFixture) }
+            val config = project.resolve(
+                relative = "writer-project-config.json"
+            ).apply { writeText(writerConfigFixture) }
+            val output = project.resolve(
+                relative = "build/ci-visual-plan.json"
+            )
 
             val result = GradleRunner.create()
                 .withProjectDir(project)
@@ -42,7 +53,8 @@ internal class GenerateCiVisualPlanGradleTaskTest : FunSpec({
             project.deleteRecursively()
         }
     }
-})
+}
+)
 
 private val designModelFixture =
     """
@@ -73,7 +85,20 @@ private val designModelFixture =
           "teamCity": {
             "vcsRoots": [],
             "pipelines": [
-              {"id":"Root_Ci","name":"CI","triggers":[],"jobs":[]},
+              {
+                "id":"Root_Ci",
+                "name":"CI",
+                "triggers":[],
+                "jobs":[{
+                  "id":"verify",
+                  "name":"Verify",
+                  "steps":[],
+                  "repositoryIds":[],
+                  "artifacts":[],
+                  "dependencies":[],
+                  "publishedChecks":[{"name":"TeamCity CI"}]
+                }]
+              },
               {"id":"Root_FigmaSync","name":"Figma Sync","triggers":[],"jobs":[]}
             ]
           }

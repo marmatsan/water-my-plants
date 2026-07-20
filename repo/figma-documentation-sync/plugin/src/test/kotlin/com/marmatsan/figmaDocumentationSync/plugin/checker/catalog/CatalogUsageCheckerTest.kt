@@ -15,7 +15,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class CatalogUsageCheckerTest : FunSpec({
+internal class CatalogUsageCheckerTest : FunSpec(
+    {
 
     test("check reports unused entries from dependency DSL and included-build catalogs") {
         // GIVEN
@@ -33,8 +34,12 @@ internal class CatalogUsageCheckerTest : FunSpec({
                 includedBuilds = listOf(
                     FigmaDesignModelIncludedBuildSource(
                         modelName = "gradlePlugins",
-                        settingsFile = rootDir.resolve("repo/gradle-plugins/settings.gradle.kts"),
-                        rootDirectory = rootDir.resolve("repo/gradle-plugins"),
+                        settingsFile = rootDir.resolve(
+                            relative = "repo/gradle-plugins/settings.gradle.kts"
+                        ),
+                        rootDirectory = rootDir.resolve(
+                            relative = "repo/gradle-plugins"
+                        ),
                         modulePathPrefix = ":gradle-plugins",
                         publishesCatalogs = true,
                         publishesConventionPlugins = true
@@ -63,10 +68,13 @@ internal class CatalogUsageCheckerTest : FunSpec({
             )
         )
     }
-})
+}
+)
 
 private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> LibraryCatalogTree(
                 roots = listOf(
@@ -78,7 +86,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                 entries = listOf(
                                     LibraryCatalogEntry.Artifact(
                                         artifact = "datastore",
-                                        version = CatalogVersion("datastoreVersion")
+                                        version = CatalogVersion(
+                                            value = "datastoreVersion"
+                                        )
                                     )
                                 )
                             )
@@ -95,7 +105,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                         entries = listOf(
                                             LibraryCatalogEntry.Artifact(
                                                 artifact = "protobuf-kotlin",
-                                                version = CatalogVersion("protobufLibraryVersion"),
+                                                version = CatalogVersion(
+                                                    value = "protobufLibraryVersion"
+                                                ),
                                                 providedByConventionPlugins = listOf(
                                                     ConventionPluginUsage(
                                                         pluginId = "com.marmatsan.protobuf",
@@ -105,7 +117,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                             ),
                                             LibraryCatalogEntry.Artifact(
                                                 artifact = "protoc",
-                                                version = CatalogVersion("protobufLibraryVersion"),
+                                                version = CatalogVersion(
+                                                    value = "protobufLibraryVersion"
+                                                ),
                                                 configuredByConventionPlugins = listOf(
                                                     ConventionPluginConfigurationUsage(
                                                         pluginId = "com.marmatsan.protobuf",
@@ -133,7 +147,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                 entries = listOf(
                                     LibraryCatalogEntry.Artifact(
                                         artifact = "ktor-client-core",
-                                        version = CatalogVersion(null)
+                                        version = CatalogVersion(
+                                            value = null
+                                        )
                                     )
                                 )
                             )
@@ -147,7 +163,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 error("Custom Gradle plugin inventories are not dependency catalogs")
         }
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> PluginCatalogTree(
                 roots = listOf(
@@ -159,7 +177,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                 children = listOf(
                                     PluginCatalogNode(
                                         id = "protobuf",
-                                        version = CatalogVersion("protobufPluginVersion")
+                                        version = CatalogVersion(
+                                            value = "protobufPluginVersion"
+                                        )
                                     )
                                 )
                             )
@@ -179,7 +199,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                 children = listOf(
                                                     PluginCatalogNode(
                                                         id = "compose",
-                                                        version = CatalogVersion("kotlinVersion"),
+                                                        version = CatalogVersion(
+                                                            value = "kotlinVersion"
+                                                        ),
                                                         providedByConventionPlugins = listOf(
                                                             PluginCatalogNode.ConventionPluginUsage(
                                                                 pluginId = "com.marmatsan.compose",
@@ -208,7 +230,9 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                 children = listOf(
                                     PluginCatalogNode(
                                         id = "dokka",
-                                        version = CatalogVersion("dokkaPluginVersion")
+                                        version = CatalogVersion(
+                                            value = "dokkaPluginVersion"
+                                        )
                                     )
                                 )
                             )

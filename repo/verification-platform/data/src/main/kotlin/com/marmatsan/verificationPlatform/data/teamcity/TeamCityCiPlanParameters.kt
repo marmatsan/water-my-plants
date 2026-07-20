@@ -15,7 +15,9 @@ class TeamCityCiPlanParameters {
      *
      * @throws IllegalArgumentException when a selected task is not allow-listed.
      */
-    fun create(plan: CiPlan): Map<String, String> = linkedMapOf(
+    fun create(
+        plan: CiPlan
+    ): Map<String, String> = linkedMapOf(
         "ci.plan.schemaVersion" to plan.schemaVersion.toString(),
         "ci.plan.mode" to plan.mode.externalName(),
         "ci.plan.scope" to plan.scope.externalName(),
@@ -25,10 +27,15 @@ class TeamCityCiPlanParameters {
         "ci.plan.fallbackReason" to plan.fallbackReason.orEmpty(),
         "ci.plan.changedModules" to plan.changedModules.joinToString(","),
         "ci.plan.affectedModules" to plan.affectedModules.joinToString(","),
-        "ci.plan.gradleTasks" to validatedGradleTasks(plan.requiredGradleTasks())
+        "ci.plan.gradleTasks" to validatedGradleTasks(
+            tasks = plan.requiredGradleTasks()
+        )
     ).apply {
         plan.verificationUnits.forEach { unit ->
-            put("ci.unit.${unit.id.externalName()}.required", unit.required.toString())
+            put(
+                "ci.unit.${unit.id.externalName()}.required",
+                unit.required.toString()
+            )
         }
     }
 
@@ -58,7 +65,9 @@ class TeamCityCiPlanParameters {
         VerificationUnitId.PUBLISH_REPORTS -> "publish-reports"
     }
 
-    private fun validatedGradleTasks(tasks: List<String>): String {
+    private fun validatedGradleTasks(
+        tasks: List<String>
+    ): String {
         require(tasks.all(GRADLE_TASK::matches)) {
             "The CI plan contains a Gradle task outside the TeamCity allow-list."
         }

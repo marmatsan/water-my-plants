@@ -98,8 +98,12 @@ class DesignModelSteps : En {
         When(
             "the design model is generated at {instant}",
             object : A1<Instant> {
-                override fun accept(generatedAt: Instant) {
-                    generateFirstModel(generatedAt = generatedAt)
+                override fun accept(
+                    generatedAt: Instant
+                ) {
+                    generateFirstModel(
+                        generatedAt = generatedAt
+                    )
                 }
             }
         )
@@ -107,8 +111,12 @@ class DesignModelSteps : En {
         When(
             "the design model is generated again at {instant}",
             object : A1<Instant> {
-                override fun accept(generatedAt: Instant) {
-                    generateSecondModel(generatedAt = generatedAt)
+                override fun accept(
+                    generatedAt: Instant
+                ) {
+                    generateSecondModel(
+                        generatedAt = generatedAt
+                    )
                 }
             }
         )
@@ -116,8 +124,12 @@ class DesignModelSteps : En {
         When(
             "the design model is generated for git sha {word}",
             object : A1<String> {
-                override fun accept(gitSha: String) {
-                    generateFirstModel(gitSha = gitSha)
+                override fun accept(
+                    gitSha: String
+                ) {
+                    generateFirstModel(
+                        gitSha = gitSha
+                    )
                 }
             }
         )
@@ -125,8 +137,12 @@ class DesignModelSteps : En {
         When(
             "the design model is generated again for git sha {word}",
             object : A1<String> {
-                override fun accept(gitSha: String) {
-                    generateSecondModel(gitSha = gitSha)
+                override fun accept(
+                    gitSha: String
+                ) {
+                    generateSecondModel(
+                        gitSha = gitSha
+                    )
                 }
             }
         )
@@ -145,7 +161,9 @@ class DesignModelSteps : En {
         Then(
             "the generated model content contains:",
             object : A1<DataTable> {
-                override fun accept(contentKeys: DataTable) {
+                override fun accept(
+                    contentKeys: DataTable
+                ) {
                     firstResult.content.keys shouldContainAll contentKeys.asList()
                 }
             }
@@ -168,13 +186,21 @@ class DesignModelSteps : En {
                 ?.jsonArray
                 ?.map { section ->
                     section.jsonObject["name"]?.jsonPrimitive?.content
-                } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
+                } shouldBe listOf(
+                    "Main project dependencies",
+                    "Libraries",
+                    "Plugins"
+                )
         }
 
         Then("the CI model contains external topology Windows runtime and effective TeamCity configuration") {
             firstResult.content["ci"]!!
                 .jsonObject
-                .keys shouldContainAll listOf("externalTopology", "windowsRuntime", "teamCity")
+                .keys shouldContainAll listOf(
+                    "externalTopology",
+                    "windowsRuntime",
+                    "teamCity"
+                )
         }
 
         Then("the model hash is stored in the generated model") {
@@ -197,14 +223,20 @@ class DesignModelSteps : En {
         gitSha: String = "abc123",
         generatedAt: Instant = DEFAULT_GENERATED_AT
     ) {
-        firstResult = generateModel(gitSha = gitSha, generatedAt = generatedAt)
+        firstResult = generateModel(
+            gitSha = gitSha,
+            generatedAt = generatedAt
+        )
     }
 
     private fun generateSecondModel(
         gitSha: String = "abc123",
         generatedAt: Instant = DEFAULT_GENERATED_AT
     ) {
-        secondResult = generateModel(gitSha = gitSha, generatedAt = generatedAt)
+        secondResult = generateModel(
+            gitSha = gitSha,
+            generatedAt = generatedAt
+        )
     }
 
     private fun generateModel(
@@ -213,7 +245,7 @@ class DesignModelSteps : En {
     ): FigmaDesignModelGenerationResult {
         requireRepositorySources()
         return generator.generate(
-            request(
+            request = request(
                 gitSha = gitSha,
                 generatedAt = generatedAt
             )
@@ -274,12 +306,16 @@ class DesignModelSteps : En {
         )
 
     private companion object {
-        val DEFAULT_GENERATED_AT: Instant = Instant.parse("2026-06-19T10:15:30Z")
+        val DEFAULT_GENERATED_AT: Instant = Instant.parse(
+            "2026-06-19T10:15:30Z"
+        )
     }
 }
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
-    override fun readVersions(source: VersionsFileSource): Map<String, String> =
+    override fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String> =
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
@@ -287,7 +323,9 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             "kspPluginVersion" to "2.3.9"
         )
 
-    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+    override fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
                 name = "Main project dependencies",
@@ -308,7 +346,9 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree =
         LibraryCatalogTree(
             roots = listOf(
                 LibraryCatalogNode(
@@ -316,7 +356,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                     entries = listOf(
                         LibraryCatalogEntry.Artifact(
                             artifact = "kotlin-stdlib",
-                            version = CatalogVersion("2.4.0"),
+                            version = CatalogVersion(
+                                value = "2.4.0"
+                            ),
                             requiredByModules = listOf(":app")
                         )
                     )
@@ -324,12 +366,16 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
             )
         )
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree =
         PluginCatalogTree(
             roots = listOf(
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
-                    version = CatalogVersion("2.4.0"),
+                    version = CatalogVersion(
+                        value = "2.4.0"
+                    ),
                     appliedToModules = listOf(":app")
                 )
             )
@@ -337,12 +383,20 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
-    override fun readModules(source: ProjectModulesSource): Set<String> =
-        setOf(":onboarding:ui", ":app", ":core:ui")
+    override fun readModules(
+        source: ProjectModulesSource
+    ): Set<String> =
+        setOf(
+            ":onboarding:ui",
+            ":app",
+            ":core:ui"
+        )
 }
 
 private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort {
-    override fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency> =
+    override fun readModuleDependencies(
+        source: ProjectModuleDependenciesSource
+    ): Set<ModuleDependency> =
         setOf(
             ModuleDependency(
                 dependentModule = ":app",
@@ -352,11 +406,15 @@ private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort
 }
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
-    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+    override fun readTopology(
+        source: CiExternalTopologySource
+    ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-14"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-14"
+                ),
                 warnAfterDays = 90
             ),
             nodes = listOf(
@@ -372,11 +430,15 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
 }
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
-    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+    override fun readRuntime(
+        source: CiWindowsRuntimeSource
+    ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-16"
+                ),
                 warnAfterDays = 90
             ),
             platform = "Windows",
@@ -394,7 +456,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
 }
 
 private object FakeCiConfigurationPort : CiConfigurationPort {
-    override fun readConfiguration(source: CiGeneratedConfigurationSource): CiConfiguration =
+    override fun readConfiguration(
+        source: CiGeneratedConfigurationSource
+    ): CiConfiguration =
         CiConfiguration(
             pipelines = listOf(
                 CiPipeline(

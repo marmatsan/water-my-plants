@@ -7,8 +7,12 @@ import java.io.File
 
 /** Water My Plants adapter for the portable dependency catalog contract. */
 class WaterMyPlantsDependencyCatalogProvider : DependencyCatalogProvider {
-    override fun resolved(rootDir: File): DependencyCatalogTrees =
-        WaterMyPlantsCatalog.resolved(rootDir)
+    override fun resolved(
+        rootDir: File
+    ): DependencyCatalogTrees =
+        WaterMyPlantsCatalog.resolved(
+            rootDir = rootDir
+        )
 
     override fun withVersionAliases(): DependencyCatalogTrees =
         WaterMyPlantsCatalog.withVersionAliases()

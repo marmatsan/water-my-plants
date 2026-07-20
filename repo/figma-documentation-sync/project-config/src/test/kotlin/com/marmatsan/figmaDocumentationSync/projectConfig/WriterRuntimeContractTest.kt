@@ -17,14 +17,15 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class WriterRuntimeContractTest : FunSpec({
+internal class WriterRuntimeContractTest : FunSpec(
+    {
     test("keeps the language-neutral writer runtime contract executable in Kotlin") {
         val contractPath = Path.of(
             requireNotNull(System.getProperty("figmaDocumentationSyncWriterRuntimeContract"))
         )
         val contract = Json.parseToJsonElement(Files.readString(contractPath)).jsonObject
         val runtimeConfig = FigmaWriterRuntimeConfigJson.decode(
-            FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
+            source = FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
         )
         val visual = contract.getValue("visual").jsonObject
         val metadata = contract.getValue("metadata").jsonObject
@@ -41,7 +42,10 @@ internal class WriterRuntimeContractTest : FunSpec({
         visual.getValue("transport").jsonPrimitive.content shouldBe OfficialMcpRunnerGenerator.TRANSPORT_PNG
         metadata.getValue("transport").jsonPrimitive.content shouldBe OfficialMcpRunnerGenerator.TRANSPORT_PNG
 
-        val output = Files.createTempFile("writer-runtime-contract", ".json")
+        val output = Files.createTempFile(
+            "writer-runtime-contract",
+            ".json"
+        )
         try {
             val hash = "sha256:" + "a".repeat(64)
             val manifest = ExecutableRunnerManifestJson().finalizeAndWrite(
@@ -93,4 +97,5 @@ internal class WriterRuntimeContractTest : FunSpec({
             Files.deleteIfExists(output)
         }
     }
-})
+}
+)

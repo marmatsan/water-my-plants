@@ -3,7 +3,9 @@ plugins {
     `kotlin-dsl` apply false
 }
 
-@DisableCachingByDefault(because = "The verification task has no reusable output artifact")
+@DisableCachingByDefault(
+    because = "The verification task has no reusable output artifact"
+)
 abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     @get:Input
     abstract val mavenVersion: Property<String>
@@ -17,7 +19,9 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
         val npmVersion = Regex("\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"")
             .find(packageJson.get().asFile.readText())
             ?.groupValues
-            ?.get(1)
+            ?.get(
+                index = 1
+            )
             ?: error("Missing version in tools/package.json")
         val expectedVersion = mavenVersion.get()
         check(npmVersion == expectedVersion) {
@@ -77,7 +81,10 @@ tasks.register<Exec>("verifyStagedPublication") {
 
     val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
     val wrapper = layout.projectDirectory.file(
-        if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+        if (System.getProperty("os.name").startsWith(
+            "Windows",
+            ignoreCase = true
+        )) {
             "../../gradlew.bat"
         } else {
             "../../gradlew"

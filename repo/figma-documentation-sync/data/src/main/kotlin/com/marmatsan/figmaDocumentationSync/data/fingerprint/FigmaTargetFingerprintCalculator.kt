@@ -22,10 +22,22 @@ class FigmaTargetFingerprintCalculator {
         catalogTargets: List<String>
     ): Map<String, String> = buildMap {
         visualTargets.forEach { target ->
-            put(target, hash(modelSlice(designModel, target, catalogTargets)))
+            put(
+                target,
+                hash(
+                    value = modelSlice(
+                        designModel = designModel,
+                        target = target,
+                        catalogTargets = catalogTargets
+                    )
+                )
+            )
             if (target !in catalogTargets) return@forEach
 
-            val nodes = catalogNodes(designModel, target)
+            val nodes = catalogNodes(
+                designModel = designModel,
+                target = target
+            )
             val rootKey = if (target.substringAfter('.') == "libraries") "group" else "id"
             val roots = nodes.mapNotNull { node ->
                 node.jsonObject[rootKey]?.jsonPrimitive?.contentOrNull
@@ -33,10 +45,24 @@ class FigmaTargetFingerprintCalculator {
             roots.forEach { root ->
                 put(
                     "$target.$root",
-                    hash(JsonArray(nodes.filter { node -> node.jsonObject[rootKey]?.jsonPrimitive?.content == root }))
+                    hash(
+                        value = JsonArray(nodes.filter { node -> node.jsonObject[rootKey]?.jsonPrimitive?.content == root })
+                    )
                 )
             }
-            put("$target.cleanup", hash(buildJsonObject { put("roots", JsonArray(roots.map(::JsonPrimitive))) }))
+            put(
+                "$target.cleanup",
+                hash(
+                    value = buildJsonObject { put(
+                        "roots",
+                        JsonArray(
+                            roots.map(
+                                transform = ::JsonPrimitive
+                            )
+                        )
+                    ) }
+                )
+            )
         }
     }
 
@@ -48,26 +74,61 @@ class FigmaTargetFingerprintCalculator {
         val content = designModel["content"]?.jsonObject
         return when {
             target == "preflight" -> content ?: JsonNull
-            target == "headers" -> buildJsonObject { put("target", target) }
+            target == "headers" -> buildJsonObject { put(
+                "target",
+                target
+            ) }
             target == "versions" -> buildJsonObject {
-                content?.get("versions")?.let { put("versions", it) }
-                content?.get("versionSections")?.let { put("versionSections", it) }
+                content?.get(
+                    key = "versions"
+                )?.let { put(
+                    "versions",
+                    it
+                ) }
+                content?.get(
+                    key = "versionSections"
+                )?.let { put(
+                    "versionSections",
+                    it
+                ) }
             }
-            target.startsWith("ci.") -> content?.get("ci") ?: JsonNull
-            target in catalogTargets -> catalogNodes(designModel, target)
+            target.startsWith(
+                prefix = "ci."
+            ) -> content?.get(
+                key = "ci"
+            ) ?: JsonNull
+            target in catalogTargets -> catalogNodes(
+                designModel = designModel,
+                target = target
+            )
             else -> JsonNull
         }
     }
 
-    private fun catalogNodes(designModel: JsonObject, target: String): JsonArray {
+    private fun catalogNodes(
+        designModel: JsonObject,
+        target: String
+    ): JsonArray {
         val catalogName = target.substringBefore('.')
         val treeName = target.substringAfter('.')
         return designModel["content"]?.jsonObject
-            ?.get("catalogs")?.jsonObject
-            ?.get(catalogName)?.jsonObject
-            ?.get(treeName)?.jsonArray
+            ?.get(
+                key = "catalogs"
+            )?.jsonObject
+            ?.get(
+                key = catalogName
+            )?.jsonObject
+            ?.get(
+                key = treeName
+            )?.jsonArray
             ?: JsonArray(emptyList())
     }
 
-    private fun hash(value: JsonElement): String = Sha256Hash.of(CanonicalJson.stringify(value))
+    private fun hash(
+        value: JsonElement
+    ): String = Sha256Hash.of(
+        value = CanonicalJson.stringify(
+            value = value
+        )
+    )
 }

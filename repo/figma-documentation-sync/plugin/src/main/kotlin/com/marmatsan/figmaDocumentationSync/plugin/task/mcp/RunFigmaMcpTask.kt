@@ -23,7 +23,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Inspects, records, or executes an official checkpointed runner through the Kotlin MCP client. */
-@DisableCachingByDefault(because = "May invoke a local write-capable MCP endpoint")
+@DisableCachingByDefault(
+    because = "May invoke a local write-capable MCP endpoint"
+)
 abstract class RunFigmaMcpTask @Inject constructor() : DefaultTask() {
     @get:Input
     abstract val manifestPath: Property<String>
@@ -110,20 +112,46 @@ abstract class RunFigmaMcpTask @Inject constructor() : DefaultTask() {
                     logger.lifecycle(inspection.executionFiles.firstOrNull() ?: "COMPLETE")
                 } else {
                     val output = buildJsonObject {
-                        put("manifestHash", inspection.manifestHash)
-                        put("statePath", inspection.statePath)
-                        put("reuseStaging", inspection.reuseStaging)
-                        put("decision", inspection.decision?.let(::JsonPrimitive) ?: JsonNull)
+                        put(
+                            "manifestHash",
+                            inspection.manifestHash
+                        )
+                        put(
+                            "statePath",
+                            inspection.statePath
+                        )
+                        put(
+                            "reuseStaging",
+                            inspection.reuseStaging
+                        )
+                        put(
+                            "decision",
+                            inspection.decision?.let(::JsonPrimitive) ?: JsonNull
+                        )
                         put(
                             "executionScopes",
                             inspection.executionScopes
-                                ?.map(::JsonPrimitive)
+                                ?.map(
+                                    transform = ::JsonPrimitive
+                                )
                                 ?.let(::JsonArray)
                                 ?: JsonNull
                         )
-                        put("executionFiles", JsonArray(inspection.executionFiles.map(::JsonPrimitive)))
+                        put(
+                            "executionFiles",
+                            JsonArray(
+                                inspection.executionFiles.map(
+                                    transform = ::JsonPrimitive
+                                )
+                            )
+                        )
                     }
-                    logger.lifecycle(prettyJson.encodeToString(JsonObject.serializer(), output))
+                    logger.lifecycle(
+                        prettyJson.encodeToString(
+                            JsonObject.serializer(),
+                            output
+                        )
+                    )
                 }
             }
             recordSuccess.orNull != null || recordFailure.orNull != null -> {

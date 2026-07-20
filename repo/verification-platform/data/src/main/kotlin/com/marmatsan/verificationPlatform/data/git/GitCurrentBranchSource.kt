@@ -14,13 +14,22 @@ class GitCurrentBranchSource {
      *
      * @throws IllegalStateException when neither input can identify a branch.
      */
-    fun read(repositoryRoot: File, branchOverride: String? = null): String {
+    fun read(
+        repositoryRoot: File,
+        branchOverride: String? = null
+    ): String {
         branchOverride?.trim()?.takeIf(String::isNotEmpty)?.let { branch ->
             return branch
         }
 
         val root = repositoryRoot.canonicalFile
-        return gitOrNull(root, "symbolic-ref", "--quiet", "--short", "HEAD")
+        return gitOrNull(
+            root,
+            "symbolic-ref",
+            "--quiet",
+            "--short",
+            "HEAD"
+        )
             ?.takeIf(String::isNotBlank)
             ?: error(
                 "Cannot resolve the Git branch from detached HEAD. " +
@@ -28,9 +37,21 @@ class GitCurrentBranchSource {
             )
     }
 
-    private fun gitOrNull(root: File, vararg arguments: String): String? {
-        val safeDirectory = root.absolutePath.replace('\\', '/')
-        val process = ProcessBuilder(listOf("git", "-c", "safe.directory=$safeDirectory") + arguments)
+    private fun gitOrNull(
+        root: File,
+        vararg arguments: String
+    ): String? {
+        val safeDirectory = root.absolutePath.replace(
+            '\\',
+            '/'
+        )
+        val process = ProcessBuilder(
+            listOf(
+                "git",
+                "-c",
+                "safe.directory=$safeDirectory"
+            ) + arguments
+        )
             .directory(root)
             .redirectErrorStream(true)
             .start()

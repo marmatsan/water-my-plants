@@ -11,12 +11,19 @@ class GitRepositoryDiffChecker {
      * @throws IllegalStateException when Git reports whitespace errors or
      * cannot resolve the requested revisions.
      */
-    fun check(repositoryRoot: File, comparisonBase: String, head: String) {
+    fun check(
+        repositoryRoot: File,
+        comparisonBase: String,
+        head: String
+    ) {
         require(comparisonBase.isNotBlank()) { "A comparison base is required for repository diff verification." }
         require(head.isNotBlank()) { "A head revision is required for repository diff verification." }
 
         val root = repositoryRoot.canonicalFile
-        val safeDirectory = root.absolutePath.replace('\\', '/')
+        val safeDirectory = root.absolutePath.replace(
+            '\\',
+            '/'
+        )
         val arguments = listOf(
             "git",
             "-c",
@@ -31,7 +38,9 @@ class GitRepositoryDiffChecker {
             .start()
         val output = process.inputStream.bufferedReader().use { reader -> reader.readText() }
         val exitCode = process.waitFor()
-        check(exitCode == 0) {
+        check(
+            exitCode == 0
+        ) {
             "Repository diff verification failed: ${output.trim()}"
         }
     }

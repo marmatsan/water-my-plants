@@ -12,7 +12,11 @@ class CucumberTypes : En {
             "instant",
             "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z",
             object : A1<Instant> {
-                override fun accept(value: String): Instant = Instant.parse(value)
+                override fun accept(
+                    value: String
+                ): Instant = Instant.parse(
+                    value
+                )
             }
         )
     }

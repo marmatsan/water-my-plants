@@ -16,7 +16,9 @@ import org.gradle.work.DisableCachingByDefault
 /**
  * Emits a non-blocking warning when Windows CI runtime validation is stale.
  */
-@DisableCachingByDefault(because = "The warning depends on the current UTC date")
+@DisableCachingByDefault(
+    because = "The warning depends on the current UTC date"
+)
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
     @get:InputFile
     @get:Optional

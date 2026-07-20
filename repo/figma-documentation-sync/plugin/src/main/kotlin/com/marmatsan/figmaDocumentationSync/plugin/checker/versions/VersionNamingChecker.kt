@@ -12,14 +12,22 @@ import me.tatarka.inject.annotations.Inject
 internal class VersionNamingChecker(
     private val repositoryVersionsPort: RepositoryVersionsPort
 ) {
-    fun check(request: VersionNamingCheckRequest): VersionNamingCheckResult {
+    fun check(
+        request: VersionNamingCheckRequest
+    ): VersionNamingCheckResult {
         val sections = repositoryVersionsPort.readVersionSections(
-            VersionsFileSource(request.versionsFile.absolutePath)
+            source = VersionsFileSource(
+                path = request.versionsFile.absolutePath
+            )
         )
         val violations = mutableListOf<VersionNamingViolation>()
 
-        violations += checkSectionOrder(sections)
-        violations += checkMainProjectDependencies(sections)
+        violations += checkSectionOrder(
+            sections = sections
+        )
+        violations += checkMainProjectDependencies(
+            sections = sections
+        )
         violations += checkSuffixes(
             sections = sections,
             sectionName = LIBRARIES_SECTION,
@@ -31,17 +39,23 @@ internal class VersionNamingChecker(
             suffix = PLUGIN_VERSION_SUFFIX
         )
 
-        return VersionNamingCheckResult(violations = violations)
+        return VersionNamingCheckResult(
+            violations = violations
+        )
     }
 
-    private fun checkSectionOrder(sections: List<RepositoryVersionSection>): List<VersionNamingViolation> {
-        val actualSectionNames = sections.map(RepositoryVersionSection::name)
+    private fun checkSectionOrder(
+        sections: List<RepositoryVersionSection>
+    ): List<VersionNamingViolation> {
+        val actualSectionNames = sections.map(
+            transform = RepositoryVersionSection::name
+        )
         return if (actualSectionNames == EXPECTED_SECTION_NAMES) {
             emptyList()
         } else {
             listOf(
                 VersionNamingViolation(
-                    "Expected version sections in order: ${EXPECTED_SECTION_NAMES.joinToString()}. " +
+                    message = "Expected version sections in order: ${EXPECTED_SECTION_NAMES.joinToString()}. " +
                         "Found: ${actualSectionNames.joinToString()}."
                 )
             )
@@ -63,7 +77,7 @@ internal class VersionNamingChecker(
         } else {
             listOf(
                 VersionNamingViolation(
-                    "$MAIN_PROJECT_DEPENDENCIES_SECTION must declare only " +
+                    message = "$MAIN_PROJECT_DEPENDENCIES_SECTION must declare only " +
                         "${MAIN_PROJECT_DEPENDENCIES_KEYS.joinToString()}." +
                         " Found: ${keys.sorted().joinToString()}."
                 )
@@ -84,7 +98,7 @@ internal class VersionNamingChecker(
             .filterNot { key -> key.endsWith(suffix) }
             .map { key ->
                 VersionNamingViolation(
-                    "$sectionName version key '$key' must end with '$suffix'."
+                    message = "$sectionName version key '$key' must end with '$suffix'."
                 )
             }
 

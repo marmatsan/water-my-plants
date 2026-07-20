@@ -5,9 +5,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class FigmaChangeImpactPolicyDataSourceTest : FunSpec({
+internal class FigmaChangeImpactPolicyDataSourceTest : FunSpec(
+    {
     test("read maps the versioned JSON policy to domain rules") {
-        val policyFile = Files.createTempFile("figma-impact-policy", ".json").toFile()
+        val policyFile = Files.createTempFile(
+            "figma-impact-policy",
+            ".json"
+        ).toFile()
         try {
             policyFile.writeText(
                 """
@@ -42,7 +46,10 @@ internal class FigmaChangeImpactPolicyDataSourceTest : FunSpec({
     }
 
     test("read rejects an unsupported policy schema") {
-        val policyFile = Files.createTempFile("figma-impact-policy", ".json").toFile()
+        val policyFile = Files.createTempFile(
+            "figma-impact-policy",
+            ".json"
+        ).toFile()
         try {
             policyFile.writeText(
                 """
@@ -67,4 +74,5 @@ internal class FigmaChangeImpactPolicyDataSourceTest : FunSpec({
             policyFile.delete()
         }
     }
-})
+}
+)

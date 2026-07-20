@@ -16,7 +16,9 @@ class TeamCityOfficialFigmaPayloadUploader(
     private val uploadPng: (String, ByteArray) -> Unit =
         KtorFigmaPngAssetUploader()::uploadBlocking
 ) {
-    fun upload(request: Request): Result {
+    fun upload(
+        request: Request
+    ): Result {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
         }
@@ -26,7 +28,7 @@ class TeamCityOfficialFigmaPayloadUploader(
             }
         }
         val handoff = handoffPreparer.prepare(
-            TeamCityFigmaSyncHandoffPreparer.Request(
+            request = TeamCityFigmaSyncHandoffPreparer.Request(
                 buildId = request.buildId,
                 artifactDirectory = request.artifactDirectory,
                 destinationRoot = request.destinationRoot,
@@ -53,7 +55,9 @@ class TeamCityOfficialFigmaPayloadUploader(
             "Official PNG payload must use a file name without path segments."
         }
         val runnerDirectory = requireNotNull(manifestPath.parent).toAbsolutePath().normalize()
-        val payloadPath = runnerDirectory.resolve(payload.fileName).normalize()
+        val payloadPath = runnerDirectory.resolve(
+            payload.fileName
+        ).normalize()
         require(payloadPath.parent == runnerDirectory && Files.isRegularFile(payloadPath)) {
             "Official PNG payload does not exist beside its visual manifest."
         }
@@ -61,12 +65,17 @@ class TeamCityOfficialFigmaPayloadUploader(
         require(bytes.size == payload.byteLength) {
             "Official PNG payload length mismatch: ${bytes.size} != ${payload.byteLength}."
         }
-        val actualHash = Sha256Hash.of(bytes)
+        val actualHash = Sha256Hash.of(
+            value = bytes
+        )
         require(actualHash == payload.sha256) {
             "Official PNG payload hash mismatch: $actualHash != ${payload.sha256}."
         }
 
-        uploadPng(request.uploadUrl, bytes)
+        uploadPng(
+            request.uploadUrl,
+            bytes
+        )
         return Result(
             buildId = request.buildId,
             gitSha = manifest.gitSha,
@@ -84,7 +93,11 @@ class TeamCityOfficialFigmaPayloadUploader(
         val uploadUrl: String,
         val destinationRoot: File,
         val expectedGitSha: String? = null,
-        val mainBranchAliases: Set<String> = setOf("main", "<default>", "refs/heads/main"),
+        val mainBranchAliases: Set<String> = setOf(
+            "main",
+            "<default>",
+            "refs/heads/main"
+        ),
         val requiredBuildTypeName: String = "Generate main design model"
     )
 

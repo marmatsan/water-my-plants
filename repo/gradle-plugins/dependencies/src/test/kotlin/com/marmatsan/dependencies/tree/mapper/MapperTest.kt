@@ -7,7 +7,8 @@ import com.marmatsan.dependencies.tree.model.LibraryEntry
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class MapperTest : FunSpec({
+internal class MapperTest : FunSpec(
+    {
 
     test("maps NodeData_Library to Dependency_Library when entries is not null") {
         // GIVEN
@@ -15,19 +16,27 @@ internal class MapperTest : FunSpec({
             libraryGroup = "androidx.activity",
             entries = listOf(
                 LibraryEntry.Single(
-                    Artifact(artifact = "activity-compose", version = "1.9.1")
+                    artifact = Artifact(
+                        artifact = "activity-compose",
+                        version = "1.9.1"
+                    )
                 )
             )
         )
 
         // WHEN
-        val dependency = node.toDependencyLibrary(libraryGroup = "androidx.activity")
+        val dependency = node.toDependencyLibrary(
+            libraryGroup = "androidx.activity"
+        )
 
         val expected = Dependency.Library(
             libraryGroup = "androidx.activity",
             entries = listOf(
                 LibraryEntry.Single(
-                    artifact = Artifact(artifact = "activity-compose", version = "1.9.1")
+                    artifact = Artifact(
+                        artifact = "activity-compose",
+                        version = "1.9.1"
+                    )
                 )
             )
         )
@@ -42,7 +51,9 @@ internal class MapperTest : FunSpec({
             version = "8.10.1"
         )
 
-        val dependency = node.toDependencyPlugin(pluginId = "com.android.application")
+        val dependency = node.toDependencyPlugin(
+            pluginId = "com.android.application"
+        )
 
         val expected = Dependency.Plugin(
             pluginId = "com.android.application",
@@ -52,4 +63,5 @@ internal class MapperTest : FunSpec({
 
         dependency shouldBe expected
     }
-})
+}
+)

@@ -10,17 +10,22 @@ import com.marmatsan.dependencies.tree.model.LibraryEntry
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class NodeTest : FunSpec({
+internal class NodeTest : FunSpec(
+    {
 
     test("depthFirstPreOrderTraverse maps a given library tree preserving full paths and pre order") {
         // GIVEN
-        val androidx = Node(DependencyNode.Library("androidx"))
+        val androidx = Node(
+            DependencyNode.Library(
+                libraryGroup = "androidx"
+            )
+        )
         val activity = Node(
             DependencyNode.Library(
                 libraryGroup = "activity",
                 entries = listOf(
                     LibraryEntry.Single(
-                        Artifact(
+                        artifact = Artifact(
                             artifact = "activity-compose",
                             version = "1.13.0"
                         )
@@ -33,7 +38,7 @@ internal class NodeTest : FunSpec({
                 libraryGroup = "compose",
                 entries = listOf(
                     LibraryEntry.Single(
-                        Artifact(
+                        artifact = Artifact(
                             artifact = "compose-bom",
                             version = "2026.05.00"
                         )
@@ -46,7 +51,7 @@ internal class NodeTest : FunSpec({
                 libraryGroup = "ui",
                 entries = listOf(
                     LibraryEntry.Bundle(
-                        ArtifactsBundle(
+                        artifactsBundle = ArtifactsBundle(
                             alias = "composeBundle",
                             artifacts = listOf(
                                 Artifact("ui"),
@@ -63,80 +68,98 @@ internal class NodeTest : FunSpec({
                 libraryGroup = "material3",
                 entries = listOf(
                     LibraryEntry.Single(
-                        Artifact("material3")
+                        artifact = Artifact("material3")
                     )
                 )
             )
         )
 
-        androidx.add(activity)
-        androidx.add(compose)
-        compose.add(ui)
-        compose.add(material3)
+        androidx.add(
+            child = activity
+        )
+        androidx.add(
+            child = compose
+        )
+        compose.add(
+            child = ui
+        )
+        compose.add(
+            child = material3
+        )
 
         // WHEN
         val actualLibraries = androidx.depthFirstPreOrderTraverse(
             pathSegment = DependencyNode.Library::libraryGroup,
             shouldIncludeNode = { it.entries != null },
             mapNode = { libraryNode, fullPath ->
-                libraryNode.toDependencyLibrary(libraryGroup = fullPath)
+                libraryNode.toDependencyLibrary(
+                    libraryGroup = fullPath
+                )
             }
         )
 
         // THEN
         actualLibraries shouldBe listOf(
-                Dependency.Library(
-                    libraryGroup = "androidx.activity",
-                    entries = listOf(
-                        LibraryEntry.Single(
-                            Artifact(
-                                artifact = "activity-compose",
-                                version = "1.13.0"
-                            )
-                        )
-                    )
-                ),
-                Dependency.Library(
-                    libraryGroup = "androidx.compose",
-                    entries = listOf(
-                        LibraryEntry.Single(
-                            Artifact(
-                                artifact = "compose-bom",
-                                version = "2026.05.00"
-                            )
-                        )
-                    )
-                ),
-                Dependency.Library(
-                    libraryGroup = "androidx.compose.ui",
-                    entries = listOf(
-                        LibraryEntry.Bundle(
-                            ArtifactsBundle(
-                                alias = "composeBundle",
-                                artifacts = listOf(
-                                    Artifact("ui"),
-                                    Artifact("ui-graphics"),
-                                    Artifact("ui-tooling")
-                                )
-                            )
-                        )
-                    )
-                ),
-                Dependency.Library(
-                    libraryGroup = "androidx.compose.material3",
-                    entries = listOf(
-                        LibraryEntry.Single(
-                            Artifact("material3")
+            Dependency.Library(
+                libraryGroup = "androidx.activity",
+                entries = listOf(
+                    LibraryEntry.Single(
+                        artifact = Artifact(
+                            artifact = "activity-compose",
+                            version = "1.13.0"
                         )
                     )
                 )
+            ),
+            Dependency.Library(
+                libraryGroup = "androidx.compose",
+                entries = listOf(
+                    LibraryEntry.Single(
+                        artifact = Artifact(
+                            artifact = "compose-bom",
+                            version = "2026.05.00"
+                        )
+                    )
+                )
+            ),
+            Dependency.Library(
+                libraryGroup = "androidx.compose.ui",
+                entries = listOf(
+                    LibraryEntry.Bundle(
+                        artifactsBundle = ArtifactsBundle(
+                            alias = "composeBundle",
+                            artifacts = listOf(
+                                Artifact("ui"),
+                                Artifact("ui-graphics"),
+                                Artifact("ui-tooling")
+                            )
+                        )
+                    )
+                )
+            ),
+            Dependency.Library(
+                libraryGroup = "androidx.compose.material3",
+                entries = listOf(
+                    LibraryEntry.Single(
+                        artifact = Artifact("material3")
+                    )
+                )
             )
+        )
     }
 
     test("depthFirstPreOrderTraverse maps a given plugin tree preserving full paths and pre order") {
         // GIVEN
-        val com = Node(DependencyNode.Plugin("com"))
-        val android = Node(DependencyNode.Plugin("android"))
+        val com = Node(
+            DependencyNode.Plugin(
+                pluginId = "com"
+            )
+        )
+        val android = Node(
+            DependencyNode.Plugin(
+                pluginId = "android"
+            )
+        )
         val application = Node(
             DependencyNode.Plugin(
                 pluginId = "application",
@@ -149,8 +172,16 @@ internal class NodeTest : FunSpec({
                 version = "9.2.1"
             )
         )
-        val google = Node(DependencyNode.Plugin("google"))
-        val devtools = Node(DependencyNode.Plugin("devtools"))
+        val google = Node(
+            DependencyNode.Plugin(
+                pluginId = "google"
+            )
+        )
+        val devtools = Node(
+            DependencyNode.Plugin(
+                pluginId = "devtools"
+            )
+        )
         val ksp = Node(
             DependencyNode.Plugin(
                 pluginId = "ksp",
@@ -158,36 +189,51 @@ internal class NodeTest : FunSpec({
             )
         )
 
-        com.add(android)
-        android.add(application)
-        android.add(library)
-        com.add(google)
-        google.add(devtools)
-        devtools.add(ksp)
+        com.add(
+            child = android
+        )
+        android.add(
+            child = application
+        )
+        android.add(
+            child = library
+        )
+        com.add(
+            child = google
+        )
+        google.add(
+            child = devtools
+        )
+        devtools.add(
+            child = ksp
+        )
 
         // WHEN
         val actualPlugins = com.depthFirstPreOrderTraverse(
             pathSegment = DependencyNode.Plugin::pluginId,
             shouldIncludeNode = { it.version != null },
             mapNode = { pluginNode, fullPath ->
-                pluginNode.toDependencyPlugin(pluginId = fullPath)
+                pluginNode.toDependencyPlugin(
+                    pluginId = fullPath
+                )
             }
         )
 
         // THEN
         actualPlugins shouldBe listOf(
-                Dependency.Plugin(
-                    pluginId = "com.android.application",
-                    version = "9.2.1"
-                ),
-                Dependency.Plugin(
-                    pluginId = "com.android.library",
-                    version = "9.2.1"
-                ),
-                Dependency.Plugin(
-                    pluginId = "com.google.devtools.ksp",
-                    version = "2.3.9"
-                )
+            Dependency.Plugin(
+                pluginId = "com.android.application",
+                version = "9.2.1"
+            ),
+            Dependency.Plugin(
+                pluginId = "com.android.library",
+                version = "9.2.1"
+            ),
+            Dependency.Plugin(
+                pluginId = "com.google.devtools.ksp",
+                version = "2.3.9"
             )
+        )
     }
-})
+}
+)

@@ -263,6 +263,13 @@ Discard an artifact whose revision or hashes cannot be proven. If visual
 execution fails, resume only compatible checkpoint units or regenerate the
 official artifact from the authoritative `main` run.
 
+After renaming the included build, a local runner build can fail while walking
+a generated junction below
+`repo/figma-documentation-sync/build/js/node_modules/` that still targets the
+retired module path. Inspect the junction target first, remove only the stale
+generated junction, and rebuild the runner. Do not delete source directories
+or weaken fingerprint validation to work around the failure.
+
 ## Prohibited Actions
 
 - Do not publish a locally generated or feature-branch design model.

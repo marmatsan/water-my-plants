@@ -38,10 +38,14 @@ class ProjectCatalogTreesDataSource(
     /**
      * Reads library trees only from source variants that define libraries.
      */
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree =
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readLibraryTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(
+                    gradleCatalogUsageReader = gradleCatalogUsageReader
+                ).readLibraryTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -66,10 +70,14 @@ class ProjectCatalogTreesDataSource(
      * Reads plugin trees from dependency catalogs, gradle-plugins settings, and
      * repository-owned Gradle plugin declarations.
      */
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree =
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases ->
-                source.dependenciesCatalogTreesReader(gradleCatalogUsageReader).readPluginTreeWithVersionAliases(
+                source.dependenciesCatalogTreesReader(
+                    gradleCatalogUsageReader = gradleCatalogUsageReader
+                ).readPluginTreeWithVersionAliases(
                     rootDir = File(source.rootDirPath),
                     conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                 )
@@ -118,20 +126,34 @@ private fun ProjectCatalogTreeSource.DependenciesDslVersionAliases.dependenciesC
     )
 
 private fun List<PluginCatalogTree>.mergePluginTrees(): PluginCatalogTree =
-    fold(PluginCatalogTree(roots = emptyList())) { mergedTree, tree -> mergedTree.merge(tree) }
+    fold(
+        PluginCatalogTree(
+            roots = emptyList()
+        )
+    ) { mergedTree, tree -> mergedTree.merge(
+        other = tree
+    ) }
 
-private fun PluginCatalogTree.merge(other: PluginCatalogTree): PluginCatalogTree =
+private fun PluginCatalogTree.merge(
+    other: PluginCatalogTree
+): PluginCatalogTree =
     copy(
-        roots = roots.mergePluginNodes(other.roots)
+        roots = roots.mergePluginNodes(
+            other = other.roots
+        )
     )
 
-private fun List<PluginCatalogNode>.mergePluginNodes(other: List<PluginCatalogNode>): List<PluginCatalogNode> =
+private fun List<PluginCatalogNode>.mergePluginNodes(
+    other: List<PluginCatalogNode>
+): List<PluginCatalogNode> =
     (this + other)
         .groupBy(PluginCatalogNode::id)
         .map { (_, nodes) -> nodes.reduce(PluginCatalogNode::merge) }
         .sortedBy(PluginCatalogNode::id)
 
-private fun PluginCatalogNode.merge(other: PluginCatalogNode): PluginCatalogNode =
+private fun PluginCatalogNode.merge(
+    other: PluginCatalogNode
+): PluginCatalogNode =
     copy(
         version = version ?: other.version,
         appliedToModules = (appliedToModules + other.appliedToModules).sorted(),
@@ -143,5 +165,7 @@ private fun PluginCatalogNode.merge(other: PluginCatalogNode): PluginCatalogNode
                     PluginCatalogNode.ConventionPluginUsage::pluginModule
                 )
             ),
-        children = children.mergePluginNodes(other.children)
+        children = children.mergePluginNodes(
+            other = other.children
+        )
     )

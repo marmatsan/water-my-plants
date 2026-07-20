@@ -10,7 +10,9 @@ import me.tatarka.inject.annotations.Inject
 /** JSON adapter for the repository-owned Figma change-impact policy. */
 @Inject
 class FigmaChangeImpactPolicyDataSource : FigmaChangeImpactPolicyPort {
-    override fun read(sourcePath: String): FigmaChangeImpactPolicy {
+    override fun read(
+        sourcePath: String
+    ): FigmaChangeImpactPolicy {
         val source = File(sourcePath)
         require(source.isFile) { "Figma change-impact policy was not found: ${source.path}" }
         val dto = json.decodeFromString<FigmaChangeImpactPolicyDto>(source.readText())
@@ -26,7 +28,10 @@ class FigmaChangeImpactPolicyDataSource : FigmaChangeImpactPolicyPort {
             modelContentPaths = dto.figmaModelContentPaths,
             visualWriterPaths = dto.figmaVisualWriterPaths,
             visualTargetRules = dto.figmaVisualTargetRules.map { rule ->
-                FigmaVisualTargetRule(paths = rule.paths, targets = rule.targets)
+                FigmaVisualTargetRule(
+                    paths = rule.paths,
+                    targets = rule.targets
+                )
             }
         )
     }

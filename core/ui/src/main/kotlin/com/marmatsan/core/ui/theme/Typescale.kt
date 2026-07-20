@@ -22,32 +22,104 @@ import com.marmatsan.core.ui.R
 )*/
 
 val fontFamily = FontFamily(
-    Font(R.font.poppins_black, FontWeight.Black, FontStyle.Normal),
-    Font(R.font.poppins_blackitalic, FontWeight.Black, FontStyle.Italic),
+    Font(
+        R.font.poppins_black,
+        FontWeight.Black,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_blackitalic,
+        FontWeight.Black,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_extrabold, FontWeight.ExtraBold, FontStyle.Normal),
-    Font(R.font.poppins_extrabolditalic, FontWeight.ExtraBold, FontStyle.Italic),
+    Font(
+        R.font.poppins_extrabold,
+        FontWeight.ExtraBold,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_extrabolditalic,
+        FontWeight.ExtraBold,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_bold, FontWeight.Bold, FontStyle.Normal),
-    Font(R.font.poppins_bolditalic, FontWeight.Bold, FontStyle.Italic),
+    Font(
+        R.font.poppins_bold,
+        FontWeight.Bold,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_bolditalic,
+        FontWeight.Bold,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_semibold, FontWeight.SemiBold, FontStyle.Normal),
-    Font(R.font.poppins_semibolditalic, FontWeight.SemiBold, FontStyle.Italic),
+    Font(
+        R.font.poppins_semibold,
+        FontWeight.SemiBold,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_semibolditalic,
+        FontWeight.SemiBold,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_medium, FontWeight.Medium, FontStyle.Normal),
-    Font(R.font.poppins_mediumitalic, FontWeight.Medium, FontStyle.Italic),
+    Font(
+        R.font.poppins_medium,
+        FontWeight.Medium,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_mediumitalic,
+        FontWeight.Medium,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_italic, FontWeight.Normal, FontStyle.Italic),
-    Font(R.font.poppins_regular, FontWeight.Normal, FontStyle.Normal),
+    Font(
+        R.font.poppins_italic,
+        FontWeight.Normal,
+        FontStyle.Italic
+    ),
+    Font(
+        R.font.poppins_regular,
+        FontWeight.Normal,
+        FontStyle.Normal
+    ),
 
-    Font(R.font.poppins_light, FontWeight.Light, FontStyle.Normal),
-    Font(R.font.poppins_lightitalic, FontWeight.Light, FontStyle.Italic),
+    Font(
+        R.font.poppins_light,
+        FontWeight.Light,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_lightitalic,
+        FontWeight.Light,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_extralight, FontWeight.ExtraLight, FontStyle.Normal),
-    Font(R.font.poppins_extralightitalic, FontWeight.ExtraLight, FontStyle.Italic),
+    Font(
+        R.font.poppins_extralight,
+        FontWeight.ExtraLight,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_extralightitalic,
+        FontWeight.ExtraLight,
+        FontStyle.Italic
+    ),
 
-    Font(R.font.poppins_thin, FontWeight.Thin, FontStyle.Normal),
-    Font(R.font.poppins_thinitalic, FontWeight.Thin, FontStyle.Italic)
+    Font(
+        R.font.poppins_thin,
+        FontWeight.Thin,
+        FontStyle.Normal
+    ),
+    Font(
+        R.font.poppins_thinitalic,
+        FontWeight.Thin,
+        FontStyle.Italic
+    )
 )
 
 // Set of Material typography styles to start with

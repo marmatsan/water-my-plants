@@ -121,7 +121,10 @@ fun AndroidTemplateTheme(
             val window = (view.context as Activity).window
             @Suppress("DEPRECATION")
             window.statusBarColor = Color.Transparent.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+            WindowCompat.getInsetsController(
+                window,
+                view
+            ).isAppearanceLightStatusBars =
                 !isSystemInDarkTheme
         }
     }

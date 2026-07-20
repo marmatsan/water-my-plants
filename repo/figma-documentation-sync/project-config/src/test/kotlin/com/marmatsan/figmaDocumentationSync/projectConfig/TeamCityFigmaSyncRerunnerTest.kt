@@ -6,7 +6,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
+internal class TeamCityFigmaSyncRerunnerTest : FunSpec(
+    {
     test("validates authenticated access without queueing a run") {
         val requestedStatuses = mutableListOf<String>()
         val client = object : TeamCityRunClient {
@@ -20,7 +21,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 return emptyList()
             }
 
-            override fun startRun(buildTypeId: String, branch: String): TeamCityRun =
+            override fun startRun(
+                buildTypeId: String,
+                branch: String
+            ): TeamCityRun =
                 error("Validation must not queue a run")
 
             override fun watchRun(
@@ -29,11 +33,17 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 timeoutMinutes: Int
             ): TeamCityRun = error("Validation must not wait")
 
-            override fun readRun(buildId: Long): TeamCityRun = error("Validation must not read a run")
+            override fun readRun(
+                buildId: Long
+            ): TeamCityRun = error("Validation must not read a run")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun(
-            TeamCityFigmaSyncRerunner.Request(validateOnly = true)
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun(
+            request = TeamCityFigmaSyncRerunner.Request(
+                validateOnly = true
+            )
         ) shouldBe TeamCityFigmaSyncRerunResult(
             runId = null,
             webUrl = null,
@@ -41,12 +51,22 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
             state = "Validated",
             reused = false
         )
-        requestedStatuses shouldBe listOf("running", "queued")
+        requestedStatuses shouldBe listOf(
+            "running",
+            "queued"
+        )
     }
 
     test("reuses and waits for an active run") {
-        val active = teamCityRun(id = 1580, state = "running")
-        val finished = teamCityRun(id = 1580, state = "finished", status = "SUCCESS")
+        val active = teamCityRun(
+            id = 1580,
+            state = "running"
+        )
+        val finished = teamCityRun(
+            id = 1580,
+            state = "finished",
+            status = "SUCCESS"
+        )
         val client = object : TeamCityRunClient {
             override fun listRuns(
                 buildTypeId: String,
@@ -55,7 +75,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 limit: Int
             ): List<TeamCityRun> = if (status == "running") listOf(active) else emptyList()
 
-            override fun startRun(buildTypeId: String, branch: String): TeamCityRun =
+            override fun startRun(
+                buildTypeId: String,
+                branch: String
+            ): TeamCityRun =
                 error("An active run must be reused")
 
             override fun watchRun(
@@ -69,11 +92,15 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 return finished
             }
 
-            override fun readRun(buildId: Long): TeamCityRun = error("Watch succeeds")
+            override fun readRun(
+                buildId: Long
+            ): TeamCityRun = error("Watch succeeds")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun(
-            TeamCityFigmaSyncRerunner.Request(
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun(
+            request = TeamCityFigmaSyncRerunner.Request(
                 waitForCompletion = true,
                 pollIntervalSeconds = 5,
                 timeoutMinutes = 30
@@ -89,7 +116,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
 
     test("accepts a concurrent run when queueing reports an uncertain failure") {
         var lookupCount = 0
-        val concurrent = teamCityRun(id = 1581, state = "queued")
+        val concurrent = teamCityRun(
+            id = 1581,
+            state = "queued"
+        )
         val client = object : TeamCityRunClient {
             override fun listRuns(
                 buildTypeId: String,
@@ -101,7 +131,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 return if (lookupCount > 2 && status == "queued") listOf(concurrent) else emptyList()
             }
 
-            override fun startRun(buildTypeId: String, branch: String): TeamCityRun =
+            override fun startRun(
+                buildTypeId: String,
+                branch: String
+            ): TeamCityRun =
                 throw IllegalArgumentException("uncertain start")
 
             override fun watchRun(
@@ -110,10 +143,14 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 timeoutMinutes: Int
             ): TeamCityRun = error("Waiting was not requested")
 
-            override fun readRun(buildId: Long): TeamCityRun = error("Reading was not requested")
+            override fun readRun(
+                buildId: Long
+            ): TeamCityRun = error("Reading was not requested")
         }
 
-        TeamCityFigmaSyncRerunner(client).rerun() shouldBe TeamCityFigmaSyncRerunResult(
+        TeamCityFigmaSyncRerunner(
+            teamCityClient = client
+        ).rerun() shouldBe TeamCityFigmaSyncRerunResult(
             runId = 1581,
             webUrl = "https://teamcity.example/build/1581",
             branch = "main",
@@ -123,7 +160,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
     }
 
     test("reports a failed run after watch returns a non successful result") {
-        val queued = teamCityRun(id = 1582, state = "queued")
+        val queued = teamCityRun(
+            id = 1582,
+            state = "queued"
+        )
         val failed = teamCityRun(
             id = 1582,
             state = "finished",
@@ -138,7 +178,10 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 limit: Int
             ): List<TeamCityRun> = emptyList()
 
-            override fun startRun(buildTypeId: String, branch: String): TeamCityRun = queued
+            override fun startRun(
+                buildTypeId: String,
+                branch: String
+            ): TeamCityRun = queued
 
             override fun watchRun(
                 buildId: Long,
@@ -146,19 +189,26 @@ internal class TeamCityFigmaSyncRerunnerTest : FunSpec({
                 timeoutMinutes: Int
             ): TeamCityRun = failed
 
-            override fun readRun(buildId: Long): TeamCityRun = error("Watch returned a result")
+            override fun readRun(
+                buildId: Long
+            ): TeamCityRun = error("Watch returned a result")
         }
 
         val exception = shouldThrow<IllegalStateException> {
-            TeamCityFigmaSyncRerunner(client).rerun(
-                TeamCityFigmaSyncRerunner.Request(waitForCompletion = true)
+            TeamCityFigmaSyncRerunner(
+                teamCityClient = client
+            ).rerun(
+                request = TeamCityFigmaSyncRerunner.Request(
+                    waitForCompletion = true
+                )
             )
         }
 
         exception.message shouldBe
             "TeamCity Figma Sync run 1582 finished with status 'FAILURE': Figma metadata is stale"
     }
-})
+}
+)
 
 private fun teamCityRun(
     id: Long,

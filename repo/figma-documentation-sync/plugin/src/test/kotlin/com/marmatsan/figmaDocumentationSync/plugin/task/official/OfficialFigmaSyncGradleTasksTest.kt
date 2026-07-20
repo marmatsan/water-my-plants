@@ -11,7 +11,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
+internal class OfficialFigmaSyncGradleTasksTest : FunSpec(
+    {
     test("documentation-only scope skips model generation and metadata verification") {
         val project = Files.createTempDirectory("official-figma-sync-gradle").toFile()
         try {
@@ -23,9 +24,14 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
                 "-PfigmaChangedPaths=docs/example.md",
                 "--stacktrace"
             ).build()
-            val verification = project.runner("verifyOfficialFigmaSync", "--stacktrace").build()
+            val verification = project.runner(
+                "verifyOfficialFigmaSync",
+                "--stacktrace"
+            ).build()
             val scope = Json.parseToJsonElement(
-                project.resolve("build/reports/figma-sync/sync-scope.json").readText()
+                project.resolve(
+                    relative = "build/reports/figma-sync/sync-scope.json"
+                ).readText()
             ).jsonObject
 
             scope["scope"]?.jsonPrimitive?.content shouldBe "documentation-only"
@@ -82,17 +88,24 @@ internal class OfficialFigmaSyncGradleTasksTest : FunSpec({
             project.deleteRecursively()
         }
     }
-})
+}
+)
 
-private fun File.runner(vararg arguments: String): GradleRunner =
+private fun File.runner(
+    vararg arguments: String
+): GradleRunner =
     GradleRunner.create()
         .withProjectDir(this)
         .withPluginClasspath()
         .withArguments(*arguments)
 
 private fun File.writeFixture() {
-    resolve("settings.gradle.kts").writeText("rootProject.name = \"official-figma-sync-test\"")
-    resolve("build.gradle.kts").writeText(
+    resolve(
+        relative = "settings.gradle.kts"
+    ).writeText("rootProject.name = \"official-figma-sync-test\"")
+    resolve(
+        relative = "build.gradle.kts"
+    ).writeText(
         """
         plugins {
             id("com.marmatsan.figmaDocumentationSync")
@@ -105,8 +118,12 @@ private fun File.writeFixture() {
         }
         """.trimIndent()
     )
-    resolve("project-config").mkdirs()
-    resolve("project-config/change-impact-policy.json").writeText(
+    resolve(
+        relative = "project-config"
+    ).mkdirs()
+    resolve(
+        relative = "project-config/change-impact-policy.json"
+    ).writeText(
         """
         {
           "schemaVersion": 1,
@@ -123,12 +140,29 @@ private fun File.writeFixture() {
 
 private fun File.initializeGitRepository() {
     git("init")
-    git("checkout", "-b", "main")
-    git("add", ".")
-    git("-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-m", "Fixture")
+    git(
+        "checkout",
+        "-b",
+        "main"
+    )
+    git(
+        "add",
+        "."
+    )
+    git(
+        "-c",
+        "user.name=Test",
+        "-c",
+        "user.email=test@example.com",
+        "commit",
+        "-m",
+        "Fixture"
+    )
 }
 
-private fun File.git(vararg arguments: String) {
+private fun File.git(
+    vararg arguments: String
+) {
     val process = ProcessBuilder(listOf("git") + arguments)
         .directory(this)
         .start()

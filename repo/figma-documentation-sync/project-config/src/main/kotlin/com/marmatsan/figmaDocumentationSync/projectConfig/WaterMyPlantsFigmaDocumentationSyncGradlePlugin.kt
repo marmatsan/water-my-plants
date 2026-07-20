@@ -23,14 +23,19 @@ import java.io.File
  * layout, Figma document identity, primary catalog name, or TeamCity command.
  */
 class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
         project.pluginManager.apply("com.marmatsan.figmaDocumentationSync")
         val writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
 
         project.extensions.configure<figmaDocumentationSyncExtension> {
             designModelMetadataNodeUrl.set(
                 "https://www.figma.com/design/${writerConfig.figmaFileKey}/Water-My-Plants" +
-                    "?node-id=${writerConfig.metadataPageId.replace(':', '-')}"
+                    "?node-id=${writerConfig.metadataPageId.replace(
+                        ':',
+                        '-'
+                    )}"
             )
             metadataNamespace.set(writerConfig.metadataNamespace)
             primaryCatalogModelName.set("waterMyPlants")
@@ -53,7 +58,11 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 )
             )
             toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-documentation-sync/tools"))
-            ciConfigurationCommand.set(teamCityConfigurationCommand(project))
+            ciConfigurationCommand.set(
+                teamCityConfigurationCommand(
+                    project = project
+                )
+            )
 
             includedBuilds.register("dependency-catalog") {
                 modelName.set("dependencyCatalog")
@@ -116,7 +125,10 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             dependsOn(writeWriterProjectConfig)
             inputs.file(generatedWriterProjectConfigFile)
             workingDir(toolsDirectory)
-            commandLine(npmExecutable(), "test")
+            commandLine(
+                npmExecutable(),
+                "test"
+            )
             doFirst {
                 environment(
                     "FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG",
@@ -149,20 +161,32 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
             buildId.convention(
-                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(
+                        ::File
+                    )
                 )
             )
             destinationRoot.convention(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                        ::File
+                    )
                 ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
-            mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))
+            mainBranchAliases.set(
+                listOf(
+                    "main",
+                    "<default>",
+                    "refs/heads/main"
+                )
+            )
             requiredBuildTypeName.set("Generate main design model")
         }
 
@@ -170,22 +194,34 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             group = "documentation"
             description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
             buildId.convention(
-                project.providers.gradleProperty("figmaTeamCityBuildId").map(String::toLong)
+                project.providers.gradleProperty("figmaTeamCityBuildId").map(
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(
+                        ::File
+                    )
                 )
             )
             uploadUrl.convention(project.providers.gradleProperty("figmaMcpUploadUrl"))
             destinationRoot.convention(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(::File)
+                    project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
+                        ::File
+                    )
                 ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             projectDirectory.set(project.layout.projectDirectory)
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
-            mainBranchAliases.set(listOf("main", "<default>", "refs/heads/main"))
+            mainBranchAliases.set(
+                listOf(
+                    "main",
+                    "<default>",
+                    "refs/heads/main"
+                )
+            )
             requiredBuildTypeName.set("Generate main design model")
         }
 
@@ -198,22 +234,30 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             )
             validateOnly.convention(
                 project.providers.gradleProperty("figmaTeamCityValidateOnly")
-                    .map(String::toBoolean)
+                    .map(
+                        String::toBoolean
+                    )
                     .orElse(false)
             )
             waitForCompletion.convention(
                 project.providers.gradleProperty("figmaTeamCityWait")
-                    .map(String::toBoolean)
+                    .map(
+                        String::toBoolean
+                    )
                     .orElse(false)
             )
             pollIntervalSeconds.convention(
                 project.providers.gradleProperty("figmaTeamCityPollIntervalSeconds")
-                    .map(String::toInt)
+                    .map(
+                        String::toInt
+                    )
                     .orElse(10)
             )
             timeoutMinutes.convention(
                 project.providers.gradleProperty("figmaTeamCityTimeoutMinutes")
-                    .map(String::toInt)
+                    .map(
+                        String::toInt
+                    )
                     .orElse(60)
             )
             buildTypeId.set("WaterMyPlants_WaterMyPlantsFigmaSync")
@@ -221,7 +265,9 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
         }
     }
 
-    private fun teamCityConfigurationCommand(project: Project): List<String> {
+    private fun teamCityConfigurationCommand(
+        project: Project
+    ): List<String> {
         val wrapper = project.layout.projectDirectory
             .file(if (isWindows()) "mvnw.cmd" else "mvnw")
             .asFile
@@ -233,11 +279,18 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             "teamcity-configs:generate"
         )
 
-        return if (isWindows()) listOf("cmd.exe", "/d", "/c") + arguments else arguments
+        return if (isWindows()) listOf(
+            "cmd.exe",
+            "/d",
+            "/c"
+        ) + arguments else arguments
     }
 
     private fun isWindows(): Boolean =
-        System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+        System.getProperty("os.name").startsWith(
+            "Windows",
+            ignoreCase = true
+        )
 
     private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
 }

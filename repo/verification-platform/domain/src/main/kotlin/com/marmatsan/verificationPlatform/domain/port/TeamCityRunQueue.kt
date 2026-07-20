@@ -11,5 +11,7 @@ fun interface TeamCityRunQueue {
      * Implementations must reject transport failures and malformed provider
      * responses instead of fabricating a successful run.
      */
-    fun queue(request: TeamCityRunRequest): TeamCityQueuedRun
+    fun queue(
+        request: TeamCityRunRequest
+    ): TeamCityQueuedRun
 }

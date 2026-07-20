@@ -45,26 +45,41 @@ class FigmaFileContentClient(
     ): FigmaNode = runBlocking {
         try {
             val response = httpClient
-                .get("https://api.figma.com/v1/files/$fileKey/nodes") {
-                    header("X-Figma-Token", token)
-                    parameter("ids", nodeId)
-                    pluginData?.let { parameter("plugin_data", it) }
+                .get(
+                    urlString = "https://api.figma.com/v1/files/$fileKey/nodes"
+                ) {
+                    header(
+                        "X-Figma-Token",
+                        token
+                    )
+                    parameter(
+                        "ids",
+                        nodeId
+                    )
+                    pluginData?.let { parameter(
+                        "plugin_data",
+                        it
+                    ) }
                 }
                 .body<FigmaFileNodesResponse>()
 
             response.nodes[nodeId]?.document
                 ?: error("Figma node '$nodeId' was not found")
-        } catch (exception: ResponseException) {
+        } catch (
+            exception: ResponseException
+        ) {
             throw FigmaFileContentException(
-                "Figma node content request failed with HTTP ${exception.response.status.value}: ${
+                message = "Figma node content request failed with HTTP ${exception.response.status.value}: ${
                     exception.response.body<String>().take(500)
                 }",
-                exception
+                cause = exception
             )
-        } catch (exception: HttpRequestTimeoutException) {
+        } catch (
+            exception: HttpRequestTimeoutException
+        ) {
             throw FigmaFileContentException(
-                "Figma node content request timed out after ${REQUEST_TIMEOUT_MILLIS} ms",
-                exception
+                message = "Figma node content request timed out after ${REQUEST_TIMEOUT_MILLIS} ms",
+                cause = exception
             )
         }
     }

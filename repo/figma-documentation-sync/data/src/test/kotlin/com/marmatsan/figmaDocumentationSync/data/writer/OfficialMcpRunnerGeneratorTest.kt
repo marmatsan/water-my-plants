@@ -10,14 +10,26 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import java.nio.file.Files
 
-internal class OfficialMcpRunnerGeneratorTest : FunSpec({
+internal class OfficialMcpRunnerGeneratorTest : FunSpec(
+    {
     test("generates official visual and metadata runners entirely from Kotlin") {
         val root = Files.createTempDirectory("kotlin-mcp-runner")
-        val tools = root.resolve("repo/figma-documentation-sync/tools")
-        val sourceRoot = tools.resolve("src/app")
+        val tools = root.resolve(
+            "repo/figma-documentation-sync/tools"
+        )
+        val sourceRoot = tools.resolve(
+            "src/app"
+        )
         Files.createDirectories(sourceRoot)
-        Files.writeString(sourceRoot.resolve("writer.ts"), "export const writer = true;")
-        val model = root.resolve("design-model.json")
+        Files.writeString(
+            sourceRoot.resolve(
+                "writer.ts"
+            ),
+            "export const writer = true;"
+        )
+        val model = root.resolve(
+            "design-model.json"
+        )
         Files.writeString(
             model,
             """
@@ -55,7 +67,20 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
                   "teamCity":{
                     "vcsRoots":[],
                     "pipelines":[
-                      {"id":"Root_Ci","name":"CI","triggers":[],"jobs":[]},
+                      {
+                        "id":"Root_Ci",
+                        "name":"CI",
+                        "triggers":[],
+                        "jobs":[{
+                          "id":"verify",
+                          "name":"Verify",
+                          "steps":[],
+                          "repositoryIds":[],
+                          "artifacts":[],
+                          "dependencies":[],
+                          "publishedChecks":[{"name":"TeamCity CI"}]
+                        }]
+                      },
                       {"id":"Root_FigmaSync","name":"Figma Sync","triggers":[],"jobs":[]}
                     ]
                   }
@@ -64,13 +89,17 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
             }
             """.trimIndent()
         )
-        val script = tools.resolve("sync-trunk-design-model.mcp.js")
+        val script = tools.resolve(
+            "sync-trunk-design-model.mcp.js"
+        )
         Files.createDirectories(script.parent)
         Files.writeString(
             script,
             "const DESIGN_MODEL = undefined;\nconst SYNC_OPTIONS = undefined;\nreturn SYNC_OPTIONS;\n"
         )
-        val policy = root.resolve("change-impact-policy.json")
+        val policy = root.resolve(
+            "change-impact-policy.json"
+        )
         Files.writeString(
             policy,
             """
@@ -85,22 +114,33 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
             }
             """.trimIndent()
         )
-        val output = root.resolve("out")
+        val output = root.resolve(
+            "out"
+        )
         val generator = OfficialMcpRunnerGenerator()
         val request = OfficialMcpRunnerGenerator.Request(
             modelPath = model.toString(),
             scriptPath = script.toString(),
             outputDirectory = output.toString(),
             toolsDirectory = tools.toString(),
-            writerSourceDirectory = tools.resolve("src").toString(),
+            writerSourceDirectory = tools.resolve(
+                "src"
+            ).toString(),
             repositoryRootDirectory = root.toString(),
             changeImpactPolicyPath = policy.toString(),
             config = runtimeConfig
         )
-        val result = generator.generate(request)
+        val result = generator.generate(
+            request = request
+        )
 
         result.visualManifest.targets shouldContainExactly
-            listOf("preflight", "versions", "waterMyPlants.libraries", "ci.windowsRuntime")
+            listOf(
+                "preflight",
+                "versions",
+                "waterMyPlants.libraries",
+                "ci.windowsRuntime"
+            )
         result.visualManifest.fullVisualSync shouldBe true
         result.visualManifest.executionScopes.values shouldContainExactly listOf(
             "preflight",
@@ -114,13 +154,23 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
         result.metadataManifest.targets shouldContainExactly listOf("metadata")
         result.metadataManifest.writeMetadata shouldBe true
 
-        val visualDirectory = output.resolve("visual")
-        val stageSource = Files.readString(visualDirectory.resolve("10-stage-payload-from-png.mcp.js"))
+        val visualDirectory = output.resolve(
+            "visual"
+        )
+        val stageSource = Files.readString(
+            visualDirectory.resolve(
+                "10-stage-payload-from-png.mcp.js"
+            )
+        )
         val androidxSource = Files.readString(
-            visualDirectory.resolve("99-02-00-waterMyPlants-libraries-androidx.mcp.js")
+            visualDirectory.resolve(
+                "99-02-00-waterMyPlants-libraries-androidx.mcp.js"
+            )
         )
         val ciSource = Files.readString(
-            visualDirectory.resolve("99-03-ci-windowsRuntime.mcp.js")
+            visualDirectory.resolve(
+                "99-03-ci-windowsRuntime.mcp.js"
+            )
         )
         stageSource shouldContain "for (const documentPage of figma.root.children)"
         stageSource shouldContain "page.setSharedPluginData(namespace, \"script\", payload.script)"
@@ -128,22 +178,31 @@ internal class OfficialMcpRunnerGeneratorTest : FunSpec({
             "\"catalogRootFilters\":{\"waterMyPlants.libraries\":[\"androidx\"]}"
         ciSource shouldContain "\"ciVisualPlan\""
         ciSource shouldContain "\"target\":\"ci.windowsRuntime\""
-        ExecutableRunnerManifestJson().read(visualDirectory.resolve("manifest.json").toString())
+        ExecutableRunnerManifestJson().read(
+            visualDirectory.resolve(
+                "manifest.json"
+            ).toString()
+        )
             .manifestHash shouldBe result.visualManifest.manifestHash
 
         val chunkResult = generator.generate(
-            request.copy(
-                outputDirectory = root.resolve("chunks").toString(),
+            request = request.copy(
+                outputDirectory = root.resolve(
+                    "chunks"
+                ).toString(),
                 transport = "chunks",
                 chunkSize = 1_000
             )
         )
         chunkResult.visualManifest.payloadImage shouldBe null
-        chunkResult.visualManifest.files.any { file -> file.startsWith("10-designModelJson-") } shouldBe true
+        chunkResult.visualManifest.files.any { file -> file.startsWith(
+            prefix = "10-designModelJson-"
+        ) } shouldBe true
 
         root.toFile().deleteRecursively()
     }
-})
+}
+)
 
 private val runtimeConfig = FigmaWriterRuntimeConfig(
     metadataPageId = "1:2",

@@ -19,14 +19,18 @@ class QueueTeamCityRun(
      * @throws IllegalArgumentException when the build type or branch contains
      * characters outside the reviewed allow-list.
      */
-    fun execute(request: TeamCityRunRequest): TeamCityQueuedRun {
+    fun execute(
+        request: TeamCityRunRequest
+    ): TeamCityQueuedRun {
         require(BUILD_TYPE_ID.matches(request.buildTypeId)) {
             "TeamCity build type id contains unsupported characters."
         }
         require(BRANCH.matches(request.branch)) {
             "TeamCity branch contains unsupported characters."
         }
-        return runQueue.queue(request)
+        return runQueue.queue(
+            request = request
+        )
     }
 
     private companion object {

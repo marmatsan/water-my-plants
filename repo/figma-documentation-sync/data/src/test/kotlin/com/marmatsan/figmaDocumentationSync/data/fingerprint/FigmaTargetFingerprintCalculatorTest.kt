@@ -5,7 +5,8 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
-internal class FigmaTargetFingerprintCalculatorTest : FunSpec({
+internal class FigmaTargetFingerprintCalculatorTest : FunSpec(
+    {
     test("matches the scoped target hashes produced by the Node writer") {
         val model = Json.parseToJsonElement(
             """
@@ -54,4 +55,5 @@ internal class FigmaTargetFingerprintCalculatorTest : FunSpec({
         result["ci.overview"] shouldBe
             "sha256:f6cddc759e841bf1520301259892b223587f389b9d85795bcae9f02be832122d"
     }
-})
+}
+)

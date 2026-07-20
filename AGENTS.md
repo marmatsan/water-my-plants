@@ -52,6 +52,10 @@ because both are part of the contract used by the Figma sync pipeline.
   workflows to guides and operational execution or recovery to runbooks.
 - Keep Figma and rendered UML as derived publication surfaces linked to their
   versioned repository sources.
+- Before completing an implementation, bootstrap, migration, or recovery,
+  compare newly learned behavior, failure modes, permissions, and safety
+  boundaries with the current documentation. Document reusable gaps in the
+  same change using the appropriate standard, guide, runbook, or reference.
 - Run `.\gradlew.bat checkDocumentation`
   after adding, moving, or editing documentation.
 

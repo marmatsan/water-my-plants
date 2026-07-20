@@ -5,11 +5,15 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class OfficialFigmaArtifactContractValidatorTest : FunSpec({
+internal class OfficialFigmaArtifactContractValidatorTest : FunSpec(
+    {
     val validator = OfficialFigmaArtifactContractValidator()
 
     test("accepts one consistent official main artifact set") {
-        val result = validator.validate(validContract(), expectedGitSha = "abc123")
+        val result = validator.validate(
+            contract = validContract(),
+            expectedGitSha = "abc123"
+        )
 
         result.gitSha shouldBe "abc123"
         result.modelHash shouldBe "model-hash"
@@ -18,7 +22,9 @@ internal class OfficialFigmaArtifactContractValidatorTest : FunSpec({
 
     test("rejects a branch-local design model") {
         val contract = validContract().copy(
-            model = validContract().model.copy(branch = "feature/not-main")
+            model = validContract().model.copy(
+                branch = "feature/not-main"
+            )
         )
 
         val exception = shouldThrow<IllegalArgumentException> {
@@ -31,7 +37,9 @@ internal class OfficialFigmaArtifactContractValidatorTest : FunSpec({
 
     test("rejects a mismatched writer identity") {
         val contract = validContract().copy(
-            scope = validContract().scope.copy(writerHash = "other-writer")
+            scope = validContract().scope.copy(
+                writerHash = "other-writer"
+            )
         )
 
         val exception = shouldThrow<IllegalArgumentException> {
@@ -44,8 +52,12 @@ internal class OfficialFigmaArtifactContractValidatorTest : FunSpec({
 
     test("rejects an unsupported visual decision") {
         val contract = validContract().copy(
-            scope = validContract().scope.copy(visualSyncDecision = "targeted"),
-            plan = validContract().plan.copy(decision = "targeted")
+            scope = validContract().scope.copy(
+                visualSyncDecision = "targeted"
+            ),
+            plan = validContract().plan.copy(
+                decision = "targeted"
+            )
         )
 
         val exception = shouldThrow<IllegalArgumentException> {
@@ -54,7 +66,8 @@ internal class OfficialFigmaArtifactContractValidatorTest : FunSpec({
 
         exception.message shouldBe "Unsupported visual sync decision 'targeted'."
     }
-})
+}
+)
 
 private fun validContract() = OfficialFigmaArtifactContract(
     model = OfficialFigmaArtifactContract.Model(

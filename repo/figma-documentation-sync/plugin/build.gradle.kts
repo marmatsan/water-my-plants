@@ -19,17 +19,26 @@ repositories {
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    systemProperty(
+        "cucumber.junit-platform.naming-strategy",
+        "long"
+    )
     systemProperty(
         "cucumber.plugin",
         "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
     )
 
     System.getProperty("cucumber.filter.tags")?.let { tags ->
-        systemProperty("cucumber.filter.tags", tags)
+        systemProperty(
+            "cucumber.filter.tags",
+            tags
+        )
     }
     System.getProperty("cucumber.features")?.let { features ->
-        systemProperty("cucumber.features", features)
+        systemProperty(
+            "cucumber.features",
+            features
+        )
     }
 }
 
@@ -99,7 +108,9 @@ dokka {
     moduleName.set("figmaDocumentationSync-plugin")
 
     dokkaPublications.html {
-        includes.from("docs/dokka/README.md")
+        includes.from(
+            "docs/dokka/README.md"
+        )
     }
 
     dokkaSourceSets.main {

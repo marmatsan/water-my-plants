@@ -13,7 +13,8 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.provider.Provider
 import java.util.Optional
 
-internal class VersionCatalogExtensionTest : FunSpec({
+internal class VersionCatalogExtensionTest : FunSpec(
+    {
 
     test("requireDependencyNotation returns notation for an existing library alias") {
         // GIVEN
@@ -25,7 +26,9 @@ internal class VersionCatalogExtensionTest : FunSpec({
 
         every { dependency.toString() } returns dependencyNotation
         every { provider.get() } returns dependency
-        every { versionCatalog.findLibrary(alias) } returns Optional.of(provider)
+        every { versionCatalog.findLibrary(alias) } returns Optional.of(
+            provider
+        )
 
         // WHEN
         val actualNotation = versionCatalog.requireDependencyNotation(alias)
@@ -40,10 +43,16 @@ internal class VersionCatalogExtensionTest : FunSpec({
         val provider = mockk<Provider<ExternalModuleDependencyBundle>>()
         val versionCatalog = mockk<VersionCatalog>()
 
-        every { versionCatalog.findBundle(alias) } returns Optional.of(provider)
+        every { versionCatalog.findBundle(
+            alias
+        ) } returns Optional.of(
+            provider
+        )
 
         // WHEN
-        val actualProvider = versionCatalog.requireBundle(alias)
+        val actualProvider = versionCatalog.requireBundle(
+            alias = alias
+        )
 
         // THEN
         actualProvider shouldBeSameInstanceAs provider
@@ -58,7 +67,9 @@ internal class VersionCatalogExtensionTest : FunSpec({
 
         every { dependency.toString() } returns dependencyNotation
         every { provider.get() } returns dependency
-        every { versionCatalog.findLibrary("androidx.compose.bom") } returns Optional.of(provider)
+        every { versionCatalog.findLibrary("androidx.compose.bom") } returns Optional.of(
+            provider
+        )
 
         // WHEN
         val actualNotation = versionCatalog.requireDependencyNotation(
@@ -79,7 +90,9 @@ internal class VersionCatalogExtensionTest : FunSpec({
 
         every { dependency.toString() } returns dependencyNotation
         every { provider.get() } returns dependency
-        every { versionCatalog.findLibrary("org.junit.jupiter.api") } returns Optional.of(provider)
+        every { versionCatalog.findLibrary("org.junit.jupiter.api") } returns Optional.of(
+            provider
+        )
 
         // WHEN
         val actualNotation = versionCatalog.requireDependencyNotation(
@@ -112,12 +125,17 @@ internal class VersionCatalogExtensionTest : FunSpec({
         val versionCatalog = mockk<VersionCatalog>()
 
         every { versionCatalog.name } returns "libs"
-        every { versionCatalog.findBundle(alias) } returns Optional.empty()
+        every { versionCatalog.findBundle(
+            alias
+        ) } returns Optional.empty()
 
         // WHEN / THEN
         val exception = shouldThrow<NoSuchElementException> {
-            versionCatalog.requireBundle(alias)
+            versionCatalog.requireBundle(
+                alias = alias
+            )
         }
         exception.message shouldContain "Bundle alias 'missingBundle' not found in version catalog named libs"
     }
-})
+}
+)

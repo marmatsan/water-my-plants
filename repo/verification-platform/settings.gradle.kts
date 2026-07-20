@@ -70,6 +70,11 @@ dependencyResolutionManagement {
                 "io.cucumber",
                 "cucumber-junit-platform-engine"
             ).withoutVersion()
+            library(
+                "com.pinterest.ktlint.rule.engine",
+                "com.pinterest.ktlint",
+                "ktlint-rule-engine"
+            ).version(versions.getProperty("ktlintLibraryVersion"))
         }
     }
 }

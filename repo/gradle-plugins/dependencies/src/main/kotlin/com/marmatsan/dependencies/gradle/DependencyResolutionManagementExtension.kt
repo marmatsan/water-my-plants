@@ -10,10 +10,14 @@ fun DependencyResolutionManagement.configureVersionCatalogs(
 ) {
     versionCatalogs {
         create("libs") {
-            catalog.libraries.forEach { registerLibraries(it.toDependencyLibraries()) }
+            catalog.libraries.forEach { registerLibraries(
+                libraries = it.toDependencyLibraries()
+            ) }
         }
         create("plugins") {
-            catalog.plugins.forEach { registerPlugins(it.toDependencyPlugins()) }
+            catalog.plugins.forEach { registerPlugins(
+                plugins = it.toDependencyPlugins()
+            ) }
         }
     }
 }

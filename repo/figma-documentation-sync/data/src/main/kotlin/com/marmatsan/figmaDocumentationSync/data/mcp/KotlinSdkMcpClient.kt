@@ -23,8 +23,14 @@ class KotlinSdkMcpClient private constructor(
 
     override suspend fun listToolNames(): List<String> = client.listTools().tools.map { tool -> tool.name }
 
-    override suspend fun readTextResource(uri: String): String = client.readResource(
-        ReadResourceRequest(ReadResourceRequestParams(uri = uri))
+    override suspend fun readTextResource(
+        uri: String
+    ): String = client.readResource(
+        ReadResourceRequest(
+            ReadResourceRequestParams(
+                uri = uri
+            )
+        )
     ).contents.filterIsInstance<TextResourceContents>().joinToString("\n") { content -> content.text }.trim()
 
     override suspend fun useFigma(
@@ -42,12 +48,24 @@ class KotlinSdkMcpClient private constructor(
         )
     ).toDomain()
 
-    override suspend fun requestAssetUpload(fileKey: String, count: Int): McpToolResult = client.callTool(
+    override suspend fun requestAssetUpload(
+        fileKey: String,
+        count: Int
+    ): McpToolResult = client.callTool(
         name = UPLOAD_ASSETS_TOOL,
-        arguments = mapOf("fileKey" to fileKey, "count" to count)
+        arguments = mapOf(
+            "fileKey" to fileKey,
+            "count" to count
+        )
     ).toDomain()
 
-    override suspend fun uploadAsset(url: String, bytes: ByteArray) = assetUploader.upload(url, bytes)
+    override suspend fun uploadAsset(
+        url: String,
+        bytes: ByteArray
+    ) = assetUploader.upload(
+        url = url,
+        bytes = bytes
+    )
 
     override fun close() {
         runBlocking { client.close() }
@@ -60,12 +78,28 @@ class KotlinSdkMcpClient private constructor(
     )
 
     companion object {
-        fun connect(endpoint: String, clientName: String): KotlinSdkMcpClient {
+        fun connect(
+            endpoint: String,
+            clientName: String
+        ): KotlinSdkMcpClient {
             val httpClient = HttpClient(CIO) { install(SSE) }
-            val client = Client(clientInfo = Implementation(name = clientName, version = CLIENT_VERSION))
-            val transport = StreamableHttpClientTransport(client = httpClient, url = endpoint)
-            runBlocking { client.connect(transport) }
-            return KotlinSdkMcpClient(httpClient, client)
+            val client = Client(
+                clientInfo = Implementation(
+                    name = clientName,
+                    version = CLIENT_VERSION
+                )
+            )
+            val transport = StreamableHttpClientTransport(
+                client = httpClient,
+                url = endpoint
+            )
+            runBlocking { client.connect(
+                transport = transport
+            ) }
+            return KotlinSdkMcpClient(
+                httpClient = httpClient,
+                client = client
+            )
         }
 
         private const val CLIENT_VERSION = "1.0.0"

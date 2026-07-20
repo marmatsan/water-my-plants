@@ -24,31 +24,73 @@ import me.tatarka.inject.annotations.Inject
 /** Filesystem JSON adapter for the official Figma Sync scope and runner identities. */
 @Inject
 class OfficialFigmaSyncScopeJson {
-    fun readChangeImpact(sourcePath: String): FigmaChangeImpact {
-        val source = readObject(Path.of(sourcePath), "Figma change-impact report")
+    fun readChangeImpact(
+        sourcePath: String
+    ): FigmaChangeImpact {
+        val source = readObject(
+            path = Path.of(
+                sourcePath
+            ),
+            description = "Figma change-impact report"
+        )
         return FigmaChangeImpact(
-            scope = source.requiredEnum("scope", FigmaVerificationScope.entries, FigmaVerificationScope::wireValue),
-            impact = source.requiredEnum("figmaImpact", FigmaImpact.entries, FigmaImpact::wireValue),
-            affectedVisualTargets = source.requiredStringList("affectedVisualTargets"),
+            scope = source.requiredEnum(
+                name = "scope",
+                values = FigmaVerificationScope.entries,
+                wireValue = FigmaVerificationScope::wireValue
+            ),
+            impact = source.requiredEnum(
+                name = "figmaImpact",
+                values = FigmaImpact.entries,
+                wireValue = FigmaImpact::wireValue
+            ),
+            affectedVisualTargets = source.requiredStringList(
+                name = "affectedVisualTargets"
+            ),
             comparisonBase = source.optionalString("comparisonBase"),
-            changedPaths = source.requiredStringList("changedPaths")
+            changedPaths = source.requiredStringList(
+                name = "changedPaths"
+            )
         )
     }
 
-    fun read(sourcePath: String): OfficialFigmaSyncScope {
-        val source = readObject(Path.of(sourcePath), "official Figma Sync scope")
+    fun read(
+        sourcePath: String
+    ): OfficialFigmaSyncScope {
+        val source = readObject(
+            path = Path.of(
+                sourcePath
+            ),
+            description = "official Figma Sync scope"
+        )
         return OfficialFigmaSyncScope(
-            scope = source.requiredEnum("scope", FigmaVerificationScope.entries, FigmaVerificationScope::wireValue),
-            figmaImpact = source.requiredEnum("figmaImpact", FigmaImpact.entries, FigmaImpact::wireValue),
-            affectedVisualTargets = source.requiredStringList("affectedVisualTargets"),
+            scope = source.requiredEnum(
+                name = "scope",
+                values = FigmaVerificationScope.entries,
+                wireValue = FigmaVerificationScope::wireValue
+            ),
+            figmaImpact = source.requiredEnum(
+                name = "figmaImpact",
+                values = FigmaImpact.entries,
+                wireValue = FigmaImpact::wireValue
+            ),
+            affectedVisualTargets = source.requiredStringList(
+                name = "affectedVisualTargets"
+            ),
             comparisonBase = source.optionalString("comparisonBase"),
             gitSha = source.requiredString("gitSha"),
             modelHash = source.optionalString("modelHash"),
             writerHash = source.optionalString("writerHash"),
             transportHash = source.optionalString("transportHash"),
-            targetFingerprints = source.optionalStringMap("targetFingerprints"),
-            writerScopeFingerprints = source.optionalStringMap("writerScopeFingerprints"),
-            writerScopeFingerprintSchemaVersion = source.optionalInt("writerScopeFingerprintSchemaVersion"),
+            targetFingerprints = source.optionalStringMap(
+                name = "targetFingerprints"
+            ),
+            writerScopeFingerprints = source.optionalStringMap(
+                name = "writerScopeFingerprints"
+            ),
+            writerScopeFingerprintSchemaVersion = source.optionalInt(
+                name = "writerScopeFingerprintSchemaVersion"
+            ),
             visualRunnerManifestHash = source.optionalString("visualRunnerManifestHash"),
             metadataRunnerManifestHash = source.optionalString("metadataRunnerManifestHash"),
             visualSyncDecision = source.optionalString("visualSyncDecision"),
@@ -56,24 +98,40 @@ class OfficialFigmaSyncScopeJson {
         )
     }
 
-    fun write(scope: OfficialFigmaSyncScope, outputPath: String) {
-        val output = Path.of(outputPath)
+    fun write(
+        scope: OfficialFigmaSyncScope,
+        outputPath: String
+    ) {
+        val output = Path.of(
+            outputPath
+        )
         output.parent?.let(Files::createDirectories)
         Files.writeString(
             output,
-            prettyJson.encodeToString(JsonObject.serializer(), scope.toJson()) + System.lineSeparator()
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                scope.toJson()
+            ) + System.lineSeparator()
         )
     }
 
-    fun readRunnerManifests(rootPath: String): List<RunnerManifest> {
-        return RunnerManifestJson().readAll(rootPath)
+    fun readRunnerManifests(
+        rootPath: String
+    ): List<RunnerManifest> {
+        return RunnerManifestJson().readAll(
+            rootPath = rootPath
+        )
     }
 
     private fun OfficialFigmaSyncScope.toJson() = JsonObject(
         linkedMapOf(
             "scope" to JsonPrimitive(scope.wireValue),
             "figmaImpact" to JsonPrimitive(figmaImpact.wireValue),
-            "affectedVisualTargets" to JsonArray(affectedVisualTargets.map(::JsonPrimitive)),
+            "affectedVisualTargets" to JsonArray(
+                affectedVisualTargets.map(
+                    transform = ::JsonPrimitive
+                )
+            ),
             "comparisonBase" to comparisonBase.toJson(),
             "gitSha" to JsonPrimitive(gitSha),
             "modelHash" to modelHash.toJson(),
@@ -89,28 +147,46 @@ class OfficialFigmaSyncScopeJson {
         )
     )
 
-    private fun readObject(path: Path, description: String): JsonObject = try {
+    private fun readObject(
+        path: Path,
+        description: String
+    ): JsonObject = try {
         require(path.isRegularFile()) { "$description was not found: '$path'." }
         Json.parseToJsonElement(Files.readString(path).removePrefix(UTF8_BOM)).jsonObject
-    } catch (exception: Exception) {
-        throw IllegalArgumentException("$description '$path' is not valid JSON: ${exception.message}", exception)
+    } catch (
+        exception: Exception
+    ) {
+        throw IllegalArgumentException(
+            "$description '$path' is not valid JSON: ${exception.message}",
+            exception
+        )
     }
 
-    private fun JsonObject.requiredString(name: String): String =
+    private fun JsonObject.requiredString(
+        name: String
+    ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
-    private fun JsonObject.optionalString(name: String): String? =
+    private fun JsonObject.optionalString(
+        name: String
+    ): String? =
         this[name]?.takeUnless { it is JsonNull }?.jsonPrimitive?.content
 
-    private fun JsonObject.optionalInt(name: String): Int? =
+    private fun JsonObject.optionalInt(
+        name: String
+    ): Int? =
         this[name]?.takeUnless { it is JsonNull }?.jsonPrimitive?.int
 
-    private fun JsonObject.requiredStringList(name: String): List<String> =
+    private fun JsonObject.requiredStringList(
+        name: String
+    ): List<String> =
         this[name]?.jsonArray?.map { it.jsonPrimitive.content }
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
-    private fun JsonObject.optionalStringMap(name: String): Map<String, String>? =
+    private fun JsonObject.optionalStringMap(
+        name: String
+    ): Map<String, String>? =
         this[name]?.takeUnless { it is JsonNull }?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }
 
     private fun <T> JsonObject.requiredEnum(
@@ -118,7 +194,9 @@ class OfficialFigmaSyncScopeJson {
         values: List<T>,
         wireValue: (T) -> String
     ): T {
-        val rawValue = requiredString(name)
+        val rawValue = requiredString(
+            name = name
+        )
         return values.singleOrNull { value -> wireValue(value) == rawValue }
             ?: throw IllegalArgumentException("Unsupported '$name' value '$rawValue'.")
     }

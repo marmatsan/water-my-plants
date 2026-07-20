@@ -5,7 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.net.URI
 
-internal class CloudflareHttpAccessTokenProviderTest : FunSpec({
+internal class CloudflareHttpAccessTokenProviderTest : FunSpec(
+    {
     test("extracts the short-lived token from the Cloudflare authorization cookie") {
         var requestedUri: URI? = null
         var requestedHeaders: Map<String, String>? = null
@@ -37,7 +38,10 @@ internal class CloudflareHttpAccessTokenProviderTest : FunSpec({
 
     test("rejects a response without a Cloudflare authorization cookie") {
         val provider = CloudflareHttpAccessTokenProvider { _, _ ->
-            CloudflareAccessResponse(statusCode = 200, setCookieHeaders = emptyList())
+            CloudflareAccessResponse(
+                statusCode = 200,
+                setCookieHeaders = emptyList()
+            )
         }
 
         val exception = shouldThrow<IllegalArgumentException> {
@@ -51,4 +55,5 @@ internal class CloudflareHttpAccessTokenProviderTest : FunSpec({
 
         exception.message shouldBe "Cloudflare Access did not return a CF_Authorization token."
     }
-})
+}
+)

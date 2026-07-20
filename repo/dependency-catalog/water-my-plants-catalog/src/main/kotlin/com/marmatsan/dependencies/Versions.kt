@@ -30,7 +30,9 @@ internal data class Versions(
         fun load(
             rootDir: File
         ): Versions {
-            val versionsFile = resolveVersionsFile(rootDir)
+            val versionsFile = resolveVersionsFile(
+                rootDir = rootDir
+            )
             val properties = Properties().apply {
                 versionsFile.inputStream().use(::load)
             }
@@ -41,27 +43,69 @@ internal data class Versions(
                 ?: error("Missing version property '$key' in ${versionsFile.path}")
 
             return Versions(
-                activityComposeLibraryVersion = get("activityComposeLibraryVersion"),
-                androidCoroutinesLibraryVersion = get("androidCoroutinesLibraryVersion"),
-                androidGradlePluginVersion = get("androidGradlePluginVersion"),
-                composeBomLibraryVersion = get("composeBomLibraryVersion"),
-                coreKtxLibraryVersion = get("coreKtxLibraryVersion"),
-                cucumberLibraryVersion = get("cucumberLibraryVersion"),
-                dokkaPluginVersion = get("dokkaPluginVersion"),
-                figmaCodeConnectLibraryVersion = get("figmaCodeConnectLibraryVersion"),
-                figmaCodeConnectPluginVersion = get("figmaCodeConnectPluginVersion"),
-                junit5PluginVersion = get("junit5PluginVersion"),
-                kotestLibraryVersion = get("kotestLibraryVersion"),
-                kotlinInjectLibraryVersion = get("kotlinInjectLibraryVersion"),
-                kotlinVersion = get("kotlinVersion"),
-                ktorLibraryVersion = get("ktorLibraryVersion"),
-                kspPluginVersion = get("kspPluginVersion"),
-                lifecycleLibraryVersion = get("lifecycleLibraryVersion"),
-                mockkLibraryVersion = get("mockkLibraryVersion"),
-                navigationComposeLibraryVersion = get("navigationComposeLibraryVersion"),
-                protobufLibraryVersion = get("protobufLibraryVersion"),
-                protobufPluginVersion = get("protobufPluginVersion"),
-                serializationLibraryVersion = get("serializationLibraryVersion")
+                activityComposeLibraryVersion = get(
+                    key = "activityComposeLibraryVersion"
+                ),
+                androidCoroutinesLibraryVersion = get(
+                    key = "androidCoroutinesLibraryVersion"
+                ),
+                androidGradlePluginVersion = get(
+                    key = "androidGradlePluginVersion"
+                ),
+                composeBomLibraryVersion = get(
+                    key = "composeBomLibraryVersion"
+                ),
+                coreKtxLibraryVersion = get(
+                    key = "coreKtxLibraryVersion"
+                ),
+                cucumberLibraryVersion = get(
+                    key = "cucumberLibraryVersion"
+                ),
+                dokkaPluginVersion = get(
+                    key = "dokkaPluginVersion"
+                ),
+                figmaCodeConnectLibraryVersion = get(
+                    key = "figmaCodeConnectLibraryVersion"
+                ),
+                figmaCodeConnectPluginVersion = get(
+                    key = "figmaCodeConnectPluginVersion"
+                ),
+                junit5PluginVersion = get(
+                    key = "junit5PluginVersion"
+                ),
+                kotestLibraryVersion = get(
+                    key = "kotestLibraryVersion"
+                ),
+                kotlinInjectLibraryVersion = get(
+                    key = "kotlinInjectLibraryVersion"
+                ),
+                kotlinVersion = get(
+                    key = "kotlinVersion"
+                ),
+                ktorLibraryVersion = get(
+                    key = "ktorLibraryVersion"
+                ),
+                kspPluginVersion = get(
+                    key = "kspPluginVersion"
+                ),
+                lifecycleLibraryVersion = get(
+                    key = "lifecycleLibraryVersion"
+                ),
+                mockkLibraryVersion = get(
+                    key = "mockkLibraryVersion"
+                ),
+                navigationComposeLibraryVersion = get(
+                    key = "navigationComposeLibraryVersion"
+                ),
+                protobufLibraryVersion = get(
+                    key = "protobufLibraryVersion"
+                ),
+                protobufPluginVersion = get(
+                    key = "protobufPluginVersion"
+                ),
+                serializationLibraryVersion = get(
+                    key = "serializationLibraryVersion"
+                )
             )
         }
 
@@ -69,8 +113,12 @@ internal data class Versions(
             rootDir: File
         ): File {
             val candidates = listOf(
-                rootDir.resolve("repo/dependency-catalog/versions.properties"),
-                rootDir.resolve("versions.properties")
+                rootDir.resolve(
+                    relative = "repo/dependency-catalog/versions.properties"
+                ),
+                rootDir.resolve(
+                    relative = "versions.properties"
+                )
             )
             return candidates.firstOrNull { it.isFile }
                 ?: error("versions.properties not found in repo/dependency-catalog or root directory")

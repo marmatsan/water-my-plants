@@ -20,7 +20,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 
 /** Writes the provider-neutral CI plan for the committed repository change. */
-@UntrackedTask(because = "The plan depends on Git revision state outside Gradle inputs")
+@UntrackedTask(
+    because = "The plan depends on Git revision state outside Gradle inputs"
+)
 abstract class GenerateCiPlanTask : DefaultTask() {
     /** Repository checkout whose committed Git state is classified. */
     @get:Internal
@@ -52,10 +54,16 @@ abstract class GenerateCiPlanTask : DefaultTask() {
         )
         val moduleGraph = RepositoryModuleGraph(
             modules = moduleDirectories.get().map { (id, directory) ->
-                RepositoryModule(id = id, directory = directory)
+                RepositoryModule(
+                    id = id,
+                    directory = directory
+                )
             },
             dependencies = moduleDependencyEdges.get().map { edge ->
-                val parts = edge.split(EDGE_SEPARATOR, limit = 2)
+                val parts = edge.split(
+                    EDGE_SEPARATOR,
+                    limit = 2
+                )
                 check(parts.size == 2) { "Invalid serialized module dependency: $edge" }
                 ModuleDependency(
                     dependentModule = parts.first(),
@@ -63,9 +71,15 @@ abstract class GenerateCiPlanTask : DefaultTask() {
                 )
             }
         )
-        val plan = CiPlanFactory().create(changeSet, moduleGraph)
+        val plan = CiPlanFactory().create(
+            changeSet,
+            moduleGraph
+        )
         val output = outputFile.get().asFile
-        CiPlanJson().write(plan, output)
+        CiPlanJson().write(
+            plan,
+            output
+        )
 
         logger.lifecycle(
             "CI plan generated: scope={}, fullVerification={}, output={}",

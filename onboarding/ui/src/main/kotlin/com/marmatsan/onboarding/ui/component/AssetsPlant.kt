@@ -60,7 +60,9 @@ fun AssetsPlant(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun AssetsPlantPreview(
     @PreviewParameter(AssetsPlantPreviewParameterProvider::class)

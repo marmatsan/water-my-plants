@@ -37,7 +37,11 @@
     {
       "id": "teamcity-pipelines",
       "sourcePaths": [".teamcity/settings.kts", ".teamcity/pom.xml", ".teamcity/scripts/*"],
-      "documentationPaths": [".teamcity/README.md", "docs/runbooks/teamcity-cloudflare-access.md"]
+      "documentationPaths": [
+        ".teamcity/README.md",
+        "docs/runbooks/teamcity-cloudflare-access.md",
+        "docs/runbooks/bootstrap-teamcity-ci-gate.md"
+      ]
     },
     {
       "id": "verification-platform",

@@ -6,10 +6,23 @@ import kotlinx.serialization.json.JsonObject
 
 /** Canonical JSON representation with recursively sorted object keys. */
 object CanonicalJson {
-    fun stringify(value: JsonElement): String = when (value) {
-        is JsonArray -> value.joinToString(prefix = "[", postfix = "]", separator = ",", transform = ::stringify)
-        is JsonObject -> value.keys.sorted().joinToString(prefix = "{", postfix = "}", separator = ",") { key ->
-            "${kotlinx.serialization.json.Json.encodeToString(key)}:${stringify(value.getValue(key))}"
+    fun stringify(
+        value: JsonElement
+    ): String = when (value) {
+        is JsonArray -> value.joinToString(
+            prefix = "[",
+            postfix = "]",
+            separator = ",",
+            transform = ::stringify
+        )
+        is JsonObject -> value.keys.sorted().joinToString(
+            prefix = "{",
+            postfix = "}",
+            separator = ","
+        ) { key ->
+            "${kotlinx.serialization.json.Json.encodeToString(key)}:${stringify(
+                value = value.getValue(key)
+            )}"
         }
         else -> value.toString()
     }

@@ -7,12 +7,15 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradleConventionPluginTreeReaderTest : FunSpec({
+internal class GradleConventionPluginTreeReaderTest : FunSpec(
+    {
 
     test("readPluginTree detects any Gradle convention plugin build file under included build root") {
         // GIVEN
         val rootDir = Files.createTempDirectory("gradle-convention-plugin-tree").toFile()
-        val includedBuildRootDir = rootDir.resolve("repo/gradle-plugins")
+        val includedBuildRootDir = rootDir.resolve(
+            relative = "repo/gradle-plugins"
+        )
         includedBuildRootDir.writeBuildFile(
             path = "analytics",
             content = conventionPluginBuildFile(
@@ -45,7 +48,10 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
         val actualTree = GradleConventionPluginTreeReader().readPluginTree(
             rootDir = includedBuildRootDir,
             usageByPluginId = mapOf(
-                "com.marmatsan.analytics" to setOf(":app", ":core:ui"),
+                "com.marmatsan.analytics" to setOf(
+                    ":app",
+                    ":core:ui"
+                ),
                 "com.marmatsan.reporting" to setOf(":app")
             )
         )
@@ -61,7 +67,10 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
                             children = listOf(
                                 PluginCatalogNode(
                                     id = "analytics",
-                                    appliedToModules = listOf(":app", ":core:ui")
+                                    appliedToModules = listOf(
+                                        ":app",
+                                        ":core:ui"
+                                    )
                                 ),
                                 PluginCatalogNode(
                                     id = "reporting",
@@ -74,15 +83,20 @@ internal class GradleConventionPluginTreeReaderTest : FunSpec({
             )
         )
     }
-})
+}
+)
 
 private fun File.writeBuildFile(
     path: String,
     content: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("build.gradle.kts").writeText(content)
+    directory.resolve(
+        relative = "build.gradle.kts"
+    ).writeText(content)
 }
 
 private fun conventionPluginBuildFile(
@@ -104,7 +118,9 @@ private fun conventionPluginBuildFile(
     }
     """.trimIndent()
 
-private fun literalIdConventionPluginBuildFile(pluginId: String): String =
+private fun literalIdConventionPluginBuildFile(
+    pluginId: String
+): String =
     """
     plugins {
         `kotlin-dsl`

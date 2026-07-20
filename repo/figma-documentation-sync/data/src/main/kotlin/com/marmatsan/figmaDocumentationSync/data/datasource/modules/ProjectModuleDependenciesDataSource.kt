@@ -19,9 +19,13 @@ import me.tatarka.inject.annotations.Inject
 class ProjectModuleDependenciesDataSource(
     private val gradleModuleDependenciesReader: GradleModuleDependenciesReader
 ) : ProjectModuleDependenciesPort {
-    override fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency> =
+    override fun readModuleDependencies(
+        source: ProjectModuleDependenciesSource
+    ): Set<ModuleDependency> =
         when (source.scope) {
-            ProjectModuleDependenciesScope.Main -> gradleModuleDependenciesReader.readMain(File(source.rootDirPath))
+            ProjectModuleDependenciesScope.Main -> gradleModuleDependenciesReader.readMain(
+                rootDir = File(source.rootDirPath)
+            )
             ProjectModuleDependenciesScope.IncludedBuild -> gradleModuleDependenciesReader.readIncludedBuild(
                 rootDir = File(source.rootDirPath),
                 modulePathPrefix = source.modulePathPrefix

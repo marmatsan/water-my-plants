@@ -15,7 +15,9 @@ java {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            from(
+                components["java"]
+            )
             artifactId = "catalog-core"
 
             pom {

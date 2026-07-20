@@ -31,7 +31,9 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Builds the official MCP runner artifacts and writes their shared sync scope. */
-@DisableCachingByDefault(because = "Builds the TypeScript Figma boundary and generates official runner artifacts")
+@DisableCachingByDefault(
+    because = "Builds the TypeScript Figma boundary and generates official runner artifacts"
+)
 abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -83,8 +85,15 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     fun prepare() {
         val component = figmaDocumentationSyncComponent::class.create()
         val scopeJson = component.officialFigmaSyncScopeJson
-        val impact = scopeJson.readChangeImpact(changeImpactFile.get().asFile.absolutePath)
-        val gitSha = capture(projectRootDirectory.get().asFile, "git", "rev-parse", "HEAD")
+        val impact = scopeJson.readChangeImpact(
+            sourcePath = changeImpactFile.get().asFile.absolutePath
+        )
+        val gitSha = capture(
+            projectRootDirectory.get().asFile,
+            "git",
+            "rev-parse",
+            "HEAD"
+        )
 
         val scope = if (impact.scope == FigmaVerificationScope.FULL_VERIFICATION) {
             val model = designModelFile.get().asFile
@@ -95,21 +104,32 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             val tools = toolsDirectory.get().asFile
             val projectConfig = writerProjectConfigFile.orNull?.asFile
                 ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
-            run(tools, npmExecutable(), "ci")
-            buildWriter(tools, projectConfig)
+            run(
+                tools,
+                npmExecutable(),
+                "ci"
+            )
+            buildWriter(
+                tools = tools,
+                projectConfig = projectConfig
+            )
 
             val runnerDirectory = runnerOutputDirectory.get().asFile
-            val writerScript = tools.resolve("sync-trunk-design-model.mcp.js")
+            val writerScript = tools.resolve(
+                relative = "sync-trunk-design-model.mcp.js"
+            )
             if (!writerScript.isFile) {
                 throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
             }
             OfficialMcpRunnerGenerator().generate(
-                OfficialMcpRunnerGenerator.Request(
+                request = OfficialMcpRunnerGenerator.Request(
                     modelPath = model.absolutePath,
                     scriptPath = writerScript.absolutePath,
                     outputDirectory = runnerDirectory.absolutePath,
                     toolsDirectory = tools.absolutePath,
-                    writerSourceDirectory = tools.resolve("src").absolutePath,
+                    writerSourceDirectory = tools.resolve(
+                        relative = "src"
+                    ).absolutePath,
                     repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
                     changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
                     config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
@@ -118,15 +138,25 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                 )
             )
 
-            val manifests = scopeJson.readRunnerManifests(runnerDirectory.absolutePath)
+            val manifests = scopeJson.readRunnerManifests(
+                rootPath = runnerDirectory.absolutePath
+            )
             val visualManifest = manifests.singleOrNull { manifest -> manifest.fullVisualSync }
                 ?: throw GradleException("Official visual MCP runner manifest was not generated exactly once.")
             val metadataManifest = manifests.singleOrNull { manifest -> manifest.writeMetadata }
                 ?: throw GradleException("Official metadata MCP runner manifest was not generated exactly once.")
             val plan = visualSyncPlanFile.get().asFile
             val planJson = VisualSyncPlanJson()
-            val visualPlan = VisualSyncPlanner(planJson).create(visualManifest, readPreviousMetadata())
-            planJson.write(visualPlan, plan.absolutePath)
+            val visualPlan = VisualSyncPlanner(
+                planHasher = planJson
+            ).create(
+                visualManifest,
+                readPreviousMetadata()
+            )
+            planJson.write(
+                visualPlan,
+                plan.absolutePath
+            )
 
             OfficialFigmaSyncScope(
                 scope = impact.scope,
@@ -165,7 +195,10 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             )
         }
 
-        scopeJson.write(scope, scopeFile.get().asFile.absolutePath)
+        scopeJson.write(
+            scope,
+            scopeFile.get().asFile.absolutePath
+        )
         logger.lifecycle("Prepared official Figma Sync scope: ${scope.scope.wireValue}")
     }
 
@@ -173,7 +206,9 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
         val nodeUrl = metadataNodeUrl.orNull ?: return null
         val namespace = metadataNamespace.orNull ?: return null
-        val reference = FigmaNodeUrl.parse(nodeUrl)
+        val reference = FigmaNodeUrl.parse(
+            url = nodeUrl
+        )
         val node = runCatching {
             FigmaFileContentClient().getNodeContent(
                 fileKey = reference.fileKey,
@@ -184,10 +219,16 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         }.onFailure { failure ->
             logger.warn("Figma metadata is unavailable; selecting a full visual sync: ${failure.message}")
         }.getOrNull() ?: return null
-        return FigmaSyncMetadataJson.read(node.sharedPluginData, namespace)
+        return FigmaSyncMetadataJson.read(
+            node.sharedPluginData,
+            namespace
+        )
     }
 
-    private fun buildWriter(tools: File, projectConfig: File) {
+    private fun buildWriter(
+        tools: File,
+        projectConfig: File
+    ) {
         run(
             tools,
             "node",
@@ -197,8 +238,15 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         )
     }
 
-    private fun run(directory: File, vararg command: String) {
-        val process = ProcessBuilder(platformCommand(command.toList()))
+    private fun run(
+        directory: File,
+        vararg command: String
+    ) {
+        val process = ProcessBuilder(
+            platformCommand(
+                command = command.toList()
+            )
+        )
             .directory(directory)
             .inheritIO()
             .start()
@@ -208,8 +256,15 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         }
     }
 
-    private fun capture(directory: File, vararg command: String): String {
-        val process = ProcessBuilder(platformCommand(command.toList()))
+    private fun capture(
+        directory: File,
+        vararg command: String
+    ): String {
+        val process = ProcessBuilder(
+            platformCommand(
+                command = command.toList()
+            )
+        )
             .directory(directory)
             .start()
         val output = ByteArrayOutputStream()
@@ -225,16 +280,28 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
         return output.toString().trim()
     }
 
-    private fun platformCommand(command: List<String>): List<String> =
-        if (isWindows() && command.first().endsWith(".cmd", ignoreCase = true)) {
-            listOf("cmd.exe", "/d", "/c") + command
+    private fun platformCommand(
+        command: List<String>
+    ): List<String> =
+        if (isWindows() && command.first().endsWith(
+            ".cmd",
+            ignoreCase = true
+        )) {
+            listOf(
+                "cmd.exe",
+                "/d",
+                "/c"
+            ) + command
         } else {
             command
         }
 
     private fun npmExecutable(): String = if (isWindows()) "npm.cmd" else "npm"
 
-    private fun isWindows(): Boolean = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+    private fun isWindows(): Boolean = System.getProperty("os.name").startsWith(
+        "Windows",
+        ignoreCase = true
+    )
 
     private companion object {
         const val FIGMA_TOKEN_ENVIRONMENT_VARIABLE = "FIGMA_FILE_CONTENT_ACCESS_TOKEN"

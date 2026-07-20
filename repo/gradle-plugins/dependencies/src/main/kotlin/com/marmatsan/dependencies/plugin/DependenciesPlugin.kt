@@ -6,10 +6,16 @@ import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 
 class DependenciesPlugin : Plugin<Settings> {
-    override fun apply(settings: Settings) {
+    override fun apply(
+        settings: Settings
+    ) {
         settings.dependencyResolutionManagement {
-            val catalog = WaterMyPlantsCatalog.resolved(settings.rootDir)
-            configureVersionCatalogs(catalog)
+            val catalog = WaterMyPlantsCatalog.resolved(
+                rootDir = settings.rootDir
+            )
+            configureVersionCatalogs(
+                catalog = catalog
+            )
         }
     }
 }

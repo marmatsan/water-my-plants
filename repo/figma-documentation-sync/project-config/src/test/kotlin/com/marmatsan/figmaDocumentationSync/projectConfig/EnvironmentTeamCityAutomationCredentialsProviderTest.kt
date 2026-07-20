@@ -4,7 +4,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class EnvironmentTeamCityAutomationCredentialsProviderTest : FunSpec({
+internal class EnvironmentTeamCityAutomationCredentialsProviderTest : FunSpec(
+    {
     test("uses an existing short-lived Cloudflare token without exchanging client credentials") {
         val values = mapOf(
             "TEAMCITY_TOKEN" to "teamcity-token",
@@ -34,7 +35,12 @@ internal class EnvironmentTeamCityAutomationCredentialsProviderTest : FunSpec({
         val provider = EnvironmentTeamCityAutomationCredentialsProvider(
             environment = values::get,
             cloudflareAccessTokenProvider = CloudflareAccessTokenProvider { url, token, id, secret ->
-                exchangeArguments = listOf(url, token, id, secret)
+                exchangeArguments = listOf(
+                    url,
+                    token,
+                    id,
+                    secret
+                )
                 "exchanged-token"
             }
         )
@@ -54,10 +60,13 @@ internal class EnvironmentTeamCityAutomationCredentialsProviderTest : FunSpec({
 
     test("rejects a non HTTPS TeamCity endpoint before reading secrets") {
         val exception = shouldThrow<IllegalArgumentException> {
-            EnvironmentTeamCityAutomationCredentialsProvider(environment = { null })
+            EnvironmentTeamCityAutomationCredentialsProvider(
+                environment = { null }
+            )
                 .load("http://teamcity.example")
         }
 
         exception.message shouldBe "The public TeamCity automation endpoint must use HTTPS."
     }
-})
+}
+)

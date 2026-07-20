@@ -22,7 +22,9 @@ interface ProjectCatalogTreesPort {
      * rather than returning an empty tree that would hide an invalid generator
      * request.
      */
-    fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree
+    fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree
 
     /**
      * Reads a plugin catalog tree from [source].
@@ -31,5 +33,7 @@ interface ProjectCatalogTreesPort {
      * convention plugins, or repository-owned Gradle plugins depending on the
      * source variant.
      */
-    fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree
+    fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree
 }

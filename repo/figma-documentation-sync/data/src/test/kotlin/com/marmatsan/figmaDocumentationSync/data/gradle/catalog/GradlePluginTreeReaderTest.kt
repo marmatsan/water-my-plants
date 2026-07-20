@@ -7,13 +7,18 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradlePluginTreeReaderTest : FunSpec({
+internal class GradlePluginTreeReaderTest : FunSpec(
+    {
 
     test("readPluginTree detects regular Gradle plugins and ignores convention plugins") {
         // GIVEN
         val rootDir = Files.createTempDirectory("gradle-plugin-tree").toFile()
-        rootDir.writeSettingsFile(path = "repo/gradle-plugins")
-        rootDir.writeSettingsFile(path = "repo/figma-documentation-sync")
+        rootDir.writeSettingsFile(
+            path = "repo/gradle-plugins"
+        )
+        rootDir.writeSettingsFile(
+            path = "repo/figma-documentation-sync"
+        )
         rootDir.writeGradlePluginBuildFile(
             path = "repo/figma-documentation-sync/plugin",
             pluginName = "com.marmatsan.figmaDocumentationSync",
@@ -56,12 +61,19 @@ internal class GradlePluginTreeReaderTest : FunSpec({
             )
         )
     }
-})
+}
+)
 
-private fun File.writeSettingsFile(path: String) {
-    val directory = resolve(path)
+private fun File.writeSettingsFile(
+    path: String
+) {
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("settings.gradle.kts").writeText("rootProject.name = \"${directory.name}\"")
+    directory.resolve(
+        relative = "settings.gradle.kts"
+    ).writeText("rootProject.name = \"${directory.name}\"")
 }
 
 private fun File.writeGradlePluginBuildFile(
@@ -69,9 +81,13 @@ private fun File.writeGradlePluginBuildFile(
     pluginName: String,
     implementationClass: String
 ) {
-    val directory = resolve(path)
+    val directory = resolve(
+        relative = path
+    )
     directory.mkdirs()
-    directory.resolve("build.gradle.kts").writeText(
+    directory.resolve(
+        relative = "build.gradle.kts"
+    ).writeText(
         """
         plugins {
             `kotlin-dsl`

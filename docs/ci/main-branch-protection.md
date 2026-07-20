@@ -80,6 +80,12 @@ Commit Status Publisher on `CI Gate` publishes the aggregated `CI` result as
 the `TeamCity CI` commit status on GitHub. This build feature is versioned in
 `.teamcity/settings.kts`; the read-only Pipeline UI is not part of the contract.
 
+If the required status already exists in the GitHub ruleset but `CI Gate` does
+not yet exist in the stable TeamCity configuration, follow the
+[CI Gate bootstrap runbook](../runbooks/bootstrap-teamcity-ci-gate.md). The
+runbook is the only supported temporary relaxation procedure and restores
+branch protection before the first manual gate execution.
+
 `CI` must not generate or publish `build/reports/figma-sync/design-model.json`.
 Only the post-merge `Figma Sync` pipeline on `main` may produce the official
 Figma sync artifact.

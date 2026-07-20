@@ -67,7 +67,10 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         versionNumberModeName = "Version number",
         outlineColorVariableName = "md/sys/color/outline",
         dependencyVersionComponentId = "63075:591",
-        dependencyVersionInstanceNames = listOf(".dependency version", ".project version"),
+        dependencyVersionInstanceNames = listOf(
+            ".dependency version",
+            ".project version"
+        ),
         dependencyVersionProps = mapOf(
             "alias" to "version alias#63075:0",
             "number" to "version number#63075:1"
@@ -119,7 +122,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             ),
             FigmaHeaderSectionTarget(
                 sectionNodeId = "62936:183",
-                links = links("repo/dependency-catalog/versions.properties")
+                links = links(
+                    "repo/dependency-catalog/versions.properties"
+                )
             ),
             FigmaHeaderSectionTarget(
                 sectionNodeId = "63099:949",
@@ -292,7 +297,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         )
     )
 
-    private fun links(vararg paths: String): List<FigmaProjectLink> =
+    private fun links(
+        vararg paths: String
+    ): List<FigmaProjectLink> =
         paths.map { path ->
             FigmaProjectLink(
                 label = path,
@@ -314,7 +321,12 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         sectionNodeId = sectionNodeId,
         type = type,
         lifecycle = lifecycle,
-        nodesPath = listOf("content", "catalogs", catalog, collection),
+        nodesPath = listOf(
+            "content",
+            "catalogs",
+            catalog,
+            collection
+        ),
         gradlePluginNodes = gradlePluginNodes,
         warnWhenUnused = warnWhenUnused
     )

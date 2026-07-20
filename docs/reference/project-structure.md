@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-20
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -123,6 +123,13 @@ The root build applies the Water My Plants project adapter. That adapter applies
 the portable plugin; another repository replaces `project-config` without
 changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
 `teamcity-adapter` only if its CI provider is TeamCity.
+
+Documentation coverage treats changes to included-build settings and module
+`build.gradle.kts` files as potential structure changes without interpreting
+their diff. This includes formatting-only edits. Review this inventory whenever
+those paths change; if the dependency graph is unchanged, refresh the review
+date and keep the existing topology instead of inventing an architectural
+change or weakening the coverage rule.
 
 The `project-config` test suite receives the language-neutral writer runtime
 fixture from `tools/fixtures/contracts/` as a test-only system property. This

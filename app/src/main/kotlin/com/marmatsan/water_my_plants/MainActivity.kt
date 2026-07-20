@@ -17,8 +17,12 @@ class MainActivity : ComponentActivity() {
     private val component by lazy { (application as App).component }
     private val greetingUseCase by lazy { component.greetingUseCase }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
+        super.onCreate(
+            savedInstanceState = savedInstanceState
+        )
         enableEdgeToEdge()
         setContent {
             AndroidTemplateTheme {
@@ -46,7 +50,9 @@ fun Greeting(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 fun GreetingPreview() {
     AndroidTemplateTheme {

@@ -46,7 +46,12 @@ fun VersionCatalogBuilder.registerPlugins(
     plugins: List<Dependency.Plugin>
 ) {
     plugins.forEach { plugin ->
-        plugin(plugin.pluginId, plugin.pluginId).version(plugin.version)
+        plugin(
+            plugin.pluginId,
+            plugin.pluginId
+        ).version(
+            plugin.version
+        )
     }
 }
 
@@ -97,7 +102,10 @@ private fun VersionCatalogBuilder.registerLibraryBundle(
         )
     }
 
-    bundle(bundle.alias, aliases)
+    bundle(
+        bundle.alias,
+        aliases
+    )
 }
 
 /**
@@ -118,7 +126,11 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
     libraryAlias: String,
     libraryGroup: String,
     artifact: String
-) = library(libraryAlias, libraryGroup, artifact)
+) = library(
+    libraryAlias,
+    libraryGroup,
+    artifact
+)
 
 /**
  * Registers the given [version] for this library alias.
@@ -132,7 +144,9 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
  */
 private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
     version: String? = null
-) = if (version == null) withoutVersion() else version(version)
+) = if (version == null) withoutVersion() else version(
+    version
+)
 
 
 /**
@@ -180,7 +194,9 @@ private fun VersionCatalogBuilder.registerLibrary(
         libraryGroup = libraryGroup,
         artifact = artifact.artifact
     )
-    libraryAliasBuilder.registerLibraryVersion(version)
+    libraryAliasBuilder.registerLibraryVersion(
+        version = version
+    )
     return libraryAlias
 }
 
@@ -219,7 +235,9 @@ internal fun libraryAlias(
 
         artifactAliasSegment = when {
             artifact == groupSuffix -> ""
-            artifact.startsWith("$groupSuffix-") -> artifact.removePrefix("$groupSuffix-")
+            artifact.startsWith(
+                prefix = "$groupSuffix-"
+            ) -> artifact.removePrefix("$groupSuffix-")
             else -> null
         }
 
@@ -228,7 +246,10 @@ internal fun libraryAlias(
         }
     }
 
-    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace("-", ".")
+    val normalizedArtifactAliasSegment = (artifactAliasSegment ?: artifact).replace(
+        "-",
+        "."
+    )
 
     return if (artifactAliasSegment?.isEmpty() == true) {
         libraryGroup

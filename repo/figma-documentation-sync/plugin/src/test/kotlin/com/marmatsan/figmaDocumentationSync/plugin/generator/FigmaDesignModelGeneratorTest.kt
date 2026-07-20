@@ -39,15 +39,28 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class FigmaDesignModelGeneratorTest : FunSpec({
+internal class FigmaDesignModelGeneratorTest : FunSpec(
+    {
 
     test("generate keeps the same model hash when only generatedAt changes") {
         // GIVEN
         val generator = generator()
 
         // WHEN
-        val first = generator.generate(request(generatedAt = Instant.parse("2026-06-19T10:15:30Z")))
-        val second = generator.generate(request(generatedAt = Instant.parse("2026-06-19T10:16:30Z")))
+        val first = generator.generate(
+            request = request(
+                generatedAt = Instant.parse(
+                    "2026-06-19T10:15:30Z"
+                )
+            )
+        )
+        val second = generator.generate(
+            request = request(
+                generatedAt = Instant.parse(
+                    "2026-06-19T10:16:30Z"
+                )
+            )
+        )
 
         // THEN
         first.modelHash shouldBe second.modelHash
@@ -60,8 +73,16 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val first = generator.generate(request(gitSha = "abc123"))
-        val second = generator.generate(request(gitSha = "def456"))
+        val first = generator.generate(
+            request = request(
+                gitSha = "abc123"
+            )
+        )
+        val second = generator.generate(
+            request = request(
+                gitSha = "def456"
+            )
+        )
 
         // THEN
         first.modelHash shouldBe first.model["modelHash"]?.jsonPrimitive?.content
@@ -74,11 +95,15 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         result.model["content"]?.jsonObject
-            ?.get("versions")
+            ?.get(
+                key = "versions"
+            )
             ?.jsonObject
             ?.keys
             ?.toList() shouldBe listOf(
@@ -102,10 +127,14 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         )
 
         // WHEN
-        val result = generator.generate(request)
+        val result = generator.generate(
+            request = request
+        )
 
         // THEN
-        result.model["content"]?.jsonObject?.get("ci") shouldBe null
+        result.model["content"]?.jsonObject?.get(
+            key = "ci"
+        ) shouldBe null
     }
 
     test("generate writes version sections in repository order") {
@@ -113,17 +142,25 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val sections = result.model["content"]
             ?.jsonObject
-            ?.get("versionSections")
+            ?.get(
+                key = "versionSections"
+            )
             ?.jsonArray
 
         sections?.map { section ->
             section.jsonObject["name"]?.jsonPrimitive?.content
-        } shouldBe listOf("Main project dependencies", "Libraries", "Plugins")
+        } shouldBe listOf(
+            "Main project dependencies",
+            "Libraries",
+            "Plugins"
+        )
     }
 
     test("generate writes convention plugin provenance for library artifacts") {
@@ -131,24 +168,36 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("libraries")
+            ?.get(
+                key = "libraries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("entries")
+            ?.get(
+                key = "entries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("providedByConventionPlugins")
+            ?.get(
+                key = "providedByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -162,7 +211,10 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             Triple(
                 "com.marmatsan.compose",
                 ":gradle-plugins:compose",
-                listOf(":app", ":core:ui")
+                listOf(
+                    ":app",
+                    ":core:ui"
+                )
             )
         )
     }
@@ -172,24 +224,36 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("libraries")
+            ?.get(
+                key = "libraries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("entries")
+            ?.get(
+                key = "entries"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("configuredByConventionPlugins")
+            ?.get(
+                key = "configuredByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -213,20 +277,30 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val usages = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("waterMyPlants")
+            ?.get(
+                key = "waterMyPlants"
+            )
             ?.jsonObject
-            ?.get("plugins")
+            ?.get(
+                key = "plugins"
+            )
             ?.jsonArray
             ?.single()
             ?.jsonObject
-            ?.get("providedByConventionPlugins")
+            ?.get(
+                key = "providedByConventionPlugins"
+            )
             ?.jsonArray
 
         usages?.map { usage ->
@@ -240,7 +314,10 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
             Triple(
                 "com.marmatsan.compose",
                 ":gradle-plugins:compose",
-                listOf(":app", ":core:ui")
+                listOf(
+                    ":app",
+                    ":core:ui"
+                )
             )
         )
     }
@@ -250,38 +327,71 @@ internal class FigmaDesignModelGeneratorTest : FunSpec({
         val generator = generator()
 
         // WHEN
-        val result = generator.generate(request())
+        val result = generator.generate(
+            request = request()
+        )
 
         // THEN
         val gradlePluginsCatalog = result.model["content"]
             ?.jsonObject
-            ?.get("catalogs")
+            ?.get(
+                key = "catalogs"
+            )
             ?.jsonObject
-            ?.get("gradlePlugins")
+            ?.get(
+                key = "gradlePlugins"
+            )
             ?.jsonObject
 
-        gradlePluginsCatalog?.get("libraries") shouldBe null
-        gradlePluginsCatalog?.get("plugins") shouldBe null
+        gradlePluginsCatalog?.get(
+            key = "libraries"
+        ) shouldBe null
+        gradlePluginsCatalog?.get(
+            key = "plugins"
+        ) shouldBe null
     }
 
     test("generate writes external topology Windows runtime and effective TeamCity configuration") {
         // WHEN
-        val result = generator().generate(request())
+        val result = generator().generate(
+            request = request()
+        )
 
         // THEN
         result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
-        val ci = result.model["content"]?.jsonObject?.get("ci")?.jsonObject
-        ci?.get("externalTopology")?.jsonObject
-            ?.get("nodes")?.jsonArray?.single()?.jsonObject
-            ?.get("name")?.jsonPrimitive?.content shouldBe "Operator"
-        ci?.get("windowsRuntime")?.jsonObject
-            ?.get("services")?.jsonArray?.single()?.jsonObject
-            ?.get("service")?.jsonPrimitive?.content shouldBe "TeamCity"
-        ci?.get("teamCity")?.jsonObject
-            ?.get("pipelines")?.jsonArray?.single()?.jsonObject
-            ?.get("name")?.jsonPrimitive?.content shouldBe "CI"
+        val ci = result.model["content"]?.jsonObject?.get(
+            key = "ci"
+        )?.jsonObject
+        ci?.get(
+            key = "externalTopology"
+        )?.jsonObject
+            ?.get(
+                key = "nodes"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "name"
+            )?.jsonPrimitive?.content shouldBe "Operator"
+        ci?.get(
+            key = "windowsRuntime"
+        )?.jsonObject
+            ?.get(
+                key = "services"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "service"
+            )?.jsonPrimitive?.content shouldBe "TeamCity"
+        ci?.get(
+            key = "teamCity"
+        )?.jsonObject
+            ?.get(
+                key = "pipelines"
+            )?.jsonArray?.single()?.jsonObject
+            ?.get(
+                key = "name"
+            )?.jsonPrimitive?.content shouldBe "CI"
     }
-})
+}
+)
 
 private fun generator(): FigmaDesignModelGenerator =
     FigmaDesignModelGenerator(
@@ -296,7 +406,9 @@ private fun generator(): FigmaDesignModelGenerator =
 
 private fun request(
     gitSha: String = "abc123",
-    generatedAt: Instant = Instant.parse("2026-06-19T10:15:30Z")
+    generatedAt: Instant = Instant.parse(
+        "2026-06-19T10:15:30Z"
+    )
 ): FigmaDesignModelGenerationRequest =
     FigmaDesignModelGenerationRequest(
         branch = "main",
@@ -326,7 +438,9 @@ private fun request(
     )
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
-    override fun readVersions(source: VersionsFileSource): Map<String, String> =
+    override fun readVersions(
+        source: VersionsFileSource
+    ): Map<String, String> =
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
@@ -334,7 +448,9 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             "kspPluginVersion" to "2.3.9"
         )
 
-    override fun readVersionSections(source: VersionsFileSource): List<RepositoryVersionSection> =
+    override fun readVersionSections(
+        source: VersionsFileSource
+    ): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
                 name = "Main project dependencies",
@@ -355,9 +471,13 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
-    override fun readLibraryTree(source: ProjectCatalogTreeSource): LibraryCatalogTree {
+    override fun readLibraryTree(
+        source: ProjectCatalogTreeSource
+    ): LibraryCatalogTree {
         if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
-            return LibraryCatalogTree(roots = emptyList())
+            return LibraryCatalogTree(
+                roots = emptyList()
+            )
         }
 
         val conventionPluginUsages = if (
@@ -368,7 +488,10 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 ConventionPluginUsage(
                     pluginId = "com.marmatsan.compose",
                     pluginModule = ":gradle-plugins:compose",
-                    requiredByModules = listOf(":core:ui", ":app")
+                    requiredByModules = listOf(
+                        ":core:ui",
+                        ":app"
+                    )
                 )
             )
         } else {
@@ -396,7 +519,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                     entries = listOf(
                         LibraryCatalogEntry.Artifact(
                             artifact = "kotlin-stdlib",
-                            version = CatalogVersion("2.4.0"),
+                            version = CatalogVersion(
+                                value = "2.4.0"
+                            ),
                             requiredByModules = listOf(":app"),
                             providedByConventionPlugins = conventionPluginUsages,
                             configuredByConventionPlugins = conventionPluginConfigurationUsages
@@ -407,9 +532,13 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         )
     }
 
-    override fun readPluginTree(source: ProjectCatalogTreeSource): PluginCatalogTree {
+    override fun readPluginTree(
+        source: ProjectCatalogTreeSource
+    ): PluginCatalogTree {
         if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
-            return PluginCatalogTree(roots = emptyList())
+            return PluginCatalogTree(
+                roots = emptyList()
+            )
         }
 
         val conventionPluginUsages = if (
@@ -420,7 +549,10 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                 PluginCatalogNode.ConventionPluginUsage(
                     pluginId = "com.marmatsan.compose",
                     pluginModule = ":gradle-plugins:compose",
-                    requiredByModules = listOf(":core:ui", ":app")
+                    requiredByModules = listOf(
+                        ":core:ui",
+                        ":app"
+                    )
                 )
             )
         } else {
@@ -431,7 +563,9 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
             roots = listOf(
                 PluginCatalogNode(
                     id = "org.jetbrains.kotlin.android",
-                    version = CatalogVersion("2.4.0"),
+                    version = CatalogVersion(
+                        value = "2.4.0"
+                    ),
                     appliedToModules = listOf(":app"),
                     providedByConventionPlugins = conventionPluginUsages
                 )
@@ -441,12 +575,20 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
-    override fun readModules(source: ProjectModulesSource): Set<String> =
-        setOf(":onboarding:ui", ":app", ":core:ui")
+    override fun readModules(
+        source: ProjectModulesSource
+    ): Set<String> =
+        setOf(
+            ":onboarding:ui",
+            ":app",
+            ":core:ui"
+        )
 }
 
 private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort {
-    override fun readModuleDependencies(source: ProjectModuleDependenciesSource): Set<ModuleDependency> =
+    override fun readModuleDependencies(
+        source: ProjectModuleDependenciesSource
+    ): Set<ModuleDependency> =
         setOf(
             ModuleDependency(
                 dependentModule = ":app",
@@ -456,11 +598,15 @@ private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort
 }
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
-    override fun readTopology(source: CiExternalTopologySource): CiExternalTopology =
+    override fun readTopology(
+        source: CiExternalTopologySource
+    ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
             validation = CiExternalTopology.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-14"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-14"
+                ),
                 warnAfterDays = 90
             ),
             nodes = listOf(
@@ -476,11 +622,15 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
 }
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
-    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+    override fun readRuntime(
+        source: CiWindowsRuntimeSource
+    ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
             validation = CiWindowsRuntime.Validation(
-                lastValidatedOn = LocalDate.parse("2026-07-16"),
+                lastValidatedOn = LocalDate.parse(
+                    "2026-07-16"
+                ),
                 warnAfterDays = 90
             ),
             platform = "Windows",
@@ -498,7 +648,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
 }
 
 private object FakeCiConfigurationPort : CiConfigurationPort {
-    override fun readConfiguration(source: CiGeneratedConfigurationSource): CiConfiguration =
+    override fun readConfiguration(
+        source: CiGeneratedConfigurationSource
+    ): CiConfiguration =
         CiConfiguration(
             pipelines = listOf(
                 CiPipeline(

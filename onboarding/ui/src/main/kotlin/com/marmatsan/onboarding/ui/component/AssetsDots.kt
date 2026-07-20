@@ -53,7 +53,9 @@ fun AssetsDots(
     )
 }
 
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true
+)
 @Composable
 private fun AssetsDotsPreview(
     @PreviewParameter(AssetsDotsPreviewParameterProvider::class)

@@ -5,7 +5,8 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
-internal class RunnerManifestJsonTest : FunSpec({
+internal class RunnerManifestJsonTest : FunSpec(
+    {
     test("matches the canonical Node manifest hash contract") {
         val body = Json.parseToJsonElement(
             """
@@ -21,4 +22,5 @@ internal class RunnerManifestJsonTest : FunSpec({
         RunnerManifestJson().hash(body) shouldBe
             "sha256:852eab00de37dc1dcc82201d19367aae9ac7dba37e4d90506493ec52c37a91e7"
     }
-})
+}
+)

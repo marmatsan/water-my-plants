@@ -23,8 +23,12 @@ import kotlinx.serialization.json.put
 
 /** Atomic JSON checkpoint adapter for MCP execution state. */
 class McpExecutionStateJson {
-    fun readOptional(path: String): McpExecutionState? {
-        val source = Path.of(path)
+    fun readOptional(
+        path: String
+    ): McpExecutionState? {
+        val source = Path.of(
+            path
+        )
         if (!Files.isRegularFile(source)) return null
         val state = Json.parseToJsonElement(Files.readString(source).removePrefix(UTF8_BOM)).jsonObject.toState()
         require(state.schemaVersion == SUPPORTED_SCHEMA_VERSION) {
@@ -33,13 +37,21 @@ class McpExecutionStateJson {
         return state
     }
 
-    fun writeAtomic(state: McpExecutionState, path: String) {
-        val output = Path.of(path)
+    fun writeAtomic(
+        state: McpExecutionState,
+        path: String
+    ) {
+        val output = Path.of(
+            path
+        )
         output.parent?.let(Files::createDirectories)
         val temporary = output.resolveSibling("${output.fileName}.${ProcessHandle.current().pid()}.tmp")
         Files.writeString(
             temporary,
-            prettyJson.encodeToString(JsonObject.serializer(), state.toJson()) + System.lineSeparator()
+            prettyJson.encodeToString(
+                JsonObject.serializer(),
+                state.toJson()
+            ) + System.lineSeparator()
         )
         try {
             Files.move(
@@ -48,40 +60,113 @@ class McpExecutionStateJson {
                 StandardCopyOption.ATOMIC_MOVE,
                 StandardCopyOption.REPLACE_EXISTING
             )
-        } catch (_: AtomicMoveNotSupportedException) {
-            Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING)
+        } catch (
+            _: AtomicMoveNotSupportedException
+        ) {
+            Files.move(
+                temporary,
+                output,
+                StandardCopyOption.REPLACE_EXISTING
+            )
         }
     }
 
     private fun McpExecutionState.toJson(): JsonObject = buildJsonObject {
-        put("schemaVersion", schemaVersion)
-        put("identity", buildJsonObject {
-            put("modelHash", identity.modelHash)
-            put("gitSha", identity.gitSha)
-            put("writerHash", identity.writerHash)
-            put("transportHash", identity.transportHash)
-            put("manifestHash", identity.manifestHash)
-        })
-        put("startedAt", startedAt)
-        put("updatedAt", updatedAt)
-        put("completedFiles", JsonArray(completedFiles.map { entry -> entry.toJson() }))
-        put("plannedFiles", JsonArray(plannedFiles.map(::JsonPrimitive)))
-        put("failedFile", failedFile?.let(::JsonPrimitive) ?: JsonNull)
-        put("failure", failure?.toJson() ?: JsonNull)
+        put(
+            "schemaVersion",
+            schemaVersion
+        )
+        put(
+            "identity",
+            buildJsonObject {
+            put(
+                "modelHash",
+                identity.modelHash
+            )
+            put(
+                "gitSha",
+                identity.gitSha
+            )
+            put(
+                "writerHash",
+                identity.writerHash
+            )
+            put(
+                "transportHash",
+                identity.transportHash
+            )
+            put(
+                "manifestHash",
+                identity.manifestHash
+            )
+        }
+        )
+        put(
+            "startedAt",
+            startedAt
+        )
+        put(
+            "updatedAt",
+            updatedAt
+        )
+        put(
+            "completedFiles",
+            JsonArray(completedFiles.map { entry -> entry.toJson() })
+        )
+        put(
+            "plannedFiles",
+            JsonArray(
+                plannedFiles.map(
+                    transform = ::JsonPrimitive
+                )
+            )
+        )
+        put(
+            "failedFile",
+            failedFile?.let(::JsonPrimitive) ?: JsonNull
+        )
+        put(
+            "failure",
+            failure?.toJson() ?: JsonNull
+        )
     }
 
     private fun McpCompletedFile.toJson(): JsonObject = buildJsonObject {
-        put("file", file)
-        put("fileHash", fileHash)
-        put("durationMs", durationMs)
-        put("completedAt", completedAt)
-        put("summary", summary?.let(::JsonPrimitive) ?: JsonNull)
+        put(
+            "file",
+            file
+        )
+        put(
+            "fileHash",
+            fileHash
+        )
+        put(
+            "durationMs",
+            durationMs
+        )
+        put(
+            "completedAt",
+            completedAt
+        )
+        put(
+            "summary",
+            summary?.let(::JsonPrimitive) ?: JsonNull
+        )
     }
 
     private fun McpExecutionFailure.toJson(): JsonObject = buildJsonObject {
-        put("message", message)
-        put("durationMs", durationMs)
-        put("failedAt", failedAt)
+        put(
+            "message",
+            message
+        )
+        put(
+            "durationMs",
+            durationMs
+        )
+        put(
+            "failedAt",
+            failedAt
+        )
     }
 
     private fun JsonObject.toState(): McpExecutionState {

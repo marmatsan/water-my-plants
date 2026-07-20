@@ -23,29 +23,44 @@ import java.time.ZoneOffset
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
+internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec(
+    {
     test("prepares a validated handoff from an existing artifact directory") {
         val root = Files.createTempDirectory("figma-handoff").toFile()
-        val artifacts = root.resolve("artifacts").apply {
+        val artifacts = root.resolve(
+            relative = "artifacts"
+        ).apply {
             mkdirs()
             writeArtifactFixture()
         }
         val client = object : TeamCityBuildArtifactClient {
-            override fun readBuild(buildId: Long): TeamCityBuild = error("TeamCity must not be called")
+            override fun readBuild(
+                buildId: Long
+            ): TeamCityBuild = error("TeamCity must not be called")
 
-            override fun downloadArtifacts(buildId: Long, outputDirectory: File) =
+            override fun downloadArtifacts(
+                buildId: Long,
+                outputDirectory: File
+            ) =
                 error("TeamCity must not be called")
         }
         val preparer = TeamCityFigmaSyncHandoffPreparer(
             teamCityClient = client,
-            clock = Clock.fixed(Instant.parse("2026-07-18T18:00:00Z"), ZoneOffset.UTC)
+            clock = Clock.fixed(
+                Instant.parse(
+                    "2026-07-18T18:00:00Z"
+                ),
+                ZoneOffset.UTC
+            )
         )
 
         val result = preparer.prepare(
-            TeamCityFigmaSyncHandoffPreparer.Request(
+            request = TeamCityFigmaSyncHandoffPreparer.Request(
                 buildId = null,
                 artifactDirectory = artifacts,
-                destinationRoot = root.resolve("downloads"),
+                destinationRoot = root.resolve(
+                    relative = "downloads"
+                ),
                 expectedGitSha = "abc123"
             )
         )
@@ -57,9 +72,13 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
         result.summary["modelHash"]?.jsonPrimitive?.content shouldBe "model-hash"
         result.summary["decision"]?.jsonPrimitive?.content shouldBe "partial"
         result.summary["teamCityBuildId"]?.toString() shouldBe "null"
-        result.summary["dryRun"]?.jsonObject?.get("decision")?.jsonPrimitive?.content shouldBe "partial"
+        result.summary["dryRun"]?.jsonObject?.get(
+            key = "decision"
+        )?.jsonPrimitive?.content shouldBe "partial"
         result.summary["nextUnit"]?.jsonPrimitive?.content shouldBe "00-clear-staging.mcp.js"
-        result.summary["commands"]?.jsonObject?.get("uploadPayload")?.jsonPrimitive?.content shouldBe
+        result.summary["commands"]?.jsonObject?.get(
+            key = "uploadPayload"
+        )?.jsonPrimitive?.content shouldBe
             ".\\gradlew.bat uploadOfficialFigmaPayload " +
                 "-PfigmaArtifactDirectory=\"${artifacts.toPath().toAbsolutePath().normalize()}\" " +
                 "-PfigmaExpectedGitSha=abc123 " +
@@ -70,7 +89,9 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
     test("rejects a TeamCity build that is not successful") {
         val root = Files.createTempDirectory("figma-handoff-build").toFile()
         val client = object : TeamCityBuildArtifactClient {
-            override fun readBuild(buildId: Long): TeamCityBuild =
+            override fun readBuild(
+                buildId: Long
+            ): TeamCityBuild =
                 TeamCityBuild(
                     id = buildId,
                     state = "finished",
@@ -80,16 +101,23 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
                     webUrl = null
                 )
 
-            override fun downloadArtifacts(buildId: Long, outputDirectory: File) = Unit
+            override fun downloadArtifacts(
+                buildId: Long,
+                outputDirectory: File
+            ) = Unit
         }
-        val preparer = TeamCityFigmaSyncHandoffPreparer(teamCityClient = client)
+        val preparer = TeamCityFigmaSyncHandoffPreparer(
+            teamCityClient = client
+        )
 
         val exception = shouldThrow<IllegalArgumentException> {
             preparer.prepare(
-                TeamCityFigmaSyncHandoffPreparer.Request(
+                request = TeamCityFigmaSyncHandoffPreparer.Request(
                     buildId = 1573,
                     artifactDirectory = null,
-                    destinationRoot = root.resolve("downloads")
+                    destinationRoot = root.resolve(
+                        relative = "downloads"
+                    )
                 )
             )
         }
@@ -98,14 +126,23 @@ internal class TeamCityFigmaSyncHandoffPreparerTest : FunSpec({
             "Build 1573 must be finished and successful; found state 'finished' and status 'FAILURE'."
         root.deleteRecursively()
     }
-})
+}
+)
 
-internal fun File.writeArtifactFixture(payloadBytes: ByteArray? = null) {
-    resolve("design-model.json").writeText(
+internal fun File.writeArtifactFixture(
+    payloadBytes: ByteArray? = null
+) {
+    resolve(
+        relative = "design-model.json"
+    ).writeText(
         """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}"""
     )
-    val visual = resolve("mcp-runners/visual").apply { mkdirs() }
-    val metadata = resolve("mcp-runners/metadata").apply { mkdirs() }
+    val visual = resolve(
+        relative = "mcp-runners/visual"
+    ).apply { mkdirs() }
+    val metadata = resolve(
+        relative = "mcp-runners/metadata"
+    ).apply { mkdirs() }
     val visualManifest = visual.writeManifest(
         targets = listOf("preflight"),
         fullVisualSync = true,
@@ -135,11 +172,18 @@ internal fun File.writeArtifactFixture(payloadBytes: ByteArray? = null) {
             manifestHash = visualManifest.manifestHash
         )
         write(
-            VisualSyncPlan(body = body, planHash = hash(body)),
-            resolve("visual-sync-plan.json").absolutePath
+            VisualSyncPlan(
+                body = body,
+                planHash = hash(body)
+            ),
+            resolve(
+                relative = "visual-sync-plan.json"
+            ).absolutePath
         )
     }
-    resolve("sync-scope.json").writeText(
+    resolve(
+        relative = "sync-scope.json"
+    ).writeText(
         """
         {
           "scope":"full-verification",
@@ -163,22 +207,39 @@ private fun File.writeManifest(
 ): ExecutableRunnerManifest {
     val fileName = if (writeMetadata) "99-run-target.mcp.js" else "99-00-preflight.mcp.js"
     val source = "return { target: '${targets.single()}' };\n"
-    resolve("00-clear-staging.mcp.js").writeText("return { cleared: true };\n")
-    resolve(fileName).writeText(source)
+    resolve(
+        relative = "00-clear-staging.mcp.js"
+    ).writeText("return { cleared: true };\n")
+    resolve(
+        relative = fileName
+    ).writeText(source)
     val payloadImage = payloadBytes?.let { bytes ->
         val payloadFileName = "10-official-sync-payload.png"
-        resolve(payloadFileName).writeBytes(bytes)
+        resolve(
+            relative = payloadFileName
+        ).writeBytes(bytes)
         RunnerPayloadImage(
             fileName = payloadFileName,
             byteLength = bytes.size,
-            sha256 = Sha256Hash.of(bytes),
+            sha256 = Sha256Hash.of(
+                value = bytes
+            ),
             textKeyword = "figmaSyncPayload"
         )
     }
-    val files = listOf("00-clear-staging.mcp.js", fileName)
-    val fileHashes = files.associateWith { name -> Sha256Hash.of(resolve(name).readBytes()) }
+    val files = listOf(
+        "00-clear-staging.mcp.js",
+        fileName
+    )
+    val fileHashes = files.associateWith { name -> Sha256Hash.of(
+        value = resolve(
+            relative = name
+        ).readBytes()
+    ) }
     val draft = ExecutableRunnerManifest(
-        path = resolve("manifest.json").absolutePath,
+        path = resolve(
+            relative = "manifest.json"
+        ).absolutePath,
         schemaVersion = 3,
         mode = "official",
         entrypoint = "trunk-sync",
@@ -213,5 +274,10 @@ private fun File.writeManifest(
         fileHashes = fileHashes,
         manifestHash = ""
     )
-    return ExecutableRunnerManifestJson().finalizeAndWrite(draft, resolve("manifest.json").absolutePath)
+    return ExecutableRunnerManifestJson().finalizeAndWrite(
+        draft = draft,
+        outputPath = resolve(
+            relative = "manifest.json"
+        ).absolutePath
+    )
 }

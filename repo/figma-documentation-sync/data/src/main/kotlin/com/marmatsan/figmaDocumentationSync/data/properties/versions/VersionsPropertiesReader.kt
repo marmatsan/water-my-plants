@@ -18,7 +18,9 @@ class VersionsPropertiesReader {
     /**
      * Reads a sorted flat key/value map.
      */
-    fun read(file: File): Map<String, String> {
+    fun read(
+        file: File
+    ): Map<String, String> {
         val properties = Properties().apply {
             file.inputStream().use(::load)
         }
@@ -35,25 +37,42 @@ class VersionsPropertiesReader {
      * Lines starting with `## ` open a new section. Regular comments and blank
      * lines are ignored.
      */
-    fun readSections(file: File): List<RepositoryVersionSection> {
+    fun readSections(
+        file: File
+    ): List<RepositoryVersionSection> {
         val sections = linkedMapOf<String, MutableMap<String, String>>()
         var currentSection = DEFAULT_SECTION
 
         file.forEachLine { line ->
             val trimmed = line.trim()
             when {
-                trimmed.startsWith("## ") -> {
+                trimmed.startsWith(
+                    prefix = "## "
+                ) -> {
                     currentSection = trimmed.removePrefix("##").trim()
-                    sections.getOrPut(currentSection, ::linkedMapOf)
+                    sections.getOrPut(
+                        currentSection,
+                        ::linkedMapOf
+                    )
                 }
 
-                trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("!") -> Unit
+                trimmed.isEmpty() || trimmed.startsWith(
+                    prefix = "#"
+                ) || trimmed.startsWith(
+                    prefix = "!"
+                ) -> Unit
 
                 "=" in trimmed -> {
                     val separatorIndex = trimmed.indexOf("=")
-                    val key = trimmed.substring(0, separatorIndex).trim()
+                    val key = trimmed.substring(
+                        0,
+                        separatorIndex
+                    ).trim()
                     val value = trimmed.substring(separatorIndex + 1).trim()
-                    sections.getOrPut(currentSection, ::linkedMapOf)[key] = value
+                    sections.getOrPut(
+                        currentSection,
+                        ::linkedMapOf
+                    )[key] = value
                 }
             }
         }

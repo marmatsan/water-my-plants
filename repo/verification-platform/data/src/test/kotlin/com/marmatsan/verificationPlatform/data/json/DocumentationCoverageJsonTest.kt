@@ -3,7 +3,8 @@ package com.marmatsan.verificationPlatform.data.json
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class DocumentationCoverageJsonTest : FunSpec({
+class DocumentationCoverageJsonTest : FunSpec(
+    {
     test("parses provider-neutral documentation coverage rules") {
         val rules = DocumentationCoverageJson().read(
             """
@@ -24,4 +25,5 @@ class DocumentationCoverageJsonTest : FunSpec({
         rules.single().sourcePaths shouldBe listOf("repo/verification-platform/*")
         rules.single().documentationPaths shouldBe listOf("repo/verification-platform/README.md")
     }
-})
+}
+)

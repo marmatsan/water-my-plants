@@ -9,12 +9,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
 
-internal class VersionCatalogBuilderExtensionTest : FunSpec({
+internal class VersionCatalogBuilderExtensionTest : FunSpec(
+    {
 
     lateinit var builder: VersionCatalogBuilder
 
     beforeEach {
-        builder = mockk<VersionCatalogBuilder>(relaxed = true)
+        builder = mockk<VersionCatalogBuilder>(
+            relaxed = true
+        )
     }
 
     test("registerLibraries registers a library alias without duplicating artifact prefix shared with group") {
@@ -34,7 +37,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -42,7 +47,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
                 "androidx.activity.compose",
                 "androidx.activity",
                 "activity-compose"
-            ).version("1.9.2")
+            ).version(
+                "1.9.2"
+            )
         }
     }
 
@@ -63,7 +70,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -71,7 +80,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
                 "androidx.compose.bom",
                 "androidx.compose",
                 "compose-bom"
-            ).version("2025.06.01")
+            ).version(
+                "2025.06.01"
+            )
         }
     }
 
@@ -91,7 +102,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -119,7 +132,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -141,9 +156,15 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
                         artifactsBundle = ArtifactsBundle(
                             alias = "composeUiBundle",
                             artifacts = listOf(
-                                Artifact(artifact = "ui"),
-                                Artifact(artifact = "ui-graphics"),
-                                Artifact(artifact = "ui-tooling")
+                                Artifact(
+                                    artifact = "ui"
+                                ),
+                                Artifact(
+                                    artifact = "ui-graphics"
+                                ),
+                                Artifact(
+                                    artifact = "ui-tooling"
+                                )
                             )
                         )
                     )
@@ -152,7 +173,9 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerLibraries(libraries)
+        builder.registerLibraries(
+            libraries = libraries
+        )
 
         // THEN
         verify {
@@ -177,14 +200,19 @@ internal class VersionCatalogBuilderExtensionTest : FunSpec({
         )
 
         // WHEN
-        builder.registerPlugins(plugins)
+        builder.registerPlugins(
+            plugins = plugins
+        )
 
         // THEN
         verify {
             builder.plugin(
                 "com.android.application",
                 "com.android.application"
-            ).version("8.13.2")
+            ).version(
+                "8.13.2"
+            )
         }
     }
-})
+}
+)

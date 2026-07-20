@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: engineering
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-20
 review-cycle-days: 180
 sources:
   - AGENTS.md
@@ -151,6 +151,26 @@ standard and link it from the relevant module documentation. Do not create
 speculative rules before a concrete need exists; derive them from reviewed
 code, tests, and architectural decisions, then use the documented contract for
 subsequent work.
+
+## Implementation Learning Review
+
+Before completing an implementation, migration, bootstrap, or recovery, compare
+the behavior observed during verification with the current documentation. New
+reusable knowledge, failure modes, permission boundaries, recovery steps, and
+safety constraints MUST be documented in the same change when they are not
+already covered.
+
+Choose the document type from the operational value of the learning: update a
+standard for a recurring rule, a guide for a supported development workflow, a
+runbook for execution or recovery, and a reference for an exact contract. Add
+the document to its nearest README index and extend documentation coverage when
+the implementation area needs a durable code-to-document mapping.
+
+The review MUST distinguish a verified reusable lesson from incident-only
+detail. Do not preserve transient identifiers, credentials, machine-specific
+paths, or unsafe emergency workarounds as normal procedure. Record a safe
+recovery boundary when the exceptional behavior is important for future
+diagnosis.
 
 ## Derived Visual Documentation
 

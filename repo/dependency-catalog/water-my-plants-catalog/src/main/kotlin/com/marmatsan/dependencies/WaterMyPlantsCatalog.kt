@@ -6,15 +6,23 @@ import java.io.File
 object WaterMyPlantsCatalog {
     fun resolved(
         rootDir: File
-    ): DependencyCatalogTrees = catalogTrees(Versions.load(rootDir))
+    ): DependencyCatalogTrees = catalogTrees(
+        versions = Versions.load(rootDir)
+    )
 
-    fun withVersionAliases(): DependencyCatalogTrees = catalogTrees(versionAliases)
+    fun withVersionAliases(): DependencyCatalogTrees = catalogTrees(
+        versions = versionAliases
+    )
 
     private fun catalogTrees(
         versions: Versions
     ): DependencyCatalogTrees = DependencyCatalogTrees(
-        libraries = libraryTrees(versions),
-        plugins = pluginTrees(versions)
+        libraries = libraryTrees(
+            versions = versions
+        ),
+        plugins = pluginTrees(
+            versions = versions
+        )
     )
 }
 

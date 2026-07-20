@@ -12,12 +12,18 @@ import com.marmatsan.figmaDocumentationSync.domain.port.writer.VisualSyncPlanHas
 class VisualSyncPlanner(
     private val planHasher: VisualSyncPlanHasher
 ) {
-    fun create(manifest: RunnerManifest, previousMetadata: FigmaSyncMetadata?): VisualSyncPlan {
+    fun create(
+        manifest: RunnerManifest,
+        previousMetadata: FigmaSyncMetadata?
+    ): VisualSyncPlan {
         val allScopes = manifest.executionScopes.values.toList()
         val requiredWriterScopes = (allScopes + "metadata").distinct()
         require(
             manifest.targetFingerprints.isNotEmpty() &&
-                hasFingerprintEntries(manifest.writerScopeFingerprints, requiredWriterScopes)
+                hasFingerprintEntries(
+                    fingerprints = manifest.writerScopeFingerprints,
+                    scopes = requiredWriterScopes
+                )
         ) {
             "Current MCP manifest is missing complete model-target or writer-scope fingerprints."
         }
@@ -29,20 +35,29 @@ class VisualSyncPlanner(
         )
 
         if (previousMetadata == null) {
-            return plan(VisualSyncDecision.FULL, "figma-metadata-unavailable", identity, allScopes, manifest)
+            return plan(
+                decision = VisualSyncDecision.FULL,
+                reason = "figma-metadata-unavailable",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
+            )
         }
         if (
             previousMetadata.writerHash.isNullOrBlank() ||
             previousMetadata.targetFingerprints.isNullOrEmpty() ||
             previousMetadata.writerScopeFingerprintSchemaVersion == null ||
-            !hasFingerprintEntries(previousMetadata.writerScopeFingerprints, requiredWriterScopes)
+            !hasFingerprintEntries(
+                fingerprints = previousMetadata.writerScopeFingerprints,
+                scopes = requiredWriterScopes
+            )
         ) {
             return plan(
-                VisualSyncDecision.FULL,
-                "legacy-metadata-without-execution-fingerprints",
-                identity,
-                allScopes,
-                manifest
+                decision = VisualSyncDecision.FULL,
+                reason = "legacy-metadata-without-execution-fingerprints",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
             )
         }
         if (
@@ -50,11 +65,11 @@ class VisualSyncPlanner(
             manifest.writerScopeFingerprintSchemaVersion
         ) {
             return plan(
-                VisualSyncDecision.FULL,
-                "writer-scope-fingerprint-schema-changed",
-                identity,
-                allScopes,
-                manifest
+                decision = VisualSyncDecision.FULL,
+                reason = "writer-scope-fingerprint-schema-changed",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
             )
         }
 
@@ -62,44 +77,62 @@ class VisualSyncPlanner(
         val compiledWriterChanged = previousMetadata.writerHash != manifest.writerHash
         val writerChangedScopes = allScopes.filter { scope ->
             manifest.writerScopeFingerprints[scope] !=
-                previousMetadata.writerScopeFingerprints?.get(scope)
+                previousMetadata.writerScopeFingerprints?.get(
+                    key = scope
+                )
         }
         val metadataWriterChanged = manifest.writerScopeFingerprints["metadata"] !=
-            previousMetadata.writerScopeFingerprints?.get("metadata")
+            previousMetadata.writerScopeFingerprints?.get(
+                key = "metadata"
+            )
         val writerChanged = compiledWriterChanged || writerChangedScopes.isNotEmpty() || metadataWriterChanged
         if (!modelChanged && !writerChanged) {
-            return plan(VisualSyncDecision.NONE, "visual-input-unchanged", identity, emptyList(), manifest)
+            return plan(
+                decision = VisualSyncDecision.NONE,
+                reason = "visual-input-unchanged",
+                identity = identity,
+                executionScopes = emptyList(),
+                manifest = manifest
+            )
         }
 
         val modelChangedScopes = if (modelChanged) {
             allScopes.filter { scope ->
                 scope != "preflight" &&
-                    manifest.targetFingerprints[scope] != previousMetadata.targetFingerprints.get(scope)
+                    manifest.targetFingerprints[scope] != previousMetadata.targetFingerprints.get(
+                        key = scope
+                    )
             }
         } else {
             emptyList()
         }
         if (modelChanged && modelChangedScopes.isEmpty()) {
             return plan(
-                VisualSyncDecision.FULL,
-                "model-changed-outside-known-target-fingerprints",
-                identity,
-                allScopes,
-                manifest
+                decision = VisualSyncDecision.FULL,
+                reason = "model-changed-outside-known-target-fingerprints",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
             )
         }
 
         if (compiledWriterChanged && writerChangedScopes.isEmpty() && !metadataWriterChanged) {
             return plan(
-                VisualSyncDecision.FULL,
-                "writer-changed-outside-known-scope-fingerprints",
-                identity,
-                allScopes,
-                manifest
+                decision = VisualSyncDecision.FULL,
+                reason = "writer-changed-outside-known-scope-fingerprints",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
             )
         }
         if (writerChangedScopes.size == allScopes.size) {
-            return plan(VisualSyncDecision.FULL, "shared-visual-writer-changed", identity, allScopes, manifest)
+            return plan(
+                decision = VisualSyncDecision.FULL,
+                reason = "shared-visual-writer-changed",
+                identity = identity,
+                executionScopes = allScopes,
+                manifest = manifest
+            )
         }
 
         val scopes = (listOf("preflight") + modelChangedScopes + writerChangedScopes).distinct()
@@ -110,7 +143,13 @@ class VisualSyncPlanner(
             writerChanged -> "writer-scope-fingerprints-changed"
             else -> "target-model-fingerprints-changed"
         }
-        return plan(VisualSyncDecision.PARTIAL, reason, identity, scopes, manifest)
+        return plan(
+            decision = VisualSyncDecision.PARTIAL,
+            reason = reason,
+            identity = identity,
+            executionScopes = scopes,
+            manifest = manifest
+        )
     }
 
     private fun plan(
@@ -130,7 +169,10 @@ class VisualSyncPlanner(
             identity = identity,
             manifestHash = manifest.manifestHash
         )
-        return VisualSyncPlan(body = body, planHash = planHasher.hash(body))
+        return VisualSyncPlan(
+            body = body,
+            planHash = planHasher.hash(body)
+        )
     }
 
     private fun hasFingerprintEntries(

@@ -18,7 +18,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 @Suppress("unused")
 class AndroidGradleConventionPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
+    override fun apply(
+        project: Project
+    ) {
 
         when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
@@ -44,7 +46,9 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
         val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
         project.dependencies {
-            val libs = withVersionCatalog(libs)
+            val libs = withVersionCatalog(
+                libs = libs
+            )
 
             /* Android core */
             libs.implementation(
@@ -98,7 +102,9 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
                 targetCompatibility = JavaVersion.VERSION_21
             }
         }
-        configureKotlin(project)
+        configureKotlin(
+            project = project
+        )
     }
 
     private fun configureLibraryExtension(
@@ -117,7 +123,9 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
                 targetCompatibility = JavaVersion.VERSION_21
             }
         }
-        configureKotlin(project)
+        configureKotlin(
+            project = project
+        )
     }
 
     private fun configureKotlin(

@@ -4,5 +4,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.RepositoryChange
 
 /** Resolves repository-relative paths changed from the authoritative trunk. */
 fun interface RepositoryChangeSetPort {
-    fun read(repositoryRootPath: String): RepositoryChangeSet
+    fun read(
+        repositoryRootPath: String
+    ): RepositoryChangeSet
 }

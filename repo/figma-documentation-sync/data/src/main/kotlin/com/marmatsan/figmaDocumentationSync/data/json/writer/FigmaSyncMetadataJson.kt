@@ -7,7 +7,10 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /** Decodes writer identity values stored in Figma shared plugin data. */
 object FigmaSyncMetadataJson {
-    fun read(sharedPluginData: Map<String, Map<String, String>>, namespace: String): FigmaSyncMetadata? {
+    fun read(
+        sharedPluginData: Map<String, Map<String, String>>,
+        namespace: String
+    ): FigmaSyncMetadata? {
         val metadata = sharedPluginData[namespace] ?: return null
         return FigmaSyncMetadata(
             modelHash = metadata["modelHash"],

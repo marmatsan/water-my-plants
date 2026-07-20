@@ -12,10 +12,15 @@ class PluginScope(
         version: String? = null,
         content: PluginScope.() -> Unit = {}
     ) {
-        val dependencyNode = DependencyNode.Plugin(id, version)
+        val dependencyNode = DependencyNode.Plugin(
+            pluginId = id,
+            version = version
+        )
         val parent = currentParent
         val newNode = Node(dependencyNode)
-        currentParent.add(newNode)
+        currentParent.add(
+            child = newNode
+        )
         currentParent = newNode
         content()
         currentParent = parent

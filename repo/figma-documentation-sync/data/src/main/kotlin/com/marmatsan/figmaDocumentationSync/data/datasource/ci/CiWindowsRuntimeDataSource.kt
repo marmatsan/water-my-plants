@@ -14,6 +14,8 @@ import java.io.File
 class CiWindowsRuntimeDataSource(
     private val reader: CiWindowsRuntimeYamlReader
 ) : CiWindowsRuntimePort {
-    override fun readRuntime(source: CiWindowsRuntimeSource): CiWindowsRuntime =
+    override fun readRuntime(
+        source: CiWindowsRuntimeSource
+    ): CiWindowsRuntime =
         reader.read(File(source.filePath))
 }

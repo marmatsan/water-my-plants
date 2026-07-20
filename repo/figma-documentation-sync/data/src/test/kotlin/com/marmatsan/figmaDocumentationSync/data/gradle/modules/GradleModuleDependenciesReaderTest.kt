@@ -5,15 +5,20 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class GradleModuleDependenciesReaderTest : FunSpec({
+internal class GradleModuleDependenciesReaderTest : FunSpec(
+    {
 
     test("readMain maps type-safe project accessors to module dependencies") {
         // GIVEN
         val rootDir = Files.createTempDirectory("main-module-dependencies").toFile()
         rootDir
-            .resolve("app")
+            .resolve(
+                relative = "app"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 dependencies {
@@ -22,9 +27,13 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
                 """.trimIndent()
             )
         rootDir
-            .resolve("onboarding/ui")
+            .resolve(
+                relative = "onboarding/ui"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 dependencies {
@@ -34,7 +43,9 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
             )
 
         // WHEN
-        val dependencies = GradleModuleDependenciesReader().readMain(rootDir)
+        val dependencies = GradleModuleDependenciesReader().readMain(
+            rootDir = rootDir
+        )
 
         // THEN
         dependencies shouldBe setOf(
@@ -53,9 +64,13 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
         // GIVEN
         val rootDir = Files.createTempDirectory("main-module-dependencies-outside-block").toFile()
         rootDir
-            .resolve("app")
+            .resolve(
+                relative = "app"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 val ignored = projects.feature.debug
@@ -67,7 +82,9 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
             )
 
         // WHEN
-        val dependencies = GradleModuleDependenciesReader().readMain(rootDir)
+        val dependencies = GradleModuleDependenciesReader().readMain(
+            rootDir = rootDir
+        )
 
         // THEN
         dependencies shouldBe setOf(
@@ -82,9 +99,13 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
         // GIVEN
         val rootDir = Files.createTempDirectory("gradle-plugins-module-dependencies").toFile()
         rootDir
-            .resolve("android")
+            .resolve(
+                relative = "android"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 dependencies {
@@ -93,9 +114,13 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
                 """.trimIndent()
             )
         rootDir
-            .resolve("analytics/plugin")
+            .resolve(
+                relative = "analytics/plugin"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 dependencies {
@@ -132,14 +157,22 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
         // GIVEN
         val rootDir = Files.createTempDirectory("dependency-catalog-module-dependencies").toFile()
         rootDir
-            .resolve("catalog-core")
+            .resolve(
+                relative = "catalog-core"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText("")
         rootDir
-            .resolve("water-my-plants-catalog")
+            .resolve(
+                relative = "water-my-plants-catalog"
+            )
             .also { directory -> directory.mkdirs() }
-            .resolve("build.gradle.kts")
+            .resolve(
+                relative = "build.gradle.kts"
+            )
             .writeText(
                 """
                 dependencies {
@@ -162,4 +195,5 @@ internal class GradleModuleDependenciesReaderTest : FunSpec({
             )
         )
     }
-})
+}
+)

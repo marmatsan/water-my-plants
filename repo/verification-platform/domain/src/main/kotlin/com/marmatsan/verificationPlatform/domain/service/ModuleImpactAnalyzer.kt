@@ -16,8 +16,13 @@ class ModuleImpactAnalyzer {
      * @param graph provider-neutral Gradle project graph.
      * @return deterministic changed and affected module identifiers.
      */
-    fun analyze(changedFiles: List<String>, graph: RepositoryModuleGraph): ModuleImpact {
-        validate(graph)?.let { reason ->
+    fun analyze(
+        changedFiles: List<String>,
+        graph: RepositoryModuleGraph
+    ): ModuleImpact {
+        validate(
+            graph = graph
+        )?.let { reason ->
             return ModuleImpact(
                 changedModules = emptyList(),
                 affectedModules = emptyList(),
@@ -26,8 +31,13 @@ class ModuleImpactAnalyzer {
         }
 
         val changedModules = changedFiles
-            .mapNotNull { path -> moduleFor(path, graph) }
-            .map(RepositoryModule::id)
+            .mapNotNull { path -> moduleFor(
+                path = path,
+                graph = graph
+            ) }
+            .map(
+                transform = RepositoryModule::id
+            )
             .distinct()
             .sorted()
         val reverseDependencies = graph.dependencies
@@ -36,7 +46,10 @@ class ModuleImpactAnalyzer {
                 valueTransform = { dependency -> dependency.dependentModule }
             )
         val affectedModules = changedModules
-            .flatMap { module -> reverseClosure(module, reverseDependencies) }
+            .flatMap { module -> reverseClosure(
+                module = module,
+                reverseDependencies = reverseDependencies
+            ) }
             .distinct()
             .sorted()
 
@@ -53,17 +66,30 @@ class ModuleImpactAnalyzer {
      * @return the owning module, or `null` when the path is outside every
      * module in [graph].
      */
-    fun moduleFor(path: String, graph: RepositoryModuleGraph): RepositoryModule? {
-        val normalizedPath = normalize(path)
+    fun moduleFor(
+        path: String,
+        graph: RepositoryModuleGraph
+    ): RepositoryModule? {
+        val normalizedPath = normalize(
+            path = path
+        )
         return graph.modules
             .filter { module ->
-                val directory = normalize(module.directory).trimEnd('/')
-                normalizedPath == directory || normalizedPath.startsWith("$directory/")
+                val directory = normalize(
+                    path = module.directory
+                ).trimEnd('/')
+                normalizedPath == directory || normalizedPath.startsWith(
+                    prefix = "$directory/"
+                )
             }
-            .maxByOrNull { module -> normalize(module.directory).length }
+            .maxByOrNull { module -> normalize(
+                path = module.directory
+            ).length }
     }
 
-    private fun validate(graph: RepositoryModuleGraph): String? {
+    private fun validate(
+        graph: RepositoryModuleGraph
+    ): String? {
         if (graph.modules.isEmpty()) {
             return "The Gradle module graph is empty; verification fails closed."
         }
@@ -71,8 +97,14 @@ class ModuleImpactAnalyzer {
         val invalidModule = graph.modules.firstOrNull { module ->
             !MODULE_ID.matches(module.id) ||
                 module.directory.isBlank() ||
-                normalize(module.directory).startsWith("../") ||
-                normalize(module.directory).contains("/../")
+                normalize(
+                    path = module.directory
+                ).startsWith(
+                    prefix = "../"
+                ) ||
+                normalize(
+                    path = module.directory
+                ).contains("/../")
         }
         if (invalidModule != null) {
             return "The Gradle module graph contains an invalid module: ${invalidModule.id}."
@@ -85,14 +117,18 @@ class ModuleImpactAnalyzer {
         }
 
         val duplicateDirectory = graph.modules
-            .groupingBy { module -> normalize(module.directory).trimEnd('/') }
+            .groupingBy { module -> normalize(
+                path = module.directory
+            ).trimEnd('/') }
             .eachCount()
             .entries.firstOrNull { (_, count) -> count > 1 }
         if (duplicateDirectory != null) {
             return "The Gradle module graph contains duplicate directory ${duplicateDirectory.key}."
         }
 
-        val moduleIds = graph.modules.map(RepositoryModule::id).toSet()
+        val moduleIds = graph.modules.map(
+            transform = RepositoryModule::id
+        ).toSet()
         val unresolvedDependency = graph.dependencies.firstOrNull { dependency ->
             dependency.dependentModule !in moduleIds || dependency.dependencyModule !in moduleIds
         }
@@ -110,18 +146,27 @@ class ModuleImpactAnalyzer {
     ): Set<String> {
         val visited = linkedSetOf<String>()
         val pending = ArrayDeque<String>()
-        pending.add(module)
+        pending.add(
+            element = module
+        )
 
         while (pending.isNotEmpty()) {
             val current = pending.removeFirst()
-            if (!visited.add(current)) continue
+            if (!visited.add(
+                element = current
+            )) continue
             reverseDependencies[current].orEmpty().sorted().forEach(pending::addLast)
         }
 
         return visited
     }
 
-    private fun normalize(path: String): String = path.trim().replace('\\', '/')
+    private fun normalize(
+        path: String
+    ): String = path.trim().replace(
+        '\\',
+        '/'
+    )
 
     private companion object {
         val MODULE_ID = Regex("^(:[A-Za-z0-9_.-]+)+$")

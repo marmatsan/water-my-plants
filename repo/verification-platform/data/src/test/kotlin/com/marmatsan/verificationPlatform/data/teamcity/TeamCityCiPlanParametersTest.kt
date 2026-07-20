@@ -8,7 +8,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class TeamCityCiPlanParametersTest : FunSpec({
+class TeamCityCiPlanParametersTest : FunSpec(
+    {
     test("exports allow-listed parameters for a TeamCity change") {
         val plan = CiPlanFactory().create(
             changeSet = RepositoryChangeSet(
@@ -72,7 +73,9 @@ class TeamCityCiPlanParametersTest : FunSpec({
         val unsafePlan = plan.copy(
             verificationUnits = plan.verificationUnits.map { unit ->
                 if (unit.id == VerificationUnitId.GRADLE_VERIFICATION) {
-                    unit.copy(gradleTasks = listOf("check && publish"))
+                    unit.copy(
+                        gradleTasks = listOf("check && publish")
+                    )
                 } else {
                     unit
                 }
@@ -83,4 +86,5 @@ class TeamCityCiPlanParametersTest : FunSpec({
             TeamCityCiPlanParameters().create(unsafePlan)
         }
     }
-})
+}
+)
