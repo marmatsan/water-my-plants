@@ -10,10 +10,10 @@ sources:
   - settings.gradle.kts
   - repo/dependency-catalog/settings.gradle.kts
   - repo/gradle-plugins/settings.gradle.kts
-  - repo/ci/settings.gradle.kts
-  - repo/ci/domain/build.gradle.kts
-  - repo/ci/data/build.gradle.kts
-  - repo/ci/plugin/build.gradle.kts
+  - repo/verification-platform/settings.gradle.kts
+  - repo/verification-platform/domain/build.gradle.kts
+  - repo/verification-platform/data/build.gradle.kts
+  - repo/verification-platform/plugin/build.gradle.kts
   - repo/figma-documentation-sync/settings.gradle.kts
   - repo/figma-documentation-sync/data/build.gradle.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
@@ -74,13 +74,13 @@ modules support the repository and CI; they are not production app modules.
 |------|----------------|---------|
 | `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
-| `repo/ci/` | `ci` | Provider-neutral Kotlin planner that generates the versioned CI verification contract. |
+| `repo/verification-platform/` | `verification-platform` | Provider-neutral Kotlin platform that plans and executes repository verification through Gradle. |
 | `repo/figma-documentation-sync/` | `figma-documentation-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
 
-The root build includes `repo/gradle-plugins`, `repo/ci`, and
+The root build includes `repo/gradle-plugins`, `repo/verification-platform`, and
 `repo/figma-documentation-sync` through `pluginManagement.includeBuild(...)`.
 `repo/gradle-plugins` and `repo/figma-documentation-sync` consume the dependency
-catalog model. `repo/ci` reads only the central version properties while
+catalog model. `repo/verification-platform` reads only the central version properties while
 remaining independent from the concrete dependency trees.
 
 `repo/dependency-catalog` contains two Gradle modules with a one-way dependency:
@@ -95,16 +95,16 @@ Repository tooling consumes the stable coordinates
 `com.marmatsan.repo:water-my-plants-catalog`. The included-build root does not
 publish a compatibility artifact.
 
-`repo/ci` separates provider-neutral policy from infrastructure and Gradle
-composition:
+`repo/verification-platform` separates provider-neutral verification policy from
+infrastructure and Gradle composition:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
-| `repo/ci/domain/` | `:domain` | Provider-neutral plans, topology, module-impact rules, ports, and services. |
-| `repo/ci/data/` | `:data` | Git, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters. Depends on `:domain`. |
-| `repo/ci/plugin/` | `:plugin` | Gradle tasks and the `com.marmatsan.ci` composition root. Depends on `:domain` and `:data`. |
+| `repo/verification-platform/domain/` | `:domain` | Provider-neutral plans, topology, module-impact rules, ports, and services. |
+| `repo/verification-platform/data/` | `:data` | Git, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters. Depends on `:domain`. |
+| `repo/verification-platform/plugin/` | `:plugin` | Gradle tasks and the `com.marmatsan.verificationPlatform` composition root. Depends on `:domain` and `:data`. |
 
-The included-build root keeps `:ci:check` as an aggregate contract while the
+The included-build root keeps `:verification-platform:check` as an aggregate contract while the
 implementation dependency direction remains `plugin -> data -> domain`.
 
 `repo/figma-documentation-sync` separates its portable engine from this repository's

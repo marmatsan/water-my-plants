@@ -23,7 +23,7 @@ Figma Documentation Sync plugin. The concrete Water My Plants catalog remains so
 owned and is not part of the portable release.
 
 `versions.properties` is also the central version registry for repository
-included builds. `repo/ci` reads Kotlin, serialization, and test-library
+included builds. `repo/verification-platform` reads Kotlin, serialization, and test-library
 versions from it during settings evaluation, but does not depend on either
 catalog module or the concrete Water My Plants dependency trees.
 

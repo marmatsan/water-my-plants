@@ -7,11 +7,11 @@ status: active
 last-reviewed: 2026-07-19
 review-cycle-days: 180
 sources:
-  - repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/model/CiPlan.kt
-  - repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/model/CiExecutionTopology.kt
-  - repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/service/CiPlanFactory.kt
-  - repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/service/CiTopologyPlanner.kt
-  - repo/ci/domain/src/main/kotlin/com/marmatsan/ci/domain/service/ModuleImpactAnalyzer.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiPlan.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiExecutionTopology.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiPlanFactory.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiTopologyPlanner.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ModuleImpactAnalyzer.kt
 ---
 
 # CI Verification Plan
@@ -132,11 +132,11 @@ because the plan is visible.
 
 ## Sources
 
-- `repo/ci/domain` contains provider-neutral models, classifiers, ports, and
+- `repo/verification-platform/domain` contains provider-neutral models, classifiers, ports, and
   topology planning.
-- `repo/ci/data` contains Git, Gradle-model, JSON, HTTP, and the narrow
+- `repo/verification-platform/data` contains Git, Gradle-model, JSON, HTTP, and the narrow
   TeamCity parameter and service-message adapters.
-- `repo/ci/plugin` contains the Gradle tasks and composition root used by
+- `repo/verification-platform/plugin` contains the Gradle tasks and composition root used by
   `prepareTeamCityCiPlan` and the preview-only
   `generateCiTopologyPreview` projector.
 - `.teamcity/settings.kts` maps allow-listed parameters to visible sequential
