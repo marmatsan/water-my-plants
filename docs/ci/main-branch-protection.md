@@ -1,5 +1,9 @@
 # Main Branch Protection
 
+This CI reference records the exact GitHub and TeamCity protection applied to
+`main`. The normative branch and merge rules live in the
+[Git workflow standard](../standards/git-workflow.md).
+
 `main` is the trunk branch. It must stay stable, tested, and releasable.
 
 ## Required Flow
@@ -34,7 +38,7 @@ It enforces:
 - non-fast-forward updates are blocked;
 - linear history is required;
 - changes must be merged through a pull request;
-- allowed pull request merge methods are squash and rebase;
+- the only allowed pull request merge method is squash;
 - review conversations must be resolved before merge;
 - `TeamCity CI` must pass before merge;
 - required status checks must be strict, so the pull request branch must be up
@@ -54,6 +58,10 @@ showing `All checks have passed` for `TeamCity CI`.
 Do not require `Figma Sync` in the GitHub ruleset. `Figma Sync` runs after
 changes reach `main`. It may still appear on `main` commits as the optional
 `TeamCity Figma Sync` status.
+
+Repository merge settings enable squash, automatic branch updates, automatic
+merge, and deletion of merged branches. Merge commits and rebase merge are
+disabled.
 
 ## TeamCity CI
 
@@ -116,3 +124,7 @@ fix/<short-description> -> pull request -> TeamCity CI -> merge
 ```
 
 Do not bypass the ruleset or push directly to `main` to repair the failure.
+
+Use the [hotfix runbook](../runbooks/ship-hotfix.md) only for urgent production
+corrections. Use the [release runbook](../runbooks/create-release.md) to create
+immutable version tags from verified `main` commits.
