@@ -91,13 +91,46 @@ Operational sections show:
 - exact pipeline, job, check, and artifact names;
 - a separate short description for each named element;
 - triggers and branch conditions;
-- summarized commands such as `Gradle check` and `Generate design model`;
+- exact repository-owned Gradle task entry points, selection conditions, and
+  relevant task dependencies;
+- summarized names for non-Gradle operational steps;
 - relevant artifacts and published GitHub checks;
 - links from section headers and operational nodes to canonical files on
   GitHub `main`.
 
 Links should target files rather than line numbers so that routine source edits
 do not break them. Literal command content remains in the linked TeamCity DSL.
+
+### Gradle Task Display
+
+The visual model keeps `.ci node` as the common component and publishes Gradle
+task names through the existing `Steps` property. It does not add task-specific
+properties or a Gradle icon. Exact task identifiers make failures traceable to
+their executable source while the linked files remain authoritative for
+arguments and implementation details.
+
+The pull request `Verify` job shows:
+
+- `prepareTeamCityCiPlan` and its `generateCiPlan` dependency;
+- `ci.plan.gradleTasks` as a dynamic selection boundary;
+- the always-required `checkGitWorkflow` and `checkDocumentation` tasks;
+- `checkRepositoryDiff` for documentation-only changes;
+- `checkTeamCityDsl` plus `check` for TeamCity changes;
+- affected `:<module>:check` tasks plus `checkFigmaCatalogUsage` when the module
+  graph permits targeted verification;
+- `check` as the fail-closed fallback;
+- the repository-owned checks, including `checkKotlinFunctionArguments`, and
+  the included-build aggregate wired into the root `check` lifecycle.
+
+The post-merge Figma jobs show the exact phased task entry points. The visual
+annotation `[full]` means the task executes only when the validated Figma scope
+requires full verification. `depends on:` records a Gradle `dependsOn`
+relationship; TeamCity step order remains distinct from Gradle task dependency
+order when `figmaOfficialTeamCityPhasedExecution=true`.
+
+Do not expand Android, Kotlin, or third-party plugin task internals in Figma.
+Module `check` tasks are the stable contract boundary for those implementation
+details.
 
 ## Current Systems And Entities
 

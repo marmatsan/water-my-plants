@@ -42,7 +42,20 @@ internal class CiVisualPlanJsonTest : FunSpec(
                   "teamCity": {
                     "vcsRoots": [],
                     "pipelines": [
-                      {"id":"Root_Ci","name":"CI","triggers":[],"jobs":[]},
+                      {
+                        "id":"Root_Ci",
+                        "name":"CI",
+                        "triggers":[],
+                        "jobs":[{
+                          "id":"verify",
+                          "name":"Verify",
+                          "steps":[],
+                          "repositoryIds":[],
+                          "artifacts":[],
+                          "dependencies":[],
+                          "publishedChecks":[{"name":"TeamCity CI"}]
+                        }]
+                      },
                       {"id":"Root_FigmaSync","name":"Figma Sync","triggers":[],"jobs":[]}
                     ]
                   }

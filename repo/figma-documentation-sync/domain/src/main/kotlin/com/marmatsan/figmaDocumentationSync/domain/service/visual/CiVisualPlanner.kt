@@ -594,10 +594,10 @@ class CiVisualPlanner {
                 config = config
             ).copy(
                 runtime = CiVisualPlan.Runtime(
-                    runtime.platform,
-                    service.service,
-                    service.startup,
-                    service.identity
+                    platform = runtime.platform,
+                    service = service.service,
+                    startup = service.startup,
+                    identity = service.identity
                 )
             )
         }
@@ -626,19 +626,19 @@ class CiVisualPlanner {
         connections: List<CiVisualPlan.Connection>,
         config: CiVisualPlanConfig
     ) = CiVisualPlan.Section(
-        target,
-        name,
-        description,
-        orientation,
-        sources.map { source -> CiVisualPlan.HeaderSource(
-            source,
-            sourceUrl(
+        target = target,
+        name = name,
+        description = description,
+        orientation = orientation,
+        headerSources = sources.map { source -> CiVisualPlan.HeaderSource(
+            label = source,
+            url = sourceUrl(
                 source = source,
                 config = config
             )
         ) },
-        nodes,
-        connections
+        nodes = nodes,
+        connections = connections
     )
 
     private fun pipelineNode(
@@ -721,20 +721,20 @@ class CiVisualPlanner {
         column: Int,
         config: CiVisualPlanConfig
     ) = CiVisualPlan.Node(
-        id,
-        type,
-        environment,
-        name,
-        description,
-        null,
-        null,
-        source,
-        sourceUrl(
+        id = id,
+        type = type,
+        environment = environment,
+        name = name,
+        description = description,
+        steps = null,
+        runtime = null,
+        source = source,
+        sourceUrl = sourceUrl(
             source = source,
             config = config
         ),
-        row,
-        column
+        row = row,
+        column = column
     )
 
     private fun connection(
@@ -745,16 +745,18 @@ class CiVisualPlanner {
     ): CiVisualPlan.Connection {
         require(source != null && target != null) { "CI visual connection '$id' has an unknown endpoint." }
         return CiVisualPlan.Connection(
-            id,
-            source,
-            target,
-            label
+            id = id,
+            source = source,
+            target = target,
+            label = label
         )
     }
 
     private fun publishedChecks(
         pipeline: CiPipeline
-    ) = pipeline.jobs.flatMap(CiJob::publishedChecks).map(CiJob.PublishedCheck::name)
+    ) = pipeline.jobs.flatMap(CiJob::publishedChecks).map(
+        transform = CiJob.PublishedCheck::name
+    )
 
     fun artifactPathContains(
         publishedPath: String,
@@ -766,7 +768,9 @@ class CiVisualPlanner {
         val normalizedRequiredFile = normalizeArtifactPath(
             path = requiredFile
         )
-        return normalizedPublishedPath == normalizedRequiredFile || normalizedRequiredFile.startsWith("$normalizedPublishedPath/")
+        return normalizedPublishedPath == normalizedRequiredFile || normalizedRequiredFile.startsWith(
+            prefix = "$normalizedPublishedPath/"
+        )
     }
 
     private fun normalizeArtifactPath(
@@ -805,15 +809,58 @@ class CiVisualPlanner {
     private fun summarizeCommand(
         command: String,
         fallback: String
-    ): String = when {
-        "teamcity-configs:generate" in command -> "Generate effective TeamCity configuration"
-        "generateFigmaDesignModel" in command -> "Generate design model"
-        "checkFigmaTrunkSync" in command -> "Check Figma trunk sync"
-        Regex(
-            "gradlew(?:\\.bat)?\\s+check(?:\\s|$)",
-            RegexOption.IGNORE_CASE
-        ).containsMatchIn(command) -> "Gradle check"
-        else -> fallback
+    ): String {
+        val gradleTasks = gradleTaskNames(
+            command = command
+        )
+        return when {
+            gradleTasks.isNotEmpty() -> gradleTasks
+                .flatMap(::gradleTaskDisplayLines)
+                .joinToString("\n")
+            "teamcity-configs:generate" in command -> "Generate effective TeamCity configuration [Maven]"
+            else -> fallback
+        }
+    }
+
+    private fun gradleTaskNames(
+        command: String
+    ): List<String> = command
+        .lineSequence()
+        .mapNotNull { line -> gradleInvocation.find(line.trim())?.groupValues?.get(
+            index = 1
+        ) }
+        .flatMap { arguments ->
+            arguments
+                .trim()
+                .split(Regex("\\s+"))
+                .takeWhile { argument -> !argument.startsWith(
+                    prefix = "-"
+                ) }
+                .asSequence()
+        }
+        .toList()
+
+    private fun gradleTaskDisplayLines(
+        task: String
+    ): List<String> = when (task) {
+        "prepareTeamCityCiPlan" -> listOf(
+            task,
+            "  depends on: generateCiPlan"
+        )
+        "%ci.plan.gradleTasks%" -> dynamicCiPlanDisplayLines
+        "check" -> listOf(task) + rootCheckDisplayLines
+        "classifyOfficialFigmaSyncChangeImpact" -> listOf(
+            task,
+            "  depends on: cleanOfficialFigmaSyncReports"
+        )
+        "materializeFigmaSyncCiConfiguration",
+        "generateOfficialFigmaSyncModel",
+        "checkOfficialFigmaTrunkSync" -> listOf("$task [full]")
+        "prepareOfficialFigmaSync" -> listOf(
+            task,
+            "  depends on: writeFigmaWriterProjectConfig"
+        )
+        else -> listOf(task)
     }
 
     private fun pipelineDescription(
@@ -908,6 +955,24 @@ class CiVisualPlanner {
     )
 
     private companion object {
+        val gradleInvocation = Regex(
+            """(?:^|\s)(?:call\s+)?(?:\.\\|\./)?gradlew(?:\.bat)?\s+(.+)$""",
+            RegexOption.IGNORE_CASE
+        )
+        val rootCheckDisplayLines = listOf(
+            "  check includes: checkFigmaCatalogUsage + checkFigmaVersionNaming",
+            "    + checkCiExternalTopologyFreshness + checkCiWindowsRuntimeFreshness",
+            "    + checkKotlinFunctionArguments",
+            "    + verification-platform:check (domain + data + plugin)"
+        )
+        val dynamicCiPlanDisplayLines = listOf(
+            "ci.plan.gradleTasks [dynamic]",
+            "  always: checkGitWorkflow + checkDocumentation",
+            "  documentation: checkRepositoryDiff",
+            "  TeamCity: checkTeamCityDsl + check",
+            "  modules: :<affected-module>:check + checkFigmaCatalogUsage",
+            "  fallback: check"
+        ) + rootCheckDisplayLines
         val externalEnvironments = mapOf(
             "operator" to CiVisualPlan.Environment.OPERATOR,
             "browser" to CiVisualPlan.Environment.BROWSER,
