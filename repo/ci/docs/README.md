@@ -44,11 +44,11 @@ validation, with:
 .\gradlew.bat -p repo/ci check
 ```
 
-Run the same documentation coverage gate used by TeamCity after changing this
-module's build structure or documentation:
+Run the same Kotlin documentation coverage task used by TeamCity after changing
+this module's build structure or documentation:
 
 ```powershell
-pwsh -NoProfile -File .teamcity/scripts/validate-documentation.ps1 -FailOnCoverageGap
+.\gradlew.bat checkDocumentation
 ```
 
 ## Module Documentation

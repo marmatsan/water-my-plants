@@ -10,8 +10,8 @@ This directory is an included Gradle build with three modules:
 | Path | Role |
 |------|------|
 | `domain/` | Provider-neutral plans, topology, module-impact rules, ports, and services. It has no Gradle, TeamCity, Git, filesystem, or HTTP dependencies. |
-| `data/` | Git, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries. |
-| `plugin/` | Gradle tasks and the `com.marmatsan.ci` composition root consumed by Water My Plants. |
+| `data/` | Git, filesystem, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries. |
+| `plugin/` | Gradle verification tasks and the `com.marmatsan.ci` composition root consumed by Water My Plants. |
 
 The dependency direction is `plugin -> data -> domain`; `plugin` may also use
 domain types while composing tasks. The included build keeps a root `check`
@@ -29,7 +29,8 @@ aggregator so existing consumers do not need to know its internal projects.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan`, `generateCiTopologyPreview`, `prepareTeamCityCiPlan`, and
+  `generateCiPlan`, `checkDocumentation`, `checkRepositoryDiff`,
+  `checkTeamCityDsl`, `generateCiTopologyPreview`, `prepareTeamCityCiPlan`, and
   `runTeamCityInfrastructureHealth` in the Water My Plants root build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
@@ -60,6 +61,9 @@ therefore add or update KDoc in the same change.
 ```powershell
 .\gradlew.bat :ci:domain:check :ci:data:check :ci:plugin:check
 .\gradlew.bat :ci:dokkaGenerate
+.\gradlew.bat checkDocumentation
+.\gradlew.bat checkRepositoryDiff
+.\gradlew.bat checkTeamCityDsl
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
@@ -73,10 +77,12 @@ single `verify` lane; two agents preview supplemental and Gradle lanes; three or
 more agents additionally separate repository and tooling work before one
 authoritative `ci-gate` lane.
 `prepareTeamCityCiPlan` additionally emits TeamCity service messages for the
-reviewed parameter allow-list. TeamCity uses those parameters to run visible
-sequential steps while the repository has one build agent. Safe module-only
-changes select affected module `check` tasks plus `checkFigmaCatalogUsage`;
-invalid graphs, unknown paths, and tooling changes retain root `check`.
+reviewed parameter allow-list. `ci.plan.gradleTasks` contains the ordered,
+de-duplicated task names for every required verification unit. TeamCity invokes
+that list once while the repository has one build agent; it does not implement
+documentation, diff, DSL, or module-selection policy. Safe module-only changes
+select affected module `check` tasks plus `checkFigmaCatalogUsage`; invalid
+graphs, unknown paths, and tooling changes retain root `check`.
 
 `runTeamCityInfrastructureHealth` is the Kotlin queueing boundary used by the
 Windows startup adapter. It accepts HTTPS TeamCity origins or the local HTTP

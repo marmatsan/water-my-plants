@@ -25,7 +25,7 @@ class TeamCityCiPlanParameters {
         "ci.plan.fallbackReason" to plan.fallbackReason.orEmpty(),
         "ci.plan.changedModules" to plan.changedModules.joinToString(","),
         "ci.plan.affectedModules" to plan.affectedModules.joinToString(","),
-        "ci.unit.gradle-verification.tasks" to validatedGradleTasks(plan)
+        "ci.plan.gradleTasks" to validatedGradleTasks(plan.requiredGradleTasks())
     ).apply {
         plan.verificationUnits.forEach { unit ->
             put("ci.unit.${unit.id.externalName()}.required", unit.required.toString())
@@ -57,10 +57,7 @@ class TeamCityCiPlanParameters {
         VerificationUnitId.PUBLISH_REPORTS -> "publish-reports"
     }
 
-    private fun validatedGradleTasks(plan: CiPlan): String {
-        val tasks = plan.verificationUnits
-            .single { unit -> unit.id == VerificationUnitId.GRADLE_VERIFICATION }
-            .gradleTasks
+    private fun validatedGradleTasks(tasks: List<String>): String {
         require(tasks.all(GRADLE_TASK::matches)) {
             "The CI plan contains a Gradle task outside the TeamCity allow-list."
         }

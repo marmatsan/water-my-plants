@@ -46,13 +46,13 @@ class CiPlanningSteps : En {
             plan.fullVerification shouldBe true
         }
         Then("no Gradle tasks are selected") {
-            plan.gradleTasks() shouldBe emptyList()
+            plan.requiredGradleTasks() shouldBe emptyList()
         }
         Then("the affected modules are:") { table: DataTable ->
             plan.affectedModules shouldContainExactly table.asList()
         }
         Then("the selected Gradle tasks are:") { table: DataTable ->
-            plan.gradleTasks() shouldContainExactly table.asList()
+            plan.requiredGradleTasks() shouldContainExactly table.asList()
         }
         Then("the plan explains that the change has no targeted verification policy") {
             plan.fallbackReason shouldBe "At least one changed path has no targeted verification policy."
@@ -83,5 +83,4 @@ class CiPlanningSteps : En {
         moduleGraph = testModuleGraph()
     )
 
-    private fun CiPlan.gradleTasks(): List<String> = verificationUnits.flatMap(VerificationUnit::gradleTasks)
 }

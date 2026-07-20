@@ -87,7 +87,8 @@ class CiPlanFactory {
         unit(
             id = VerificationUnitId.DOCUMENTATION,
             required = true,
-            capabilities = listOf("powershell"),
+            capabilities = listOf("java", "android-sdk", "git"),
+            gradleTasks = listOf(CHECK_DOCUMENTATION),
             reasons = listOf("Documentation structure and coverage are repository-wide invariants.")
         ),
         unit(
@@ -95,6 +96,7 @@ class CiPlanFactory {
             required = documentationOnly,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("git"),
+            gradleTasks = requiredTasks(documentationOnly, CHECK_REPOSITORY_DIFF),
             reasons = requiredReasons(documentationOnly, "Every changed path is documentation-only.")
         ),
         unit(
@@ -102,6 +104,7 @@ class CiPlanFactory {
             required = PathCategory.TEAMCITY in categories,
             needs = listOf(VerificationUnitId.DOCUMENTATION),
             capabilities = listOf("java", "maven-wrapper"),
+            gradleTasks = requiredTasks(PathCategory.TEAMCITY in categories, CHECK_TEAMCITY_DSL),
             reasons = requiredReasons(PathCategory.TEAMCITY in categories, "TeamCity configuration changed.")
         ),
         unit(
@@ -179,6 +182,9 @@ class CiPlanFactory {
     private fun requiredReasons(required: Boolean, reason: String): List<String> =
         if (required) listOf(reason) else emptyList()
 
+    private fun requiredTasks(required: Boolean, vararg tasks: String): List<String> =
+        if (required) tasks.toList() else emptyList()
+
     private fun category(
         path: String,
         moduleGraph: RepositoryModuleGraph,
@@ -237,7 +243,10 @@ class CiPlanFactory {
     }
 
     private companion object {
-        const val SCHEMA_VERSION = 1
+        const val SCHEMA_VERSION = 2
+        const val CHECK_DOCUMENTATION = "checkDocumentation"
+        const val CHECK_REPOSITORY_DIFF = "checkRepositoryDiff"
+        const val CHECK_TEAMCITY_DSL = "checkTeamCityDsl"
         const val CHECK_FIGMA_CATALOG_USAGE = "checkFigmaCatalogUsage"
         val ROOT_GRADLE_FILES = setOf("settings.gradle.kts", "build.gradle.kts", "gradle.properties")
     }

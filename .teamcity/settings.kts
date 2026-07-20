@@ -81,10 +81,7 @@ object WaterMyPlantsCi : Pipeline({
 
         params {
             param("ci.plan.comparisonBase", "")
-            param("ci.unit.repository-diff.required", "false")
-            param("ci.unit.teamcity-dsl.required", "true")
-            param("ci.unit.gradle-verification.required", "true")
-            param("ci.unit.gradle-verification.tasks", "check")
+            param("ci.plan.gradleTasks", "check")
         }
 
         steps {
@@ -97,42 +94,10 @@ object WaterMyPlantsCi : Pipeline({
                 scriptContent = """.\gradlew.bat prepareTeamCityCiPlan --stacktrace"""
             })
             step(PipelineScriptStep {
-                name = "Validate documentation"
-                scriptContent = """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\validate-documentation.ps1 -FailOnCoverageGap"""
-            })
-            step(PipelineScriptStep {
-                name = "Verify repository diff"
+                name = "Run planned Gradle checks"
                 scriptContent = """
                     @echo off
-                    if /I not "%ci.unit.repository-diff.required%"=="true" (
-                        echo Skipped by the enforced CI plan.
-                        exit /b 0
-                    )
-                    git diff --check "%ci.plan.comparisonBase%..HEAD"
-                    if errorlevel 1 exit /b 1
-                """.trimIndent()
-            })
-            step(PipelineScriptStep {
-                name = "Validate TeamCity DSL"
-                scriptContent = """
-                    @echo off
-                    if /I not "%ci.unit.teamcity-dsl.required%"=="true" (
-                        echo Skipped by the enforced CI plan.
-                        exit /b 0
-                    )
-                    call .\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate
-                    if errorlevel 1 exit /b 1
-                """.trimIndent()
-            })
-            step(PipelineScriptStep {
-                name = "Run Gradle verification"
-                scriptContent = """
-                    @echo off
-                    if /I not "%ci.unit.gradle-verification.required%"=="true" (
-                        echo Skipped by the enforced CI plan.
-                        exit /b 0
-                    )
-                    call .\gradlew.bat %ci.unit.gradle-verification.tasks% --stacktrace
+                    call .\gradlew.bat %ci.plan.gradleTasks% --stacktrace
                     if errorlevel 1 exit /b 1
                 """.trimIndent()
             })

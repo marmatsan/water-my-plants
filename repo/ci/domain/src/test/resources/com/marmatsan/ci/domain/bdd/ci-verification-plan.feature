@@ -12,7 +12,21 @@ Feature: Select repository verification
     When the verification plan is created
     Then the plan scope is DOCUMENTATION_ONLY
     And full Gradle verification is not required
-    And no Gradle tasks are selected
+    And the selected Gradle tasks are:
+      | checkDocumentation  |
+      | checkRepositoryDiff |
+
+  @domain
+  Scenario: TeamCity changes use Gradle-owned verification
+    Given repository changes include:
+      | .teamcity/settings.kts |
+    When the verification plan is created
+    Then the plan scope is TEAMCITY
+    And full Gradle verification is required
+    And the selected Gradle tasks are:
+      | checkDocumentation |
+      | checkTeamCityDsl   |
+      | check              |
 
   @domain
   Scenario: Changes to a shared module verify all reverse dependents
@@ -24,6 +38,7 @@ Feature: Select repository verification
       | :core:ui       |
       | :onboarding:ui |
     And the selected Gradle tasks are:
+      | checkDocumentation     |
       | :app:check             |
       | :core:ui:check         |
       | :onboarding:ui:check   |
@@ -37,5 +52,6 @@ Feature: Select repository verification
     Then the plan scope is UNKNOWN
     And full Gradle verification is required
     And the selected Gradle tasks are:
+      | checkDocumentation |
       | check |
     And the plan explains that the change has no targeted verification policy
