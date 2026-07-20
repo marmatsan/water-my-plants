@@ -64,3 +64,7 @@ Generate all CI API documentation with:
 The module landing pages live under `domain/docs/dokka/`, `data/docs/dokka/`,
 and `plugin/docs/dokka/`. Generated HTML is derived build output and must not be
 committed.
+
+The three CI modules enforce strict Dokka coverage through their `check` tasks.
+This prevents public Kotlin APIs from being introduced without KDoc while
+keeping scenario behavior in Gherkin rather than duplicating it in API prose.

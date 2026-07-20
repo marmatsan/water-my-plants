@@ -8,6 +8,14 @@ import org.gradle.api.artifacts.ProjectDependency
 
 /** Reads the evaluated root Gradle project model into the provider-neutral graph. */
 class GradleProjectModuleGraphSource {
+    /**
+     * Captures project modules and project-dependency edges from [rootProject].
+     *
+     * Only subprojects with a build file are included. The result is sorted and
+     * deduplicated so domain planning remains deterministic.
+     *
+     * @throws IllegalArgumentException when called with a non-root project.
+     */
     fun read(rootProject: Project): RepositoryModuleGraph {
         require(rootProject == rootProject.rootProject) {
             "The CI module graph must be read from the root project."

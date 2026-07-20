@@ -7,6 +7,14 @@ import com.marmatsan.ci.domain.model.VerificationUnitId
 
 /** Maps the provider-neutral plan to allow-listed TeamCity build parameters. */
 class TeamCityCiPlanParameters {
+    /**
+     * Converts [plan] into the fixed TeamCity parameter contract.
+     *
+     * Only reviewed parameter names are emitted. Selected Gradle tasks are
+     * validated against an identifier allow-list before becoming a parameter.
+     *
+     * @throws IllegalArgumentException when a selected task is not allow-listed.
+     */
     fun create(plan: CiPlan): Map<String, String> = linkedMapOf(
         "ci.plan.schemaVersion" to plan.schemaVersion.toString(),
         "ci.plan.mode" to plan.mode.externalName(),

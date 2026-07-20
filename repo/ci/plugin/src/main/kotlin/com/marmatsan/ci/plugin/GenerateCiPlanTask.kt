@@ -22,22 +22,28 @@ import org.gradle.work.DisableCachingByDefault
 /** Writes the provider-neutral CI plan for the committed repository change. */
 @DisableCachingByDefault(because = "The plan depends on Git revision state outside Gradle inputs")
 abstract class GenerateCiPlanTask : DefaultTask() {
+    /** Repository checkout whose committed Git state is classified. */
     @get:Internal
     abstract val repositoryRoot: DirectoryProperty
 
+    /** Optional Git revision that replaces automatic comparison-base discovery. */
     @get:Optional
     @get:Input
     abstract val comparisonBaseOverride: Property<String>
 
+    /** JSON file receiving the provider-neutral [com.marmatsan.ci.domain.model.CiPlan]. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /** Gradle project paths mapped to normalized repository-relative directories. */
     @get:Input
     abstract val moduleDirectories: MapProperty<String, String>
 
+    /** Directed module edges serialized as `dependent->dependency` strings. */
     @get:Input
     abstract val moduleDependencyEdges: ListProperty<String>
 
+    /** Reads committed changes, creates the plan, and writes [outputFile]. */
     @TaskAction
     fun generate() {
         val changeSet = GitRepositoryChangeSetSource().read(

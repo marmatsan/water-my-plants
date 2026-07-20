@@ -21,14 +21,21 @@ gradlePlugin {
     }
 }
 
+tasks.named("check") {
+    dependsOn("dokkaGenerate")
+}
+
 dokka {
     moduleName.set("ci-plugin")
 
     dokkaPublications.html {
+        failOnWarning.set(true)
         includes.from("docs/dokka/README.md")
     }
 
     dokkaSourceSets.main {
+        reportUndocumented.set(true)
+
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
             remoteUrl.set(

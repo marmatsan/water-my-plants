@@ -9,6 +9,17 @@ import kotlinx.serialization.Serializable
  * [lanes] preserves all required plan units, while
  * [authoritativeStatusPublisherLaneId] identifies the only lane allowed to
  * publish the final CI status.
+ *
+ * @property schemaVersion version of this serialized topology contract.
+ * @property activation whether a provider may execute this topology or only
+ * inspect it.
+ * @property sourcePlanSchemaVersion schema version of the plan being projected.
+ * @property sourceHead Git revision represented by the source plan.
+ * @property availableAgents compatible agent count used for the projection.
+ * @property mode sequential or parallel scheduling strategy.
+ * @property lanes ordered execution lanes and their dependencies.
+ * @property authoritativeStatusPublisherLaneId identifier of the only lane
+ * allowed to publish the final CI status.
  */
 @Serializable
 data class CiExecutionTopology(

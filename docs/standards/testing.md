@@ -57,10 +57,20 @@ sources:
 - Gherkin describes what behavior the system guarantees and why it matters.
 - KDoc and generated Dokka describe the public Kotlin API, parameters,
   invariants, and technical usage that implement those guarantees.
+- Every new or changed public Kotlin declaration MUST have useful KDoc in the
+  same change. Public data models document property semantics; services,
+  adapters, and tasks document inputs, results, side effects, invariants, and
+  relevant failures.
+- Private implementation details and inherited behavior MUST NOT receive
+  comments that only restate their signatures. Document the reason or contract
+  when it is not evident from the code.
 - Module README files describe ownership, boundaries, dependencies, and where
   to find the executable behavior and API reference.
 - Dokka text MUST NOT restate scenarios line by line. It SHOULD link a public
   entry point to its behavior contract when that relationship is useful.
+- A module MAY adopt strict Dokka coverage incrementally. Once enabled, its
+  `check` task MUST report undocumented public declarations and fail on Dokka
+  warnings so documentation coverage cannot regress.
 - Generated Dokka HTML is a build artifact and MUST NOT be committed.
 
 ## Reliability
@@ -76,8 +86,9 @@ sources:
 
 Run the smallest affected test task while iterating and `./gradlew check` before
 merge. BDD changes additionally run `:app:testDebugUnitTest` or the owning
-module's equivalent task. Changes to documented public Kotlin APIs SHOULD run
-the owning module's `dokkaGenerate` task.
+module's equivalent task. Changes to public Kotlin APIs MUST run the owning
+module's `dokkaGenerate` task; modules with strict coverage include it in
+`check` automatically.
 
 ## Sources
 

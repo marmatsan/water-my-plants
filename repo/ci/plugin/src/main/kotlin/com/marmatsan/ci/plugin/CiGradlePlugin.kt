@@ -6,6 +6,12 @@ import org.gradle.api.Project
 
 /** Registers the reviewed Gradle entry points for repository CI planning. */
 class CiGradlePlugin : Plugin<Project> {
+    /**
+     * Applies the CI composition root to [project].
+     *
+     * The plugin must be applied to the root project because module-graph
+     * discovery and report locations are repository-wide concerns.
+     */
     override fun apply(project: Project) {
         require(project == project.rootProject) {
             "com.marmatsan.ci must be applied to the root project."
