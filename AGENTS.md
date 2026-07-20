@@ -2,15 +2,12 @@
 
 ## Branching
 
-- Use trunk-based development as the branching strategy.
-- Treat `main` as the trunk and keep it stable, tested, and releasable.
-- Create short-lived branches from `main` using `feature/<short-description>`, `fix/<short-description>`, or `chore/<short-description>`.
-- Keep branches small and merge them back into `main` quickly through pull requests.
-- Prefer feature flags or hidden entry points for incomplete work instead of long-running branches.
-- Delete short-lived branches after they have been merged into `main`.
-- Use version tags such as `v1.4.0` to mark releases.
-- Create temporary `release/<version>` stabilization branches only when a release needs focused QA or last-mile fixes.
-- Create `hotfix/<short-description>` branches from `main` only for urgent production fixes, then merge the fix back into `main` and tag the patch release.
+- Follow `docs/standards/git-workflow.md` as the canonical Git workflow.
+- Treat `main` as the only permanent branch and keep it stable, tested, and releasable.
+- Create short-lived `feature/*`, `fix/*`, or `chore/*` branches from current `main`.
+- Merge through a pull request using squash after `TeamCity CI` passes and all review conversations are resolved.
+- Use feature flags or hidden entry points for incomplete work, and delete short-lived branches after merge or abandonment.
+- Use immutable `vX.Y.Z` tags for releases. Create `release/<x.y.z>` only for exceptional stabilization and `hotfix/*` only for urgent production fixes.
 
 ## Commits
 

@@ -12,3 +12,4 @@ review-blocking; `SHOULD` rules require a documented reason when not followed.
 | [API client](api-client.md) | Transport boundaries, DTOs, errors, and security. |
 | [Testing](testing.md) | Unit, BDD, integration, and UI test responsibilities. |
 | [Accessibility](accessibility.md) | Semantics, interaction, text, and visual accessibility. |
+| [Git workflow](git-workflow.md) | Trunk, short-lived branches, pull requests, merges, and release tags. |

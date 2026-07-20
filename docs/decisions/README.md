@@ -12,3 +12,4 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0004](adr-0004-use-json-for-figma-writer-project-configuration.md) | Superseded | Use Kotlin-generated JSON as the only writer project-configuration input. |
 | [ADR-0005](adr-0005-name-figma-documentation-sync.md) | Accepted | Publish the retained architecture as Figma Documentation Sync. |
 | [ADR-0006](adr-0006-use-gradle-owned-verification.md) | Accepted | Use Gradle tasks as the canonical repository verification API. |
+| [ADR-0007](adr-0007-use-trunk-based-development.md) | Accepted | Use one protected trunk with short-lived branches and squash integration. |
