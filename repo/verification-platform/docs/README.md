@@ -34,6 +34,7 @@ details must not leak into domain contracts.
 
 - [Architecture standard](../../../docs/standards/architecture.md)
 - [Testing, BDD, TDD, and KDoc standard](../../../docs/standards/testing.md)
+- [Git workflow standard](../../../docs/standards/git-workflow.md)
 - [Canonical documentation standard](../../../docs/documentation.md)
 
 ## Verification

@@ -6,6 +6,10 @@ import kotlinx.serialization.Serializable
 /** Stable identifiers for work that reviewed CI adapters may execute. */
 @Serializable
 enum class VerificationUnitId {
+    /** Validate the current branch against the trunk-based Git workflow. */
+    @SerialName("git-workflow")
+    GIT_WORKFLOW,
+
     /** Validate documentation structure, metadata, links, and coverage. */
     @SerialName("documentation")
     DOCUMENTATION,

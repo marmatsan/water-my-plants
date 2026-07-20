@@ -39,12 +39,26 @@ class VerificationPlatformPlugin : Plugin<Project> {
             }
         }
 
+        val checkGitWorkflow = project.tasks.register(
+            "checkGitWorkflow",
+            CheckGitWorkflowTask::class.java
+        ) { task ->
+            task.group = "verification"
+            task.description = "Validates the current branch against the trunk-based Git workflow."
+            task.repositoryRoot.set(project.layout.projectDirectory)
+            task.branchOverride.convention(
+                project.providers.gradleProperty("gitWorkflowBranch")
+                    .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH"))
+            )
+        }
+
         val checkDocumentation = project.tasks.register(
             "checkDocumentation",
             CheckDocumentationTask::class.java
         ) { task ->
             task.group = "verification"
             task.description = "Validates typed documentation, links, sources, and committed change coverage."
+            task.dependsOn(checkGitWorkflow)
             task.dependsOn(generateCiPlan)
             task.repositoryRoot.set(project.layout.projectDirectory)
             task.coverageManifest.set(project.layout.projectDirectory.file(".teamcity/documentation-coverage.json"))

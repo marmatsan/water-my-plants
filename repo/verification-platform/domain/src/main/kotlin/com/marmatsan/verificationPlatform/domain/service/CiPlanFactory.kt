@@ -85,8 +85,16 @@ class CiPlanFactory {
         fallbackReason: String?
     ): List<VerificationUnit> = listOf(
         unit(
+            id = VerificationUnitId.GIT_WORKFLOW,
+            required = true,
+            capabilities = listOf("git"),
+            gradleTasks = listOf(CHECK_GIT_WORKFLOW),
+            reasons = listOf("Every checkout must satisfy the trunk-based branch contract.")
+        ),
+        unit(
             id = VerificationUnitId.DOCUMENTATION,
             required = true,
+            needs = listOf(VerificationUnitId.GIT_WORKFLOW),
             capabilities = listOf("java", "android-sdk", "git"),
             gradleTasks = listOf(CHECK_DOCUMENTATION),
             reasons = listOf("Documentation structure and coverage are repository-wide invariants.")
@@ -148,6 +156,7 @@ class CiPlanFactory {
             id = VerificationUnitId.PUBLISH_REPORTS,
             required = true,
             needs = listOf(
+                VerificationUnitId.GIT_WORKFLOW,
                 VerificationUnitId.DOCUMENTATION,
                 VerificationUnitId.REPOSITORY_DIFF,
                 VerificationUnitId.TEAMCITY_DSL,
@@ -243,7 +252,8 @@ class CiPlanFactory {
     }
 
     private companion object {
-        const val SCHEMA_VERSION = 2
+        const val SCHEMA_VERSION = 3
+        const val CHECK_GIT_WORKFLOW = "checkGitWorkflow"
         const val CHECK_DOCUMENTATION = "checkDocumentation"
         const val CHECK_REPOSITORY_DIFF = "checkRepositoryDiff"
         const val CHECK_TEAMCITY_DSL = "checkTeamCityDsl"

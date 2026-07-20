@@ -17,10 +17,10 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
+import org.gradle.api.tasks.UntrackedTask
 
 /** Writes the provider-neutral CI plan for the committed repository change. */
-@DisableCachingByDefault(because = "The plan depends on Git revision state outside Gradle inputs")
+@UntrackedTask(because = "The plan depends on Git revision state outside Gradle inputs")
 abstract class GenerateCiPlanTask : DefaultTask() {
     /** Repository checkout whose committed Git state is classified. */
     @get:Internal

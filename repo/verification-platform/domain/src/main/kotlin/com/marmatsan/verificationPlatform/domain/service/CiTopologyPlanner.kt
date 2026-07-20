@@ -94,6 +94,7 @@ class CiTopologyPlanner {
     private fun multiAgentLaneId(id: VerificationUnitId, availableAgents: Int): String =
         if (availableAgents == 2) {
             when (id) {
+                VerificationUnitId.GIT_WORKFLOW,
                 VerificationUnitId.DOCUMENTATION -> DOCUMENTATION_LANE
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE
                 VerificationUnitId.PUBLISH_REPORTS -> GATE_LANE
@@ -104,6 +105,7 @@ class CiTopologyPlanner {
             }
         } else {
             when (id) {
+                VerificationUnitId.GIT_WORKFLOW,
                 VerificationUnitId.DOCUMENTATION -> DOCUMENTATION_LANE
                 VerificationUnitId.REPOSITORY_DIFF,
                 VerificationUnitId.TEAMCITY_DSL -> REPOSITORY_LANE

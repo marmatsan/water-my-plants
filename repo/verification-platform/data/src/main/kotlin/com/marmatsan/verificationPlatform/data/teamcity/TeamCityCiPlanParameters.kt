@@ -48,6 +48,7 @@ class TeamCityCiPlanParameters {
     }
 
     private fun VerificationUnitId.externalName(): String = when (this) {
+        VerificationUnitId.GIT_WORKFLOW -> "git-workflow"
         VerificationUnitId.DOCUMENTATION -> "documentation"
         VerificationUnitId.REPOSITORY_DIFF -> "repository-diff"
         VerificationUnitId.TEAMCITY_DSL -> "teamcity-dsl"

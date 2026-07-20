@@ -23,7 +23,8 @@ aggregator so existing consumers do not need to know its internal projects.
 
 - Domain models and classification do not depend on TeamCity, GitHub Actions,
   Gradle APIs, PowerShell, or Figma Documentation Sync.
-- The Git adapter resolves the committed diff against `origin/main`.
+- Git adapters resolve the current branch and committed diff against
+  `origin/main` without depending on a CI provider.
 - The Gradle adapter snapshots executable root-project modules and declared
   project dependencies after project evaluation. The domain computes changed
   modules and transitive reverse dependents without Gradle APIs.
@@ -31,7 +32,7 @@ aggregator so existing consumers do not need to know its internal projects.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
-  `generateCiPlan`, `checkDocumentation`, `checkRepositoryDiff`,
+  `generateCiPlan`, `checkGitWorkflow`, `checkDocumentation`, `checkRepositoryDiff`,
   `checkTeamCityDsl`, `generateCiTopologyPreview`, `prepareTeamCityCiPlan`, and
   `runTeamCityInfrastructureHealth` in the Water My Plants root build.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
@@ -63,6 +64,7 @@ therefore add or update KDoc in the same change.
 ```powershell
 .\gradlew.bat :verification-platform:domain:check :verification-platform:data:check :verification-platform:plugin:check
 .\gradlew.bat :verification-platform:dokkaGenerate
+.\gradlew.bat checkGitWorkflow
 .\gradlew.bat checkDocumentation
 .\gradlew.bat checkRepositoryDiff
 .\gradlew.bat checkTeamCityDsl
@@ -71,7 +73,11 @@ therefore add or update KDoc in the same change.
 .\gradlew.bat prepareTeamCityCiPlan
 ```
 
-`generateCiPlan` writes the provider-neutral JSON contract.
+`checkGitWorkflow` validates local symbolic `HEAD` or the complete CI VCS ref
+against the trunk-based branch contract. Provider-managed pull request refs are
+accepted because TeamCity also validates the corresponding source branch build.
+`generateCiPlan` is deliberately untracked and always writes the
+provider-neutral JSON contract from the current committed `HEAD`.
 `generateCiTopologyPreview` projects its required units into agent lanes under
 `build/reports/ci/ci-topology-preview.json`. The output is explicitly
 `preview-only`: no TeamCity setting consumes it. One agent produces the current

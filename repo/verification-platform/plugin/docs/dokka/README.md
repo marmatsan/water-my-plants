@@ -9,11 +9,12 @@ orchestration belongs here rather than in `verification-platform-domain`.
 Read this module from its public Gradle entry points:
 
 1. `VerificationPlatformPlugin` registers the CI planning and infrastructure tasks.
-2. `GenerateCiPlanTask` writes the provider-neutral verification plan.
-3. `GenerateCiTopologyPreviewTask` writes a non-authoritative agent topology
+2. `CheckGitWorkflowTask` validates the branch contract.
+3. `GenerateCiPlanTask` writes the provider-neutral verification plan.
+4. `GenerateCiTopologyPreviewTask` writes a non-authoritative agent topology
    preview.
-4. `PrepareTeamCityCiPlanTask` exports allow-listed TeamCity parameters.
-5. `RunTeamCityInfrastructureHealthTask` queues the infrastructure-health run.
+5. `PrepareTeamCityCiPlanTask` exports allow-listed TeamCity parameters.
+6. `RunTeamCityInfrastructureHealthTask` queues the infrastructure-health run.
 
 # Package com.marmatsan.verificationPlatform.plugin
 

@@ -13,6 +13,7 @@ Feature: Select repository verification
     Then the plan scope is DOCUMENTATION_ONLY
     And full Gradle verification is not required
     And the selected Gradle tasks are:
+      | checkGitWorkflow    |
       | checkDocumentation  |
       | checkRepositoryDiff |
 
@@ -24,6 +25,7 @@ Feature: Select repository verification
     Then the plan scope is TEAMCITY
     And full Gradle verification is required
     And the selected Gradle tasks are:
+      | checkGitWorkflow  |
       | checkDocumentation |
       | checkTeamCityDsl   |
       | check              |
@@ -38,6 +40,7 @@ Feature: Select repository verification
       | :core:ui       |
       | :onboarding:ui |
     And the selected Gradle tasks are:
+      | checkGitWorkflow        |
       | checkDocumentation     |
       | :app:check             |
       | :core:ui:check         |
@@ -52,6 +55,7 @@ Feature: Select repository verification
     Then the plan scope is UNKNOWN
     And full Gradle verification is required
     And the selected Gradle tasks are:
+      | checkGitWorkflow  |
       | checkDocumentation |
       | check |
     And the plan explains that the change has no targeted verification policy

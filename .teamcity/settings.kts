@@ -80,6 +80,7 @@ object WaterMyPlantsCi : Pipeline({
         }
 
         params {
+            param("env.GIT_WORKFLOW_BRANCH", "%teamcity.build.branch%")
             param("ci.plan.comparisonBase", "")
             param("ci.plan.gradleTasks", "check")
         }

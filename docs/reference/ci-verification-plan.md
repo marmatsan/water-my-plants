@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: repository-tooling
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-20
 review-cycle-days: 180
 sources:
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiPlan.kt
@@ -12,6 +12,7 @@ sources:
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiPlanFactory.kt
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiTopologyPlanner.kt
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ModuleImpactAnalyzer.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt
 ---
 
 # CI Verification Plan
@@ -25,7 +26,7 @@ parallel without changing this contract.
 
 ## Contract
 
-`generateCiPlan` writes schema version `2` to
+`generateCiPlan` writes schema version `3` to
 `build/reports/ci/ci-plan.json` with:
 
 | Field | Meaning |
@@ -42,13 +43,16 @@ parallel without changing this contract.
 | `fullVerification` | Whether root `check` remains required. |
 | `fallbackReason` | Fail-closed explanation when targeted classification is unsafe. |
 
-Stable verification unit identifiers are `documentation`, `repository-diff`,
-`teamcity-dsl`, `figma-tooling`, `dependency-catalog`,
+Stable verification unit identifiers are `git-workflow`, `documentation`,
+`repository-diff`, `teamcity-dsl`, `figma-tooling`, `dependency-catalog`,
 `gradle-verification`, and `publish-reports`.
 
 ## Invariants
 
 - Unknown or empty change sets require full verification.
+- Git workflow validation is always required before other repository checks.
+- Plan generation is untracked and always reads the current committed `HEAD`;
+  Gradle must not reuse a plan produced for an earlier revision.
 - Plan output contains no executable shell commands.
 - Every executable verification unit maps to reviewed Gradle task names.
 - CI adapters validate and flatten those tasks without reimplementing policy.
@@ -76,6 +80,7 @@ rules:
 
 | Plan unit | TeamCity execution |
 |-----------|--------------------|
+| `git-workflow` | Always select `checkGitWorkflow` using TeamCity's server-resolved logical branch name. |
 | `documentation` | Always select `checkDocumentation`. |
 | `repository-diff` | Select `checkRepositoryDiff` for documentation-only changes. |
 | `teamcity-dsl` | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution. |
