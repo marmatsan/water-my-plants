@@ -43,6 +43,14 @@ The contract is deliberately conservative:
 - PlantUML publication remains governed by `AGENTS.md`: a changed `.puml` must
   be rendered and published to Figma before its merge is complete.
 
+A repository-wide mechanical source migration can match several coverage
+areas even when it preserves runtime behavior. In that case, review and update
+one canonical document for every matched area. Each update records whether the
+area's executable contract changed and links to the standard that caused the
+migration. This evidence is required before committing or publishing the
+branch; an earlier `checkDocumentation` run against an uncommitted working tree
+does not prove committed-diff coverage.
+
 When adding a documentation coverage area, add a narrow rule to the manifest
 and focused Kotlin cases under `repo/verification-platform/domain` and `repo/verification-platform/data`. When adding
 a Figma-relevant source area, update

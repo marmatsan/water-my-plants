@@ -8,9 +8,11 @@ external systems into domain contracts but does not decide verification policy.
 
 # Package com.marmatsan.verificationPlatform.data.kotlin
 
-KtLint-backed parsing and formatting for repository-owned Kotlin source rules.
-The adapter enforces vertical declaration and call layout for `.kt` and `.kts`
-files. In `.kt` files it also indexes same-file functions and constructors so
+KtLint-backed parsing and formatting for the standard rules plus
+repository-owned Kotlin source rules. The adapter reads the root
+`.editorconfig`, enforces vertical declaration and call layout for `.kt` and
+`.kts` files, and delegates context-sensitive indentation to KtLint's standard
+rule. In `.kt` files it also indexes same-file functions and constructors so
 unambiguous positional calls can be rejected or rewritten with Kotlin parameter
 names. Calls that require compiler type resolution remain a compiler and review
 boundary.

@@ -33,7 +33,7 @@ aggregator so existing consumers do not need to know its internal projects.
   provider concerns to the domain model.
 - The Gradle plugin is the current composition root and registers
   `generateCiPlan`, `checkGitWorkflow`, `checkDocumentation`,
-  `checkKotlinFunctionArguments`, `formatKotlinFunctionArguments`,
+  `checkKotlinStyle`, `formatKotlinStyle`,
   `checkRepositoryDiff`, `checkTeamCityDsl`, `generateCiTopologyPreview`,
   `prepareTeamCityCiPlan`, and `runTeamCityInfrastructureHealth` in the Water
   My Plants root build.
@@ -68,8 +68,8 @@ therefore add or update KDoc in the same change.
 .\gradlew.bat :verification-platform:dokkaGenerate
 .\gradlew.bat checkGitWorkflow
 .\gradlew.bat checkDocumentation
-.\gradlew.bat checkKotlinFunctionArguments
-.\gradlew.bat formatKotlinFunctionArguments
+.\gradlew.bat checkKotlinStyle
+.\gradlew.bat formatKotlinStyle
 .\gradlew.bat checkRepositoryDiff
 .\gradlew.bat checkTeamCityDsl
 .\gradlew.bat generateCiPlan
@@ -77,19 +77,38 @@ therefore add or update KDoc in the same change.
 .\gradlew.bat prepareTeamCityCiPlan
 ```
 
-`checkKotlinFunctionArguments` enforces the repository Kotlin standard for
-every `.kt` and `.kts` file: every declaration parameter is vertical, calls
-with multiple arguments are vertical, and named arguments are vertical even
-when used alone. Short function-type and lambda signatures may remain inline
-within the 120-character repository line limit. It is wired into the root
-`check` lifecycle so future source files are checked locally and in CI.
-For `.kt` files, the check also resolves unambiguous functions and constructors
-declared in the same source file and requires every supported argument to use
-its Kotlin parameter name. `formatKotlinFunctionArguments` applies both that
-named-argument rule and the structural layout to existing code. Java APIs,
+`checkKotlinStyle` runs the KtLint 1.8.0 standard rules and the
+repository-owned argument rule over every `.kt` and `.kts` file. It is wired
+into the root `check` lifecycle so future source files are checked locally and
+in CI. The root `.editorconfig` is the executable configuration source.
+
+The repository rule requires vertical declaration parameters, vertical calls
+with multiple arguments, and vertical named arguments even when used alone.
+Short function-type and lambda signatures may remain inline within the
+120-character repository line limit. For `.kt` files, it also resolves
+unambiguous functions and constructors declared in the same source file and
+requires every supported argument to use its Kotlin parameter name.
+`formatKotlinStyle` applies all autocorrectable standard and repository rules;
+run it twice and require the second run to change zero files. Java APIs,
 function values, individual `vararg` elements, receiver or cross-file calls,
 and Kotlin Script DSL APIs remain positional when the compiler rejects names;
 compiler validation and review cover cases that require semantic resolution.
+Non-autocorrectable findings still fail `checkKotlinStyle` and require a source
+change.
+
+The standard `function-signature` rule is disabled because the repository rule
+owns declaration layout; the standard `indent` rule owns exact indentation.
+This prevents competing autocorrections. KtLint remains a mechanical style
+gate. KDoc and strict Dokka coverage independently own public API meaning and
+documentation completeness.
+
+The programmatic KtLint engine must load `.editorconfig` through
+`EditorConfigDefaults` with the property types exposed by all active rule
+providers. Do not add numeric signature-threshold properties as raw defaults:
+KtLint 1.8 can otherwise expose their values as strings and fail when a
+standard rule reads them as integers. Changes to rule ownership or typed
+configuration require a formatting regression test plus two consecutive
+`formatKotlinStyle` runs; the second run must report zero changed files.
 
 `checkTeamCityDsl` also rejects generated Pipeline YAML that encodes
 `commit-status-publisher` as a job feature. Its YAML schema does not allow that

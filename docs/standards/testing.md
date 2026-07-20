@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: quality
 status: active
-last-reviewed: 2026-07-20
+last-reviewed: 2026-07-21
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
@@ -57,6 +57,9 @@ sources:
 - Gherkin describes what behavior the system guarantees and why it matters.
 - KDoc and generated Dokka describe the public Kotlin API, parameters,
   invariants, and technical usage that implement those guarantees.
+- KtLint owns mechanical Kotlin and KDoc formatting; it does not establish that
+  API documentation is useful or complete. The KDoc and Dokka rules below own
+  that semantic coverage.
 - Every new or changed public Kotlin declaration MUST have useful KDoc in the
   same change. Public data models document property semantics; services,
   adapters, and tasks document inputs, results, side effects, invariants, and

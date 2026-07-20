@@ -267,6 +267,13 @@ unfinished unit without repeating successful targets. See
 
 ## Human Workflow
 
+Kotlin sources and build scripts in this included build follow the repository
+[Kotlin standard](../../docs/standards/kotlin.md). The repository-wide KtLint
+migration changed mechanical layout only; it did not change the design-model,
+visual-writer, fingerprint, or synchronization contracts. The CI visual model
+does use the renamed repository task `checkKotlinStyle`, which remains covered
+by its planner test and the versioned visual contract.
+
 For code changes in this module:
 
 ```powershell

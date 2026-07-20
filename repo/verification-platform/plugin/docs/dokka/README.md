@@ -11,8 +11,8 @@ Read this module from its public Gradle entry points:
 1. `VerificationPlatformPlugin` registers the CI planning and infrastructure tasks.
 2. `CheckGitWorkflowTask` validates the branch contract.
 3. `VerificationPlatformPlugin` exposes the repository-wide
-   `checkKotlinFunctionArguments` and `formatKotlinFunctionArguments` lifecycle
-   tasks while their KtLint engine remains isolated in the included build.
+   `checkKotlinStyle` and `formatKotlinStyle` lifecycle tasks while their KtLint
+   engine remains isolated in the included build.
 4. `GenerateCiPlanTask` writes the provider-neutral verification plan.
 5. `GenerateCiTopologyPreviewTask` writes a non-authoritative agent topology
    preview.
