@@ -305,31 +305,29 @@ The repository-owned rerun orchestration is Kotlin. Its credential port reads
 the service-token pair for the short-lived JWT and clears the pair from the
 TeamCity CLI child environment.
 
-SecretStore is one workstation adapter for that port. In a clean PowerShell
-process, bridge the stored values only for the Gradle invocation and always
-remove them afterwards:
+SecretStore is the supported Windows workstation adapter for that port. Use the
+repository-owned PowerShell launcher to validate both authentication boundaries
+without queueing a build:
 
 ```powershell
-$cloudflareCredential = Get-Secret -Vault TeamCitySecrets -Name TeamCityCloudflareAccess
-try {
-    $env:TEAMCITY_TOKEN = Get-Secret `
-        -Vault TeamCitySecrets `
-        -Name TeamCityAutomationToken `
-        -AsPlainText
-    $env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID = $cloudflareCredential.UserName
-    $env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET =
-        $cloudflareCredential.GetNetworkCredential().Password
-
-    .\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityValidateOnly=true
-    # After validation, use this for the real rerun:
-    # .\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true
-} finally {
-    Remove-Item Env:TEAMCITY_TOKEN -ErrorAction SilentlyContinue
-    Remove-Item Env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID -ErrorAction SilentlyContinue
-    Remove-Item Env:TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET -ErrorAction SilentlyContinue
-    Remove-Variable cloudflareCredential -ErrorAction SilentlyContinue
-}
+.\.teamcity\scripts\invoke-figma-sync-rerun.ps1 -ValidateOnly
 ```
+
+After validation succeeds, rerun the official pipeline and wait for its final
+result:
+
+```powershell
+.\.teamcity\scripts\invoke-figma-sync-rerun.ps1
+```
+
+The launcher reads `TeamCityAutomationToken` and
+`TeamCityCloudflareAccess`, rejects missing or malformed values, clears any
+stale `TEAMCITY_HEADER_CF_ACCESS_TOKEN` while the Kotlin task runs, and restores
+the complete previous process environment in `finally`. It never persists or
+prints either secret. It owns no TeamCity policy: Cloudflare exchange, active-run
+deduplication, queueing, and waiting remain in the Kotlin
+`rerunTeamCityFigmaSync` task. Keep direct environment injection only as a
+diagnostic fallback when repairing the launcher itself.
 
 The Kotlin task:
 
@@ -357,9 +355,9 @@ After configuration or recovery:
    authentication.
 2. Run `teamcity auth status` and one read-only run query through the profile
    wrapper.
-3. Run `rerunTeamCityFigmaSync` with
-   `-PfigmaTeamCityValidateOnly=true`; it must authenticate both access
-   boundaries and return state `Validated` without queueing a build.
+3. Run `.\.teamcity\scripts\invoke-figma-sync-rerun.ps1 -ValidateOnly`; it
+   must authenticate both access boundaries and return state `Validated`
+   without queueing a build.
 4. Confirm a GitHub App test webhook and a real `push` delivery return HTTP
    `200`.
 5. Confirm GitHub push or pull request events start the expected TeamCity

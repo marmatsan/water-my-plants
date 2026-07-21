@@ -15,8 +15,7 @@ recovery procedure.
    Tunnel.
 2. Confirm TeamCity CLI requests require Cloudflare Service Auth and a TeamCity
    access token.
-3. Run
-   `.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityValidateOnly=true` and
+3. Run `.\.teamcity\scripts\invoke-figma-sync-rerun.ps1 -ValidateOnly` and
    confirm it validates the HTTPS session without queueing a build. Confirm the
    TeamCity Access application still has both its user `Allow` policy and CLI
    `Service Auth` policy so the mutation request can use `cf-access-token`.

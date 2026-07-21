@@ -135,10 +135,10 @@ capability parity and artifact handoff, and keep the single-agent DSL available
 until the parallel topology is green. Merely increasing the agent pool does not
 change job concurrency.
 
-TeamCity retains PowerShell only for Windows agent and infrastructure adapters
-that must run before or outside Gradle. Repository verification policy,
-documentation validation, change classification, and task selection are
-Kotlin-owned.
+TeamCity retains PowerShell only for Windows agent, SecretStore, and
+infrastructure adapters that must run before or outside Gradle. Repository
+verification policy, documentation validation, change classification, and task
+selection are Kotlin-owned.
 
 `CI` does not run `generateFigmaDesignModel` and does not publish
 `build/reports/figma-sync/design-model.json`. Figma represents the stable
@@ -435,6 +435,7 @@ Validate TeamCity settings before pushing:
 ```powershell
 .\mvnw.cmd -f .teamcity\pom.xml teamcity-configs:generate
 pwsh -File .teamcity\scripts\tests\ci-infrastructure-health.tests.ps1
+pwsh -File .teamcity\scripts\tests\figma-sync-rerun.tests.ps1
 ```
 
 Generated files are written to:
@@ -496,10 +497,11 @@ operations and queues the verification through a Kotlin REST adapter that does
 not store cookies or follow redirects. TeamCity therefore receives the POST as
 a Bearer-authenticated request outside its CSRF session flow. Load the
 credentials into the process environment as described in the access runbook,
-then run:
+then invoke the SecretStore adapter, which delegates the operation to the
+Kotlin task and waits for its result:
 
 ```powershell
-.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true
+.\.teamcity\scripts\invoke-figma-sync-rerun.ps1
 ```
 
 Prepare the MCP-operated handoff from the successful `Generate main design
@@ -670,8 +672,7 @@ been run with the latest `design-model.json` artifact from
 other than `main`, fix repository checkout before investigating Figma sync.
 
 After the MCP write updates official metadata, rerun the complete `Figma Sync`
-pipeline with
-`.\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true`. A successful
+pipeline with `.\.teamcity\scripts\invoke-figma-sync-rerun.ps1`. A successful
 standalone `Check Figma trunk sync` proves that metadata matches, but it does
 not replace the previously failed aggregate pipeline or its GitHub status.
 Confirm that `Generate main design model`, `Check Figma trunk sync`, and the
