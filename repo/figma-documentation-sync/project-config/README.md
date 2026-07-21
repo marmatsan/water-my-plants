@@ -101,10 +101,13 @@ Kotlin `rerunTeamCityFigmaSync` task owns Cloudflare token exchange, active-run
 deduplication, queueing, and optional waiting. It obtains credentials through
 `TeamCityAutomationCredentialsProvider`; the default environment adapter keeps
 PowerShell SecretStore and other workstation-specific vaults outside the
-module. Read-only run discovery and waiting use TeamCity CLI. Queueing uses the
-cookie-free Kotlin REST adapter so Bearer-authenticated POST requests do not
-enter TeamCity's CSRF session flow. No Figma synchronization workflow depends
-on `tools/teamcity/`.
+module. The repository-owned
+`.teamcity/scripts/invoke-figma-sync-rerun.ps1` launcher is only a Windows
+SecretStore bridge: it supplies the environment port for one invocation and
+restores the previous process environment afterwards. Read-only run discovery
+and waiting use TeamCity CLI. Queueing uses the cookie-free Kotlin REST adapter
+so Bearer-authenticated POST requests do not enter TeamCity's CSRF session
+flow. No Figma synchronization workflow depends on `tools/teamcity/`.
 
 The upload task accepts these Gradle properties:
 
