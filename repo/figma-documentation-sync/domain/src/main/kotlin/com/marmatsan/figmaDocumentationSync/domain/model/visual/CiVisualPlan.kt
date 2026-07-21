@@ -90,6 +90,7 @@ data class CiVisualPlan(
         TERMINAL("terminal"),
         OPERATOR("operator"),
         JSON("json"),
+        GRADLE("gradle"),
     }
 
     enum class StepRole(

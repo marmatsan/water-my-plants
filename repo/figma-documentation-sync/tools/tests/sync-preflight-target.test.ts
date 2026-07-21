@@ -18,6 +18,7 @@ const FULL_VISUAL_TARGETS = [
   "ci.overview",
   "ci.pullRequestIntegration",
   "ci.postMergeDesignDocumentation",
+  "ci.jobTasks",
   "ci.infrastructureAndAccess",
   "ci.windowsRuntime",
 ];

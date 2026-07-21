@@ -87,7 +87,7 @@ runbook is the only supported temporary relaxation procedure and restores
 branch protection before the first manual gate execution.
 
 `CI` must not generate or publish `build/reports/figma-sync/design-model.json`.
-Only the post-merge `Figma Sync` pipeline on `main` may produce the official
+Only the post-merge `Figma Sync` pipeline on `main` may produce the canonical
 Figma sync artifact.
 
 ## Post-Merge Figma Sync
@@ -105,8 +105,8 @@ successful `CI Gate` through a Finish Build Trigger.
 - runs `checkFigmaTrunkSync`.
 
 The generation task is guarded so local or branch execution cannot create the
-official artifact accidentally. TeamCity `Figma Sync` must provide
-`FIGMA_DOCUMENTATION_SYNC_OFFICIAL=true` and the TeamCity build branch; any branch that
+canonical artifact accidentally. TeamCity `Figma Sync` must provide
+`FIGMA_DOCUMENTATION_SYNC_CANONICAL=true` and the TeamCity build branch; any branch that
 does not normalize to `main` is rejected before `design-model.json` is written.
 
 The Figma write step is currently MCP-operated. If `Figma Sync` fails because

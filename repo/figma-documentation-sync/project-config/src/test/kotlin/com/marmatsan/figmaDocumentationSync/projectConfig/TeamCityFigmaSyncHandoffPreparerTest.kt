@@ -94,7 +94,7 @@ internal class TeamCityFigmaSyncHandoffPreparerTest :
                         key = "uploadPayload",
                     )?.jsonPrimitive
                     ?.content shouldBe
-                    ".\\gradlew.bat uploadOfficialFigmaPayload " +
+                    ".\\gradlew.bat uploadCanonicalFigmaPayload " +
                     "-PfigmaArtifactDirectory=\"${artifacts.toPath().toAbsolutePath().normalize()}\" " +
                     "-PfigmaExpectedGitSha=abc123 " +
                     "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
@@ -241,7 +241,7 @@ private fun File.writeManifest(
     ).writeText(source)
     val payloadImage =
         payloadBytes?.let { bytes ->
-            val payloadFileName = "10-official-sync-payload.png"
+            val payloadFileName = "10-canonical-sync-payload.png"
             resolve(
                 relative = payloadFileName,
             ).writeBytes(bytes)
@@ -275,8 +275,8 @@ private fun File.writeManifest(
                 resolve(
                     relative = "manifest.json",
                 ).absolutePath,
-            schemaVersion = 3,
-            mode = "official",
+            schemaVersion = 4,
+            mode = "canonical",
             entrypoint = "trunk-sync",
             target = targets.first(),
             targets = targets,
@@ -285,7 +285,7 @@ private fun File.writeManifest(
             namespace = "test_staging",
             sectionNodeId = null,
             roots = emptyList(),
-            allowOfficialSections = false,
+            allowCanonicalSections = false,
             fullVisualSync = fullVisualSync,
             allowPartial = false,
             metadataPageId = "1:2",

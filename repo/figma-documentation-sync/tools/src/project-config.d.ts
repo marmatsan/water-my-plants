@@ -4,7 +4,7 @@ declare module "@figma-documentation-sync/project-config" {
   export const FIGMA_FILE_KEY: any;
   export const PROJECT_DISPLAY_NAME: any;
   export const MCP_CLIENT_NAME: any;
-  export const OFFICIAL_STAGING_NAMESPACE: any;
+  export const CANONICAL_STAGING_NAMESPACE: any;
   export const PREVIEW_STAGING_NAMESPACE: any;
   export const CI_DOCUMENTATION_PAGE_ID: any;
   export const CI_NODE_COMPONENT_ID: any;
@@ -52,8 +52,8 @@ declare module "@figma-documentation-sync/project-config" {
   export const WINDOWS_RUNTIME_RUNBOOK_SOURCE: any;
   export const VISUAL_CONTRACT_SOURCE: any;
   export const BRANCH_PROTECTION_SOURCE: any;
-  export const OFFICIAL_SYNC_SOURCE: any;
-  export const OFFICIAL_DESIGN_MODEL_PATH: any;
+  export const CANONICAL_SYNC_SOURCE: any;
+  export const CANONICAL_DESIGN_MODEL_PATH: any;
   export const REPOSITORY_ROOT_RELATIVE_TO_TOOLS: any;
   export const CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY: any;
   export const HEADER_SECTION_TARGETS: any;

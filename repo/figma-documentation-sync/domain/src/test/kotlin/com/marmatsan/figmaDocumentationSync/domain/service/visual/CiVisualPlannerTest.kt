@@ -22,7 +22,7 @@ internal class CiVisualPlannerTest :
         {
             val planner = CiVisualPlanner()
 
-            test("creates the five CI documentation sections from portable models") {
+            test("creates the six CI documentation sections from portable models") {
                 val plan =
                     planner.create(
                         topology(),
@@ -39,6 +39,7 @@ internal class CiVisualPlannerTest :
                         "ci.overview",
                         "ci.pullRequestIntegration",
                         "ci.postMergeDesignDocumentation",
+                        "ci.jobTasks",
                         "ci.infrastructureAndAccess",
                         "ci.windowsRuntime",
                     )
@@ -51,10 +52,11 @@ internal class CiVisualPlannerTest :
                         CiVisualPlan.Orientation.HORIZONTAL,
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
+                        CiVisualPlan.Orientation.GRID,
                     )
             }
 
-            test("exposes exact post-merge Gradle tasks and connects the official model flow") {
+            test("keeps post-merge jobs compact and connects the canonical model flow") {
                 val section =
                     planner
                         .create(
@@ -65,45 +67,9 @@ internal class CiVisualPlannerTest :
                         ).sections
                         .single { it.target == "ci.postMergeDesignDocumentation" }
 
-                val generateSteps = section.nodes.single { it.name == "Generate main design model" }.steps
-                generateSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
-                    .map(CiVisualPlan.Step::title) shouldContainExactly
-                    listOf(
-                        "Validate agent capabilities",
-                        "Classify Figma change impact",
-                        "Materialize official design model",
-                        "Build MCP runners and visual plan",
-                        "Publish build artifact",
-                    )
-                generateSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
-                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
-                    listOf(
-                        "classifyOfficialFigmaSyncChangeImpact",
-                        "cleanOfficialFigmaSyncReports",
-                        "materializeFigmaSyncCiConfiguration",
-                        "generateOfficialFigmaSyncModel",
-                        "prepareOfficialFigmaSync",
-                        "writeFigmaWriterProjectConfig",
-                    )
-                generateSteps
-                    .filter { step -> step.condition == "Full Figma verification" }
-                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
-                    listOf(
-                        "materializeFigmaSyncCiConfiguration",
-                        "generateOfficialFigmaSyncModel",
-                    )
-                generateSteps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
-
-                val checkSteps = section.nodes.single { it.name == "Check Figma trunk sync" }.steps
-                checkSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
-                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
-                    listOf(
-                        "validateOfficialFigmaSyncScope",
-                        "checkOfficialFigmaTrunkSync",
-                    )
+                section.nodes
+                    .filter { node -> node.type == CiVisualPlan.Type.JOB }
+                    .flatMap(CiVisualPlan.Node::steps) shouldBe emptyList()
                 section.connections
                     .filter {
                         it.id in
@@ -124,7 +90,66 @@ internal class CiVisualPlannerTest :
                     ).contains("Rerun via HTTPS client") shouldBe true
             }
 
-            test("documents the dynamic Gradle verification selection in the pull request job") {
+            test("documents exact post-merge Gradle tasks in the separate job tasks section") {
+                val section =
+                    planner
+                        .create(
+                            topology(),
+                            windowsRuntime(),
+                            configuration(),
+                            visualConfig,
+                        ).sections
+                        .single { it.target == "ci.jobTasks" }
+
+                section.nodes.map(CiVisualPlan.Node::name) shouldContainExactly
+                    listOf(
+                        "Verify",
+                        "Generate main design model",
+                        "Check Figma trunk sync",
+                    )
+                val generateSteps = section.nodes.single { it.name == "Generate main design model" }.steps
+                generateSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
+                    .map(CiVisualPlan.Step::title) shouldContainExactly
+                    listOf(
+                        "Validate agent capabilities",
+                        "Classify Figma change impact",
+                        "Materialize canonical design model",
+                        "Build MCP runners and visual plan",
+                        "Publish build artifact",
+                    )
+                generateSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "classifyCanonicalFigmaSyncChangeImpact",
+                        "cleanCanonicalFigmaSyncReports",
+                        "materializeFigmaSyncCiConfiguration",
+                        "generateCanonicalFigmaSyncModel",
+                        "prepareCanonicalFigmaSync",
+                        "writeFigmaWriterProjectConfig",
+                    )
+                generateSteps
+                    .filter { step -> step.condition == "Full Figma verification" }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "materializeFigmaSyncCiConfiguration",
+                        "generateCanonicalFigmaSyncModel",
+                    )
+                generateSteps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
+
+                val checkSteps = section.nodes.single { it.name == "Check Figma trunk sync" }.steps
+                checkSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "validateCanonicalFigmaSyncScope",
+                        "checkCanonicalFigmaTrunkSync",
+                    )
+                section.connections shouldBe emptyList()
+            }
+
+            test("keeps the pull request job compact") {
                 val section =
                     planner
                         .create(
@@ -134,6 +159,20 @@ internal class CiVisualPlannerTest :
                             visualConfig,
                         ).sections
                         .single { it.target == "ci.pullRequestIntegration" }
+
+                section.nodes.single { it.name == "Verify" }.steps shouldBe emptyList()
+            }
+
+            test("documents the dynamic Gradle verification selection in the separate job tasks section") {
+                val section =
+                    planner
+                        .create(
+                            topology(),
+                            windowsRuntime(),
+                            configuration(),
+                            visualConfig,
+                        ).sections
+                        .single { it.target == "ci.jobTasks" }
 
                 val steps = section.nodes.single { it.name == "Verify" }.steps
                 steps
@@ -289,13 +328,13 @@ private fun configuration() =
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_2",
-                                            name = "Validate official sync scope",
-                                            command = VALIDATE_OFFICIAL_FIGMA_SYNC_SCOPE_COMMAND,
+                                            name = "Validate canonical sync scope",
+                                            command = VALIDATE_CANONICAL_FIGMA_SYNC_SCOPE_COMMAND,
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_3",
                                             name = "Verify Figma sync metadata",
-                                            command = CHECK_OFFICIAL_FIGMA_TRUNK_SYNC_COMMAND,
+                                            command = CHECK_CANONICAL_FIGMA_TRUNK_SYNC_COMMAND,
                                         ),
                                     ),
                                 dependencies =
@@ -320,22 +359,22 @@ private fun configuration() =
                                             id = "RUNNER_2",
                                             name = "Classify Figma change impact",
                                             command =
-                                                ".\\gradlew.bat classifyOfficialFigmaSyncChangeImpact " +
-                                                    "-PfigmaOfficialTeamCityPhasedExecution=true",
+                                                ".\\gradlew.bat classifyCanonicalFigmaSyncChangeImpact " +
+                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true",
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_3",
-                                            name = "Materialize official design model",
+                                            name = "Materialize canonical design model",
                                             command =
                                                 ".\\gradlew.bat materializeFigmaSyncCiConfiguration " +
-                                                    "generateOfficialFigmaSyncModel -PfigmaOfficialTeamCityPhasedExecution=true",
+                                                    "generateCanonicalFigmaSyncModel -PfigmaCanonicalTeamCityPhasedExecution=true",
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_4",
                                             name = "Build MCP runners and visual plan",
                                             command =
-                                                ".\\gradlew.bat prepareOfficialFigmaSync " +
-                                                    "-PfigmaOfficialTeamCityPhasedExecution=true",
+                                                ".\\gradlew.bat prepareCanonicalFigmaSync " +
+                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true",
                                         ),
                                     ),
                                 artifacts =
@@ -485,16 +524,16 @@ private val visualConfig =
         windowsRuntimeRunbookSource = "docs/runbooks/teamcity-cloudflare-access.md",
         visualContractSource = "docs/ci/visual-model-contract.md",
         branchProtectionSource = "docs/ci/main-branch-protection.md",
-        officialSyncSource = "repo/figma-documentation-sync/docs/runbooks/official-artifact-visual-sync.md",
-        officialDesignModelPath = "build/reports/figma-sync/design-model.json",
+        canonicalSyncSource = "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
+        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
     )
 
 private const val VALIDATE_AGENT_CAPABILITIES_COMMAND =
     "powershell.exe -File " +
         ".teamcity\\scripts\\test-agent-capabilities.ps1"
-private const val VALIDATE_OFFICIAL_FIGMA_SYNC_SCOPE_COMMAND =
-    ".\\gradlew.bat validateOfficialFigmaSyncScope " +
-        "-PfigmaOfficialTeamCityPhasedExecution=true"
-private const val CHECK_OFFICIAL_FIGMA_TRUNK_SYNC_COMMAND =
-    ".\\gradlew.bat checkOfficialFigmaTrunkSync " +
-        "-PfigmaOfficialTeamCityPhasedExecution=true"
+private const val VALIDATE_CANONICAL_FIGMA_SYNC_SCOPE_COMMAND =
+    ".\\gradlew.bat validateCanonicalFigmaSyncScope " +
+        "-PfigmaCanonicalTeamCityPhasedExecution=true"
+private const val CHECK_CANONICAL_FIGMA_TRUNK_SYNC_COMMAND =
+    ".\\gradlew.bat checkCanonicalFigmaTrunkSync " +
+        "-PfigmaCanonicalTeamCityPhasedExecution=true"

@@ -15,6 +15,6 @@ data class FigmaWriterRuntimeConfig(
     val catalogTargetNames: List<String>,
     val ciVisualPlanConfig: CiVisualPlanConfig? = null,
 ) {
-    val officialStagingNamespace: String = "${metadataNamespace}_staging"
+    val canonicalStagingNamespace: String = "${metadataNamespace}_staging"
     val visualTargetNames: List<String> = writerTargetNames.filterNot { target -> target == "metadata" }
 }

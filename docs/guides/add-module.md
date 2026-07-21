@@ -43,7 +43,7 @@ standards before changing the module graph.
 
 Run the new module's `check` task followed by `./gradlew check`. Confirm the
 generated Figma model reports the intended module dependency only through the
-official post-merge workflow.
+canonical post-merge workflow.
 
 ## Related Documentation
 

@@ -313,7 +313,7 @@ without queueing a build:
 .\.teamcity\scripts\invoke-figma-sync-rerun.ps1 -ValidateOnly
 ```
 
-After validation succeeds, rerun the official pipeline and wait for its final
+After validation succeeds, rerun the canonical pipeline and wait for its final
 result:
 
 ```powershell

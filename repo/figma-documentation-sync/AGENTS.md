@@ -35,9 +35,9 @@ used by CI.
   design model.
 - `domain/model/impact`: portable Figma verification scopes, impacts, policy,
   and repository change-set models.
-- `domain/model/sync`: portable identity shared by official preparation and
+- `domain/model/sync`: portable identity shared by canonical preparation and
   verification jobs.
-- `domain/model/artifact` and `domain/service/artifact`: pure official artifact
+- `domain/model/artifact` and `domain/service/artifact`: pure canonical artifact
   identities and cross-file validation rules used by the MCP handoff.
 - `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
   source ports used to build the generated design model.
@@ -56,9 +56,9 @@ used by CI.
 - `data/figma/client`: Figma API client and client exceptions.
 - `data/figma/dto`: serializable Figma API response and node DTOs.
 - `data/figma/common`: shared Figma URL helpers.
-- `data/figma/artifact`: filesystem and JSON readers for official TeamCity
+- `data/figma/artifact`: filesystem and JSON readers for canonical TeamCity
   artifact sets.
-- `data/figma/sync`: JSON adapters for the official preparation scope, runner
+- `data/figma/sync`: JSON adapters for the canonical preparation scope, runner
   identities, and visual sync plan.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
@@ -84,10 +84,10 @@ used by CI.
   generation and sync verification.
 - `plugin/task/impact`: portable Gradle task that writes
   `build/reports/figma-sync/change-impact.json`.
-- `plugin/task/artifact`: Gradle adapter that validates an official artifact
+- `plugin/task/artifact`: Gradle adapter that validates a canonical artifact
   set and writes its typed handoff identity.
-- `plugin/task/official`: Gradle adapters that prepare and validate the scope
-  shared by the official TeamCity Figma Sync jobs.
+- `plugin/task/canonical`: Gradle adapters that prepare and validate the scope
+  shared by the canonical TeamCity Figma Sync jobs.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 - `project-config`: repository adapter that owns Water My Plants paths,
@@ -106,10 +106,10 @@ used by CI.
   the policy selected by the project-config adapter. Water My Plants owns it at
   `repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json`.
   Keep the classifier in Kotlin and do not duplicate its rules in TeamCity scripts.
-- `prepareOfficialFigmaSync`: cleans stale reports, classifies the change,
-  conditionally runs the configured CI adapter and generates the official model, then
+- `prepareCanonicalFigmaSync`: cleans stale reports, classifies the change,
+  conditionally runs the configured CI adapter and generates the canonical model, then
   builds the MCP runner artifacts and `sync-scope.json`.
-- `verifyOfficialFigmaSync`: validates the downloaded scope identity and
+- `verifyCanonicalFigmaSync`: validates the downloaded scope identity and
   invokes the Kotlin trunk checker only for `full-verification`.
 - `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
   plugin entries that are not used by a module, convention plugin, or tool
@@ -127,18 +127,18 @@ used by CI.
   disables CI documentation.
 - `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
   plugin data.
-- `validateOfficialFigmaArtifactSet`: validates the downloaded main model,
+- `validateCanonicalFigmaArtifactSet`: validates the downloaded main model,
   scope, plan, and runner manifests before MCP-operated publication.
 - `prepareTeamCityFigmaSyncHandoff`: Water My Plants project adapter that
   prepares a validated local handoff from a TeamCity build id or existing
   artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
-- `uploadOfficialFigmaPayload`: Water My Plants project adapter that accepts
+- `uploadCanonicalFigmaPayload`: Water My Plants project adapter that accepts
   only a successful main TeamCity build and a single-use
   `mcp.figma.com/mcp/upload/.../submit` URL, then verifies and uploads the
   manifest-declared PNG through Kotlin.
 - `rerunTeamCityFigmaSync`: Water My Plants project adapter that obtains
   credentials through a port, exchanges Cloudflare service auth, and reuses or
-  queues the official `main` pipeline. Keep TeamCity CLI reads and cookie-free
+  queues the canonical `main` pipeline. Keep TeamCity CLI reads and cookie-free
   REST writes in `teamcity-adapter`, and keep secret-store selection outside
   portable modules.
 - Treat `figmaDocumentationSync` as a CI-owned verification step. Developers may run it
@@ -160,8 +160,8 @@ used by CI.
   helper tools. Agents must follow:
   - `docs/runbooks/trunk-sync.md` when validating or publishing the Figma trunk
     sync state.
-  - `docs/runbooks/official-artifact-visual-sync.md` when deciding whether a
-    `design-model.json` may be used for an official or branch-local visual sync.
+  - `docs/runbooks/canonical-artifact-visual-sync.md` when deciding whether a
+    `design-model.json` may be used for a canonical or branch-local visual sync.
   - `docs/runbooks/mcp-chunk-transport.md` when staging TeamCity artifacts and
     generated MCP scripts through Figma shared plugin data.
   - `docs/reference/target-scopes.md` when choosing the smallest sync target for
@@ -268,4 +268,4 @@ used by CI.
 ```
 
 - Do not generate `design-model.json` locally or from a feature branch. Only
-  TeamCity `Figma Sync` on `main` may produce the official model artifact.
+  TeamCity `Figma Sync` on `main` may produce the canonical model artifact.

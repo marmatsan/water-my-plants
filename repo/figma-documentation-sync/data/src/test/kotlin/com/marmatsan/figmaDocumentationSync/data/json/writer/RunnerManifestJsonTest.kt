@@ -14,8 +14,8 @@ internal class RunnerManifestJsonTest :
                         .parseToJsonElement(
                             """
                             {
-                              "schemaVersion": 3,
-                              "mode": "official",
+                              "schemaVersion": 4,
+                              "mode": "canonical",
                               "files": ["a.mcp.js"],
                               "fileHashes": {"a.mcp.js": "sha256:file"}
                             }
@@ -23,7 +23,7 @@ internal class RunnerManifestJsonTest :
                         ).jsonObject
 
                 RunnerManifestJson().hash(body) shouldBe
-                    "sha256:852eab00de37dc1dcc82201d19367aae9ac7dba37e4d90506493ec52c37a91e7"
+                    "sha256:978f117b2d11ed29454dc0c23b419c430d59a33ef933f084f86ac17161315393"
             }
         },
     )

@@ -10,10 +10,10 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import java.nio.file.Files
 
-internal class OfficialMcpRunnerGeneratorTest :
+internal class CanonicalMcpRunnerGeneratorTest :
     FunSpec(
         {
-            test("generates official visual and metadata runners entirely from Kotlin") {
+            test("generates canonical visual and metadata runners entirely from Kotlin") {
                 val root = Files.createTempDirectory("kotlin-mcp-runner")
                 val tools =
                     root.resolve(
@@ -124,9 +124,9 @@ internal class OfficialMcpRunnerGeneratorTest :
                     root.resolve(
                         "out",
                     )
-                val generator = OfficialMcpRunnerGenerator()
+                val generator = CanonicalMcpRunnerGenerator()
                 val request =
-                    OfficialMcpRunnerGenerator.Request(
+                    CanonicalMcpRunnerGenerator.Request(
                         modelPath = model.toString(),
                         scriptPath = script.toString(),
                         outputDirectory = output.toString(),
@@ -257,7 +257,7 @@ private val runtimeConfig =
                 windowsRuntimeRunbookSource = "docs/runbooks/teamcity.md",
                 visualContractSource = "docs/ci/visual-model-contract.md",
                 branchProtectionSource = "docs/ci/main-branch-protection.md",
-                officialSyncSource = "docs/runbooks/official-sync.md",
-                officialDesignModelPath = "build/reports/figma-sync/design-model.json",
+                canonicalSyncSource = "docs/runbooks/canonical-sync.md",
+                canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
             ),
     )

@@ -210,8 +210,8 @@ internal class McpExecutionPlannerTest :
 private val manifest =
     ExecutableRunnerManifest(
         path = "manifest.json",
-        schemaVersion = 3,
-        mode = "official",
+        schemaVersion = 4,
+        mode = "canonical",
         entrypoint = "trunk-sync",
         target = "preflight",
         targets =
@@ -224,7 +224,7 @@ private val manifest =
         namespace = "sync_staging",
         sectionNodeId = null,
         roots = emptyList(),
-        allowOfficialSections = false,
+        allowCanonicalSections = false,
         fullVisualSync = true,
         allowPartial = false,
         metadataPageId = "1:2",

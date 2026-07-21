@@ -18,11 +18,11 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/** Validates an official artifact set and writes its typed handoff identity. */
+/** Validates a canonical artifact set and writes its typed handoff identity. */
 @DisableCachingByDefault(
     because = "The output records absolute paths from the staged artifact set",
 )
-abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
+abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val artifactDirectory: DirectoryProperty
@@ -38,21 +38,21 @@ abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
     fun validateArtifactSet() {
         val component = figmaDocumentationSyncComponent::class.create()
         val artifacts =
-            component.officialFigmaArtifactSetReader.read(
+            component.canonicalFigmaArtifactSetReader.read(
                 artifactDirectory.get().asFile.absolutePath,
             )
         val validated =
-            component.officialFigmaArtifactContractValidator.validate(
+            component.canonicalFigmaArtifactContractValidator.validate(
                 contract = artifacts.contract,
                 expectedGitSha = expectedGitSha.orNull,
             )
         val visualManifestPath =
             requireNotNull(artifacts.visualManifestPath) {
-                "Official artifact set does not contain one visual manifest."
+                "Canonical artifact set does not contain one visual manifest."
             }
         val metadataManifestPath =
             requireNotNull(artifacts.metadataManifestPath) {
-                "Official artifact set does not contain one metadata manifest."
+                "Canonical artifact set does not contain one metadata manifest."
             }
 
         val output = outputFile.get().asFile
@@ -84,7 +84,7 @@ abstract class ValidateOfficialFigmaArtifactSetTask : DefaultTask() {
         )
 
         logger.lifecycle(
-            "Validated official Figma artifact set at ${validated.gitSha} " +
+            "Validated canonical Figma artifact set at ${validated.gitSha} " +
                 "(${validated.decision.wireValue}).",
         )
     }

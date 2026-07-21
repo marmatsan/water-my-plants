@@ -164,9 +164,9 @@ connections:
     source: operator
     target: codex-mcp-client
     label: Request visual synchronization
-    description: Starts an operator-approved synchronization using the official design model.
+    description: Starts an operator-approved synchronization using the canonical design model.
     automation: manual
-    annotation: The official artifact may be staged through a temporary MCP transport.
+    annotation: The canonical artifact may be staged through a temporary MCP transport.
 
   - id: mcp-figma-write
     source: codex-mcp-client

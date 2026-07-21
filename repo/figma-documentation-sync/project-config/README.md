@@ -70,7 +70,7 @@ contracts rather than Water My Plants paths or identities.
 The writer selection boundary is the `--project-config-json` input
 of `figma-documentation-sync-build`. `WriteFigmaWriterProjectConfigTask` serializes the
 portable Kotlin model through `FigmaWriterProjectConfigJson` to
-`build/generated/figma-documentation-sync/writer-project-config.json`; the official
+`build/generated/figma-documentation-sync/writer-project-config.json`; the canonical
 Gradle task consumes that transient file automatically. The config declares
 its repository root and change-impact policy paths explicitly, so a published
 package does not assume the Water My Plants layout. The TypeScript build
@@ -91,7 +91,7 @@ and invokes the portable Gradle tasks from `.teamcity/settings.kts`.
 
 The Kotlin `prepareTeamCityFigmaSyncHandoff` task owns TeamCity artifact
 inspection, download, contract validation, and executor preparation. The
-Kotlin `uploadOfficialFigmaPayload` task accepts only a successful main
+Kotlin `uploadCanonicalFigmaPayload` task accepts only a successful main
 `Generate main design model` build, verifies the manifest-declared PNG bytes,
 and posts them only to the exact single-use HTTPS endpoint returned by Figma
 `upload_assets`. It runs the TeamCity CLI from the repository root so the
@@ -114,13 +114,13 @@ The upload task accepts these Gradle properties:
 | Property | Default | Meaning |
 |----------|---------|---------|
 | `figmaTeamCityBuildId` | none | Required successful main `Generate main design model` job id. |
-| `figmaArtifactDirectory` | none | Alternative validated official artifact directory; mutually exclusive with the build id. |
+| `figmaArtifactDirectory` | none | Alternative validated canonical artifact directory; mutually exclusive with the build id. |
 | `figmaMcpUploadUrl` | none | Required single-use `mcp.figma.com` PNG submit URL returned by `upload_assets`. |
-| `figmaExpectedGitSha` | none | Exact revision expected in the official artifact contract; required with `figmaArtifactDirectory`. |
+| `figmaExpectedGitSha` | none | Exact revision expected in the canonical artifact contract; required with `figmaArtifactDirectory`. |
 | `figmaHandoffDestinationRoot` | `tmp/teamcity` | Ignored directory used for the validated TeamCity download. |
 
 When the workstation supports reusable command approvals, scope the standing
-permission to `.\gradlew.bat uploadOfficialFigmaPayload`. Do not grant a
+permission to `.\gradlew.bat uploadCanonicalFigmaPayload`. Do not grant a
 generic PowerShell or arbitrary HTTP-upload permission.
 
 The rerun task accepts these Gradle properties:

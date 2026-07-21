@@ -14,7 +14,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 
-internal class TeamCityOfficialFigmaPayloadUploaderTest :
+internal class TeamCityCanonicalFigmaPayloadUploaderTest :
     FunSpec(
         {
             val uploadUrl =
@@ -22,7 +22,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
 
             test("uploads the hash-verified PNG from a successful main TeamCity build") {
                 val root = Files.createTempDirectory("figma-payload-upload").toFile()
-                val payload = PayloadPngEncoder().encode("{\"official\":true}")
+                val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
                         payload = payload,
@@ -41,7 +41,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                 var uploadedUrl = ""
                 var uploadedBytes = byteArrayOf()
                 val uploader =
-                    TeamCityOfficialFigmaPayloadUploader(
+                    TeamCityCanonicalFigmaPayloadUploader(
                         handoffPreparer = handoffPreparer,
                         uploadPng = { url, bytes ->
                             uploadedUrl = url
@@ -51,7 +51,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
 
                 val result =
                     uploader.upload(
-                        TeamCityOfficialFigmaPayloadUploader.Request(
+                        TeamCityCanonicalFigmaPayloadUploader.Request(
                             buildId = 1672,
                             artifactDirectory = null,
                             uploadUrl = uploadUrl,
@@ -77,16 +77,16 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                 root.deleteRecursively()
             }
 
-            test("rejects a PNG whose bytes no longer match the official manifest") {
+            test("rejects a PNG whose bytes no longer match the canonical manifest") {
                 val root = Files.createTempDirectory("figma-payload-tamper").toFile()
-                val payload = PayloadPngEncoder().encode("{\"official\":true}")
+                val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
                         payload = payload,
                     ) { outputDirectory ->
                         val path =
                             outputDirectory.resolve(
-                                relative = "mcp-runners/visual/10-official-sync-payload.png",
+                                relative = "mcp-runners/visual/10-canonical-sync-payload.png",
                             )
                         val tampered = path.readBytes()
                         tampered[tampered.lastIndex] = (tampered.last() + 1).toByte()
@@ -94,7 +94,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                     }
                 var uploads = 0
                 val uploader =
-                    TeamCityOfficialFigmaPayloadUploader(
+                    TeamCityCanonicalFigmaPayloadUploader(
                         handoffPreparer =
                             TeamCityFigmaSyncHandoffPreparer(
                                 teamCityClient = client,
@@ -105,7 +105,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                 val failure =
                     shouldThrow<IllegalArgumentException> {
                         uploader.upload(
-                            TeamCityOfficialFigmaPayloadUploader.Request(
+                            TeamCityCanonicalFigmaPayloadUploader.Request(
                                 buildId = 1672,
                                 artifactDirectory = null,
                                 uploadUrl = uploadUrl,
@@ -115,7 +115,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                     }
 
                 failure.message?.startsWith(
-                    prefix = "Official PNG payload hash mismatch:",
+                    prefix = "Canonical PNG payload hash mismatch:",
                 ) shouldBe true
                 uploads shouldBe 0
                 root.deleteRecursively()
@@ -130,7 +130,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                         ).apply {
                             mkdirs()
                             writeArtifactFixture(
-                                payloadBytes = PayloadPngEncoder().encode("{\"official\":true}"),
+                                payloadBytes = PayloadPngEncoder().encode("{\"canonical\":true}"),
                             )
                         }
                 val client =
@@ -148,7 +148,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                     }
                 var uploads = 0
                 val uploader =
-                    TeamCityOfficialFigmaPayloadUploader(
+                    TeamCityCanonicalFigmaPayloadUploader(
                         handoffPreparer =
                             TeamCityFigmaSyncHandoffPreparer(
                                 teamCityClient = client,
@@ -159,7 +159,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                 val missingRevision =
                     shouldThrow<IllegalArgumentException> {
                         uploader.upload(
-                            TeamCityOfficialFigmaPayloadUploader.Request(
+                            TeamCityCanonicalFigmaPayloadUploader.Request(
                                 buildId = null,
                                 artifactDirectory = artifacts,
                                 uploadUrl = uploadUrl,
@@ -171,7 +171,7 @@ internal class TeamCityOfficialFigmaPayloadUploaderTest :
                     "figmaExpectedGitSha is required with figmaArtifactDirectory."
 
                 uploader.upload(
-                    TeamCityOfficialFigmaPayloadUploader.Request(
+                    TeamCityCanonicalFigmaPayloadUploader.Request(
                         buildId = null,
                         artifactDirectory = artifacts,
                         uploadUrl = uploadUrl,

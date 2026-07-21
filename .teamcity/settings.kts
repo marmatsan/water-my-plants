@@ -32,7 +32,7 @@ project {
             preventDependencyCleanup = false
         }
         keepRule {
-            id = "KeepOfficialFigmaArtifacts"
+            id = "KeepCanonicalFigmaArtifacts"
             keepAtLeast =
                 days(30) {
                     since = today()
@@ -235,7 +235,7 @@ object WaterMyPlantsFigmaSync : Pipeline(
                 "%figma.file.content.access.token%",
             )
             param(
-                "env.FIGMA_DOCUMENTATION_SYNC_OFFICIAL",
+                "env.FIGMA_DOCUMENTATION_SYNC_CANONICAL",
                 "true",
             )
             param(
@@ -265,21 +265,21 @@ object WaterMyPlantsFigmaSync : Pipeline(
                     PipelineScriptStep {
                         name = "Classify Figma change impact"
                         scriptContent =
-                            """.\gradlew.bat classifyOfficialFigmaSyncChangeImpact -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+                            """.\gradlew.bat classifyCanonicalFigmaSyncChangeImpact -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
                     },
                 )
                 step(
                     PipelineScriptStep {
-                        name = "Materialize official design model"
+                        name = "Materialize canonical design model"
                         scriptContent =
-                            """.\gradlew.bat materializeFigmaSyncCiConfiguration generateOfficialFigmaSyncModel -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+                            """.\gradlew.bat materializeFigmaSyncCiConfiguration generateCanonicalFigmaSyncModel -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
                     },
                 )
                 step(
                     PipelineScriptStep {
                         name = "Build MCP runners and visual plan"
                         scriptContent =
-                            """.\gradlew.bat prepareOfficialFigmaSync -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+                            """.\gradlew.bat prepareCanonicalFigmaSync -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
                     },
                 )
             }
@@ -318,16 +318,16 @@ object WaterMyPlantsFigmaSync : Pipeline(
                 )
                 step(
                     PipelineScriptStep {
-                        name = "Validate official sync scope"
+                        name = "Validate canonical sync scope"
                         scriptContent =
-                            """.\gradlew.bat validateOfficialFigmaSyncScope -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+                            """.\gradlew.bat validateCanonicalFigmaSyncScope -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
                     },
                 )
                 step(
                     PipelineScriptStep {
                         name = "Verify Figma sync metadata"
                         scriptContent =
-                            """.\gradlew.bat checkOfficialFigmaTrunkSync -PfigmaOfficialTeamCityPhasedExecution=true --stacktrace"""
+                            """.\gradlew.bat checkCanonicalFigmaTrunkSync -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
                     },
                 )
             }

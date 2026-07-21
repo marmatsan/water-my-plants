@@ -17,11 +17,11 @@ sources:
 ## Purpose
 
 Use this runbook to iterate quickly on visual sync code, component contracts, and
-layout behavior without publishing official Figma sync metadata.
+layout behavior without publishing canonical Figma sync metadata.
 
-Preview is not a repair path for `main`. The official publication flow remains
+Preview is not a repair path for `main`. The canonical publication flow remains
 [trunk-sync.md](trunk-sync.md): TeamCity generates the authoritative
-`design-model.json` from `main`, MCP writes the official visual state, and
+`design-model.json` from `main`, MCP writes the canonical visual state, and
 metadata is written last.
 
 ## Safety Contract
@@ -33,7 +33,7 @@ Preview runners:
 - force `writeMetadata=false`;
 - reject the `metadata` target;
 - require a sandbox section override for catalog tree targets unless
-  `--allow-official-sections=true` is passed for supervised manual repair;
+  `--allow-canonical-sections=true` is passed for supervised manual repair;
 - generate only ignored files under `repo/figma-documentation-sync/tools/dist/`.
 
 Catalog preview also builds a smaller MCP entrypoint,
@@ -41,12 +41,12 @@ Catalog preview also builds a smaller MCP entrypoint,
 layout and connector behavior without transporting the full trunk-sync bundle.
 
 Do not use preview output to make `checkFigmaTrunkSync` pass. That check is tied
-to the official namespace `water_my_plants_sync` and the TeamCity artifact from
+to the canonical namespace `water_my_plants_sync` and the TeamCity artifact from
 `main`.
 
 For visual-only tooling changes on a branch, an explicitly provided model may be
-the official TeamCity `main` artifact. Treat it as a stable visual input, not as
-permission to write official metadata from the branch. If the branch changes the
+the canonical TeamCity `main` artifact. Treat it as a stable visual input, not as
+permission to write canonical metadata from the branch. If the branch changes the
 model content itself, merge first and regenerate the artifact through
 TeamCity/main.
 
@@ -122,7 +122,7 @@ targets without a sandbox section id.
 CI previews use the Kotlin planner even though the compatibility runner is
 packaged by TypeScript. Start from an explicitly supplied TeamCity `main`
 artifact or another non-authoritative preview model that already contains
-`content.ci`; do not generate the official model locally on a feature branch.
+`content.ci`; do not generate the canonical model locally on a feature branch.
 
 From the repository root, generate a plan for the target being inspected:
 
@@ -166,8 +166,8 @@ node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.pl
 node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=gradlePlugins.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
-Use `--allow-official-sections=true` only for supervised manual repair where the
-intent is to mutate an official section without writing metadata.
+Use `--allow-canonical-sections=true` only for supervised manual repair where the
+intent is to mutate a canonical section without writing metadata.
 
 ## Sandbox Cleanup
 
@@ -175,21 +175,21 @@ Preview sections are temporary validation artifacts. Name copied sections with
 the `Preview - ` prefix, use their node id only for the current preview run, and
 delete them after the result has been inspected or the run has been abandoned.
 
-Do not leave `Preview - ...` sections in the official Figma file after a visual
+Do not leave `Preview - ...` sections in the canonical Figma file after a visual
 iteration. They are not source of truth, are not referenced by TeamCity, and
 should not be reused as stable section ids in committed documentation or
 scripts.
 
 If a preview run fails before `99-run-target.mcp.js`, clear
 `water_my_plants_sync_preview` staging first, then delete the temporary preview
-section. The official visual sections and `water_my_plants_sync` metadata should
+section. The canonical visual sections and `water_my_plants_sync` metadata should
 remain untouched.
 
 ## Version Preview
 
 Version preview still touches the configured Figma variable collection and
 `.dependency version` frames. Prefer running it only in a copied Figma file or when
-the visual mutation is intentionally being inspected in the official file:
+the visual mutation is intentionally being inspected in the canonical file:
 
 ```powershell
 node dist\write-mcp-preview.mjs --fixture=versions --target=versions
@@ -197,17 +197,17 @@ node dist\write-mcp-preview.mjs --fixture=versions --target=versions
 
 Do not write metadata after a version preview run.
 
-## Official Runner Handoff
+## Canonical Runner Handoff
 
-The preview generator does not authorize an official runner. TeamCity uses the
+The preview generator does not authorize a canonical runner. TeamCity uses the
 Kotlin generator and publishes complete visual and metadata runner directories
-next to the official model and visual plan. Inspect that artifact with:
+next to the canonical model and visual plan. Inspect that artifact with:
 
 ```powershell
 .\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpDryRun=true
 ```
 
-Official mode stages data under `water_my_plants_sync_staging`. Only the
+Canonical mode stages data under `water_my_plants_sync_staging`. Only the
 `metadata` target writes to the authoritative namespace, and it should be run
 after every scope in the TeamCity-generated visual plan has completed
 successfully. A supervised atomic diagnostic does not authorize a metadata
@@ -230,17 +230,17 @@ Gradle checks described in [trunk-sync.md](trunk-sync.md).
 
 - Use a sandbox Figma section or an explicit preview fixture.
 - Build the TypeScript writer from the current branch.
-- Keep official metadata writes disabled.
+- Keep canonical metadata writes disabled.
 
 ## Recovery
 
 Delete temporary preview sections and regenerate the preview runner when its
 fixture or writer changes. A failed preview must not be resumed against an
-official section.
+canonical section.
 
 ## Prohibited Actions
 
-- Do not point a preview runner at an official section.
+- Do not point a preview runner at a canonical section.
 - Do not write `water_my_plants_sync` metadata from preview mode.
 - Do not treat a preview result as authorization for trunk publication.
 

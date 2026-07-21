@@ -21,7 +21,7 @@ class GradleTaskSteps : En {
     private lateinit var projectDir: File
     private lateinit var designModelFile: File
     private lateinit var result: BuildResult
-    private var officialFigmaSyncGenerationAuthorized = false
+    private var canonicalFigmaSyncGenerationAuthorized = false
 
     init {
         Given("a temporary Gradle project exists") {
@@ -30,7 +30,7 @@ class GradleTaskSteps : En {
                 projectDir.resolve(
                     relative = "build/reports/figma-sync/design-model.json",
                 )
-            officialFigmaSyncGenerationAuthorized = false
+            canonicalFigmaSyncGenerationAuthorized = false
         }
 
         Given("the temporary Gradle project has repository model files") {
@@ -64,8 +64,8 @@ class GradleTaskSteps : En {
             projectDir.initializeGitRepository()
         }
 
-        Given("official Figma Sync model generation is authorized") {
-            officialFigmaSyncGenerationAuthorized = true
+        Given("canonical Figma Sync model generation is authorized") {
+            canonicalFigmaSyncGenerationAuthorized = true
         }
 
         When("generateFigmaDesignModel runs in the temporary project") {
@@ -74,7 +74,7 @@ class GradleTaskSteps : En {
             result.task(":generateFigmaDesignModel")?.outcome shouldBe TaskOutcome.SUCCESS
         }
 
-        When("generateFigmaDesignModel runs without official Figma Sync authorization") {
+        When("generateFigmaDesignModel runs without canonical Figma Sync authorization") {
             result = gradleRunner().buildAndFail()
         }
 
@@ -82,8 +82,8 @@ class GradleTaskSteps : En {
             designModelFile.shouldExist()
         }
 
-        Then("generateFigmaDesignModel fails because official Figma Sync generation is required") {
-            result.output shouldContain "Missing FIGMA_DOCUMENTATION_SYNC_OFFICIAL=true"
+        Then("generateFigmaDesignModel fails because canonical Figma Sync generation is required") {
+            result.output shouldContain "Missing FIGMA_DOCUMENTATION_SYNC_CANONICAL=true"
         }
 
         Then("the written design model contains the current branch") {
@@ -188,9 +188,9 @@ class GradleTaskSteps : En {
 
     private fun gradleEnvironment(): Map<String, String> =
         System.getenv().toMutableMap().apply {
-            if (officialFigmaSyncGenerationAuthorized) {
+            if (canonicalFigmaSyncGenerationAuthorized) {
                 put(
-                    "FIGMA_DOCUMENTATION_SYNC_OFFICIAL",
+                    "FIGMA_DOCUMENTATION_SYNC_CANONICAL",
                     "true",
                 )
                 put(
@@ -198,7 +198,7 @@ class GradleTaskSteps : En {
                     "main",
                 )
             } else {
-                remove("FIGMA_DOCUMENTATION_SYNC_OFFICIAL")
+                remove("FIGMA_DOCUMENTATION_SYNC_CANONICAL")
                 remove("FIGMA_DOCUMENTATION_SYNC_BRANCH")
             }
         }

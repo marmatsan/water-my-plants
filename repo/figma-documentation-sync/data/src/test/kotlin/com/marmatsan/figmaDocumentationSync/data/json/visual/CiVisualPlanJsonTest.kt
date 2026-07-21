@@ -108,6 +108,6 @@ private val config =
         windowsRuntimeRunbookSource = "docs/runbooks/teamcity.md",
         visualContractSource = "docs/ci/visual-model-contract.md",
         branchProtectionSource = "docs/ci/main-branch-protection.md",
-        officialSyncSource = "docs/runbooks/official-sync.md",
-        officialDesignModelPath = "build/reports/figma-sync/design-model.json",
+        canonicalSyncSource = "docs/runbooks/canonical-sync.md",
+        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
     )

@@ -1,6 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.data.figma.artifact
 
-import com.marmatsan.figmaDocumentationSync.domain.model.artifact.OfficialFigmaArtifactContract
+import com.marmatsan.figmaDocumentationSync.domain.model.artifact.CanonicalFigmaArtifactContract
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.boolean
@@ -11,9 +11,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
 
-/** Reads the JSON files and filesystem locations that make up an official artifact set. */
+/** Reads the JSON files and filesystem locations that make up a canonical artifact set. */
 @Inject
-class OfficialFigmaArtifactSetReader {
+class CanonicalFigmaArtifactSetReader {
     fun read(
         artifactDirectory: String,
     ): Result {
@@ -79,7 +79,7 @@ class OfficialFigmaArtifactSetReader {
             visualManifestPath = visualManifestPaths.singleOrNull(),
             metadataManifestPath = metadataManifestPaths.singleOrNull(),
             contract =
-                OfficialFigmaArtifactContract(
+                CanonicalFigmaArtifactContract(
                     model = modelJson.toModel(),
                     scope = scopeJson.toScope(),
                     plan = planJson.toPlan(),
@@ -89,7 +89,7 @@ class OfficialFigmaArtifactSetReader {
     }
 
     private fun JsonObject.toModel() =
-        OfficialFigmaArtifactContract.Model(
+        CanonicalFigmaArtifactContract.Model(
             branch =
                 requiredString(
                     name = "branch",
@@ -108,7 +108,7 @@ class OfficialFigmaArtifactSetReader {
         )
 
     private fun JsonObject.toScope() =
-        OfficialFigmaArtifactContract.Scope(
+        CanonicalFigmaArtifactContract.Scope(
             scope =
                 requiredString(
                     name = "scope",
@@ -151,13 +151,13 @@ class OfficialFigmaArtifactSetReader {
                 ),
         )
 
-    private fun JsonObject.toPlan(): OfficialFigmaArtifactContract.Plan {
+    private fun JsonObject.toPlan(): CanonicalFigmaArtifactContract.Plan {
         val identity =
             requiredObject(
                 name = "identity",
                 context = "visual-sync-plan.json",
             )
-        return OfficialFigmaArtifactContract.Plan(
+        return CanonicalFigmaArtifactContract.Plan(
             decision =
                 requiredString(
                     name = "decision",
@@ -169,7 +169,7 @@ class OfficialFigmaArtifactSetReader {
                     context = "visual-sync-plan.json",
                 ),
             identity =
-                OfficialFigmaArtifactContract.Identity(
+                CanonicalFigmaArtifactContract.Identity(
                     modelHash =
                         identity.requiredString(
                             name = "modelHash",
@@ -191,13 +191,13 @@ class OfficialFigmaArtifactSetReader {
 
     private fun readManifest(
         path: Path,
-    ): OfficialFigmaArtifactContract.Manifest {
+    ): CanonicalFigmaArtifactContract.Manifest {
         val json =
             readJson(
                 path = path,
             )
         val context = "${path.parent.fileName} manifest"
-        return OfficialFigmaArtifactContract.Manifest(
+        return CanonicalFigmaArtifactContract.Manifest(
             mode =
                 json.requiredString(
                     name = "mode",
@@ -310,7 +310,7 @@ class OfficialFigmaArtifactSetReader {
         val planPath: Path,
         val visualManifestPath: Path?,
         val metadataManifestPath: Path?,
-        val contract: OfficialFigmaArtifactContract,
+        val contract: CanonicalFigmaArtifactContract,
     )
 
     private companion object {

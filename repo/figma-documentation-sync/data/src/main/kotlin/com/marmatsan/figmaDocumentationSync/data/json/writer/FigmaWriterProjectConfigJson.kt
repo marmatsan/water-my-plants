@@ -31,7 +31,7 @@ object FigmaWriterProjectConfigJson {
         return buildJsonObject {
             put(
                 "schemaVersion",
-                1,
+                2,
             )
             put(
                 "METADATA_PAGE_ID",
@@ -54,7 +54,7 @@ object FigmaWriterProjectConfigJson {
                 mcpClientName,
             )
             put(
-                "OFFICIAL_STAGING_NAMESPACE",
+                "CANONICAL_STAGING_NAMESPACE",
                 "${metadataNamespace}_staging",
             )
             put(
@@ -246,12 +246,12 @@ object FigmaWriterProjectConfigJson {
                 branchProtectionSource,
             )
             put(
-                "OFFICIAL_SYNC_SOURCE",
-                officialSyncSource,
+                "CANONICAL_SYNC_SOURCE",
+                canonicalSyncSource,
             )
             put(
-                "OFFICIAL_DESIGN_MODEL_PATH",
-                officialDesignModelPath,
+                "CANONICAL_DESIGN_MODEL_PATH",
+                canonicalDesignModelPath,
             )
             put(
                 "REPOSITORY_ROOT_RELATIVE_TO_TOOLS",

@@ -8,7 +8,7 @@ last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt
-  - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/OfficialMcpRunnerGenerator.kt
+  - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
 ---
 
 # Figma Sync Target Scopes
@@ -16,7 +16,7 @@ sources:
 ## Purpose
 
 Use this reference to understand the ordered visual targets in the Figma model.
-TeamCity always generates the complete runner. The official visual plan then
+TeamCity always generates the complete runner. The canonical visual plan then
 requires either all targets (`full`), only changed fingerprints plus preflight
 (`partial`), or no write (`none`). Ad hoc granular targets remain reserved for
 supervised diagnosis and repair.
@@ -64,11 +64,11 @@ The five targets share the parent section `Continuous Integration and Design
 Documentation`. Both a generated partial plan and a diagnostic target reuse the
 parent and only replace nodes and connectors managed by the requested child
 section. Only the TeamCity-generated plan can authorize that subset as an
-official integration.
+canonical integration.
 
 ## Execution Order
 
-Generate the complete official visual runner by omitting `--target`, or by
+Generate the complete canonical visual runner by omitting `--target`, or by
 passing `--target=all`. It creates bounded MCP runner files for `preflight` and
 each visual target in the order below, and never writes metadata. Catalog
 targets are expanded into one file per declared root plus a final cleanup file:
@@ -82,7 +82,7 @@ run `metadata` until every scope selected by the plan has succeeded and all
 affected sections have been checked. Then use the separate metadata runner.
 
 For supervised diagnosis only, inspect the next atomic unit from the complete
-official artifact. Do not regenerate a partial official runner locally:
+canonical artifact. Do not regenerate a partial canonical runner locally:
 
 ```powershell
 .\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpNext=true
@@ -121,7 +121,7 @@ produce a `full` plan automatically.
 | 10 | `figmaDocumentationSync.plugins` | `repo/figma-documentation-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
 | 11 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
 | 12 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
-| 13 | `ci.postMergeDesignDocumentation` | Official model generation and operator-assisted visual update loop | Automatic Figma write implied, exact phased Gradle task missing, artifact missing, disconnected generation/check jobs, or rerun loop absent | The jobs show their exact official Gradle entry points; `Generate main design model -> design-model.json -> Check Figma trunk sync` is connected, followed by the operator/Codex handoff and `Rerun via HTTPS client`. |
+| 13 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, exact phased Gradle task missing, artifact missing, disconnected generation/check jobs, or rerun loop absent | The jobs show their exact canonical Gradle entry points; `Generate main design model -> design-model.json -> Check Figma trunk sync` is connected, followed by the operator/Codex handoff and `Rerun via HTTPS client`. |
 | 14 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
 | 15 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
 | 16 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
@@ -129,7 +129,7 @@ produce a `full` plan automatically.
 ## Subtree Scoped Runs
 
 When a visual fix affects one top-level catalog root, locate its atomic runner
-file in the official manifest and inspect the remaining plan from that unit:
+file in the canonical manifest and inspect the remaining plan from that unit:
 
 ```powershell
 .\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpFrom="RUNNER_FILE_FOR_waterMyPlants.libraries.androidx" -PfigmaMcpDryRun=true
@@ -140,14 +140,14 @@ not mutate Figma. For a supervised one-unit diagnosis, execute only the named
 generated file through the supported MCP writer, then record that exact file
 with `figmaMcpRecordSuccess` or `figmaMcpRecordFailure`.
 
-The full official manifest already splits catalog targets into one file per
+The full canonical manifest already splits catalog targets into one file per
 top-level root. Library roots match `group`; plugin roots match `id`. If the
 root is missing, the generated scope is absent from the manifest.
 
 Root-scoped execution also limits Figma traversal to the matching child
 section. Instance, connector, lock, stroke, fill, and descendant-layout scans
 must not visit sibling catalog roots or page-level connectors. The generated
-official runner uses one root-scoped `99-*.mcp.js` unit per declared root and a
+canonical runner uses one root-scoped `99-*.mcp.js` unit per declared root and a
 separate cleanup unit for stale nodes or sections that require a whole-catalog
 view. Cleanup may inspect every direct root of that catalog, but lock and unlock
 traversal remains scoped to the catalog section; it must not scan sibling
@@ -185,7 +185,7 @@ not a different source of truth.
 
 When a target fails, use a partial runner only to diagnose and verify the local
 repair. Fix the component or TypeScript contract, merge the fix to `main`, and
-regenerate the official TeamCity artifact when model content changes. Before
-writing metadata, complete every scope selected by the new official visual plan
+regenerate the canonical TeamCity artifact when model content changes. Before
+writing metadata, complete every scope selected by the new canonical visual plan
 from `preflight`; a successful ad hoc partial repair never closes the
 integration.

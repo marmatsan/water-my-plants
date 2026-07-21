@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.writer
 
 /** Model and compiled writer payload transported to Figma through a PNG asset. */
-data class OfficialSyncPayload(
+data class CanonicalSyncPayload(
     val payloadSchemaVersion: Int,
     val designModelJson: String,
     val designModelHash: String,

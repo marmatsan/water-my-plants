@@ -7,11 +7,11 @@ status: active
 last-reviewed: 2026-07-19
 review-cycle-days: 90
 sources:
-  - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/OfficialMcpRunnerGenerator.kt
+  - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
+  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # MCP Payload Transport Runbook
@@ -23,7 +23,7 @@ MCP script must be transported into the Figma MCP runtime. Figma MCP cannot read
 local files or TeamCity artifacts directly, so payloads are staged through
 temporary Figma shared plugin data.
 
-For official trunk syncs, prefer the generated PNG payload transport. It writes
+For canonical trunk syncs, prefer the generated PNG payload transport. It writes
 the model and MCP script into a small PNG uploaded through Figma assets, then a
 short MCP runner extracts that payload and stages the validated values. Chunked
 shared-plugin-data transport remains available as the fallback when the PNG
@@ -49,8 +49,8 @@ Do not commit the generated JavaScript. The script expects
 `design-model.json` to be injected as `DESIGN_MODEL` before execution and must
 run in the Figma MCP runtime because it uses the Figma plugin API.
 
-TeamCity invokes the Kotlin `OfficialMcpRunnerGenerator` after building this
-boundary. The official artifact already contains complete visual and metadata
+TeamCity invokes the Kotlin `CanonicalMcpRunnerGenerator` after building this
+boundary. The canonical artifact already contains complete visual and metadata
 runner directories. Inspect the visual runner without writing to Figma:
 
 ```powershell
@@ -64,47 +64,48 @@ the runner:
 .\gradlew.bat runFigmaMcp -PfigmaMcpManifest="PATH\TO\visual\manifest.json" -PfigmaMcpPlan="PATH\TO\visual-sync-plan.json" -PfigmaMcpNext=true
 ```
 
-`preflight` reads the same official model and validates variables, component
+`preflight` reads the same canonical model and validates variables, component
 properties, usage chip variants, configured sections, target model shape, and
 root filters. It must return `mutatedNodeIds: []`.
 
 The Kotlin executor preserves preflight-first ordering and checkpoints each
 subsequent visual unit independently. A focused diagnostic may execute one
 generated atomic file through the supervised MCP writer and record its result,
-but it cannot complete an official integration. Metadata remains a separate
+but it cannot complete a canonical integration. Metadata remains a separate
 manifest and runs only after the visual checkpoint is complete.
 
-Official mode defaults to `--transport=png` and writes:
+Canonical mode defaults to `--transport=png` and writes:
 
-- `10-official-sync-payload.png`
+- `10-canonical-sync-payload.png`
 - `00-clear-staging.mcp.js`
 - `10-stage-payload-from-png.mcp.js`
 - `90-finalize-staging.mcp.js`
 - `99-00-preflight.mcp.js` through the final ordered visual execution unit
 - `manifest.json`
 
-Manifest schema 3 records `modelHash`, `gitSha`, `writerHash`, `transportHash`,
+Manifest schema 4 records `modelHash`, `gitSha`, `writerHash`, `transportHash`,
 `manifestHash`, per-file hashes, execution scopes, per-target model
 fingerprints, per-scope writer fingerprints, and their schema version. The
 executor uses this identity to reject stale checkpoints and the visual planner
 uses both fingerprint maps to select `none`, `partial`, or `full` execution
-without parsing generated source. Schema 2 manifests remain executable for
-recovery, but their legacy metadata cannot authorize a partial new plan.
+without parsing generated source. Schema 3 and older manifests use the retired
+`official` vocabulary and are rejected. Regenerate the artifact through the
+TeamCity `Figma Sync` pipeline; do not rename fields or payload files by hand.
 
-Upload `10-official-sync-payload.png` to the Figma file before running
+Upload `10-canonical-sync-payload.png` to the Figma file before running
 `10-stage-payload-from-png.mcp.js`. Then run every generated `.mcp.js` snippet
-in lexical order. Full official runners use one `99-*.mcp.js` call per bounded
+in lexical order. Full canonical runners use one `99-*.mcp.js` call per bounded
 execution unit. Non-catalog targets use one call; catalog targets with declared
 roots use one call per root followed by a cleanup-only call. The PNG asset is a
 transport artifact only; the staging runner removes the uploaded image node
 after extracting the payload.
 
 `upload_assets` returns a single-use URL under `https://mcp.figma.com`. For
-Water My Plants, pass that URL and the official TeamCity child run id to the
+Water My Plants, pass that URL and the canonical TeamCity child run id to the
 Kotlin uploader:
 
 ```powershell
-.\gradlew.bat uploadOfficialFigmaPayload `
+.\gradlew.bat uploadCanonicalFigmaPayload `
     -PfigmaTeamCityBuildId=<job-run-id> `
     -PfigmaMcpUploadUrl="<single-use-upload-url>"
 ```
@@ -120,7 +121,7 @@ old URL.
 If the environment cannot start the TeamCity CLI from a Gradle child process,
 download the child run with the authenticated `teamcity run download` command
 and use `-PfigmaArtifactDirectory` plus the mandatory
-`-PfigmaExpectedGitSha`. This fallback still accepts only a complete official
+`-PfigmaExpectedGitSha`. This fallback still accepts only a complete canonical
 artifact set and its manifest-declared PNG; it never accepts a standalone image
 path.
 
@@ -139,12 +140,12 @@ file:
 
 `figmaMcpFrom` includes that file and every later planned unit. For a supervised
 one-unit diagnosis, execute only the named generated file through the supported
-MCP writer and record the result. The runner already scopes the official model
+MCP writer and record the result. The runner already scopes the canonical model
 to that root; it does not create or authorize a branch-local design model.
 
 If the generated PNG exceeds the supported upload size or asset upload is not
-usable, rerun the authorized official TeamCity generation with
-`-PfigmaMcpTransport=chunks`. Do not regenerate an official runner from a local
+usable, rerun the authorized canonical TeamCity generation with
+`-PfigmaMcpTransport=chunks`. Do not regenerate a canonical runner from a local
 or feature-branch model.
 
 If a generated chunk runner file is too large for the MCP transport, reduce the
@@ -162,7 +163,7 @@ the catalogs present in the TeamCity model.
 ## Runtime Boundary
 
 The Figma MCP runtime cannot read local files or TeamCity artifacts directly.
-Before calling `use_figma`, download the official TeamCity artifact outside
+Before calling `use_figma`, download the canonical TeamCity artifact outside
 Figma, build the compatible MCP bundle, and stage both values in temporary Figma
 shared plugin data.
 
@@ -204,7 +205,7 @@ Stage these keys on page `62934:908` under
 
 | Key | Value |
 |-----|-------|
-| `designModelJson` | Minified JSON text from TeamCity's official `design-model.json` artifact. |
+| `designModelJson` | Minified JSON text from TeamCity's canonical `design-model.json` artifact. |
 | `designModelHash` | The artifact `modelHash`, used to validate the staged model. |
 | `designModelGitSha` | The artifact `gitSha`, used to validate the staged model. |
 | `designModelLength` | Character length of `designModelJson`, used to catch truncated staging writes. |
@@ -252,7 +253,7 @@ runner files in lexical order. If the model chunks are uncertain, rerun the
 full runner from `00-clear-staging.mcp.js`.
 
 Before diagnosing a visual no-op as a model or component bug, confirm that the
-official payload was actually staged. A common interrupted-sync symptom is
+canonical payload was actually staged. A common interrupted-sync symptom is
 `designModelJson.length = 0` in `water_my_plants_sync_staging`, which means
 the first `99-*.mcp.js` target runner has no model to apply:
 
@@ -279,7 +280,7 @@ return {
 
 ## Prerequisites
 
-- Use the official `main` artifact and generated runner manifest.
+- Use the canonical `main` artifact and generated runner manifest.
 - Build the TypeScript tools with the repository lockfile.
 - Confirm the local MCP endpoint capabilities before attempting a write.
 
@@ -304,25 +305,25 @@ the required write tools.
 
 ## Sources
 
-- `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/OfficialMcpRunnerGenerator.kt`
+- `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadOfficialFigmaPayloadTask.kt`
+- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt`
 - `tools/src/sync-trunk-design-model.ts`
 
 ## Run The Planned Visual Sync
 
-The official runner contains bounded calls for `preflight` and every visual
+The canonical runner contains bounded calls for `preflight` and every visual
 target from [target-scopes.md](../reference/target-scopes.md). Apply
 `visual-sync-plan.json`, then execute every selected `99-*.mcp.js` file in
 lexical order without editing its target or root. Catalog calls are split by
-roots from the official model and finish with stale-node cleanup. All calls use
+roots from the canonical model and finish with stale-node cleanup. All calls use
 `writeMetadata=false`.
 
 If a focused diagnostic is necessary, use one atomic file already present in
 the complete runner and record the result in its checkpoint. A partial repair
-cannot authorize metadata. Complete the official artifact's generated visual
+cannot authorize metadata. Complete the canonical artifact's generated visual
 plan before closing the synchronization.
 
 ## Write Metadata

@@ -46,6 +46,11 @@ class CiVisualPlanner {
                         pipeline = figmaPipeline,
                         config = config,
                     ),
+                    createJobTasksSection(
+                        ciPipeline = ciPipeline,
+                        figmaPipeline = figmaPipeline,
+                        config = config,
+                    ),
                     createInfrastructureSection(
                         topology = externalTopology,
                         config = config,
@@ -56,6 +61,70 @@ class CiVisualPlanner {
                     ),
                 ),
         )
+    }
+
+    private fun createJobTasksSection(
+        ciPipeline: CiPipeline,
+        figmaPipeline: CiPipeline,
+        config: CiVisualPlanConfig,
+    ): CiVisualPlan.Section {
+        val nodes =
+            listOf(
+                ciPipeline,
+                figmaPipeline,
+            ).flatMap { pipeline ->
+                jobsInDependencyOrder(
+                    pipeline = pipeline,
+                ).map { job -> pipeline to job }
+            }.filter { (_, job) ->
+                visualSteps(
+                    job = job,
+                ).isNotEmpty()
+            }.mapIndexed { index, (pipeline, job) ->
+                jobTaskNode(
+                    id = "job-tasks-${pipeline.id}-${job.id}",
+                    pipeline = pipeline,
+                    job = job,
+                    row = 0,
+                    column = index,
+                    config = config,
+                )
+            }
+        return section(
+            target = "ci.jobTasks",
+            name = "Job Tasks",
+            description = "Ordered TeamCity phases, Gradle tasks, decisions, and outcomes for every CI job.",
+            sources =
+                listOf(
+                    config.teamCitySource,
+                    config.visualContractSource,
+                ),
+            orientation = CiVisualPlan.Orientation.GRID,
+            nodes = nodes,
+            connections = emptyList(),
+            config = config,
+        )
+    }
+
+    private fun jobsInDependencyOrder(
+        pipeline: CiPipeline,
+    ): List<CiJob> {
+        val remaining = pipeline.jobs.toMutableList()
+        val ordered = mutableListOf<CiJob>()
+        val pipelineJobIds = pipeline.jobs.map(CiJob::id).toSet()
+        while (remaining.isNotEmpty()) {
+            val completedIds = ordered.map(CiJob::id).toSet()
+            val next =
+                remaining.firstOrNull { job ->
+                    job.dependencies
+                        .map(CiJob.Dependency::jobId)
+                        .filter { dependencyId -> dependencyId in pipelineJobIds }
+                        .all { dependencyId -> dependencyId in completedIds }
+                } ?: return pipeline.jobs
+            ordered += next
+            remaining -= next
+        }
+        return ordered
     }
 
     private fun createOverviewSection(
@@ -379,7 +448,7 @@ class CiVisualPlanner {
                 job.artifacts.any { artifact ->
                     artifactPathContains(
                         publishedPath = artifact.path,
-                        requiredFile = config.officialDesignModelPath,
+                        requiredFile = config.canonicalDesignModelPath,
                     )
                 }
             }
@@ -391,7 +460,7 @@ class CiVisualPlanner {
                             dependency.artifactPaths.any { path ->
                                 artifactPathContains(
                                     publishedPath = path,
-                                    requiredFile = config.officialDesignModelPath,
+                                    requiredFile = config.canonicalDesignModelPath,
                                 )
                             }
                     }
@@ -444,7 +513,7 @@ class CiVisualPlanner {
                 type = CiVisualPlan.Type.ARTIFACT,
                 environment = CiVisualPlan.Environment.JSON,
                 name = "design-model.json",
-                description = "Official repository snapshot consumed by visual synchronization.",
+                description = "Canonical repository snapshot consumed by visual synchronization.",
                 source = config.teamCitySource,
                 row = artifactRow,
                 column = 0,
@@ -589,11 +658,11 @@ class CiVisualPlanner {
         return section(
             target = "ci.postMergeDesignDocumentation",
             name = "Post-merge Design Documentation",
-            description = "Official model generation, visual synchronization, and verification loop.",
+            description = "Canonical model generation, visual synchronization, and verification loop.",
             sources =
                 listOf(
                     config.teamCitySource,
-                    config.officialSyncSource,
+                    config.canonicalSyncSource,
                 ),
             orientation = CiVisualPlan.Orientation.HORIZONTAL,
             nodes = nodes,
@@ -765,12 +834,37 @@ class CiVisualPlanner {
             row = row,
             column = column,
             config = config,
+        )
+
+    private fun jobTaskNode(
+        id: String,
+        pipeline: CiPipeline,
+        job: CiJob,
+        row: Int,
+        column: Int,
+        config: CiVisualPlanConfig,
+    ): CiVisualPlan.Node {
+        val jobDescription =
+            jobDescription(
+                name = job.name,
+            )
+        return visualNode(
+            id = id,
+            type = CiVisualPlan.Type.JOB,
+            environment = CiVisualPlan.Environment.TEAMCITY,
+            name = job.name,
+            description = "$jobDescription TeamCity pipeline: ${pipeline.name}.",
+            source = config.teamCitySource,
+            row = row,
+            column = column,
+            config = config,
         ).copy(
             steps =
                 visualSteps(
                     job = job,
                 ),
         )
+    }
 
     private fun externalNode(
         id: String,
@@ -1000,23 +1094,23 @@ class CiVisualPlanner {
                 ) + rootCheckStepSpecs
             }
 
-            "classifyOfficialFigmaSyncChangeImpact" -> {
+            "classifyCanonicalFigmaSyncChangeImpact" -> {
                 listOf(
                     actionSpec(
                         task = task,
-                        description = "Classifies whether the official Figma sync needs full verification.",
+                        description = "Classifies whether the canonical Figma sync needs full verification.",
                     ),
                     actionSpec(
-                        task = "cleanOfficialFigmaSyncReports",
-                        description = "Removes stale official Figma sync reports.",
-                        condition = "Gradle dependency of classifyOfficialFigmaSyncChangeImpact",
+                        task = "cleanCanonicalFigmaSyncReports",
+                        description = "Removes stale canonical Figma sync reports.",
+                        condition = "Gradle dependency of classifyCanonicalFigmaSyncChangeImpact",
                     ),
                 )
             }
 
             "materializeFigmaSyncCiConfiguration",
-            "generateOfficialFigmaSyncModel",
-            "checkOfficialFigmaTrunkSync",
+            "generateCanonicalFigmaSyncModel",
+            "checkCanonicalFigmaTrunkSync",
             -> {
                 listOf(
                     actionSpec(
@@ -1027,7 +1121,7 @@ class CiVisualPlanner {
                 )
             }
 
-            "prepareOfficialFigmaSync" -> {
+            "prepareCanonicalFigmaSync" -> {
                 listOf(
                     actionSpec(
                         task = task,
@@ -1036,7 +1130,7 @@ class CiVisualPlanner {
                     actionSpec(
                         task = "writeFigmaWriterProjectConfig",
                         description = "Projects the repository-specific Figma writer contract.",
-                        condition = "Gradle dependency of prepareOfficialFigmaSync",
+                        condition = "Gradle dependency of prepareCanonicalFigmaSync",
                     ),
                 )
             }
@@ -1123,8 +1217,8 @@ class CiVisualPlanner {
     ): String =
         when (name) {
             "Verify" -> "Runs repository verification and publishes the required CI check."
-            "Generate main design model" -> "Builds and publishes the official design-model.json artifact."
-            "Check Figma trunk sync" -> "Compares current Figma metadata with the official model hash."
+            "Generate main design model" -> "Builds and publishes the canonical design-model.json artifact."
+            "Check Figma trunk sync" -> "Compares current Figma metadata with the canonical model hash."
             else -> "Executes an effective TeamCity pipeline job."
         }
 

@@ -22,8 +22,8 @@ losing the strict `main` artifact, preflight, checkpoint, and metadata
 contracts. The optimization target is MCP work and operator context, not a
 weaker visual result.
 
-The official `design-model.json` still comes only from TeamCity `Figma Sync` on
-`main`. A partial plan narrows execution units from that official model; it does
+The canonical `design-model.json` still comes only from TeamCity `Figma Sync` on
+`main`. A partial plan narrows execution units from that canonical model; it does
 not authorize a branch-local model or an early metadata write.
 
 ## Execution Identity
@@ -37,7 +37,7 @@ Generated runner manifests use these independent identity fields:
 | `writerScopeFingerprints` | Source fingerprints for each writer target family. | Only changed writer scopes when the change is mapped safely. |
 | `writerScopeFingerprintSchemaVersion` | Version of writer source classification. | A complete migration sync when it changes. |
 | `transportHash` | Hash of PNG/chunk staging behavior. | Staging only; it does not make unchanged visuals stale. |
-| `gitSha` | Revision that produced the official artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
+| `gitSha` | Revision that produced the canonical artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
 
 `manifestHash` binds those values to the exact generated files. Each visual
 scope also has a model `targetFingerprint`. Model and writer fingerprints are
@@ -65,7 +65,7 @@ For a model-affecting `main` revision, `Generate main design model` publishes:
 | `full` | Metadata is unavailable or legacy, the fingerprint schema changed, shared writer code changed, or a model/writer difference cannot be mapped safely. |
 
 Metadata read failures fail closed to `full`. A plan never turns an unknown
-change into a no-op. The first official sync after introducing or changing the
+change into a no-op. The first canonical sync after introducing or changing the
 writer fingerprint schema is deliberately `full`; its final metadata write
 establishes the baseline used by later partial plans.
 
@@ -80,7 +80,7 @@ Probe the configured local endpoint through the Kotlin MCP SDK client:
 The current Figma Desktop endpoint at `http://127.0.0.1:3845/mcp` advertises
 read-oriented tools but not the `use_figma` and `upload_assets` write tools
 required by the runner. In that state `runFigmaMcp` refuses to mutate Figma.
-Keep using the official
+Keep using the canonical
 Codex-operated Figma MCP write path until the endpoint advertises the required
 capabilities.
 
@@ -144,7 +144,7 @@ evidence, batching makes retries more expensive and less diagnosable.
 - Inspect only the failed target and its Figma section during recovery.
 - Keep PNG as the default staging transport and chunks as a fallback.
 
-These rules reduce repeated context while keeping the official full/partial
+These rules reduce repeated context while keeping the canonical full/partial
 decision and every successful execution unit auditable.
 
 ## Prerequisites
@@ -168,7 +168,7 @@ chunks only for a verified transport limitation.
 
 ## Prohibited Actions
 
-- Do not choose `none` or `partial` manually for an official integration.
+- Do not choose `none` or `partial` manually for a canonical integration.
 - Do not skip hash validation to reuse staging.
 - Do not resend successful runner units merely to rebuild conversational
   context.

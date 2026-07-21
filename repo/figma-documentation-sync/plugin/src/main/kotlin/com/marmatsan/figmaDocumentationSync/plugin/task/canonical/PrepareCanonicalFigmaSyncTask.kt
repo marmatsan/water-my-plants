@@ -1,13 +1,13 @@
-package com.marmatsan.figmaDocumentationSync.plugin.task.official
+package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import com.marmatsan.figmaDocumentationSync.data.figma.client.FigmaFileContentClient
 import com.marmatsan.figmaDocumentationSync.data.figma.common.FigmaNodeUrl
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaSyncMetadataJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterRuntimeConfigJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.VisualSyncPlanJson
-import com.marmatsan.figmaDocumentationSync.data.writer.OfficialMcpRunnerGenerator
+import com.marmatsan.figmaDocumentationSync.data.writer.CanonicalMcpRunnerGenerator
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
-import com.marmatsan.figmaDocumentationSync.domain.model.sync.OfficialFigmaSyncScope
+import com.marmatsan.figmaDocumentationSync.domain.model.sync.CanonicalFigmaSyncScope
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaSyncMetadata
 import com.marmatsan.figmaDocumentationSync.domain.service.writer.VisualSyncPlanner
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
@@ -30,11 +30,11 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-/** Builds the official MCP runner artifacts and writes their shared sync scope. */
+/** Builds the canonical MCP runner artifacts and writes their shared sync scope. */
 @DisableCachingByDefault(
-    because = "Builds the TypeScript Figma boundary and generates official runner artifacts",
+    because = "Builds the TypeScript Figma boundary and generates canonical runner artifacts",
 )
-abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
+abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val changeImpactFile: RegularFileProperty
@@ -84,7 +84,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
     @TaskAction
     fun prepare() {
         val component = figmaDocumentationSyncComponent::class.create()
-        val scopeJson = component.officialFigmaSyncScopeJson
+        val scopeJson = component.canonicalFigmaSyncScopeJson
         val impact =
             scopeJson.readChangeImpact(
                 sourcePath = changeImpactFile.get().asFile.absolutePath,
@@ -101,13 +101,13 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             if (impact.scope == FigmaVerificationScope.FULL_VERIFICATION) {
                 val model = designModelFile.get().asFile
                 if (!model.isFile) {
-                    throw GradleException("Missing official Figma design model artifact: ${model.path}")
+                    throw GradleException("Missing canonical Figma design model artifact: ${model.path}")
                 }
 
                 val tools = toolsDirectory.get().asFile
                 val projectConfig =
                     writerProjectConfigFile.orNull?.asFile
-                        ?: throw GradleException("Official MCP runner generation requires writerProjectConfigFile.")
+                        ?: throw GradleException("Canonical MCP runner generation requires writerProjectConfigFile.")
                 run(
                     tools,
                     npmExecutable(),
@@ -126,9 +126,9 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                 if (!writerScript.isFile) {
                     throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
                 }
-                OfficialMcpRunnerGenerator().generate(
+                CanonicalMcpRunnerGenerator().generate(
                     request =
-                        OfficialMcpRunnerGenerator.Request(
+                        CanonicalMcpRunnerGenerator.Request(
                             modelPath = model.absolutePath,
                             scriptPath = writerScript.absolutePath,
                             outputDirectory = runnerDirectory.absolutePath,
@@ -152,11 +152,11 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                     )
                 val visualManifest =
                     manifests.singleOrNull { manifest -> manifest.fullVisualSync }
-                        ?: throw GradleException("Official visual MCP runner manifest was not generated exactly once.")
+                        ?: throw GradleException("Canonical visual MCP runner manifest was not generated exactly once.")
                 val metadataManifest =
                     manifests.singleOrNull { manifest -> manifest.writeMetadata }
                         ?: throw GradleException(
-                            "Official metadata MCP runner manifest was not generated exactly once.",
+                            "Canonical metadata MCP runner manifest was not generated exactly once.",
                         )
                 val plan = visualSyncPlanFile.get().asFile
                 val planJson = VisualSyncPlanJson()
@@ -172,7 +172,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                     plan.absolutePath,
                 )
 
-                OfficialFigmaSyncScope(
+                CanonicalFigmaSyncScope(
                     scope = impact.scope,
                     figmaImpact = impact.impact,
                     affectedVisualTargets = impact.affectedVisualTargets,
@@ -190,7 +190,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
                     visualSyncPlanHash = visualPlan.planHash,
                 )
             } else {
-                OfficialFigmaSyncScope(
+                CanonicalFigmaSyncScope(
                     scope = impact.scope,
                     figmaImpact = impact.impact,
                     affectedVisualTargets = impact.affectedVisualTargets,
@@ -213,7 +213,7 @@ abstract class PrepareOfficialFigmaSyncTask : DefaultTask() {
             scope,
             scopeFile.get().asFile.absolutePath,
         )
-        logger.lifecycle("Prepared official Figma Sync scope: ${scope.scope.wireValue}")
+        logger.lifecycle("Prepared canonical Figma Sync scope: ${scope.scope.wireValue}")
     }
 
     private fun readPreviousMetadata(): FigmaSyncMetadata? {

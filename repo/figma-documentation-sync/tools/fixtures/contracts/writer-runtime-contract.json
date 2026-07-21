@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "manifestSchemaVersion": 3,
+  "schemaVersion": 2,
+  "manifestSchemaVersion": 4,
   "writerScopeFingerprintSchemaVersion": 1,
   "requiredManifestFields": [
     "schemaVersion",
@@ -13,7 +13,7 @@
     "namespace",
     "sectionNodeId",
     "roots",
-    "allowOfficialSections",
+    "allowCanonicalSections",
     "allowPartial",
     "fullVisualSync",
     "metadataPageId",
@@ -70,6 +70,7 @@
     "ci.overview",
     "ci.pullRequestIntegration",
     "ci.postMergeDesignDocumentation",
+    "ci.jobTasks",
     "ci.infrastructureAndAccess",
     "ci.windowsRuntime"
   ],
@@ -94,6 +95,7 @@
       "ci.overview",
       "ci.pullRequestIntegration",
       "ci.postMergeDesignDocumentation",
+      "ci.jobTasks",
       "ci.infrastructureAndAccess",
       "ci.windowsRuntime"
     ],

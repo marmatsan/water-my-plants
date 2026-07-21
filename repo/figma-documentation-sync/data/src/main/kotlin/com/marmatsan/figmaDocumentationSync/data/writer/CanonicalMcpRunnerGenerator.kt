@@ -8,9 +8,9 @@ import com.marmatsan.figmaDocumentationSync.data.json.CanonicalJson
 import com.marmatsan.figmaDocumentationSync.data.json.visual.CiVisualPlanJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDocumentationSync.data.png.PayloadPngEncoder
+import com.marmatsan.figmaDocumentationSync.domain.model.writer.CanonicalSyncPayload
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.ExecutableRunnerManifest
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaWriterRuntimeConfig
-import com.marmatsan.figmaDocumentationSync.domain.model.writer.OfficialSyncPayload
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.RunnerPayloadImage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -29,8 +29,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Comparator
 
-/** Generates official visual and metadata MCP runner directories without Node orchestration. */
-class OfficialMcpRunnerGenerator(
+/** Generates canonical visual and metadata MCP runner directories without Node orchestration. */
+class CanonicalMcpRunnerGenerator(
     private val renderer: McpRunnerSourceRenderer = McpRunnerSourceRenderer(),
     private val targetFingerprints: FigmaTargetFingerprintCalculator = FigmaTargetFingerprintCalculator(),
     private val writerFingerprints: WriterScopeFingerprintCalculator = WriterScopeFingerprintCalculator(),
@@ -173,7 +173,7 @@ class OfficialMcpRunnerGenerator(
             directory = outputDirectory,
         )
         val sources = linkedMapOf<String, String>()
-        val namespace = context.request.config.officialStagingNamespace
+        val namespace = context.request.config.canonicalStagingNamespace
         sources[CLEAR_STAGING_FILE] =
             renderer.clearStaging(
                 metadataPageId = context.request.config.metadataPageId,
@@ -183,7 +183,7 @@ class OfficialMcpRunnerGenerator(
         val payloadImage =
             if (context.request.transport == TRANSPORT_PNG) {
                 val payload =
-                    OfficialSyncPayload(
+                    CanonicalSyncPayload(
                         payloadSchemaVersion = PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION,
                         designModelJson = context.modelJson,
                         designModelHash = context.modelHash,
@@ -201,7 +201,7 @@ class OfficialMcpRunnerGenerator(
                         ),
                     )
                 require(bytes.size <= PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
-                    "Official payload PNG is ${bytes.size} bytes and exceeds " +
+                    "Canonical payload PNG is ${bytes.size} bytes and exceeds " +
                         "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes. Use chunk transport."
                 }
                 Files.write(
@@ -280,7 +280,7 @@ class OfficialMcpRunnerGenerator(
                             MANIFEST_FILE,
                         ).toString(),
                 schemaVersion = MANIFEST_SCHEMA_VERSION,
-                mode = "official",
+                mode = "canonical",
                 entrypoint = "trunk-sync",
                 target = targets.first(),
                 targets = targets,
@@ -289,7 +289,7 @@ class OfficialMcpRunnerGenerator(
                 namespace = namespace,
                 sectionNodeId = null,
                 roots = emptyList(),
-                allowOfficialSections = false,
+                allowCanonicalSections = false,
                 fullVisualSync = fullVisualSync,
                 allowPartial = false,
                 metadataPageId = context.request.config.metadataPageId,
@@ -732,7 +732,7 @@ class OfficialMcpRunnerGenerator(
     companion object {
         const val TRANSPORT_PNG = "png"
         const val TRANSPORT_CHUNKS = "chunks"
-        const val MANIFEST_SCHEMA_VERSION = 3
+        const val MANIFEST_SCHEMA_VERSION = 4
 
         private const val TRANSPORT_CONTRACT_VERSION = 2
         private const val DEFAULT_CHUNK_SIZE = 30_000
@@ -742,7 +742,7 @@ class OfficialMcpRunnerGenerator(
         private const val VISUAL_DIRECTORY = "visual"
         private const val METADATA_DIRECTORY = "metadata"
         private const val MANIFEST_FILE = "manifest.json"
-        private const val PAYLOAD_PNG_FILE = "10-official-sync-payload.png"
+        private const val PAYLOAD_PNG_FILE = "10-canonical-sync-payload.png"
         private const val CLEAR_STAGING_FILE = "00-clear-staging.mcp.js"
         private const val STAGE_PAYLOAD_FILE = "10-stage-payload-from-png.mcp.js"
         private const val FINALIZE_STAGING_FILE = "90-finalize-staging.mcp.js"

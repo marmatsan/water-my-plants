@@ -815,14 +815,37 @@ function layoutChildSections(parent, mutatedNodeIds) {
 
 function resizeParent(parent, mutatedNodeIds) {
   const children = parent.children.filter((child) => child.visible !== false);
-  const width = Math.max(...children.map((child) => child.x + child.width), 1) + SECTION_PADDING;
-  const height = Math.max(...children.map((child) => child.y + child.height), 1) + SECTION_PADDING;
+  const { width, height } = ciParentResizeDimensions(children);
   parent.resizeWithoutConstraints(width, height);
   const header = children.find((child) => child.type === "INSTANCE" && child.name === HEADER_INSTANCE_NAME);
   if (header?.type === "INSTANCE") {
     header.resizeWithoutConstraints(width, header.height);
   }
   mutatedNodeIds.push(parent.id);
+}
+
+export function ciParentResizeDimensions(
+  children: Array<{
+    type: string;
+    name?: string;
+    visible?: boolean;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }>
+) {
+  const visibleChildren = children.filter((child) => child.visible !== false);
+  const sections = visibleChildren.filter((child) => child.type === "SECTION");
+  const header = visibleChildren.find(
+    (child) => child.type === "INSTANCE" && child.name === HEADER_INSTANCE_NAME
+  );
+  const width = Math.max(...sections.map((section) => section.x + section.width), 1) + SECTION_PADDING;
+  const height = Math.max(
+    ...sections.map((section) => section.y + section.height),
+    header ? header.y + header.height : 1
+  ) + SECTION_PADDING;
+  return { width, height };
 }
 
 function targetOrder(section) {

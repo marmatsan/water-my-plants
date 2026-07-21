@@ -4,7 +4,7 @@ import com.marmatsan.figmaDocumentationSync.data.fingerprint.WriterScopeFingerpr
 import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterProjectConfigJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterRuntimeConfigJson
-import com.marmatsan.figmaDocumentationSync.data.writer.OfficialMcpRunnerGenerator
+import com.marmatsan.figmaDocumentationSync.data.writer.CanonicalMcpRunnerGenerator
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.ExecutableRunnerManifest
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -36,12 +36,12 @@ internal class WriterRuntimeContractTest :
                 contract
                     .getValue("schemaVersion")
                     .jsonPrimitive.content
-                    .toInt() shouldBe 1
+                    .toInt() shouldBe 2
                 contract
                     .getValue("manifestSchemaVersion")
                     .jsonPrimitive.content
                     .toInt() shouldBe
-                    OfficialMcpRunnerGenerator.MANIFEST_SCHEMA_VERSION
+                    CanonicalMcpRunnerGenerator.MANIFEST_SCHEMA_VERSION
                 contract
                     .getValue("writerScopeFingerprintSchemaVersion")
                     .jsonPrimitive.content
@@ -51,8 +51,8 @@ internal class WriterRuntimeContractTest :
                     runtimeConfig.visualTargetNames
                 metadata.getValue("targets").jsonArray.map { value -> value.jsonPrimitive.content } shouldContainExactly
                     listOf("metadata")
-                visual.getValue("transport").jsonPrimitive.content shouldBe OfficialMcpRunnerGenerator.TRANSPORT_PNG
-                metadata.getValue("transport").jsonPrimitive.content shouldBe OfficialMcpRunnerGenerator.TRANSPORT_PNG
+                visual.getValue("transport").jsonPrimitive.content shouldBe CanonicalMcpRunnerGenerator.TRANSPORT_PNG
+                metadata.getValue("transport").jsonPrimitive.content shouldBe CanonicalMcpRunnerGenerator.TRANSPORT_PNG
 
                 val output =
                     Files.createTempFile(
@@ -66,17 +66,17 @@ internal class WriterRuntimeContractTest :
                             draft =
                                 ExecutableRunnerManifest(
                                     path = "",
-                                    schemaVersion = OfficialMcpRunnerGenerator.MANIFEST_SCHEMA_VERSION,
-                                    mode = "official",
+                                    schemaVersion = CanonicalMcpRunnerGenerator.MANIFEST_SCHEMA_VERSION,
+                                    mode = "canonical",
                                     entrypoint = "trunk-sync",
                                     target = "metadata",
                                     targets = listOf("metadata"),
                                     writeMetadata = true,
-                                    transport = OfficialMcpRunnerGenerator.TRANSPORT_PNG,
-                                    namespace = runtimeConfig.officialStagingNamespace,
+                                    transport = CanonicalMcpRunnerGenerator.TRANSPORT_PNG,
+                                    namespace = runtimeConfig.canonicalStagingNamespace,
                                     sectionNodeId = null,
                                     roots = emptyList(),
-                                    allowOfficialSections = false,
+                                    allowCanonicalSections = false,
                                     fullVisualSync = false,
                                     allowPartial = false,
                                     metadataPageId = runtimeConfig.metadataPageId,

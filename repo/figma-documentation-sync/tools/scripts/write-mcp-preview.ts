@@ -17,7 +17,7 @@ const DEFAULT_PREVIEW_CATALOG_SCRIPT = resolve(TOOL_ROOT, "dist", "sync-catalog-
 const DEFAULT_OUT_ROOT = resolve(TOOL_ROOT, "dist", "mcp-runners");
 const DEFAULT_CHUNK_SIZE = 30_000;
 const MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH = 100_000;
-const MANIFEST_SCHEMA_VERSION = 3;
+const MANIFEST_SCHEMA_VERSION = 4;
 const TRANSPORT_CONTRACT_VERSION = 1;
 const WRITER_SCOPE_FINGERPRINT_SCHEMA_VERSION = 1;
 
@@ -76,7 +76,7 @@ function readNpmConfigArgs() {
     "ci-visual-plan": "npm_config_ci_visual_plan",
     "section-node-id": "npm_config_section_node_id",
     roots: "npm_config_roots",
-    "allow-official-sections": "npm_config_allow_official_sections",
+    "allow-canonical-sections": "npm_config_allow_canonical_sections",
   };
   const values = {};
 
@@ -111,7 +111,7 @@ function resolveOptions(args) {
   const mode = args.mode || "preview";
   if (mode !== "preview") {
     throw new Error(
-      "The TypeScript runner supports preview only. Use the Kotlin prepareOfficialFigmaSync task for official runners."
+      "The TypeScript runner supports preview only. Use the Kotlin prepareCanonicalFigmaSync task for canonical runners."
     );
   }
 
@@ -143,7 +143,7 @@ function resolveOptions(args) {
     throw new Error("Preview runners must not target preflight.");
   }
   if (targets.includes("headers")) {
-    throw new Error("Header sync requires an official main artifact runner.");
+    throw new Error("Header sync requires a canonical main artifact runner.");
   }
 
   const transport = args.transport || "chunks";
@@ -183,7 +183,7 @@ function resolveOptions(args) {
     throw new Error("A root-qualified target cannot be combined with --roots.");
   }
   const roots = scopedRoots.length > 0 ? scopedRoots : parseRoots(args.roots);
-  const allowOfficialSections = args["allow-official-sections"] === "true";
+  const allowCanonicalSections = args["allow-canonical-sections"] === "true";
   const ciTargets = targets.filter((name) => CI_VISUAL_TARGET_NAMES.includes(name));
   const ciVisualPlanPath = args["ci-visual-plan"]
     ? resolve(TOOL_ROOT, args["ci-visual-plan"])
@@ -202,11 +202,11 @@ function resolveOptions(args) {
   if (
     isCatalogTarget(target) &&
     !sectionNodeId &&
-    !allowOfficialSections
+    !allowCanonicalSections
   ) {
     throw new Error(
       "Preview catalog runners require --section-node-id for a sandbox section. " +
-        "Use --allow-official-sections=true only for supervised manual repair."
+        "Use --allow-canonical-sections=true only for supervised manual repair."
     );
   }
 
@@ -226,7 +226,7 @@ function resolveOptions(args) {
     writeMetadata,
     sectionNodeId,
     roots,
-    allowOfficialSections,
+    allowCanonicalSections,
     allowPartial: false,
     fullVisualSync: false,
     ciVisualPlanPath,
@@ -362,7 +362,7 @@ async function writeManifest(
     namespace: options.namespace,
     sectionNodeId: options.sectionNodeId || null,
     roots: options.roots,
-    allowOfficialSections: options.allowOfficialSections,
+    allowCanonicalSections: options.allowCanonicalSections,
     allowPartial: options.allowPartial,
     fullVisualSync: options.fullVisualSync,
     metadataPageId: METADATA_PAGE_ID,
@@ -549,14 +549,14 @@ const entrypoint = ${JSON.stringify(options.entrypoint)};
 const syncOptions = ${JSON.stringify(syncOptions)};
 
 if (mode === "preview" && (syncOptions.writeMetadata === true || syncOptions.targets.includes("metadata"))) {
-  throw new Error("Preview runners must not write official Figma sync metadata.");
+  throw new Error("Preview runners must not write canonical Figma sync metadata.");
 }
 
 if (
   mode === "preview" &&
   ${JSON.stringify(isCatalogTarget(options.target))} &&
   !syncOptions.sectionNodeOverrides?.[syncOptions.targets[0]] &&
-  ${JSON.stringify(!options.allowOfficialSections)}
+  ${JSON.stringify(!options.allowCanonicalSections)}
 ) {
   throw new Error("Preview catalog runners require a sandbox section override.");
 }

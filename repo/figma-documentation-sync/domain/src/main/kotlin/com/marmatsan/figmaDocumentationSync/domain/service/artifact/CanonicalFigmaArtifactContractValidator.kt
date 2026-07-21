@@ -1,18 +1,18 @@
 package com.marmatsan.figmaDocumentationSync.domain.service.artifact
 
-import com.marmatsan.figmaDocumentationSync.domain.model.artifact.OfficialFigmaArtifactContract
+import com.marmatsan.figmaDocumentationSync.domain.model.artifact.CanonicalFigmaArtifactContract
 import me.tatarka.inject.annotations.Inject
 
-/** Validates that downloaded artifacts share one official main-branch identity. */
+/** Validates that downloaded artifacts share one canonical main-branch identity. */
 @Inject
-class OfficialFigmaArtifactContractValidator {
+class CanonicalFigmaArtifactContractValidator {
     fun validate(
-        contract: OfficialFigmaArtifactContract,
+        contract: CanonicalFigmaArtifactContract,
         expectedGitSha: String? = null,
     ): Result {
         val model = contract.model
         require(model.branch == MAIN_BRANCH) {
-            "Official Figma artifacts require model branch 'main'; found '${model.branch}'."
+            "Canonical Figma artifacts require model branch 'main'; found '${model.branch}'."
         }
         require(model.gitSha.isNotBlank() && model.modelHash.isNotBlank()) {
             "design-model.json requires non-empty gitSha and modelHash values."
@@ -78,7 +78,7 @@ class OfficialFigmaArtifactContractValidator {
             metadata = metadata,
         )
         val decision =
-            OfficialFigmaArtifactContract.Decision.fromWireValue(
+            CanonicalFigmaArtifactContract.Decision.fromWireValue(
                 value = contract.plan.decision,
             )
                 ?: throw IllegalArgumentException(
@@ -94,12 +94,12 @@ class OfficialFigmaArtifactContractValidator {
 
     private fun validateManifest(
         name: String,
-        manifest: OfficialFigmaArtifactContract.Manifest,
-        model: OfficialFigmaArtifactContract.Model,
+        manifest: CanonicalFigmaArtifactContract.Manifest,
+        model: CanonicalFigmaArtifactContract.Model,
     ) {
         requireEqual(
             actual = manifest.mode,
-            expected = "official",
+            expected = "canonical",
             description = "$name manifest mode",
         )
         requireEqual(
@@ -116,9 +116,9 @@ class OfficialFigmaArtifactContractValidator {
     }
 
     private fun validateSharedIdentity(
-        contract: OfficialFigmaArtifactContract,
-        visual: OfficialFigmaArtifactContract.Manifest,
-        metadata: OfficialFigmaArtifactContract.Manifest,
+        contract: CanonicalFigmaArtifactContract,
+        visual: CanonicalFigmaArtifactContract.Manifest,
+        metadata: CanonicalFigmaArtifactContract.Manifest,
     ) {
         val scope = contract.scope
         val plan = contract.plan
@@ -192,7 +192,7 @@ class OfficialFigmaArtifactContractValidator {
     data class Result(
         val gitSha: String,
         val modelHash: String,
-        val decision: OfficialFigmaArtifactContract.Decision,
+        val decision: CanonicalFigmaArtifactContract.Decision,
     )
 
     private companion object {

@@ -13,7 +13,7 @@ data class ExecutableRunnerManifest(
     val namespace: String,
     val sectionNodeId: String?,
     val roots: List<String>,
-    val allowOfficialSections: Boolean,
+    val allowCanonicalSections: Boolean,
     val fullVisualSync: Boolean,
     val allowPartial: Boolean,
     val metadataPageId: String,

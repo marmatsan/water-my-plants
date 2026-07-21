@@ -11,7 +11,7 @@ import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.runBlocking
 import java.net.URI
 
-/** Uploads one validated official PNG only to a single-use Figma MCP asset URL. */
+/** Uploads one validated canonical PNG only to a single-use Figma MCP asset URL. */
 class KtorFigmaPngAssetUploader internal constructor(
     private val send: suspend (URI, ByteArray) -> Int,
 ) {
@@ -26,7 +26,7 @@ class KtorFigmaPngAssetUploader internal constructor(
                 url = url,
             )
         require(bytes.size in 1..PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
-            "Official Figma payload must contain between 1 and " +
+            "Canonical Figma payload must contain between 1 and " +
                 "${PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES} bytes."
         }
         require(
@@ -34,7 +34,7 @@ class KtorFigmaPngAssetUploader internal constructor(
                 prefix = PayloadPngEncoder.PNG_SIGNATURE,
             ),
         ) {
-            "Official Figma payload is not a PNG file."
+            "Canonical Figma payload is not a PNG file."
         }
 
         val status =
