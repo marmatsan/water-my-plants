@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-21
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -212,6 +212,31 @@ inside `.artifacts bundle` and fail with a misleading slot count:
 ```text
 Tree node '...' expected at least 4 '.artifact' instances, found 1.
 ```
+
+## Invalid `.ci node` Step Slots
+
+The CI writer depends on the public top-level component contract, not on nested
+sublayer ids. `.ci node` must contain exactly 20 direct `.ci step` instances
+named `step 01` through `step 20`. Every slot must be hidden by default,
+exposed to the containing component, and backed by the configured `.ci step`
+component set.
+
+If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
+step slots:
+
+1. Edit the main `.ci node` component, not one published instance and not a
+   nested sublayer URL.
+2. Restore the exact `step 01` through `step 20` direct children in numeric
+   order between `summary` and `optional details`.
+3. Use an instance of the configured `.ci step` component set for every slot,
+   mark it as exposed, and keep it hidden by default.
+4. Run the visual preflight again before retrying the CI visual target.
+
+Do not weaken the slot-count check, traverse implementation-specific child ids,
+or create ad hoc sibling steps to bypass a broken component. When a visual plan
+legitimately needs more than 20 steps, split the documentation node into a
+clearer boundary and regenerate the Kotlin plan. Keep final sync metadata
+unchanged until preflight and the affected visual target both succeed.
 
 ## Usage Blocks Hidden Despite Model Data
 

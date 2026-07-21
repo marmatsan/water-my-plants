@@ -24,6 +24,7 @@ export type CatalogTreeSyncResult = {
 export type CiDocumentationSyncResult = {
   updatedCiSections: string[];
   createdCiNodes: string[];
+  updatedCiSteps: string[];
   createdCiConnectors: string[];
   mutatedNodeIds: string[];
 };

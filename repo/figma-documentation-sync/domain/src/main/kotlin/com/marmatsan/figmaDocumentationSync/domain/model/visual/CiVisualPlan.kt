@@ -26,12 +26,22 @@ data class CiVisualPlan(
         val environment: Environment,
         val name: String,
         val description: String,
-        val steps: String?,
+        val steps: List<Step>,
         val runtime: Runtime?,
         val source: String,
         val sourceUrl: String,
         val row: Int,
         val column: Int,
+    )
+
+    data class Step(
+        val order: String,
+        val role: StepRole,
+        val level: StepLevel,
+        val title: String,
+        val technicalId: String?,
+        val description: String?,
+        val condition: String?,
     )
 
     data class Runtime(
@@ -80,5 +90,20 @@ data class CiVisualPlan(
         TERMINAL("terminal"),
         OPERATOR("operator"),
         JSON("json"),
+    }
+
+    enum class StepRole(
+        val wireValue: String,
+    ) {
+        ACTION("action"),
+        DECISION("decision"),
+        OUTCOME("outcome"),
+    }
+
+    enum class StepLevel(
+        val wireValue: String,
+    ) {
+        PHASE("phase"),
+        NESTED("nested"),
     }
 }

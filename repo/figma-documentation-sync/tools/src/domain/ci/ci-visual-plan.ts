@@ -27,13 +27,26 @@ export type CiVisualRuntime = {
   identity: string;
 };
 
+export type CiVisualStepRole = "action" | "decision" | "outcome";
+export type CiVisualStepLevel = "phase" | "nested";
+
+export type CiVisualStep = {
+  order: string;
+  role: CiVisualStepRole;
+  level: CiVisualStepLevel;
+  title: string;
+  technicalId?: string;
+  description?: string;
+  condition?: string;
+};
+
 export type CiVisualNode = {
   id: string;
   type: CiVisualNodeType;
   environment: CiVisualEnvironment;
   name: string;
   description: string;
-  steps?: string;
+  steps: CiVisualStep[];
   runtime?: CiVisualRuntime;
   source: string;
   sourceUrl: string;
@@ -59,6 +72,7 @@ export type CiVisualSection = {
 };
 
 export type CiVisualPlan = {
+  schemaVersion: 2;
   parentName: "Continuous Integration and Design Documentation";
   sections: CiVisualSection[];
 };

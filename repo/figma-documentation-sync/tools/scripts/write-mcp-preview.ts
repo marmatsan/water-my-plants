@@ -620,14 +620,24 @@ ${invokeScript}
 function validateCiVisualPlan(plan, targets) {
   const ciTargets = targets.filter((target) => CI_VISUAL_TARGET_NAMES.includes(target));
   if (ciTargets.length === 0) return;
-  if (!plan || typeof plan.parentName !== "string" || !Array.isArray(plan.sections)) {
-    throw new Error("The Kotlin CI visual plan must contain parentName and sections.");
+  if (
+    !plan ||
+    plan.schemaVersion !== 2 ||
+    typeof plan.parentName !== "string" ||
+    !Array.isArray(plan.sections)
+  ) {
+    throw new Error(
+      "The Kotlin CI visual plan must use schemaVersion 2 and contain parentName and sections."
+    );
   }
 
   for (const target of ciTargets) {
     const matches = plan.sections.filter((section) => section?.target === target);
     if (matches.length !== 1) {
       throw new Error(`The Kotlin CI visual plan must contain exactly one section for '${target}'.`);
+    }
+    if (!matches[0].nodes?.every((node) => Array.isArray(node.steps))) {
+      throw new Error(`Every CI visual node in '${target}' must contain a typed steps array.`);
     }
   }
 }
@@ -636,6 +646,7 @@ function targetCiVisualPlan(plan, targets) {
   const ciTargets = targets.filter((target) => CI_VISUAL_TARGET_NAMES.includes(target));
   if (ciTargets.length === 0) return undefined;
   return {
+    schemaVersion: plan.schemaVersion,
     parentName: plan.parentName,
     sections: plan.sections.filter((section) => ciTargets.includes(section.target)),
   };

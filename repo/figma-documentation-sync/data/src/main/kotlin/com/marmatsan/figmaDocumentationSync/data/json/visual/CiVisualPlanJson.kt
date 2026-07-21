@@ -333,6 +333,10 @@ object CiVisualPlanJson {
     private fun CiVisualPlan.toJson(): JsonObject =
         buildJsonObject {
             put(
+                "schemaVersion",
+                2,
+            )
+            put(
                 "parentName",
                 parentName,
             )
@@ -430,12 +434,10 @@ object CiVisualPlanJson {
                 "description",
                 description,
             )
-            steps?.let {
-                put(
-                    "steps",
-                    it,
-                )
-            }
+            put(
+                "steps",
+                JsonArray(steps.map { step -> step.toJson() }),
+            )
             runtime?.let { value ->
                 put(
                     "runtime",
@@ -475,6 +477,44 @@ object CiVisualPlanJson {
                 "column",
                 column,
             )
+        }
+
+    private fun CiVisualPlan.Step.toJson(): JsonObject =
+        buildJsonObject {
+            put(
+                "order",
+                order,
+            )
+            put(
+                "role",
+                role.wireValue,
+            )
+            put(
+                "level",
+                level.wireValue,
+            )
+            put(
+                "title",
+                title,
+            )
+            technicalId?.let { value ->
+                put(
+                    "technicalId",
+                    value,
+                )
+            }
+            description?.let { value ->
+                put(
+                    "description",
+                    value,
+                )
+            }
+            condition?.let { value ->
+                put(
+                    "condition",
+                    value,
+                )
+            }
         }
 
     private fun JsonObject.requiredObject(
