@@ -179,21 +179,19 @@ test("forwards the Kotlin-precomputed CI visual plan to the Figma boundary", asy
     return {
       updatedCiSections: targets,
       createdCiNodes: [],
+      updatedCiSteps: [],
       createdCiConnectors: [],
       mutatedNodeIds: [],
     };
   };
-  const ciVisualPlan = {
-    parentName: "Continuous Integration and Design Documentation" as const,
-    sections: [],
-  };
+  const visualPlan = ciVisualPlan("ci.overview");
 
   await syncFigmaDesignModel(mainDesignModel(), dependencies, {
     targets: ["ci.overview"],
-    ciVisualPlan,
+    ciVisualPlan: visualPlan,
   });
 
-  assert.equal(receivedPlan, ciVisualPlan);
+  assert.equal(receivedPlan, visualPlan);
 });
 
 test("rejects CI sync without a Kotlin-generated visual plan", async () => {
@@ -203,6 +201,75 @@ test("rejects CI sync without a Kotlin-generated visual plan", async () => {
     }),
     /requires a Kotlin-generated ciVisualPlan/
   );
+});
+
+test("rejects an obsolete CI visual plan before reaching Figma", async () => {
+  const calls: string[] = [];
+  const obsoletePlan = {
+    schemaVersion: 1,
+    parentName: "Continuous Integration and Design Documentation",
+    sections: [],
+  } as unknown as CiVisualPlan;
+
+  await assert.rejects(
+    syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+      targets: ["preflight", "ci.overview"],
+      ciVisualPlan: obsoletePlan,
+    }),
+    /schemaVersion 2/
+  );
+  assert.deepEqual(calls, []);
+});
+
+test("rejects CI nodes without typed steps before reaching Figma", async () => {
+  const calls: string[] = [];
+  const nodeWithoutTypedSteps = {
+    schemaVersion: 2,
+    parentName: "Continuous Integration and Design Documentation",
+    sections: [
+      {
+        target: "ci.overview",
+        name: "Overview",
+        description: "Overview",
+        orientation: "horizontal",
+        headerSources: [],
+        nodes: [{ id: "verify" }],
+        connections: [],
+      },
+    ],
+  } as unknown as CiVisualPlan;
+
+  await assert.rejects(
+    syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+      targets: ["preflight", "ci.overview"],
+      ciVisualPlan: nodeWithoutTypedSteps,
+    }),
+    /typed steps array/
+  );
+  assert.deepEqual(calls, []);
+});
+
+test("rejects CI nodes that exceed the 20 reserved step slots before reaching Figma", async () => {
+  const calls: string[] = [];
+  const oversizedPlan = ciVisualPlan("ci.overview");
+  oversizedPlan.sections[0].nodes.push({
+    id: "verify",
+    steps: Array.from({ length: 21 }, (_, index) => ({
+      order: String(index + 1),
+      role: "action",
+      level: "phase",
+      title: `Step ${index + 1}`,
+    })),
+  } as CiVisualPlan["sections"][number]["nodes"][number]);
+
+  await assert.rejects(
+    syncFigmaDesignModel(mainDesignModel(), fakeDependencies(calls), {
+      targets: ["preflight", "ci.overview"],
+      ciVisualPlan: oversizedPlan,
+    }),
+    /reserves only 20 slots/
+  );
+  assert.deepEqual(calls, []);
 });
 
 function mainDesignModel() {
@@ -255,6 +322,7 @@ function fakeDependencies(calls: string[]) {
         return {
           updatedCiSections: targetNames,
           createdCiNodes: ["ci-node"],
+          updatedCiSteps: ["ci-step"],
           createdCiConnectors: ["ci-connector"],
           mutatedNodeIds: ["ci-section"],
         };
@@ -293,6 +361,7 @@ function fakeDependencies(calls: string[]) {
 
 function ciVisualPlan(...targets: string[]): CiVisualPlan {
   return {
+    schemaVersion: 2,
     parentName: "Continuous Integration and Design Documentation",
     sections: targets.map((target) => ({
       target,

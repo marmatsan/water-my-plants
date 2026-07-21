@@ -767,14 +767,9 @@ class CiVisualPlanner {
             config = config,
         ).copy(
             steps =
-                job.steps
-                    .map { step ->
-                        summarizeCommand(
-                            command = step.command,
-                            fallback = step.name,
-                        )
-                    }.joinToString("\n")
-                    .ifEmpty { null },
+                visualSteps(
+                    job = job,
+                ),
         )
 
     private fun externalNode(
@@ -815,7 +810,7 @@ class CiVisualPlanner {
         environment = environment,
         name = name,
         description = description,
-        steps = null,
+        steps = emptyList(),
         runtime = null,
         source = source,
         sourceUrl =
@@ -898,30 +893,200 @@ class CiVisualPlanner {
         }
     }
 
-    private fun summarizeCommand(
+    private fun visualSteps(
+        job: CiJob,
+    ): List<CiVisualPlan.Step> {
+        val result = mutableListOf<CiVisualPlan.Step>()
+        job.steps.forEachIndexed { phaseIndex, step ->
+            val phaseOrder =
+                (phaseIndex + 1)
+                    .toString()
+                    .padStart(
+                        length = 2,
+                        padChar = '0',
+                    )
+            val gradleTasks =
+                gradleTaskNames(
+                    command = step.command,
+                )
+            result +=
+                CiVisualPlan.Step(
+                    order = phaseOrder,
+                    role = CiVisualPlan.StepRole.ACTION,
+                    level = CiVisualPlan.StepLevel.PHASE,
+                    title = step.name,
+                    technicalId = step.id,
+                    description =
+                        phaseDescription(
+                            command = step.command,
+                            hasGradleTasks = gradleTasks.isNotEmpty(),
+                        ),
+                    condition = null,
+                )
+            gradleTasks
+                .flatMap { task ->
+                    gradleTaskSpecs(
+                        task = task,
+                    )
+                }.forEachIndexed { nestedIndex, spec ->
+                    result +=
+                        spec.toVisualStep(
+                            order = "$phaseOrder.${nestedIndex + 1}",
+                        )
+                }
+        }
+        job.artifacts
+            .filter(CiJob.Artifact::publish)
+            .forEach { artifact ->
+                result +=
+                    outcomeStep(
+                        order = result.nextPhaseOrder(),
+                        title = "Publish build artifact",
+                        technicalId = artifact.path,
+                        description = "Makes the job output available to later CI jobs.",
+                    )
+            }
+        job.publishedChecks.forEach { check ->
+            result +=
+                outcomeStep(
+                    order = result.nextPhaseOrder(),
+                    title = "Publish GitHub check",
+                    technicalId = check.name,
+                    description = "Reports the verified job result to the pull request.",
+                )
+        }
+        return result
+    }
+
+    private fun phaseDescription(
         command: String,
-        fallback: String,
-    ): String {
-        val gradleTasks =
-            gradleTaskNames(
-                command = command,
-            )
-        return when {
-            gradleTasks.isNotEmpty() -> {
-                gradleTasks
-                    .flatMap(::gradleTaskDisplayLines)
-                    .joinToString("\n")
+        hasGradleTasks: Boolean,
+    ): String =
+        when {
+            hasGradleTasks -> "Runs the Gradle entry points owned by this TeamCity phase."
+            "test-agent-capabilities.ps1" in command -> "Validates the build agent before repository work begins."
+            "teamcity-configs:generate" in command -> "Generates the effective TeamCity configuration with Maven."
+            else -> "Runs the repository-owned command for this TeamCity phase."
+        }
+
+    private fun gradleTaskSpecs(
+        task: String,
+    ): List<StepSpec> =
+        when (task) {
+            "prepareTeamCityCiPlan" -> {
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Prepares the reviewed verification plan consumed by TeamCity.",
+                    ),
+                    actionSpec(
+                        task = "generateCiPlan",
+                        description = "Calculates the affected verification scope.",
+                        condition = "Gradle dependency of prepareTeamCityCiPlan",
+                    ),
+                )
             }
 
-            "teamcity-configs:generate" in command -> {
-                "Generate effective TeamCity configuration [Maven]"
+            "%ci.plan.gradleTasks%" -> {
+                dynamicCiPlanStepSpecs
+            }
+
+            "check" -> {
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Runs the repository verification lifecycle.",
+                    ),
+                ) + rootCheckStepSpecs
+            }
+
+            "classifyOfficialFigmaSyncChangeImpact" -> {
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Classifies whether the official Figma sync needs full verification.",
+                    ),
+                    actionSpec(
+                        task = "cleanOfficialFigmaSyncReports",
+                        description = "Removes stale official Figma sync reports.",
+                        condition = "Gradle dependency of classifyOfficialFigmaSyncChangeImpact",
+                    ),
+                )
+            }
+
+            "materializeFigmaSyncCiConfiguration",
+            "generateOfficialFigmaSyncModel",
+            "checkOfficialFigmaTrunkSync",
+            -> {
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Runs only for a validated full Figma verification scope.",
+                        condition = "Full Figma verification",
+                    ),
+                )
+            }
+
+            "prepareOfficialFigmaSync" -> {
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Builds the MCP runners and target-scoped visual plan.",
+                    ),
+                    actionSpec(
+                        task = "writeFigmaWriterProjectConfig",
+                        description = "Projects the repository-specific Figma writer contract.",
+                        condition = "Gradle dependency of prepareOfficialFigmaSync",
+                    ),
+                )
             }
 
             else -> {
-                fallback
+                listOf(
+                    actionSpec(
+                        task = task,
+                        description = "Runs this repository-owned Gradle entry point.",
+                    ),
+                )
             }
         }
-    }
+
+    private fun outcomeStep(
+        order: String,
+        title: String,
+        technicalId: String,
+        description: String,
+    ) =
+        CiVisualPlan.Step(
+            order = order,
+            role = CiVisualPlan.StepRole.OUTCOME,
+            level = CiVisualPlan.StepLevel.PHASE,
+            title = title,
+            technicalId = technicalId,
+            description = description,
+            condition = "After successful job execution",
+        )
+
+    private fun List<CiVisualPlan.Step>.nextPhaseOrder(): String =
+        (count { step -> step.level == CiVisualPlan.StepLevel.PHASE } + 1)
+            .toString()
+            .padStart(
+                length = 2,
+                padChar = '0',
+            )
+
+    private fun StepSpec.toVisualStep(
+        order: String,
+    ) =
+        CiVisualPlan.Step(
+            order = order,
+            role = role,
+            level = CiVisualPlan.StepLevel.NESTED,
+            title = title,
+            technicalId = technicalId,
+            description = description,
+            condition = condition,
+        )
 
     private fun gradleTaskNames(
         command: String,
@@ -942,51 +1107,6 @@ class CiVisualPlanner {
                         )
                     }.asSequence()
             }.toList()
-
-    private fun gradleTaskDisplayLines(
-        task: String,
-    ): List<String> =
-        when (task) {
-            "prepareTeamCityCiPlan" -> {
-                listOf(
-                    task,
-                    "  depends on: generateCiPlan",
-                )
-            }
-
-            "%ci.plan.gradleTasks%" -> {
-                dynamicCiPlanDisplayLines
-            }
-
-            "check" -> {
-                listOf(task) + rootCheckDisplayLines
-            }
-
-            "classifyOfficialFigmaSyncChangeImpact" -> {
-                listOf(
-                    task,
-                    "  depends on: cleanOfficialFigmaSyncReports",
-                )
-            }
-
-            "materializeFigmaSyncCiConfiguration",
-            "generateOfficialFigmaSyncModel",
-            "checkOfficialFigmaTrunkSync",
-            -> {
-                listOf("$task [full]")
-            }
-
-            "prepareOfficialFigmaSync" -> {
-                listOf(
-                    task,
-                    "  depends on: writeFigmaWriterProjectConfig",
-                )
-            }
-
-            else -> {
-                listOf(task)
-            }
-        }
 
     private fun pipelineDescription(
         name: String,
@@ -1099,28 +1219,136 @@ class CiVisualPlanner {
         val column: Int,
     )
 
+    private data class StepSpec(
+        val role: CiVisualPlan.StepRole,
+        val title: String,
+        val technicalId: String?,
+        val description: String?,
+        val condition: String?,
+    )
+
     private companion object {
+        fun actionSpec(
+            task: String,
+            description: String,
+            condition: String? = null,
+        ) =
+            StepSpec(
+                role = CiVisualPlan.StepRole.ACTION,
+                title =
+                    gradleTaskTitle(
+                        task = task,
+                    ),
+                technicalId = task,
+                description = description,
+                condition = condition,
+            )
+
+        fun gradleTaskTitle(
+            task: String,
+        ): String =
+            when (task) {
+                ":<affected-module>:check" -> {
+                    "Check affected module"
+                }
+
+                "verification-platform:check" -> {
+                    "Check verification platform"
+                }
+
+                else -> {
+                    task
+                        .substringAfterLast(':')
+                        .replace(
+                            Regex("([a-z0-9])([A-Z])"),
+                            "${'$'}1 ${'$'}2",
+                        ).replaceFirstChar(Char::uppercaseChar)
+                }
+            }
+
         val gradleInvocation =
             Regex(
                 """(?:^|\s)(?:call\s+)?(?:\.\\|\./)?gradlew(?:\.bat)?\s+(.+)$""",
                 RegexOption.IGNORE_CASE,
             )
-        val rootCheckDisplayLines =
+        val rootCheckStepSpecs =
             listOf(
-                "  check includes: checkFigmaCatalogUsage + checkFigmaVersionNaming",
-                "    + checkCiExternalTopologyFreshness + checkCiWindowsRuntimeFreshness",
-                "    + checkKotlinStyle",
-                "    + verification-platform:check (domain + data + plugin)",
+                actionSpec(
+                    task = "checkFigmaCatalogUsage",
+                    description = "Rejects unused dependency catalog entries.",
+                    condition = "Root check dependency",
+                ),
+                actionSpec(
+                    task = "checkFigmaVersionNaming",
+                    description = "Validates repository Figma version naming.",
+                    condition = "Root check dependency",
+                ),
+                actionSpec(
+                    task = "checkCiExternalTopologyFreshness",
+                    description = "Warns when the external CI topology validation is stale.",
+                    condition = "Root check dependency",
+                ),
+                actionSpec(
+                    task = "checkCiWindowsRuntimeFreshness",
+                    description = "Warns when the Windows runtime validation is stale.",
+                    condition = "Root check dependency",
+                ),
+                actionSpec(
+                    task = "checkKotlinStyle",
+                    description = "Applies the repository Kotlin style gate.",
+                    condition = "Root check dependency",
+                ),
+                actionSpec(
+                    task = "verification-platform:check",
+                    description = "Checks the verification platform domain, data, and plugin modules.",
+                    condition = "Root check dependency",
+                ),
             )
-        val dynamicCiPlanDisplayLines =
+        val dynamicCiPlanStepSpecs =
             listOf(
-                "ci.plan.gradleTasks [dynamic]",
-                "  always: checkGitWorkflow + checkDocumentation",
-                "  documentation: checkRepositoryDiff",
-                "  TeamCity: checkTeamCityDsl + check",
-                "  modules: :<affected-module>:check + checkFigmaCatalogUsage",
-                "  fallback: check",
-            ) + rootCheckDisplayLines
+                StepSpec(
+                    role = CiVisualPlan.StepRole.DECISION,
+                    title = "Select verification tasks",
+                    technicalId = "ci.plan.gradleTasks",
+                    description = "Expands the reviewed CI plan into the tasks for this change.",
+                    condition = "Repository change scope",
+                ),
+                actionSpec(
+                    task = "checkGitWorkflow",
+                    description = "Validates the repository Git workflow contract.",
+                    condition = "Always",
+                ),
+                actionSpec(
+                    task = "checkDocumentation",
+                    description = "Validates repository documentation structure and links.",
+                    condition = "Always",
+                ),
+                actionSpec(
+                    task = "checkRepositoryDiff",
+                    description = "Checks documentation-only repository changes.",
+                    condition = "Documentation changes",
+                ),
+                actionSpec(
+                    task = "checkTeamCityDsl",
+                    description = "Validates the versioned TeamCity Kotlin DSL.",
+                    condition = "TeamCity changes",
+                ),
+                actionSpec(
+                    task = "check",
+                    description = "Runs the root verification lifecycle.",
+                    condition = "TeamCity changes or fail-closed fallback",
+                ),
+                actionSpec(
+                    task = ":<affected-module>:check",
+                    description = "Checks each module selected by the dependency graph.",
+                    condition = "Affected modules",
+                ),
+                actionSpec(
+                    task = "checkFigmaCatalogUsage",
+                    description = "Rejects unused dependency catalog entries.",
+                    condition = "Affected modules or root check",
+                ),
+            ) + rootCheckStepSpecs.filterNot { spec -> spec.technicalId == "checkFigmaCatalogUsage" }
         val externalEnvironments =
             mapOf(
                 "operator" to CiVisualPlan.Environment.OPERATOR,

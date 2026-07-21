@@ -1,6 +1,7 @@
 import type { DesignModel, SyncFigmaDesignModelOptions, SyncTargetName } from "../domain/design-model";
 import {
   CATALOG_TREE_TARGETS,
+  CI_STEP_SLOT_COUNT,
   CI_VISUAL_TARGET_NAMES,
 } from "@figma-documentation-sync/project-config";
 import type {
@@ -32,6 +33,11 @@ export async function syncFigmaDesignModel(
   requireMainBranchDesignModel(designModel);
 
   const requestedTargets = resolveRequestedTargets(options);
+  const ciTargets = CI_SYNC_TARGETS.filter((target) => requestedTargets.has(target));
+  requireCiVisualPlan({
+    plan: options.ciVisualPlan,
+    targetNames: ciTargets,
+  });
   const shouldWriteMetadata = requestedTargets.has("metadata") || options.writeMetadata === true;
   if (shouldWriteMetadata && requestedTargets.size > 1) {
     throw new Error("Figma sync metadata must run alone after the complete visual sync.");
@@ -89,13 +95,6 @@ export async function syncFigmaDesignModel(
     : emptyCatalogTreeSyncResult();
   completedTargets.push(...catalogTargets);
 
-  const ciTargets = CI_SYNC_TARGETS.filter((target) => requestedTargets.has(target));
-  if (ciTargets.length > 0 && !options.ciVisualPlan) {
-    throw new Error(
-      "CI visual sync requires a Kotlin-generated ciVisualPlan. " +
-        "Generate it with the generateFigmaCiVisualPlan Gradle task."
-    );
-  }
   const ciSyncResult = ciTargets.length > 0
     ? await dependencies.ciDocumentationSyncGateway.syncCiDocumentation(
         ciTargets,
@@ -126,6 +125,7 @@ export async function syncFigmaDesignModel(
     removedCatalogConnectors: catalogSyncResult.removedCatalogConnectors,
     updatedCiSections: ciSyncResult.updatedCiSections,
     createdCiNodes: ciSyncResult.createdCiNodes,
+    updatedCiSteps: ciSyncResult.updatedCiSteps,
     createdCiConnectors: ciSyncResult.createdCiConnectors,
     checkedComponents: preflightResult.checkedComponents,
     checkedSections: preflightResult.checkedSections,
@@ -143,6 +143,66 @@ export async function syncFigmaDesignModel(
       ]),
     ],
   };
+}
+
+function requireCiVisualPlan({
+  plan,
+  targetNames,
+}: {
+  plan: SyncFigmaDesignModelOptions["ciVisualPlan"];
+  targetNames: string[];
+}) {
+  if (targetNames.length === 0) return;
+  if (!plan) {
+    throw new Error(
+      "CI visual sync requires a Kotlin-generated ciVisualPlan. " +
+        "Generate it with the generateFigmaCiVisualPlan Gradle task."
+    );
+  }
+  if (plan.schemaVersion !== 2) {
+    throw new Error("CI visual sync requires ciVisualPlan schemaVersion 2.");
+  }
+
+  for (const targetName of targetNames) {
+    const sections = plan.sections.filter((section) => section.target === targetName);
+    if (sections.length !== 1) {
+      throw new Error(
+        `CI visual sync requires exactly one ciVisualPlan section for '${targetName}'.`
+      );
+    }
+    for (const node of sections[0].nodes) {
+      if (
+        !Array.isArray(node.steps) ||
+        !node.steps.every(isCiVisualStep)
+      ) {
+        throw new Error(
+          `CI visual node '${node.id}' in '${targetName}' must contain a typed steps array.`
+        );
+      }
+      if (node.steps.length > CI_STEP_SLOT_COUNT) {
+        throw new Error(
+          `CI visual node '${node.id}' in '${targetName}' contains ${node.steps.length} steps, ` +
+            `but .ci node reserves only ${CI_STEP_SLOT_COUNT} slots.`
+        );
+      }
+    }
+  }
+}
+
+function isCiVisualStep(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const step = value as Record<string, unknown>;
+  return typeof step.order === "string" &&
+    ["action", "decision", "outcome"].includes(String(step.role)) &&
+    ["phase", "nested"].includes(String(step.level)) &&
+    typeof step.title === "string" &&
+    isOptionalString(step.technicalId) &&
+    isOptionalString(step.description) &&
+    isOptionalString(step.condition);
+}
+
+function isOptionalString(value: unknown): boolean {
+  return value === undefined || typeof value === "string";
 }
 
 function requireMainBranchDesignModel(designModel: DesignModel) {
@@ -218,6 +278,7 @@ function emptyCiDocumentationSyncResult() {
   return {
     updatedCiSections: [],
     createdCiNodes: [],
+    updatedCiSteps: [],
     createdCiConnectors: [],
     mutatedNodeIds: [],
   };

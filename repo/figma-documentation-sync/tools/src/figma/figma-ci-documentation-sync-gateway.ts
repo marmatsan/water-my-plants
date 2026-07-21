@@ -8,6 +8,9 @@ import {
   CI_NODE_COMPONENT_ID,
   CI_NODE_INSTANCE_NAME,
   CI_NODE_PROPS,
+  CI_STEP_COMPONENT_SET_ID,
+  CI_STEP_SLOT_COUNT,
+  CI_STEP_PROPS,
   CI_VISUAL_TARGET_NAMES,
   CI_VARIABLE_COLLECTION_NAME,
   CONNECTOR_TEMPLATE_NAME,
@@ -22,6 +25,7 @@ import {
   type CiVisualOrientation,
   type CiVisualPlan,
   type CiVisualSection,
+  type CiVisualStep,
 } from "../domain/ci/ci-visual-plan";
 import type { CiDocumentationSyncGateway } from "../ports/sync-gateways";
 import {
@@ -34,6 +38,10 @@ import {
   requireVariableCollection,
 } from "./figma-node-gateway";
 import { loadTextNodeFonts } from "./figma-text-gateway";
+import {
+  ciStepSlotNames,
+  hasCiStepSlotNamePrefix,
+} from "./ci-step-slot-contract";
 
 const SECTION_PADDING = 100;
 const SECTION_GAP = 114;
@@ -73,6 +81,7 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
     const surfaceModeId = requireModeId(surfaceCollection, LIGHT_MODE_NAME);
     const mutatedNodeIds: string[] = [];
     const createdCiNodes: string[] = [];
+    const updatedCiSteps: string[] = [];
     const createdCiConnectors: string[] = [];
     const updatedCiSections: string[] = [];
     const parent = await requireOrCreateParentSection(
@@ -101,6 +110,7 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
         surfaceVariable,
         onSurfaceVariable,
         createdCiNodes,
+        updatedCiSteps,
         createdCiConnectors,
         mutatedNodeIds
       );
@@ -114,6 +124,7 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
     return {
       updatedCiSections,
       createdCiNodes,
+      updatedCiSteps,
       createdCiConnectors,
       mutatedNodeIds: [...new Set(mutatedNodeIds)],
     };
@@ -239,6 +250,7 @@ async function syncSectionContent(
   surfaceVariable,
   onSurfaceVariable,
   createdCiNodes,
+  updatedCiSteps,
   createdCiConnectors,
   mutatedNodeIds
 ) {
@@ -255,6 +267,10 @@ async function syncSectionContent(
     instance.name = CI_NODE_INSTANCE_NAME;
     section.appendChild(instance);
     await syncCiNode(instance, nodePlan, modeCollection);
+    const stepInstances = await syncCiStepSlots({
+      node: instance,
+      steps: nodePlan.steps,
+    });
     const group = figma.group([instance], section);
     group.name = ".ci node group";
     group.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_NODE);
@@ -262,7 +278,8 @@ async function syncSectionContent(
     groupsByModelId.set(nodePlan.id, group);
     groups.push({ plan: nodePlan, group });
     createdCiNodes.push(instance.id);
-    mutatedNodeIds.push(group.id, instance.id);
+    updatedCiSteps.push(...stepInstances.map((stepInstance) => stepInstance.id));
+    mutatedNodeIds.push(group.id, instance.id, ...stepInstances.map((stepInstance) => stepInstance.id));
   }
 
   for (const edge of plan.connections) {
@@ -380,6 +397,11 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showSteps, properties.showSteps);
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, properties.showSource);
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showRuntime, properties.showRuntime);
+  setComponentBooleanProperty(
+    instance,
+    CI_NODE_PROPS.showOptionalDetails,
+    properties.showOptionalDetails
+  );
   setComponentTextProperty(instance, CI_NODE_PROPS.name, properties.name);
   setComponentTextProperty(instance, CI_NODE_PROPS.description, properties.description);
   setComponentTextProperty(instance, CI_NODE_PROPS.steps, properties.steps);
@@ -397,18 +419,124 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
 }
 
 export function ciNodePropertyValues(nodePlan: CiVisualNode) {
+  const showSource = Boolean(nodePlan.source);
+  const showRuntime = Boolean(nodePlan.runtime);
   return {
     name: nodePlan.name,
     description: nodePlan.description,
-    steps: nodePlan.steps || "",
+    steps: "",
     source: nodePlan.source,
     runtimePlatform: nodePlan.runtime?.platform || "",
     runtimeService: nodePlan.runtime?.service || "",
     runtimeStartup: nodePlan.runtime?.startup || "",
     runtimeIdentity: nodePlan.runtime?.identity || "",
-    showSteps: Boolean(nodePlan.steps),
-    showSource: true,
-    showRuntime: Boolean(nodePlan.runtime),
+    showSteps: false,
+    showSource,
+    showRuntime,
+    showOptionalDetails: showSource || showRuntime,
+  };
+}
+
+async function syncCiStepSlots({
+  node,
+  steps,
+}: {
+  node: InstanceNode;
+  steps: CiVisualStep[];
+}): Promise<InstanceNode[]> {
+  if (steps.length > CI_STEP_SLOT_COUNT) {
+    throw new Error(
+      `CI node '${node.name}' requires ${steps.length} steps but .ci node reserves ` +
+        `only ${CI_STEP_SLOT_COUNT} slots.`
+    );
+  }
+
+  const slots = await requireCiStepSlots(node);
+  const updated: InstanceNode[] = [];
+  for (const [index, instance] of slots.entries()) {
+    const step = steps[index];
+    if (!step) {
+      instance.visible = false;
+      continue;
+    }
+    syncCiStep({
+      instance,
+      step,
+    });
+    instance.visible = true;
+    updated.push(instance);
+  }
+  return updated;
+}
+
+async function requireCiStepSlots(node: InstanceNode): Promise<InstanceNode[]> {
+  const expectedNames = ciStepSlotNames();
+  const candidates = node.exposedInstances.filter((instance) =>
+    hasCiStepSlotNamePrefix(instance.name)
+  );
+  const duplicateNames = expectedNames.filter(
+    (name) => candidates.filter((candidate) => candidate.name === name).length > 1
+  );
+  const missingNames = expectedNames.filter(
+    (name) => !candidates.some((candidate) => candidate.name === name)
+  );
+  if (candidates.length !== CI_STEP_SLOT_COUNT || duplicateNames.length > 0 || missingNames.length > 0) {
+    throw new Error(
+      `.ci node '${node.id}' must expose exactly ${CI_STEP_SLOT_COUNT} CI step slots. ` +
+        `Missing: ${missingNames.join(", ") || "none"}. ` +
+        `Duplicated: ${duplicateNames.join(", ") || "none"}.`
+    );
+  }
+
+  const slots = expectedNames.map(
+    (name) => candidates.find((candidate) => candidate.name === name)!
+  );
+  for (const slot of slots) {
+    const mainComponent = await slot.getMainComponentAsync();
+    const componentSet = mainComponent?.parent;
+    if (componentSet?.type !== "COMPONENT_SET" || componentSet.id !== CI_STEP_COMPONENT_SET_ID) {
+      throw new Error(
+        `CI step slot '${slot.name}' in .ci node '${node.id}' must use component set ` +
+          `'${CI_STEP_COMPONENT_SET_ID}'.`
+      );
+    }
+  }
+  return slots;
+}
+
+function syncCiStep({
+  instance,
+  step,
+}: {
+  instance: InstanceNode;
+  step: CiVisualStep;
+}) {
+  const properties = ciStepPropertyValues(step);
+  setComponentVariantProperty(instance, CI_STEP_PROPS.role, properties.role);
+  setComponentVariantProperty(instance, CI_STEP_PROPS.level, properties.level);
+  setComponentBooleanProperty(instance, CI_STEP_PROPS.showTechnicalId, properties.showTechnicalId);
+  setComponentBooleanProperty(instance, CI_STEP_PROPS.showDescription, properties.showDescription);
+  setComponentBooleanProperty(instance, CI_STEP_PROPS.showCondition, properties.showCondition);
+  setComponentTextProperty(instance, CI_STEP_PROPS.order, properties.order);
+  setComponentTextProperty(instance, CI_STEP_PROPS.title, properties.title);
+  setComponentTextProperty(instance, CI_STEP_PROPS.technicalId, properties.technicalId);
+  setComponentTextProperty(instance, CI_STEP_PROPS.description, properties.description);
+  setComponentTextProperty(instance, CI_STEP_PROPS.condition, properties.condition);
+}
+
+export function ciStepPropertyValues(step: CiVisualStep) {
+  return {
+    order: step.order,
+    role: step.role,
+    level: step.level,
+    title: step.title,
+    technicalId: step.technicalId || "",
+    description: step.description || "",
+    condition: step.condition || "",
+    showTechnicalId: Boolean(step.technicalId),
+    showDescription: Boolean(step.description) &&
+      (step.level === "phase" || step.role !== "action"),
+    showCondition: Boolean(step.condition),
   };
 }
 

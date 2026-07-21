@@ -6,6 +6,7 @@ import {
   centeredRowY,
   ciConnectorMagnets,
   ciNodePropertyValues,
+  ciStepPropertyValues,
   ciVisualGridPosition,
   connectorBoundsLabelPosition,
   connectorLabelLayers,
@@ -15,6 +16,10 @@ import {
   managedCiRemovalPriority,
   waitForStableCiLayout,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
+import {
+  ciStepSlotName,
+  ciStepSlotNames,
+} from "../src/figma/ci-step-slot-contract";
 
 test("CI connector label text stays above its opaque background", () => {
   const background = { name: "Background" };
@@ -48,6 +53,7 @@ test("CI node properties hide runtime when the visual node has no runtime data",
     showSteps: false,
     showSource: true,
     showRuntime: false,
+    showOptionalDetails: true,
   });
 });
 
@@ -74,7 +80,41 @@ test("CI node properties expose complete runtime data", () => {
     showSteps: false,
     showSource: true,
     showRuntime: true,
+    showOptionalDetails: true,
   });
+});
+
+test("CI node reserves exactly 20 stable nested step slot names", () => {
+  assert.equal(ciStepSlotNames().length, 20);
+  assert.equal(ciStepSlotName(1), "step 01");
+  assert.equal(ciStepSlotName(20), "step 20");
+  assert.throws(() => ciStepSlotName(21), /between 1 and 20/);
+});
+
+test("CI step properties expose a nested decision with its executable condition", () => {
+  assert.deepEqual(
+    ciStepPropertyValues({
+      order: "02.1",
+      role: "decision",
+      level: "nested",
+      title: "Select affected verification tasks",
+      technicalId: "ci.plan.gradleTasks",
+      description: "Limits verification to the affected Gradle scopes.",
+      condition: "Affected scopes are derived from the comparison base.",
+    }),
+    {
+      order: "02.1",
+      role: "decision",
+      level: "nested",
+      title: "Select affected verification tasks",
+      technicalId: "ci.plan.gradleTasks",
+      description: "Limits verification to the affected Gradle scopes.",
+      condition: "Affected scopes are derived from the comparison base.",
+      showTechnicalId: true,
+      showDescription: true,
+      showCondition: true,
+    }
+  );
 });
 
 test("CI connector labels stay horizontal and centered in a vertical gap", () => {
@@ -287,6 +327,7 @@ function visualNode(): CiVisualNode {
     description: "Proposes a reviewed change to the repository.",
     source: "docs/ci/main-branch-protection.md",
     sourceUrl: "https://example.test/docs/ci/main-branch-protection.md",
+    steps: [],
     row: 0,
     column: 0,
   };

@@ -114,23 +114,65 @@ and exposes five independently runnable targets:
 - `ci.infrastructureAndAccess`;
 - `ci.windowsRuntime`.
 
-Each visual entity is an instance of `.ci node` (`64301:3927`). The writer
-selects the matching mode from the `ci/cd` variable collection: `Actor`,
-`System`, `Git reference`, `Pipeline`, `Job`, `Artifact`, `Check`, or `Gate`.
-The collection's `type_label` string supplies the visible type label for each
-mode.
-It binds the exposed `name`, `description`, `steps`, and `source` text
-properties and controls `show steps` and `show source` from actual model
-content. Repository-owned Gradle entry points use their exact task identifiers;
-the pull request job expands `ci.plan.gradleTasks` into its documented dynamic
-selection paths, relevant root `check` dependencies, and included-build
-aggregate. Non-Gradle commands keep concise operational names. The `source` row
-links to the canonical file on GitHub `main`, where literal commands and
-arguments remain available. Task conditions use `[full]`, and Gradle
-dependencies use `depends on:` so neither is confused with TeamCity step order.
+The plan uses schema version `2`. Every visual entity contains a typed `steps`
+array, including an empty array when that entity has no executable detail. Each
+step contains `order`, `role`, `level`, `title`, and optional `technicalId`,
+`description`, and `condition` fields. The TypeScript use-case boundary rejects
+CI plans with a different schema version or nodes without the typed array
+before making any Figma call. Preview packaging applies the same validation.
 
-Every `.ci node` instance is the only child of a managed group. Native Figma
-connectors are cloned from the existing `simple-solid_arrow` template because
+Each visual entity starts with an instance of `.ci node` (`64301:3927`). The
+writer selects the matching mode from the `ci/cd` variable collection:
+`Actor`, `System`, `Git reference`, `Pipeline`, `Job`, `Artifact`, `Check`, or
+`Gate`. The collection's `type_label` string supplies the visible type label
+for each mode. The writer binds the exposed `name`, `description`, and `source`
+text properties, controls `show source` and `show runtime` from actual model
+content, and always hides the legacy `steps` block. That block remains in the
+component API for compatibility but is not populated by generated CI
+documentation.
+
+The `.ci node` component owns exactly 20 direct, exposed instances from the
+`.ci step` component set (`64583:1332`). Their stable layer names are `step 01`
+through `step 20`, and they are hidden by default. The writer resolves these
+exposed instances from the top-level `.ci node` instance, configures the first
+slots in plan order, reveals only those slots, and leaves the remainder hidden.
+It does not traverse nested implementation layers or create sibling step
+instances. A node with more than 20 plan entries is rejected at the TypeScript
+use-case boundary before any Figma call.
+
+The writer requires the step text properties `order`, `title`, `technical id`,
+`description`, and `condition`; the boolean properties `show technical id`,
+`show description`, and `show condition`; the exact `role` variants `action`,
+`decision`, and `outcome`; and the exact `level` variants `phase` and `nested`.
+Preflight validates the complete component-set API and also verifies that the
+20 direct slots exist, have their exact names, are exposed, and belong to the
+configured `.ci step` component set before any visual mutation.
+
+TeamCity steps map to `phase/action`, nested Gradle tasks to `nested/action`,
+dynamic task selection to `nested/decision`, and published artifacts or checks
+to `phase/outcome`. Repository-owned Gradle entry points retain their exact
+technical identifiers. The pull request job expands `ci.plan.gradleTasks` into
+its documented dynamic selection paths, relevant root `check` dependencies,
+and included-build aggregate. Non-Gradle commands keep concise operational
+names. Conditions distinguish scope selection from Gradle dependencies, while
+the node's `source` row links to the canonical file on GitHub `main`, where
+literal commands and arguments remain available.
+
+Every managed `.ci node group` contains only its top-level `.ci node` instance;
+the configured `.ci step` instances remain nested inside that node. The
+component orders summary first, executable steps second, and optional runtime
+and source details last. Its `show optional details` boolean collapses the
+details container when neither child is visible. Nested action descriptions
+stay in the typed model but are hidden visually to keep large jobs scannable;
+phase, decision, and outcome descriptions remain visible.
+
+The legacy `steps` text and `show steps` properties remain temporarily for
+published `.ci node` instances that still display legacy step text. New
+generated nodes clear and hide that block. Remove the legacy properties only
+after an official visual sync from `main` has populated the nested slots and
+confirmed that no published instance depends on the old text block.
+
+Native Figma connectors are cloned from the existing `simple-solid_arrow` template because
 the MCP runtime does not expose `figma.createConnector()`. The clones attach to
 the managed node groups using the magnets selected for the section layout,
 remain children of the target section, and are inserted behind nodes.

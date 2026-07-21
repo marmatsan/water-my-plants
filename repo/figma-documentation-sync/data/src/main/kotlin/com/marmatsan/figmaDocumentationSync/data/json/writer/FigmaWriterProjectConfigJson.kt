@@ -114,6 +114,30 @@ object FigmaWriterProjectConfigJson {
                 ciNodeProps.toJsonObject(),
             )
             put(
+                "CI_STEP_COMPONENT_SET_ID",
+                ciStepComponentSetId,
+            )
+            put(
+                "CI_STEP_SLOT_NAME_PREFIX",
+                ciStepSlotNamePrefix,
+            )
+            put(
+                "CI_STEP_SLOT_COUNT",
+                ciStepSlotCount,
+            )
+            put(
+                "CI_STEP_ROLES",
+                ciStepRoles.toJsonArray(),
+            )
+            put(
+                "CI_STEP_LEVELS",
+                ciStepLevels.toJsonArray(),
+            )
+            put(
+                "CI_STEP_PROPS",
+                ciStepProps.toJsonObject(),
+            )
+            put(
                 "VERSIONS_COLLECTION_NAME",
                 versionsCollectionName,
             )

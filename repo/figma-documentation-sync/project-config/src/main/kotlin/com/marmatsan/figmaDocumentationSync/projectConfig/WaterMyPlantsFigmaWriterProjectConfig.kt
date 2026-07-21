@@ -65,6 +65,34 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showSteps" to "show steps",
                     "showSource" to "show source",
                     "showRuntime" to "show runtime",
+                    "showOptionalDetails" to "show optional details",
+                ),
+            ciStepComponentSetId = "64583:1332",
+            ciStepSlotNamePrefix = "step",
+            ciStepSlotCount = 20,
+            ciStepRoles =
+                listOf(
+                    "action",
+                    "decision",
+                    "outcome",
+                ),
+            ciStepLevels =
+                listOf(
+                    "phase",
+                    "nested",
+                ),
+            ciStepProps =
+                mapOf(
+                    "order" to "order",
+                    "title" to "title",
+                    "technicalId" to "technical id",
+                    "description" to "description",
+                    "condition" to "condition",
+                    "showTechnicalId" to "show technical id",
+                    "showDescription" to "show description",
+                    "showCondition" to "show condition",
+                    "role" to "role",
+                    "level" to "level",
                 ),
             versionsCollectionName = "repo\\dependency-catalog\\versions.properties",
             versionAliasModeName = "Version alias",

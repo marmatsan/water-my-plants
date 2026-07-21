@@ -12,6 +12,10 @@ import {
   CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
   CI_NODE_PROPS,
+  CI_STEP_COMPONENT_SET_ID,
+  CI_STEP_LEVELS,
+  CI_STEP_PROPS,
+  CI_STEP_ROLES,
   CI_VISUAL_TARGET_NAMES,
   CI_VARIABLE_COLLECTION_NAME,
   CI_VARIABLE_MODE_NAMES,
@@ -44,6 +48,10 @@ import type {
   VisualContractCheckGateway,
   VisualContractCheckOptions,
 } from "../ports/sync-gateways";
+import {
+  ciStepSlotNames,
+  hasCiStepSlotNamePrefix,
+} from "./ci-step-slot-contract";
 import { filterModelRoots } from "./figma-catalog-tree-sync-gateway";
 import {
   requireComponent,
@@ -111,7 +119,71 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showRuntime, "BOOLEAN");
+  requireComponentProperty(component, CI_NODE_PROPS.showOptionalDetails, "BOOLEAN");
   checkedComponents.push(`${component.name}:${component.id}`);
+
+  const stepSet = await requireComponentSet(CI_STEP_COMPONENT_SET_ID);
+  requireComponentProperty(stepSet, CI_STEP_PROPS.order, "TEXT");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.title, "TEXT");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.technicalId, "TEXT");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.description, "TEXT");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.condition, "TEXT");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.showTechnicalId, "BOOLEAN");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.showDescription, "BOOLEAN");
+  requireComponentProperty(stepSet, CI_STEP_PROPS.showCondition, "BOOLEAN");
+  requireExactVariantOptions({
+    node: stepSet,
+    propertyName: CI_STEP_PROPS.role,
+    expectedOptions: CI_STEP_ROLES,
+    label: "CI step roles",
+  });
+  requireExactVariantOptions({
+    node: stepSet,
+    propertyName: CI_STEP_PROPS.level,
+    expectedOptions: CI_STEP_LEVELS,
+    label: "CI step levels",
+  });
+  checkedComponents.push(`${stepSet.name}:${stepSet.id}`);
+
+  const expectedStepSlotNames = ciStepSlotNames();
+  const stepSlots = component.children.filter(
+    (candidate) => candidate.type === "INSTANCE" && hasCiStepSlotNamePrefix(candidate.name)
+  ) as InstanceNode[];
+  const actualStepSlotNames = stepSlots.map((slot) => slot.name);
+  const missingStepSlotNames = expectedStepSlotNames.filter(
+    (name) => !actualStepSlotNames.includes(name)
+  );
+  const unexpectedStepSlotNames = actualStepSlotNames.filter(
+    (name) => !expectedStepSlotNames.includes(name)
+  );
+  const duplicateStepSlotNames = expectedStepSlotNames.filter(
+    (name) => actualStepSlotNames.filter((actualName) => actualName === name).length > 1
+  );
+  if (
+    stepSlots.length !== expectedStepSlotNames.length ||
+    missingStepSlotNames.length > 0 ||
+    unexpectedStepSlotNames.length > 0 ||
+    duplicateStepSlotNames.length > 0
+  ) {
+    throw new Error(
+      `.ci node '${component.id}' must contain the exact reserved CI step slots. ` +
+        `Missing: ${missingStepSlotNames.join(", ") || "none"}. ` +
+        `Unexpected: ${unexpectedStepSlotNames.join(", ") || "none"}. ` +
+        `Duplicated: ${duplicateStepSlotNames.join(", ") || "none"}.`
+    );
+  }
+  for (const slot of stepSlots) {
+    if (!slot.isExposedInstance) {
+      throw new Error(`CI step slot '${slot.name}' in .ci node '${component.id}' must be exposed.`);
+    }
+    const mainStepComponent = await slot.getMainComponentAsync();
+    if (!mainStepComponent || mainStepComponent.parent?.id !== stepSet.id) {
+      throw new Error(
+        `CI step slot '${slot.name}' in .ci node '${component.id}' must belong to ` +
+          `component set '${stepSet.id}'.`
+      );
+    }
+  }
 
   const iconSet = await requireComponentSet(CI_ICON_COMPONENT_SET_ID);
   const nestedIcons = component.findAllWithCriteria({ types: ["INSTANCE"] })
@@ -388,6 +460,31 @@ function requireComponentProperty(node: any, propertyName: string, propertyType:
     );
   }
   return propertyEntry[1] as any;
+}
+
+function requireExactVariantOptions({
+  node,
+  propertyName,
+  expectedOptions,
+  label,
+}: {
+  node: any;
+  propertyName: string;
+  expectedOptions: string[];
+  label: string;
+}) {
+  const definition = requireComponentProperty(node, propertyName, "VARIANT");
+  const actualOptions = definition.variantOptions || [];
+  const missing = expectedOptions.filter((value) => !actualOptions.includes(value));
+  const unexpected = actualOptions.filter((value) => !expectedOptions.includes(value));
+  if (missing.length > 0 || unexpected.length > 0) {
+    throw new Error(
+      `${label} differ from the supported contract. ` +
+        `Missing: ${missing.join(", ") || "none"}. ` +
+        `Unexpected: ${unexpected.join(", ") || "none"}.`
+    );
+  }
+  return definition;
 }
 
 function componentPropertiesForPreflight(node: any): Record<string, any> {

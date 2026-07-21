@@ -19,6 +19,12 @@ declare module "@figma-documentation-sync/project-config" {
   export const CI_CONNECTOR_LABEL_NAME: any;
   export const CI_CONNECTOR_TEMPLATE_SECTION_ID: any;
   export const CI_NODE_PROPS: any;
+  export const CI_STEP_COMPONENT_SET_ID: any;
+  export const CI_STEP_SLOT_NAME_PREFIX: any;
+  export const CI_STEP_SLOT_COUNT: any;
+  export const CI_STEP_ROLES: any;
+  export const CI_STEP_LEVELS: any;
+  export const CI_STEP_PROPS: any;
   export const VERSIONS_COLLECTION_NAME: any;
   export const VERSIONS_COLLECTION_NAMES: any;
   export const VERSION_ALIAS_MODE_NAME: any;

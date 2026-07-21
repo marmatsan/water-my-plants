@@ -103,11 +103,49 @@ do not break them. Literal command content remains in the linked TeamCity DSL.
 
 ### Gradle Task Display
 
-The visual model keeps `.ci node` as the common component and publishes Gradle
-task names through the existing `Steps` property. It does not add task-specific
-properties or a Gradle icon. Exact task identifiers make failures traceable to
-their executable source while the linked files remain authoritative for
-arguments and implementation details.
+The visual model uses two complementary components:
+
+| Component | Reading purpose |
+|-----------|-----------------|
+| `.ci node` | Identifies the actor, system, pipeline, job, artifact, check, or gate and summarizes its responsibility. |
+| `.ci step` | Explains the ordered work performed by a job, including nested Gradle tasks, selection decisions, conditions, and published outcomes. |
+
+The Kotlin visual plan owns a typed `steps` array for every node. Each entry
+contains an order, role, level, title, and optional technical identifier,
+description, and condition. The `.ci node` component reserves exactly 20
+exposed `.ci step` instances named `step 01` through `step 20`. All slots are
+hidden by default. The writer configures and reveals only the slots required by
+the node and keeps the unused slots hidden. A plan that needs more than 20
+steps fails before Figma is mutated; split that node into a clearer visual
+boundary instead of silently dropping work.
+
+The component orders its content as summary, executable steps, then optional
+runtime and source details. The `show optional details` boolean collapses that
+last container when both kinds of context are hidden. The legacy `.ci node`
+`Steps` text property remains part of the component API for compatibility, but
+generated nodes hide it; it is not a second source of step content.
+
+Use the step variants consistently:
+
+| Variant axis | Value | Meaning |
+|--------------|-------|---------|
+| `role` | `action` | Work executed by TeamCity or Gradle. |
+| `role` | `decision` | A runtime selection or branch in the verification plan. |
+| `role` | `outcome` | An artifact or check published after successful execution. |
+| `level` | `phase` | A top-level TeamCity step or job outcome. |
+| `level` | `nested` | A Gradle task or decision expanded from a TeamCity phase. |
+
+Phase orders use two digits, such as `01` and `02`. Nested orders extend their
+parent phase, such as `02.1`. Nested actions emphasize a human-readable title,
+the exact task identifier, and any execution condition; their longer
+description remains in the versioned plan but is hidden in Figma to keep large
+jobs scannable. Decisions and outcomes retain their description because it
+explains why the branch exists or what downstream contract is produced.
+
+Exact task identifiers make failures traceable to their executable source
+while the linked files remain authoritative for arguments and implementation
+details. The model does not add a Gradle icon or expand third-party task
+internals.
 
 The pull request `Verify` job shows:
 
@@ -122,11 +160,12 @@ The pull request `Verify` job shows:
 - the repository-owned checks, including `checkKotlinStyle`, and
   the included-build aggregate wired into the root `check` lifecycle.
 
-The post-merge Figma jobs show the exact phased task entry points. The visual
-annotation `[full]` means the task executes only when the validated Figma scope
-requires full verification. `depends on:` records a Gradle `dependsOn`
-relationship; TeamCity step order remains distinct from Gradle task dependency
-order when `figmaOfficialTeamCityPhasedExecution=true`.
+The post-merge Figma jobs show the exact phased task entry points. A condition
+named `Full Figma verification` means the task executes only when the validated
+Figma scope requires full verification. A condition beginning with
+`Gradle dependency of` records a Gradle `dependsOn` relationship; TeamCity step
+order remains distinct from Gradle task dependency order when
+`figmaOfficialTeamCityPhasedExecution=true`.
 
 Do not expand Android, Kotlin, or third-party plugin task internals in Figma.
 Module `check` tasks are the stable contract boundary for those implementation

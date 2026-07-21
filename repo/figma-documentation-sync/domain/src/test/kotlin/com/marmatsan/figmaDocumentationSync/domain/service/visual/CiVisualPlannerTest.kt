@@ -65,22 +65,45 @@ internal class CiVisualPlannerTest :
                         ).sections
                         .single { it.target == "ci.postMergeDesignDocumentation" }
 
-                section.nodes.single { it.name == "Generate main design model" }.steps shouldBe
-                    """
-                    Validate agent capabilities
-                    classifyOfficialFigmaSyncChangeImpact
-                      depends on: cleanOfficialFigmaSyncReports
-                    materializeFigmaSyncCiConfiguration [full]
-                    generateOfficialFigmaSyncModel [full]
-                    prepareOfficialFigmaSync
-                      depends on: writeFigmaWriterProjectConfig
-                    """.trimIndent()
-                section.nodes.single { it.name == "Check Figma trunk sync" }.steps shouldBe
-                    """
-                    Validate agent capabilities
-                    validateOfficialFigmaSyncScope
-                    checkOfficialFigmaTrunkSync [full]
-                    """.trimIndent()
+                val generateSteps = section.nodes.single { it.name == "Generate main design model" }.steps
+                generateSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
+                    .map(CiVisualPlan.Step::title) shouldContainExactly
+                    listOf(
+                        "Validate agent capabilities",
+                        "Classify Figma change impact",
+                        "Materialize official design model",
+                        "Build MCP runners and visual plan",
+                        "Publish build artifact",
+                    )
+                generateSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "classifyOfficialFigmaSyncChangeImpact",
+                        "cleanOfficialFigmaSyncReports",
+                        "materializeFigmaSyncCiConfiguration",
+                        "generateOfficialFigmaSyncModel",
+                        "prepareOfficialFigmaSync",
+                        "writeFigmaWriterProjectConfig",
+                    )
+                generateSteps
+                    .filter { step -> step.condition == "Full Figma verification" }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "materializeFigmaSyncCiConfiguration",
+                        "generateOfficialFigmaSyncModel",
+                    )
+                generateSteps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
+
+                val checkSteps = section.nodes.single { it.name == "Check Figma trunk sync" }.steps
+                checkSteps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "validateOfficialFigmaSyncScope",
+                        "checkOfficialFigmaTrunkSync",
+                    )
                 section.connections
                     .filter {
                         it.id in
@@ -112,22 +135,39 @@ internal class CiVisualPlannerTest :
                         ).sections
                         .single { it.target == "ci.pullRequestIntegration" }
 
-                section.nodes.single { it.name == "Verify" }.steps shouldBe
-                    """
-                    Validate agent capabilities
-                    prepareTeamCityCiPlan
-                      depends on: generateCiPlan
-                    ci.plan.gradleTasks [dynamic]
-                      always: checkGitWorkflow + checkDocumentation
-                      documentation: checkRepositoryDiff
-                      TeamCity: checkTeamCityDsl + check
-                      modules: :<affected-module>:check + checkFigmaCatalogUsage
-                      fallback: check
-                      check includes: checkFigmaCatalogUsage + checkFigmaVersionNaming
-                        + checkCiExternalTopologyFreshness + checkCiWindowsRuntimeFreshness
-                        + checkKotlinStyle
-                        + verification-platform:check (domain + data + plugin)
-                    """.trimIndent()
+                val steps = section.nodes.single { it.name == "Verify" }.steps
+                steps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
+                    .map(CiVisualPlan.Step::title) shouldContainExactly
+                    listOf(
+                        "Validate agent capabilities",
+                        "Generate verification plan",
+                        "Run planned Gradle checks",
+                        "Publish GitHub check",
+                    )
+                steps
+                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
+                    .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
+                    listOf(
+                        "prepareTeamCityCiPlan",
+                        "generateCiPlan",
+                        "ci.plan.gradleTasks",
+                        "checkGitWorkflow",
+                        "checkDocumentation",
+                        "checkRepositoryDiff",
+                        "checkTeamCityDsl",
+                        "check",
+                        ":<affected-module>:check",
+                        "checkFigmaCatalogUsage",
+                        "checkFigmaVersionNaming",
+                        "checkCiExternalTopologyFreshness",
+                        "checkCiWindowsRuntimeFreshness",
+                        "checkKotlinStyle",
+                        "verification-platform:check",
+                    )
+                steps.single { step -> step.technicalId == "ci.plan.gradleTasks" }.role shouldBe
+                    CiVisualPlan.StepRole.DECISION
+                steps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
             }
 
             test("does not invent a Figma status when no versioned publisher exists") {
