@@ -70,7 +70,7 @@ source file.
 The materialized directory contains the compiled Figma Plugin API writer, the
 preview-only runner generator, portable writer sources used for
 fingerprints, and visual fixtures. `figmaDocumentationSync.toolsDirectory` points to
-this directory. Official runner generation, capability probing, MCP transport,
+this directory. Canonical runner generation, capability probing, MCP transport,
 and checkpoints are Kotlin services delivered by the Maven plugin and its
 transitive `domain` and `data` artifacts.
 

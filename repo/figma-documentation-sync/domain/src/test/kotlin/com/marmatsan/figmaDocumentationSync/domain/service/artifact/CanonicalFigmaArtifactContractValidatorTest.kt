@@ -1,16 +1,16 @@
 package com.marmatsan.figmaDocumentationSync.domain.service.artifact
 
-import com.marmatsan.figmaDocumentationSync.domain.model.artifact.OfficialFigmaArtifactContract
+import com.marmatsan.figmaDocumentationSync.domain.model.artifact.CanonicalFigmaArtifactContract
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-internal class OfficialFigmaArtifactContractValidatorTest :
+internal class CanonicalFigmaArtifactContractValidatorTest :
     FunSpec(
         {
-            val validator = OfficialFigmaArtifactContractValidator()
+            val validator = CanonicalFigmaArtifactContractValidator()
 
-            test("accepts one consistent official main artifact set") {
+            test("accepts one consistent canonical main artifact set") {
                 val result =
                     validator.validate(
                         contract = validContract(),
@@ -19,7 +19,7 @@ internal class OfficialFigmaArtifactContractValidatorTest :
 
                 result.gitSha shouldBe "abc123"
                 result.modelHash shouldBe "model-hash"
-                result.decision shouldBe OfficialFigmaArtifactContract.Decision.PARTIAL
+                result.decision shouldBe CanonicalFigmaArtifactContract.Decision.PARTIAL
             }
 
             test("rejects a branch-local design model") {
@@ -37,7 +37,7 @@ internal class OfficialFigmaArtifactContractValidatorTest :
                     }
 
                 exception.message shouldBe
-                    "Official Figma artifacts require model branch 'main'; found 'feature/not-main'."
+                    "Canonical Figma artifacts require model branch 'main'; found 'feature/not-main'."
             }
 
             test("rejects a mismatched writer identity") {
@@ -82,15 +82,15 @@ internal class OfficialFigmaArtifactContractValidatorTest :
     )
 
 private fun validContract() =
-    OfficialFigmaArtifactContract(
+    CanonicalFigmaArtifactContract(
         model =
-            OfficialFigmaArtifactContract.Model(
+            CanonicalFigmaArtifactContract.Model(
                 branch = "main",
                 gitSha = "abc123",
                 modelHash = "model-hash",
             ),
         scope =
-            OfficialFigmaArtifactContract.Scope(
+            CanonicalFigmaArtifactContract.Scope(
                 scope = "full-verification",
                 gitSha = "abc123",
                 modelHash = "model-hash",
@@ -101,11 +101,11 @@ private fun validContract() =
                 visualSyncDecision = "partial",
             ),
         plan =
-            OfficialFigmaArtifactContract.Plan(
+            CanonicalFigmaArtifactContract.Plan(
                 decision = "partial",
                 manifestHash = "visual-hash",
                 identity =
-                    OfficialFigmaArtifactContract.Identity(
+                    CanonicalFigmaArtifactContract.Identity(
                         modelHash = "model-hash",
                         writerHash = "writer-hash",
                         transportHash = "transport-hash",
@@ -113,8 +113,8 @@ private fun validContract() =
             ),
         manifests =
             listOf(
-                OfficialFigmaArtifactContract.Manifest(
-                    mode = "official",
+                CanonicalFigmaArtifactContract.Manifest(
+                    mode = "canonical",
                     gitSha = "abc123",
                     modelHash = "model-hash",
                     manifestHash = "visual-hash",
@@ -123,8 +123,8 @@ private fun validContract() =
                     fullVisualSync = true,
                     writeMetadata = false,
                 ),
-                OfficialFigmaArtifactContract.Manifest(
-                    mode = "official",
+                CanonicalFigmaArtifactContract.Manifest(
+                    mode = "canonical",
                     gitSha = "abc123",
                     modelHash = "model-hash",
                     manifestHash = "metadata-hash",

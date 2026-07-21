@@ -124,7 +124,7 @@ private val designModelFixture =
 private val writerConfigFixture =
     """
     {
-      "schemaVersion": 1,
+      "schemaVersion": 2,
       "METADATA_PAGE_ID": "1:1",
       "METADATA_NAMESPACE": "test",
       "FIGMA_FILE_KEY": "file",
@@ -145,7 +145,7 @@ private val writerConfigFixture =
       "WINDOWS_RUNTIME_RUNBOOK_SOURCE": "docs/runbooks/teamcity.md",
       "VISUAL_CONTRACT_SOURCE": "docs/ci/visual-model-contract.md",
       "BRANCH_PROTECTION_SOURCE": "docs/ci/main-branch-protection.md",
-      "OFFICIAL_SYNC_SOURCE": "docs/runbooks/official-sync.md",
-      "OFFICIAL_DESIGN_MODEL_PATH": "build/reports/figma-sync/design-model.json"
+      "CANONICAL_SYNC_SOURCE": "docs/runbooks/canonical-sync.md",
+      "CANONICAL_DESIGN_MODEL_PATH": "build/reports/figma-sync/design-model.json"
     }
     """.trimIndent()

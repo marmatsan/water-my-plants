@@ -19,13 +19,13 @@ sources:
 considered synchronized only when the configured metadata page stores the same
 `modelHash` generated from `main`.
 
-This runbook is the official execution path. Keep reusable details in the
+This runbook is the canonical execution path. Keep reusable details in the
 fine-grained runbooks:
 
 | Runbook | Use it for |
 |---------|------------|
-| [official-artifact-visual-sync.md](official-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
-| [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging official payloads through PNG or chunk fallback, running targets, and writing metadata. |
+| [canonical-artifact-visual-sync.md](canonical-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
+| [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging canonical payloads through PNG or chunk fallback, running targets, and writing metadata. |
 | [visual-sync-efficiency.md](visual-sync-efficiency.md) | Reading the visual plan, probing MCP capabilities, and resuming checkpointed execution without repeating completed work. |
 | [target-scopes.md](../reference/target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
 | [visual-sync-contract.md](../reference/visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
@@ -47,7 +47,7 @@ TeamCity owns the repository workflow:
 
 Treat artifact generation, metadata verification, and visual writing as
 separate phases. A TeamCity `Figma Sync` run can successfully generate and
-publish a valid official `design-model.json` artifact while the later MCP
+publish a valid canonical `design-model.json` artifact while the later MCP
 visual write still fails because the Figma component contract or writer code is
 stale. Do not interpret a valid artifact, or a green repository check, as proof
 that the visual MCP write has completed.
@@ -58,7 +58,7 @@ MCP write flow.
 
 For fast visual iteration on component shape, colors, connectors, layout, or
 fixture data, use [visual-preview.md](visual-preview.md). Preview is
-intentionally non-authoritative and must not write official metadata.
+intentionally non-authoritative and must not write canonical metadata.
 
 ## Sources
 
@@ -75,19 +75,19 @@ intentionally non-authoritative and must not write official metadata.
 | Figma UML documentation page | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386` |
 | Root settings file | `settings.gradle.kts` |
 
-## Official Execution Path
+## Canonical Execution Path
 
 1. Let TeamCity run `Figma Sync` on `<default>` / `main`.
 2. Download the `build/reports/figma-sync` artifact from `Figma Sync > Generate
    main design model`. Keep `design-model.json`, `visual-sync-plan.json`, and
    both generated runner directories together.
 3. Validate the artifact with
-   [official-artifact-visual-sync.md](official-artifact-visual-sync.md).
-4. Use the generated runner whose manifest identity matches the official
-   artifact. Rebuild only for branch-local writer diagnosis; the official plan
+   [canonical-artifact-visual-sync.md](canonical-artifact-visual-sync.md).
+4. Use the generated runner whose manifest identity matches the canonical
+   artifact. Rebuild only for branch-local writer diagnosis; the canonical plan
    must classify any different `writerHash` through its writer-scope
    fingerprints, or fail closed to a full visual plan.
-5. Stage the official model and generated MCP script through the PNG payload
+5. Stage the canonical model and generated MCP script through the PNG payload
    transport, or the chunk fallback when needed, using the process
    documented in [mcp-chunk-transport.md](mcp-chunk-transport.md).
 6. Follow `visual-sync-plan.json`. A `full` plan executes every generated MCP
@@ -116,7 +116,7 @@ A successful standalone `Check Figma trunk sync` does not change the result of
 an earlier failed aggregate `Figma Sync` run. The complete pipeline must be
 rerun after the MCP write. Visual staleness is determined by `modelHash`,
 `writerHash`, model target fingerprints, and writer scope fingerprints.
-`gitSha` identifies the official
+`gitSha` identifies the canonical
 artifact and checkpoint but does not invalidate unchanged visuals by itself.
 Follow the generated plan and fail closed to a full visual run when its identity
 or previous Figma metadata cannot be validated.
@@ -126,18 +126,18 @@ or previous Figma metadata cannot be validated.
 When a visual target fails:
 
 - Fix that target's component or TypeScript contract.
-- Merge the fix to `main` if it affects generated model content or the official
+- Merge the fix to `main` if it affects generated model content or the canonical
   sync code used by TeamCity.
-- Regenerate the official TeamCity artifact when model content changes.
+- Regenerate the canonical TeamCity artifact when model content changes.
 - Use `--allow-partial=true` only to diagnose or verify the focused repair.
 - Complete every scope selected by the new TeamCity visual plan before writing
   metadata. Mapped writer changes may select a target family; shared or
   unexplained writer changes select the complete target set. Ad hoc partial
-  success does not complete an official synchronization.
+  success does not complete a canonical synchronization.
 
-Branch-local visual iteration with an already-official artifact is allowed only
+Branch-local visual iteration with an already-canonical artifact is allowed only
 for visual representation changes. The rules are in
-[official-artifact-visual-sync.md](official-artifact-visual-sync.md).
+[canonical-artifact-visual-sync.md](canonical-artifact-visual-sync.md).
 
 ## Verify
 
@@ -235,6 +235,6 @@ metadata, CI settings, or unrelated files do not require a Figma sync if
 
 ## Prohibited Actions
 
-- Do not generate or publish the official model from a feature branch.
-- Do not write official metadata after an incomplete plan.
+- Do not generate or publish the canonical model from a feature branch.
+- Do not write canonical metadata after an incomplete plan.
 - Do not replace the aggregate post-merge verification with a standalone check.

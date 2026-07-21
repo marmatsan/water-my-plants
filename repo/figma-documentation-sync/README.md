@@ -169,9 +169,9 @@ Run these from the repository root:
 .\gradlew.bat checkFigmaCatalogUsage
 .\gradlew.bat checkCiWindowsRuntimeFreshness
 .\gradlew.bat classifyFigmaChangeImpact
-.\gradlew.bat validateOfficialFigmaArtifactSet `
+.\gradlew.bat validateCanonicalFigmaArtifactSet `
     -PfigmaArtifactDirectory=<artifact-directory>
-.\gradlew.bat uploadOfficialFigmaPayload `
+.\gradlew.bat uploadCanonicalFigmaPayload `
     -PfigmaTeamCityBuildId=<job-run-id> `
     -PfigmaMcpUploadUrl=<single-use-upload-url>
 ```
@@ -181,31 +181,31 @@ Task responsibilities:
 | Task | Responsibility |
 |------|----------------|
 | `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
-| `prepareOfficialFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
+| `prepareCanonicalFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
 | `probeFigmaMcp` | Probes endpoint capabilities through the official Kotlin MCP SDK client. |
-| `runFigmaMcp` | Inspects, checkpoints, or executes an official runner through the Kotlin MCP adapter. |
+| `runFigmaMcp` | Inspects, checkpoints, or executes a canonical runner through the Kotlin MCP adapter. |
 | `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
-| `verifyOfficialFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
-| `validateOfficialFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one official `main` identity before the MCP handoff. |
-| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens official TeamCity artifacts, validates them, and writes `figma-sync-handoff.json`. |
-| `uploadOfficialFigmaPayload` | Water My Plants Kotlin adapter that downloads one successful main TeamCity artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
-| `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the official TeamCity pipeline, and optionally waits for success. |
+| `verifyCanonicalFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
+| `validateCanonicalFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one canonical `main` identity before the MCP handoff. |
+| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens canonical TeamCity artifacts, validates them, and writes `figma-sync-handoff.json`. |
+| `uploadCanonicalFigmaPayload` | Water My Plants Kotlin adapter that downloads one successful main TeamCity artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
+| `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the canonical TeamCity pipeline, and optionally waits for success. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
 | `checkCiWindowsRuntimeFreshness` | Emits a non-blocking warning when the Windows service runtime has not been manually validated within its configured window. |
-| `generateFigmaDesignModel` | Generates the official JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
-| `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the official pipeline. |
+| `generateFigmaDesignModel` | Generates the canonical JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
+| `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the canonical pipeline. |
 
-TeamCity may expose official synchronization as sequential steps by passing
-`-PfigmaOfficialTeamCityPhasedExecution=true`. In that mode it invokes
+TeamCity may expose canonical synchronization as sequential steps by passing
+`-PfigmaCanonicalTeamCityPhasedExecution=true`. In that mode it invokes
 classification first, model materialization second, runner and visual-plan
 construction third, then scope validation before the metadata check. The flag
 removes only the dependency edges that would repeat an earlier TeamCity step;
 each phase still consumes the files produced in the same job workspace and
 fails closed when a prerequisite is absent. Local and third-party consumers
-must keep using the dependency-complete `prepareOfficialFigmaSync` and
-`verifyOfficialFigmaSync` entry points without this adapter flag.
+must keep using the dependency-complete `prepareCanonicalFigmaSync` and
+`verifyCanonicalFigmaSync` entry points without this adapter flag.
 
 The change-impact classifier is implemented in Kotlin and is portable across
 Windows, macOS, and Linux. See
@@ -227,24 +227,24 @@ The strict flow is:
 
 1. Merge code changes through a pull request after TeamCity CI passes.
 2. Let TeamCity generate the effective configuration from `.teamcity/settings.kts`.
-3. Let the same job generate the official `design-model.json` from those effective files.
-4. Use the official artifact as the visual sync input.
-5. Run the official visual manifest with `runFigmaMcp` so `preflight` and every
+3. Let the same job generate the canonical `design-model.json` from those effective files.
+4. Use the canonical artifact as the visual sync input.
+5. Run the canonical visual manifest with `runFigmaMcp` so `preflight` and every
    planned target execute in contractual order without writing metadata.
 6. Validate all managed sections, then run the separate `metadata` target.
 7. Verify `checkFigmaTrunkSync` so Figma metadata matches `main`.
 
-Do not create official design-model metadata from a feature branch. Branch-local
-visual iteration may reuse an official `main` artifact for layout debugging,
+Do not create canonical design-model metadata from a feature branch. Branch-local
+visual iteration may reuse a canonical `main` artifact for layout debugging,
 but it must use only the artifact's atomic visual units and must not publish
-trunk metadata. A partial run never completes the official synchronization.
+trunk metadata. A partial run never completes the canonical synchronization.
 
-The official MCP runner uses PNG payload transport by default: the generated
-runner writes `10-official-sync-payload.png`, that image is uploaded to Figma,
+The canonical MCP runner uses PNG payload transport by default: the generated
+runner writes `10-canonical-sync-payload.png`, that image is uploaded to Figma,
 and the staging runner extracts and validates the model plus MCP script before
 storing the script as plain text in temporary shared plugin data. Avoiding a
 second Base64 encoding keeps the staging entry below Figma's per-entry limit.
-The repository-specific `uploadOfficialFigmaPayload` task keeps this transfer
+The repository-specific `uploadCanonicalFigmaPayload` task keeps this transfer
 Kotlin-first: it validates the successful main TeamCity build, cross-file
 artifact identity, payload length and SHA-256, PNG signature, and exact
 `https://mcp.figma.com/mcp/upload/<id>/submit?scaleMode=FILL` destination before
@@ -257,7 +257,7 @@ timeout with one monolithic call. Chunked staging remains a fallback for
 oversized or blocked asset uploads.
 
 TeamCity also publishes a `visual-sync-plan.json`. It selects `none`, `partial`,
-or `full` from the official model, compiled writer, per-target model
+or `full` from the canonical model, compiled writer, per-target model
 fingerprints, and per-scope writer fingerprints. A target-specific writer
 change reruns only that target family plus preflight; shared or unmapped writer
 code still fails closed to a full sync.
@@ -309,8 +309,8 @@ High-signal entry points:
 |----------|----------|
 | `docs/standards/dependency-version-naming.md` | Adding or renaming dependency version keys. |
 | `docs/reference/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
-| `docs/runbooks/trunk-sync.md` | Running the official trunk sync workflow. |
-| `docs/runbooks/official-artifact-visual-sync.md` | Deciding whether a `design-model.json` is official enough for sync. |
+| `docs/runbooks/trunk-sync.md` | Running the canonical trunk sync workflow. |
+| `docs/runbooks/canonical-artifact-visual-sync.md` | Deciding whether a `design-model.json` is canonical enough for sync. |
 | `docs/runbooks/visual-sync-efficiency.md` | Executing the smallest safe target set and resuming from checkpoints. |
 | `docs/reference/target-scopes.md` | Updating the smallest possible Figma section. |
 | `docs/runbooks/troubleshooting.md` | Diagnosing broken sync output or metadata mismatches. |

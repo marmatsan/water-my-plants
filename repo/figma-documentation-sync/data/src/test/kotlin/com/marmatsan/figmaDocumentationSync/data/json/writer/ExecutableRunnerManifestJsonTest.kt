@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.data.json.writer
 
 import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.json.CanonicalJson
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.JsonObject
@@ -14,7 +15,7 @@ import java.nio.file.Files
 internal class ExecutableRunnerManifestJsonTest :
     FunSpec(
         {
-            test("reads legacy schema 2 manifests using their original hash body") {
+            test("rejects legacy schema 2 manifests even when their hash is valid") {
                 val body =
                     buildJsonObject {
                         put(
@@ -23,7 +24,7 @@ internal class ExecutableRunnerManifestJsonTest :
                         )
                         put(
                             "mode",
-                            "official",
+                            "canonical",
                         )
                         put(
                             "entrypoint",
@@ -62,7 +63,7 @@ internal class ExecutableRunnerManifestJsonTest :
                             buildJsonArray { },
                         )
                         put(
-                            "allowOfficialSections",
+                            "allowCanonicalSections",
                             false,
                         )
                         put(
@@ -149,12 +150,14 @@ internal class ExecutableRunnerManifestJsonTest :
                     source.toString(),
                 )
 
-                val manifest = ExecutableRunnerManifestJson().read(file.toString())
+                val error =
+                    shouldThrow<IllegalArgumentException> {
+                        ExecutableRunnerManifestJson().read(
+                            path = file.toString(),
+                        )
+                    }
 
-                manifest.schemaVersion shouldBe 2
-                manifest.manifestHash shouldBe manifestHash
-                manifest.executionScopes shouldBe emptyMap()
-                manifest.writerScopeFingerprints shouldBe emptyMap()
+                error.message shouldBe "Unsupported MCP manifest schema 2; expected 4 or newer."
                 Files.deleteIfExists(file)
             }
         },

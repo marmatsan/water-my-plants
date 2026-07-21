@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.projectConfig
 
-import com.marmatsan.figmaDocumentationSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDocumentationSync.data.figma.artifact.CanonicalFigmaArtifactSetReader
 import com.marmatsan.figmaDocumentationSync.data.mcp.McpRunnerExecutor
-import com.marmatsan.figmaDocumentationSync.domain.service.artifact.OfficialFigmaArtifactContractValidator
+import com.marmatsan.figmaDocumentationSync.domain.service.artifact.CanonicalFigmaArtifactContractValidator
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuildArtifactClient
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityCliClient
 import kotlinx.serialization.json.Json
@@ -20,12 +20,12 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.zip.ZipInputStream
 
-/** Prepares the validated local handoff for one official TeamCity Figma Sync artifact set. */
+/** Prepares the validated local handoff for one canonical TeamCity Figma Sync artifact set. */
 class TeamCityFigmaSyncHandoffPreparer(
     private val teamCityClient: TeamCityBuildArtifactClient = TeamCityCliClient(),
-    private val artifactReader: OfficialFigmaArtifactSetReader = OfficialFigmaArtifactSetReader(),
-    private val artifactValidator: OfficialFigmaArtifactContractValidator =
-        OfficialFigmaArtifactContractValidator(),
+    private val artifactReader: CanonicalFigmaArtifactSetReader = CanonicalFigmaArtifactSetReader(),
+    private val artifactValidator: CanonicalFigmaArtifactContractValidator =
+        CanonicalFigmaArtifactContractValidator(),
     private val clock: Clock = Clock.systemUTC(),
     private val executor: McpRunnerExecutor = McpRunnerExecutor(),
 ) {
@@ -44,10 +44,10 @@ class TeamCityFigmaSyncHandoffPreparer(
             )
         val visualManifest =
             requireNotNull(artifacts.visualManifestPath) {
-                "Official artifact set does not contain one visual manifest."
+                "Canonical artifact set does not contain one visual manifest."
             }
         requireNotNull(artifacts.metadataManifestPath) {
-            "Official artifact set does not contain one metadata manifest."
+            "Canonical artifact set does not contain one metadata manifest."
         }
 
         val inspection =
@@ -90,10 +90,10 @@ class TeamCityFigmaSyncHandoffPreparer(
                 "-PfigmaMcpManifest=\"$visualManifest\" -PfigmaMcpPlan=\"${artifacts.planPath}\""
         val uploadPayloadCommand =
             request.buildId?.let { buildId ->
-                ".\\gradlew.bat uploadOfficialFigmaPayload " +
+                ".\\gradlew.bat uploadCanonicalFigmaPayload " +
                     "-PfigmaTeamCityBuildId=$buildId " +
                     "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
-            } ?: ".\\gradlew.bat uploadOfficialFigmaPayload " +
+            } ?: ".\\gradlew.bat uploadCanonicalFigmaPayload " +
                 "-PfigmaArtifactDirectory=\"${artifacts.artifactDirectory}\" " +
                 "-PfigmaExpectedGitSha=${validated.gitSha} " +
                 "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""

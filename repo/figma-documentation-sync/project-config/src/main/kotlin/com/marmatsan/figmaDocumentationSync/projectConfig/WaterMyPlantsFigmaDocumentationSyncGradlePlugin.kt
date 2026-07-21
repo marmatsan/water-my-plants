@@ -2,10 +2,10 @@ package com.marmatsan.figmaDocumentationSync.projectConfig
 
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterProjectConfigJson
 import com.marmatsan.figmaDocumentationSync.plugin.gradle.figmaDocumentationSyncExtension
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.PrepareCanonicalFigmaSyncTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.config.WriteFigmaWriterProjectConfigTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.mcp.ProbeFigmaMcpTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.mcp.RunFigmaMcpTask
-import com.marmatsan.figmaDocumentationSync.plugin.task.official.PrepareOfficialFigmaSyncTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.visual.GenerateCiVisualPlanTask
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import org.gradle.api.Plugin
@@ -139,7 +139,7 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             }
         }
 
-        project.tasks.named<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
+        project.tasks.named<PrepareCanonicalFigmaSyncTask>("prepareCanonicalFigmaSync") {
             dependsOn(writeWriterProjectConfig)
             writerProjectConfigFile.set(generatedWriterProjectConfigFile)
         }
@@ -161,7 +161,7 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
 
         project.tasks.register<PrepareTeamCityFigmaSyncHandoffTask>("prepareTeamCityFigmaSyncHandoff") {
             group = "documentation"
-            description = "Downloads or opens official TeamCity artifacts and prepares the Figma MCP handoff."
+            description = "Downloads or opens canonical TeamCity artifacts and prepares the Figma MCP handoff."
             buildId.convention(
                 project.providers.gradleProperty("figmaTeamCityBuildId").map(
                     String::toLong,
@@ -193,7 +193,7 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             requiredBuildTypeName.set("Generate main design model")
         }
 
-        project.tasks.register<UploadOfficialFigmaPayloadTask>("uploadOfficialFigmaPayload") {
+        project.tasks.register<UploadCanonicalFigmaPayloadTask>("uploadCanonicalFigmaPayload") {
             group = "documentation"
             description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
             buildId.convention(
@@ -231,7 +231,7 @@ class WaterMyPlantsFigmaDocumentationSyncGradlePlugin : Plugin<Project> {
 
         project.tasks.register<RerunTeamCityFigmaSyncTask>("rerunTeamCityFigmaSync") {
             group = "documentation"
-            description = "Validates or reruns the official TeamCity Figma Sync pipeline."
+            description = "Validates or reruns the canonical TeamCity Figma Sync pipeline."
             serverUrl.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityServerUrl")

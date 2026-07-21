@@ -2,15 +2,15 @@ package com.marmatsan.figmaDocumentationSync.data.figma.sync
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaImpact
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
-import com.marmatsan.figmaDocumentationSync.domain.model.sync.OfficialFigmaSyncScope
+import com.marmatsan.figmaDocumentationSync.domain.model.sync.CanonicalFigmaSyncScope
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class OfficialFigmaSyncScopeJsonTest :
+internal class CanonicalFigmaSyncScopeJsonTest :
     FunSpec(
         {
-            test("round trips a model-neutral official scope") {
+            test("round trips a model-neutral canonical scope") {
                 val directory = Files.createTempDirectory("figma-sync-scope").toFile()
                 try {
                     val path =
@@ -18,7 +18,7 @@ internal class OfficialFigmaSyncScopeJsonTest :
                             relative = "sync-scope.json",
                         )
                     val expected =
-                        OfficialFigmaSyncScope(
+                        CanonicalFigmaSyncScope(
                             scope = FigmaVerificationScope.MODEL_NEUTRAL,
                             figmaImpact = FigmaImpact.MODEL_NEUTRAL,
                             affectedVisualTargets = emptyList(),
@@ -36,7 +36,7 @@ internal class OfficialFigmaSyncScopeJsonTest :
                             visualSyncPlanHash = null,
                         )
 
-                    val adapter = OfficialFigmaSyncScopeJson()
+                    val adapter = CanonicalFigmaSyncScopeJson()
                     adapter.write(
                         expected,
                         path.absolutePath,
@@ -80,7 +80,7 @@ internal class OfficialFigmaSyncScopeJsonTest :
                         }
 
                     val manifests =
-                        OfficialFigmaSyncScopeJson().readRunnerManifests(
+                        CanonicalFigmaSyncScopeJson().readRunnerManifests(
                             rootPath = directory.absolutePath,
                         )
 

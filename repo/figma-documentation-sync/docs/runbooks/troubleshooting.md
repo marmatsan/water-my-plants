@@ -33,7 +33,7 @@ metadata.
 If visual mutation fails, leave the old hash in Figma and let
 `checkFigmaTrunkSync` fail until the visual sync can be rerun successfully.
 
-The official TeamCity artifact and the MCP visual write are separate failure
+The canonical TeamCity artifact and the MCP visual write are separate failure
 domains. A `Figma Sync` run can generate and publish a valid `design-model.json`
 artifact from `main`, while the visual write fails later because the Figma
 component contract no longer matches the writer code. In that case, keep using
@@ -69,7 +69,7 @@ mutations.
 When this happens:
 
 1. Retry exactly the failed `99-*.mcp.js` execution unit with the same staged
-   official payload.
+   canonical payload.
 2. Do not restart already completed roots or targets.
 3. Confirm that the retried unit reports its requested target in
    `completedTargets` before continuing.
@@ -96,7 +96,7 @@ had expected encoded length `45228`, but only `44624` characters reached Figma.
 
 If a target runner appears to complete without visual changes, inspect staging
 before debugging the catalog model. An empty staging value means the runner had
-no official payload to apply:
+no canonical payload to apply:
 
 ```javascript
 const page = await figma.getNodeByIdAsync("62934:908");
@@ -120,9 +120,9 @@ return {
 ```
 
 `designModelJsonLength: 0` after `00-clear-staging.mcp.js` means the payload was
-not staged. In PNG transport, confirm that `10-official-sync-payload.png` was
+not staged. In PNG transport, confirm that `10-canonical-sync-payload.png` was
 uploaded to Figma and that `10-stage-payload-from-png.mcp.js` completed. If PNG
-asset upload is blocked, rerun the authorized official TeamCity generation with
+asset upload is blocked, rerun the authorized canonical TeamCity generation with
 `-PfigmaMcpTransport=chunks`.
 
 If a chunk call is too large and never reaches Figma, regenerate the chunk
@@ -150,7 +150,7 @@ generated staging code must inspect only direct children of each document page.
 the upload lands on a different page from the metadata page, so neither API is
 required.
 
-The tools package can generate visual preview runner files. Official runners
+The tools package can generate visual preview runner files. Canonical runners
 are generated in Kotlin only as part of the authorized TeamCity artifact:
 
 ```powershell
@@ -160,7 +160,7 @@ node dist\write-mcp-preview.mjs --entrypoint=preview-catalog --fixture=catalog-t
 ```
 
 Use preview runners to reproduce visual issues quickly. They stage data under
-`water_my_plants_sync_preview` and must not be used to write official metadata.
+`water_my_plants_sync_preview` and must not be used to write canonical metadata.
 Catalog preview uses the smaller `sync-catalog-tree-preview.mcp.js` entrypoint
 by default so connector and layout fixes can be tested without transporting the
 full trunk-sync bundle.
@@ -168,7 +168,7 @@ full trunk-sync bundle.
 For narrow connector or catalog-tree diagnostics, a temporary bundle that
 imports only the catalog tree gateway can reduce the payload enough to run a
 single root scope. Treat that bundle as a diagnostic artifact only: it does not
-replace the official TeamCity artifact plus `sync-trunk-design-model.mcp.js`
+replace the canonical TeamCity artifact plus `sync-trunk-design-model.mcp.js`
 runner, and it must not write final sync metadata.
 
 Figma MCP cannot execute a local runner file by path. If a diagnostic bundle is
@@ -240,7 +240,7 @@ unchanged until preflight and the affected visual target both succeed.
 
 ## Usage Blocks Hidden Despite Model Data
 
-The official `design-model.json` can be correct while the visible Figma
+The canonical `design-model.json` can be correct while the visible Figma
 `.artifact` or `.tree node` instance is still visually stale. One observed
 failure mode was a library artifact whose model contained
 `providedByConventionPlugins` and effective `requiredByModules`, while the
@@ -265,7 +265,7 @@ module currently applies that convention plugin.
 Diagnose this as a visual sync inconsistency before changing catalog
 extraction:
 
-- Confirm the official TeamCity `design-model.json` contains the artifact usage.
+- Confirm the canonical TeamCity `design-model.json` contains the artifact usage.
 - Inspect the visible direct `.artifact` or `.artifacts bundle` instance under
   the `artifacts` frame, not hidden template internals.
 - Confirm the visible direct `.artifact` / `.artifacts bundle` instance has the
@@ -290,7 +290,7 @@ If the visual target fails with a message like:
 Node '...' is missing 'Configured as tool' usage chip heading text.
 ```
 
-the official TeamCity artifact and staging can still be valid. This failure
+the canonical TeamCity artifact and staging can still be valid. This failure
 usually means the writer's expected visual contract is stale relative to the
 Figma component structure. For example, `.artifact` now renders tooling rows in
 a visible `Tool artifacts` section that contains `.tool artifact usage`
@@ -463,7 +463,7 @@ not advertise `use_figma` or `upload_assets`. That is a capability result, not a
 TeamCity authentication failure. `runFigmaMcp` must stop before mutation and
 report the missing tools.
 
-Continue with the Codex-operated official Figma MCP writer and record each
+Continue with the Codex-operated canonical Figma MCP writer and record each
 successful or failed generated unit in `execution-state.json` as described in
 [visual-sync-efficiency.md](visual-sync-efficiency.md). Re-test the endpoint
 with `probeFigmaMcp` before enabling direct execution; do not infer write support
@@ -497,4 +497,4 @@ regenerate rather than overriding the guard.
 
 - `tools/src/`
 - `tools/tests/`
-- `execution-state.json` generated beside the official runners
+- `execution-state.json` generated beside the canonical runners

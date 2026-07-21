@@ -42,12 +42,12 @@ Feature: Figma design model generation
     Then both generated model hashes are equal
 
   @gradle @integration
-  Scenario: generateFigmaDesignModel writes the official CI design model report
+  Scenario: generateFigmaDesignModel writes the canonical CI design model report
     Given a temporary Gradle project exists
     And the temporary Gradle project has repository model files
     And the temporary Gradle project applies the figmaDocumentationSync plugin
     And the temporary Gradle project is a git repository
-    And official Figma Sync model generation is authorized
+    And canonical Figma Sync model generation is authorized
     When generateFigmaDesignModel runs in the temporary project
     Then the design model report is written in the temporary project
     And the written design model contains the current branch
@@ -63,17 +63,17 @@ Feature: Figma design model generation
     And the temporary Gradle project has no CI documentation inputs
     And the temporary Gradle project applies the figmaDocumentationSync plugin without CI documentation
     And the temporary Gradle project is a git repository
-    And official Figma Sync model generation is authorized
+    And canonical Figma Sync model generation is authorized
     When generateFigmaDesignModel runs in the temporary project
     Then the design model report is written in the temporary project
     And the written design model contains portable content without CI
     And the written design model contains a model hash
 
   @gradle @integration
-  Scenario: generateFigmaDesignModel rejects unofficial model generation
+  Scenario: generateFigmaDesignModel rejects non-canonical model generation
     Given a temporary Gradle project exists
     And the temporary Gradle project has repository model files
     And the temporary Gradle project applies the figmaDocumentationSync plugin
     And the temporary Gradle project is a git repository
-    When generateFigmaDesignModel runs without official Figma Sync authorization
-    Then generateFigmaDesignModel fails because official Figma Sync generation is required
+    When generateFigmaDesignModel runs without canonical Figma Sync authorization
+    Then generateFigmaDesignModel fails because canonical Figma Sync generation is required

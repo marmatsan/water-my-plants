@@ -1,4 +1,4 @@
-package com.marmatsan.figmaDocumentationSync.plugin.task.official
+package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream
 @DisableCachingByDefault(
     because = "The current Git revision is runtime state",
 )
-abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
+abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val scopeFile: RegularFileProperty
@@ -40,7 +40,7 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
         val scope =
             figmaDocumentationSyncComponent::class
                 .create()
-                .officialFigmaSyncScopeJson
+                .canonicalFigmaSyncScopeJson
                 .read(scopeFile.get().asFile.absolutePath)
         val currentGitSha =
             git(
@@ -54,7 +54,7 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
         }
         if (scope.scope == FigmaVerificationScope.FULL_VERIFICATION && !designModelFile.get().asFile.isFile) {
             throw GradleException(
-                "Missing official Figma design model artifact: ${designModelFile.get().asFile.path}",
+                "Missing canonical Figma design model artifact: ${designModelFile.get().asFile.path}",
             )
         }
 
@@ -62,7 +62,7 @@ abstract class ValidateOfficialFigmaSyncScopeTask : DefaultTask() {
         output.parentFile.mkdirs()
         output.writeText(scope.scope.wireValue + System.lineSeparator())
         if (scope.scope == FigmaVerificationScope.FULL_VERIFICATION) {
-            logger.lifecycle("Validated full official Figma Sync scope for $currentGitSha.")
+            logger.lifecycle("Validated full canonical Figma Sync scope for $currentGitSha.")
         } else {
             logger.lifecycle("${scope.scope.wireValue} main change; Figma model and metadata are unchanged.")
         }

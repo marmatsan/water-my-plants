@@ -143,7 +143,7 @@ selection are Kotlin-owned.
 `CI` does not run `generateFigmaDesignModel` and does not publish
 `build/reports/figma-sync/design-model.json`. Figma represents the stable
 `main` state, so short-lived branch builds must not produce an artifact that can
-be mistaken for the official Figma sync input.
+be mistaken for the canonical Figma sync input.
 
 ### Figma Sync
 
@@ -167,8 +167,8 @@ The pipeline:
   metadata and publishes
   `visual-sync-plan.json` with a fail-closed `none`, `partial`, or `full`
   decision;
-- sets `FIGMA_DOCUMENTATION_SYNC_OFFICIAL=true` and `FIGMA_DOCUMENTATION_SYNC_BRANCH` so the
-  Gradle task can verify it is running under the official Figma Sync pipeline;
+- sets `FIGMA_DOCUMENTATION_SYNC_CANONICAL=true` and `FIGMA_DOCUMENTATION_SYNC_BRANCH` so the
+  Gradle task can verify it is running under the canonical Figma Sync pipeline;
 - publishes the Figma report directory and effective TeamCity configuration as
   job artifacts;
 - runs `Check Figma trunk sync` against the metadata currently stored in Figma
@@ -181,7 +181,7 @@ publishes only a `sync-scope.json` artifact and the final job exits successfully
 without Maven, full Gradle verification, model generation, metadata validation,
 or an MCP write. The lightweight Gradle classifier still writes the scope
 contract consumed by both jobs.
-The previous official Figma metadata remains authoritative because neither the
+The previous canonical Figma metadata remains authoritative because neither the
 model nor the compiled visual writer changed.
 
 The same Figma no-op applies to `model-neutral` revisions such as documentation
@@ -193,10 +193,10 @@ The generation job exposes three Kotlin-owned phases after capability
 validation: change-impact classification, conditional model materialization,
 and MCP runner plus visual-plan construction. The verification job exposes
 scope validation before the conditional metadata check. TeamCity passes
-`figmaOfficialTeamCityPhasedExecution=true` so later Gradle invocations consume
+`figmaCanonicalTeamCityPhasedExecution=true` so later Gradle invocations consume
 the artifacts produced by the earlier visible step without repeating it.
-Direct local use keeps the dependency-complete `prepareOfficialFigmaSync` and
-`verifyOfficialFigmaSync` entry points. This prevents a persistent agent
+Direct local use keeps the dependency-complete `prepareCanonicalFigmaSync` and
+`verifyCanonicalFigmaSync` entry points. This prevents a persistent agent
 checkout from republishing a stale model or runner without moving orchestration
 into PowerShell.
 
@@ -458,7 +458,7 @@ For this project, the generated pipeline should:
   `TeamCity CI` Commit Status Publisher;
 - avoid generating or publishing `design-model.json` from `CI`;
 - keep `Figma Sync` as a separate default-branch pipeline;
-- set the official Figma design model environment guard only on `Figma Sync`;
+- set the canonical Figma design model environment guard only on `Figma Sync`;
 - emit `buildDependencyTrigger` for `Figma Sync`, pointing at `CI Gate`, with
   `afterSuccessfulBuildOnly=true`;
 - emit a daily fallback trigger and Windows-agent requirement for
@@ -671,7 +671,7 @@ been run with the latest `design-model.json` artifact from
 `Figma Sync > Generate main design model`. If the failure mentions a branch
 other than `main`, fix repository checkout before investigating Figma sync.
 
-After the MCP write updates official metadata, rerun the complete `Figma Sync`
+After the MCP write updates canonical metadata, rerun the complete `Figma Sync`
 pipeline with `.\.teamcity\scripts\invoke-figma-sync-rerun.ps1`. A successful
 standalone `Check Figma trunk sync` proves that metadata matches, but it does
 not replace the previously failed aggregate pipeline or its GitHub status.
@@ -698,7 +698,7 @@ cleanup {
 
 An additional keep rule retains successful default-branch Figma Sync reports
 and generated TeamCity configuration artifacts for 30 days. This preserves the
-official model/runner evidence needed for assisted Figma publication without
+canonical model/runner evidence needed for assisted Figma publication without
 keeping all artifacts longer than the base seven-day policy. Off-host TeamCity
 backup remains a separate operation; cleanup retention is not a backup.
 

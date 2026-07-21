@@ -18,7 +18,7 @@ sources:
   - repo/figma-documentation-sync/data/build.gradle.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-documentation-sync/project-config/build.gradle.kts
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadOfficialFigmaPayloadTask.kt
+  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # Project Structure
@@ -116,7 +116,7 @@ configuration:
 | `repo/figma-documentation-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
 | `repo/figma-documentation-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-documentation-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
-| `repo/figma-documentation-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified official payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
+| `repo/figma-documentation-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified canonical payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
 | `repo/figma-documentation-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies

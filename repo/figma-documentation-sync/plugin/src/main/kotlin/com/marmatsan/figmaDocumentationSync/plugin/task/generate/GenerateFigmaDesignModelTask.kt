@@ -29,13 +29,13 @@ import java.io.ByteArrayOutputStream
 import java.time.Instant
 
 /**
- * Gradle task that writes the official `main` branch `design-model.json` artifact.
+ * Gradle task that writes the canonical `main` branch `design-model.json` artifact.
  *
  * The artifact is the source consumed by the Figma MCP sync step. Git branch
  * and SHA are captured at execution time so the generated metadata identifies
  * the exact repository snapshot. The artifact is intentionally restricted to
  * the configured CI Figma Sync adapter on `main` so local or short-lived
- * branch models cannot be mistaken for the official Figma publication input.
+ * branch models cannot be mistaken for the canonical Figma publication input.
  */
 @DisableCachingByDefault(
     because = "Generation records Git, environment, and current-time runtime state",
@@ -115,7 +115,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
      */
     @TaskAction
     fun generate() {
-        val branch = officialBranch()
+        val branch = canonicalBranch()
         requireMainBranch(
             branch = branch,
         )
@@ -197,20 +197,20 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
         includedBuildSourcesProvider?.get().orEmpty()
 
-    private fun officialBranch(): String {
-        val officialGeneration = System.getenv(OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE)
-        if (officialGeneration != "true") {
+    private fun canonicalBranch(): String {
+        val canonicalGeneration = System.getenv(CANONICAL_GENERATION_ENVIRONMENT_VARIABLE)
+        if (canonicalGeneration != "true") {
             throw GradleException(
-                "generateFigmaDesignModel may only create the official design-model.json from " +
+                "generateFigmaDesignModel may only create the canonical design-model.json from " +
                     "the configured CI Figma Sync adapter. Missing " +
-                    "$OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE=true.",
+                    "$CANONICAL_GENERATION_ENVIRONMENT_VARIABLE=true.",
             )
         }
 
         val rawBranch = System.getenv(BRANCH_ENVIRONMENT_VARIABLE)?.trim().orEmpty()
         if (rawBranch.isBlank()) {
             throw GradleException(
-                "generateFigmaDesignModel may only create the official design-model.json when " +
+                "generateFigmaDesignModel may only create the canonical design-model.json when " +
                     "$BRANCH_ENVIRONMENT_VARIABLE identifies the CI checkout branch.",
             )
         }
@@ -225,7 +225,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     ) {
         if (branch != MAIN_BRANCH) {
             throw GradleException(
-                "generateFigmaDesignModel may only create the official design-model.json from " +
+                "generateFigmaDesignModel may only create the canonical design-model.json from " +
                     "'$MAIN_BRANCH'. Current branch is '$branch'. Use the configured CI Figma Sync " +
                     "adapter on '$MAIN_BRANCH' to produce the artifact consumed by the Figma sync.",
             )
@@ -267,7 +267,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     private companion object {
         const val MAIN_BRANCH = "main"
         const val DETACHED_HEAD = "HEAD"
-        const val OFFICIAL_GENERATION_ENVIRONMENT_VARIABLE = "FIGMA_DOCUMENTATION_SYNC_OFFICIAL"
+        const val CANONICAL_GENERATION_ENVIRONMENT_VARIABLE = "FIGMA_DOCUMENTATION_SYNC_CANONICAL"
         const val BRANCH_ENVIRONMENT_VARIABLE = "FIGMA_DOCUMENTATION_SYNC_BRANCH"
 
         val prettyJson =

@@ -6,6 +6,7 @@ import {
   centeredRowY,
   ciConnectorMagnets,
   ciNodePropertyValues,
+  ciParentResizeDimensions,
   ciStepPropertyValues,
   ciVisualGridPosition,
   connectorBoundsLabelPosition,
@@ -231,6 +232,18 @@ test("CI layout waits for hidden component blocks to collapse before positioning
   assert.equal(nodes[0].height, 225);
   assert.equal(centeredRowY(100, 283, nodes[0].height), 129);
   assert.equal(centeredRowY(100, 283, nodes[1].height), 100);
+});
+
+test("CI parent resize follows child sections instead of a stale header width", () => {
+  assert.deepEqual(
+    ciParentResizeDimensions([
+      { type: "INSTANCE", name: ".Header", x: 0, y: 0, width: 18518, height: 407 },
+      { type: "SECTION", x: 100, y: 521, width: 3747, height: 412 },
+      { type: "SECTION", x: 100, y: 4737, width: 4375, height: 2418 },
+      { type: "SECTION", x: 100, y: 9835, width: 1480, height: 617 },
+    ]),
+    { width: 4575, height: 10552 }
+  );
 });
 
 test("CI labels use stable connector bounds after endpoint geometry updates", async () => {

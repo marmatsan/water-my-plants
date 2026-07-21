@@ -20,14 +20,30 @@ internal class FigmaWriterProjectConfigJsonTest :
                         ).jsonObject
 
                 root.keys shouldBe expectedKeys
-                root.getValue("schemaVersion").jsonPrimitive.content shouldBe "1"
+                root.getValue("schemaVersion").jsonPrimitive.content shouldBe "2"
                 root.getValue("METADATA_NAMESPACE").jsonPrimitive.content shouldBe "water_my_plants_sync"
-                root.getValue("OFFICIAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
+                root.getValue("CANONICAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
                     "water_my_plants_sync_staging"
                 root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
                 root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
                 root.getValue("CI_STEP_SLOT_NAME_PREFIX").jsonPrimitive.content shouldBe "step"
                 root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "20"
+                root
+                    .getValue("CI_ICON_ENVIRONMENTS")
+                    .jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .shouldContainExactly(
+                        "github",
+                        "teamcity",
+                        "cloudflare",
+                        "figma",
+                        "codex",
+                        "browser",
+                        "terminal",
+                        "operator",
+                        "json",
+                        "gradle",
+                    )
                 root
                     .getValue("CATALOG_TARGET_NAMES")
                     .jsonArray
@@ -71,7 +87,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "FIGMA_FILE_KEY",
                 "PROJECT_DISPLAY_NAME",
                 "MCP_CLIENT_NAME",
-                "OFFICIAL_STAGING_NAMESPACE",
+                "CANONICAL_STAGING_NAMESPACE",
                 "PREVIEW_STAGING_NAMESPACE",
                 "CI_DOCUMENTATION_PAGE_ID",
                 "CI_NODE_COMPONENT_ID",
@@ -119,8 +135,8 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "WINDOWS_RUNTIME_RUNBOOK_SOURCE",
                 "VISUAL_CONTRACT_SOURCE",
                 "BRANCH_PROTECTION_SOURCE",
-                "OFFICIAL_SYNC_SOURCE",
-                "OFFICIAL_DESIGN_MODEL_PATH",
+                "CANONICAL_SYNC_SOURCE",
+                "CANONICAL_DESIGN_MODEL_PATH",
                 "REPOSITORY_ROOT_RELATIVE_TO_TOOLS",
                 "CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY",
                 "HEADER_SECTION_TARGETS",

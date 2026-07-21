@@ -14,9 +14,9 @@ import com.marmatsan.figmaDocumentationSync.data.datasource.impact.GitRepository
 import com.marmatsan.figmaDocumentationSync.data.datasource.modules.ProjectModuleDependenciesDataSource
 import com.marmatsan.figmaDocumentationSync.data.datasource.modules.ProjectModulesDataSource
 import com.marmatsan.figmaDocumentationSync.data.datasource.versions.RepositoryVersionsDataSource
-import com.marmatsan.figmaDocumentationSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDocumentationSync.data.figma.artifact.CanonicalFigmaArtifactSetReader
 import com.marmatsan.figmaDocumentationSync.data.figma.client.FigmaFileContentClient
-import com.marmatsan.figmaDocumentationSync.data.figma.sync.OfficialFigmaSyncScopeJson
+import com.marmatsan.figmaDocumentationSync.data.figma.sync.CanonicalFigmaSyncScopeJson
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologyPort
@@ -26,7 +26,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.impact.RepositoryChangeS
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
-import com.marmatsan.figmaDocumentationSync.domain.service.artifact.OfficialFigmaArtifactContractValidator
+import com.marmatsan.figmaDocumentationSync.domain.service.artifact.CanonicalFigmaArtifactContractValidator
 import com.marmatsan.figmaDocumentationSync.plugin.checker.catalog.CatalogUsageChecker
 import com.marmatsan.figmaDocumentationSync.plugin.checker.ci.CiExternalTopologyFreshnessChecker
 import com.marmatsan.figmaDocumentationSync.plugin.checker.ci.CiWindowsRuntimeFreshnessChecker
@@ -92,13 +92,13 @@ internal abstract class figmaDocumentationSyncComponent {
     abstract val versionNamingChecker: VersionNamingChecker
 
     /** Reads the filesystem artifact set consumed by the MCP operator handoff. */
-    abstract val officialFigmaArtifactSetReader: OfficialFigmaArtifactSetReader
+    abstract val canonicalFigmaArtifactSetReader: CanonicalFigmaArtifactSetReader
 
-    /** Validates the cross-file identity of an official main artifact set. */
-    abstract val officialFigmaArtifactContractValidator: OfficialFigmaArtifactContractValidator
+    /** Validates the cross-file identity of a canonical main artifact set. */
+    abstract val canonicalFigmaArtifactContractValidator: CanonicalFigmaArtifactContractValidator
 
-    /** Reads and writes the scope shared by official Figma Sync jobs. */
-    abstract val officialFigmaSyncScopeJson: OfficialFigmaSyncScopeJson
+    /** Reads and writes the scope shared by canonical Figma Sync jobs. */
+    abstract val canonicalFigmaSyncScopeJson: CanonicalFigmaSyncScopeJson
 
     /**
      * Provides the narrow Figma API client used only by the sync checker.

@@ -46,7 +46,7 @@ The generated JSON stores this aggregate under `content.ci`:
 - `windowsRuntime` contains the versioned Windows service inventory;
 - `teamCity` contains the effective generated pipelines and VCS roots.
 
-The official Figma model jobs must materialize the effective TeamCity
+The canonical Figma model jobs must materialize the effective TeamCity
 configuration before Gradle generates the model or checks its hash. Gradle
 consumes that generated directory as a declared input. The independent CI
 verification task `checkTeamCityDsl` may invoke the Maven wrapper explicitly;
@@ -98,6 +98,15 @@ Operational sections show:
 - links from section headers and operational nodes to canonical files on
   GitHub `main`.
 
+The pull-request and post-merge flow sections keep job nodes compact so the
+reader can follow triggers, gates, artifacts, and outcomes without crossing a
+large task inventory. The separate `Job Tasks` section owns the ordered detail
+for every executable TeamCity job. It places one job per column, preserves the
+same job names as the flow sections, and exposes the pipeline name in each job
+description. This separation is a presentation boundary only: the effective
+TeamCity configuration remains the source of every phase, task, decision, and
+outcome.
+
 Links should target files rather than line numbers so that routine source edits
 do not break them. Literal command content remains in the linked TeamCity DSL.
 
@@ -113,11 +122,17 @@ The visual model uses two complementary components:
 The Kotlin visual plan owns a typed `steps` array for every node. Each entry
 contains an order, role, level, title, and optional technical identifier,
 description, and condition. The `.ci node` component reserves exactly 20
-exposed `.ci step` instances named `step 01` through `step 20`. All slots are
-hidden by default. The writer configures and reveals only the slots required by
-the node and keeps the unused slots hidden. A plan that needs more than 20
-steps fails before Figma is mutated; split that node into a clearer visual
-boundary instead of silently dropping work.
+exposed `.ci step` instances named `step 01` through `step 20`. The master
+component keeps every slot visible so its complete capacity and composition can
+be inspected. Generated instances reveal only the slots required by the node
+and hide the unused slots. A plan that needs more than 20 steps fails before
+Figma is mutated; split that node into a clearer visual boundary instead of
+silently dropping work.
+
+Generated job nodes in the pull-request and post-merge flow sections receive an
+empty `steps` array. Only their matching nodes in `ci.jobTasks` receive and
+display the executable detail. Do not duplicate visible task slots across both
+reading layers.
 
 The component orders its content as summary, executable steps, then optional
 runtime and source details. The `show optional details` boolean collapses that
@@ -134,6 +149,25 @@ Use the step variants consistently:
 | `role` | `outcome` | An artifact or check published after successful execution. |
 | `level` | `phase` | A top-level TeamCity step or job outcome. |
 | `level` | `nested` | A Gradle task or decision expanded from a TeamCity phase. |
+
+These are the only hierarchy levels. Do not add a third nesting variant; split
+the visual node into a clearer boundary when a flow needs deeper decomposition.
+Every `.ci step` renders as a compact horizontal row with the order badge first
+and one flexible content column. Phase variants use labels such as
+`ACTION · PHASE`. Nested variants use the `.ci icon` Gradle elephant and a label
+such as `GRADLE TASK · ACTION`, then identify the executable entry point with
+`TASK` instead of the generic `ID`. This makes the technology explicit without
+adding another hierarchy row.
+
+The environment icon in the `.ci node` header describes the owner of the whole
+node. A TeamCity job therefore remains `environment=teamcity` even when its
+nested steps invoke Gradle. Use `environment=gradle` on a node only when the
+whole node represents the Gradle Build Tool rather than a TeamCity job.
+
+The row has no outline. Its surface fill, order badge, spacing, and typography
+provide separation from adjacent steps. The condition metadata is borderless as
+well; it remains identifiable through the `WHEN` label instead of another
+outlined container.
 
 Phase orders use two digits, such as `01` and `02`. Nested orders extend their
 parent phase, such as `02.1`. Nested actions emphasize a human-readable title,
@@ -165,7 +199,7 @@ named `Full Figma verification` means the task executes only when the validated
 Figma scope requires full verification. A condition beginning with
 `Gradle dependency of` records a Gradle `dependsOn` relationship; TeamCity step
 order remains distinct from Gradle task dependency order when
-`figmaOfficialTeamCityPhasedExecution=true`.
+`figmaCanonicalTeamCityPhasedExecution=true`.
 
 Do not expand Android, Kotlin, or third-party plugin task internals in Figma.
 Module `check` tasks are the stable contract boundary for those implementation
@@ -251,7 +285,7 @@ delegates active-run checks and waiting to `teamcity.exe`. Queueing uses a
 cookie-free Kotlin REST adapter with dedicated Bearer authentication and no
 redirect following. This keeps Cloudflare's session cookie out of TeamCity's
 CSRF check. The TeamCity UI remains the recovery interface. The
-repository-owned handoff downloads and validates the official artifact, then
+repository-owned handoff downloads and validates the canonical artifact, then
 selects the next checkpoint unit without writing Figma. It is represented as a
 technical annotation on the handoff connection, not as another domain artifact.
 

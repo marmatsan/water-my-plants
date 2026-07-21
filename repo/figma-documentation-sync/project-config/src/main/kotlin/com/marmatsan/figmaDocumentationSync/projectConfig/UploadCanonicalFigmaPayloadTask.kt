@@ -12,11 +12,11 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/** Gradle entry point for uploading one verified official TeamCity PNG payload. */
+/** Gradle entry point for uploading one verified canonical TeamCity PNG payload. */
 @DisableCachingByDefault(
-    because = "Downloads an official artifact and uploads its PNG to Figma",
+    because = "Downloads a canonical artifact and uploads its PNG to Figma",
 )
-abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
+abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
     @get:Input
     @get:Optional
     abstract val buildId: Property<Long>
@@ -64,10 +64,10 @@ abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
                 teamCityClient = teamCityClient,
             )
         val result =
-            TeamCityOfficialFigmaPayloadUploader(
+            TeamCityCanonicalFigmaPayloadUploader(
                 handoffPreparer = handoffPreparer,
             ).upload(
-                TeamCityOfficialFigmaPayloadUploader.Request(
+                TeamCityCanonicalFigmaPayloadUploader.Request(
                     buildId = buildId.orNull,
                     artifactDirectory = artifacts,
                     uploadUrl = uploadUrl.get(),
@@ -78,7 +78,7 @@ abstract class UploadOfficialFigmaPayloadTask : DefaultTask() {
                 ),
             )
         logger.lifecycle(
-            "Uploaded official Figma payload from " +
+            "Uploaded canonical Figma payload from " +
                 (
                     result.buildId?.let { build -> "TeamCity build $build" }
                         ?: "the validated artifact directory"

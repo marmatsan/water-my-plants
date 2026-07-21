@@ -4,10 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 
-internal class OfficialFigmaArtifactSetReaderTest :
+internal class CanonicalFigmaArtifactSetReaderTest :
     FunSpec(
         {
-            test("reads the official artifact files recursively") {
+            test("reads the canonical artifact files recursively") {
                 val root = Files.createTempDirectory("figma-artifact-set").toFile()
                 try {
                     root
@@ -81,7 +81,7 @@ internal class OfficialFigmaArtifactSetReaderTest :
                             ),
                         )
 
-                    val result = OfficialFigmaArtifactSetReader().read(root.absolutePath)
+                    val result = CanonicalFigmaArtifactSetReader().read(root.absolutePath)
 
                     result.contract.model.branch shouldBe "main"
                     result.contract.plan.decision shouldBe "partial"
@@ -109,7 +109,7 @@ private fun manifestJson(
 ) =
     """
     {
-      "mode":"official",
+      "mode":"canonical",
       "gitSha":"abc123",
       "modelHash":"model-hash",
       "manifestHash":"$manifestHash",

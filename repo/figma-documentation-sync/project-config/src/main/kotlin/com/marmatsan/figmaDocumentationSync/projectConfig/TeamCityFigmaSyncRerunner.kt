@@ -3,7 +3,7 @@ package com.marmatsan.figmaDocumentationSync.projectConfig
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRun
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRunClient
 
-/** Coordinates one idempotent rerun of the official TeamCity Figma Sync pipeline. */
+/** Coordinates one idempotent rerun of the canonical TeamCity Figma Sync pipeline. */
 class TeamCityFigmaSyncRerunner(
     private val teamCityClient: TeamCityRunClient,
     private val buildTypeId: String = "WaterMyPlants_WaterMyPlantsFigmaSync",

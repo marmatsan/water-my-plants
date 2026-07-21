@@ -37,7 +37,7 @@
     "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/datasource/impact/*",
     "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/checker/impact/*",
     "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/impact/*",
-    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/official/*",
+    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical/*",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/sync/*",
     "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/figma/sync/*",
     "repo/figma-documentation-sync/plugin/src/test/kotlin/com/marmatsan/figmaDocumentationSync/plugin/checker/impact/*",
@@ -88,7 +88,7 @@
         "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/visual/*",
         "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/visual/*"
       ],
-      "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
+      "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.jobTasks", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
     },
     {
       "paths": [

@@ -12,6 +12,6 @@ data class CiVisualPlanConfig(
     val windowsRuntimeRunbookSource: String,
     val visualContractSource: String,
     val branchProtectionSource: String,
-    val officialSyncSource: String,
-    val officialDesignModelPath: String,
+    val canonicalSyncSource: String,
+    val canonicalDesignModelPath: String,
 )

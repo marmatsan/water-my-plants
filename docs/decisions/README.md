@@ -13,3 +13,4 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0005](adr-0005-name-figma-documentation-sync.md) | Accepted | Publish the retained architecture as Figma Documentation Sync. |
 | [ADR-0006](adr-0006-use-gradle-owned-verification.md) | Accepted | Use Gradle tasks as the canonical repository verification API. |
 | [ADR-0007](adr-0007-use-trunk-based-development.md) | Accepted | Use one protected trunk with short-lived branches and squash integration. |
+| [ADR-0008](adr-0008-use-canonical-for-authoritative-figma-sync.md) | Accepted | Use canonical for the authoritative Figma Sync process and reserve official for vendor-provided technology. |

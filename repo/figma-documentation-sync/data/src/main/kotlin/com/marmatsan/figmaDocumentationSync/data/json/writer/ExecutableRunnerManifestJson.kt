@@ -188,8 +188,8 @@ class ExecutableRunnerManifestJson {
                 roots.toJsonArray(),
             )
             put(
-                "allowOfficialSections",
-                allowOfficialSections,
+                "allowCanonicalSections",
+                allowCanonicalSections,
             )
             put(
                 "allowPartial",
@@ -313,9 +313,9 @@ class ExecutableRunnerManifestJson {
                 requiredStringList(
                     name = "roots",
                 ),
-            allowOfficialSections =
+            allowCanonicalSections =
                 requiredBoolean(
-                    name = "allowOfficialSections",
+                    name = "allowCanonicalSections",
                 ),
             allowPartial =
                 requiredBoolean(
@@ -487,7 +487,7 @@ class ExecutableRunnerManifestJson {
         JsonObject(mapValues { (_, value) -> JsonPrimitive(value) })
 
     private companion object {
-        const val MINIMUM_SCHEMA_VERSION = 2
+        const val MINIMUM_SCHEMA_VERSION = 4
         const val UTF8_BOM = "\uFEFF"
         val prettyJson = Json { prettyPrint = true }
     }

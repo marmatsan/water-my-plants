@@ -1,6 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.data.png
 
-import com.marmatsan.figmaDocumentationSync.domain.model.writer.OfficialSyncPayload
+import com.marmatsan.figmaDocumentationSync.domain.model.writer.CanonicalSyncPayload
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -13,12 +13,12 @@ import javax.imageio.ImageIO
 internal class PayloadPngEncoderTest :
     FunSpec(
         {
-            test("encodes the official payload as ASCII JSON in a valid PNG text chunk") {
+            test("encodes the canonical payload as ASCII JSON in a valid PNG text chunk") {
                 val encoder = PayloadPngEncoder()
                 val payloadJson =
                     encoder.payloadJson(
                         payload =
-                            OfficialSyncPayload(
+                            CanonicalSyncPayload(
                                 payloadSchemaVersion = PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION,
                                 designModelJson = "{\"name\":\"Jardín\"}",
                                 designModelHash = "sha256:model",

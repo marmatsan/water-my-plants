@@ -31,7 +31,7 @@ page.setSharedPluginData(namespace, "transportHash", expected.transportHash);
 
 return {
   namespace,
-  mode: "official",
+  mode: "canonical",
   modelHash: expected.designModelHash,
   gitSha: expected.designModelGitSha,
   designModelLength: expected.designModelLength,

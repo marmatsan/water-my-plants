@@ -1,6 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.data.png
 
-import com.marmatsan.figmaDocumentationSync.domain.model.writer.OfficialSyncPayload
+import com.marmatsan.figmaDocumentationSync.domain.model.writer.CanonicalSyncPayload
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -11,10 +11,10 @@ import java.util.Base64
 import java.util.zip.CRC32
 import java.util.zip.DeflaterOutputStream
 
-/** Encodes an official writer payload in a valid one-pixel PNG text chunk. */
+/** Encodes a canonical writer payload in a valid one-pixel PNG text chunk. */
 class PayloadPngEncoder {
     fun payloadJson(
-        payload: OfficialSyncPayload,
+        payload: CanonicalSyncPayload,
     ): String {
         val json =
             JsonObject(

@@ -13,8 +13,8 @@ tasks.register("verifyPluginApplication") {
         check(
             listOf(
                 "generateFigmaDesignModel",
-                "prepareOfficialFigmaSync",
-                "verifyOfficialFigmaSync",
+                "prepareCanonicalFigmaSync",
+                "verifyCanonicalFigmaSync",
                 "checkFigmaTrunkSync",
             ).all(tasks.names::contains),
         ) {

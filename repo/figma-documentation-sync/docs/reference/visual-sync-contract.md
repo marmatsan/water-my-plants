@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-21
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -12,6 +12,7 @@ sources:
   - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/visual
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/visual
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/visual
+  - docs/decisions/adr-0008-use-canonical-for-authoritative-figma-sync.md
 ---
 
 # Figma Visual Sync Contract
@@ -21,6 +22,13 @@ sources:
 This document captures the stable visual contract used by the MCP sync tooling.
 The execution flow lives in [trunk-sync.md](../runbooks/trunk-sync.md); this file describes
 what the generated Figma state must look like after the sync.
+
+## Terminology
+
+Per [ADR-0008](../../../../docs/decisions/adr-0008-use-canonical-for-authoritative-figma-sync.md),
+`canonical` identifies the authoritative `main` publication and its reusable
+baseline. The term `official` is reserved for vendor-provided technology and
+assets; it is not a Figma Sync execution mode.
 
 ## Tooling Boundary
 
@@ -46,13 +54,13 @@ The generated JavaScript bundle is a temporary MCP runtime artifact and must not
 be committed.
 
 Preview runners may pass `sectionNodeOverrides` so a catalog target mutates a
-sandbox section instead of the configured official section. Official sync runs
+sandbox section instead of the configured canonical section. Canonical sync runs
 must use the configured section ids from
 `WaterMyPlantsFigmaWriterProjectConfig.kt` unless a documented manual repair
 explicitly overrides one target.
 
 The `preflight` target validates the visual contract without mutating Figma.
-Run it after staging the official model and before visual targets when component
+Run it after staging the canonical model and before visual targets when component
 contracts changed. It checks the metadata page, version variable collection,
 version section frames, `.tree node` component properties, `.artifact` and
 `.artifacts bundle` template properties, `.tool artifact usage`, `.usage chip`
@@ -82,7 +90,7 @@ even during a partial root sync so visual cleanup is not blocked by repair
 granularity.
 
 Partial root sync is a repair/execution granularity, not a completion signal.
-The official metadata (`gitSha`, `modelHash`, `writerHash`, `transportHash`,
+The canonical metadata (`gitSha`, `modelHash`, `writerHash`, `transportHash`,
 model target fingerprints, writer scope fingerprints, and writer fingerprint
 schema version) must be written only after all scopes required by the
 TeamCity-generated visual plan have completed successfully. An ad hoc partial
@@ -91,7 +99,7 @@ runner does not authorize metadata.
 ## CI Documentation Visual Sync
 
 The Kotlin `CiVisualPlanner` reads only `content.ci` from a `design-model.json`
-through `CiVisualPlanJson`. The official runner generator embeds one
+through `CiVisualPlanJson`. The canonical runner generator embeds one
 target-scoped `ciVisualPlan` in `SYNC_OPTIONS`; the TypeScript Figma gateway
 consumes that plan and never decides CI section structure. Preview and
 compatibility runners must receive the same contract through
@@ -106,13 +114,28 @@ components, variables, connectors, and mutations remain in the Figma adapter.
 
 The Figma gateway creates or updates one parent section named
 `Continuous Integration and Design Documentation` on Figma page `63153:2876`
-and exposes five independently runnable targets:
+and exposes six independently runnable targets:
 
 - `ci.overview`;
 - `ci.pullRequestIntegration`;
 - `ci.postMergeDesignDocumentation`;
+- `ci.jobTasks`;
 - `ci.infrastructureAndAccess`;
 - `ci.windowsRuntime`.
+
+Adding, renaming, or removing a CI target is an aggregate contract change.
+Update the Kotlin writer project config, the language-neutral
+`writer-runtime-contract.json` fixture, the TypeScript preflight target list,
+and `change-impact-policy.json` in the same change. Otherwise the generated
+writer can understand the target while runtime contract checks or incremental
+scope selection still omit it.
+
+`ci.pullRequestIntegration` and `ci.postMergeDesignDocumentation` render jobs
+with empty `steps` arrays so their primary flows stay compact. `ci.jobTasks`
+owns the expanded job nodes for both pipelines, places them in one grid row,
+and has no connectors. The expanded nodes reuse the same `.ci node` component
+and nested `.ci step` slots; no separate task-card component or duplicate
+component API exists.
 
 The plan uses schema version `2`. Every visual entity contains a typed `steps`
 array, including an empty array when that entity has no executable detail. Each
@@ -133,12 +156,13 @@ documentation.
 
 The `.ci node` component owns exactly 20 direct, exposed instances from the
 `.ci step` component set (`64583:1332`). Their stable layer names are `step 01`
-through `step 20`, and they are hidden by default. The writer resolves these
-exposed instances from the top-level `.ci node` instance, configures the first
-slots in plan order, reveals only those slots, and leaves the remainder hidden.
-It does not traverse nested implementation layers or create sibling step
-instances. A node with more than 20 plan entries is rejected at the TypeScript
-use-case boundary before any Figma call.
+through `step 20`. The master keeps all slots visible so maintainers can inspect
+its complete capacity. The writer resolves these exposed instances from the
+top-level `.ci node` instance, configures the first slots in plan order, reveals
+only those slots, and hides the remainder on generated instances. It does not
+traverse nested implementation layers or create sibling step instances. A node
+with more than 20 plan entries is rejected at the TypeScript use-case boundary
+before any Figma call.
 
 The writer requires the step text properties `order`, `title`, `technical id`,
 `description`, and `condition`; the boolean properties `show technical id`,
@@ -147,6 +171,16 @@ The writer requires the step text properties `order`, `title`, `technical id`,
 Preflight validates the complete component-set API and also verifies that the
 20 direct slots exist, have their exact names, are exposed, and belong to the
 configured `.ci step` component set before any visual mutation.
+
+The six `.ci step` master variants use horizontal Auto Layout. Each variant has
+one leading order badge and one flexible content column and has no outer stroke.
+Its condition row is borderless too. Phase labels combine role and level, such
+as `ACTION · PHASE`. Each `nested` variant contains a fixed instance of the
+`.ci icon` Gradle variant, uses `GRADLE TASK · <ROLE>` as its compact label, and
+uses `TASK` for the technical-identifier label. `phase` and `nested` are the
+complete hierarchy: the writer and component contract do not support a third
+level. This geometry and fixed nested icon are presentation owned by the Figma
+component; the writer continues to configure only the public properties above.
 
 TeamCity steps map to `phase/action`, nested Gradle tasks to `nested/action`,
 dynamic task selection to `nested/decision`, and published artifacts or checks
@@ -169,7 +203,7 @@ phase, decision, and outcome descriptions remain visible.
 The legacy `steps` text and `show steps` properties remain temporarily for
 published `.ci node` instances that still display legacy step text. New
 generated nodes clear and hide that block. Remove the legacy properties only
-after an official visual sync from `main` has populated the nested slots and
+after a canonical visual sync from `main` has populated the nested slots and
 confirmed that no published instance depends on the old text block.
 
 Native Figma connectors are cloned from the existing `simple-solid_arrow` template because
@@ -219,11 +253,17 @@ The icon shown in a `.ci node` header is exactly one nested `.ci icon` instance
 from component set `64361:716`. Its `environment` variant is configured directly
 on the nested instance because Figma does not promote that property to the
 parent `.ci node` component. Supported environments are `github`, `teamcity`,
-`cloudflare`, `figma`, `codex`, `browser`, `terminal`, `operator`, and `json`.
-The Kotlin visual plan maps every node explicitly; there is no generic fallback. The
-preflight must fail when the nested instance is absent or duplicated, belongs
-to another component set, lacks the `environment` property, or exposes a
-different set of variant values.
+`cloudflare`, `figma`, `codex`, `browser`, `terminal`, `operator`, `json`, and
+`gradle`. Following the
+[Gradle branding guidelines](https://iu34kfdu.gradle.com/brand/), the Gradle
+variant uses the standalone elephant at its official `#02303A` color. Keep its
+proportions, orientation, composition, and color unchanged. The Kotlin visual
+plan maps every node explicitly; there is no generic fallback. A TeamCity job
+remains `teamcity` even when its nested steps invoke Gradle; `gradle` is reserved
+for a node whose complete scope represents the Gradle Build Tool. The preflight
+must fail when the nested instance is absent or duplicated, belongs to another
+component set, lacks the `environment` property, or exposes a different set of
+variant values.
 The `.ci node` component also exposes `runtime platform`, `runtime service`,
 `runtime startup`, `runtime identity`, and `show runtime`. The writer sets all
 four text properties and enables the runtime block only when the visual node
@@ -245,6 +285,13 @@ They are stacked with 114 px between sections. The parent owns the only direct
 the only node locked after synchronization. A granular rerun removes and
 recreates only content marked as managed inside the requested child section;
 other CI child sections remain untouched.
+
+After stacking, resize the parent from the visible child section bounds plus
+the standard padding. The existing `.Header` width must not participate in
+that calculation because it can retain a stale width from an earlier layout.
+Once the parent size is known, resize the direct `.Header` to the computed
+parent width. Parent height still includes the header when no child section
+extends below it.
 
 Preflight for a CI target validates the destination page, the `.ci node`
 component properties, and all required `ci/cd` modes before visual mutation.

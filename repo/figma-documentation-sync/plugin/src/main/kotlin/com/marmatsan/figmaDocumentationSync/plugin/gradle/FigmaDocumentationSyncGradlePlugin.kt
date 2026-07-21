@@ -4,7 +4,9 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificatio
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
-import com.marmatsan.figmaDocumentationSync.plugin.task.artifact.ValidateOfficialFigmaArtifactSetTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.artifact.ValidateCanonicalFigmaArtifactSetTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.PrepareCanonicalFigmaSyncTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.ValidateCanonicalFigmaSyncScopeTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.catalog.CheckFigmaCatalogUsageTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.ci.CheckCiExternalTopologyFreshnessTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.ci.CheckCiWindowsRuntimeFreshnessTask
@@ -12,8 +14,6 @@ import com.marmatsan.figmaDocumentationSync.plugin.task.generate.GenerateFigmaDe
 import com.marmatsan.figmaDocumentationSync.plugin.task.impact.ClassifyFigmaChangeImpactTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.mcp.ProbeFigmaMcpTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.mcp.RunFigmaMcpTask
-import com.marmatsan.figmaDocumentationSync.plugin.task.official.PrepareOfficialFigmaSyncTask
-import com.marmatsan.figmaDocumentationSync.plugin.task.official.ValidateOfficialFigmaSyncScopeTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.versions.CheckFigmaVersionNamingTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.visual.GenerateCiVisualPlanTask
@@ -35,8 +35,8 @@ import java.io.File
  *
  * - `generateFigmaDesignModel`
  * - `generateFigmaCiVisualPlan`
- * - `prepareOfficialFigmaSync`
- * - `verifyOfficialFigmaSync`
+ * - `prepareCanonicalFigmaSync`
+ * - `verifyCanonicalFigmaSync`
  * - `checkFigmaCatalogUsage`
  * - `checkFigmaVersionNaming`
  * - `checkFigmaTrunkSync`
@@ -110,9 +110,9 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             outputs.upToDateWhen { false }
         }
 
-        project.tasks.register<ValidateOfficialFigmaArtifactSetTask>("validateOfficialFigmaArtifactSet") {
+        project.tasks.register<ValidateCanonicalFigmaArtifactSetTask>("validateCanonicalFigmaArtifactSet") {
             group = "verification"
-            description = "Validates an official main Figma artifact set and writes its handoff identity."
+            description = "Validates a canonical main Figma artifact set and writes its handoff identity."
 
             artifactDirectory.set(
                 project.layout.dir(
@@ -335,24 +335,24 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
         }
 
-        val cleanOfficialFigmaSyncReports =
-            project.tasks.register<Delete>("cleanOfficialFigmaSyncReports") {
+        val cleanCanonicalFigmaSyncReports =
+            project.tasks.register<Delete>("cleanCanonicalFigmaSyncReports") {
                 group = "build"
-                description = "Removes stale official Figma Sync reports before preparing a new scope."
+                description = "Removes stale canonical Figma Sync reports before preparing a new scope."
                 delete(project.layout.buildDirectory.dir("reports/figma-sync"))
             }
 
-        val teamCityPhasedOfficialExecution =
+        val teamCityPhasedCanonicalExecution =
             booleanProperty(
                 project = project,
-                name = "figmaOfficialTeamCityPhasedExecution",
+                name = "figmaCanonicalTeamCityPhasedExecution",
             )
 
-        val classifyOfficialFigmaSyncChangeImpact =
-            project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyOfficialFigmaSyncChangeImpact") {
+        val classifyCanonicalFigmaSyncChangeImpact =
+            project.tasks.register<ClassifyFigmaChangeImpactTask>("classifyCanonicalFigmaSyncChangeImpact") {
                 group = "verification"
-                description = "Classifies the main revision used by the official Figma Sync pipeline."
-                dependsOn(cleanOfficialFigmaSyncReports)
+                description = "Classifies the main revision used by the canonical Figma Sync pipeline."
+                dependsOn(cleanCanonicalFigmaSyncReports)
 
                 policyFile.set(extension.changeImpactPolicyFile)
                 projectRootDirectory.set(project.layout.projectDirectory)
@@ -379,10 +379,10 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             project.tasks.register<Exec>("materializeFigmaSyncCiConfiguration") {
                 group = "documentation"
                 description = "Runs the optional CI adapter when the Figma model can change."
-                if (teamCityPhasedOfficialExecution.get()) {
-                    mustRunAfter(classifyOfficialFigmaSyncChangeImpact)
+                if (teamCityPhasedCanonicalExecution.get()) {
+                    mustRunAfter(classifyCanonicalFigmaSyncChangeImpact)
                 } else {
-                    dependsOn(classifyOfficialFigmaSyncChangeImpact)
+                    dependsOn(classifyCanonicalFigmaSyncChangeImpact)
                 }
                 onlyIf("CI documentation adapter is enabled and Figma impact requires full verification") {
                     extension.ciDocumentationEnabled.get() &&
@@ -399,11 +399,11 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 outputs.upToDateWhen { false }
             }
 
-        val generateOfficialFigmaSyncModel =
-            project.tasks.register<GenerateFigmaDesignModelTask>("generateOfficialFigmaSyncModel") {
+        val generateCanonicalFigmaSyncModel =
+            project.tasks.register<GenerateFigmaDesignModelTask>("generateCanonicalFigmaSyncModel") {
                 group = "documentation"
-                description = "Generates the model required by the prepared official Figma Sync scope."
-                if (teamCityPhasedOfficialExecution.get()) {
+                description = "Generates the model required by the prepared canonical Figma Sync scope."
+                if (teamCityPhasedCanonicalExecution.get()) {
                     mustRunAfter(materializeFigmaSyncCiConfiguration)
                 } else {
                     dependsOn(materializeFigmaSyncCiConfiguration)
@@ -445,13 +445,13 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 outputFile.set(extension.designModelFile)
             }
 
-        project.tasks.register<PrepareOfficialFigmaSyncTask>("prepareOfficialFigmaSync") {
+        project.tasks.register<PrepareCanonicalFigmaSyncTask>("prepareCanonicalFigmaSync") {
             group = "documentation"
-            description = "Prepares the official model, MCP runners, visual plan, and shared sync scope."
-            if (teamCityPhasedOfficialExecution.get()) {
-                mustRunAfter(generateOfficialFigmaSyncModel)
+            description = "Prepares the canonical model, MCP runners, visual plan, and shared sync scope."
+            if (teamCityPhasedCanonicalExecution.get()) {
+                mustRunAfter(generateCanonicalFigmaSyncModel)
             } else {
-                dependsOn(generateOfficialFigmaSyncModel)
+                dependsOn(generateCanonicalFigmaSyncModel)
             }
 
             changeImpactFile.set(extension.changeImpactFile)
@@ -477,31 +477,31 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
             outputs.upToDateWhen { false }
         }
 
-        val verifiedOfficialScopeFile =
+        val verifiedCanonicalScopeFile =
             project.layout.buildDirectory.file("tmp/figma-sync/verified-scope.txt")
-        val validateOfficialFigmaSyncScope =
-            project.tasks.register<ValidateOfficialFigmaSyncScopeTask>("validateOfficialFigmaSyncScope") {
+        val validateCanonicalFigmaSyncScope =
+            project.tasks.register<ValidateCanonicalFigmaSyncScopeTask>("validateCanonicalFigmaSyncScope") {
                 group = "verification"
-                description = "Validates the official scope artifact before the conditional Figma metadata check."
+                description = "Validates the canonical scope artifact before the conditional Figma metadata check."
 
                 scopeFile.set(project.layout.buildDirectory.file("reports/figma-sync/sync-scope.json"))
                 designModelFile.set(extension.designModelFile)
                 projectRootDirectory.set(project.layout.projectDirectory)
-                verifiedScopeFile.set(verifiedOfficialScopeFile)
+                verifiedScopeFile.set(verifiedCanonicalScopeFile)
                 outputs.upToDateWhen { false }
             }
 
-        val checkOfficialFigmaTrunkSync =
-            project.tasks.register<CheckFigmaTrunkSyncTask>("checkOfficialFigmaTrunkSync") {
+        val checkCanonicalFigmaTrunkSync =
+            project.tasks.register<CheckFigmaTrunkSyncTask>("checkCanonicalFigmaTrunkSync") {
                 group = "verification"
-                description = "Checks Figma metadata only when the validated official scope can change the model."
-                if (teamCityPhasedOfficialExecution.get()) {
-                    mustRunAfter(validateOfficialFigmaSyncScope)
+                description = "Checks Figma metadata only when the validated canonical scope can change the model."
+                if (teamCityPhasedCanonicalExecution.get()) {
+                    mustRunAfter(validateCanonicalFigmaSyncScope)
                 } else {
-                    dependsOn(validateOfficialFigmaSyncScope)
+                    dependsOn(validateCanonicalFigmaSyncScope)
                 }
                 onlyIf("Validated Figma scope requires full verification") {
-                    verifiedOfficialScopeFile
+                    verifiedCanonicalScopeFile
                         .get()
                         .asFile
                         .readText()
@@ -540,10 +540,10 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
                 figmaToken.set(project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
             }
 
-        project.tasks.register("verifyOfficialFigmaSync") {
+        project.tasks.register("verifyCanonicalFigmaSync") {
             group = "verification"
-            description = "Validates the shared official scope and conditionally checks Figma trunk metadata."
-            dependsOn(checkOfficialFigmaTrunkSync)
+            description = "Validates the shared canonical scope and conditionally checks Figma trunk metadata."
+            dependsOn(checkCanonicalFigmaTrunkSync)
         }
     }
 
@@ -552,7 +552,7 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     ): Boolean =
         figmaDocumentationSyncComponent::class
             .create()
-            .officialFigmaSyncScopeJson
+            .canonicalFigmaSyncScopeJson
             .readChangeImpact(
                 sourcePath = changeImpactFile.absolutePath,
             ).scope == FigmaVerificationScope.FULL_VERIFICATION

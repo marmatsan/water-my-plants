@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.artifact
 
-/** Typed identity contract shared by the official Figma artifact set. */
-data class OfficialFigmaArtifactContract(
+/** Typed identity contract shared by the canonical Figma artifact set. */
+data class CanonicalFigmaArtifactContract(
     val model: Model,
     val scope: Scope,
     val plan: Plan,

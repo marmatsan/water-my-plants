@@ -1,4 +1,4 @@
-package com.marmatsan.figmaDocumentationSync.plugin.task.official
+package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -11,11 +11,11 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Files
 
-internal class OfficialFigmaSyncGradleTasksTest :
+internal class CanonicalFigmaSyncGradleTasksTest :
     FunSpec(
         {
             test("documentation-only scope skips model generation and metadata verification") {
-                val project = Files.createTempDirectory("official-figma-sync-gradle").toFile()
+                val project = Files.createTempDirectory("canonical-figma-sync-gradle").toFile()
                 try {
                     project.writeFixture()
                     project.initializeGitRepository()
@@ -23,14 +23,14 @@ internal class OfficialFigmaSyncGradleTasksTest :
                     val preparation =
                         project
                             .runner(
-                                "prepareOfficialFigmaSync",
+                                "prepareCanonicalFigmaSync",
                                 "-PfigmaChangedPaths=docs/example.md",
                                 "--stacktrace",
                             ).build()
                     val verification =
                         project
                             .runner(
-                                "verifyOfficialFigmaSync",
+                                "verifyCanonicalFigmaSync",
                                 "--stacktrace",
                             ).build()
                     val scope =
@@ -44,23 +44,23 @@ internal class OfficialFigmaSyncGradleTasksTest :
 
                     scope["scope"]?.jsonPrimitive?.content shouldBe "documentation-only"
                     preparation.task(":materializeFigmaSyncCiConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
-                    preparation.task(":generateOfficialFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
-                    verification.task(":checkOfficialFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
+                    preparation.task(":generateCanonicalFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
+                    verification.task(":checkCanonicalFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
                 } finally {
                     project.deleteRecursively()
                 }
             }
 
-            test("TeamCity can execute official synchronization as visible sequential phases") {
-                val project = Files.createTempDirectory("official-figma-sync-phases").toFile()
+            test("TeamCity can execute canonical synchronization as visible sequential phases") {
+                val project = Files.createTempDirectory("canonical-figma-sync-phases").toFile()
                 try {
                     project.writeFixture()
                     project.initializeGitRepository()
 
-                    val property = "-PfigmaOfficialTeamCityPhasedExecution=true"
+                    val property = "-PfigmaCanonicalTeamCityPhasedExecution=true"
                     project
                         .runner(
-                            "classifyOfficialFigmaSyncChangeImpact",
+                            "classifyCanonicalFigmaSyncChangeImpact",
                             "-PfigmaChangedPaths=docs/example.md",
                             property,
                             "--stacktrace",
@@ -69,37 +69,37 @@ internal class OfficialFigmaSyncGradleTasksTest :
                         project
                             .runner(
                                 "materializeFigmaSyncCiConfiguration",
-                                "generateOfficialFigmaSyncModel",
+                                "generateCanonicalFigmaSyncModel",
                                 property,
                                 "--stacktrace",
                             ).build()
                     val runnerPhase =
                         project
                             .runner(
-                                "prepareOfficialFigmaSync",
+                                "prepareCanonicalFigmaSync",
                                 property,
                                 "--stacktrace",
                             ).build()
                     project
                         .runner(
-                            "validateOfficialFigmaSyncScope",
+                            "validateCanonicalFigmaSyncScope",
                             property,
                             "--stacktrace",
                         ).build()
                     val metadataPhase =
                         project
                             .runner(
-                                "checkOfficialFigmaTrunkSync",
+                                "checkCanonicalFigmaTrunkSync",
                                 property,
                                 "--stacktrace",
                             ).build()
 
-                    modelPhase.task(":classifyOfficialFigmaSyncChangeImpact") shouldBe null
-                    runnerPhase.task(":generateOfficialFigmaSyncModel") shouldBe null
-                    metadataPhase.task(":validateOfficialFigmaSyncScope") shouldBe null
+                    modelPhase.task(":classifyCanonicalFigmaSyncChangeImpact") shouldBe null
+                    runnerPhase.task(":generateCanonicalFigmaSyncModel") shouldBe null
+                    metadataPhase.task(":validateCanonicalFigmaSyncScope") shouldBe null
                     modelPhase.task(":materializeFigmaSyncCiConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
-                    modelPhase.task(":generateOfficialFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
-                    metadataPhase.task(":checkOfficialFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
+                    modelPhase.task(":generateCanonicalFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
+                    metadataPhase.task(":checkCanonicalFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
                 } finally {
                     project.deleteRecursively()
                 }
@@ -119,7 +119,7 @@ private fun File.runner(
 private fun File.writeFixture() {
     resolve(
         relative = "settings.gradle.kts",
-    ).writeText("rootProject.name = \"official-figma-sync-test\"")
+    ).writeText("rootProject.name = \"canonical-figma-sync-test\"")
     resolve(
         relative = "build.gradle.kts",
     ).writeText(

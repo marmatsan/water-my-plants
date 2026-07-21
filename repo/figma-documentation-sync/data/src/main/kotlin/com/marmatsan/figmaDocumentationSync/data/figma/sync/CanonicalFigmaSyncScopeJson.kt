@@ -4,7 +4,7 @@ import com.marmatsan.figmaDocumentationSync.data.json.writer.RunnerManifestJson
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaChangeImpact
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaImpact
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
-import com.marmatsan.figmaDocumentationSync.domain.model.sync.OfficialFigmaSyncScope
+import com.marmatsan.figmaDocumentationSync.domain.model.sync.CanonicalFigmaSyncScope
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.RunnerManifest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -21,9 +21,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isRegularFile
 
-/** Filesystem JSON adapter for the official Figma Sync scope and runner identities. */
+/** Filesystem JSON adapter for the canonical Figma Sync scope and runner identities. */
 @Inject
-class OfficialFigmaSyncScopeJson {
+class CanonicalFigmaSyncScopeJson {
     fun readChangeImpact(
         sourcePath: String,
     ): FigmaChangeImpact {
@@ -62,16 +62,16 @@ class OfficialFigmaSyncScopeJson {
 
     fun read(
         sourcePath: String,
-    ): OfficialFigmaSyncScope {
+    ): CanonicalFigmaSyncScope {
         val source =
             readObject(
                 path =
                     Path.of(
                         sourcePath,
                     ),
-                description = "official Figma Sync scope",
+                description = "canonical Figma Sync scope",
             )
-        return OfficialFigmaSyncScope(
+        return CanonicalFigmaSyncScope(
             scope =
                 source.requiredEnum(
                     name = "scope",
@@ -113,7 +113,7 @@ class OfficialFigmaSyncScopeJson {
     }
 
     fun write(
-        scope: OfficialFigmaSyncScope,
+        scope: CanonicalFigmaSyncScope,
         outputPath: String,
     ) {
         val output =
@@ -137,7 +137,7 @@ class OfficialFigmaSyncScopeJson {
             rootPath = rootPath,
         )
 
-    private fun OfficialFigmaSyncScope.toJson() =
+    private fun CanonicalFigmaSyncScope.toJson() =
         JsonObject(
             linkedMapOf(
                 "scope" to JsonPrimitive(scope.wireValue),

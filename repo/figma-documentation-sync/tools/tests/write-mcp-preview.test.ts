@@ -44,7 +44,7 @@ test("generates a sandboxed catalog preview runner with chunk transport", async 
   }
 });
 
-test("generates a non-catalog preview without an official section override", async () => {
+test("generates a non-catalog preview without a canonical section override", async () => {
   const workspace = createWorkspace("versions-preview.js");
   try {
     runPreview([
@@ -70,12 +70,12 @@ test("generates a non-catalog preview without an official section override", asy
   }
 });
 
-test("rejects official mode and unsafe catalog previews", async () => {
+test("rejects canonical mode and unsafe catalog previews", async () => {
   const workspace = createWorkspace("rejected-preview.js");
   try {
     assert.throws(
-      () => runPreview(["--mode=official"]),
-      /Use the Kotlin prepareOfficialFigmaSync task for official runners/
+      () => runPreview(["--mode=canonical"]),
+      /Use the Kotlin prepareCanonicalFigmaSync task for canonical runners/
     );
     assert.throws(
       () => runPreview([

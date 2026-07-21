@@ -22,7 +22,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
-/** Inspects, records, or executes an official checkpointed runner through the Kotlin MCP client. */
+/** Inspects, records, or executes a canonical checkpointed runner through the Kotlin MCP client. */
 @DisableCachingByDefault(
     because = "May invoke a local write-capable MCP endpoint",
 )

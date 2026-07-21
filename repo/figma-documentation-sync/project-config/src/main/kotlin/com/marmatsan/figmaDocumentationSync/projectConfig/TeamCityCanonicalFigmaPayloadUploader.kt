@@ -1,17 +1,17 @@
 package com.marmatsan.figmaDocumentationSync.projectConfig
 
-import com.marmatsan.figmaDocumentationSync.data.figma.artifact.OfficialFigmaArtifactSetReader
+import com.marmatsan.figmaDocumentationSync.data.figma.artifact.CanonicalFigmaArtifactSetReader
 import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDocumentationSync.data.mcp.KtorFigmaPngAssetUploader
 import java.io.File
 import java.nio.file.Files
 
-/** Uploads the verified PNG from one official main artifact set. */
-class TeamCityOfficialFigmaPayloadUploader(
+/** Uploads the verified PNG from one canonical main artifact set. */
+class TeamCityCanonicalFigmaPayloadUploader(
     private val handoffPreparer: TeamCityFigmaSyncHandoffPreparer =
         TeamCityFigmaSyncHandoffPreparer(),
-    private val artifactReader: OfficialFigmaArtifactSetReader = OfficialFigmaArtifactSetReader(),
+    private val artifactReader: CanonicalFigmaArtifactSetReader = CanonicalFigmaArtifactSetReader(),
     private val manifestJson: ExecutableRunnerManifestJson = ExecutableRunnerManifestJson(),
     private val uploadPng: (String, ByteArray) -> Unit =
         KtorFigmaPngAssetUploader()::uploadBlocking,
@@ -42,21 +42,21 @@ class TeamCityOfficialFigmaPayloadUploader(
         val artifacts = artifactReader.read(handoff.artifactDirectory.absolutePath)
         val manifestPath =
             requireNotNull(artifacts.visualManifestPath) {
-                "Official artifact set does not contain one visual manifest."
+                "Canonical artifact set does not contain one visual manifest."
             }
         val manifest = manifestJson.read(manifestPath.toString())
-        require(manifest.mode == "official" && manifest.fullVisualSync && !manifest.writeMetadata) {
-            "Figma payload upload requires the official full visual manifest."
+        require(manifest.mode == "canonical" && manifest.fullVisualSync && !manifest.writeMetadata) {
+            "Figma payload upload requires the canonical full visual manifest."
         }
         require(manifest.transport == PNG_TRANSPORT) {
             "Figma payload upload requires PNG transport; found '${manifest.transport}'."
         }
         val payload =
             requireNotNull(manifest.payloadImage) {
-                "Official visual manifest does not declare a PNG payload."
+                "Canonical visual manifest does not declare a PNG payload."
             }
         require(File(payload.fileName).name == payload.fileName) {
-            "Official PNG payload must use a file name without path segments."
+            "Canonical PNG payload must use a file name without path segments."
         }
         val runnerDirectory = requireNotNull(manifestPath.parent).toAbsolutePath().normalize()
         val payloadPath =
@@ -65,18 +65,18 @@ class TeamCityOfficialFigmaPayloadUploader(
                     payload.fileName,
                 ).normalize()
         require(payloadPath.parent == runnerDirectory && Files.isRegularFile(payloadPath)) {
-            "Official PNG payload does not exist beside its visual manifest."
+            "Canonical PNG payload does not exist beside its visual manifest."
         }
         val bytes = Files.readAllBytes(payloadPath)
         require(bytes.size == payload.byteLength) {
-            "Official PNG payload length mismatch: ${bytes.size} != ${payload.byteLength}."
+            "Canonical PNG payload length mismatch: ${bytes.size} != ${payload.byteLength}."
         }
         val actualHash =
             Sha256Hash.of(
                 value = bytes,
             )
         require(actualHash == payload.sha256) {
-            "Official PNG payload hash mismatch: $actualHash != ${payload.sha256}."
+            "Canonical PNG payload hash mismatch: $actualHash != ${payload.sha256}."
         }
 
         uploadPng(

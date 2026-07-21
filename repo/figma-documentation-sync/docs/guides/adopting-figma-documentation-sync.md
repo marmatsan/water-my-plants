@@ -83,7 +83,7 @@ consumer repository.
 3. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
    `FigmaWriterProjectConfigJson`, and register
    `WriteFigmaWriterProjectConfigTask`. Wire its output into
-   `PrepareOfficialFigmaSyncTask.writerProjectConfigFile`,
+   `PrepareCanonicalFigmaSyncTask.writerProjectConfigFile`,
    `RunFigmaMcpTask.writerProjectConfigFile`, and
    `ProbeFigmaMcpTask.writerProjectConfigFile`. The model supplies
    repository paths, Figma component identities, visual targets, and the
@@ -111,7 +111,7 @@ consumer repository.
    `CiConfigurationProvider` or leave CI documentation disabled.
 
 7. Add the relevant verification tasks to CI. Treat the model generated on the
-   default branch as the only official publication input.
+   default branch as the only canonical publication input.
 
 ## Verification
 
@@ -128,8 +128,8 @@ In the consumer repository, verify plugin application and its focused checks:
 .\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage
 ```
 
-Build the configured writer and run its tests before enabling an official
-Figma write. Do not generate or publish official metadata from a feature
+Build the configured writer and run its tests before enabling a canonical
+Figma write. Do not generate or publish canonical metadata from a feature
 branch.
 
 ## Related Documentation
@@ -137,4 +137,4 @@ branch.
 - [Distribution contract](../reference/distribution-contract.md)
 - [Publication runbook](../runbooks/publishing-release.md)
 - [Project adapter contract](../../project-config/README.md)
-- [Official trunk sync](../runbooks/trunk-sync.md)
+- [Canonical trunk sync](../runbooks/trunk-sync.md)

@@ -19,7 +19,7 @@ sources:
 
 Use this runbook only after the team chooses the Maven and npm registries and
 explicitly authorizes a release. It prepares and verifies the complete artifact
-set without changing the Figma official model.
+set without changing the Figma canonical model.
 
 ## Prerequisites
 
@@ -124,7 +124,7 @@ A release is successful only when:
 - Do not use different Maven and npm versions.
 - Do not bypass `verifyStagedPublication` or make `includeBuild` part of the
   consumer fixture.
-- Do not write official Figma metadata as part of a software package release.
+- Do not write canonical Figma metadata as part of a software package release.
 
 ## Sources
 

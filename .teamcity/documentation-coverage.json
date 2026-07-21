@@ -105,7 +105,7 @@
       "documentationPaths": [
         "repo/dependency-catalog/README.md",
         "repo/gradle-plugins/README.md",
-        "repo/figma-documentation-sync/docs/runbooks/official-artifact-visual-sync.md",
+        "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
         "repo/figma-documentation-sync/docs/standards/dependency-version-naming.md",
         "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md"
       ]

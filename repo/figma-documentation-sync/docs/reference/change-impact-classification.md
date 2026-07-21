@@ -86,7 +86,7 @@ to every target, so changing shared node, text, configuration, port, or
 orchestration code still forces a full visual sync.
 
 Sources explicitly classified as `figmaTransportOnlyPaths`, including the
-sandbox catalog preview entrypoint, do not contribute to official writer
+sandbox catalog preview entrypoint, do not contribute to canonical writer
 fingerprints because they cannot alter the trunk writer.
 
 Catalog roots and cleanup execution scopes inherit their catalog target
@@ -121,4 +121,4 @@ The classifier does not validate documentation coverage, generate the design
 model, execute MCP, write Figma metadata, or authorize publication from a
 branch. Documentation coverage remains owned by the Gradle
 `checkDocumentation` task and its Kotlin implementation under `repo/verification-platform`;
-official publication remains restricted to TeamCity Figma Sync on `main`.
+canonical publication remains restricted to TeamCity Figma Sync on `main`.

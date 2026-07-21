@@ -1,7 +1,7 @@
 # Figma Documentation Sync Tools
 
 This package contains the portable TypeScript boundary executed inside the
-Figma Plugin API runtime. Kotlin owns official runner generation, MCP transport,
+Figma Plugin API runtime. Kotlin owns canonical runner generation, MCP transport,
 capability probing, execution planning, and checkpoints. The package is built
 with a repository-owned configuration so Figma node identities and visual
 targets remain outside the reusable writer.
@@ -35,7 +35,7 @@ implementation is removed.
 
 Use the root `probeFigmaMcp` and `runFigmaMcp` Gradle tasks for MCP operations.
 The TypeScript `mcp:preview` command is a preview-only packager for supervised
-visual inspection. It rejects official mode, metadata writes, PNG transport,
-preflight, and multi-target execution. Official manifests, payload transport,
+visual inspection. It rejects canonical mode, metadata writes, PNG transport,
+preflight, and multi-target execution. Canonical manifests, payload transport,
 fingerprints, execution plans, and checkpoints are generated and enforced by
 Kotlin.

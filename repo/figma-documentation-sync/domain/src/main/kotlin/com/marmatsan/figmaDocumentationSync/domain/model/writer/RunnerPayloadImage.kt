@@ -1,6 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.writer
 
-/** Uploaded PNG asset that carries the official model and writer payload. */
+/** Uploaded PNG asset that carries the canonical model and writer payload. */
 data class RunnerPayloadImage(
     val fileName: String,
     val byteLength: Int,

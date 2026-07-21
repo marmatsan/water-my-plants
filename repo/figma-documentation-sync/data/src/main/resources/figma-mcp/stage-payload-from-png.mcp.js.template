@@ -51,7 +51,7 @@ for (const imageHash of imageHashes) {
 
 if (candidates.length === 0) {
   throw new Error(
-    "Could not find official sync payload PNG for model " + expected.designModelHash + ". " +
+    "Could not find canonical sync payload PNG for model " + expected.designModelHash + ". " +
       "Upload " + payloadFileName + " with Figma upload_assets before this step."
   );
 }

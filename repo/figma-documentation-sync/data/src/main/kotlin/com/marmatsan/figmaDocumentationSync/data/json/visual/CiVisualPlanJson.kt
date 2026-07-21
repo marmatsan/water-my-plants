@@ -30,7 +30,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDate
 
-/** JSON boundary between the official design model and the Kotlin CI visual planner. */
+/** JSON boundary between the canonical design model and the Kotlin CI visual planner. */
 object CiVisualPlanJson {
     private val prettyJson = Json { prettyPrint = true }
 

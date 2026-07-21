@@ -69,8 +69,8 @@ object FigmaWriterRuntimeConfigJson {
                         windowsRuntimeRunbookSource = json.requiredString("WINDOWS_RUNTIME_RUNBOOK_SOURCE"),
                         visualContractSource = json.requiredString("VISUAL_CONTRACT_SOURCE"),
                         branchProtectionSource = json.requiredString("BRANCH_PROTECTION_SOURCE"),
-                        officialSyncSource = json.requiredString("OFFICIAL_SYNC_SOURCE"),
-                        officialDesignModelPath = json.requiredString("OFFICIAL_DESIGN_MODEL_PATH"),
+                        canonicalSyncSource = json.requiredString("CANONICAL_SYNC_SOURCE"),
+                        canonicalDesignModelPath = json.requiredString("CANONICAL_DESIGN_MODEL_PATH"),
                     )
                 },
         )
@@ -94,6 +94,6 @@ object FigmaWriterRuntimeConfigJson {
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private const val SUPPORTED_SCHEMA_VERSION = 1
+    private const val SUPPORTED_SCHEMA_VERSION = 2
     private const val UTF8_BOM = "\uFEFF"
 }
