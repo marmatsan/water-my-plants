@@ -217,9 +217,9 @@ Tree node '...' expected at least 4 '.artifact' instances, found 1.
 
 The CI writer depends on the public top-level component contract, not on nested
 sublayer ids. `.ci node` must contain exactly 20 direct `.ci step` instances
-named `step 01` through `step 20`. Every slot must be hidden by default,
+named `step 01` through `step 20`. Every slot must be visible in the master,
 exposed to the containing component, and backed by the configured `.ci step`
-component set.
+component set. Generated `.ci node` instances hide only the unused slots.
 
 If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
 step slots:
@@ -227,9 +227,10 @@ step slots:
 1. Edit the main `.ci node` component, not one published instance and not a
    nested sublayer URL.
 2. Restore the exact `step 01` through `step 20` direct children in numeric
-   order between `summary` and `optional details`.
+   order between `summary` and `optional details`; do not wrap them in an
+   intermediate frame.
 3. Use an instance of the configured `.ci step` component set for every slot,
-   mark it as exposed, and keep it hidden by default.
+   mark it as exposed, and keep it visible in the master component.
 4. Run the visual preflight again before retrying the CI visual target.
 
 Do not weaken the slot-count check, traverse implementation-specific child ids,
