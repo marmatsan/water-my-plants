@@ -704,6 +704,7 @@ function syncCiStep({
   setComponentTextProperty(instance, CI_STEP_PROPS.order, properties.order);
   setComponentTextProperty(instance, CI_STEP_PROPS.title, properties.title);
   setComponentTextProperty(instance, CI_STEP_PROPS.technicalId, properties.technicalId);
+  setComponentTextProperty(instance, CI_STEP_PROPS.tasks, properties.tasks);
   setComponentTextProperty(instance, CI_STEP_PROPS.description, properties.description);
   setComponentTextProperty(instance, CI_STEP_PROPS.condition, properties.condition);
 }
@@ -714,12 +715,23 @@ export function ciStepPropertyValues(step: CiVisualStep) {
     role: step.role,
     title: step.title,
     technicalId: step.technicalId || "",
+    tasks: ciGroupTasksValue(step),
     description: step.description || "",
     condition: step.condition || "",
     showTechnicalId: Boolean(step.technicalId),
     showDescription: Boolean(step.description) && step.role !== "action",
     showCondition: Boolean(step.condition),
   };
+}
+
+function ciGroupTasksValue(step: CiVisualStep): string {
+  if (step.role !== "group" || !step.technicalId) return "";
+  return step.technicalId
+    .split(/\s*·\s*|\r?\n/)
+    .map((task) => task.replace(/^•\s*/, "").trim())
+    .filter(Boolean)
+    .map((task) => `• ${task}`)
+    .join("\n");
 }
 
 function syncCiOutcome({

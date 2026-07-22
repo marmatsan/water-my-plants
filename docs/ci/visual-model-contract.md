@@ -185,16 +185,24 @@ Use the step variants consistently:
 | `role` | `decision` | A runtime selection or branch in the verification plan. |
 | `role` | `group` | A compact family of tasks selected by the same impact rule. |
 
+`role=group` keeps the exact identifiers in the typed `technicalId` field but
+projects them through the component's public `tasks` property. The value is one
+left-aligned `TextNode` containing one literal `• ` bullet per line. Literal
+bullets are part of the property value because a Figma `TEXT` override replaces
+range formatting; relying on native list styling would lose the bullets in
+generated instances. The master shows at least two lines so this multiline
+contract remains visible to component maintainers.
+
 `.ci outcome` has the independent `kind` variants `artifact` and `check`.
 There is no `level` variant: component composition owns hierarchy. Do not nest
 another `.ci step` inside a step. Split the phase when a third execution level
 would otherwise be needed.
 
 Every `.ci step` renders as a compact horizontal Gradle row with the order badge
-first, the Gradle icon, and one flexible content column. It identifies the
-executable entry point with `TASK`. `.ci phase` supplies the TeamCity context;
-`.ci outcome` supplies the result context without pretending either is a Gradle
-task.
+first, the Gradle icon, and one flexible content column. Actions and decisions
+identify one executable entry point with `TASK`; groups use `TASKS` followed by
+their multiline list. `.ci phase` supplies the TeamCity context; `.ci outcome`
+supplies the result context without pretending either is a Gradle task.
 
 The environment icon in the `.ci node` header describes the owner of the whole
 node. A TeamCity job therefore remains `environment=teamcity` even when its

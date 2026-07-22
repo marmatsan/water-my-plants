@@ -195,6 +195,7 @@ async function checkCiDocumentationContract(
   requireComponentProperty(stepSet, CI_STEP_PROPS.order, "TEXT");
   requireComponentProperty(stepSet, CI_STEP_PROPS.title, "TEXT");
   requireComponentProperty(stepSet, CI_STEP_PROPS.technicalId, "TEXT");
+  const tasksDefinition = requireComponentProperty(stepSet, CI_STEP_PROPS.tasks, "TEXT");
   requireComponentProperty(stepSet, CI_STEP_PROPS.description, "TEXT");
   requireComponentProperty(stepSet, CI_STEP_PROPS.condition, "TEXT");
   requireComponentProperty(stepSet, CI_STEP_PROPS.showTechnicalId, "BOOLEAN");
@@ -205,6 +206,10 @@ async function checkCiDocumentationContract(
     propertyName: CI_STEP_PROPS.role,
     expectedOptions: CI_STEP_ROLES,
     label: "CI step roles",
+  });
+  requireCiGroupTasksContract({
+    stepSet,
+    tasksDefinition,
   });
   requireMissingComponentProperty(stepSet, "level");
   checkedComponents.push(`${stepSet.name}:${stepSet.id}`);
@@ -306,6 +311,51 @@ async function checkCiDocumentationContract(
   }
   checkedVariables.push(collection.name);
   checkedTargets.push(...requestedTargets);
+}
+
+function requireCiGroupTasksContract({
+  stepSet,
+  tasksDefinition,
+}: {
+  stepSet: ComponentSetNode;
+  tasksDefinition: any;
+}) {
+  const defaultLines = String(tasksDefinition.defaultValue || "")
+    .split(/\r?\n/)
+    .filter(Boolean);
+  if (defaultLines.length < 2 || defaultLines.some((line) => !line.startsWith("• "))) {
+    throw new Error(
+      `CI step component set '${stepSet.id}' must expose a multiline bullet-list default ` +
+        `for '${CI_STEP_PROPS.tasks}'.`
+    );
+  }
+
+  const groupVariant = stepSet.children.find((child) =>
+    child.type === "COMPONENT" && child.variantProperties?.[CI_STEP_PROPS.role] === "group"
+  );
+  if (!groupVariant || groupVariant.type !== "COMPONENT") {
+    throw new Error(`CI step component set '${stepSet.id}' is missing role=group.`);
+  }
+  const taskTexts = groupVariant.findAllWithCriteria({ types: ["TEXT"] })
+    .filter((text) => text.name === CI_STEP_PROPS.tasks);
+  if (taskTexts.length !== 1) {
+    throw new Error(
+      `CI step role=group '${groupVariant.id}' must contain exactly one ` +
+        `'${CI_STEP_PROPS.tasks}' text layer; found ${taskTexts.length}.`
+    );
+  }
+  const tasksText = taskTexts[0];
+  requireComponentPropertyReference(
+    tasksText,
+    "characters",
+    CI_STEP_PROPS.tasks,
+    "CI step role=group tasks"
+  );
+  if (tasksText.textAlignHorizontal !== "LEFT" || tasksText.textAutoResize !== "HEIGHT") {
+    throw new Error(
+      `CI step role=group tasks '${tasksText.id}' must be left-aligned with HEIGHT text resize.`
+    );
+  }
 }
 
 function requireDirectFrame(

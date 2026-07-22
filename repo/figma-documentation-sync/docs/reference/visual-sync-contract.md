@@ -181,7 +181,7 @@ generated instances from model data; it must not rely on hidden master defaults.
 
 `.ci phase` requires `order`, `title`, `technical id`, `description`,
 `show technical id`, `show description`, and `show steps`. `.ci step` requires
-the same text and field visibility properties plus `condition`, `show
+the same text and field visibility properties plus `tasks`, `condition`, `show
 condition`, and exact `role` variants `action`, `decision`, and `group`. `.ci
 outcome` uses the step-shaped display properties with exact `kind` variants
 `artifact` and `check`. There is no `level` property: hierarchy is encoded by
@@ -194,6 +194,14 @@ order badge, the Gradle icon, one flexible content column, and no outer stroke.
 The condition row is borderless. A TeamCity build step maps to `.ci phase`;
 Gradle tasks and selection boundaries map to `.ci step`; published artifacts
 and checks map to `.ci outcome`.
+
+The `role=group` variant owns exactly one `tasks` text layer bound to the public
+`tasks` property. It uses `LEFT` alignment and `HEIGHT` text resize. The writer
+splits the exact identifiers stored in `technicalId` at the documented middle
+dot separator and writes one literal `• ` bullet per line. The master default
+contains at least two bulleted lines. Do not replace those literal bullets with
+native Figma list range styling: overriding a component `TEXT` value resets the
+range formatting and removes the visual list from generated instances.
 
 `.ci phase` is a transparent section, not a filled card around its child rows.
 Its header uses `md/sys/color/primary-container` and 8 px padding. Its

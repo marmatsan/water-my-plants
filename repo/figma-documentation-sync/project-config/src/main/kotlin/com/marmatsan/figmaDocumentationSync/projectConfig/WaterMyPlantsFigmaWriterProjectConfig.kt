@@ -98,6 +98,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "order" to "order",
                     "title" to "title",
                     "technicalId" to "technical id",
+                    "tasks" to "tasks",
                     "description" to "description",
                     "condition" to "condition",
                     "showTechnicalId" to "show technical id",

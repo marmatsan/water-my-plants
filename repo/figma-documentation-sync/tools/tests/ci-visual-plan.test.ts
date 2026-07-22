@@ -174,8 +174,34 @@ test("CI step properties expose a decision with its executable condition", () =>
       role: "decision",
       title: "Select affected verification tasks",
       technicalId: "ci.plan.gradleTasks",
+      tasks: "",
       description: "Limits verification to the affected Gradle scopes.",
       condition: "Affected scopes are derived from the comparison base.",
+      showTechnicalId: true,
+      showDescription: true,
+      showCondition: true,
+    }
+  );
+});
+
+test("CI group properties render exact task identifiers as a multiline bullet list", () => {
+  assert.deepEqual(
+    ciStepPropertyValues({
+      order: "02.2",
+      role: "group",
+      title: "Always",
+      technicalId: "checkGitWorkflow · checkDocumentation",
+      description: "Runs the checks required for every change.",
+      condition: "Always",
+    }),
+    {
+      order: "02.2",
+      role: "group",
+      title: "Always",
+      technicalId: "checkGitWorkflow · checkDocumentation",
+      tasks: "• checkGitWorkflow\n• checkDocumentation",
+      description: "Runs the checks required for every change.",
+      condition: "Always",
       showTechnicalId: true,
       showDescription: true,
       showCondition: true,

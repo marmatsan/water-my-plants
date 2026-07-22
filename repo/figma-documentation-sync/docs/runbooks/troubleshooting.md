@@ -261,6 +261,13 @@ legitimately exceeds 8 phases, 8 steps in one phase, or 4 outcomes, split the
 documentation boundary and regenerate the Kotlin plan. Keep final sync metadata
 unchanged until preflight and the affected visual target both succeed.
 
+If every `role=group` instance shows the same placeholder tasks or loses its
+bullets after an override, inspect the `.ci step` contract. The component set
+must expose a `tasks` TEXT property, and the group variant must bind exactly one
+left-aligned `tasks` text layer to it. The writer supplies literal bullets in a
+multiline value. Native Figma list range styling is not a substitute because a
+component TEXT override resets that formatting.
+
 ## TeamCity Artifact Handoff Returns HTML
 
 If `prepareTeamCityFigmaSyncHandoff` fails while decoding the TeamCity response
