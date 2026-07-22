@@ -6,7 +6,9 @@ import {
   centeredRowY,
   ciConnectorMagnets,
   ciNodePropertyValues,
+  ciOutcomePropertyValues,
   ciParentResizeDimensions,
+  ciPhasePropertyValues,
   ciStepPropertyValues,
   ciVisualGridPosition,
   connectorBoundsLabelPosition,
@@ -21,6 +23,14 @@ import {
   ciStepSlotName,
   ciStepSlotNames,
 } from "../src/figma/ci-step-slot-contract";
+import {
+  ciPhaseSlotName,
+  ciPhaseSlotNames,
+} from "../src/figma/ci-phase-slot-contract";
+import {
+  ciOutcomeSlotName,
+  ciOutcomeSlotNames,
+} from "../src/figma/ci-outcome-slot-contract";
 
 test("CI connector label text stays above its opaque background", () => {
   const background = { name: "Background" };
@@ -45,13 +55,13 @@ test("CI node properties hide runtime when the visual node has no runtime data",
   assert.deepEqual(ciNodePropertyValues(node), {
     name: "Pull Request",
     description: "Proposes a reviewed change to the repository.",
-    steps: "",
+    executionPlanHeading: "Execution plan",
     source: "docs/ci/main-branch-protection.md",
     runtimePlatform: "",
     runtimeService: "",
     runtimeStartup: "",
     runtimeIdentity: "",
-    showSteps: false,
+    showExecutionPlan: false,
     showSource: true,
     showRuntime: false,
     showOptionalDetails: true,
@@ -72,32 +82,72 @@ test("CI node properties expose complete runtime data", () => {
   assert.deepEqual(ciNodePropertyValues(node), {
     name: "Pull Request",
     description: "Proposes a reviewed change to the repository.",
-    steps: "",
+    executionPlanHeading: "Execution plan",
     source: "docs/ci/main-branch-protection.md",
     runtimePlatform: "Windows",
     runtimeService: "TeamCity",
     runtimeStartup: "Automatic",
     runtimeIdentity: "NT SERVICE\\TeamCity",
-    showSteps: false,
+    showExecutionPlan: false,
     showSource: true,
     showRuntime: true,
     showOptionalDetails: true,
   });
 });
 
-test("CI node reserves exactly 20 stable nested step slot names", () => {
-  assert.equal(ciStepSlotNames().length, 20);
+test("CI hierarchy reserves stable phase, step, and outcome slot names", () => {
+  assert.equal(ciPhaseSlotNames().length, 8);
+  assert.equal(ciPhaseSlotName(1), "phase 01");
+  assert.equal(ciPhaseSlotName(8), "phase 08");
+  assert.throws(() => ciPhaseSlotName(9), /between 1 and 8/);
+  assert.equal(ciStepSlotNames().length, 8);
   assert.equal(ciStepSlotName(1), "step 01");
-  assert.equal(ciStepSlotName(20), "step 20");
-  assert.throws(() => ciStepSlotName(21), /between 1 and 20/);
+  assert.equal(ciStepSlotName(8), "step 08");
+  assert.throws(() => ciStepSlotName(9), /between 1 and 8/);
+  assert.equal(ciOutcomeSlotNames().length, 4);
+  assert.equal(ciOutcomeSlotName(1), "outcome 01");
+  assert.equal(ciOutcomeSlotName(4), "outcome 04");
+  assert.throws(() => ciOutcomeSlotName(5), /between 1 and 4/);
 });
 
-test("CI step properties expose a nested decision with its executable condition", () => {
+test("CI node properties reveal the execution plan when phases exist", () => {
+  const node = {
+    ...visualNode(),
+    phases: [{
+      order: "01",
+      title: "Run TeamCity phase",
+      steps: [],
+    }],
+  };
+
+  assert.equal(ciNodePropertyValues(node).showExecutionPlan, true);
+});
+
+test("CI phase properties expose its executable identity", () => {
+  assert.deepEqual(
+    ciPhasePropertyValues({
+      order: "02",
+      title: "Run planned Gradle checks",
+      technicalId: "RUNNER_3",
+      description: "Runs the Gradle entry points owned by this TeamCity phase.",
+      steps: [],
+    }),
+    {
+      order: "02",
+      title: "Run planned Gradle checks",
+      technicalId: "RUNNER_3",
+      description: "Runs the Gradle entry points owned by this TeamCity phase.",
+      showTechnicalId: true,
+      showDescription: true,
+    }
+  );
+});
+
+test("CI step properties expose a decision with its executable condition", () => {
   assert.deepEqual(
     ciStepPropertyValues({
       order: "02.1",
       role: "decision",
-      level: "nested",
       title: "Select affected verification tasks",
       technicalId: "ci.plan.gradleTasks",
       description: "Limits verification to the affected Gradle scopes.",
@@ -106,11 +156,34 @@ test("CI step properties expose a nested decision with its executable condition"
     {
       order: "02.1",
       role: "decision",
-      level: "nested",
       title: "Select affected verification tasks",
       technicalId: "ci.plan.gradleTasks",
       description: "Limits verification to the affected Gradle scopes.",
       condition: "Affected scopes are derived from the comparison base.",
+      showTechnicalId: true,
+      showDescription: true,
+      showCondition: true,
+    }
+  );
+});
+
+test("CI outcome properties expose a published check", () => {
+  assert.deepEqual(
+    ciOutcomePropertyValues({
+      order: "04",
+      kind: "check",
+      title: "Publish GitHub check",
+      technicalId: "TeamCity CI",
+      description: "Reports the verified job result to the pull request.",
+      condition: "After successful job execution",
+    }),
+    {
+      order: "04",
+      kind: "check",
+      title: "Publish GitHub check",
+      technicalId: "TeamCity CI",
+      description: "Reports the verified job result to the pull request.",
+      condition: "After successful job execution",
       showTechnicalId: true,
       showDescription: true,
       showCondition: true,
@@ -340,7 +413,8 @@ function visualNode(): CiVisualNode {
     description: "Proposes a reviewed change to the repository.",
     source: "docs/ci/main-branch-protection.md",
     sourceUrl: "https://example.test/docs/ci/main-branch-protection.md",
-    steps: [],
+    phases: [],
+    outcomes: [],
     row: 0,
     column: 0,
   };

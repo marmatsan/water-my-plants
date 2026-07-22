@@ -26,7 +26,8 @@ data class CiVisualPlan(
         val environment: Environment,
         val name: String,
         val description: String,
-        val steps: List<Step>,
+        val phases: List<Phase>,
+        val outcomes: List<Outcome>,
         val runtime: Runtime?,
         val source: String,
         val sourceUrl: String,
@@ -34,10 +35,26 @@ data class CiVisualPlan(
         val column: Int,
     )
 
+    data class Phase(
+        val order: String,
+        val title: String,
+        val technicalId: String?,
+        val description: String?,
+        val steps: List<Step>,
+    )
+
     data class Step(
         val order: String,
         val role: StepRole,
-        val level: StepLevel,
+        val title: String,
+        val technicalId: String?,
+        val description: String?,
+        val condition: String?,
+    )
+
+    data class Outcome(
+        val order: String,
+        val kind: OutcomeKind,
         val title: String,
         val technicalId: String?,
         val description: String?,
@@ -98,13 +115,13 @@ data class CiVisualPlan(
     ) {
         ACTION("action"),
         DECISION("decision"),
-        OUTCOME("outcome"),
+        GROUP("group"),
     }
 
-    enum class StepLevel(
+    enum class OutcomeKind(
         val wireValue: String,
     ) {
-        PHASE("phase"),
-        NESTED("nested"),
+        ARTIFACT("artifact"),
+        CHECK("check"),
     }
 }

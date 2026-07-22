@@ -14,7 +14,7 @@ npx figma-documentation-sync-build `
     --output-dir=build\figma-documentation-sync-tools
 ```
 
-The JSON input uses schema version `1` and is the only public project-config
+The JSON input uses schema version `3` and is the only public project-config
 format. `FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG` may supply the same path when the
 command is invoked through npm; an explicit command-line path takes precedence.
 

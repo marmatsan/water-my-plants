@@ -31,7 +31,7 @@ object FigmaWriterProjectConfigJson {
         return buildJsonObject {
             put(
                 "schemaVersion",
-                2,
+                3,
             )
             put(
                 "METADATA_PAGE_ID",
@@ -114,6 +114,30 @@ object FigmaWriterProjectConfigJson {
                 ciNodeProps.toJsonObject(),
             )
             put(
+                "CI_NODE_PHASE_CONTAINER_NAME",
+                ciNodePhaseContainerName,
+            )
+            put(
+                "CI_PHASE_COMPONENT_ID",
+                ciPhaseComponentId,
+            )
+            put(
+                "CI_PHASE_SLOT_NAME_PREFIX",
+                ciPhaseSlotNamePrefix,
+            )
+            put(
+                "CI_PHASE_SLOT_COUNT",
+                ciPhaseSlotCount,
+            )
+            put(
+                "CI_PHASE_PROPS",
+                ciPhaseProps.toJsonObject(),
+            )
+            put(
+                "CI_PHASE_STEP_CONTAINER_NAME",
+                ciPhaseStepContainerName,
+            )
+            put(
                 "CI_STEP_COMPONENT_SET_ID",
                 ciStepComponentSetId,
             )
@@ -130,12 +154,28 @@ object FigmaWriterProjectConfigJson {
                 ciStepRoles.toJsonArray(),
             )
             put(
-                "CI_STEP_LEVELS",
-                ciStepLevels.toJsonArray(),
-            )
-            put(
                 "CI_STEP_PROPS",
                 ciStepProps.toJsonObject(),
+            )
+            put(
+                "CI_OUTCOME_COMPONENT_SET_ID",
+                ciOutcomeComponentSetId,
+            )
+            put(
+                "CI_OUTCOME_SLOT_NAME_PREFIX",
+                ciOutcomeSlotNamePrefix,
+            )
+            put(
+                "CI_OUTCOME_SLOT_COUNT",
+                ciOutcomeSlotCount,
+            )
+            put(
+                "CI_OUTCOME_KINDS",
+                ciOutcomeKinds.toJsonArray(),
+            )
+            put(
+                "CI_OUTCOME_PROPS",
+                ciOutcomeProps.toJsonObject(),
             )
             put(
                 "VERSIONS_COLLECTION_NAME",

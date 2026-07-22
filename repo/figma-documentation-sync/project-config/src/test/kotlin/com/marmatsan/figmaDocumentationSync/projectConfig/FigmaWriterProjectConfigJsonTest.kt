@@ -20,14 +20,44 @@ internal class FigmaWriterProjectConfigJsonTest :
                         ).jsonObject
 
                 root.keys shouldBe expectedKeys
-                root.getValue("schemaVersion").jsonPrimitive.content shouldBe "2"
+                root.getValue("schemaVersion").jsonPrimitive.content shouldBe "3"
                 root.getValue("METADATA_NAMESPACE").jsonPrimitive.content shouldBe "water_my_plants_sync"
                 root.getValue("CANONICAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
                     "water_my_plants_sync_staging"
                 root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
                 root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
+                root.getValue("CI_NODE_PHASE_CONTAINER_NAME").jsonPrimitive.content shouldBe "execution plan"
+                root.getValue("CI_PHASE_STEP_CONTAINER_NAME").jsonPrimitive.content shouldBe "steps"
+                root
+                    .getValue("CI_NODE_PROPS")
+                    .jsonObject
+                    .also { properties ->
+                        properties.keys shouldBe
+                            setOf(
+                                "name",
+                                "description",
+                                "executionPlanHeading",
+                                "source",
+                                "runtimePlatform",
+                                "runtimeService",
+                                "runtimeStartup",
+                                "runtimeIdentity",
+                                "showExecutionPlan",
+                                "showSource",
+                                "showRuntime",
+                                "showOptionalDetails",
+                            )
+                        properties
+                            .getValue("executionPlanHeading")
+                            .jsonPrimitive.content shouldBe "execution plan heading"
+                        properties
+                            .getValue("showExecutionPlan")
+                            .jsonPrimitive.content shouldBe "show execution plan"
+                    }
                 root.getValue("CI_STEP_SLOT_NAME_PREFIX").jsonPrimitive.content shouldBe "step"
-                root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "20"
+                root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
+                root.getValue("CI_PHASE_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
+                root.getValue("CI_OUTCOME_SLOT_COUNT").jsonPrimitive.content shouldBe "4"
                 root
                     .getValue("CI_ICON_ENVIRONMENTS")
                     .jsonArray
@@ -102,12 +132,22 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "CI_CONNECTOR_LABEL_NAME",
                 "CI_CONNECTOR_TEMPLATE_SECTION_ID",
                 "CI_NODE_PROPS",
+                "CI_NODE_PHASE_CONTAINER_NAME",
+                "CI_PHASE_COMPONENT_ID",
+                "CI_PHASE_SLOT_NAME_PREFIX",
+                "CI_PHASE_SLOT_COUNT",
+                "CI_PHASE_PROPS",
+                "CI_PHASE_STEP_CONTAINER_NAME",
                 "CI_STEP_COMPONENT_SET_ID",
                 "CI_STEP_SLOT_NAME_PREFIX",
                 "CI_STEP_SLOT_COUNT",
                 "CI_STEP_ROLES",
-                "CI_STEP_LEVELS",
                 "CI_STEP_PROPS",
+                "CI_OUTCOME_COMPONENT_SET_ID",
+                "CI_OUTCOME_SLOT_NAME_PREFIX",
+                "CI_OUTCOME_SLOT_COUNT",
+                "CI_OUTCOME_KINDS",
+                "CI_OUTCOME_PROPS",
                 "VERSIONS_COLLECTION_NAME",
                 "VERSIONS_COLLECTION_NAMES",
                 "VERSION_ALIAS_MODE_NAME",

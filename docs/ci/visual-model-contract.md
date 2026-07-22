@@ -12,7 +12,7 @@ The parent Figma section is named:
 Continuous Integration and Design Documentation
 ```
 
-It contains two levels of detail:
+It contains five sections grouped into two reading levels:
 
 1. `Overview`
 2. `Pull Request Integration`
@@ -112,33 +112,60 @@ do not break them. Literal command content remains in the linked TeamCity DSL.
 
 ### Gradle Task Display
 
-The visual model uses two complementary components:
+The visual model uses four composable components:
 
 | Component | Reading purpose |
 |-----------|-----------------|
 | `.ci node` | Identifies the actor, system, pipeline, job, artifact, check, or gate and summarizes its responsibility. |
-| `.ci step` | Explains the ordered work performed by a job, including nested Gradle tasks, selection decisions, conditions, and published outcomes. |
+| `.ci phase` | Represents one ordered TeamCity build step and owns its Gradle-task detail. |
+| `.ci step` | Represents a Gradle action, runtime decision, or compact task group inside one phase. |
+| `.ci outcome` | Represents a published artifact or GitHub check after successful job execution. |
 
-The Kotlin visual plan owns a typed `steps` array for every node. Each entry
-contains an order, role, level, title, and optional technical identifier,
-description, and condition. The `.ci node` component reserves exactly 20
-exposed `.ci step` instances named `step 01` through `step 20`. The master
-component keeps every slot visible so its complete capacity and composition can
-be inspected. Generated instances reveal only the slots required by the node
-and hide the unused slots. A plan that needs more than 20 steps fails before
-Figma is mutated; split that node into a clearer visual boundary instead of
-silently dropping work.
+The semantic composition is `.ci node` -> `.ci phase` -> `.ci step`, with
+`.ci outcome` as a sibling result under `.ci node`. The Figma layout places
+phases inside the node's transparent `execution plan` frame and steps inside
+the phase's transparent `steps` frame. These frames add layout structure, not
+execution levels. Outcomes are not steps because they describe externally
+observable results rather than work executed inside a TeamCity phase.
 
-Generated job nodes in the pull-request and post-merge flow sections receive an
-empty `steps` array. Only their matching nodes in `ci.jobTasks` receive and
-display the executable detail. Do not duplicate visible task slots across both
-reading layers.
+The Kotlin visual plan uses schema version `3`. Every node owns typed `phases`
+and `outcomes` arrays. A phase contains its order, title, optional technical
+identifier and description, plus a typed `steps` array. A step contains an
+order, role, title, and optional technical identifier, description, and
+condition. An outcome replaces `role` with `kind` and otherwise uses the same
+display metadata.
 
-The component orders its content as summary, executable steps, then optional
-runtime and source details. The `show optional details` boolean collapses that
-last container when both kinds of context are hidden. The legacy `.ci node`
-`Steps` text property remains part of the component API for compatibility, but
-generated nodes hide it; it is not a second source of step content.
+The stable capacity is:
+
+| Owner | Slot container | Exposed slots | Capacity |
+|-------|----------------|---------------|----------|
+| `.ci node` | `execution plan` | `phase 01` through `phase 08` | 8 phases |
+| `.ci phase` | `steps` | `step 01` through `step 08` | 8 steps per phase |
+| `.ci node` | Node root | `outcome 01` through `outcome 04` | 4 outcomes |
+
+Every slot is visible in its master component so maintainers can inspect the
+complete composition. Generated instances reveal only populated slots and hide
+the remainder. Plans that exceed a capacity fail before Figma is mutated; split
+the job or phase into a clearer visual boundary instead of dropping work.
+
+Every property-backed field and optional section is also visible by default in
+each master component and every master variant. Master visibility booleans use
+`true` so the component surface documents its complete public contract. Only
+instances may hide fields or sections according to their model data; the writer
+must set those instance visibility properties explicitly instead of treating a
+hidden master default as presentation policy.
+
+Generated job nodes in the pull-request and post-merge flow sections receive
+empty `phases` and `outcomes` arrays. Only their matching nodes in `ci.jobTasks`
+receive and display executable detail. Do not duplicate the hierarchy across
+both reading layers.
+
+The node orders its content as summary, `execution plan`, outcomes, then
+optional runtime and source details. `execution plan heading` supplies the
+visible `Execution plan` label and `show execution plan` hides the complete
+frame when a node has no phases. The `show optional details` boolean collapses
+the final details container when both kinds of context are hidden. The
+component does not expose the obsolete `steps` or `show steps` properties.
 
 Use the step variants consistently:
 
@@ -146,18 +173,18 @@ Use the step variants consistently:
 |--------------|-------|---------|
 | `role` | `action` | Work executed by TeamCity or Gradle. |
 | `role` | `decision` | A runtime selection or branch in the verification plan. |
-| `role` | `outcome` | An artifact or check published after successful execution. |
-| `level` | `phase` | A top-level TeamCity step or job outcome. |
-| `level` | `nested` | A Gradle task or decision expanded from a TeamCity phase. |
+| `role` | `group` | A compact family of tasks selected by the same impact rule. |
 
-These are the only hierarchy levels. Do not add a third nesting variant; split
-the visual node into a clearer boundary when a flow needs deeper decomposition.
-Every `.ci step` renders as a compact horizontal row with the order badge first
-and one flexible content column. Phase variants use labels such as
-`ACTION · PHASE`. Nested variants use the `.ci icon` Gradle elephant and a label
-such as `GRADLE TASK · ACTION`, then identify the executable entry point with
-`TASK` instead of the generic `ID`. This makes the technology explicit without
-adding another hierarchy row.
+`.ci outcome` has the independent `kind` variants `artifact` and `check`.
+There is no `level` variant: component composition owns hierarchy. Do not nest
+another `.ci step` inside a step. Split the phase when a third execution level
+would otherwise be needed.
+
+Every `.ci step` renders as a compact horizontal Gradle row with the order badge
+first, the Gradle icon, and one flexible content column. It identifies the
+executable entry point with `TASK`. `.ci phase` supplies the TeamCity context;
+`.ci outcome` supplies the result context without pretending either is a Gradle
+task.
 
 The environment icon in the `.ci node` header describes the owner of the whole
 node. A TeamCity job therefore remains `environment=teamcity` even when its
@@ -169,30 +196,44 @@ provide separation from adjacent steps. The condition metadata is borderless as
 well; it remains identifiable through the `WHEN` label instead of another
 outlined container.
 
-Phase orders use two digits, such as `01` and `02`. Nested orders extend their
-parent phase, such as `02.1`. Nested actions emphasize a human-readable title,
-the exact task identifier, and any execution condition; their longer
-description remains in the versioned plan but is hidden in Figma to keep large
-jobs scannable. Decisions and outcomes retain their description because it
-explains why the branch exists or what downstream contract is produced.
+Render `.ci phase` as a transparent section rather than a filled card around
+its steps. Its header uses `md/sys/color/primary-container` with 8 px padding;
+the transparent `steps` frame uses 16 px left padding and 8 px row spacing.
+`.ci step` rows use `md/sys/color/surface-container-highest` with 4 px padding,
+while `.ci outcome` uses `md/sys/color/secondary-container` with 6 px padding.
+This token and spacing boundary distinguishes TeamCity phases, Gradle detail,
+and published results without creating a card-inside-card hierarchy.
+
+Phase and outcome orders use two digits, such as `01` and `04`. Step orders
+extend their parent phase, such as `03.1`. Actions emphasize a human-readable
+title, exact task identifier, and execution condition; their longer description
+remains in the versioned plan but is hidden in Figma. Decisions, groups, and
+outcomes retain their descriptions because they explain selection or downstream
+contracts.
 
 Exact task identifiers make failures traceable to their executable source
 while the linked files remain authoritative for arguments and implementation
 details. The model does not add a Gradle icon or expand third-party task
 internals.
 
-The pull request `Verify` job shows:
+The pull request `Verify` job shows three phases and two outcomes. `Generate
+verification plan` contains:
 
 - `prepareTeamCityCiPlan` and its `generateCiPlan` dependency;
+
+`Run planned Gradle checks` contains:
+
 - `ci.plan.gradleTasks` as a dynamic selection boundary;
-- the always-required `checkGitWorkflow` and `checkDocumentation` tasks;
-- `checkRepositoryDiff` for documentation-only changes;
-- `checkTeamCityDsl` plus `check` for TeamCity changes;
-- affected `:<module>:check` tasks plus `checkFigmaCatalogUsage` when the module
-  graph permits targeted verification;
-- `check` as the fail-closed fallback;
-- the repository-owned checks, including `checkKotlinStyle`, and
-  the included-build aggregate wired into the root `check` lifecycle.
+- an `Always` group for `checkGitWorkflow` and `checkDocumentation`;
+- an `According to changes` group for `checkRepositoryDiff`, `checkTeamCityDsl`,
+  affected `:<module>:check` tasks, and `checkFigmaCatalogUsage`;
+- a `Full verification` group for root `check`, including Kotlin style,
+  catalogs, versions, CI freshness, and `verification-platform` verification.
+
+The sibling outcomes publish `build/reports/ci` as an artifact and `TeamCity CI`
+as a GitHub check. Grouping avoids presenting mutually exclusive or
+dependency-expanded tasks as repeated linear work while preserving their exact
+identifiers in the versioned plan.
 
 The post-merge Figma jobs show the exact phased task entry points. A condition
 named `Full Figma verification` means the task executes only when the validated

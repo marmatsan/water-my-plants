@@ -11,9 +11,15 @@ import {
   CI_ICON_ENVIRONMENTS,
   CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
+  CI_NODE_PHASE_CONTAINER_NAME,
   CI_NODE_PROPS,
+  CI_OUTCOME_COMPONENT_SET_ID,
+  CI_OUTCOME_KINDS,
+  CI_OUTCOME_PROPS,
+  CI_PHASE_COMPONENT_ID,
+  CI_PHASE_PROPS,
+  CI_PHASE_STEP_CONTAINER_NAME,
   CI_STEP_COMPONENT_SET_ID,
-  CI_STEP_LEVELS,
   CI_STEP_PROPS,
   CI_STEP_ROLES,
   CI_VISUAL_TARGET_NAMES,
@@ -52,6 +58,14 @@ import {
   ciStepSlotNames,
   hasCiStepSlotNamePrefix,
 } from "./ci-step-slot-contract";
+import {
+  ciPhaseSlotNames,
+  hasCiPhaseSlotNamePrefix,
+} from "./ci-phase-slot-contract";
+import {
+  ciOutcomeSlotNames,
+  hasCiOutcomeSlotNamePrefix,
+} from "./ci-outcome-slot-contract";
 import { filterModelRoots } from "./figma-catalog-tree-sync-gateway";
 import {
   requireComponent,
@@ -110,17 +124,59 @@ async function checkCiDocumentationContract(
   const component = await requireComponent(CI_NODE_COMPONENT_ID);
   requireComponentProperty(component, CI_NODE_PROPS.name, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.description, "TEXT");
-  requireComponentProperty(component, CI_NODE_PROPS.steps, "TEXT");
+  requireComponentProperty(component, CI_NODE_PROPS.executionPlanHeading, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.source, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.runtimePlatform, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.runtimeService, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.runtimeStartup, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.runtimeIdentity, "TEXT");
-  requireComponentProperty(component, CI_NODE_PROPS.showSteps, "BOOLEAN");
+  requireComponentProperty(component, CI_NODE_PROPS.showExecutionPlan, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showRuntime, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showOptionalDetails, "BOOLEAN");
+  requireMissingComponentProperty(component, "steps");
+  requireMissingComponentProperty(component, "show steps");
   checkedComponents.push(`${component.name}:${component.id}`);
+
+  const executionPlan = requireDirectFrame(
+    component,
+    CI_NODE_PHASE_CONTAINER_NAME,
+    ".ci node"
+  );
+  requireComponentPropertyReference(
+    executionPlan,
+    "visible",
+    CI_NODE_PROPS.showExecutionPlan,
+    ".ci node execution plan"
+  );
+  const executionPlanHeading = requireDirectFrame(
+    executionPlan,
+    CI_NODE_PROPS.executionPlanHeading,
+    ".ci node execution plan"
+  );
+  const executionPlanHeadingTexts = executionPlanHeading.findAllWithCriteria({ types: ["TEXT"] })
+    .filter((text) => text.name === CI_NODE_PROPS.executionPlanHeading);
+  if (executionPlanHeadingTexts.length !== 1) {
+    throw new Error(
+      `Execution plan heading '${executionPlanHeading.id}' must contain exactly one ` +
+        `'${CI_NODE_PROPS.executionPlanHeading}' text layer; found ${executionPlanHeadingTexts.length}.`
+    );
+  }
+  requireComponentPropertyReference(
+    executionPlanHeadingTexts[0],
+    "characters",
+    CI_NODE_PROPS.executionPlanHeading,
+    ".ci node execution plan heading"
+  );
+
+  const phaseComponent = await requireComponent(CI_PHASE_COMPONENT_ID);
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.order, "TEXT");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.title, "TEXT");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.technicalId, "TEXT");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.description, "TEXT");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showTechnicalId, "BOOLEAN");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showDescription, "BOOLEAN");
+  checkedComponents.push(`${phaseComponent.name}:${phaseComponent.id}`);
 
   const stepSet = await requireComponentSet(CI_STEP_COMPONENT_SET_ID);
   requireComponentProperty(stepSet, CI_STEP_PROPS.order, "TEXT");
@@ -137,53 +193,55 @@ async function checkCiDocumentationContract(
     expectedOptions: CI_STEP_ROLES,
     label: "CI step roles",
   });
-  requireExactVariantOptions({
-    node: stepSet,
-    propertyName: CI_STEP_PROPS.level,
-    expectedOptions: CI_STEP_LEVELS,
-    label: "CI step levels",
-  });
+  requireMissingComponentProperty(stepSet, "level");
   checkedComponents.push(`${stepSet.name}:${stepSet.id}`);
 
-  const expectedStepSlotNames = ciStepSlotNames();
-  const stepSlots = component.children.filter(
-    (candidate) => candidate.type === "INSTANCE" && hasCiStepSlotNamePrefix(candidate.name)
-  ) as InstanceNode[];
-  const actualStepSlotNames = stepSlots.map((slot) => slot.name);
-  const missingStepSlotNames = expectedStepSlotNames.filter(
-    (name) => !actualStepSlotNames.includes(name)
+  const outcomeSet = await requireComponentSet(CI_OUTCOME_COMPONENT_SET_ID);
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.order, "TEXT");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.title, "TEXT");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.technicalId, "TEXT");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.description, "TEXT");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.condition, "TEXT");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.showTechnicalId, "BOOLEAN");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.showDescription, "BOOLEAN");
+  requireComponentProperty(outcomeSet, CI_OUTCOME_PROPS.showCondition, "BOOLEAN");
+  requireExactVariantOptions({
+    node: outcomeSet,
+    propertyName: CI_OUTCOME_PROPS.kind,
+    expectedOptions: CI_OUTCOME_KINDS,
+    label: "CI outcome kinds",
+  });
+  checkedComponents.push(`${outcomeSet.name}:${outcomeSet.id}`);
+
+  await requireExactReservedSlots({
+    owner: executionPlan,
+    expectedNames: ciPhaseSlotNames(),
+    hasNamePrefix: hasCiPhaseSlotNamePrefix,
+    label: "CI phase",
+    matchesComponent: async (slot) => (await slot.getMainComponentAsync())?.id === phaseComponent.id,
+    expectedComponentLabel: `component '${phaseComponent.id}'`,
+  });
+  await requireExactReservedSlots({
+    owner: component,
+    expectedNames: ciOutcomeSlotNames(),
+    hasNamePrefix: hasCiOutcomeSlotNamePrefix,
+    label: "CI outcome",
+    matchesComponent: async (slot) => (await slot.getMainComponentAsync())?.parent?.id === outcomeSet.id,
+    expectedComponentLabel: `component set '${outcomeSet.id}'`,
+  });
+  const phaseSteps = requireDirectFrame(
+    phaseComponent,
+    CI_PHASE_STEP_CONTAINER_NAME,
+    ".ci phase"
   );
-  const unexpectedStepSlotNames = actualStepSlotNames.filter(
-    (name) => !expectedStepSlotNames.includes(name)
-  );
-  const duplicateStepSlotNames = expectedStepSlotNames.filter(
-    (name) => actualStepSlotNames.filter((actualName) => actualName === name).length > 1
-  );
-  if (
-    stepSlots.length !== expectedStepSlotNames.length ||
-    missingStepSlotNames.length > 0 ||
-    unexpectedStepSlotNames.length > 0 ||
-    duplicateStepSlotNames.length > 0
-  ) {
-    throw new Error(
-      `.ci node '${component.id}' must contain the exact reserved CI step slots. ` +
-        `Missing: ${missingStepSlotNames.join(", ") || "none"}. ` +
-        `Unexpected: ${unexpectedStepSlotNames.join(", ") || "none"}. ` +
-        `Duplicated: ${duplicateStepSlotNames.join(", ") || "none"}.`
-    );
-  }
-  for (const slot of stepSlots) {
-    if (!slot.isExposedInstance) {
-      throw new Error(`CI step slot '${slot.name}' in .ci node '${component.id}' must be exposed.`);
-    }
-    const mainStepComponent = await slot.getMainComponentAsync();
-    if (!mainStepComponent || mainStepComponent.parent?.id !== stepSet.id) {
-      throw new Error(
-        `CI step slot '${slot.name}' in .ci node '${component.id}' must belong to ` +
-          `component set '${stepSet.id}'.`
-      );
-    }
-  }
+  await requireExactReservedSlots({
+    owner: phaseSteps,
+    expectedNames: ciStepSlotNames(),
+    hasNamePrefix: hasCiStepSlotNamePrefix,
+    label: "CI step",
+    matchesComponent: async (slot) => (await slot.getMainComponentAsync())?.parent?.id === stepSet.id,
+    expectedComponentLabel: `component set '${stepSet.id}'`,
+  });
 
   const iconSet = await requireComponentSet(CI_ICON_COMPONENT_SET_ID);
   const nestedIcons = component.findAllWithCriteria({ types: ["INSTANCE"] })
@@ -236,6 +294,72 @@ async function checkCiDocumentationContract(
   }
   checkedVariables.push(collection.name);
   checkedTargets.push(...requestedTargets);
+}
+
+function requireDirectFrame(
+  owner: ComponentNode | FrameNode,
+  frameName: string,
+  ownerLabel: string
+): FrameNode {
+  const frames = owner.children.filter(
+    (candidate) => candidate.type === "FRAME" && candidate.name === frameName
+  ) as FrameNode[];
+  if (frames.length !== 1) {
+    throw new Error(
+      `${ownerLabel} '${owner.id}' must contain exactly one direct '${frameName}' frame; ` +
+        `found ${frames.length}.`
+    );
+  }
+  return frames[0];
+}
+
+async function requireExactReservedSlots({
+  owner,
+  expectedNames,
+  hasNamePrefix,
+  label,
+  matchesComponent,
+  expectedComponentLabel,
+}: {
+  owner: ComponentNode | FrameNode;
+  expectedNames: string[];
+  hasNamePrefix: (name: string) => boolean;
+  label: string;
+  matchesComponent: (slot: InstanceNode) => Promise<boolean>;
+  expectedComponentLabel: string;
+}) {
+  const slots = owner.children.filter(
+    (candidate) => candidate.type === "INSTANCE" && hasNamePrefix(candidate.name)
+  ) as InstanceNode[];
+  const actualNames = slots.map((slot) => slot.name);
+  const missingNames = expectedNames.filter((name) => !actualNames.includes(name));
+  const unexpectedNames = actualNames.filter((name) => !expectedNames.includes(name));
+  const duplicateNames = expectedNames.filter(
+    (name) => actualNames.filter((actualName) => actualName === name).length > 1
+  );
+  if (
+    slots.length !== expectedNames.length ||
+    missingNames.length > 0 ||
+    unexpectedNames.length > 0 ||
+    duplicateNames.length > 0
+  ) {
+    throw new Error(
+      `${label} owner '${owner.id}' must contain the exact reserved slots. ` +
+        `Missing: ${missingNames.join(", ") || "none"}. ` +
+        `Unexpected: ${unexpectedNames.join(", ") || "none"}. ` +
+        `Duplicated: ${duplicateNames.join(", ") || "none"}.`
+    );
+  }
+  for (const slot of slots) {
+    if (!slot.isExposedInstance) {
+      throw new Error(`${label} slot '${slot.name}' in '${owner.id}' must be exposed.`);
+    }
+    if (!await matchesComponent(slot)) {
+      throw new Error(
+        `${label} slot '${slot.name}' in '${owner.id}' must belong to ${expectedComponentLabel}.`
+      );
+    }
+  }
 }
 
 async function checkHeaderContract(checkedComponents, checkedSections) {
@@ -460,6 +584,33 @@ function requireComponentProperty(node: any, propertyName: string, propertyType:
     );
   }
   return propertyEntry[1] as any;
+}
+
+function requireMissingComponentProperty(node: any, propertyName: string) {
+  const expectedName = componentPropertyName(propertyName);
+  const actualName = Object.keys(componentPropertiesForPreflight(node))
+    .map(componentPropertyName)
+    .find((name) => name === expectedName);
+  if (actualName) {
+    throw new Error(
+      `Node '${node.id}' must not expose obsolete component property '${expectedName}'.`
+    );
+  }
+}
+
+function requireComponentPropertyReference(
+  node: any,
+  field: "characters" | "visible",
+  propertyName: string,
+  label: string
+) {
+  const reference = node.componentPropertyReferences?.[field];
+  if (!reference || componentPropertyName(reference) !== componentPropertyName(propertyName)) {
+    throw new Error(
+      `${label} '${node.id}' must bind '${field}' to component property ` +
+        `'${componentPropertyName(propertyName)}'.`
+    );
+  }
 }
 
 function requireExactVariantOptions({
