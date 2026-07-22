@@ -49,14 +49,14 @@ internal class CiVisualPlannerTest :
                     listOf(
                         CiVisualPlan.Orientation.HORIZONTAL,
                         CiVisualPlan.Orientation.HORIZONTAL,
-                        CiVisualPlan.Orientation.HORIZONTAL,
+                        CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
                     )
             }
 
-            test("keeps post-merge jobs compact and connects the canonical model flow") {
+            test("keeps post-merge jobs compact and represents the complete verification loop") {
                 val section =
                     planner
                         .create(
@@ -70,27 +70,50 @@ internal class CiVisualPlannerTest :
                 section.nodes
                     .filter { node -> node.type == CiVisualPlan.Type.JOB }
                     .flatMap(CiVisualPlan.Node::phases) shouldBe emptyList()
-                section.nodes
-                    .filter { node -> node.type == CiVisualPlan.Type.JOB }
-                    .flatMap(CiVisualPlan.Node::outcomes) shouldBe emptyList()
-                section.connections
-                    .filter {
-                        it.id in
-                            setOf(
-                                "pipeline-generate",
-                                "generate-artifact",
-                                "artifact-check",
-                            )
-                    }.map { it.source to it.target } shouldContainExactly
+                val checkNode = section.nodes.single { node -> node.id == "job-check" }
+                checkNode.outcomes.map(CiVisualPlan.Outcome::kind) shouldContainExactly
                     listOf(
-                        "pipeline-Root_FigmaSync" to "job-generate",
-                        "job-generate" to "design-model",
-                        "design-model" to "job-check",
+                        CiVisualPlan.OutcomeKind.SUCCESS,
+                        CiVisualPlan.OutcomeKind.ACTION,
                     )
-                section.connections
-                    .map(
-                        transform = CiVisualPlan.Connection::label,
-                    ).contains("Rerun via HTTPS client") shouldBe true
+                checkNode.outcomes.map(CiVisualPlan.Outcome::title) shouldContainExactly
+                    listOf(
+                        "Metadata matches",
+                        "Visual sync required",
+                    )
+                section.nodes
+                    .sortedWith(
+                        compareBy(
+                            CiVisualPlan.Node::row,
+                            CiVisualPlan.Node::column,
+                        ),
+                    ).map(CiVisualPlan.Node::id) shouldContainExactly
+                    listOf(
+                        "main",
+                        "pipeline-Root_FigmaSync",
+                        "job-generate",
+                        "design-model",
+                        "job-check",
+                        "rerun-teamcity-figma-sync",
+                        "figma-document",
+                        "codex",
+                        "operator",
+                    )
+                section.connections.map { connection ->
+                    "${connection.source} -> ${connection.target}: ${connection.label}"
+                } shouldContainExactly
+                    listOf(
+                        "main -> pipeline-Root_FigmaSync: After Root_Ci succeeds",
+                        "pipeline-Root_FigmaSync -> job-generate: Run pipeline",
+                        "job-generate -> design-model: Publish artifact",
+                        "design-model -> job-check: Compare canonical model",
+                        "figma-document -> job-check: Read current metadata",
+                        "job-check -> operator: Mismatch requires action",
+                        "operator -> codex: Prepare validated handoff",
+                        "codex -> figma-document: Write visuals first · metadata last",
+                        "figma-document -> rerun-teamcity-figma-sync: Run secure rerun",
+                        "rerun-teamcity-figma-sync -> pipeline-Root_FigmaSync: Queue complete pipeline",
+                    )
             }
 
             test("documents exact post-merge Gradle tasks in the separate job tasks section") {

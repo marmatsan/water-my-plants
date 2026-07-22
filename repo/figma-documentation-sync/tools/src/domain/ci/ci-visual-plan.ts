@@ -47,7 +47,11 @@ export type CiVisualPhase = {
   steps: CiVisualStep[];
 };
 
-export type CiVisualOutcomeKind = "artifact" | "check";
+export type CiVisualOutcomeKind =
+  | "artifact"
+  | "check"
+  | "success"
+  | "action";
 
 export type CiVisualOutcome = {
   order: string;

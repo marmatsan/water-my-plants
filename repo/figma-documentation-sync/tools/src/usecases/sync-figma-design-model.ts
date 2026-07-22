@@ -226,7 +226,7 @@ function isCiVisualOutcome(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   const outcome = value as Record<string, unknown>;
   return typeof outcome.order === "string" &&
-    ["artifact", "check"].includes(String(outcome.kind)) &&
+    ["artifact", "check", "success", "action"].includes(String(outcome.kind)) &&
     typeof outcome.title === "string" &&
     isOptionalString(outcome.technicalId) &&
     isOptionalString(outcome.description) &&

@@ -233,6 +233,30 @@ test("CI outcome properties expose a published check", () => {
   );
 });
 
+test("CI outcome properties expose an action-required decision", () => {
+  assert.deepEqual(
+    ciOutcomePropertyValues({
+      order: "02",
+      kind: "action",
+      title: "Visual sync required",
+      technicalId: "modelHash · writerHash · fingerprints",
+      description: "Hands control to the supervised visual synchronization loop.",
+      condition: "Canonical metadata differs",
+    }),
+    {
+      order: "02",
+      kind: "action",
+      title: "Visual sync required",
+      technicalId: "modelHash · writerHash · fingerprints",
+      description: "Hands control to the supervised visual synchronization loop.",
+      condition: "Canonical metadata differs",
+      showTechnicalId: true,
+      showDescription: true,
+      showCondition: true,
+    }
+  );
+});
+
 test("CI connector labels stay horizontal and centered in a vertical gap", () => {
   assert.deepEqual(
     connectorLabelPosition(
