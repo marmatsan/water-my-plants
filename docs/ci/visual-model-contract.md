@@ -321,15 +321,21 @@ The current Figma process must be shown as a loop, not as an automatic TeamCity
 write:
 
 ```text
-Generate main design model
-  -> design-model.json
-  -> Check Figma trunk sync
-  -> mismatch
-  -> Operator
-  -> Codex/MCP client
-  -> Figma Design Document
-  -> Kotlin TeamCity rerun task
-  -> Check Figma trunk sync
+main
+  -> Figma Sync pipeline
+  -> Generate main design model
+  -> design-model.json -----------------------------+
+                                                       |
+Figma Design Document -> current metadata -------------+
+                                                       v
+                                            Check Figma trunk sync
+                                              |-- Metadata matches -> success
+                                              `-- Visual sync required
+                                                    -> Operator
+                                                    -> Codex/MCP client
+                                                    -> Figma Design Document
+                                                    -> rerunTeamCityFigmaSync
+                                                    -> Figma Sync pipeline
 ```
 
 The first three nodes are derived from TeamCity artifact publication and job
@@ -338,12 +344,20 @@ contains `design-model.json` and must create the same visual edge as publishing
 the file explicitly. None of these generation, artifact, or verification nodes
 may remain isolated.
 
+`Check Figma trunk sync` has two direct `.ci outcome` children. `Metadata
+matches` is a terminal success signal. `Visual sync required` is the decision
+that enters the supervised operator loop. These are internal job results, not
+GitHub checks: the planner must derive them from the canonical verification job
+itself and must not depend on an optional `publishedChecks` configuration.
+
 The rerun uses the repository-owned Kotlin Gradle task. It exchanges the
 Cloudflare service credential for a short-lived raw `cf-access-token` and
 delegates active-run checks and waiting to `teamcity.exe`. Queueing uses a
 cookie-free Kotlin REST adapter with dedicated Bearer authentication and no
 redirect following. This keeps Cloudflare's session cookie out of TeamCity's
-CSRF check. The TeamCity UI remains the recovery interface. The
+CSRF check. The rerun queues the complete `Figma Sync` pipeline, so canonical
+generation and metadata verification execute again; it does not jump directly
+to the check job. The TeamCity UI remains the recovery interface. The
 repository-owned handoff downloads and validates the canonical artifact, then
 selects the next checkpoint unit without writing Figma. It is represented as a
 technical annotation on the handoff connection, not as another domain artifact.

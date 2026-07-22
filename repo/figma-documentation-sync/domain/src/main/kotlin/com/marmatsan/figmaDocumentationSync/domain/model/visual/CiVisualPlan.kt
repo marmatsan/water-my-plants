@@ -123,5 +123,7 @@ data class CiVisualPlan(
     ) {
         ARTIFACT("artifact"),
         CHECK("check"),
+        SUCCESS("success"),
+        ACTION("action"),
     }
 }

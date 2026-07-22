@@ -477,7 +477,12 @@ class CiVisualPlanner {
                 pipeline.jobs.filter { job ->
                     job.id != artifactJob?.id && job.id != checkJob?.id
                 }
-        val jobRows = orderedJobs.mapIndexed { index, job -> job.id to 2 + index * 2 }.toMap()
+        val jobColumns =
+            orderedJobs
+                .mapIndexed { index, job ->
+                    job.id to 2 + index * 2
+                }.toMap()
+        val checkColumn = checkJob?.let { jobColumns.getValue(it.id) } ?: 4
         val nodes =
             mutableListOf(
                 visualNode(
@@ -494,64 +499,63 @@ class CiVisualPlanner {
                 pipelineNode(
                     id = "pipeline-${pipeline.id}",
                     pipeline = pipeline,
-                    row = 1,
-                    column = 0,
+                    row = 0,
+                    column = 1,
                     config = config,
                 ),
             )
-        pipeline.jobs.forEachIndexed { index, job ->
-            nodes +=
+        orderedJobs.forEach { job ->
+            val node =
                 jobNode(
                     id = "job-${job.id}",
                     job = job,
-                    row = jobRows[job.id] ?: 2 + index * 2,
-                    column = 0,
+                    row = 0,
+                    column = jobColumns.getValue(job.id),
                     config = config,
                 )
+            nodes +=
+                if (job.id == checkJob?.id) {
+                    node.copy(
+                        outcomes = postMergeCheckOutcomes(),
+                    )
+                } else {
+                    node
+                }
         }
-        val artifactRow = artifactJob?.let { (jobRows[it.id] ?: 2) + 1 } ?: 2
-        nodes +=
-            visualNode(
-                id = "design-model",
-                type = CiVisualPlan.Type.ARTIFACT,
-                environment = CiVisualPlan.Environment.JSON,
-                name = "design-model.json",
-                description = "Canonical repository snapshot consumed by visual synchronization.",
-                source = config.teamCitySource,
-                row = artifactRow,
-                column = 0,
-                config = config,
-            )
-        val checkRow =
-            maxOf(
-                2 + pipeline.jobs.size * 2,
-                nodes.maxOf { node -> node.row + 1 },
-            )
-        val checks =
-            publishedChecks(
-                pipeline = pipeline,
-            )
-        checks.forEachIndexed { index, check ->
+        artifactJob?.let { job ->
             nodes +=
                 visualNode(
-                    id = "figma-check-$index",
-                    type = CiVisualPlan.Type.CHECK,
-                    environment = CiVisualPlan.Environment.TEAMCITY,
-                    name = check,
-                    description = "Publishes the post-merge documentation result.",
+                    id = "design-model",
+                    type = CiVisualPlan.Type.ARTIFACT,
+                    environment = CiVisualPlan.Environment.JSON,
+                    name = "design-model.json",
+                    description = "Canonical repository snapshot consumed by visual synchronization.",
                     source = config.teamCitySource,
-                    row = checkRow,
-                    column = index,
+                    row = 0,
+                    column = jobColumns.getValue(job.id) + 1,
                     config = config,
                 )
         }
-        operator?.let {
+        nodes +=
+            visualNode(
+                id = "rerun-teamcity-figma-sync",
+                type = CiVisualPlan.Type.SYSTEM,
+                environment = CiVisualPlan.Environment.GRADLE,
+                name = "rerunTeamCityFigmaSync",
+                description =
+                    "Authenticates through Cloudflare, queues the complete Figma Sync pipeline, and waits for success.",
+                source = config.canonicalSyncSource,
+                row = 1,
+                column = 1,
+                config = config,
+            )
+        figmaDocument?.let {
             nodes +=
                 externalNode(
-                    id = "operator",
+                    id = "figma-document",
                     node = it,
-                    row = checkRow + 1,
-                    column = 0,
+                    row = 1,
+                    column = checkColumn - 2,
                     config = config,
                 )
         }
@@ -560,18 +564,18 @@ class CiVisualPlanner {
                 externalNode(
                     id = "codex",
                     node = it,
-                    row = checkRow + 2,
-                    column = 0,
+                    row = 1,
+                    column = checkColumn - 1,
                     config = config,
                 )
         }
-        figmaDocument?.let {
+        operator?.let {
             nodes +=
                 externalNode(
-                    id = "figma-document",
+                    id = "operator",
                     node = it,
-                    row = checkRow + 3,
-                    column = 0,
+                    row = 1,
+                    column = checkColumn,
                     config = config,
                 )
         }
@@ -610,23 +614,23 @@ class CiVisualPlanner {
                     id = "artifact-check",
                     source = "design-model",
                     target = "job-${it.id}",
-                    label = "Consume artifact",
+                    label = "Compare canonical model",
                 )
         }
-        checks.forEachIndexed { index, _ ->
+        if (figmaDocument != null && checkJob != null) {
             connections +=
                 connection(
-                    id = "check-status-$index",
-                    source = checkJob?.let { "job-${it.id}" } ?: "pipeline-${pipeline.id}",
-                    target = "figma-check-$index",
-                    label = "Publish status",
+                    id = "figma-metadata-check",
+                    source = "figma-document",
+                    target = "job-${checkJob.id}",
+                    label = "Read current metadata",
                 )
         }
-        if (operator != null && checks.isNotEmpty()) {
+        if (operator != null && checkJob != null) {
             connections +=
                 connection(
-                    id = "mismatch-operator",
-                    source = "figma-check-0",
+                    id = "check-action",
+                    source = "job-${checkJob.id}",
                     target = "operator",
                     label = "Mismatch requires action",
                 )
@@ -637,7 +641,7 @@ class CiVisualPlanner {
                     id = "operator-codex",
                     source = "operator",
                     target = "codex",
-                    label = "Request visual synchronization",
+                    label = "Prepare validated handoff",
                 )
         }
         if (codex != null && figmaDocument != null) {
@@ -646,18 +650,25 @@ class CiVisualPlanner {
                     id = "codex-figma",
                     source = "codex",
                     target = "figma-document",
-                    label = "Apply visual changes",
+                    label = "Write visuals first · metadata last",
                 )
         }
-        if (figmaDocument != null && checkJob != null) {
+        if (figmaDocument != null) {
             connections +=
                 connection(
-                    id = "rerun",
+                    id = "figma-rerun",
                     source = "figma-document",
-                    target = "job-${checkJob.id}",
-                    label = "Rerun via HTTPS client",
+                    target = "rerun-teamcity-figma-sync",
+                    label = "Run secure rerun",
                 )
         }
+        connections +=
+            connection(
+                id = "rerun-pipeline",
+                source = "rerun-teamcity-figma-sync",
+                target = "pipeline-${pipeline.id}",
+                label = "Queue complete pipeline",
+            )
         return section(
             target = "ci.postMergeDesignDocumentation",
             name = "Post-merge Design Documentation",
@@ -667,7 +678,7 @@ class CiVisualPlanner {
                     config.teamCitySource,
                     config.canonicalSyncSource,
                 ),
-            orientation = CiVisualPlan.Orientation.HORIZONTAL,
+            orientation = CiVisualPlan.Orientation.GRID,
             nodes = nodes,
             connections = connections,
             config = config,
@@ -1066,6 +1077,26 @@ class CiVisualPlanner {
             }
         return artifacts + checks
     }
+
+    private fun postMergeCheckOutcomes(): List<CiVisualPlan.Outcome> =
+        listOf(
+            CiVisualPlan.Outcome(
+                order = "01",
+                kind = CiVisualPlan.OutcomeKind.SUCCESS,
+                title = "Metadata matches",
+                technicalId = "modelHash · writerHash · fingerprints",
+                description = "Confirms that the canonical model and visual writer state are current.",
+                condition = "Canonical metadata matches",
+            ),
+            CiVisualPlan.Outcome(
+                order = "02",
+                kind = CiVisualPlan.OutcomeKind.ACTION,
+                title = "Visual sync required",
+                technicalId = "modelHash · writerHash · fingerprints",
+                description = "Hands control to the supervised visual synchronization loop.",
+                condition = "Canonical metadata differs",
+            ),
+        )
 
     private fun formattedOrder(
         value: Int,

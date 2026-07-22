@@ -113,6 +113,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 listOf(
                     "artifact",
                     "check",
+                    "success",
+                    "action",
                 ),
             ciOutcomeProps =
                 mapOf(
