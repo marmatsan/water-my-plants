@@ -1,6 +1,8 @@
 import type { DesignModel, SyncFigmaDesignModelOptions, SyncTargetName } from "../domain/design-model";
 import {
   CATALOG_TREE_TARGETS,
+  CI_OUTCOME_SLOT_COUNT,
+  CI_PHASE_SLOT_COUNT,
   CI_STEP_SLOT_COUNT,
   CI_VISUAL_TARGET_NAMES,
 } from "@figma-documentation-sync/project-config";
@@ -159,8 +161,8 @@ function requireCiVisualPlan({
         "Generate it with the generateFigmaCiVisualPlan Gradle task."
     );
   }
-  if (plan.schemaVersion !== 2) {
-    throw new Error("CI visual sync requires ciVisualPlan schemaVersion 2.");
+  if (plan.schemaVersion !== 3) {
+    throw new Error("CI visual sync requires ciVisualPlan schemaVersion 3.");
   }
 
   for (const targetName of targetNames) {
@@ -172,17 +174,25 @@ function requireCiVisualPlan({
     }
     for (const node of sections[0].nodes) {
       if (
-        !Array.isArray(node.steps) ||
-        !node.steps.every(isCiVisualStep)
+        !Array.isArray(node.phases) ||
+        !node.phases.every(isCiVisualPhase) ||
+        !Array.isArray(node.outcomes) ||
+        !node.outcomes.every(isCiVisualOutcome)
       ) {
         throw new Error(
-          `CI visual node '${node.id}' in '${targetName}' must contain a typed steps array.`
+          `CI visual node '${node.id}' in '${targetName}' must contain typed phases and outcomes arrays.`
         );
       }
-      if (node.steps.length > CI_STEP_SLOT_COUNT) {
+      if (node.phases.length > CI_PHASE_SLOT_COUNT) {
         throw new Error(
-          `CI visual node '${node.id}' in '${targetName}' contains ${node.steps.length} steps, ` +
-            `but .ci node reserves only ${CI_STEP_SLOT_COUNT} slots.`
+          `CI visual node '${node.id}' in '${targetName}' contains ${node.phases.length} phases, ` +
+            `but .ci node reserves only ${CI_PHASE_SLOT_COUNT} slots.`
+        );
+      }
+      if (node.outcomes.length > CI_OUTCOME_SLOT_COUNT) {
+        throw new Error(
+          `CI visual node '${node.id}' in '${targetName}' contains ${node.outcomes.length} outcomes, ` +
+            `but .ci node reserves only ${CI_OUTCOME_SLOT_COUNT} slots.`
         );
       }
     }
@@ -193,12 +203,34 @@ function isCiVisualStep(value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
   const step = value as Record<string, unknown>;
   return typeof step.order === "string" &&
-    ["action", "decision", "outcome"].includes(String(step.role)) &&
-    ["phase", "nested"].includes(String(step.level)) &&
+    ["action", "decision", "group"].includes(String(step.role)) &&
     typeof step.title === "string" &&
     isOptionalString(step.technicalId) &&
     isOptionalString(step.description) &&
     isOptionalString(step.condition);
+}
+
+function isCiVisualPhase(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const phase = value as Record<string, unknown>;
+  return typeof phase.order === "string" &&
+    typeof phase.title === "string" &&
+    isOptionalString(phase.technicalId) &&
+    isOptionalString(phase.description) &&
+    Array.isArray(phase.steps) &&
+    phase.steps.length <= CI_STEP_SLOT_COUNT &&
+    phase.steps.every(isCiVisualStep);
+}
+
+function isCiVisualOutcome(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const outcome = value as Record<string, unknown>;
+  return typeof outcome.order === "string" &&
+    ["artifact", "check"].includes(String(outcome.kind)) &&
+    typeof outcome.title === "string" &&
+    isOptionalString(outcome.technicalId) &&
+    isOptionalString(outcome.description) &&
+    isOptionalString(outcome.condition);
 }
 
 function isOptionalString(value: unknown): boolean {

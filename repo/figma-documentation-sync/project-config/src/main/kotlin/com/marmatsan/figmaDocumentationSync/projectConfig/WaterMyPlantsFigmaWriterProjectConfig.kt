@@ -20,7 +20,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             projectDisplayName = "Water My Plants",
             mcpClientName = "water-my-plants-figma-sync",
             ciDocumentationPageId = "63153:2876",
-            ciNodeComponentId = "64301:3927",
+            ciNodeComponentId = "64670:3088",
             ciIconComponentSetId = "64361:716",
             ciVariableCollectionName = "ci/cd",
             ciVariableModeNames =
@@ -57,30 +57,39 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 mapOf(
                     "name" to "name",
                     "description" to "description",
-                    "steps" to "steps",
+                    "executionPlanHeading" to "execution plan heading",
                     "source" to "source",
                     "runtimePlatform" to "runtime platform",
                     "runtimeService" to "runtime service",
                     "runtimeStartup" to "runtime startup",
                     "runtimeIdentity" to "runtime identity",
-                    "showSteps" to "show steps",
+                    "showExecutionPlan" to "show execution plan",
                     "showSource" to "show source",
                     "showRuntime" to "show runtime",
                     "showOptionalDetails" to "show optional details",
                 ),
-            ciStepComponentSetId = "64583:1332",
+            ciNodePhaseContainerName = "execution plan",
+            ciPhaseComponentId = "64668:2944",
+            ciPhaseSlotNamePrefix = "phase",
+            ciPhaseSlotCount = 8,
+            ciPhaseProps =
+                mapOf(
+                    "order" to "order",
+                    "title" to "title",
+                    "technicalId" to "technical id",
+                    "description" to "description",
+                    "showTechnicalId" to "show technical id",
+                    "showDescription" to "show description",
+                ),
+            ciPhaseStepContainerName = "steps",
+            ciStepComponentSetId = "64665:2991",
             ciStepSlotNamePrefix = "step",
-            ciStepSlotCount = 20,
+            ciStepSlotCount = 8,
             ciStepRoles =
                 listOf(
                     "action",
                     "decision",
-                    "outcome",
-                ),
-            ciStepLevels =
-                listOf(
-                    "phase",
-                    "nested",
+                    "group",
                 ),
             ciStepProps =
                 mapOf(
@@ -93,7 +102,26 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showDescription" to "show description",
                     "showCondition" to "show condition",
                     "role" to "role",
-                    "level" to "level",
+                ),
+            ciOutcomeComponentSetId = "64669:3118",
+            ciOutcomeSlotNamePrefix = "outcome",
+            ciOutcomeSlotCount = 4,
+            ciOutcomeKinds =
+                listOf(
+                    "artifact",
+                    "check",
+                ),
+            ciOutcomeProps =
+                mapOf(
+                    "order" to "order",
+                    "title" to "title",
+                    "technicalId" to "technical id",
+                    "description" to "description",
+                    "condition" to "condition",
+                    "showTechnicalId" to "show technical id",
+                    "showDescription" to "show description",
+                    "showCondition" to "show condition",
+                    "kind" to "kind",
                 ),
             versionsCollectionName = "repo\\dependency-catalog\\versions.properties",
             versionAliasModeName = "Version alias",

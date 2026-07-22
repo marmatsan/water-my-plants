@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 export async function createProjectConfigBuildOptions(projectConfigJson) {
   const projectConfigPath = resolve(process.cwd(), projectConfigJson);
   const projectConfig = JSON.parse(await readFile(projectConfigPath, "utf8"));
-  if (projectConfig.schemaVersion !== 2) {
+  if (projectConfig.schemaVersion !== 3) {
     throw new Error(
       `Unsupported project config schema '${projectConfig.schemaVersion}' in ${projectConfigPath}.`
     );

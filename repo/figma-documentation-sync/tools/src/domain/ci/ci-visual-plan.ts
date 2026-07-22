@@ -18,7 +18,8 @@ export type CiVisualEnvironment =
   | "browser"
   | "terminal"
   | "operator"
-  | "json";
+  | "json"
+  | "gradle";
 
 export type CiVisualRuntime = {
   platform: string;
@@ -27,13 +28,30 @@ export type CiVisualRuntime = {
   identity: string;
 };
 
-export type CiVisualStepRole = "action" | "decision" | "outcome";
-export type CiVisualStepLevel = "phase" | "nested";
+export type CiVisualStepRole = "action" | "decision" | "group";
 
 export type CiVisualStep = {
   order: string;
   role: CiVisualStepRole;
-  level: CiVisualStepLevel;
+  title: string;
+  technicalId?: string;
+  description?: string;
+  condition?: string;
+};
+
+export type CiVisualPhase = {
+  order: string;
+  title: string;
+  technicalId?: string;
+  description?: string;
+  steps: CiVisualStep[];
+};
+
+export type CiVisualOutcomeKind = "artifact" | "check";
+
+export type CiVisualOutcome = {
+  order: string;
+  kind: CiVisualOutcomeKind;
   title: string;
   technicalId?: string;
   description?: string;
@@ -46,7 +64,8 @@ export type CiVisualNode = {
   environment: CiVisualEnvironment;
   name: string;
   description: string;
-  steps: CiVisualStep[];
+  phases: CiVisualPhase[];
+  outcomes: CiVisualOutcome[];
   runtime?: CiVisualRuntime;
   source: string;
   sourceUrl: string;
@@ -72,7 +91,7 @@ export type CiVisualSection = {
 };
 
 export type CiVisualPlan = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   parentName: "Continuous Integration and Design Documentation";
   sections: CiVisualSection[];
 };

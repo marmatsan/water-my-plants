@@ -77,9 +77,12 @@ class CiVisualPlanner {
                     pipeline = pipeline,
                 ).map { job -> pipeline to job }
             }.filter { (_, job) ->
-                visualSteps(
+                visualPhases(
                     job = job,
-                ).isNotEmpty()
+                ).isNotEmpty() ||
+                    visualOutcomes(
+                        job = job,
+                    ).isNotEmpty()
             }.mapIndexed { index, (pipeline, job) ->
                 jobTaskNode(
                     id = "job-tasks-${pipeline.id}-${job.id}",
@@ -859,8 +862,12 @@ class CiVisualPlanner {
             column = column,
             config = config,
         ).copy(
-            steps =
-                visualSteps(
+            phases =
+                visualPhases(
+                    job = job,
+                ),
+            outcomes =
+                visualOutcomes(
                     job = job,
                 ),
         )
@@ -904,7 +911,8 @@ class CiVisualPlanner {
         environment = environment,
         name = name,
         description = description,
-        steps = emptyList(),
+        phases = emptyList(),
+        outcomes = emptyList(),
         runtime = null,
         source = source,
         sourceUrl =
@@ -987,70 +995,87 @@ class CiVisualPlanner {
         }
     }
 
-    private fun visualSteps(
+    private fun visualPhases(
         job: CiJob,
-    ): List<CiVisualPlan.Step> {
-        val result = mutableListOf<CiVisualPlan.Step>()
-        job.steps.forEachIndexed { phaseIndex, step ->
-            val phaseOrder =
-                (phaseIndex + 1)
-                    .toString()
-                    .padStart(
-                        length = 2,
-                        padChar = '0',
-                    )
+    ): List<CiVisualPlan.Phase> =
+        job.steps.mapIndexed { phaseIndex, step ->
+            val order =
+                formattedOrder(
+                    value = phaseIndex + 1,
+                )
             val gradleTasks =
                 gradleTaskNames(
                     command = step.command,
                 )
-            result +=
-                CiVisualPlan.Step(
-                    order = phaseOrder,
-                    role = CiVisualPlan.StepRole.ACTION,
-                    level = CiVisualPlan.StepLevel.PHASE,
-                    title = step.name,
-                    technicalId = step.id,
-                    description =
-                        phaseDescription(
-                            command = step.command,
-                            hasGradleTasks = gradleTasks.isNotEmpty(),
-                        ),
-                    condition = null,
-                )
-            gradleTasks
-                .flatMap { task ->
-                    gradleTaskSpecs(
-                        task = task,
-                    )
-                }.forEachIndexed { nestedIndex, spec ->
-                    result +=
-                        spec.toVisualStep(
-                            order = "$phaseOrder.${nestedIndex + 1}",
-                        )
-                }
+            CiVisualPlan.Phase(
+                order = order,
+                title = step.name,
+                technicalId = step.id,
+                description =
+                    phaseDescription(
+                        command = step.command,
+                        hasGradleTasks = gradleTasks.isNotEmpty(),
+                    ),
+                steps =
+                    gradleTasks
+                        .flatMap { task ->
+                            gradleTaskSpecs(
+                                task = task,
+                            )
+                        }.mapIndexed { stepIndex, spec ->
+                            spec.toVisualStep(
+                                order = "$order.${stepIndex + 1}",
+                            )
+                        },
+            )
         }
-        job.artifacts
-            .filter(CiJob.Artifact::publish)
-            .forEach { artifact ->
-                result +=
-                    outcomeStep(
-                        order = result.nextPhaseOrder(),
+
+    private fun visualOutcomes(
+        job: CiJob,
+    ): List<CiVisualPlan.Outcome> {
+        var nextOrder = job.steps.size + 1
+        val artifacts =
+            job.artifacts
+                .filter(CiJob.Artifact::publish)
+                .map { artifact ->
+                    CiVisualPlan.Outcome(
+                        order =
+                            formattedOrder(
+                                value = nextOrder++,
+                            ),
+                        kind = CiVisualPlan.OutcomeKind.ARTIFACT,
                         title = "Publish build artifact",
                         technicalId = artifact.path,
                         description = "Makes the job output available to later CI jobs.",
+                        condition = "After successful job execution",
                     )
-            }
-        job.publishedChecks.forEach { check ->
-            result +=
-                outcomeStep(
-                    order = result.nextPhaseOrder(),
+                }
+        val checks =
+            job.publishedChecks.map { check ->
+                CiVisualPlan.Outcome(
+                    order =
+                        formattedOrder(
+                            value = nextOrder++,
+                        ),
+                    kind = CiVisualPlan.OutcomeKind.CHECK,
                     title = "Publish GitHub check",
                     technicalId = check.name,
                     description = "Reports the verified job result to the pull request.",
+                    condition = "After successful job execution",
                 )
-        }
-        return result
+            }
+        return artifacts + checks
     }
+
+    private fun formattedOrder(
+        value: Int,
+    ): String =
+        value
+            .toString()
+            .padStart(
+                length = 2,
+                padChar = '0',
+            )
 
     private fun phaseDescription(
         command: String,
@@ -1089,9 +1114,11 @@ class CiVisualPlanner {
                 listOf(
                     actionSpec(
                         task = task,
-                        description = "Runs the repository verification lifecycle.",
+                        description =
+                            "Runs the repository verification lifecycle, including Kotlin style, catalogs, " +
+                                "versions, CI freshness, and verification-platform checks.",
                     ),
-                ) + rootCheckStepSpecs
+                )
             }
 
             "classifyCanonicalFigmaSyncChangeImpact" -> {
@@ -1145,37 +1172,12 @@ class CiVisualPlanner {
             }
         }
 
-    private fun outcomeStep(
-        order: String,
-        title: String,
-        technicalId: String,
-        description: String,
-    ) =
-        CiVisualPlan.Step(
-            order = order,
-            role = CiVisualPlan.StepRole.OUTCOME,
-            level = CiVisualPlan.StepLevel.PHASE,
-            title = title,
-            technicalId = technicalId,
-            description = description,
-            condition = "After successful job execution",
-        )
-
-    private fun List<CiVisualPlan.Step>.nextPhaseOrder(): String =
-        (count { step -> step.level == CiVisualPlan.StepLevel.PHASE } + 1)
-            .toString()
-            .padStart(
-                length = 2,
-                padChar = '0',
-            )
-
     private fun StepSpec.toVisualStep(
         order: String,
     ) =
         CiVisualPlan.Step(
             order = order,
             role = role,
-            level = CiVisualPlan.StepLevel.NESTED,
             title = title,
             technicalId = technicalId,
             description = description,
@@ -1338,6 +1340,20 @@ class CiVisualPlanner {
                 condition = condition,
             )
 
+        fun groupSpec(
+            title: String,
+            technicalId: String,
+            description: String,
+            condition: String,
+        ) =
+            StepSpec(
+                role = CiVisualPlan.StepRole.GROUP,
+                title = title,
+                technicalId = technicalId,
+                description = description,
+                condition = condition,
+            )
+
         fun gradleTaskTitle(
             task: String,
         ): String =
@@ -1365,39 +1381,6 @@ class CiVisualPlanner {
                 """(?:^|\s)(?:call\s+)?(?:\.\\|\./)?gradlew(?:\.bat)?\s+(.+)$""",
                 RegexOption.IGNORE_CASE,
             )
-        val rootCheckStepSpecs =
-            listOf(
-                actionSpec(
-                    task = "checkFigmaCatalogUsage",
-                    description = "Rejects unused dependency catalog entries.",
-                    condition = "Root check dependency",
-                ),
-                actionSpec(
-                    task = "checkFigmaVersionNaming",
-                    description = "Validates repository Figma version naming.",
-                    condition = "Root check dependency",
-                ),
-                actionSpec(
-                    task = "checkCiExternalTopologyFreshness",
-                    description = "Warns when the external CI topology validation is stale.",
-                    condition = "Root check dependency",
-                ),
-                actionSpec(
-                    task = "checkCiWindowsRuntimeFreshness",
-                    description = "Warns when the Windows runtime validation is stale.",
-                    condition = "Root check dependency",
-                ),
-                actionSpec(
-                    task = "checkKotlinStyle",
-                    description = "Applies the repository Kotlin style gate.",
-                    condition = "Root check dependency",
-                ),
-                actionSpec(
-                    task = "verification-platform:check",
-                    description = "Checks the verification platform domain, data, and plugin modules.",
-                    condition = "Root check dependency",
-                ),
-            )
         val dynamicCiPlanStepSpecs =
             listOf(
                 StepSpec(
@@ -1407,42 +1390,29 @@ class CiVisualPlanner {
                     description = "Expands the reviewed CI plan into the tasks for this change.",
                     condition = "Repository change scope",
                 ),
-                actionSpec(
-                    task = "checkGitWorkflow",
-                    description = "Validates the repository Git workflow contract.",
+                groupSpec(
+                    title = "Always",
+                    technicalId = "checkGitWorkflow · checkDocumentation",
+                    description = "Validates the Git workflow and repository documentation contracts.",
                     condition = "Always",
                 ),
-                actionSpec(
-                    task = "checkDocumentation",
-                    description = "Validates repository documentation structure and links.",
-                    condition = "Always",
+                groupSpec(
+                    title = "According to changes",
+                    technicalId =
+                        "checkRepositoryDiff · checkTeamCityDsl · :<affected-module>:check · " +
+                            "checkFigmaCatalogUsage",
+                    description = "Runs only the repository, TeamCity, module, and catalog checks selected by impact.",
+                    condition = "Repository change scope",
                 ),
-                actionSpec(
-                    task = "checkRepositoryDiff",
-                    description = "Checks documentation-only repository changes.",
-                    condition = "Documentation changes",
-                ),
-                actionSpec(
-                    task = "checkTeamCityDsl",
-                    description = "Validates the versioned TeamCity Kotlin DSL.",
-                    condition = "TeamCity changes",
-                ),
-                actionSpec(
-                    task = "check",
-                    description = "Runs the root verification lifecycle.",
+                groupSpec(
+                    title = "Full verification",
+                    technicalId = "check",
+                    description =
+                        "Includes Kotlin style, catalog usage and naming, CI freshness, and " +
+                            "verification-platform checks.",
                     condition = "TeamCity changes or fail-closed fallback",
                 ),
-                actionSpec(
-                    task = ":<affected-module>:check",
-                    description = "Checks each module selected by the dependency graph.",
-                    condition = "Affected modules",
-                ),
-                actionSpec(
-                    task = "checkFigmaCatalogUsage",
-                    description = "Rejects unused dependency catalog entries.",
-                    condition = "Affected modules or root check",
-                ),
-            ) + rootCheckStepSpecs.filterNot { spec -> spec.technicalId == "checkFigmaCatalogUsage" }
+            )
         val externalEnvironments =
             mapOf(
                 "operator" to CiVisualPlan.Environment.OPERATOR,

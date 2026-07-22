@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-21
+last-reviewed: 2026-07-22
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -213,30 +213,42 @@ inside `.artifacts bundle` and fail with a misleading slot count:
 Tree node '...' expected at least 4 '.artifact' instances, found 1.
 ```
 
-## Invalid `.ci node` Step Slots
+When deriving a new component set from existing variants, cloning a variant
+preserves its layers but does not recreate the shared component-set property
+contract reliably. Create the shared properties on the new set, wire every
+variant layer to those properties, and validate `componentPropertyDefinitions`
+before updating project configuration. Reparenting the final variant can cause
+Figma to remove the now-empty source set automatically; check whether the set
+still exists before calling `remove()` explicitly.
 
-The CI writer depends on the public top-level component contract, not on nested
-sublayer ids. `.ci node` must contain exactly 20 direct `.ci step` instances
-named `step 01` through `step 20`. Every slot must be visible in the master,
-exposed to the containing component, and backed by the configured `.ci step`
-component set. Generated `.ci node` instances hide only the unused slots.
+## Invalid CI Hierarchy Slots
+
+The CI writer depends on public direct-child contracts at each hierarchy
+boundary, not on nested sublayer IDs:
+
+- `.ci node` contains `phase 01` through `phase 08`, each backed by `.ci phase`;
+- `.ci phase` contains `step 01` through `step 08`, each backed by `.ci step`;
+- `.ci node` contains `outcome 01` through `outcome 04`, each backed by
+  `.ci outcome`.
+
+Every slot must be visible in its master and exposed to the containing
+component. Generated instances hide only unused slots.
 
 If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
-step slots:
+slots:
 
-1. Edit the main `.ci node` component, not one published instance and not a
-   nested sublayer URL.
-2. Restore the exact `step 01` through `step 20` direct children in numeric
-   order between `summary` and `optional details`; do not wrap them in an
-   intermediate frame.
-3. Use an instance of the configured `.ci step` component set for every slot,
-   mark it as exposed, and keep it visible in the master component.
+1. Edit the owning main component, not a published instance or nested sublayer
+   URL.
+2. Restore the exact numeric direct children for that owner; do not wrap them
+   in an intermediate frame.
+3. Use an instance of the configured child component for every slot, mark it as
+   exposed, and keep it visible in the master.
 4. Run the visual preflight again before retrying the CI visual target.
 
 Do not weaken the slot-count check, traverse implementation-specific child ids,
 or create ad hoc sibling steps to bypass a broken component. When a visual plan
-legitimately needs more than 20 steps, split the documentation node into a
-clearer boundary and regenerate the Kotlin plan. Keep final sync metadata
+legitimately exceeds 8 phases, 8 steps in one phase, or 4 outcomes, split the
+documentation boundary and regenerate the Kotlin plan. Keep final sync metadata
 unchanged until preflight and the affected visual target both succeed.
 
 ## Usage Blocks Hidden Despite Model Data

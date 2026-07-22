@@ -622,12 +622,12 @@ function validateCiVisualPlan(plan, targets) {
   if (ciTargets.length === 0) return;
   if (
     !plan ||
-    plan.schemaVersion !== 2 ||
+    plan.schemaVersion !== 3 ||
     typeof plan.parentName !== "string" ||
     !Array.isArray(plan.sections)
   ) {
     throw new Error(
-      "The Kotlin CI visual plan must use schemaVersion 2 and contain parentName and sections."
+      "The Kotlin CI visual plan must use schemaVersion 3 and contain parentName and sections."
     );
   }
 
@@ -636,8 +636,14 @@ function validateCiVisualPlan(plan, targets) {
     if (matches.length !== 1) {
       throw new Error(`The Kotlin CI visual plan must contain exactly one section for '${target}'.`);
     }
-    if (!matches[0].nodes?.every((node) => Array.isArray(node.steps))) {
-      throw new Error(`Every CI visual node in '${target}' must contain a typed steps array.`);
+    if (
+      !matches[0].nodes?.every(
+        (node) => Array.isArray(node.phases) && Array.isArray(node.outcomes)
+      )
+    ) {
+      throw new Error(
+        `Every CI visual node in '${target}' must contain typed phases and outcomes arrays.`
+      );
     }
   }
 }

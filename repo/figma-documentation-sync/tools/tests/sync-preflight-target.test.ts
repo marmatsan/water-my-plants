@@ -217,15 +217,15 @@ test("rejects an obsolete CI visual plan before reaching Figma", async () => {
       targets: ["preflight", "ci.overview"],
       ciVisualPlan: obsoletePlan,
     }),
-    /schemaVersion 2/
+    /schemaVersion 3/
   );
   assert.deepEqual(calls, []);
 });
 
-test("rejects CI nodes without typed steps before reaching Figma", async () => {
+test("rejects CI nodes without typed phases and outcomes before reaching Figma", async () => {
   const calls: string[] = [];
   const nodeWithoutTypedSteps = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     parentName: "Continuous Integration and Design Documentation",
     sections: [
       {
@@ -245,22 +245,22 @@ test("rejects CI nodes without typed steps before reaching Figma", async () => {
       targets: ["preflight", "ci.overview"],
       ciVisualPlan: nodeWithoutTypedSteps,
     }),
-    /typed steps array/
+    /typed phases and outcomes arrays/
   );
   assert.deepEqual(calls, []);
 });
 
-test("rejects CI nodes that exceed the 20 reserved step slots before reaching Figma", async () => {
+test("rejects CI nodes that exceed the 8 reserved phase slots before reaching Figma", async () => {
   const calls: string[] = [];
   const oversizedPlan = ciVisualPlan("ci.overview");
   oversizedPlan.sections[0].nodes.push({
     id: "verify",
-    steps: Array.from({ length: 21 }, (_, index) => ({
+    phases: Array.from({ length: 9 }, (_, index) => ({
       order: String(index + 1),
-      role: "action",
-      level: "phase",
-      title: `Step ${index + 1}`,
+      title: `Phase ${index + 1}`,
+      steps: [],
     })),
+    outcomes: [],
   } as CiVisualPlan["sections"][number]["nodes"][number]);
 
   await assert.rejects(
@@ -268,7 +268,7 @@ test("rejects CI nodes that exceed the 20 reserved step slots before reaching Fi
       targets: ["preflight", "ci.overview"],
       ciVisualPlan: oversizedPlan,
     }),
-    /reserves only 20 slots/
+    /reserves only 8 slots/
   );
   assert.deepEqual(calls, []);
 });
@@ -362,7 +362,7 @@ function fakeDependencies(calls: string[]) {
 
 function ciVisualPlan(...targets: string[]): CiVisualPlan {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     parentName: "Continuous Integration and Design Documentation",
     sections: targets.map((target) => ({
       target,

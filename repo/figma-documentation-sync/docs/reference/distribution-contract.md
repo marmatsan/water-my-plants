@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-22
 review-cycle-days: 180
 sources:
   - repo/figma-documentation-sync/gradle.properties
@@ -63,7 +63,7 @@ Its `figma-documentation-sync-build` executable accepts:
 `FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG` may provide the JSON path instead of the
 command-line argument; an explicit argument takes precedence. The
 portable `FigmaWriterProjectConfig` model and `FigmaWriterProjectConfigJson`
-adapter define JSON schema version `1`. Repository adapters own the model
+adapter define JSON schema version `3`. Repository adapters own the model
 values; generated JSON is a transient build input rather than a reviewed
 source file.
 

@@ -69,7 +69,10 @@ internal class CiVisualPlannerTest :
 
                 section.nodes
                     .filter { node -> node.type == CiVisualPlan.Type.JOB }
-                    .flatMap(CiVisualPlan.Node::steps) shouldBe emptyList()
+                    .flatMap(CiVisualPlan.Node::phases) shouldBe emptyList()
+                section.nodes
+                    .filter { node -> node.type == CiVisualPlan.Type.JOB }
+                    .flatMap(CiVisualPlan.Node::outcomes) shouldBe emptyList()
                 section.connections
                     .filter {
                         it.id in
@@ -107,19 +110,17 @@ internal class CiVisualPlannerTest :
                         "Generate main design model",
                         "Check Figma trunk sync",
                     )
-                val generateSteps = section.nodes.single { it.name == "Generate main design model" }.steps
-                generateSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
-                    .map(CiVisualPlan.Step::title) shouldContainExactly
+                val generateNode = section.nodes.single { it.name == "Generate main design model" }
+                generateNode.phases
+                    .map(CiVisualPlan.Phase::title) shouldContainExactly
                     listOf(
                         "Validate agent capabilities",
                         "Classify Figma change impact",
                         "Materialize canonical design model",
                         "Build MCP runners and visual plan",
-                        "Publish build artifact",
                     )
+                val generateSteps = generateNode.phases.flatMap(CiVisualPlan.Phase::steps)
                 generateSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
                     .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
                     listOf(
                         "classifyCanonicalFigmaSyncChangeImpact",
@@ -136,11 +137,16 @@ internal class CiVisualPlannerTest :
                         "materializeFigmaSyncCiConfiguration",
                         "generateCanonicalFigmaSyncModel",
                     )
-                generateSteps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
+                generateNode.outcomes.map(CiVisualPlan.Outcome::title) shouldContainExactly
+                    listOf("Publish build artifact")
+                generateNode.outcomes.single().kind shouldBe CiVisualPlan.OutcomeKind.ARTIFACT
 
-                val checkSteps = section.nodes.single { it.name == "Check Figma trunk sync" }.steps
+                val checkSteps =
+                    section.nodes
+                        .single { it.name == "Check Figma trunk sync" }
+                        .phases
+                        .flatMap(CiVisualPlan.Phase::steps)
                 checkSteps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
                     .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
                     listOf(
                         "validateCanonicalFigmaSyncScope",
@@ -160,7 +166,8 @@ internal class CiVisualPlannerTest :
                         ).sections
                         .single { it.target == "ci.pullRequestIntegration" }
 
-                section.nodes.single { it.name == "Verify" }.steps shouldBe emptyList()
+                section.nodes.single { it.name == "Verify" }.phases shouldBe emptyList()
+                section.nodes.single { it.name == "Verify" }.outcomes shouldBe emptyList()
             }
 
             test("documents the dynamic Gradle verification selection in the separate job tasks section") {
@@ -174,39 +181,37 @@ internal class CiVisualPlannerTest :
                         ).sections
                         .single { it.target == "ci.jobTasks" }
 
-                val steps = section.nodes.single { it.name == "Verify" }.steps
-                steps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.PHASE }
-                    .map(CiVisualPlan.Step::title) shouldContainExactly
+                val verifyNode = section.nodes.single { it.name == "Verify" }
+                verifyNode.phases
+                    .map(CiVisualPlan.Phase::title) shouldContainExactly
                     listOf(
                         "Validate agent capabilities",
                         "Generate verification plan",
                         "Run planned Gradle checks",
-                        "Publish GitHub check",
                     )
+                val steps = verifyNode.phases.flatMap(CiVisualPlan.Phase::steps)
                 steps
-                    .filter { step -> step.level == CiVisualPlan.StepLevel.NESTED }
                     .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
                     listOf(
                         "prepareTeamCityCiPlan",
                         "generateCiPlan",
                         "ci.plan.gradleTasks",
-                        "checkGitWorkflow",
-                        "checkDocumentation",
-                        "checkRepositoryDiff",
-                        "checkTeamCityDsl",
+                        "checkGitWorkflow · checkDocumentation",
+                        "checkRepositoryDiff · checkTeamCityDsl · :<affected-module>:check · checkFigmaCatalogUsage",
                         "check",
-                        ":<affected-module>:check",
-                        "checkFigmaCatalogUsage",
-                        "checkFigmaVersionNaming",
-                        "checkCiExternalTopologyFreshness",
-                        "checkCiWindowsRuntimeFreshness",
-                        "checkKotlinStyle",
-                        "verification-platform:check",
                     )
                 steps.single { step -> step.technicalId == "ci.plan.gradleTasks" }.role shouldBe
                     CiVisualPlan.StepRole.DECISION
-                steps.last().role shouldBe CiVisualPlan.StepRole.OUTCOME
+                steps
+                    .filter { step ->
+                        step.role == CiVisualPlan.StepRole.GROUP
+                    }.map(CiVisualPlan.Step::title) shouldContainExactly
+                    listOf(
+                        "Always",
+                        "According to changes",
+                        "Full verification",
+                    )
+                verifyNode.outcomes.single().kind shouldBe CiVisualPlan.OutcomeKind.CHECK
             }
 
             test("does not invent a Figma status when no versioned publisher exists") {

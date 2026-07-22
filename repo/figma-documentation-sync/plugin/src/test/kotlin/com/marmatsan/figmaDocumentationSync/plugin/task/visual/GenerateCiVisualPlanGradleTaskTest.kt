@@ -56,6 +56,7 @@ internal class GenerateCiVisualPlanGradleTaskTest :
 
                     result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
                     val plan = Json.parseToJsonElement(output.readText()).jsonObject
+                    plan.getValue("schemaVersion").jsonPrimitive.content shouldBe "3"
                     plan
                         .getValue("sections")
                         .jsonArray
@@ -124,7 +125,7 @@ private val designModelFixture =
 private val writerConfigFixture =
     """
     {
-      "schemaVersion": 2,
+      "schemaVersion": 3,
       "METADATA_PAGE_ID": "1:1",
       "METADATA_NAMESPACE": "test",
       "FIGMA_FILE_KEY": "file",
