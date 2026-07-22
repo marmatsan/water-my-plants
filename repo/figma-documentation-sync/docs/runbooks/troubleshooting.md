@@ -223,13 +223,15 @@ still exists before calling `remove()` explicitly.
 
 ## Invalid CI Hierarchy Slots
 
-The CI writer depends on public direct-child contracts at each hierarchy
-boundary, not on nested sublayer IDs:
+The CI writer depends on public direct-child contracts inside named transparent
+layout frames, not on nested sublayer IDs:
 
-- `.ci node` contains `phase 01` through `phase 08`, each backed by `.ci phase`;
-- `.ci phase` contains `step 01` through `step 08`, each backed by `.ci step`;
-- `.ci node` contains `outcome 01` through `outcome 04`, each backed by
-  `.ci outcome`.
+- `.ci node` owns an `execution plan` frame containing `phase 01` through
+  `phase 08`, each backed by `.ci phase`;
+- `.ci phase` owns a `steps` frame containing `step 01` through `step 08`, each
+  backed by `.ci step`;
+- `.ci node` owns an `outcome` frame containing `outcome 01` through
+  `outcome 04`, each backed by `.ci outcome`.
 
 Every slot must be visible in its master and exposed to the containing
 component. Generated instances hide only unused slots.
@@ -239,8 +241,9 @@ slots:
 
 1. Edit the owning main component, not a published instance or nested sublayer
    URL.
-2. Restore the exact numeric direct children for that owner; do not wrap them
-   in an intermediate frame.
+2. Restore the configured transparent frame as a direct child of its owner and
+   the exact numeric slots as direct children of that frame. Do not add another
+   intermediate frame.
 3. Use an instance of the configured child component for every slot, mark it as
    exposed, and keep it visible in the master.
 4. Run the visual preflight again before retrying the CI visual target.
@@ -250,6 +253,17 @@ or create ad hoc sibling steps to bypass a broken component. When a visual plan
 legitimately exceeds 8 phases, 8 steps in one phase, or 4 outcomes, split the
 documentation boundary and regenerate the Kotlin plan. Keep final sync metadata
 unchanged until preflight and the affected visual target both succeed.
+
+## TeamCity Artifact Handoff Returns HTML
+
+If `prepareTeamCityFigmaSyncHandoff` fails while decoding the TeamCity response
+with `invalid character '<' looking for beginning of value`, the protected
+artifact request returned HTML instead of the expected JSON. Verify the CLI
+authentication and endpoint first. If the artifact was already downloaded by
+another authorized route, use the documented artifact-directory fallback with
+both `-PfigmaArtifactDirectory` and the exact
+`-PfigmaExpectedGitSha`. The explicit revision check is mandatory; never accept
+an unverified local artifact or weaken the handoff validation.
 
 ## Usage Blocks Hidden Despite Model Data
 

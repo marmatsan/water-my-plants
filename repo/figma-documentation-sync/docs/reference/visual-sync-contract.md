@@ -159,7 +159,7 @@ The reserved component hierarchy is:
 |-------|-----------------------|-----------|---------------|
 | `.ci node` | `execution plan` | `.ci phase` (`64668:2944`) | `phase 01` through `phase 08` |
 | `.ci phase` | `steps` | `.ci step` (`64665:2991`) | `step 01` through `step 08` |
-| `.ci node` | Node root | `.ci outcome` (`64669:3118`) | `outcome 01` through `outcome 04` |
+| `.ci node` | `outcome` | `.ci outcome` (`64669:3118`) | `outcome 01` through `outcome 04` |
 
 The corresponding limits are 8 phases per node, 8 steps per phase, and 4
 outcomes per node. Masters keep every slot visible; generated instances reveal
@@ -204,10 +204,11 @@ commands and arguments remain available through the node's `source` link to
 GitHub `main`.
 
 Every managed `.ci node group` contains only its top-level `.ci node` instance.
-The node orders summary first, the `execution plan` frame second, outcomes
-third, and optional runtime and source details last. The execution frame owns
-its heading and exposed phase slots; each phase's `steps` frame owns its exposed
-step slots. `show execution plan` collapses that complete frame when no phases
+The node orders summary first, the `execution plan` frame second, the `outcome`
+frame third, and optional runtime and source details last. The execution frame
+owns its heading and exposed phase slots, the `outcome` frame owns its exposed
+outcome slots, and each phase's `steps` frame owns its exposed step slots.
+`show execution plan` collapses that complete frame when no phases
 exist, while `show optional details` collapses the details container when
 neither child is visible. Action descriptions remain in the typed model but are
 hidden visually; phase, decision, group, and outcome descriptions remain

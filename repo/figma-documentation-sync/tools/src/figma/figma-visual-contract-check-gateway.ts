@@ -11,6 +11,7 @@ import {
   CI_ICON_ENVIRONMENTS,
   CI_ICON_INSTANCE_NAME,
   CI_NODE_COMPONENT_ID,
+  CI_NODE_OUTCOME_CONTAINER_NAME,
   CI_NODE_PHASE_CONTAINER_NAME,
   CI_NODE_PROPS,
   CI_OUTCOME_COMPONENT_SET_ID,
@@ -222,7 +223,11 @@ async function checkCiDocumentationContract(
     expectedComponentLabel: `component '${phaseComponent.id}'`,
   });
   await requireExactReservedSlots({
-    owner: component,
+    owner: requireDirectFrame(
+      component,
+      CI_NODE_OUTCOME_CONTAINER_NAME,
+      ".ci node"
+    ),
     expectedNames: ciOutcomeSlotNames(),
     hasNamePrefix: hasCiOutcomeSlotNamePrefix,
     label: "CI outcome",

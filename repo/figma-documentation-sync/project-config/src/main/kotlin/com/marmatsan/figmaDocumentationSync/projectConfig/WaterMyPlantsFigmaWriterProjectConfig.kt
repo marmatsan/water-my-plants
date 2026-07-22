@@ -69,6 +69,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showOptionalDetails" to "show optional details",
                 ),
             ciNodePhaseContainerName = "execution plan",
+            ciNodeOutcomeContainerName = "outcome",
             ciPhaseComponentId = "64668:2944",
             ciPhaseSlotNamePrefix = "phase",
             ciPhaseSlotCount = 8,
