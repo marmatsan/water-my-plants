@@ -239,7 +239,8 @@ without a second download. The explicit revision is mandatory in this mode:
 
 ```powershell
 .\gradlew.bat prepareTeamCityFigmaSyncHandoff `
-    -PfigmaArtifactDirectory=<downloaded-figma-sync-directory>
+    -PfigmaArtifactDirectory=<downloaded-figma-sync-directory> `
+    -PfigmaExpectedGitSha=<exact-main-git-sha>
 
 .\gradlew.bat uploadCanonicalFigmaPayload `
     -PfigmaArtifactDirectory=<downloaded-figma-sync-directory> `

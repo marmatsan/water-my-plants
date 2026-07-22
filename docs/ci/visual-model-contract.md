@@ -123,9 +123,10 @@ The visual model uses four composable components:
 
 The semantic composition is `.ci node` -> `.ci phase` -> `.ci step`, with
 `.ci outcome` as a sibling result under `.ci node`. The Figma layout places
-phases inside the node's transparent `execution plan` frame and steps inside
-the phase's transparent `steps` frame. These frames add layout structure, not
-execution levels. Outcomes are not steps because they describe externally
+phases inside the node's transparent `execution plan` frame, steps inside the
+phase's transparent `steps` frame, and outcomes inside the node's transparent
+`outcome` frame. These frames add layout structure, not execution levels.
+Outcomes are not steps because they describe externally
 observable results rather than work executed inside a TeamCity phase.
 
 The Kotlin visual plan uses schema version `3`. Every node owns typed `phases`
@@ -141,7 +142,7 @@ The stable capacity is:
 |-------|----------------|---------------|----------|
 | `.ci node` | `execution plan` | `phase 01` through `phase 08` | 8 phases |
 | `.ci phase` | `steps` | `step 01` through `step 08` | 8 steps per phase |
-| `.ci node` | Node root | `outcome 01` through `outcome 04` | 4 outcomes |
+| `.ci node` | `outcome` | `outcome 01` through `outcome 04` | 4 outcomes |
 
 Every slot is visible in its master component so maintainers can inspect the
 complete composition. Generated instances reveal only populated slots and hide
@@ -160,7 +161,7 @@ empty `phases` and `outcomes` arrays. Only their matching nodes in `ci.jobTasks`
 receive and display executable detail. Do not duplicate the hierarchy across
 both reading layers.
 
-The node orders its content as summary, `execution plan`, outcomes, then
+The node orders its content as summary, `execution plan`, `outcome`, then
 optional runtime and source details. `execution plan heading` supplies the
 visible `Execution plan` label and `show execution plan` hides the complete
 frame when a node has no phases. The `show optional details` boolean collapses

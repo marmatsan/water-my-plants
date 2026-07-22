@@ -21,6 +21,7 @@ data class FigmaWriterProjectConfig(
     val ciConnectorTemplateSectionId: String,
     val ciNodeProps: Map<String, String>,
     val ciNodePhaseContainerName: String,
+    val ciNodeOutcomeContainerName: String,
     val ciPhaseComponentId: String,
     val ciPhaseSlotNamePrefix: String,
     val ciPhaseSlotCount: Int,

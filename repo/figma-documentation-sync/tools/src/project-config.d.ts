@@ -20,6 +20,7 @@ declare module "@figma-documentation-sync/project-config" {
   export const CI_CONNECTOR_TEMPLATE_SECTION_ID: any;
   export const CI_NODE_PROPS: any;
   export const CI_NODE_PHASE_CONTAINER_NAME: any;
+  export const CI_NODE_OUTCOME_CONTAINER_NAME: any;
   export const CI_PHASE_COMPONENT_ID: any;
   export const CI_PHASE_SLOT_NAME_PREFIX: any;
   export const CI_PHASE_SLOT_COUNT: any;

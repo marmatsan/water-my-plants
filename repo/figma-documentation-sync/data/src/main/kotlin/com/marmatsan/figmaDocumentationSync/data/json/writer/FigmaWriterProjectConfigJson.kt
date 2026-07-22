@@ -118,6 +118,10 @@ object FigmaWriterProjectConfigJson {
                 ciNodePhaseContainerName,
             )
             put(
+                "CI_NODE_OUTCOME_CONTAINER_NAME",
+                ciNodeOutcomeContainerName,
+            )
+            put(
                 "CI_PHASE_COMPONENT_ID",
                 ciPhaseComponentId,
             )
