@@ -55,6 +55,24 @@ internal class FigmaWriterProjectConfigJsonTest :
                             .getValue("showExecutionPlan")
                             .jsonPrimitive.content shouldBe "show execution plan"
                     }
+                root
+                    .getValue("CI_PHASE_PROPS")
+                    .jsonObject
+                    .also { properties ->
+                        properties.keys shouldBe
+                            setOf(
+                                "order",
+                                "title",
+                                "technicalId",
+                                "description",
+                                "showTechnicalId",
+                                "showDescription",
+                                "showSteps",
+                            )
+                        properties
+                            .getValue("showSteps")
+                            .jsonPrimitive.content shouldBe "show steps"
+                    }
                 root.getValue("CI_STEP_SLOT_NAME_PREFIX").jsonPrimitive.content shouldBe "step"
                 root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
                 root.getValue("CI_PHASE_SLOT_COUNT").jsonPrimitive.content shouldBe "8"

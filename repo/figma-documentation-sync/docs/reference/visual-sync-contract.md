@@ -168,19 +168,26 @@ instances, while preflight requires each slot to be a direct child of its named
 container. Neither path creates ad hoc siblings or depends on unstable nested
 sublayer IDs.
 
+The `.ci phase` master exposes `show steps=true`, and its direct `steps` frame
+binds `visible` to that BOOLEAN property. The writer derives the instance value
+from `phase.steps.length > 0`. This container-level visibility is required in
+addition to hiding unused slots because a visible Auto Layout frame with no
+visible children can retain its master height instead of collapsing.
+
 Masters also keep every property-backed field and optional section visible in
 every variant. Their visibility booleans default to `true` so the component
 documents its complete public surface. The writer sets visibility explicitly on
 generated instances from model data; it must not rely on hidden master defaults.
 
 `.ci phase` requires `order`, `title`, `technical id`, `description`,
-`show technical id`, and `show description`. `.ci step` requires the same text
-and visibility properties plus `condition`, `show condition`, and exact `role`
-variants `action`, `decision`, and `group`. `.ci outcome` uses the step-shaped
-display properties with exact `kind` variants `artifact` and `check`. There is
-no `level` property: hierarchy is encoded by component ownership. Preflight
-validates all properties, variants, slot names, exposure flags, and main
-component identities before mutation.
+`show technical id`, `show description`, and `show steps`. `.ci step` requires
+the same text and field visibility properties plus `condition`, `show
+condition`, and exact `role` variants `action`, `decision`, and `group`. `.ci
+outcome` uses the step-shaped display properties with exact `kind` variants
+`artifact` and `check`. There is no `level` property: hierarchy is encoded by
+component ownership. Preflight validates all properties, visibility bindings,
+variants, slot names, exposure flags, and main component identities before
+mutation.
 
 The three `.ci step` variants use compact horizontal Auto Layout, a leading
 order badge, the Gradle icon, one flexible content column, and no outer stroke.

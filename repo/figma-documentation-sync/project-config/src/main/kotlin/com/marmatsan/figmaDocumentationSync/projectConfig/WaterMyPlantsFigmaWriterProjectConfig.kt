@@ -81,6 +81,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "description" to "description",
                     "showTechnicalId" to "show technical id",
                     "showDescription" to "show description",
+                    "showSteps" to "show steps",
                 ),
             ciPhaseStepContainerName = "steps",
             ciStepComponentSetId = "64665:2991",

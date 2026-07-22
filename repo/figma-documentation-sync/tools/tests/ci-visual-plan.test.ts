@@ -139,8 +139,24 @@ test("CI phase properties expose its executable identity", () => {
       description: "Runs the Gradle entry points owned by this TeamCity phase.",
       showTechnicalId: true,
       showDescription: true,
+      showSteps: false,
     }
   );
+});
+
+test("CI phase properties reveal its steps when executable detail exists", () => {
+  const properties = ciPhasePropertyValues({
+    order: "02",
+    title: "Run planned Gradle checks",
+    steps: [{
+      order: "02.1",
+      role: "action",
+      title: "Run repository task",
+      technicalId: "check",
+    }],
+  });
+
+  assert.equal(properties.showSteps, true);
 });
 
 test("CI step properties expose a decision with its executable condition", () => {
