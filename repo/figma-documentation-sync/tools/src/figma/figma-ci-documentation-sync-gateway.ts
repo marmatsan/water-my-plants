@@ -670,6 +670,7 @@ function syncCiPhase({
   const properties = ciPhasePropertyValues(phase);
   setComponentBooleanProperty(instance, CI_PHASE_PROPS.showTechnicalId, properties.showTechnicalId);
   setComponentBooleanProperty(instance, CI_PHASE_PROPS.showDescription, properties.showDescription);
+  setComponentBooleanProperty(instance, CI_PHASE_PROPS.showSteps, properties.showSteps);
   setComponentTextProperty(instance, CI_PHASE_PROPS.order, properties.order);
   setComponentTextProperty(instance, CI_PHASE_PROPS.title, properties.title);
   setComponentTextProperty(instance, CI_PHASE_PROPS.technicalId, properties.technicalId);
@@ -684,6 +685,7 @@ export function ciPhasePropertyValues(phase: CiVisualPhase) {
     description: phase.description || "",
     showTechnicalId: Boolean(phase.technicalId),
     showDescription: Boolean(phase.description),
+    showSteps: phase.steps.length > 0,
   };
 }
 

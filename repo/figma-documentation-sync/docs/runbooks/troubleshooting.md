@@ -236,6 +236,13 @@ layout frames, not on nested sublayer IDs:
 Every slot must be visible in its master and exposed to the containing
 component. Generated instances hide only unused slots.
 
+The `.ci phase` master must also expose `show steps` as a BOOLEAN with default
+`true`, and its direct `steps` frame must bind `visible` to that property. The
+writer sets `show steps=false` when `phase.steps` is empty. If all step slots
+are hidden but the phase still contains a large blank region, inspect this
+container binding first: resizing the parent only fits the already oversized
+child and does not correct the missing collapse contract.
+
 If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
 slots:
 

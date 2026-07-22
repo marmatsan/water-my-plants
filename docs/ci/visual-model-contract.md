@@ -149,6 +149,13 @@ complete composition. Generated instances reveal only populated slots and hide
 the remainder. Plans that exceed a capacity fail before Figma is mutated; split
 the job or phase into a clearer visual boundary instead of dropping work.
 
+The `.ci phase` master exposes `show steps=true` and binds it to the visibility
+of its direct `steps` frame. Generated instances set it from the typed
+`phase.steps` array: `true` when the phase has executable detail and `false`
+when the array is empty. Hiding only the reserved step instances is not enough;
+an empty visible Auto Layout frame can retain its master height and create a
+large blank region in the generated job node.
+
 Every property-backed field and optional section is also visible by default in
 each master component and every master variant. Master visibility booleans use
 `true` so the component surface documents its complete public contract. Only
@@ -166,7 +173,9 @@ optional runtime and source details. `execution plan heading` supplies the
 visible `Execution plan` label and `show execution plan` hides the complete
 frame when a node has no phases. The `show optional details` boolean collapses
 the final details container when both kinds of context are hidden. The
-component does not expose the obsolete `steps` or `show steps` properties.
+`.ci node` does not expose the obsolete `steps` or `show steps` properties;
+`show steps` belongs only to `.ci phase`, where it controls the phase-owned
+step container.
 
 Use the step variants consistently:
 

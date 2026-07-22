@@ -177,6 +177,18 @@ async function checkCiDocumentationContract(
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.description, "TEXT");
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showTechnicalId, "BOOLEAN");
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showDescription, "BOOLEAN");
+  requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showSteps, "BOOLEAN");
+  const phaseSteps = requireDirectFrame(
+    phaseComponent,
+    CI_PHASE_STEP_CONTAINER_NAME,
+    ".ci phase"
+  );
+  requireComponentPropertyReference(
+    phaseSteps,
+    "visible",
+    CI_PHASE_PROPS.showSteps,
+    ".ci phase steps"
+  );
   checkedComponents.push(`${phaseComponent.name}:${phaseComponent.id}`);
 
   const stepSet = await requireComponentSet(CI_STEP_COMPONENT_SET_ID);
@@ -234,11 +246,6 @@ async function checkCiDocumentationContract(
     matchesComponent: async (slot) => (await slot.getMainComponentAsync())?.parent?.id === outcomeSet.id,
     expectedComponentLabel: `component set '${outcomeSet.id}'`,
   });
-  const phaseSteps = requireDirectFrame(
-    phaseComponent,
-    CI_PHASE_STEP_CONTAINER_NAME,
-    ".ci phase"
-  );
   await requireExactReservedSlots({
     owner: phaseSteps,
     expectedNames: ciStepSlotNames(),
