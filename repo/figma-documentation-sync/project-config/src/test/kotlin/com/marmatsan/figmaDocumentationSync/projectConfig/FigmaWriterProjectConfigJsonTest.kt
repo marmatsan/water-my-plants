@@ -44,6 +44,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                                 "runtimeStartup",
                                 "runtimeIdentity",
                                 "showExecutionPlan",
+                                "showOutcome",
                                 "showSource",
                                 "showRuntime",
                                 "showOptionalDetails",
@@ -54,6 +55,9 @@ internal class FigmaWriterProjectConfigJsonTest :
                         properties
                             .getValue("showExecutionPlan")
                             .jsonPrimitive.content shouldBe "show execution plan"
+                        properties
+                            .getValue("showOutcome")
+                            .jsonPrimitive.content shouldBe "show outcome"
                     }
                 root
                     .getValue("CI_PHASE_PROPS")

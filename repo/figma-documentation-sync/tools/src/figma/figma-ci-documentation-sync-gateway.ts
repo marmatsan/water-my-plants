@@ -422,6 +422,7 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
     CI_NODE_PROPS.showExecutionPlan,
     properties.showExecutionPlan
   );
+  setComponentBooleanProperty(instance, CI_NODE_PROPS.showOutcome, properties.showOutcome);
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showSource, properties.showSource);
   setComponentBooleanProperty(instance, CI_NODE_PROPS.showRuntime, properties.showRuntime);
   setComponentBooleanProperty(
@@ -462,6 +463,7 @@ export function ciNodePropertyValues(nodePlan: CiVisualNode) {
     runtimeStartup: nodePlan.runtime?.startup || "",
     runtimeIdentity: nodePlan.runtime?.identity || "",
     showExecutionPlan: nodePlan.phases.length > 0,
+    showOutcome: nodePlan.outcomes.length > 0,
     showSource,
     showRuntime,
     showOptionalDetails: showSource || showRuntime,

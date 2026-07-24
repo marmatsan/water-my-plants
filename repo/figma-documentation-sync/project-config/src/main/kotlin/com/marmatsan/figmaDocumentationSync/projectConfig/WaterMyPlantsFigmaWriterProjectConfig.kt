@@ -64,6 +64,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "runtimeStartup" to "runtime startup",
                     "runtimeIdentity" to "runtime identity",
                     "showExecutionPlan" to "show execution plan",
+                    "showOutcome" to "show outcome",
                     "showSource" to "show source",
                     "showRuntime" to "show runtime",
                     "showOptionalDetails" to "show optional details",

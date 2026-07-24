@@ -171,11 +171,19 @@ both reading layers.
 The node orders its content as summary, `execution plan`, `outcome`, then
 optional runtime and source details. `execution plan heading` supplies the
 visible `Execution plan` label and `show execution plan` hides the complete
-frame when a node has no phases. The `show optional details` boolean collapses
-the final details container when both kinds of context are hidden. The
-`.ci node` does not expose the obsolete `steps` or `show steps` properties;
-`show steps` belongs only to `.ci phase`, where it controls the phase-owned
-step container.
+frame when a node has no phases. `show outcome` hides the complete outcome
+frame when the node has no observable results. The `show optional details`
+boolean collapses the final details container when both kinds of context are
+hidden. The `.ci node` does not expose the obsolete `steps` or `show steps`
+properties; `show steps` belongs only to `.ci phase`, where it controls the
+phase-owned step container.
+
+The `summary` and outer `optional details` frames stretch to the current node
+width. This keeps the header and details boundary aligned with expanded task
+nodes while compact flow nodes remain narrow. `optional details` owns the
+full-width runtime divider and an inside-aligned 2 px stroke bound to
+`md/sys/color/outline`; its nested `details content` frame keeps runtime and
+source text at the compact reading width.
 
 Use the step variants consistently:
 
