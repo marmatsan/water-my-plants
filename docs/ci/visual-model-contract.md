@@ -88,9 +88,13 @@ Flow relations render their semantic label in the native text of the
 `simple-line_arrow` connector. Its locked template is positioned over the CI
 component documentation section but remains outside every managed target so a
 partial sync cannot delete it. The visual writer uses side anchors within one
-row and vertical anchors between rows so a relation cannot cross an
-intermediate node. The exact template identity, routing, and preflight contract
-belong to the
+row and vertical anchors between rows. After node layout stabilizes, it assigns
+each connection endpoint a deterministic transparent port along the selected
+node side. Shared sides spread their ports in the order of the opposite nodes,
+so parallel and converging relations do not collapse onto one central anchor.
+These ports and their coordinates are writer-owned presentation details; they
+do not enter the Kotlin visual model. The exact template identity, routing, and
+preflight contract belong to the
 [Figma visual sync contract](../../repo/figma-documentation-sync/docs/reference/visual-sync-contract.md).
 
 ### Operational Detail
@@ -138,7 +142,7 @@ phase's transparent `steps` frame, and outcomes inside the node's transparent
 Outcomes are not steps because they describe externally
 observable results rather than work executed inside a TeamCity phase.
 
-The Kotlin visual plan uses schema version `3`. Every node owns typed `phases`
+The Kotlin visual plan uses schema version `4`. Every node owns typed `phases`
 and `outcomes` arrays. A phase contains its order, title, optional technical
 identifier and description, plus a typed `steps` array. A step contains an
 order, role, title, and optional technical identifier, description, and
@@ -347,6 +351,12 @@ Cloudflare `Allow`, `Service Auth`, and `Bypass` policies are connection
 attributes, not independent systems. Connections may contain protocol,
 authentication type, automation mode, branch condition, and a concise purpose,
 but never concrete credentials.
+
+Every planned visual connection also has one semantic `kind`: `control`,
+`data`, `status`, `attention`, or `neutral`. The kind describes the function of
+the relation and stays independent from its Figma presentation. The writer maps
+it to the documented connector palette; labels remain mandatory because color
+is a supporting cue, not the connection identity.
 
 ## Post-merge Verification Loop
 

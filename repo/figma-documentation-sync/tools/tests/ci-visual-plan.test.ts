@@ -6,6 +6,9 @@ import {
   applyCiPhaseRowVisibility,
   centeredRowY,
   ciConnectorMagnets,
+  ciConnectorPortAssignments,
+  ciConnectorPortBounds,
+  ciConnectorStroke,
   ciExecutionSlotRequirements,
   ciNodePropertyValues,
   ciOutcomePropertyValues,
@@ -360,6 +363,15 @@ test("CI connectors use side anchors within rows and vertical anchors across row
       { x: 100, y: 100, width: 200, height: 100 },
       { x: 100, y: 400, width: 200, height: 100 },
       "grid",
+      { index: 0, count: 2 }
+    ),
+    { start: "RIGHT", end: "RIGHT" }
+  );
+  assert.deepEqual(
+    ciConnectorMagnets(
+      { x: 100, y: 100, width: 200, height: 100 },
+      { x: 100, y: 400, width: 200, height: 100 },
+      "grid",
       { index: 1, count: 2 }
     ),
     { start: "LEFT", end: "LEFT" }
@@ -377,6 +389,94 @@ test("CI connectors use side anchors within rows and vertical anchors across row
     ),
     { start: "TOP", end: "BOTTOM" }
   );
+});
+
+test("CI connector ports spread shared side anchors without leaving the node outline", () => {
+  const node = { x: 100, y: 200, width: 300, height: 180 };
+
+  assert.deepEqual(ciConnectorPortBounds(node, "TOP", 0, 2), {
+    x: 199,
+    y: 200,
+    width: 2,
+    height: 2,
+  });
+  assert.deepEqual(ciConnectorPortBounds(node, "TOP", 1, 2), {
+    x: 299,
+    y: 200,
+    width: 2,
+    height: 2,
+  });
+  assert.deepEqual(ciConnectorPortBounds(node, "RIGHT", 0, 1), {
+    x: 398,
+    y: 289,
+    width: 2,
+    height: 2,
+  });
+});
+
+test("CI connector routing orders shared ports by the opposite node position", () => {
+  const hub = { x: 100, y: 100, width: 200, height: 300 };
+  const upper = { x: 500, y: 0, width: 200, height: 100 };
+  const lower = { x: 500, y: 500, width: 200, height: 100 };
+  const assignments = ciConnectorPortAssignments([
+    {
+      id: "hub-lower",
+      sourceNodeId: "hub",
+      targetNodeId: "lower",
+      source: hub,
+      target: lower,
+      magnets: { start: "RIGHT", end: "LEFT" },
+    },
+    {
+      id: "hub-upper",
+      sourceNodeId: "hub",
+      targetNodeId: "upper",
+      source: hub,
+      target: upper,
+      magnets: { start: "RIGHT", end: "LEFT" },
+    },
+  ]);
+
+  assert.deepEqual(assignments.get("hub-upper")?.start, {
+    magnet: "RIGHT",
+    index: 0,
+    count: 2,
+    bounds: { x: 298, y: 199, width: 2, height: 2 },
+  });
+  assert.deepEqual(assignments.get("hub-lower")?.start, {
+    magnet: "RIGHT",
+    index: 1,
+    count: 2,
+    bounds: { x: 298, y: 299, width: 2, height: 2 },
+  });
+});
+
+test("CI connector strokes map semantic flow kinds to the documented direct colors", () => {
+  assert.deepEqual(ciConnectorStroke("control").color, {
+    r: 0 / 255,
+    g: 103 / 255,
+    b: 192 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("data").color, {
+    r: 122 / 255,
+    g: 62 / 255,
+    b: 157 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("status").color, {
+    r: 46 / 255,
+    g: 125 / 255,
+    b: 50 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("attention").color, {
+    r: 198 / 255,
+    g: 40 / 255,
+    b: 40 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("neutral").color, {
+    r: 107 / 255,
+    g: 114 / 255,
+    b: 128 / 255,
+  });
 });
 
 test("CI phase rows collapse when all their reserved phase slots are hidden", () => {
@@ -524,13 +624,20 @@ test("CI parent resize follows child sections instead of a stale header width", 
 });
 
 test("managed CI content removes connectors before their endpoint nodes", () => {
-  const roles = ["node", "connector", "unmanaged", "connector", "node"];
+  const roles = [
+    "node",
+    "connector-port",
+    "connector",
+    "unmanaged",
+    "connector",
+    "node",
+  ];
 
   assert.deepEqual(
     roles.toSorted((first, second) =>
       managedCiRemovalPriority(first) - managedCiRemovalPriority(second)
     ),
-    ["connector", "connector", "node", "node", "unmanaged"]
+    ["connector", "connector", "connector-port", "node", "node", "unmanaged"]
   );
 });
 

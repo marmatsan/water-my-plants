@@ -75,6 +75,7 @@ internal class CiVisualPlanJsonTest :
                         "ci.windowsRuntime",
                     )
 
+                plan["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
                 plan["parentName"]?.jsonPrimitive?.content shouldBe
                     "Continuous Integration and Documentation Automation"
                 val sections = plan["sections"]!!.jsonArray

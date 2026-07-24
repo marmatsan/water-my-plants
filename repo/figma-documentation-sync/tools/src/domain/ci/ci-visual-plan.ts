@@ -82,6 +82,7 @@ export type CiVisualConnection = {
   source: string;
   target: string;
   label: string;
+  kind: "control" | "data" | "status" | "attention" | "neutral";
 };
 
 export type CiVisualSection = {
@@ -95,7 +96,7 @@ export type CiVisualSection = {
 };
 
 export type CiVisualPlan = {
-  schemaVersion: 3;
+  schemaVersion: 4;
   parentName: "Continuous Integration and Documentation Automation";
   sections: CiVisualSection[];
 };

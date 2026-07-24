@@ -114,6 +114,19 @@ internal class CiVisualPlannerTest :
                         "figma-document -> rerun-teamcity-figma-sync: Run secure rerun",
                         "rerun-teamcity-figma-sync -> pipeline-Root_FigmaSync: Queue complete pipeline",
                     )
+                section.connections.map(CiVisualPlan.Connection::kind) shouldContainExactly
+                    listOf(
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.ATTENTION,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                    )
             }
 
             test("documents exact post-merge Gradle tasks in the separate job tasks section") {

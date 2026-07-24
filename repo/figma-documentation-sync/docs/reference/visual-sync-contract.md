@@ -141,7 +141,7 @@ and has no connectors. Expanded nodes use the same compositional API as every
 other node: `.ci node` -> `.ci phase` -> `.ci step`, plus sibling
 `.ci outcome` instances.
 
-The plan uses schema version `3`. Every visual entity contains typed `phases`
+The plan uses schema version `4`. Every visual entity contains typed `phases`
 and `outcomes` arrays, including empty arrays when it has no executable detail.
 Each phase owns a typed `steps` array. TypeScript rejects incompatible schemas,
 missing arrays, invalid roles or kinds, and capacity overflow before any Figma
@@ -268,6 +268,24 @@ does not expose a usable font. `.ci connector label` groups, background
 rectangles, and independently positioned label text are not part of the
 supported contract.
 
+The Kotlin plan assigns every connection a semantic kind. The writer applies
+the following direct stroke colors; generated connectors do not bind these
+colors to Figma variables. The `CI connector colors` collection and the legend
+in the component documentation area mirror this palette for readers, but they
+are not runtime dependencies of the sync.
+
+| Kind | Meaning | Direct stroke |
+|------|---------|---------------|
+| `control` | Trigger, command, scheduling, gate, or rerun flow | `#0067C0` |
+| `data` | Source, artifact, model, metadata, or visual payload | `#7A3E9D` |
+| `status` | Check, result, or status publication | `#2E7D32` |
+| `attention` | Mismatch or operator action required | `#C62828` |
+| `neutral` | Reserved contextual relation with no stronger semantic kind | `#6B7280` |
+
+Color never replaces the native connection label. Keep both the label and kind
+stable in the plan so the visual meaning survives every granular or canonical
+rerun.
+
 `ConnectorText` does not expose a usable width in the Plugin API. Before row
 layout, the writer measures each label with a temporary `TextNode` using the
 same font and font size, removes that node immediately, and reserves the
@@ -319,13 +337,32 @@ the elbow through an intermediate node.
 This routes the elbow through inter-row whitespace instead of across an
 intermediate node while the connector keeps its native label centered. Return
 connections within one row use bottom anchors and route below the row. In the
-topology grid, parallel opposite vertical connections keep the forward path
-direct and route the return path around the left side so its native label
-cannot obscure the forward path or adjacent connectors.
+topology grid, parallel opposite vertical connections route around opposing
+left and right sides. Neither relation uses the central vertical lane, so their
+native labels cannot collapse into the same inter-row band.
 Distinct connections that share the same endpoints must remain visually
 distinct. Route horizontal parallel connections above and below their nodes;
-for opposite vertical connections, keep the forward path direct and route the
-return path around one side.
+route opposite vertical connections around opposing sides.
+
+The selected side is a routing lane, not a request to reuse the side's central
+magnet. After managed node groups reach their final size and position, the
+writer creates one transparent 2 px `.ci connector port` group for every
+connection endpoint. Each port remains on the owning node outline, and the
+native connector binds to that port instead of binding directly to the node
+group. For endpoints that share a node side, order ports by the rendered center
+of the opposite node along that side's axis; use the connection id as the
+stable tie-breaker. Spread the ordered ports evenly between the two corners.
+This keeps converging, diverging, and parallel routes distinguishable while
+preserving the selected top, right, bottom, or left lane.
+
+Ports are generated writer state, not Figma components and not Kotlin plan
+coordinates. Keep them visible to the Plugin API but without fills or strokes,
+mark them as managed `connector-port` nodes, and place them behind the native
+connectors and `.ci node` groups. A granular rerun removes native connectors
+first, then their ports, then node groups. Do not bind a new connector before
+layout is stable or reuse one port for multiple endpoints: either shortcut
+reintroduces ambiguous entry and exit points.
+
 The writer reserves the measured native connector-label width plus explicit
 clearance on both sides. A connector whose route reaches a node outline may do
 so, but its label must not visually touch or cover the node.

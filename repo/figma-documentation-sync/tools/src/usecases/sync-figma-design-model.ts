@@ -161,8 +161,8 @@ function requireCiVisualPlan({
         "Generate it with the generateFigmaCiVisualPlan Gradle task."
     );
   }
-  if (plan.schemaVersion !== 3) {
-    throw new Error("CI visual sync requires ciVisualPlan schemaVersion 3.");
+  if (plan.schemaVersion !== 4) {
+    throw new Error("CI visual sync requires ciVisualPlan schemaVersion 4.");
   }
 
   for (const targetName of targetNames) {

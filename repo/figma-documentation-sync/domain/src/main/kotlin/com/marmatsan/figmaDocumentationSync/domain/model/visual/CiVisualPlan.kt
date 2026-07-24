@@ -73,6 +73,7 @@ data class CiVisualPlan(
         val source: String,
         val target: String,
         val label: String,
+        val kind: ConnectionKind,
     )
 
     enum class Orientation(
@@ -125,5 +126,15 @@ data class CiVisualPlan(
         CHECK("check"),
         SUCCESS("success"),
         ACTION("action"),
+    }
+
+    enum class ConnectionKind(
+        val wireValue: String,
+    ) {
+        CONTROL("control"),
+        DATA("data"),
+        STATUS("status"),
+        ATTENTION("attention"),
+        NEUTRAL("neutral"),
     }
 }

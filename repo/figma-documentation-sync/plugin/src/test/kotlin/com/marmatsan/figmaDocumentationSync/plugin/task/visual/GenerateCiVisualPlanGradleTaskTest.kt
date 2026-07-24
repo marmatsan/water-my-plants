@@ -56,7 +56,7 @@ internal class GenerateCiVisualPlanGradleTaskTest :
 
                     result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
                     val plan = Json.parseToJsonElement(output.readText()).jsonObject
-                    plan.getValue("schemaVersion").jsonPrimitive.content shouldBe "3"
+                    plan.getValue("schemaVersion").jsonPrimitive.content shouldBe "4"
                     plan
                         .getValue("sections")
                         .jsonArray
