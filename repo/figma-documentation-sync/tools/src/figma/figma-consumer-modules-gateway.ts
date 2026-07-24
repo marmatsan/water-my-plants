@@ -530,7 +530,7 @@ function childrenOf(node) {
   return "children" in node ? [...node.children] : [];
 }
 
-function directCatalogItemInstances(root, instanceName) {
+export function directCatalogItemInstances(root, instanceName) {
   const container = childrenOf(root)
     .find((child) => child.name === "artifacts" && "children" in child);
   const directInstances = childrenOf(container || root)
@@ -539,7 +539,11 @@ function directCatalogItemInstances(root, instanceName) {
   if (directInstances.length > 0) return directInstances;
 
   return root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === instanceName);
+    .filter((candidate) => candidate.name === instanceName)
+    .filter((candidate) =>
+      instanceName !== ARTIFACT_INSTANCE_NAME ||
+      !hasAncestorInstanceNamed(candidate, ARTIFACTS_BUNDLE_INSTANCE_NAME, root)
+    );
 }
 
 function isExcludedByOptions(node, root, options: ConsumerModuleOptions = {}) {

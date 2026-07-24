@@ -4,29 +4,40 @@ import {
   libraryArtifacts,
   libraryBundles,
 } from "../src/domain/catalog/library-catalog-entries";
+import { directCatalogItemInstances } from "../src/figma/figma-consumer-modules-gateway";
 import { requireNestedTemplateInstance } from "../src/figma/figma-visual-contract-check-gateway";
-import { requireFreshInstance } from "../src/figma/figma-node-gateway";
 
-test("tree node writers reacquire instances after component property updates", async () => {
-  const staleInstance = {
-    id: "tree-node-instance",
-    type: "INSTANCE",
-    findAllWithCriteria: () => [],
-  };
-  const refreshedInstance = {
-    id: "tree-node-instance",
-    type: "INSTANCE",
-    findAllWithCriteria: () => [
-      { id: "bundle-artifact", name: ".artifact" },
+test("direct artifact selection excludes rows owned by an artifacts bundle", () => {
+  const root = {
+    id: "tree-node",
+    children: [
+      {
+        id: "artifacts-container",
+        name: "artifacts",
+        children: [],
+      },
     ],
   };
+  const bundle = {
+    id: "bundle",
+    type: "INSTANCE",
+    name: ".artifacts bundle",
+    parent: root,
+  };
+  const nestedArtifact = {
+    id: "bundle-artifact",
+    type: "INSTANCE",
+    name: ".artifact",
+    parent: bundle,
+  };
+  root.findAllWithCriteria = () => [bundle, nestedArtifact];
 
-  assert.equal(
-    await requireFreshInstance(
-      staleInstance,
-      async () => refreshedInstance
+  assert.deepEqual(
+    directCatalogItemInstances(
+      root,
+      ".artifact"
     ),
-    refreshedInstance
+    []
   );
 });
 

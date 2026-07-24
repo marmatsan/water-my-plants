@@ -4,11 +4,7 @@ import {
 } from "@figma-documentation-sync/project-config";
 import { updateLibraryArtifactConsumerModules, updateLibraryBundleConsumerModules, updatePluginUsageBlocks } from "./figma-consumer-modules-gateway";
 import type { FlattenedCatalogNode } from "../domain/design-model";
-import {
-  getComponentPropertyValue,
-  requireFreshInstance,
-  requireTreeNodeComponent,
-} from "./figma-node-gateway";
+import { getComponentPropertyValue, requireTreeNodeComponent } from "./figma-node-gateway";
 import {
   libraryArtifacts,
   libraryBundles,
@@ -92,17 +88,15 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
   });
   mutatedNodeIds.push(instance.id);
 
-  const refreshedInstance = await requireFreshInstance(instance);
-
-  await updateNamedTextNodes(refreshedInstance, "Library group", [node.label], mutatedNodeIds);
-  await updateLibraryArtifactConsumerModules(refreshedInstance, artifacts, mutatedNodeIds);
-  await updateLibraryBundleConsumerModules(refreshedInstance, bundles, mutatedNodeIds);
+  await updateNamedTextNodes(instance, "Library group", [node.label], mutatedNodeIds);
+  await updateLibraryArtifactConsumerModules(instance, artifacts, mutatedNodeIds);
+  await updateLibraryBundleConsumerModules(instance, bundles, mutatedNodeIds);
 
   if (!hasVisibleCatalogItems && requiredByModules.length === 0 && !hasCatalogEntries) {
-    resizeBareTreeNodeToFitLabel(refreshedInstance, "Library group", mutatedNodeIds);
+    resizeBareTreeNodeToFitLabel(instance, "Library group", mutatedNodeIds);
   }
 
-  restoreTreeNodeHorizontalCenter(refreshedInstance, horizontalCenter, mutatedNodeIds);
+  restoreTreeNodeHorizontalCenter(instance, horizontalCenter, mutatedNodeIds);
 }
 
 export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
@@ -131,10 +125,8 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
   });
   mutatedNodeIds.push(instance.id);
 
-  const refreshedInstance = await requireFreshInstance(instance);
-
   await updatePluginUsageBlocks(
-    refreshedInstance,
+    instance,
     effectiveAppliedToModules,
     providedByConventionPlugins,
     showUnusedPluginWarning,
@@ -147,10 +139,10 @@ export async function updatePluginTreeNode(instance, node, mutatedNodeIds, targe
     !showGradlePluginBadge &&
     !hasVisiblePluginVersion(node)
   ) {
-    resizeBareTreeNodeToFitLabel(refreshedInstance, "Plugin ID", mutatedNodeIds);
+    resizeBareTreeNodeToFitLabel(instance, "Plugin ID", mutatedNodeIds);
   }
 
-  restoreTreeNodeHorizontalCenter(refreshedInstance, horizontalCenter, mutatedNodeIds);
+  restoreTreeNodeHorizontalCenter(instance, horizontalCenter, mutatedNodeIds);
 }
 
 function hasVisiblePluginVersion(node: FlattenedCatalogNode) {
