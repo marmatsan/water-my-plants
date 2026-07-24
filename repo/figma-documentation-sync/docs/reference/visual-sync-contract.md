@@ -71,7 +71,11 @@ For library catalog items, preflight validates `.artifact`, `.artifacts bundle`,
 and `.tool artifact usage` templates from the target section when present,
 falling back to the base `.tree node` component only when the section has no
 template. This matches the writer behavior: new nodes clone compatible section
-instances before falling back to the base component variant.
+instances before falling back to the base component variant. When an instance
+property hides a required nested template from instance traversal, preflight
+validates that template through the instance's main component. This fallback is
+read-only and must not toggle component properties merely to expose hidden
+slots.
 
 Catalog runners may pass `catalogRootFilters` to sync only one or more
 top-level roots inside a catalog target, for example `androidx` in

@@ -567,7 +567,10 @@ async function checkLibraryTemplatesForTarget(section, expectedNodes, checkedCom
     const artifact = await findLibraryTemplateInstance(section, ARTIFACT_INSTANCE_NAME);
     checkArtifactTemplate(artifact, checkedComponents);
     if (requiresToolArtifactUsage) {
-      const toolArtifactUsage = requireNestedInstance(artifact, TOOL_ARTIFACT_USAGE_INSTANCE_NAME);
+      const toolArtifactUsage = await requireNestedTemplateInstance(
+        artifact,
+        TOOL_ARTIFACT_USAGE_INSTANCE_NAME
+      );
       requireComponentProperty(toolArtifactUsage, TOOL_ARTIFACT_USAGE_PROPS.target, "TEXT");
       checkedComponents.push(`${TOOL_ARTIFACT_USAGE_INSTANCE_NAME}:${toolArtifactUsage.id}`);
     }
@@ -658,6 +661,41 @@ function requireNestedInstance(root: any, instanceName: string) {
     throw new Error(`Expected '${root.id}' to contain a '${instanceName}' template instance.`);
   }
   return instance;
+}
+
+export async function requireNestedTemplateInstance(
+  root: any,
+  instanceName: string
+) {
+  const instance = findNestedInstance(
+    root,
+    instanceName
+  );
+  if (instance) return instance;
+
+  const mainComponent = root.type === "INSTANCE"
+    ? await root.getMainComponentAsync()
+    : null;
+  const componentTemplate = mainComponent
+    ? findNestedInstance(
+        mainComponent,
+        instanceName
+      )
+    : null;
+  if (componentTemplate) return componentTemplate;
+
+  throw new Error(
+    `Expected '${root.id}' or its main component to contain a ` +
+      `'${instanceName}' template instance.`
+  );
+}
+
+function findNestedInstance(
+  root: any,
+  instanceName: string
+) {
+  return root.findAllWithCriteria({ types: ["INSTANCE"] })
+    .find((candidate) => candidate.name === instanceName);
 }
 
 function requireComponentProperty(node: any, propertyName: string, propertyType: string) {
