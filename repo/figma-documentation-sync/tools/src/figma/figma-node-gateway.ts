@@ -74,6 +74,17 @@ export async function requireConnector(nodeId) {
   return node;
 }
 
+export async function requireFreshInstance(
+  instance,
+  resolveNode = (nodeId) => figma.getNodeByIdAsync(nodeId)
+) {
+  const node = await resolveNode(instance.id);
+  if (!node || node.type !== "INSTANCE") {
+    throw new Error(`Expected '${instance.id}' to remain an INSTANCE after updating its component properties.`);
+  }
+  return node;
+}
+
 export async function requireFrame(nodeId) {
   const node = await figma.getNodeByIdAsync(nodeId);
   if (!node || node.type !== "FRAME") {

@@ -5,6 +5,30 @@ import {
   libraryBundles,
 } from "../src/domain/catalog/library-catalog-entries";
 import { requireNestedTemplateInstance } from "../src/figma/figma-visual-contract-check-gateway";
+import { requireFreshInstance } from "../src/figma/figma-node-gateway";
+
+test("tree node writers reacquire instances after component property updates", async () => {
+  const staleInstance = {
+    id: "tree-node-instance",
+    type: "INSTANCE",
+    findAllWithCriteria: () => [],
+  };
+  const refreshedInstance = {
+    id: "tree-node-instance",
+    type: "INSTANCE",
+    findAllWithCriteria: () => [
+      { id: "bundle-artifact", name: ".artifact" },
+    ],
+  };
+
+  assert.equal(
+    await requireFreshInstance(
+      staleInstance,
+      async () => refreshedInstance
+    ),
+    refreshedInstance
+  );
+});
 
 test("preflight validates hidden templates through an instance main component", async () => {
   const expected = { id: "tool-usage", name: ".tool artifact usage" };

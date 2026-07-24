@@ -228,6 +228,19 @@ component unchanged and make preflight validate the main component as a
 read-only fallback. Do not mutate the instance property during preflight and do
 not remove the component slots to match a hidden instance.
 
+A catalog write can instead fail immediately after updating the parent
+`.tree node` properties, even though a separate read of the same bundle finds
+all expected artifacts:
+
+```text
+Bundle '...' expected at least 4 '.artifact' instances, found 0.
+```
+
+This indicates a stale Plugin API instance reference, not a missing component
+slot. Reacquire the `.tree node` by ID after `setProperties` and only then walk
+or mutate its nested `.artifact` and `.artifacts bundle` instances. Do not add
+component properties or retry the same canonical runner to mask this failure.
+
 When deriving a new component set from existing variants, cloning a variant
 preserves its layers but does not recreate the shared component-set property
 contract reliably. Create the shared properties on the new set, wire every
