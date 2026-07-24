@@ -173,6 +173,12 @@ instances, while preflight requires each slot to be a direct child of its named
 container. Neither path creates ad hoc siblings or depends on unstable nested
 sublayer IDs.
 
+The writer resolves a slot family only when its owning block is visible:
+non-empty `phases` enable phase traversal, non-empty `outcomes` enable outcome
+traversal, and a phase with non-empty `steps` enables step traversal. Figma can
+return no exposed instances after the corresponding container property is set
+to false, so empty typed arrays must not trigger slot validation or mutation.
+
 The `.ci phase` master exposes `show steps=true`, and its direct `steps` frame
 binds `visible` to that BOOLEAN property. The writer derives the instance value
 from `phase.steps.length > 0`. This container-level visibility is required in

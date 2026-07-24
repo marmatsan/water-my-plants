@@ -454,8 +454,16 @@ async function syncCiExecution({
     );
   }
 
-  const phaseSlots = await requireCiPhaseSlots(node);
-  const outcomeSlots = await requireCiOutcomeSlots(node);
+  const slotRequirements = ciExecutionSlotRequirements({
+    phases,
+    outcomes,
+  });
+  const phaseSlots = slotRequirements.phases
+    ? await requireCiPhaseSlots(node)
+    : [];
+  const outcomeSlots = slotRequirements.outcomes
+    ? await requireCiOutcomeSlots(node)
+    : [];
   const updatedPhases: InstanceNode[] = [];
   const updatedSteps: InstanceNode[] = [];
   const updatedOutcomes: InstanceNode[] = [];
@@ -478,10 +486,12 @@ async function syncCiExecution({
     });
     phaseInstance.visible = true;
     updatedPhases.push(phaseInstance);
-    updatedSteps.push(...await syncCiStepSlots({
-      phase: phaseInstance,
-      steps: phase.steps,
-    }));
+    if (slotRequirements.steps[index]) {
+      updatedSteps.push(...await syncCiStepSlots({
+        phase: phaseInstance,
+        steps: phase.steps,
+      }));
+    }
   }
 
   for (const [index, outcomeInstance] of outcomeSlots.entries()) {
@@ -502,6 +512,20 @@ async function syncCiExecution({
     phases: updatedPhases,
     steps: updatedSteps,
     outcomes: updatedOutcomes,
+  };
+}
+
+export function ciExecutionSlotRequirements({
+  phases,
+  outcomes,
+}: {
+  phases: CiVisualPhase[];
+  outcomes: CiVisualOutcome[];
+}) {
+  return {
+    phases: phases.length > 0,
+    outcomes: outcomes.length > 0,
+    steps: phases.map((phase) => phase.steps.length > 0),
   };
 }
 

@@ -4,6 +4,7 @@ import type { CiVisualNode } from "../src/domain/ci/ci-visual-plan";
 import {
   centeredRowY,
   ciConnectorMagnets,
+  ciExecutionSlotRequirements,
   ciNodePropertyValues,
   ciOutcomePropertyValues,
   ciParentResizeDimensions,
@@ -89,6 +90,55 @@ test("CI hierarchy reserves stable phase, step, and outcome slot names", () => {
   assert.equal(ciOutcomeSlotName(1), "outcome 01");
   assert.equal(ciOutcomeSlotName(4), "outcome 04");
   assert.throws(() => ciOutcomeSlotName(5), /between 1 and 4/);
+});
+
+test("CI writers traverse only slot families whose containers are visible", () => {
+  assert.deepEqual(
+    ciExecutionSlotRequirements({
+      phases: [],
+      outcomes: [],
+    }),
+    {
+      phases: false,
+      outcomes: false,
+      steps: [],
+    }
+  );
+
+  assert.deepEqual(
+    ciExecutionSlotRequirements({
+      phases: [
+        {
+          order: "01",
+          title: "Validate agent",
+          steps: [],
+        },
+        {
+          order: "02",
+          title: "Run planned checks",
+          steps: [
+            {
+              order: "01",
+              role: "action",
+              title: "Run Gradle",
+            },
+          ],
+        },
+      ],
+      outcomes: [
+        {
+          order: "01",
+          kind: "check",
+          title: "TeamCity CI",
+        },
+      ],
+    }),
+    {
+      phases: true,
+      outcomes: true,
+      steps: [false, true],
+    }
+  );
 });
 
 test("CI node properties reveal the execution plan when phases exist", () => {
