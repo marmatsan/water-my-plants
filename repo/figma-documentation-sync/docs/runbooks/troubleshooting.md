@@ -258,6 +258,12 @@ container remains bound to `show optional details`. Validate at least one
 compact instance after the move; checking only the fully expanded master can
 hide a lost binding or a fixed-width child.
 
+If CI preflight reports a `.ci node` outline mismatch, keep exactly one visible
+solid stroke on the root component, bind it to `md/sys/color/outline`, align it
+`INSIDE`, and set its weight to `2`. Remove any stroke from `optional details`
+so expanded and compact instances have one boundary instead of a double
+outline.
+
 If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
 slots:
 

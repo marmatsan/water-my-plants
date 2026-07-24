@@ -227,10 +227,11 @@ outcome slots, and each phase's `steps` frame owns its exposed step slots.
 `show execution plan` collapses that complete frame when no phases exist,
 `show outcome` collapses the complete result frame when no outcomes exist, and
 `show optional details` collapses the details container when neither child is
-visible. The summary and outer details frames stretch to the width established
-by the visible execution content, so compact nodes remain narrow and task nodes
-receive a matching full-width header. The outer details frame owns the runtime
-divider and the `md/sys/color/outline` 2 px inside stroke; the nested `details
+visible. The `.ci node` root owns exactly one visible 2 px inside stroke bound
+to `md/sys/color/outline`. The summary and outer details frames stretch to the
+width established by the visible execution content, so compact nodes remain
+narrow and task nodes receive a matching full-width header. The outer details
+frame owns the runtime divider but no additional stroke; the nested `details
 content` frame preserves the compact reading width. Action descriptions remain
 in the typed model but are hidden visually; phase, decision, group, and outcome
 descriptions remain visible.

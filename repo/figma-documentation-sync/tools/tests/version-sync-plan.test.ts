@@ -4,7 +4,10 @@ import {
   dependencyVersionGridPosition,
   planDependencyVersionInstanceSync,
 } from "../src/figma/figma-version-sync-gateway";
-import { sectionStrokeContractSatisfied } from "../src/figma/figma-node-gateway";
+import {
+  outlineStrokeContractSatisfied,
+  sectionStrokeContractSatisfied,
+} from "../src/figma/figma-node-gateway";
 
 test("version sync removes stale renamed dependency versions and exact duplicates", () => {
   const instances = [
@@ -59,6 +62,42 @@ test("section stroke contract requires the bound outline variable, inside alignm
   assert.equal(sectionStrokeContractSatisfied({ ...compliantSection, strokeWeight: 1 }, "outline-variable"), false);
   assert.equal(sectionStrokeContractSatisfied({ ...compliantSection, strokeAlign: "CENTER" }, "outline-variable"), false);
   assert.equal(sectionStrokeContractSatisfied(compliantSection, "another-variable"), false);
+});
+
+test("outline stroke contract rejects hidden, transparent, or duplicated boundaries", () => {
+  const compliantNode = {
+    strokeAlign: "INSIDE",
+    strokeWeight: 2,
+    strokes: [{
+      type: "SOLID",
+      opacity: 1,
+      visible: true,
+      boundVariables: { color: { id: "outline-variable" } },
+    }],
+  };
+
+  assert.equal(outlineStrokeContractSatisfied(compliantNode, "outline-variable"), true);
+  assert.equal(
+    outlineStrokeContractSatisfied({
+      ...compliantNode,
+      strokes: [{ ...compliantNode.strokes[0], visible: false }],
+    }, "outline-variable"),
+    false
+  );
+  assert.equal(
+    outlineStrokeContractSatisfied({
+      ...compliantNode,
+      strokes: [{ ...compliantNode.strokes[0], opacity: 0 }],
+    }, "outline-variable"),
+    false
+  );
+  assert.equal(
+    outlineStrokeContractSatisfied({
+      ...compliantNode,
+      strokes: [...compliantNode.strokes, ...compliantNode.strokes],
+    }, "outline-variable"),
+    false
+  );
 });
 
 test("parent sections with a direct Header satisfy the contract only without strokes", () => {
