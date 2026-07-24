@@ -178,12 +178,13 @@ hidden. The `.ci node` does not expose the obsolete `steps` or `show steps`
 properties; `show steps` belongs only to `.ci phase`, where it controls the
 phase-owned step container.
 
-The `summary` and outer `optional details` frames stretch to the current node
-width. This keeps the header and details boundary aligned with expanded task
-nodes while compact flow nodes remain narrow. `optional details` owns the
-full-width runtime divider and an inside-aligned 2 px stroke bound to
-`md/sys/color/outline`; its nested `details content` frame keeps runtime and
-source text at the compact reading width.
+The `.ci node` root owns exactly one visible, inside-aligned 2 px stroke bound
+to `md/sys/color/outline`. The `summary` and outer `optional details` frames
+stretch to the current node width. This keeps the header and details boundary
+aligned with expanded task nodes while compact flow nodes remain narrow.
+`optional details` owns the full-width runtime divider but no additional
+stroke; its nested `details content` frame keeps runtime and source text at the
+compact reading width.
 
 Use the step variants consistently:
 

@@ -156,13 +156,21 @@ export function sectionStrokeContractSatisfied(section, outlineVariableId) {
   if (hasDirectHeader(section)) {
     return Array.isArray(section.strokes) && section.strokes.length === 0;
   }
-  if (section.strokeAlign !== SECTION_STROKE_ALIGN || section.strokeWeight !== SECTION_STROKE_WEIGHT) {
+
+  return outlineStrokeContractSatisfied(section, outlineVariableId);
+}
+
+export function outlineStrokeContractSatisfied(node, outlineVariableId) {
+  if (node.strokeAlign !== SECTION_STROKE_ALIGN || node.strokeWeight !== SECTION_STROKE_WEIGHT) {
     return false;
   }
-  if (!Array.isArray(section.strokes) || section.strokes.length !== 1) return false;
+  if (!Array.isArray(node.strokes) || node.strokes.length !== 1) return false;
 
-  const stroke = section.strokes[0];
-  return stroke.type === "SOLID" && stroke.boundVariables?.color?.id === outlineVariableId;
+  const stroke = node.strokes[0];
+  return stroke.type === "SOLID" &&
+    stroke.visible !== false &&
+    (stroke.opacity ?? 1) === 1 &&
+    stroke.boundVariables?.color?.id === outlineVariableId;
 }
 
 function applySectionStrokeContract(section, outlineVariable, mutatedNodeIds) {

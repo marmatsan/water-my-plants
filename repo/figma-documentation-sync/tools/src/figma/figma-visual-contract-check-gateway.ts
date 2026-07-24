@@ -73,6 +73,7 @@ import {
   requireComponentSet,
   requireFrameOrSection,
   requireModeId,
+  outlineStrokeContractSatisfied,
   requireOutlineColorVariable,
   requirePage,
   requireSection,
@@ -123,6 +124,16 @@ async function checkCiDocumentationContract(
   checkedSections.push(`ciDocumentation:${page.id}`);
 
   const component = await requireComponent(CI_NODE_COMPONENT_ID);
+  const outlineVariable = await requireOutlineColorVariable();
+  if (!outlineStrokeContractSatisfied(component, outlineVariable.id)) {
+    throw new Error(
+      `CI node component '${component.id}' must have exactly one visible solid stroke ` +
+        `bound to '${outlineVariable.name}', aligned inside, with weight 2.`
+    );
+  }
+  if (!checkedVariables.includes(outlineVariable.name)) {
+    checkedVariables.push(outlineVariable.name);
+  }
   requireComponentProperty(component, CI_NODE_PROPS.name, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.description, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.executionPlanHeading, "TEXT");
