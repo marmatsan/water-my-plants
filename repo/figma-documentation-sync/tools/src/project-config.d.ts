@@ -16,8 +16,8 @@ declare module "@figma-documentation-sync/project-config" {
   export const CI_ICON_ENVIRONMENT_PROPERTY: any;
   export const CI_ICON_ENVIRONMENTS: any;
   export const CI_CONNECTOR_NAME: any;
-  export const CI_CONNECTOR_LABEL_NAME: any;
-  export const CI_CONNECTOR_TEMPLATE_SECTION_ID: any;
+  export const CI_CONNECTOR_TEMPLATE_NAME: any;
+  export const CI_CONNECTOR_TEMPLATE_NODE_ID: any;
   export const CI_NODE_PROPS: any;
   export const CI_NODE_PHASE_CONTAINER_NAME: any;
   export const CI_NODE_OUTCOME_CONTAINER_NAME: any;

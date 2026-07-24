@@ -4,7 +4,7 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-22
+last-reviewed: 2026-07-24
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -431,6 +431,25 @@ connector into a section: that makes the line render far away from the
 Verify a touched section visually before writing metadata when connector
 behavior changes.
 
+## CI Connectors That Cross Nodes
+
+CI relations use the native `simple-line_arrow` connector at node
+`64758:2748`, including its centered text. They do not use a separately grouped
+label. If an elbowed CI connector blocks a node, inspect its endpoints before
+changing spacing or recreating visual labels:
+
+- connections between nodes in the same horizontal row use side magnets;
+- downward cross-row connections use `BOTTOM` to `TOP`;
+- upward cross-row connections use `TOP` to `BOTTOM`;
+- same-row return connections use bottom magnets so they route below the row.
+
+A side-to-side route between different rows can cross an intermediate node even
+when the connector label itself is correct. Reproduce route changes in an
+isolated Figma section first, keep one obstacle node between the endpoints, and
+verify both directions before changing the canonical writer. After the writer
+is rebuilt, rerun the affected granular `ci.*` target and inspect the native
+label and complete elbow before writing metadata.
+
 ## Removed Connector Lookup Failures
 
 If a catalog tree or granular CI documentation sync fails with a message like:
@@ -463,6 +482,12 @@ connectors. If connector creation fails, report the parent and child node ids in
 the diagnostic path before writing metadata. That keeps the failed visual
 relation actionable instead of reducing the problem to a generic Figma API
 error.
+
+CI connectors have a separate exact-node contract. The preflight must fail if
+node `64758:2748` is missing, is not a connector, is not named
+`simple-line_arrow`, is not elbowed with an arrow-lines end cap, or has no
+native text. Do not fall back to `simple-solid_arrow` and do not recreate the
+removed `.ci connector label` structure.
 
 ## Missing Component Property
 

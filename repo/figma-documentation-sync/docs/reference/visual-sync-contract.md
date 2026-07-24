@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-22
+last-reviewed: 2026-07-24
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -236,45 +236,46 @@ content` frame preserves the compact reading width. Action descriptions remain
 in the typed model but are hidden visually; phase, decision, group, and outcome
 descriptions remain visible.
 
-Native Figma connectors are cloned from the existing `simple-solid_arrow` template because
-the MCP runtime does not expose `figma.createConnector()`. The clones attach to
-the managed node groups using the magnets selected for the section layout,
-remain children of the target section, and are inserted behind nodes.
-Cloned connector text may initially expose an empty font name; the writer uses
-the design file's `Poppins Regular` connector font as the explicit fallback
-before clearing the native connector text. Connector labels are managed groups
-named `.ci connector label`, composed of a surface background and horizontal
-text, and placed between connected node groups. Do not use native connector
-text for CI labels because Figma rotates it with vertical and elbowed connector
-paths.
-Inside every label group, `Background` must be the bottom layer and `Label`
-must be the top layer. The background is opaque, so reversing this order keeps
-the text in the document but makes it disappear visually.
+Native Figma CI connectors are cloned from the `simple-line_arrow` connector
+at node `64758:2748` because the MCP runtime does not expose
+`figma.createConnector()`. The visual preflight resolves that exact node and
+requires its configured name, elbowed line type, arrow-lines end cap, and
+native text before any CI section is mutated. This identity is independent
+from the `simple-solid_arrow` template used by catalog trees.
+
+Each clone remains a child of the target section, is inserted behind its node
+groups, and stores the connection label in the connector's native text. The
+writer preserves the template font and uses `Inter Medium` only when the clone
+does not expose a usable font. `.ci connector label` groups, background
+rectangles, and independently positioned label text are not part of the
+supported contract.
+
 `Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
 use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
 topology grid. `Windows Service Runtime` is a connector-free grid whose service
 nodes share one row. Horizontal flows connect from the side anchors of their node
 groups and vertically align node centers. Their inter-node gap grows when
-necessary so the connector label fits centered on the horizontal connector.
+necessary so the native connector text fits on the horizontal route.
 Figma can apply exposed boolean visibility properties after `setProperties`
 returns, which changes instance height after hidden blocks collapse. The writer
 must wait until managed node-group dimensions are stable before laying out a
-row, then wait for connector geometry to stabilize before centering labels on
-the resulting connector bounds. Calculating either position from the initial
-component dimensions top-aligns mixed-height nodes and leaves labels centered
-on stale connector coordinates.
+row, bind connector endpoints only after that layout, and then wait for
+connector geometry to stabilize before resizing the section. Calculating the
+route from the initial component dimensions can top-align mixed-height nodes
+and send connectors through their content.
 Disconnected horizontal flows are stacked as separate rows and each row starts
 at the same left edge. Post-merge job order is derived from declared artifact
 publication and job dependencies, never from the order of jobs in the generated
 TeamCity model.
-Return connections use bottom anchors and route below the row instead of
-crossing intermediate nodes. In the topology grid, parallel opposite vertical
-connections keep the forward path direct and route the return path around the
-left side so its label cannot obscure the forward path or adjacent connectors.
-Label text wraps when it exceeds 280 px, and label placement must avoid every
-`.ci node group` and previously placed connector label. If no direct gap is
-available, search additional positions outside the connected nodes instead of
-covering a node or another label.
+Connections within one horizontal row use side anchors. Connections whose node
+groups occupy different, non-overlapping rows use vertical anchors: `BOTTOM` to
+`TOP` for a downward relation and `TOP` to `BOTTOM` for an upward relation.
+This routes the elbow through inter-row whitespace instead of across an
+intermediate node while the connector keeps its native label centered. Return
+connections within one row use bottom anchors and route below the row. In the
+topology grid, parallel opposite vertical connections keep the forward path
+direct and route the return path around the left side so its native label
+cannot obscure the forward path or adjacent connectors.
 Distinct connections that share the same endpoints must remain visually
 distinct. Route horizontal parallel connections above and below their nodes;
 for opposite vertical connections, keep the forward path direct and route the

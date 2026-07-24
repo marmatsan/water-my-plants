@@ -26,6 +26,10 @@ internal class FigmaWriterProjectConfigJsonTest :
                     "water_my_plants_sync_staging"
                 root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
                 root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
+                root.getValue("CI_CONNECTOR_TEMPLATE_NAME").jsonPrimitive.content shouldBe
+                    "simple-line_arrow"
+                root.getValue("CI_CONNECTOR_TEMPLATE_NODE_ID").jsonPrimitive.content shouldBe
+                    "64758:2748"
                 root.getValue("CI_NODE_PHASE_CONTAINER_NAME").jsonPrimitive.content shouldBe "execution plan"
                 root.getValue("CI_NODE_OUTCOME_CONTAINER_NAME").jsonPrimitive.content shouldBe "outcome"
                 root.getValue("CI_PHASE_STEP_CONTAINER_NAME").jsonPrimitive.content shouldBe "steps"
@@ -173,8 +177,8 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "CI_ICON_ENVIRONMENT_PROPERTY",
                 "CI_ICON_ENVIRONMENTS",
                 "CI_CONNECTOR_NAME",
-                "CI_CONNECTOR_LABEL_NAME",
-                "CI_CONNECTOR_TEMPLATE_SECTION_ID",
+                "CI_CONNECTOR_TEMPLATE_NAME",
+                "CI_CONNECTOR_TEMPLATE_NODE_ID",
                 "CI_NODE_PROPS",
                 "CI_NODE_PHASE_CONTAINER_NAME",
                 "CI_NODE_OUTCOME_CONTAINER_NAME",

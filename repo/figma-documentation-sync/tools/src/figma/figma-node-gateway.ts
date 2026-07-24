@@ -66,6 +66,14 @@ export async function requireComponentSet(nodeId) {
   return node;
 }
 
+export async function requireConnector(nodeId) {
+  const node = await figma.getNodeByIdAsync(nodeId);
+  if (!node || node.type !== "CONNECTOR") {
+    throw new Error(`Expected '${nodeId}' to be a CONNECTOR.`);
+  }
+  return node;
+}
+
 export async function requireFrame(nodeId) {
   const node = await figma.getNodeByIdAsync(nodeId);
   if (!node || node.type !== "FRAME") {

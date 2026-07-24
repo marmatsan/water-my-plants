@@ -4,7 +4,8 @@ import {
   ARTIFACT_INSTANCE_NAME,
   ARTIFACT_PROPS,
   CATALOG_TREE_TARGETS,
-  CI_CONNECTOR_TEMPLATE_SECTION_ID,
+  CI_CONNECTOR_TEMPLATE_NAME,
+  CI_CONNECTOR_TEMPLATE_NODE_ID,
   CI_DOCUMENTATION_PAGE_ID,
   CI_ICON_COMPONENT_SET_ID,
   CI_ICON_ENVIRONMENT_PROPERTY,
@@ -26,7 +27,6 @@ import {
   CI_VISUAL_TARGET_NAMES,
   CI_VARIABLE_COLLECTION_NAME,
   CI_VARIABLE_MODE_NAMES,
-  CONNECTOR_TEMPLATE_NAME,
   HEADER_INSTANCE_NAME,
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
@@ -71,6 +71,7 @@ import { filterModelRoots } from "./figma-catalog-tree-sync-gateway";
 import {
   requireComponent,
   requireComponentSet,
+  requireConnector,
   requireFrameOrSection,
   requireModeId,
   outlineStrokeContractSatisfied,
@@ -313,16 +314,24 @@ async function checkCiDocumentationContract(
   }
   checkedComponents.push(`${iconSet.name}:${iconSet.id}`);
 
-  const connectorSection = await requireSection(CI_CONNECTOR_TEMPLATE_SECTION_ID);
-  const connectorTemplate = connectorSection.findAllWithCriteria({ types: ["CONNECTOR"] })
-    .find((candidate) => candidate.name === CONNECTOR_TEMPLATE_NAME);
-  if (!connectorTemplate) {
+  const connectorTemplate = await requireConnector(CI_CONNECTOR_TEMPLATE_NODE_ID);
+  if (connectorTemplate.name !== CI_CONNECTOR_TEMPLATE_NAME) {
     throw new Error(
-      `No '${CONNECTOR_TEMPLATE_NAME}' connector template was found in section '${connectorSection.id}'.`
+      `CI connector template '${connectorTemplate.id}' must be named ` +
+        `'${CI_CONNECTOR_TEMPLATE_NAME}'; found '${connectorTemplate.name}'.`
     );
   }
+  if (connectorTemplate.connectorLineType !== "ELBOWED" ||
+      connectorTemplate.connectorEndStrokeCap !== "ARROW_LINES") {
+    throw new Error(
+      `CI connector template '${connectorTemplate.id}' must be an elbowed connector ` +
+        `with an ARROW_LINES end cap.`
+    );
+  }
+  if (!connectorTemplate.text.characters.trim()) {
+    throw new Error(`CI connector template '${connectorTemplate.id}' must expose native text.`);
+  }
   checkedComponents.push(`${connectorTemplate.name}:${connectorTemplate.id}`);
-  checkedSections.push(`ciConnectorTemplate:${connectorSection.id}`);
 
   const collection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
   for (const modeName of CI_VARIABLE_MODE_NAMES) {
