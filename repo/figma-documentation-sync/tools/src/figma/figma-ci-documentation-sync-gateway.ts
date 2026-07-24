@@ -74,6 +74,7 @@ const ROLE_CONNECTOR = "connector";
 const LIGHT_MODE_NAME = "Light";
 const CONNECTOR_LABEL_CLEARANCE = 24;
 const CI_CONNECTOR_FALLBACK_FONT = { family: "Inter", style: "Medium" } as const;
+const CI_CONNECTOR_FALLBACK_FONT_SIZE = 16;
 
 export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGateway {
   async syncCiDocumentation(
@@ -323,11 +324,11 @@ async function syncSectionContent(
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR);
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, edge.id);
     section.insertChild(0, connector);
-    await setNativeConnectorLabel(
+    const labelWidth = await setNativeConnectorLabel(
       connector,
       edge.label
     );
-    connectorLabelMetricsByModelId.set(edge.id, { width: connector.text.width });
+    connectorLabelMetricsByModelId.set(edge.id, { width: labelWidth });
     connectorRecords.push({ edge, source, target, connector });
     createdCiConnectors.push(connector.id);
     mutatedNodeIds.push(connector.id);
@@ -1130,6 +1131,36 @@ async function setNativeConnectorLabel(
   await figma.loadFontAsync(fontName);
   connector.text.fontName = fontName;
   connector.text.characters = label;
+  return measureNativeConnectorLabelWidth({
+    label,
+    fontName,
+    fontSize: typeof connector.text.fontSize === "number"
+      ? connector.text.fontSize
+      : CI_CONNECTOR_FALLBACK_FONT_SIZE,
+  });
+}
+
+export function measureNativeConnectorLabelWidth({
+  label,
+  fontName,
+  fontSize,
+  createTextNode = () => figma.createText(),
+}: {
+  label: string;
+  fontName: FontName;
+  fontSize: number;
+  createTextNode?: () => TextNode;
+}) {
+  const measurement = createTextNode();
+  try {
+    measurement.fontName = fontName;
+    measurement.fontSize = fontSize;
+    measurement.textAutoResize = "WIDTH_AND_HEIGHT";
+    measurement.characters = label;
+    return measurement.width;
+  } finally {
+    measurement.remove();
+  }
 }
 
 function setComponentVariantProperty(instance, propertyName, value) {

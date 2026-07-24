@@ -14,6 +14,7 @@ import {
   horizontalFlowPositions,
   horizontalConnectorGap,
   managedCiRemovalPriority,
+  measureNativeConnectorLabelWidth,
   waitForStableCiLayout,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
 import {
@@ -389,6 +390,38 @@ test("CI horizontal rows align node centers and reserve label width", () => {
   assert.equal(centeredRowY(100, 200, 120), 140);
   assert.equal(horizontalConnectorGap(80), 160);
   assert.equal(horizontalConnectorGap(280), 328);
+});
+
+test("CI connector label measurement uses a temporary text node and removes it", () => {
+  let removed = false;
+  const measurement = {
+    characters: "",
+    fontName: null,
+    fontSize: 0,
+    textAutoResize: "NONE",
+    get width() {
+      return this.characters.length * 10;
+    },
+    remove() {
+      removed = true;
+    },
+  };
+
+  assert.equal(
+    measureNativeConnectorLabelWidth({
+      label: "Generate and publish",
+      fontName: {
+        family: "Inter",
+        style: "Medium",
+      },
+      fontSize: 16,
+      createTextNode: () => measurement,
+    }),
+    200
+  );
+  assert.equal(measurement.characters, "Generate and publish");
+  assert.equal(measurement.textAutoResize, "WIDTH_AND_HEIGHT");
+  assert.equal(removed, true);
 });
 
 test("CI layout waits for hidden component blocks to collapse before positioning", async () => {

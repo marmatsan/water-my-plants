@@ -260,6 +260,13 @@ does not expose a usable font. `.ci connector label` groups, background
 rectangles, and independently positioned label text are not part of the
 supported contract.
 
+`ConnectorText` does not expose a usable width in the Plugin API. Before row
+layout, the writer measures each label with a temporary `TextNode` using the
+same font and font size, removes that node immediately, and reserves the
+measured width plus horizontal clearance. Do not read `connector.text.width`:
+an undefined measurement collapses the gap and can send an elbowed connector
+thousands of pixels outside its row.
+
 `Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
 use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
 topology grid. `Windows Service Runtime` is a connector-free grid whose service
