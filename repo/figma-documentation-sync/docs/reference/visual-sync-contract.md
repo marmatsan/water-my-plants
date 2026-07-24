@@ -267,6 +267,11 @@ measured width plus horizontal clearance. Do not read `connector.text.width`:
 an undefined measurement collapses the gap and can send an elbowed connector
 thousands of pixels outside its row.
 
+The reserved width applies to adjacent nodes in the same visual row for both
+`horizontal` and `grid` sections. A grid must not fall back to the default
+column gap when a native connector label is wider; Figma may otherwise route
+the elbow around the complete section instead of through the intended gap.
+
 `Overview`, `Pull Request Integration`, and `Post-merge Design Documentation`
 use a left-to-right flow. `Infrastructure and Access` keeps its two-dimensional
 topology grid. `Windows Service Runtime` is a connector-free grid whose service
