@@ -132,6 +132,7 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.runtimeStartup, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.runtimeIdentity, "TEXT");
   requireComponentProperty(component, CI_NODE_PROPS.showExecutionPlan, "BOOLEAN");
+  requireComponentProperty(component, CI_NODE_PROPS.showOutcome, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showRuntime, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showOptionalDetails, "BOOLEAN");
@@ -149,6 +150,17 @@ async function checkCiDocumentationContract(
     "visible",
     CI_NODE_PROPS.showExecutionPlan,
     ".ci node execution plan"
+  );
+  const outcome = requireDirectFrame(
+    component,
+    CI_NODE_OUTCOME_CONTAINER_NAME,
+    ".ci node"
+  );
+  requireComponentPropertyReference(
+    outcome,
+    "visible",
+    CI_NODE_PROPS.showOutcome,
+    ".ci node outcome"
   );
   const executionPlanHeading = requireDirectFrame(
     executionPlan,
@@ -240,11 +252,7 @@ async function checkCiDocumentationContract(
     expectedComponentLabel: `component '${phaseComponent.id}'`,
   });
   await requireExactReservedSlots({
-    owner: requireDirectFrame(
-      component,
-      CI_NODE_OUTCOME_CONTAINER_NAME,
-      ".ci node"
-    ),
+    owner: outcome,
     expectedNames: ciOutcomeSlotNames(),
     hasNamePrefix: hasCiOutcomeSlotNamePrefix,
     label: "CI outcome",

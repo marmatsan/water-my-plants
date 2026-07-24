@@ -62,6 +62,7 @@ test("CI node properties hide runtime when the visual node has no runtime data",
     runtimeStartup: "",
     runtimeIdentity: "",
     showExecutionPlan: false,
+    showOutcome: false,
     showSource: true,
     showRuntime: false,
     showOptionalDetails: true,
@@ -89,6 +90,7 @@ test("CI node properties expose complete runtime data", () => {
     runtimeStartup: "Automatic",
     runtimeIdentity: "NT SERVICE\\TeamCity",
     showExecutionPlan: false,
+    showOutcome: false,
     showSource: true,
     showRuntime: true,
     showOptionalDetails: true,
@@ -121,6 +123,19 @@ test("CI node properties reveal the execution plan when phases exist", () => {
   };
 
   assert.equal(ciNodePropertyValues(node).showExecutionPlan, true);
+});
+
+test("CI node properties reveal outcomes only when results exist", () => {
+  const node = {
+    ...visualNode(),
+    outcomes: [{
+      order: "01",
+      kind: "artifact" as const,
+      title: "Publish CI outcome",
+    }],
+  };
+
+  assert.equal(ciNodePropertyValues(node).showOutcome, true);
 });
 
 test("CI phase properties expose its executable identity", () => {

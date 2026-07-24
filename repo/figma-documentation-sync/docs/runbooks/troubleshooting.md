@@ -243,6 +243,21 @@ are hidden but the phase still contains a large blank region, inspect this
 container binding first: resizing the parent only fits the already oversized
 child and does not correct the missing collapse contract.
 
+The `.ci node` master follows the same rule for `show outcome`: its direct
+`outcome` frame binds `visible` to that BOOLEAN, and the writer derives the
+instance value from whether the node has typed outcomes. Without the aggregate
+binding, hiding the reserved outcome slots leaves an empty full-width frame and
+expands otherwise compact nodes.
+
+Reparenting a layer inside a component can clear its
+`componentPropertyReferences`, even when the layer itself and the component
+properties survive. After moving optional CI layers, restore and validate the
+`visible` bindings explicitly. In particular, `runtime context` remains bound
+to `show runtime`, `source` remains bound to `show source`, and their outer
+container remains bound to `show optional details`. Validate at least one
+compact instance after the move; checking only the fully expanded master can
+hide a lost binding or a fixed-width child.
+
 If preflight reports missing, duplicated, unexpected, unexposed, or foreign CI
 slots:
 

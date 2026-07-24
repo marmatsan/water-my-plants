@@ -149,9 +149,10 @@ writer selects the matching mode from the `ci/cd` variable collection:
 `Gate`. The collection's `type_label` string supplies the visible type label
 for each mode. The writer binds the exposed `name`, `description`, `source`,
 and `execution plan heading` text properties. It controls `show execution plan`
-from the presence of typed phases and controls `show source` and `show runtime`
-from actual model content. The component does not expose `steps`, `show steps`,
-or any other compatibility-only execution property.
+from the presence of typed phases, `show outcome` from the presence of typed
+outcomes, and `show source` and `show runtime` from actual model content. The
+component does not expose `steps`, `show steps`, or any other
+compatibility-only execution property.
 
 The reserved component hierarchy is:
 
@@ -223,11 +224,16 @@ The node orders summary first, the `execution plan` frame second, the `outcome`
 frame third, and optional runtime and source details last. The execution frame
 owns its heading and exposed phase slots, the `outcome` frame owns its exposed
 outcome slots, and each phase's `steps` frame owns its exposed step slots.
-`show execution plan` collapses that complete frame when no phases
-exist, while `show optional details` collapses the details container when
-neither child is visible. Action descriptions remain in the typed model but are
-hidden visually; phase, decision, group, and outcome descriptions remain
-visible.
+`show execution plan` collapses that complete frame when no phases exist,
+`show outcome` collapses the complete result frame when no outcomes exist, and
+`show optional details` collapses the details container when neither child is
+visible. The summary and outer details frames stretch to the width established
+by the visible execution content, so compact nodes remain narrow and task nodes
+receive a matching full-width header. The outer details frame owns the runtime
+divider and the `md/sys/color/outline` 2 px inside stroke; the nested `details
+content` frame preserves the compact reading width. Action descriptions remain
+in the typed model but are hidden visually; phase, decision, group, and outcome
+descriptions remain visible.
 
 Native Figma connectors are cloned from the existing `simple-solid_arrow` template because
 the MCP runtime does not expose `figma.createConnector()`. The clones attach to
