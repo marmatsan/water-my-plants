@@ -472,8 +472,8 @@ async function syncCiExecution({
   const outcomeSlots = slotRequirements.outcomes
     ? await requireCiOutcomeSlots(node)
     : [];
+  const phaseRowEntries = collectCiPhaseRows(phaseSlots);
   const updatedPhases: InstanceNode[] = [];
-  let phaseRows: FrameNode[] = [];
   const updatedSteps: InstanceNode[] = [];
   const updatedOutcomes: InstanceNode[] = [];
 
@@ -502,9 +502,10 @@ async function syncCiExecution({
       }));
     }
   }
-  if (phaseSlots.length > 0) {
-    phaseRows = applyCiPhaseRowVisibility(phaseSlots);
-  }
+  const phaseRows = applyCiPhaseRowCountVisibility(
+    phaseRowEntries,
+    phases.length
+  );
 
   for (const [index, outcomeInstance] of outcomeSlots.entries()) {
     const outcome = outcomes[index];
@@ -531,22 +532,39 @@ async function syncCiExecution({
 export function applyCiPhaseRowVisibility(
   slots: InstanceNode[]
 ): FrameNode[] {
-  const rows = new Map<string, { row: FrameNode; slots: InstanceNode[] }>();
-  for (const slot of slots) {
+  const rows = collectCiPhaseRows(slots);
+  for (const { row, slotIndexes } of rows) {
+    row.visible = slotIndexes.some((index) => slots[index].visible);
+  }
+  return rows.map(({ row }) => row);
+}
+
+export function collectCiPhaseRows(
+  slots: InstanceNode[]
+): Array<{ row: FrameNode; slotIndexes: number[] }> {
+  const rows = new Map<string, { row: FrameNode; slotIndexes: number[] }>();
+  for (const [index, slot] of slots.entries()) {
     const row = slot.parent;
     if (!row || row.type !== "FRAME") {
       throw new Error(
         `CI phase slot '${slot.name}' must be a direct child of an Auto Layout row.`
       );
     }
-    const entry = rows.get(row.id) || { row, slots: [] };
-    entry.slots.push(slot);
+    const entry = rows.get(row.id) || { row, slotIndexes: [] };
+    entry.slotIndexes.push(index);
     rows.set(row.id, entry);
   }
-  for (const { row, slots: rowSlots } of rows.values()) {
-    row.visible = rowSlots.some((slot) => slot.visible);
+  return [...rows.values()];
+}
+
+export function applyCiPhaseRowCountVisibility(
+  rows: Array<{ row: FrameNode; slotIndexes: number[] }>,
+  visiblePhaseCount: number
+): FrameNode[] {
+  for (const { row, slotIndexes } of rows) {
+    row.visible = slotIndexes.some((index) => index < visiblePhaseCount);
   }
-  return [...rows.values()].map(({ row }) => row);
+  return rows.map(({ row }) => row);
 }
 
 export function ciExecutionSlotRequirements({

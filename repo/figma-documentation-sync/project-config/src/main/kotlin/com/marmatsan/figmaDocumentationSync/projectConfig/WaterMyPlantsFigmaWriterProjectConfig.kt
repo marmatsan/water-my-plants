@@ -52,7 +52,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 ),
             ciConnectorName = ".ci connector",
             ciConnectorTemplateName = "simple-line_arrow",
-            ciConnectorTemplateNodeId = "64758:2748",
+            ciConnectorTemplateNodeId = "64800:262",
             ciNodeProps =
                 mapOf(
                     "name" to "name",

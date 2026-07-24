@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { CiVisualNode } from "../src/domain/ci/ci-visual-plan";
 import {
+  applyCiPhaseRowCountVisibility,
   applyCiPhaseRowVisibility,
   centeredRowY,
   ciConnectorMagnets,
@@ -387,6 +388,22 @@ test("CI phase rows collapse when all their reserved phase slots are hidden", ()
     { name: "phase 05", visible: false, parent: secondRow },
     { name: "phase 06", visible: false, parent: secondRow },
   ] as any);
+
+  assert.equal(firstRow.visible, true);
+  assert.equal(secondRow.visible, false);
+  assert.deepEqual(rows, [firstRow, secondRow]);
+});
+
+test("CI phase row visibility survives invalidated nested slot proxies", () => {
+  const firstRow = { id: "first", type: "FRAME", visible: false };
+  const secondRow = { id: "second", type: "FRAME", visible: true };
+  const rows = applyCiPhaseRowCountVisibility(
+    [
+      { row: firstRow, slotIndexes: [0, 1, 2, 3] },
+      { row: secondRow, slotIndexes: [4, 5, 6, 7] },
+    ] as any,
+    3
+  );
 
   assert.equal(firstRow.visible, true);
   assert.equal(secondRow.visible, false);

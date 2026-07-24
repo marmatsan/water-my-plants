@@ -463,7 +463,9 @@ behavior changes.
 ## CI Connectors That Cross Nodes
 
 CI relations use the native `simple-line_arrow` connector at node
-`64758:2748`, including its centered text. They do not use a separately grouped
+`64800:262`, including its centered text. The locked template is positioned
+over the CI component documentation section but remains outside managed CI
+targets so cleanup cannot delete it. Relations do not use a separately grouped
 label. If an elbowed CI connector blocks a node, inspect its endpoints before
 changing spacing or recreating visual labels:
 
@@ -513,10 +515,21 @@ relation actionable instead of reducing the problem to a generic Figma API
 error.
 
 CI connectors have a separate exact-node contract. The preflight must fail if
-node `64758:2748` is missing, is not a connector, is not named
+node `64800:262` is missing, is not a connector, is not named
 `simple-line_arrow`, is not elbowed with an arrow-lines end cap, or has no
 native text. Do not fall back to `simple-solid_arrow` and do not recreate the
 removed `.ci connector label` structure.
+
+## Missing Nested Instance After Property Synchronization
+
+Figma can invalidate an exposed nested-instance proxy after `setProperties()`
+recomposes its component subtree. An error such as `in get_parent: The node
+with id ... does not exist` during CI row collapse means the writer retained a
+pre-mutation slot reference. Capture slot indexes and their owning rows before
+mutating phase properties, then derive final row visibility from the ordered
+phase count in the model. Do not re-query `owner.exposedInstances` afterward:
+hidden slots may be absent. Do not work around the failure by keeping the empty
+row visible or by assigning it a fixed height.
 
 ## Missing Component Property
 

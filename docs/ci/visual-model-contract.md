@@ -85,7 +85,9 @@ operational recovery order remains in the linked runbook and is not modeled as
 a dependency between services.
 
 Flow relations render their semantic label in the native text of the
-`simple-line_arrow` connector. The visual writer uses side anchors within one
+`simple-line_arrow` connector. Its locked template is positioned over the CI
+component documentation section but remains outside every managed target so a
+partial sync cannot delete it. The visual writer uses side anchors within one
 row and vertical anchors between rows so a relation cannot cross an
 intermediate node. The exact template identity, routing, and preflight contract
 belong to the

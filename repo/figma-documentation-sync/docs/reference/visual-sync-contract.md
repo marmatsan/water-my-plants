@@ -251,11 +251,15 @@ in the typed model but are hidden visually; phase, decision, group, and outcome
 descriptions remain visible.
 
 Native Figma CI connectors are cloned from the `simple-line_arrow` connector
-at node `64758:2748` because the MCP runtime does not expose
+at node `64800:262` because the MCP runtime does not expose
 `figma.createConnector()`. The visual preflight resolves that exact node and
 requires its configured name, elbowed line type, arrow-lines end cap, and
-native text before any CI section is mutated. This identity is independent
-from the `simple-solid_arrow` template used by catalog trees.
+native text before any CI section is mutated. The locked template is positioned
+over the CI component documentation section but remains a page-level node,
+outside every managed CI target, because standalone connector endpoints cannot
+be parented to that section by the MCP runtime. This prevents target cleanup
+from deleting the template. Its identity is independent from the
+`simple-solid_arrow` template used by catalog trees.
 
 Each clone remains a child of the target section, is inserted behind its node
 groups, and stores the connection label in the connector's native text. The
@@ -294,6 +298,14 @@ four. Each reserved `.ci phase` instance uses vertical Hug sizing. After the
 writer populates and hides phase slots, it also hides any row with no visible
 slot; otherwise an empty nested Auto Layout row can preserve the master size
 inside a component instance even though every child slot is hidden.
+
+Figma may replace exposed nested-instance proxies after a component property
+mutation, while `exposedInstances` can omit slots that have become hidden. The
+writer therefore captures each slot's owning row before changing phase or step
+properties, then derives final row visibility from the ordered phase count in
+the model. Responsive layout decisions must not inspect a pre-mutation slot
+proxy or try to rediscover hidden slots afterward.
+
 Disconnected horizontal flows are stacked as separate rows and each row starts
 at the same left edge. Post-merge job order is derived from declared artifact
 publication and job dependencies, never from the order of jobs in the generated
