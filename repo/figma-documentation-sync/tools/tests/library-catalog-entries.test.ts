@@ -4,6 +4,28 @@ import {
   libraryArtifacts,
   libraryBundles,
 } from "../src/domain/catalog/library-catalog-entries";
+import { requireNestedTemplateInstance } from "../src/figma/figma-visual-contract-check-gateway";
+
+test("preflight validates hidden templates through an instance main component", async () => {
+  const expected = { id: "tool-usage", name: ".tool artifact usage" };
+  const mainComponent = {
+    findAllWithCriteria: () => [expected],
+  };
+  const hiddenArtifactInstance = {
+    id: "artifact-instance",
+    type: "INSTANCE",
+    findAllWithCriteria: () => [],
+    getMainComponentAsync: async () => mainComponent,
+  };
+
+  assert.equal(
+    await requireNestedTemplateInstance(
+      hiddenArtifactInstance,
+      ".tool artifact usage"
+    ),
+    expected
+  );
+});
 
 test("bundle entries keep artifacts inside the bundle instead of exposing direct artifacts", () => {
   const entries = [

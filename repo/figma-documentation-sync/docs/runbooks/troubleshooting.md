@@ -192,8 +192,10 @@ the model, the metadata, or the visual sync code.
 
 ## Component Instance Shape
 
-Figma component instances can contain hidden template internals that remain
-addressable through the plugin API. Do not treat exact child counts as a stable
+Figma component instances can contain hidden template internals. Some remain
+addressable through the instance API, while nested content hidden by a boolean
+instance property can disappear from `findAllWithCriteria` even though it is
+present in the main component. Do not treat exact child counts as a stable
 contract for reused instances.
 
 For example, library artifact text updates must allow extra hidden
@@ -212,6 +214,19 @@ inside `.artifacts bundle` and fail with a misleading slot count:
 ```text
 Tree node '...' expected at least 4 '.artifact' instances, found 1.
 ```
+
+Preflight can report a similar false negative when it selects an `.artifact`
+inside `.artifacts bundle` whose `Show configured as tool` property is false:
+
+```text
+Expected '...' to contain a '.tool artifact usage' template instance.
+```
+
+First inspect the `.artifact` main component. If it already contains the
+required `.tool artifact usage` slots and public text property, keep the
+component unchanged and make preflight validate the main component as a
+read-only fallback. Do not mutate the instance property during preflight and do
+not remove the component slots to match a hidden instance.
 
 When deriving a new component set from existing variants, cloning a variant
 preserves its layers but does not recreate the shared component-set property
