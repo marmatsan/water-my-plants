@@ -784,12 +784,11 @@ function layoutNodeGroups(
     Math.max(...items.filter(({ position }) => position.column === column).map(({ group }) => group.width)),
   ]));
   const rowY = cumulativePositions(rows, rowHeights, NODE_ROW_GAP, SECTION_PADDING);
-  const columnGaps = requiredHorizontalColumnGaps(
+  const columnGaps = requiredSameRowConnectorGaps(
     items,
     columns,
     connections,
-    labelsByModelId,
-    orientation
+    labelsByModelId
   );
   const columnX = cumulativePositionsWithVariableGaps(
     columns,
@@ -818,19 +817,16 @@ function requireSingleNestedInstance(root, instanceName) {
   return matches[0];
 }
 
-function requiredHorizontalColumnGaps(
+export function requiredSameRowConnectorGaps(
   items: Array<{
-    plan: CiVisualNode;
-    group: GroupNode;
+    plan: Pick<CiVisualNode, "id">;
     position: { row: number; column: number };
   }>,
   columns: number[],
-  connections: CiVisualConnection[],
-  labelsByModelId: Map<string, { width: number }>,
-  orientation: CiVisualOrientation
+  connections: Array<Pick<CiVisualConnection, "id" | "source" | "target">>,
+  labelsByModelId: Map<string, { width: number }>
 ): Map<number, number> {
   const gaps = new Map<number, number>();
-  if (orientation !== "horizontal") return gaps;
   const itemByModelId = new Map(items.map((item) => [item.plan.id, item]));
   const columnIndex = new Map(columns.map((column, index) => [column, index]));
 

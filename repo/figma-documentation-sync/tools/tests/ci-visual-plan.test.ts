@@ -15,6 +15,7 @@ import {
   horizontalConnectorGap,
   managedCiRemovalPriority,
   measureNativeConnectorLabelWidth,
+  requiredSameRowConnectorGaps,
   waitForStableCiLayout,
 } from "../src/figma/figma-ci-documentation-sync-gateway";
 import {
@@ -390,6 +391,28 @@ test("CI horizontal rows align node centers and reserve label width", () => {
   assert.equal(centeredRowY(100, 200, 120), 140);
   assert.equal(horizontalConnectorGap(80), 160);
   assert.equal(horizontalConnectorGap(280), 328);
+});
+
+test("CI grid rows reserve measured label width between adjacent nodes", () => {
+  assert.deepEqual(
+    [...requiredSameRowConnectorGaps(
+      [
+        { plan: { id: "main" }, position: { row: 0, column: 0 } },
+        { plan: { id: "pipeline" }, position: { row: 0, column: 1 } },
+        { plan: { id: "operator" }, position: { row: 1, column: 1 } },
+      ],
+      [0, 1],
+      [
+        { id: "main-pipeline", source: "main", target: "pipeline" },
+        { id: "pipeline-operator", source: "pipeline", target: "operator" },
+      ],
+      new Map([
+        ["main-pipeline", { width: 401 }],
+        ["pipeline-operator", { width: 900 }],
+      ])
+    )],
+    [[0, 449]]
+  );
 });
 
 test("CI connector label measurement uses a temporary text node and removes it", () => {
