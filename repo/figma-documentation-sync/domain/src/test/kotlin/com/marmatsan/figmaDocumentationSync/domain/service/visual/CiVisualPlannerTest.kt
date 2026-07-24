@@ -31,7 +31,7 @@ internal class CiVisualPlannerTest :
                         visualConfig,
                     )
 
-                plan.parentName shouldBe "Continuous Integration and Design Documentation"
+                plan.parentName shouldBe "Continuous Integration and Documentation Automation"
                 plan.sections.map(
                     transform = CiVisualPlan.Section::target,
                 ) shouldContainExactly

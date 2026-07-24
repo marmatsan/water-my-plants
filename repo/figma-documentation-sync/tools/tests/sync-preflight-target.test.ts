@@ -208,7 +208,7 @@ test("rejects an obsolete CI visual plan before reaching Figma", async () => {
   const calls: string[] = [];
   const obsoletePlan = {
     schemaVersion: 1,
-    parentName: "Continuous Integration and Design Documentation",
+    parentName: "Continuous Integration and Documentation Automation",
     sections: [],
   } as unknown as CiVisualPlan;
 
@@ -226,7 +226,7 @@ test("rejects CI nodes without typed phases and outcomes before reaching Figma",
   const calls: string[] = [];
   const nodeWithoutTypedSteps = {
     schemaVersion: 3,
-    parentName: "Continuous Integration and Design Documentation",
+    parentName: "Continuous Integration and Documentation Automation",
     sections: [
       {
         target: "ci.overview",
@@ -363,7 +363,7 @@ function fakeDependencies(calls: string[]) {
 function ciVisualPlan(...targets: string[]): CiVisualPlan {
   return {
     schemaVersion: 3,
-    parentName: "Continuous Integration and Design Documentation",
+    parentName: "Continuous Integration and Documentation Automation",
     sections: targets.map((target) => ({
       target,
       name: target,

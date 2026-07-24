@@ -96,6 +96,6 @@ export type CiVisualSection = {
 
 export type CiVisualPlan = {
   schemaVersion: 3;
-  parentName: "Continuous Integration and Design Documentation";
+  parentName: "Continuous Integration and Documentation Automation";
   sections: CiVisualSection[];
 };

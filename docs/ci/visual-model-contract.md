@@ -9,7 +9,7 @@ future automation, live build results, or runtime metrics.
 The parent Figma section is named:
 
 ```text
-Continuous Integration and Design Documentation
+Continuous Integration and Documentation Automation
 ```
 
 It contains five sections grouped into two reading levels:
@@ -192,6 +192,21 @@ aligned with expanded task nodes while compact flow nodes remain narrow.
 `optional details` owns the full-width runtime divider but no additional
 stroke; its nested `details content` frame keeps runtime and source text at the
 compact reading width.
+
+The `.ci node`, its `execution plan`, its `phases` container, every phase row,
+and `.ci phase` use Hug sizing on both axes. Reserved `.ci phase` instances
+inside the parent component must also use vertical Hug sizing; changing only
+the `.ci phase` master does not clear fixed-size overrides already stored by
+its nested instances. Both phase rows remain visible in the master so the full
+capacity is inspectable. Generated instances hide a complete row when none of
+its four reserved phase slots is populated. This prevents an empty row from
+retaining the master component's width and height.
+
+The visible `source` TextNode binds its characters to the public `source`
+component property. The writer locates that TextNode through the property
+reference and applies the GitHub `main` file URL to its complete range; it must
+not depend on a historical layer name such as `File`. The visual preflight
+fails when the binding is missing or duplicated.
 
 Use the step variants consistently:
 

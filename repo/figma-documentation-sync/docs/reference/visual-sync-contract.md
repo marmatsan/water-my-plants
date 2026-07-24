@@ -117,7 +117,7 @@ CI graph construction belong to Kotlin; measured node geometry, fonts,
 components, variables, connectors, and mutations remain in the Figma adapter.
 
 The Figma gateway creates or updates one parent section named
-`Continuous Integration and Design Documentation` on Figma page `63153:2876`
+`Continuous Integration and Documentation Automation` on Figma page `63153:2876`
 and exposes six independently runnable targets:
 
 - `ci.overview`;
@@ -157,6 +157,10 @@ from the presence of typed phases, `show outcome` from the presence of typed
 outcomes, and `show source` and `show runtime` from actual model content. The
 component does not expose `steps`, `show steps`, or any other
 compatibility-only execution property.
+The `source` TextNode must bind its characters to the public `source` property.
+The writer resolves that component-property reference, verifies that it is
+unique, and applies the canonical GitHub `main` file URL to the complete text
+range. Layer names are presentation details and are not hyperlink selectors.
 
 The reserved component hierarchy is:
 
@@ -285,13 +289,21 @@ row, bind connector endpoints only after that layout, and then wait for
 connector geometry to stabilize before resizing the section. Calculating the
 route from the initial component dimensions can top-align mixed-height nodes
 and send connectors through their content.
+The `.ci node` master groups its eight phase slots into two responsive rows of
+four. Each reserved `.ci phase` instance uses vertical Hug sizing. After the
+writer populates and hides phase slots, it also hides any row with no visible
+slot; otherwise an empty nested Auto Layout row can preserve the master size
+inside a component instance even though every child slot is hidden.
 Disconnected horizontal flows are stacked as separate rows and each row starts
 at the same left edge. Post-merge job order is derived from declared artifact
 publication and job dependencies, never from the order of jobs in the generated
 TeamCity model.
-Connections within one horizontal row use side anchors. Connections whose node
-groups occupy different, non-overlapping rows use vertical anchors: `BOTTOM` to
+Connections within one logical row use side anchors. Connections whose model
+positions occupy different logical rows use vertical anchors: `BOTTOM` to
 `TOP` for a downward relation and `TOP` to `BOTTOM` for an upward relation.
+Routing must use those model positions rather than comparing rendered centers:
+a tall target can overlap both rendered row bands and otherwise make Figma send
+the elbow through an intermediate node.
 This routes the elbow through inter-row whitespace instead of across an
 intermediate node while the connector keeps its native label centered. Return
 connections within one row use bottom anchors and route below the row. In the
@@ -302,6 +314,9 @@ Distinct connections that share the same endpoints must remain visually
 distinct. Route horizontal parallel connections above and below their nodes;
 for opposite vertical connections, keep the forward path direct and route the
 return path around one side.
+The writer reserves the measured native connector-label width plus explicit
+clearance on both sides. A connector whose route reaches a node outline may do
+so, but its label must not visually touch or cover the node.
 The icon shown in a `.ci node` header is exactly one nested `.ci icon` instance
 from component set `64361:716`. Its `environment` variant is configured directly
 on the nested instance because Figma does not promote that property to the

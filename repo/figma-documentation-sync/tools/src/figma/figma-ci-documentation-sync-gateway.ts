@@ -72,7 +72,7 @@ const ROLE_SECTION = "section";
 const ROLE_NODE = "node";
 const ROLE_CONNECTOR = "connector";
 const LIGHT_MODE_NAME = "Light";
-const CONNECTOR_LABEL_CLEARANCE = 24;
+const CONNECTOR_LABEL_CLEARANCE = 40;
 const CI_CONNECTOR_FALLBACK_FONT = { family: "Inter", style: "Medium" } as const;
 const CI_CONNECTOR_FALLBACK_FONT_SIZE = 16;
 
@@ -198,11 +198,11 @@ async function syncParentHeader(parent, mutatedNodeIds) {
     sourceLink("docs/ci/external-topology.yaml"),
     sourceLink("docs/ci/windows-runtime.yaml"),
   ];
-  setComponentTextProperty(header, "Header", "Continuous Integration and Design Documentation");
+  setComponentTextProperty(header, "Header", "Continuous Integration and Documentation Automation");
   setComponentTextProperty(
     header,
     "Definition",
-    "Current pull request integration, post-merge design documentation, CI infrastructure, and Windows service runtime."
+    "Repository verification, merge gates, post-merge Figma documentation sync, CI infrastructure, and Windows runtime."
   );
   const linkText = links.map((link) => link.label).join("\n");
   setComponentTextProperty(header, "Link", linkText);
@@ -293,6 +293,7 @@ async function syncSectionContent(
       group.id,
       instance.id,
       ...execution.phases.map((phaseInstance) => phaseInstance.id),
+      ...execution.phaseRows.map((phaseRow) => phaseRow.id),
       ...execution.steps.map((stepInstance) => stepInstance.id),
       ...execution.outcomes.map((outcomeInstance) => outcomeInstance.id)
     );
@@ -335,7 +336,7 @@ async function syncSectionContent(
   }
 
   await waitForStableCiLayout(groups.map(({ group }) => group));
-  layoutNodeGroups(
+  const visualPositions = layoutNodeGroups(
     groups,
     plan.orientation,
     plan.connections,
@@ -348,7 +349,11 @@ async function syncSectionContent(
       source,
       target,
       plan.orientation,
-      parallelConnections.get(edge.id)
+      parallelConnections.get(edge.id),
+      {
+        source: visualPositions.get(edge.source)!,
+        target: visualPositions.get(edge.target)!,
+      }
     );
     connector.connectorStart = { endpointNodeId: source.id, magnet: magnets.start };
     connector.connectorEnd = { endpointNodeId: target.id, magnet: magnets.end };
@@ -405,12 +410,14 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeService, properties.runtimeService);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeStartup, properties.runtimeStartup);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeIdentity, properties.runtimeIdentity);
-  await applyTextLinks(
-    instance,
-    "File",
-    [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
-    nodePlan.source
-  );
+  if (properties.showSource) {
+    await applyComponentTextPropertyLinks(
+      instance,
+      CI_NODE_PROPS.source,
+      [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
+      nodePlan.source
+    );
+  }
 }
 
 export function ciNodePropertyValues(nodePlan: CiVisualNode) {
@@ -466,6 +473,7 @@ async function syncCiExecution({
     ? await requireCiOutcomeSlots(node)
     : [];
   const updatedPhases: InstanceNode[] = [];
+  let phaseRows: FrameNode[] = [];
   const updatedSteps: InstanceNode[] = [];
   const updatedOutcomes: InstanceNode[] = [];
 
@@ -494,6 +502,9 @@ async function syncCiExecution({
       }));
     }
   }
+  if (phaseSlots.length > 0) {
+    phaseRows = applyCiPhaseRowVisibility(phaseSlots);
+  }
 
   for (const [index, outcomeInstance] of outcomeSlots.entries()) {
     const outcome = outcomes[index];
@@ -511,9 +522,31 @@ async function syncCiExecution({
 
   return {
     phases: updatedPhases,
+    phaseRows,
     steps: updatedSteps,
     outcomes: updatedOutcomes,
   };
+}
+
+export function applyCiPhaseRowVisibility(
+  slots: InstanceNode[]
+): FrameNode[] {
+  const rows = new Map<string, { row: FrameNode; slots: InstanceNode[] }>();
+  for (const slot of slots) {
+    const row = slot.parent;
+    if (!row || row.type !== "FRAME") {
+      throw new Error(
+        `CI phase slot '${slot.name}' must be a direct child of an Auto Layout row.`
+      );
+    }
+    const entry = rows.get(row.id) || { row, slots: [] };
+    entry.slots.push(slot);
+    rows.set(row.id, entry);
+  }
+  for (const { row, slots: rowSlots } of rows.values()) {
+    row.visible = rowSlots.some((slot) => slot.visible);
+  }
+  return [...rows.values()].map(({ row }) => row);
 }
 
 export function ciExecutionSlotRequirements({
@@ -804,6 +837,7 @@ function layoutNodeGroups(
     group.x = columnX.get(position.column)! + (columnWidth - group.width) / 2;
     group.y = centeredRowY(rowY.get(position.row)!, rowHeight, group.height);
   }
+  return new Map(items.map(({ plan, position }) => [plan.id, position] as const));
 }
 
 function requireSingleNestedInstance(root, instanceName) {
@@ -925,7 +959,11 @@ export function ciConnectorMagnets(
   source: Pick<SceneNode, "x" | "y" | "width" | "height">,
   target: Pick<SceneNode, "x" | "y" | "width" | "height">,
   orientation: CiVisualOrientation,
-  parallel: { index: number; count: number } = { index: 0, count: 1 }
+  parallel: { index: number; count: number } = { index: 0, count: 1 },
+  logicalPositions?: {
+    source: { row: number; column: number };
+    target: { row: number; column: number };
+  }
 ) {
   if (orientation === "horizontal") {
     const sourceBottom = source.y + source.height;
@@ -945,8 +983,9 @@ export function ciConnectorMagnets(
   const sourceCenterY = source.y + source.height / 2;
   const targetCenterX = target.x + target.width / 2;
   const targetCenterY = target.y + target.height / 2;
-  const isHorizontal = Math.abs(targetCenterX - sourceCenterX) >=
-    Math.abs(targetCenterY - sourceCenterY);
+  const isHorizontal = logicalPositions
+    ? logicalPositions.source.row === logicalPositions.target.row
+    : Math.abs(targetCenterX - sourceCenterX) >= Math.abs(targetCenterY - sourceCenterY);
 
   if (parallel.count > 1) {
     if (isHorizontal) {
@@ -958,11 +997,17 @@ export function ciConnectorMagnets(
   }
 
   if (isHorizontal) {
-    return sourceCenterX <= targetCenterX
+    const flowsRight = logicalPositions
+      ? logicalPositions.source.column <= logicalPositions.target.column
+      : sourceCenterX <= targetCenterX;
+    return flowsRight
       ? { start: "RIGHT", end: "LEFT" } as const
       : { start: "LEFT", end: "RIGHT" } as const;
   }
-  return sourceCenterY <= targetCenterY
+  const flowsDown = logicalPositions
+    ? logicalPositions.source.row <= logicalPositions.target.row
+    : sourceCenterY <= targetCenterY;
+  return flowsDown
     ? { start: "BOTTOM", end: "TOP" } as const
     : { start: "TOP", end: "BOTTOM" } as const;
 }
@@ -1104,7 +1149,44 @@ async function applyTextLinks(root, textNodeName, links, expectedText) {
     .find((candidate) => candidate.name.toLowerCase() === textNodeName.toLowerCase());
   if (!text || text.characters !== expectedText) return;
 
+  await applyLinksToText(text, links);
+}
+
+async function applyComponentTextPropertyLinks(
+  instance: InstanceNode,
+  propertyName: string,
+  links: Array<{ label: string; url: string }>,
+  expectedText: string
+) {
+  const propertyKey = requireComponentPropertyKey(instance, propertyName, "TEXT");
+  const matches = instance.findAllWithCriteria({ types: ["TEXT"] })
+    .filter((candidate) =>
+      candidate.componentPropertyReferences?.characters === propertyKey
+    );
+  if (matches.length !== 1) {
+    throw new Error(
+      `CI node '${instance.id}' must bind exactly one text layer to component property ` +
+        `'${normalizePropertyName(propertyName)}'; found ${matches.length}.`
+    );
+  }
+  const text = matches[0];
+  if (text.characters !== expectedText) {
+    throw new Error(
+      `CI node '${instance.id}' source text differs from its component property value.`
+    );
+  }
+  await applyLinksToText(text, links);
+}
+
+async function applyLinksToText(
+  text: TextNode,
+  links: Array<{ label: string; url: string }>
+) {
   await loadTextNodeFonts(text);
+
+  if (text.characters.length > 0) {
+    text.setRangeHyperlink(0, text.characters.length, null);
+  }
 
   let start = 0;
   for (const link of links) {

@@ -29,7 +29,7 @@ class CiVisualPlanner {
                 name = config.figmaPipelineName,
             )
         return CiVisualPlan(
-            parentName = "Continuous Integration and Design Documentation",
+            parentName = "Continuous Integration and Documentation Automation",
             sections =
                 listOf(
                     createOverviewSection(

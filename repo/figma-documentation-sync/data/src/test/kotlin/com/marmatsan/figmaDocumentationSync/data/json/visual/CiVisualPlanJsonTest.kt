@@ -76,7 +76,7 @@ internal class CiVisualPlanJsonTest :
                     )
 
                 plan["parentName"]?.jsonPrimitive?.content shouldBe
-                    "Continuous Integration and Design Documentation"
+                    "Continuous Integration and Documentation Automation"
                 val sections = plan["sections"]!!.jsonArray
                 sections.size shouldBe 1
                 sections

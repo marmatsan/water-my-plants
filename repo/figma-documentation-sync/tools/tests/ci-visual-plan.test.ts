@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { CiVisualNode } from "../src/domain/ci/ci-visual-plan";
 import {
+  applyCiPhaseRowVisibility,
   centeredRowY,
   ciConnectorMagnets,
   ciExecutionSlotRequirements,
@@ -362,6 +363,34 @@ test("CI connectors use side anchors within rows and vertical anchors across row
     ),
     { start: "LEFT", end: "LEFT" }
   );
+  assert.deepEqual(
+    ciConnectorMagnets(
+      { x: 1468, y: 2313, width: 320, height: 228 },
+      { x: 2653, y: 1705, width: 551, height: 474 },
+      "grid",
+      { index: 0, count: 1 },
+      {
+        source: { row: 1, column: 2 },
+        target: { row: 0, column: 4 },
+      }
+    ),
+    { start: "TOP", end: "BOTTOM" }
+  );
+});
+
+test("CI phase rows collapse when all their reserved phase slots are hidden", () => {
+  const firstRow = { id: "first", type: "FRAME", visible: false };
+  const secondRow = { id: "second", type: "FRAME", visible: true };
+  const rows = applyCiPhaseRowVisibility([
+    { name: "phase 01", visible: true, parent: firstRow },
+    { name: "phase 02", visible: false, parent: firstRow },
+    { name: "phase 05", visible: false, parent: secondRow },
+    { name: "phase 06", visible: false, parent: secondRow },
+  ] as any);
+
+  assert.equal(firstRow.visible, true);
+  assert.equal(secondRow.visible, false);
+  assert.deepEqual(rows, [firstRow, secondRow]);
 });
 
 test("CI horizontal layouts stack disconnected flows and left-align each row", () => {
@@ -390,7 +419,7 @@ test("CI horizontal layouts stack disconnected flows and left-align each row", (
 test("CI horizontal rows align node centers and reserve label width", () => {
   assert.equal(centeredRowY(100, 200, 120), 140);
   assert.equal(horizontalConnectorGap(80), 160);
-  assert.equal(horizontalConnectorGap(280), 328);
+  assert.equal(horizontalConnectorGap(280), 360);
 });
 
 test("CI grid rows reserve measured label width between adjacent nodes", () => {
@@ -411,7 +440,7 @@ test("CI grid rows reserve measured label width between adjacent nodes", () => {
         ["pipeline-operator", { width: 900 }],
       ])
     )],
-    [[0, 449]]
+    [[0, 481]]
   );
 });
 
