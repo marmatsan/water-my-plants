@@ -102,12 +102,12 @@ object FigmaWriterProjectConfigJson {
                 ciConnectorName,
             )
             put(
-                "CI_CONNECTOR_LABEL_NAME",
-                ciConnectorLabelName,
+                "CI_CONNECTOR_TEMPLATE_NAME",
+                ciConnectorTemplateName,
             )
             put(
-                "CI_CONNECTOR_TEMPLATE_SECTION_ID",
-                ciConnectorTemplateSectionId,
+                "CI_CONNECTOR_TEMPLATE_NODE_ID",
+                ciConnectorTemplateNodeId,
             )
             put(
                 "CI_NODE_PROPS",
