@@ -31,7 +31,7 @@ internal class CiVisualPlannerTest :
                         visualConfig,
                     )
 
-                plan.parentName shouldBe "Continuous Integration and Design Documentation"
+                plan.parentName shouldBe "Continuous Integration and Documentation Automation"
                 plan.sections.map(
                     transform = CiVisualPlan.Section::target,
                 ) shouldContainExactly
@@ -113,6 +113,19 @@ internal class CiVisualPlannerTest :
                         "codex -> figma-document: Write visuals first · metadata last",
                         "figma-document -> rerun-teamcity-figma-sync: Run secure rerun",
                         "rerun-teamcity-figma-sync -> pipeline-Root_FigmaSync: Queue complete pipeline",
+                    )
+                section.connections.map(CiVisualPlan.Connection::kind) shouldContainExactly
+                    listOf(
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.ATTENTION,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.DATA,
+                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.CONTROL,
                     )
             }
 

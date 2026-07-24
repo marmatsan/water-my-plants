@@ -117,7 +117,7 @@ CI graph construction belong to Kotlin; measured node geometry, fonts,
 components, variables, connectors, and mutations remain in the Figma adapter.
 
 The Figma gateway creates or updates one parent section named
-`Continuous Integration and Design Documentation` on Figma page `63153:2876`
+`Continuous Integration and Documentation Automation` on Figma page `63153:2876`
 and exposes six independently runnable targets:
 
 - `ci.overview`;
@@ -141,7 +141,7 @@ and has no connectors. Expanded nodes use the same compositional API as every
 other node: `.ci node` -> `.ci phase` -> `.ci step`, plus sibling
 `.ci outcome` instances.
 
-The plan uses schema version `3`. Every visual entity contains typed `phases`
+The plan uses schema version `4`. Every visual entity contains typed `phases`
 and `outcomes` arrays, including empty arrays when it has no executable detail.
 Each phase owns a typed `steps` array. TypeScript rejects incompatible schemas,
 missing arrays, invalid roles or kinds, and capacity overflow before any Figma
@@ -157,6 +157,10 @@ from the presence of typed phases, `show outcome` from the presence of typed
 outcomes, and `show source` and `show runtime` from actual model content. The
 component does not expose `steps`, `show steps`, or any other
 compatibility-only execution property.
+The `source` TextNode must bind its characters to the public `source` property.
+The writer resolves that component-property reference, verifies that it is
+unique, and applies the canonical GitHub `main` file URL to the complete text
+range. Layer names are presentation details and are not hyperlink selectors.
 
 The reserved component hierarchy is:
 
@@ -247,11 +251,15 @@ in the typed model but are hidden visually; phase, decision, group, and outcome
 descriptions remain visible.
 
 Native Figma CI connectors are cloned from the `simple-line_arrow` connector
-at node `64758:2748` because the MCP runtime does not expose
+at node `64800:262` because the MCP runtime does not expose
 `figma.createConnector()`. The visual preflight resolves that exact node and
 requires its configured name, elbowed line type, arrow-lines end cap, and
-native text before any CI section is mutated. This identity is independent
-from the `simple-solid_arrow` template used by catalog trees.
+native text before any CI section is mutated. The locked template is positioned
+over the CI component documentation section but remains a page-level node,
+outside every managed CI target, because standalone connector endpoints cannot
+be parented to that section by the MCP runtime. This prevents target cleanup
+from deleting the template. Its identity is independent from the
+`simple-solid_arrow` template used by catalog trees.
 
 Each clone remains a child of the target section, is inserted behind its node
 groups, and stores the connection label in the connector's native text. The
@@ -259,6 +267,24 @@ writer preserves the template font and uses `Inter Medium` only when the clone
 does not expose a usable font. `.ci connector label` groups, background
 rectangles, and independently positioned label text are not part of the
 supported contract.
+
+The Kotlin plan assigns every connection a semantic kind. The writer applies
+the following direct stroke colors; generated connectors do not bind these
+colors to Figma variables. The `CI connector colors` collection and the legend
+in the component documentation area mirror this palette for readers, but they
+are not runtime dependencies of the sync.
+
+| Kind | Meaning | Direct stroke |
+|------|---------|---------------|
+| `control` | Trigger, command, scheduling, gate, or rerun flow | `#0067C0` |
+| `data` | Source, artifact, model, metadata, or visual payload | `#7A3E9D` |
+| `status` | Check, result, or status publication | `#2E7D32` |
+| `attention` | Mismatch or operator action required | `#C62828` |
+| `neutral` | Reserved contextual relation with no stronger semantic kind | `#6B7280` |
+
+Color never replaces the native connection label. Keep both the label and kind
+stable in the plan so the visual meaning survives every granular or canonical
+rerun.
 
 `ConnectorText` does not expose a usable width in the Plugin API. Before row
 layout, the writer measures each label with a temporary `TextNode` using the
@@ -285,23 +311,61 @@ row, bind connector endpoints only after that layout, and then wait for
 connector geometry to stabilize before resizing the section. Calculating the
 route from the initial component dimensions can top-align mixed-height nodes
 and send connectors through their content.
+The `.ci node` master groups its eight phase slots into two responsive rows of
+four. Each reserved `.ci phase` instance uses vertical Hug sizing. After the
+writer populates and hides phase slots, it also hides any row with no visible
+slot; otherwise an empty nested Auto Layout row can preserve the master size
+inside a component instance even though every child slot is hidden.
+
+Figma may replace exposed nested-instance proxies after a component property
+mutation, while `exposedInstances` can omit slots that have become hidden. The
+writer therefore captures each slot's owning row before changing phase or step
+properties, then derives final row visibility from the ordered phase count in
+the model. Responsive layout decisions must not inspect a pre-mutation slot
+proxy or try to rediscover hidden slots afterward.
+
 Disconnected horizontal flows are stacked as separate rows and each row starts
 at the same left edge. Post-merge job order is derived from declared artifact
 publication and job dependencies, never from the order of jobs in the generated
 TeamCity model.
-Connections within one horizontal row use side anchors. Connections whose node
-groups occupy different, non-overlapping rows use vertical anchors: `BOTTOM` to
+Connections within one logical row use side anchors. Connections whose model
+positions occupy different logical rows use vertical anchors: `BOTTOM` to
 `TOP` for a downward relation and `TOP` to `BOTTOM` for an upward relation.
+Routing must use those model positions rather than comparing rendered centers:
+a tall target can overlap both rendered row bands and otherwise make Figma send
+the elbow through an intermediate node.
 This routes the elbow through inter-row whitespace instead of across an
 intermediate node while the connector keeps its native label centered. Return
 connections within one row use bottom anchors and route below the row. In the
-topology grid, parallel opposite vertical connections keep the forward path
-direct and route the return path around the left side so its native label
-cannot obscure the forward path or adjacent connectors.
+topology grid, parallel opposite vertical connections route around opposing
+left and right sides. Neither relation uses the central vertical lane, so their
+native labels cannot collapse into the same inter-row band.
 Distinct connections that share the same endpoints must remain visually
 distinct. Route horizontal parallel connections above and below their nodes;
-for opposite vertical connections, keep the forward path direct and route the
-return path around one side.
+route opposite vertical connections around opposing sides.
+
+The selected side is a routing lane, not a request to reuse the side's central
+magnet. After managed node groups reach their final size and position, the
+writer creates one transparent 2 px `.ci connector port` group for every
+connection endpoint. Each port remains on the owning node outline, and the
+native connector binds to that port instead of binding directly to the node
+group. For endpoints that share a node side, order ports by the rendered center
+of the opposite node along that side's axis; use the connection id as the
+stable tie-breaker. Spread the ordered ports evenly between the two corners.
+This keeps converging, diverging, and parallel routes distinguishable while
+preserving the selected top, right, bottom, or left lane.
+
+Ports are generated writer state, not Figma components and not Kotlin plan
+coordinates. Keep them visible to the Plugin API but without fills or strokes,
+mark them as managed `connector-port` nodes, and place them behind the native
+connectors and `.ci node` groups. A granular rerun removes native connectors
+first, then their ports, then node groups. Do not bind a new connector before
+layout is stable or reuse one port for multiple endpoints: either shortcut
+reintroduces ambiguous entry and exit points.
+
+The writer reserves the measured native connector-label width plus explicit
+clearance on both sides. A connector whose route reaches a node outline may do
+so, but its label must not visually touch or cover the node.
 The icon shown in a `.ci node` header is exactly one nested `.ci icon` instance
 from component set `64361:716`. Its `environment` variant is configured directly
 on the nested instance because Figma does not promote that property to the

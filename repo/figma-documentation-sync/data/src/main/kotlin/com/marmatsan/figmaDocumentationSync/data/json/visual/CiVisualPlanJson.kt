@@ -334,7 +334,7 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "schemaVersion",
-                3,
+                4,
             )
             put(
                 "parentName",
@@ -405,6 +405,10 @@ object CiVisualPlanJson {
                             put(
                                 "label",
                                 connection.label,
+                            )
+                            put(
+                                "kind",
+                                connection.kind.wireValue,
                             )
                         }
                     },

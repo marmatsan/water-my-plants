@@ -29,7 +29,7 @@ class CiVisualPlanner {
                 name = config.figmaPipelineName,
             )
         return CiVisualPlan(
-            parentName = "Continuous Integration and Design Documentation",
+            parentName = "Continuous Integration and Documentation Automation",
             sections =
                 listOf(
                     createOverviewSection(
@@ -239,6 +239,7 @@ class CiVisualPlanner {
                     id = "overview-pr-trigger",
                     source = "overview-pr",
                     target = "overview-ci",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                     label =
                         triggerLabel(
                             pipeline = ciPipeline,
@@ -249,23 +250,27 @@ class CiVisualPlanner {
                     source = "overview-ci",
                     target = "overview-ci-check",
                     label = "Publish check",
+                    kind = CiVisualPlan.ConnectionKind.STATUS,
                 ),
                 connection(
                     id = "overview-check-gate",
                     source = "overview-ci-check",
                     target = "overview-gate",
                     label = "Required check",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 ),
                 connection(
                     id = "overview-gate-main",
                     source = "overview-gate",
                     target = "overview-main",
                     label = "Merge",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 ),
                 connection(
                     id = "overview-main-figma",
                     source = "overview-main",
                     target = "overview-figma",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                     label =
                         triggerLabel(
                             pipeline = figmaPipeline,
@@ -276,6 +281,7 @@ class CiVisualPlanner {
                     source = "overview-figma",
                     target = "overview-model",
                     label = "Generate and publish",
+                    kind = CiVisualPlan.ConnectionKind.DATA,
                 ),
             )
         if (figmaCheck != null) {
@@ -285,6 +291,7 @@ class CiVisualPlanner {
                     source = "overview-model",
                     target = "overview-figma-check",
                     label = "Verify model hash",
+                    kind = CiVisualPlan.ConnectionKind.STATUS,
                 )
         }
         return section(
@@ -383,6 +390,7 @@ class CiVisualPlanner {
                     id = "pr-trigger",
                     source = "pr",
                     target = "pipeline-${pipeline.id}",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                     label =
                         triggerLabel(
                             pipeline = pipeline,
@@ -396,6 +404,7 @@ class CiVisualPlanner {
                     source = if (index == 0) "pipeline-${pipeline.id}" else "job-${pipeline.jobs[index - 1].id}",
                     target = "job-${job.id}",
                     label = if (index == 0) "Run pipeline" else "Continue",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 )
         }
         checks.forEachIndexed { index, _ ->
@@ -405,6 +414,7 @@ class CiVisualPlanner {
                     source = pipeline.jobs.lastOrNull()?.let { "job-${it.id}" } ?: "pipeline-${pipeline.id}",
                     target = "check-$index",
                     label = "Publish check",
+                    kind = CiVisualPlan.ConnectionKind.STATUS,
                 )
             connections +=
                 connection(
@@ -412,6 +422,7 @@ class CiVisualPlanner {
                     source = "check-$index",
                     target = "merge-gate",
                     label = "Required check",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 )
         }
         connections +=
@@ -420,6 +431,7 @@ class CiVisualPlanner {
                 source = "merge-gate",
                 target = "main",
                 label = "Merge",
+                kind = CiVisualPlan.ConnectionKind.CONTROL,
             )
         return section(
             target = "ci.pullRequestIntegration",
@@ -586,6 +598,7 @@ class CiVisualPlanner {
                     id = "main-trigger",
                     source = "main",
                     target = "pipeline-${pipeline.id}",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                     label =
                         triggerLabel(
                             pipeline = pipeline,
@@ -599,6 +612,7 @@ class CiVisualPlanner {
                     source = "pipeline-${pipeline.id}",
                     target = "job-${it.id}",
                     label = "Run pipeline",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 )
             connections +=
                 connection(
@@ -606,6 +620,7 @@ class CiVisualPlanner {
                     source = "job-${it.id}",
                     target = "design-model",
                     label = "Publish artifact",
+                    kind = CiVisualPlan.ConnectionKind.DATA,
                 )
         }
         checkJob?.let {
@@ -615,6 +630,7 @@ class CiVisualPlanner {
                     source = "design-model",
                     target = "job-${it.id}",
                     label = "Compare canonical model",
+                    kind = CiVisualPlan.ConnectionKind.DATA,
                 )
         }
         if (figmaDocument != null && checkJob != null) {
@@ -624,6 +640,7 @@ class CiVisualPlanner {
                     source = "figma-document",
                     target = "job-${checkJob.id}",
                     label = "Read current metadata",
+                    kind = CiVisualPlan.ConnectionKind.DATA,
                 )
         }
         if (operator != null && checkJob != null) {
@@ -633,6 +650,7 @@ class CiVisualPlanner {
                     source = "job-${checkJob.id}",
                     target = "operator",
                     label = "Mismatch requires action",
+                    kind = CiVisualPlan.ConnectionKind.ATTENTION,
                 )
         }
         if (operator != null && codex != null) {
@@ -642,6 +660,7 @@ class CiVisualPlanner {
                     source = "operator",
                     target = "codex",
                     label = "Prepare validated handoff",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 )
         }
         if (codex != null && figmaDocument != null) {
@@ -651,6 +670,7 @@ class CiVisualPlanner {
                     source = "codex",
                     target = "figma-document",
                     label = "Write visuals first · metadata last",
+                    kind = CiVisualPlan.ConnectionKind.DATA,
                 )
         }
         if (figmaDocument != null) {
@@ -660,6 +680,7 @@ class CiVisualPlanner {
                     source = "figma-document",
                     target = "rerun-teamcity-figma-sync",
                     label = "Run secure rerun",
+                    kind = CiVisualPlan.ConnectionKind.CONTROL,
                 )
         }
         connections +=
@@ -668,6 +689,7 @@ class CiVisualPlanner {
                 source = "rerun-teamcity-figma-sync",
                 target = "pipeline-${pipeline.id}",
                 label = "Queue complete pipeline",
+                kind = CiVisualPlan.ConnectionKind.CONTROL,
             )
         return section(
             target = "ci.postMergeDesignDocumentation",
@@ -713,6 +735,10 @@ class CiVisualPlanner {
                     source = nodeIds[edge.sourceNodeId],
                     target = nodeIds[edge.targetNodeId],
                     label = edge.label,
+                    kind =
+                        externalConnectionKind(
+                            connectionId = edge.id,
+                        ),
                 )
             }
         return section(
@@ -940,6 +966,7 @@ class CiVisualPlanner {
         source: String?,
         target: String?,
         label: String,
+        kind: CiVisualPlan.ConnectionKind,
     ): CiVisualPlan.Connection {
         require(source != null && target != null) { "CI visual connection '$id' has an unknown endpoint." }
         return CiVisualPlan.Connection(
@@ -947,8 +974,35 @@ class CiVisualPlanner {
             source = source,
             target = target,
             label = label,
+            kind = kind,
         )
     }
+
+    private fun externalConnectionKind(
+        connectionId: String,
+    ): CiVisualPlan.ConnectionKind =
+        when (connectionId) {
+            "github-source-checkout",
+            "figma-metadata-read",
+            "mcp-figma-write",
+            "figma-document-update",
+            -> CiVisualPlan.ConnectionKind.DATA
+
+            "github-check-publication",
+            "teamcity-build-results",
+            -> CiVisualPlan.ConnectionKind.STATUS
+
+            "browser-teamcity-access",
+            "cli-teamcity-access",
+            "github-webhook-ingress",
+            "cloudflare-origin-routing",
+            "teamcity-origin-delivery",
+            "teamcity-job-dispatch",
+            "operator-visual-sync",
+            -> CiVisualPlan.ConnectionKind.CONTROL
+
+            else -> CiVisualPlan.ConnectionKind.NEUTRAL
+        }
 
     private fun publishedChecks(
         pipeline: CiPipeline,

@@ -622,12 +622,12 @@ function validateCiVisualPlan(plan, targets) {
   if (ciTargets.length === 0) return;
   if (
     !plan ||
-    plan.schemaVersion !== 3 ||
+    plan.schemaVersion !== 4 ||
     typeof plan.parentName !== "string" ||
     !Array.isArray(plan.sections)
   ) {
     throw new Error(
-      "The Kotlin CI visual plan must use schemaVersion 3 and contain parentName and sections."
+      "The Kotlin CI visual plan must use schemaVersion 4 and contain parentName and sections."
     );
   }
 

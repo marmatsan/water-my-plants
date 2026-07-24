@@ -81,6 +81,8 @@ import {
   requireVariableCollection,
 } from "./figma-node-gateway";
 
+const CI_PHASES_CONTAINER_NAME = "phases";
+
 export class FigmaVisualContractCheckGateway implements VisualContractCheckGateway {
   async checkVisualContract(
     designModel: DesignModel,
@@ -148,6 +150,16 @@ async function checkCiDocumentationContract(
   requireComponentProperty(component, CI_NODE_PROPS.showSource, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showRuntime, "BOOLEAN");
   requireComponentProperty(component, CI_NODE_PROPS.showOptionalDetails, "BOOLEAN");
+  requireSingleTextPropertyBinding(
+    component,
+    CI_NODE_PROPS.source,
+    ".ci node source"
+  );
+  requireResponsiveAutoLayout(
+    component,
+    "VERTICAL",
+    ".ci node"
+  );
   requireMissingComponentProperty(component, "steps");
   requireMissingComponentProperty(component, "show steps");
   checkedComponents.push(`${component.name}:${component.id}`);
@@ -162,6 +174,21 @@ async function checkCiDocumentationContract(
     "visible",
     CI_NODE_PROPS.showExecutionPlan,
     ".ci node execution plan"
+  );
+  requireResponsiveAutoLayout(
+    executionPlan,
+    "VERTICAL",
+    ".ci node execution plan"
+  );
+  const phases = requireDirectFrame(
+    executionPlan,
+    CI_PHASES_CONTAINER_NAME,
+    ".ci node execution plan"
+  );
+  requireResponsiveAutoLayout(
+    phases,
+    "VERTICAL",
+    ".ci node phases"
   );
   const outcome = requireDirectFrame(
     component,
@@ -202,6 +229,11 @@ async function checkCiDocumentationContract(
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showTechnicalId, "BOOLEAN");
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showDescription, "BOOLEAN");
   requireComponentProperty(phaseComponent, CI_PHASE_PROPS.showSteps, "BOOLEAN");
+  requireResponsiveAutoLayout(
+    phaseComponent,
+    "VERTICAL",
+    ".ci phase"
+  );
   const phaseSteps = requireDirectFrame(
     phaseComponent,
     CI_PHASE_STEP_CONTAINER_NAME,
@@ -211,6 +243,11 @@ async function checkCiDocumentationContract(
     phaseSteps,
     "visible",
     CI_PHASE_PROPS.showSteps,
+    ".ci phase steps"
+  );
+  requireResponsiveAutoLayout(
+    phaseSteps,
+    "VERTICAL",
     ".ci phase steps"
   );
   checkedComponents.push(`${phaseComponent.name}:${phaseComponent.id}`);
@@ -255,14 +292,18 @@ async function checkCiDocumentationContract(
   });
   checkedComponents.push(`${outcomeSet.name}:${outcomeSet.id}`);
 
-  await requireExactReservedSlots({
-    owner: executionPlan,
+  const phaseSlots = await requireExactReservedSlots({
+    owner: phases,
     expectedNames: ciPhaseSlotNames(),
     hasNamePrefix: hasCiPhaseSlotNamePrefix,
     label: "CI phase",
     matchesComponent: async (slot) => (await slot.getMainComponentAsync())?.id === phaseComponent.id,
     expectedComponentLabel: `component '${phaseComponent.id}'`,
   });
+  requireCiPhaseRowsContract(
+    phases,
+    phaseSlots
+  );
   await requireExactReservedSlots({
     owner: outcome,
     expectedNames: ciOutcomeSlotNames(),
@@ -418,7 +459,7 @@ async function requireExactReservedSlots({
   matchesComponent: (slot: InstanceNode) => Promise<boolean>;
   expectedComponentLabel: string;
 }) {
-  const slots = owner.children.filter(
+  const slots = owner.findAllWithCriteria({ types: ["INSTANCE"] }).filter(
     (candidate) => candidate.type === "INSTANCE" && hasNamePrefix(candidate.name)
   ) as InstanceNode[];
   const actualNames = slots.map((slot) => slot.name);
@@ -448,6 +489,50 @@ async function requireExactReservedSlots({
       throw new Error(
         `${label} slot '${slot.name}' in '${owner.id}' must belong to ${expectedComponentLabel}.`
       );
+    }
+  }
+  return slots;
+}
+
+function requireCiPhaseRowsContract(
+  phases: FrameNode,
+  slots: InstanceNode[]
+) {
+  const rows = phases.children.filter((child) => child.type === "FRAME") as FrameNode[];
+  const expectedSlots = ciPhaseSlotNames();
+  const expectedRows = [
+    expectedSlots.slice(0, 4),
+    expectedSlots.slice(4),
+  ];
+  if (rows.length !== expectedRows.length) {
+    throw new Error(
+      `.ci node phases '${phases.id}' must contain exactly ${expectedRows.length} responsive rows; ` +
+        `found ${rows.length}.`
+    );
+  }
+  for (const [index, row] of rows.entries()) {
+    requireResponsiveAutoLayout(
+      row,
+      "HORIZONTAL",
+      `.ci node phase row ${index + 1}`
+    );
+    if (!row.visible) {
+      throw new Error(`.ci node phase row '${row.id}' must be visible in the master component.`);
+    }
+    const rowSlots = row.children.filter((child) => child.type === "INSTANCE") as InstanceNode[];
+    const actualNames = rowSlots.map((slot) => slot.name);
+    if (actualNames.join("|") !== expectedRows[index].join("|")) {
+      throw new Error(
+        `.ci node phase row '${row.id}' must contain ${expectedRows[index].join(", ")} in order; ` +
+          `found ${actualNames.join(", ") || "none"}.`
+      );
+    }
+    for (const slot of rowSlots) {
+      if (!slots.includes(slot) || slot.layoutSizingVertical !== "HUG") {
+        throw new Error(
+          `CI phase slot '${slot.name}' in '${row.id}' must use vertical HUG sizing.`
+        );
+      }
     }
   }
 }
@@ -737,6 +822,40 @@ function requireComponentPropertyReference(
     throw new Error(
       `${label} '${node.id}' must bind '${field}' to component property ` +
         `'${componentPropertyName(propertyName)}'.`
+    );
+  }
+}
+
+function requireSingleTextPropertyBinding(
+  component: ComponentNode,
+  propertyName: string,
+  label: string
+) {
+  const matches = component.findAllWithCriteria({ types: ["TEXT"] })
+    .filter((text) =>
+      componentPropertyName(text.componentPropertyReferences?.characters || "") ===
+        componentPropertyName(propertyName)
+    );
+  if (matches.length !== 1) {
+    throw new Error(
+      `${label} '${component.id}' must bind exactly one text layer to component property ` +
+        `'${componentPropertyName(propertyName)}'; found ${matches.length}.`
+    );
+  }
+}
+
+function requireResponsiveAutoLayout(
+  node: ComponentNode | FrameNode,
+  layoutMode: "HORIZONTAL" | "VERTICAL",
+  label: string
+) {
+  if (
+    node.layoutMode !== layoutMode ||
+    node.layoutSizingHorizontal !== "HUG" ||
+    node.layoutSizingVertical !== "HUG"
+  ) {
+    throw new Error(
+      `${label} '${node.id}' must use ${layoutMode} Auto Layout with horizontal and vertical HUG sizing.`
     );
   }
 }

@@ -9,7 +9,7 @@ future automation, live build results, or runtime metrics.
 The parent Figma section is named:
 
 ```text
-Continuous Integration and Design Documentation
+Continuous Integration and Documentation Automation
 ```
 
 It contains five sections grouped into two reading levels:
@@ -85,10 +85,16 @@ operational recovery order remains in the linked runbook and is not modeled as
 a dependency between services.
 
 Flow relations render their semantic label in the native text of the
-`simple-line_arrow` connector. The visual writer uses side anchors within one
-row and vertical anchors between rows so a relation cannot cross an
-intermediate node. The exact template identity, routing, and preflight contract
-belong to the
+`simple-line_arrow` connector. Its locked template is positioned over the CI
+component documentation section but remains outside every managed target so a
+partial sync cannot delete it. The visual writer uses side anchors within one
+row and vertical anchors between rows. After node layout stabilizes, it assigns
+each connection endpoint a deterministic transparent port along the selected
+node side. Shared sides spread their ports in the order of the opposite nodes,
+so parallel and converging relations do not collapse onto one central anchor.
+These ports and their coordinates are writer-owned presentation details; they
+do not enter the Kotlin visual model. The exact template identity, routing, and
+preflight contract belong to the
 [Figma visual sync contract](../../repo/figma-documentation-sync/docs/reference/visual-sync-contract.md).
 
 ### Operational Detail
@@ -136,7 +142,7 @@ phase's transparent `steps` frame, and outcomes inside the node's transparent
 Outcomes are not steps because they describe externally
 observable results rather than work executed inside a TeamCity phase.
 
-The Kotlin visual plan uses schema version `3`. Every node owns typed `phases`
+The Kotlin visual plan uses schema version `4`. Every node owns typed `phases`
 and `outcomes` arrays. A phase contains its order, title, optional technical
 identifier and description, plus a typed `steps` array. A step contains an
 order, role, title, and optional technical identifier, description, and
@@ -192,6 +198,21 @@ aligned with expanded task nodes while compact flow nodes remain narrow.
 `optional details` owns the full-width runtime divider but no additional
 stroke; its nested `details content` frame keeps runtime and source text at the
 compact reading width.
+
+The `.ci node`, its `execution plan`, its `phases` container, every phase row,
+and `.ci phase` use Hug sizing on both axes. Reserved `.ci phase` instances
+inside the parent component must also use vertical Hug sizing; changing only
+the `.ci phase` master does not clear fixed-size overrides already stored by
+its nested instances. Both phase rows remain visible in the master so the full
+capacity is inspectable. Generated instances hide a complete row when none of
+its four reserved phase slots is populated. This prevents an empty row from
+retaining the master component's width and height.
+
+The visible `source` TextNode binds its characters to the public `source`
+component property. The writer locates that TextNode through the property
+reference and applies the GitHub `main` file URL to its complete range; it must
+not depend on a historical layer name such as `File`. The visual preflight
+fails when the binding is missing or duplicated.
 
 Use the step variants consistently:
 
@@ -330,6 +351,12 @@ Cloudflare `Allow`, `Service Auth`, and `Bypass` policies are connection
 attributes, not independent systems. Connections may contain protocol,
 authentication type, automation mode, branch condition, and a concise purpose,
 but never concrete credentials.
+
+Every planned visual connection also has one semantic `kind`: `control`,
+`data`, `status`, `attention`, or `neutral`. The kind describes the function of
+the relation and stays independent from its Figma presentation. The writer maps
+it to the documented connector palette; labels remain mandatory because color
+is a supporting cue, not the connection identity.
 
 ## Post-merge Verification Loop
 

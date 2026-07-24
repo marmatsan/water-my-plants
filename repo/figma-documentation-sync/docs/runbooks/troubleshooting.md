@@ -463,21 +463,33 @@ behavior changes.
 ## CI Connectors That Cross Nodes
 
 CI relations use the native `simple-line_arrow` connector at node
-`64758:2748`, including its centered text. They do not use a separately grouped
+`64800:262`, including its centered text. The locked template is positioned
+over the CI component documentation section but remains outside managed CI
+targets so cleanup cannot delete it. Relations do not use a separately grouped
 label. If an elbowed CI connector blocks a node, inspect its endpoints before
 changing spacing or recreating visual labels:
 
 - connections between nodes in the same horizontal row use side magnets;
 - downward cross-row connections use `BOTTOM` to `TOP`;
 - upward cross-row connections use `TOP` to `BOTTOM`;
-- same-row return connections use bottom magnets so they route below the row.
+- same-row return connections use bottom magnets so they route below the row;
+- opposite vertical connections between the same nodes use left and right side
+  lanes instead of sharing the central inter-row band.
+
+Every endpoint then binds to its own transparent `.ci connector port` group on
+the selected side. If several labels or arrows still converge at one point,
+inspect the endpoint ids: they must reference different managed port groups,
+not the `.ci node group` itself and not one shared port. Ports on the same side
+must appear in the order of their opposite nodes. If that order is wrong,
+reproduce the routing input in the TypeScript port-allocation unit test before
+changing Figma spacing manually.
 
 A side-to-side route between different rows can cross an intermediate node even
 when the connector label itself is correct. Reproduce route changes in an
 isolated Figma section first, keep one obstacle node between the endpoints, and
 verify both directions before changing the canonical writer. After the writer
-is rebuilt, rerun the affected granular `ci.*` target and inspect the native
-label and complete elbow before writing metadata.
+is rebuilt, rerun the affected granular `ci.*` target and inspect both endpoint
+ports, the native label, and the complete elbow before writing metadata.
 
 ## Removed Connector Lookup Failures
 
@@ -513,10 +525,21 @@ relation actionable instead of reducing the problem to a generic Figma API
 error.
 
 CI connectors have a separate exact-node contract. The preflight must fail if
-node `64758:2748` is missing, is not a connector, is not named
+node `64800:262` is missing, is not a connector, is not named
 `simple-line_arrow`, is not elbowed with an arrow-lines end cap, or has no
 native text. Do not fall back to `simple-solid_arrow` and do not recreate the
 removed `.ci connector label` structure.
+
+## Missing Nested Instance After Property Synchronization
+
+Figma can invalidate an exposed nested-instance proxy after `setProperties()`
+recomposes its component subtree. An error such as `in get_parent: The node
+with id ... does not exist` during CI row collapse means the writer retained a
+pre-mutation slot reference. Capture slot indexes and their owning rows before
+mutating phase properties, then derive final row visibility from the ordered
+phase count in the model. Do not re-query `owner.exposedInstances` afterward:
+hidden slots may be absent. Do not work around the failure by keeping the empty
+row visible or by assigning it a fixed height.
 
 ## Missing Component Property
 

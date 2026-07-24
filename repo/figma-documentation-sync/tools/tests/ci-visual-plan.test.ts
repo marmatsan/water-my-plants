@@ -2,8 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { CiVisualNode } from "../src/domain/ci/ci-visual-plan";
 import {
+  applyCiPhaseRowCountVisibility,
+  applyCiPhaseRowVisibility,
   centeredRowY,
   ciConnectorMagnets,
+  ciConnectorPortAssignments,
+  ciConnectorPortBounds,
+  ciConnectorStroke,
   ciExecutionSlotRequirements,
   ciNodePropertyValues,
   ciOutcomePropertyValues,
@@ -358,10 +363,151 @@ test("CI connectors use side anchors within rows and vertical anchors across row
       { x: 100, y: 100, width: 200, height: 100 },
       { x: 100, y: 400, width: 200, height: 100 },
       "grid",
+      { index: 0, count: 2 }
+    ),
+    { start: "RIGHT", end: "RIGHT" }
+  );
+  assert.deepEqual(
+    ciConnectorMagnets(
+      { x: 100, y: 100, width: 200, height: 100 },
+      { x: 100, y: 400, width: 200, height: 100 },
+      "grid",
       { index: 1, count: 2 }
     ),
     { start: "LEFT", end: "LEFT" }
   );
+  assert.deepEqual(
+    ciConnectorMagnets(
+      { x: 1468, y: 2313, width: 320, height: 228 },
+      { x: 2653, y: 1705, width: 551, height: 474 },
+      "grid",
+      { index: 0, count: 1 },
+      {
+        source: { row: 1, column: 2 },
+        target: { row: 0, column: 4 },
+      }
+    ),
+    { start: "TOP", end: "BOTTOM" }
+  );
+});
+
+test("CI connector ports spread shared side anchors without leaving the node outline", () => {
+  const node = { x: 100, y: 200, width: 300, height: 180 };
+
+  assert.deepEqual(ciConnectorPortBounds(node, "TOP", 0, 2), {
+    x: 199,
+    y: 200,
+    width: 2,
+    height: 2,
+  });
+  assert.deepEqual(ciConnectorPortBounds(node, "TOP", 1, 2), {
+    x: 299,
+    y: 200,
+    width: 2,
+    height: 2,
+  });
+  assert.deepEqual(ciConnectorPortBounds(node, "RIGHT", 0, 1), {
+    x: 398,
+    y: 289,
+    width: 2,
+    height: 2,
+  });
+});
+
+test("CI connector routing orders shared ports by the opposite node position", () => {
+  const hub = { x: 100, y: 100, width: 200, height: 300 };
+  const upper = { x: 500, y: 0, width: 200, height: 100 };
+  const lower = { x: 500, y: 500, width: 200, height: 100 };
+  const assignments = ciConnectorPortAssignments([
+    {
+      id: "hub-lower",
+      sourceNodeId: "hub",
+      targetNodeId: "lower",
+      source: hub,
+      target: lower,
+      magnets: { start: "RIGHT", end: "LEFT" },
+    },
+    {
+      id: "hub-upper",
+      sourceNodeId: "hub",
+      targetNodeId: "upper",
+      source: hub,
+      target: upper,
+      magnets: { start: "RIGHT", end: "LEFT" },
+    },
+  ]);
+
+  assert.deepEqual(assignments.get("hub-upper")?.start, {
+    magnet: "RIGHT",
+    index: 0,
+    count: 2,
+    bounds: { x: 298, y: 199, width: 2, height: 2 },
+  });
+  assert.deepEqual(assignments.get("hub-lower")?.start, {
+    magnet: "RIGHT",
+    index: 1,
+    count: 2,
+    bounds: { x: 298, y: 299, width: 2, height: 2 },
+  });
+});
+
+test("CI connector strokes map semantic flow kinds to the documented direct colors", () => {
+  assert.deepEqual(ciConnectorStroke("control").color, {
+    r: 0 / 255,
+    g: 103 / 255,
+    b: 192 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("data").color, {
+    r: 122 / 255,
+    g: 62 / 255,
+    b: 157 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("status").color, {
+    r: 46 / 255,
+    g: 125 / 255,
+    b: 50 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("attention").color, {
+    r: 198 / 255,
+    g: 40 / 255,
+    b: 40 / 255,
+  });
+  assert.deepEqual(ciConnectorStroke("neutral").color, {
+    r: 107 / 255,
+    g: 114 / 255,
+    b: 128 / 255,
+  });
+});
+
+test("CI phase rows collapse when all their reserved phase slots are hidden", () => {
+  const firstRow = { id: "first", type: "FRAME", visible: false };
+  const secondRow = { id: "second", type: "FRAME", visible: true };
+  const rows = applyCiPhaseRowVisibility([
+    { name: "phase 01", visible: true, parent: firstRow },
+    { name: "phase 02", visible: false, parent: firstRow },
+    { name: "phase 05", visible: false, parent: secondRow },
+    { name: "phase 06", visible: false, parent: secondRow },
+  ] as any);
+
+  assert.equal(firstRow.visible, true);
+  assert.equal(secondRow.visible, false);
+  assert.deepEqual(rows, [firstRow, secondRow]);
+});
+
+test("CI phase row visibility survives invalidated nested slot proxies", () => {
+  const firstRow = { id: "first", type: "FRAME", visible: false };
+  const secondRow = { id: "second", type: "FRAME", visible: true };
+  const rows = applyCiPhaseRowCountVisibility(
+    [
+      { row: firstRow, slotIndexes: [0, 1, 2, 3] },
+      { row: secondRow, slotIndexes: [4, 5, 6, 7] },
+    ] as any,
+    3
+  );
+
+  assert.equal(firstRow.visible, true);
+  assert.equal(secondRow.visible, false);
+  assert.deepEqual(rows, [firstRow, secondRow]);
 });
 
 test("CI horizontal layouts stack disconnected flows and left-align each row", () => {
@@ -390,7 +536,7 @@ test("CI horizontal layouts stack disconnected flows and left-align each row", (
 test("CI horizontal rows align node centers and reserve label width", () => {
   assert.equal(centeredRowY(100, 200, 120), 140);
   assert.equal(horizontalConnectorGap(80), 160);
-  assert.equal(horizontalConnectorGap(280), 328);
+  assert.equal(horizontalConnectorGap(280), 360);
 });
 
 test("CI grid rows reserve measured label width between adjacent nodes", () => {
@@ -411,7 +557,7 @@ test("CI grid rows reserve measured label width between adjacent nodes", () => {
         ["pipeline-operator", { width: 900 }],
       ])
     )],
-    [[0, 449]]
+    [[0, 481]]
   );
 });
 
@@ -478,13 +624,20 @@ test("CI parent resize follows child sections instead of a stale header width", 
 });
 
 test("managed CI content removes connectors before their endpoint nodes", () => {
-  const roles = ["node", "connector", "unmanaged", "connector", "node"];
+  const roles = [
+    "node",
+    "connector-port",
+    "connector",
+    "unmanaged",
+    "connector",
+    "node",
+  ];
 
   assert.deepEqual(
     roles.toSorted((first, second) =>
       managedCiRemovalPriority(first) - managedCiRemovalPriority(second)
     ),
-    ["connector", "connector", "node", "node", "unmanaged"]
+    ["connector", "connector", "connector-port", "node", "node", "unmanaged"]
   );
 });
 

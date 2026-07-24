@@ -57,14 +57,15 @@ CI documentation visual targets:
 | `ci.overview` | `content.ci` aggregate | `Overview` inside page `63153:2876` |
 | `ci.pullRequestIntegration` | Effective `.teamcity/settings.kts` model and branch protection contract | `Pull Request Integration` inside page `63153:2876` |
 | `ci.postMergeDesignDocumentation` | Effective Figma Sync pipeline and the operator/MCP loop | `Post-merge Design Documentation` inside page `63153:2876` |
+| `ci.jobTasks` | Ordered TeamCity phases, Gradle tasks, decisions, and outcomes | `Job Tasks` inside page `63153:2876` |
 | `ci.infrastructureAndAccess` | `docs/ci/external-topology.yaml` | `Infrastructure and Access` inside page `63153:2876` |
 | `ci.windowsRuntime` | `docs/ci/windows-runtime.yaml` | `Windows Service Runtime` inside page `63153:2876` |
 
-The five targets share the parent section `Continuous Integration and Design
-Documentation`. Both a generated partial plan and a diagnostic target reuse the
-parent and only replace nodes and connectors managed by the requested child
-section. Only the TeamCity-generated plan can authorize that subset as an
-canonical integration.
+The six targets share the parent section `Continuous Integration and
+Documentation Automation`. Both a generated partial plan and a diagnostic
+target reuse the parent and only replace nodes and connectors managed by the
+requested child section. Only the TeamCity-generated plan can authorize that
+subset as a canonical integration.
 
 ## Execution Order
 

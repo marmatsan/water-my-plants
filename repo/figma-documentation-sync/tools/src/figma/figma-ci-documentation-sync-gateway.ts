@@ -71,10 +71,39 @@ const ROLE_PARENT = "parent";
 const ROLE_SECTION = "section";
 const ROLE_NODE = "node";
 const ROLE_CONNECTOR = "connector";
+const ROLE_CONNECTOR_PORT = "connector-port";
 const LIGHT_MODE_NAME = "Light";
-const CONNECTOR_LABEL_CLEARANCE = 24;
+const CONNECTOR_LABEL_CLEARANCE = 40;
+const CONNECTOR_PORT_SIZE = 2;
+const CI_CONNECTOR_COLORS: Record<CiVisualConnection["kind"], RGB> = {
+  control: { r: 0 / 255, g: 103 / 255, b: 192 / 255 },
+  data: { r: 122 / 255, g: 62 / 255, b: 157 / 255 },
+  status: { r: 46 / 255, g: 125 / 255, b: 50 / 255 },
+  attention: { r: 198 / 255, g: 40 / 255, b: 40 / 255 },
+  neutral: { r: 107 / 255, g: 114 / 255, b: 128 / 255 },
+};
 const CI_CONNECTOR_FALLBACK_FONT = { family: "Inter", style: "Medium" } as const;
 const CI_CONNECTOR_FALLBACK_FONT_SIZE = 16;
+
+type CiConnectorMagnet = "TOP" | "RIGHT" | "BOTTOM" | "LEFT";
+type CiConnectorBounds = Pick<SceneNode, "x" | "y" | "width" | "height">;
+type CiConnectorRoute = {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  source: CiConnectorBounds;
+  target: CiConnectorBounds;
+  magnets: {
+    start: CiConnectorMagnet;
+    end: CiConnectorMagnet;
+  };
+};
+type CiConnectorPort = {
+  magnet: CiConnectorMagnet;
+  index: number;
+  count: number;
+  bounds: CiConnectorBounds;
+};
 
 export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGateway {
   async syncCiDocumentation(
@@ -198,11 +227,11 @@ async function syncParentHeader(parent, mutatedNodeIds) {
     sourceLink("docs/ci/external-topology.yaml"),
     sourceLink("docs/ci/windows-runtime.yaml"),
   ];
-  setComponentTextProperty(header, "Header", "Continuous Integration and Design Documentation");
+  setComponentTextProperty(header, "Header", "Continuous Integration and Documentation Automation");
   setComponentTextProperty(
     header,
     "Definition",
-    "Current pull request integration, post-merge design documentation, CI infrastructure, and Windows service runtime."
+    "Repository verification, merge gates, post-merge Figma documentation sync, CI infrastructure, and Windows runtime."
   );
   const linkText = links.map((link) => link.label).join("\n");
   setComponentTextProperty(header, "Link", linkText);
@@ -236,7 +265,11 @@ function clearManagedSectionContent(section, mutatedNodeIds) {
       child,
       role: child.getSharedPluginData?.(METADATA_NAMESPACE, CI_ROLE_KEY),
     }))
-    .filter(({ role }) => role === ROLE_NODE || role === ROLE_CONNECTOR)
+    .filter(({ role }) =>
+      role === ROLE_NODE ||
+      role === ROLE_CONNECTOR ||
+      role === ROLE_CONNECTOR_PORT
+    )
     .sort((first, second) => managedCiRemovalPriority(first.role) - managedCiRemovalPriority(second.role));
 
   for (const { child } of managedChildren) {
@@ -249,8 +282,9 @@ function clearManagedSectionContent(section, mutatedNodeIds) {
 
 export function managedCiRemovalPriority(role: string) {
   if (role === ROLE_CONNECTOR) return 0;
-  if (role === ROLE_NODE) return 1;
-  return 2;
+  if (role === ROLE_CONNECTOR_PORT) return 1;
+  if (role === ROLE_NODE) return 2;
+  return 3;
 }
 
 async function syncSectionContent(
@@ -293,6 +327,7 @@ async function syncSectionContent(
       group.id,
       instance.id,
       ...execution.phases.map((phaseInstance) => phaseInstance.id),
+      ...execution.phaseRows.map((phaseRow) => phaseRow.id),
       ...execution.steps.map((stepInstance) => stepInstance.id),
       ...execution.outcomes.map((outcomeInstance) => outcomeInstance.id)
     );
@@ -319,7 +354,7 @@ async function syncSectionContent(
     connector.connectorLineType = "ELBOWED";
     connector.connectorStartStrokeCap = "NONE";
     connector.connectorEndStrokeCap = "ARROW_LINES";
-    connector.strokes = [boundColorPaint(outlineVariable)];
+    connector.strokes = [ciConnectorStroke(edge.kind)];
     connector.strokeWeight = 2;
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR);
     connector.setSharedPluginData(METADATA_NAMESPACE, CI_MODEL_ID_KEY, edge.id);
@@ -335,7 +370,7 @@ async function syncSectionContent(
   }
 
   await waitForStableCiLayout(groups.map(({ group }) => group));
-  layoutNodeGroups(
+  const visualPositions = layoutNodeGroups(
     groups,
     plan.orientation,
     plan.connections,
@@ -343,21 +378,60 @@ async function syncSectionContent(
   );
   await waitForStableCiLayout(groups.map(({ group }) => group));
   const parallelConnections = parallelConnectionInfo(plan.connections);
-  for (const { edge, source, target, connector } of connectorRecords) {
-    const magnets = ciConnectorMagnets(
+  const routes = connectorRecords.map(({ edge, source, target }) => ({
+    id: edge.id,
+    sourceNodeId: edge.source,
+    targetNodeId: edge.target,
+    source,
+    target,
+    magnets: ciConnectorMagnets(
       source,
       target,
       plan.orientation,
-      parallelConnections.get(edge.id)
+      parallelConnections.get(edge.id),
+      {
+        source: visualPositions.get(edge.source)!,
+        target: visualPositions.get(edge.target)!,
+      }
+    ),
+  }));
+  const portAssignments = ciConnectorPortAssignments(routes);
+  const connectorPorts: GroupNode[] = [];
+  for (const { edge, connector } of connectorRecords) {
+    const assignment = portAssignments.get(edge.id)!;
+    const startPort = createCiConnectorPort(
+      section,
+      edge.id,
+      "source",
+      assignment.start,
+      mutatedNodeIds
     );
-    connector.connectorStart = { endpointNodeId: source.id, magnet: magnets.start };
-    connector.connectorEnd = { endpointNodeId: target.id, magnet: magnets.end };
+    const endPort = createCiConnectorPort(
+      section,
+      edge.id,
+      "target",
+      assignment.end,
+      mutatedNodeIds
+    );
+    connectorPorts.push(startPort, endPort);
+    connector.connectorStart = {
+      endpointNodeId: startPort.id,
+      magnet: assignment.start.magnet,
+    };
+    connector.connectorEnd = {
+      endpointNodeId: endPort.id,
+      magnet: assignment.end.magnet,
+    };
   }
   await waitForStableCiLayout(connectorRecords.map(({ connector }) => connector));
 
   resizeChildSection(
     section,
-    [...groups.map((item) => item.group), ...connectorRecords.map(({ connector }) => connector)],
+    [
+      ...groups.map((item) => item.group),
+      ...connectorRecords.map(({ connector }) => connector),
+      ...connectorPorts,
+    ],
     mutatedNodeIds
   );
   applySectionStrokeContractTree(section, outlineVariable, mutatedNodeIds);
@@ -405,12 +479,14 @@ async function syncCiNode(instance, nodePlan: CiVisualNode, modeCollection) {
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeService, properties.runtimeService);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeStartup, properties.runtimeStartup);
   setComponentTextProperty(instance, CI_NODE_PROPS.runtimeIdentity, properties.runtimeIdentity);
-  await applyTextLinks(
-    instance,
-    "File",
-    [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
-    nodePlan.source
-  );
+  if (properties.showSource) {
+    await applyComponentTextPropertyLinks(
+      instance,
+      CI_NODE_PROPS.source,
+      [{ label: nodePlan.source, url: nodePlan.sourceUrl }],
+      nodePlan.source
+    );
+  }
 }
 
 export function ciNodePropertyValues(nodePlan: CiVisualNode) {
@@ -465,6 +541,7 @@ async function syncCiExecution({
   const outcomeSlots = slotRequirements.outcomes
     ? await requireCiOutcomeSlots(node)
     : [];
+  const phaseRowEntries = collectCiPhaseRows(phaseSlots);
   const updatedPhases: InstanceNode[] = [];
   const updatedSteps: InstanceNode[] = [];
   const updatedOutcomes: InstanceNode[] = [];
@@ -494,6 +571,10 @@ async function syncCiExecution({
       }));
     }
   }
+  const phaseRows = applyCiPhaseRowCountVisibility(
+    phaseRowEntries,
+    phases.length
+  );
 
   for (const [index, outcomeInstance] of outcomeSlots.entries()) {
     const outcome = outcomes[index];
@@ -511,9 +592,48 @@ async function syncCiExecution({
 
   return {
     phases: updatedPhases,
+    phaseRows,
     steps: updatedSteps,
     outcomes: updatedOutcomes,
   };
+}
+
+export function applyCiPhaseRowVisibility(
+  slots: InstanceNode[]
+): FrameNode[] {
+  const rows = collectCiPhaseRows(slots);
+  for (const { row, slotIndexes } of rows) {
+    row.visible = slotIndexes.some((index) => slots[index].visible);
+  }
+  return rows.map(({ row }) => row);
+}
+
+export function collectCiPhaseRows(
+  slots: InstanceNode[]
+): Array<{ row: FrameNode; slotIndexes: number[] }> {
+  const rows = new Map<string, { row: FrameNode; slotIndexes: number[] }>();
+  for (const [index, slot] of slots.entries()) {
+    const row = slot.parent;
+    if (!row || row.type !== "FRAME") {
+      throw new Error(
+        `CI phase slot '${slot.name}' must be a direct child of an Auto Layout row.`
+      );
+    }
+    const entry = rows.get(row.id) || { row, slotIndexes: [] };
+    entry.slotIndexes.push(index);
+    rows.set(row.id, entry);
+  }
+  return [...rows.values()];
+}
+
+export function applyCiPhaseRowCountVisibility(
+  rows: Array<{ row: FrameNode; slotIndexes: number[] }>,
+  visiblePhaseCount: number
+): FrameNode[] {
+  for (const { row, slotIndexes } of rows) {
+    row.visible = slotIndexes.some((index) => index < visiblePhaseCount);
+  }
+  return rows.map(({ row }) => row);
 }
 
 export function ciExecutionSlotRequirements({
@@ -804,6 +924,7 @@ function layoutNodeGroups(
     group.x = columnX.get(position.column)! + (columnWidth - group.width) / 2;
     group.y = centeredRowY(rowY.get(position.row)!, rowHeight, group.height);
   }
+  return new Map(items.map(({ plan, position }) => [plan.id, position] as const));
 }
 
 function requireSingleNestedInstance(root, instanceName) {
@@ -925,7 +1046,11 @@ export function ciConnectorMagnets(
   source: Pick<SceneNode, "x" | "y" | "width" | "height">,
   target: Pick<SceneNode, "x" | "y" | "width" | "height">,
   orientation: CiVisualOrientation,
-  parallel: { index: number; count: number } = { index: 0, count: 1 }
+  parallel: { index: number; count: number } = { index: 0, count: 1 },
+  logicalPositions?: {
+    source: { row: number; column: number };
+    target: { row: number; column: number };
+  }
 ) {
   if (orientation === "horizontal") {
     const sourceBottom = source.y + source.height;
@@ -945,8 +1070,9 @@ export function ciConnectorMagnets(
   const sourceCenterY = source.y + source.height / 2;
   const targetCenterX = target.x + target.width / 2;
   const targetCenterY = target.y + target.height / 2;
-  const isHorizontal = Math.abs(targetCenterX - sourceCenterX) >=
-    Math.abs(targetCenterY - sourceCenterY);
+  const isHorizontal = logicalPositions
+    ? logicalPositions.source.row === logicalPositions.target.row
+    : Math.abs(targetCenterX - sourceCenterX) >= Math.abs(targetCenterY - sourceCenterY);
 
   if (parallel.count > 1) {
     if (isHorizontal) {
@@ -954,17 +1080,164 @@ export function ciConnectorMagnets(
         ? { start: "TOP", end: "TOP" } as const
         : { start: "BOTTOM", end: "BOTTOM" } as const;
     }
-    if (parallel.index > 0) return { start: "LEFT", end: "LEFT" } as const;
+    return parallel.index % 2 === 0
+      ? { start: "RIGHT", end: "RIGHT" } as const
+      : { start: "LEFT", end: "LEFT" } as const;
   }
 
   if (isHorizontal) {
-    return sourceCenterX <= targetCenterX
+    const flowsRight = logicalPositions
+      ? logicalPositions.source.column <= logicalPositions.target.column
+      : sourceCenterX <= targetCenterX;
+    return flowsRight
       ? { start: "RIGHT", end: "LEFT" } as const
       : { start: "LEFT", end: "RIGHT" } as const;
   }
-  return sourceCenterY <= targetCenterY
+  const flowsDown = logicalPositions
+    ? logicalPositions.source.row <= logicalPositions.target.row
+    : sourceCenterY <= targetCenterY;
+  return flowsDown
     ? { start: "BOTTOM", end: "TOP" } as const
     : { start: "TOP", end: "BOTTOM" } as const;
+}
+
+export function ciConnectorPortAssignments(routes: CiConnectorRoute[]) {
+  type Endpoint = {
+    connectionId: string;
+    endpoint: "start" | "end";
+    nodeId: string;
+    node: CiConnectorBounds;
+    opposite: CiConnectorBounds;
+    magnet: CiConnectorMagnet;
+  };
+
+  const endpoints: Endpoint[] = routes.flatMap((route) => [
+    {
+      connectionId: route.id,
+      endpoint: "start",
+      nodeId: route.sourceNodeId,
+      node: route.source,
+      opposite: route.target,
+      magnet: route.magnets.start,
+    },
+    {
+      connectionId: route.id,
+      endpoint: "end",
+      nodeId: route.targetNodeId,
+      node: route.target,
+      opposite: route.source,
+      magnet: route.magnets.end,
+    },
+  ]);
+  const endpointsByPort = new Map<string, Endpoint[]>();
+  for (const endpoint of endpoints) {
+    const key = `${endpoint.nodeId}::${endpoint.magnet}`;
+    const group = endpointsByPort.get(key) || [];
+    group.push(endpoint);
+    endpointsByPort.set(key, group);
+  }
+
+  const assignments = new Map<string, { start: CiConnectorPort; end: CiConnectorPort }>();
+  for (const group of endpointsByPort.values()) {
+    const ordered = group.toSorted((first, second) =>
+      connectorPortSortCoordinate(first.opposite, first.magnet) -
+        connectorPortSortCoordinate(second.opposite, second.magnet) ||
+      first.connectionId.localeCompare(second.connectionId) ||
+      first.endpoint.localeCompare(second.endpoint)
+    );
+    ordered.forEach((endpoint, index) => {
+      const assignment = assignments.get(endpoint.connectionId) || {};
+      assignment[endpoint.endpoint] = {
+        magnet: endpoint.magnet,
+        index,
+        count: ordered.length,
+        bounds: ciConnectorPortBounds(
+          endpoint.node,
+          endpoint.magnet,
+          index,
+          ordered.length
+        ),
+      };
+      assignments.set(
+        endpoint.connectionId,
+        assignment as { start: CiConnectorPort; end: CiConnectorPort }
+      );
+    });
+  }
+  return assignments;
+}
+
+export function ciConnectorPortBounds(
+  node: CiConnectorBounds,
+  magnet: CiConnectorMagnet,
+  index: number,
+  count: number
+): CiConnectorBounds {
+  if (count < 1 || index < 0 || index >= count) {
+    throw new Error(`CI connector port index ${index} must be within a group of ${count}.`);
+  }
+  const ratio = (index + 1) / (count + 1);
+  if (magnet === "TOP" || magnet === "BOTTOM") {
+    return {
+      x: node.x + node.width * ratio - CONNECTOR_PORT_SIZE / 2,
+      y: magnet === "TOP" ? node.y : node.y + node.height - CONNECTOR_PORT_SIZE,
+      width: CONNECTOR_PORT_SIZE,
+      height: CONNECTOR_PORT_SIZE,
+    };
+  }
+  return {
+    x: magnet === "LEFT" ? node.x : node.x + node.width - CONNECTOR_PORT_SIZE,
+    y: node.y + node.height * ratio - CONNECTOR_PORT_SIZE / 2,
+    width: CONNECTOR_PORT_SIZE,
+    height: CONNECTOR_PORT_SIZE,
+  };
+}
+
+export function ciConnectorStroke(kind: CiVisualConnection["kind"]): SolidPaint {
+  return {
+    type: "SOLID",
+    color: CI_CONNECTOR_COLORS[kind],
+    opacity: 1,
+    visible: true,
+    blendMode: "NORMAL",
+  };
+}
+
+function connectorPortSortCoordinate(
+  node: CiConnectorBounds,
+  magnet: CiConnectorMagnet
+) {
+  return magnet === "TOP" || magnet === "BOTTOM"
+    ? node.x + node.width / 2
+    : node.y + node.height / 2;
+}
+
+function createCiConnectorPort(
+  section: SectionNode,
+  connectionId: string,
+  endpoint: "source" | "target",
+  port: CiConnectorPort,
+  mutatedNodeIds: string[]
+) {
+  const marker = figma.createRectangle();
+  marker.name = ".ci connector port marker";
+  marker.resizeWithoutConstraints(port.bounds.width, port.bounds.height);
+  marker.fills = [];
+  marker.strokes = [];
+  section.appendChild(marker);
+  const group = figma.group([marker], section);
+  group.name = ".ci connector port";
+  group.x = port.bounds.x;
+  group.y = port.bounds.y;
+  group.setSharedPluginData(METADATA_NAMESPACE, CI_ROLE_KEY, ROLE_CONNECTOR_PORT);
+  group.setSharedPluginData(
+    METADATA_NAMESPACE,
+    CI_MODEL_ID_KEY,
+    `${connectionId}:${endpoint}`
+  );
+  section.insertChild(0, group);
+  mutatedNodeIds.push(group.id, marker.id);
+  return group;
 }
 
 function parallelConnectionInfo(connections: CiVisualConnection[]) {
@@ -1104,7 +1377,44 @@ async function applyTextLinks(root, textNodeName, links, expectedText) {
     .find((candidate) => candidate.name.toLowerCase() === textNodeName.toLowerCase());
   if (!text || text.characters !== expectedText) return;
 
+  await applyLinksToText(text, links);
+}
+
+async function applyComponentTextPropertyLinks(
+  instance: InstanceNode,
+  propertyName: string,
+  links: Array<{ label: string; url: string }>,
+  expectedText: string
+) {
+  const propertyKey = requireComponentPropertyKey(instance, propertyName, "TEXT");
+  const matches = instance.findAllWithCriteria({ types: ["TEXT"] })
+    .filter((candidate) =>
+      candidate.componentPropertyReferences?.characters === propertyKey
+    );
+  if (matches.length !== 1) {
+    throw new Error(
+      `CI node '${instance.id}' must bind exactly one text layer to component property ` +
+        `'${normalizePropertyName(propertyName)}'; found ${matches.length}.`
+    );
+  }
+  const text = matches[0];
+  if (text.characters !== expectedText) {
+    throw new Error(
+      `CI node '${instance.id}' source text differs from its component property value.`
+    );
+  }
+  await applyLinksToText(text, links);
+}
+
+async function applyLinksToText(
+  text: TextNode,
+  links: Array<{ label: string; url: string }>
+) {
   await loadTextNodeFonts(text);
+
+  if (text.characters.length > 0) {
+    text.setRangeHyperlink(0, text.characters.length, null);
+  }
 
   let start = 0;
   for (const link of links) {
