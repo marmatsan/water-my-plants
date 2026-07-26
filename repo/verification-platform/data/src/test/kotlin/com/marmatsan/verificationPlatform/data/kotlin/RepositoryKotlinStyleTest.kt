@@ -538,7 +538,7 @@ class RepositoryKotlinStyleTest :
 
                 // THEN
                 ruleIds shouldContain "standard:colon-spacing"
-                ruleIds shouldContain "water-my-plants:multiline-function-arguments"
+                ruleIds shouldContain "repository-verification:multiline-function-arguments"
             }
         },
     )

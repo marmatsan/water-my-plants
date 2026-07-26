@@ -587,11 +587,12 @@ For each section:
   `Used by convention plugin` when their source lists are empty. Plugin catalog
   entries with no `appliedToModules` and no `providedByConventionPlugins` are
   invalid catalog data and must be rejected by `checkFigmaCatalogUsage`.
-- Leaf nodes in `waterMyPlants.customGradlePlugins` are an inventory of
-  repository-owned Gradle plugins, not dependency catalog entries. They may be
-  present even when no module consumes them yet. When such a leaf has no
-  effective consumers, show the static warning block `No module applies it`
-  instead of `Unused catalog entry`.
+- The portable writer may support a host-configured custom Gradle plugin
+  inventory. Those leaves are not dependency catalog entries and may use the
+  static warning block `No module applies it` instead of `Unused catalog
+  entry`. Water My Plants does not configure such an inventory as a visual
+  target; its catalog-tree contract contains only `waterMyPlants.libraries`
+  and `waterMyPlants.plugins`.
 - Control plugin usage blocks through their own component boolean on `.tree
   node` `Plugin`: `Show applied by module`,
   `Show used by convention plugin`, and
@@ -629,9 +630,9 @@ For each section:
   being migrated.
 - If a declared catalog target contains no model nodes, remove that target
   section and resize/re-stack its parent sections. For example, an included
-  build with no `plugins` catalog must not leave an empty
-  `gradlePlugins.plugins` section in Figma. Stable documentation targets with
-  no model nodes are hidden instead.
+  build catalog explicitly selected by another host must not leave an empty
+  section in Figma. Water My Plants selects no included-build catalog targets.
+  Stable documentation targets with no model nodes are hidden instead.
 - Create missing `.tree node` instances by cloning a compatible existing node
   from the same visual section, then applying generated model values.
 - Create missing top-level tree sections when a new top-level library group or
@@ -745,9 +746,9 @@ Layout rules:
   - `Gradle dependency visualization components`: `LibraryTreeDsl.kt`,
     `LibraryScope.kt`, and `PluginTreeDsl.kt` under
     `repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
-  - `Project versions`: `repo/dependency-catalog/versions.properties`.
+  - `Project versions`: `repo/water-my-plants-project-config/versions.properties`.
   - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`
-    under `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/`.
+    under `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/`.
   - `Repository Gradle tooling version catalogs`:
     `repo/gradle-plugins/settings.gradle.kts` and
     `repo/figma-documentation-sync/settings.gradle.kts`.

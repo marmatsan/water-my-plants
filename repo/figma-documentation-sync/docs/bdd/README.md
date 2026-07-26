@@ -57,13 +57,13 @@ Avoid replacing behavior language with file-system details unless the file path
 is the behavior being tested:
 
 ```gherkin
-Given the repository version source exists at "repo/dependency-catalog/versions.properties"
+Given the repository version source exists at "repo/water-my-plants-project-config/versions.properties"
 ```
 
 The step definition owns the implementation detail. For example, the current
 `repository versions are available` step prepares the `RepositoryVersionsPort`
 used by the design model generator. In the real Gradle task, that port is backed
-by `repo/dependency-catalog/versions.properties`; in the domain scenario, it is backed by a
+by `repo/water-my-plants-project-config/versions.properties`; in the domain scenario, it is backed by a
 test double so the behavior stays fast and focused.
 
 Use this rule when adding or editing scenarios:
@@ -85,8 +85,8 @@ Gherkin steps.
 
 | Feature language                               | Runtime resource or adapter                                                                                  | Test double or setup                                         |
 |------------------------------------------------|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `repository versions are available`            | `repo/dependency-catalog/versions.properties` through `RepositoryVersionsPort`                                           | `FakeRepositoryVersionsPort` in `DesignModelSteps.kt`        |
-| `repository catalog trees are available`       | `water-my-plants-catalog` trees and configured included-build settings catalogs through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
+| `repository versions are available`            | Configured product versions through `RepositoryVersionsPort`                                           | `FakeRepositoryVersionsPort` in `DesignModelSteps.kt`        |
+| `repository catalog trees are available`       | Product-adapter trees and configured included-build usage through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
 | `repository project modules are available`     | `settings.gradle.kts` and configured included-build settings files through `ProjectModulesPort`                     | `FakeProjectModulesPort` in `DesignModelSteps.kt`            |
 | `repository module dependencies are available` | Project `build.gradle.kts` dependency blocks through `ProjectModuleDependenciesPort`                         | `FakeProjectModuleDependenciesPort` in `DesignModelSteps.kt` |
 | `the external CI topology is available`         | `docs/ci/external-topology.yaml` through `CiExternalTopologyPort`                                            | `FakeCiExternalTopologyPort` in `DesignModelSteps.kt`        |
@@ -112,9 +112,9 @@ The contract has these inputs:
 | Input concept            | Runtime source                                                                                           |
 |--------------------------|----------------------------------------------------------------------------------------------------------|
 | Repository metadata      | Current branch, current git SHA, and generation timestamp                                                |
-| Versions                 | `repo/dependency-catalog/versions.properties`                                                                        |
-| Version sections         | Ordered sections from `repo/dependency-catalog/versions.properties`                                                  |
-| Catalog trees            | Water My Plants declarations from `dependency-catalog:water-my-plants-catalog` and configured included-build catalog declarations |
+| Versions                 | Configured product versions file                                                                        |
+| Version sections         | Ordered sections from the configured product versions file                                                  |
+| Catalog trees            | Trees supplied through the Figma-owned catalog port plus configured included-build usage metadata |
 | Project modules          | Root and configured included-build Gradle settings                                                          |
 | Module dependency graphs | Parsed `build.gradle.kts` dependency blocks for root and configured included-build modules                  |
 | External CI topology     | `docs/ci/external-topology.yaml`                                                                            |
@@ -133,7 +133,7 @@ The contract has one main output:
 | Content key          | Meaning                                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------------------------|
 | `versions`           | Sorted flat map of version keys to repository values, used for deterministic comparison.                     |
-| `versionSections`    | Ordered version groups from `repo/dependency-catalog/versions.properties`, used to preserve the source section layout.   |
+| `versionSections`    | Ordered groups from the configured product versions file, used to preserve the source section layout.   |
 | `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins, including direct and convention-plugin-provided usage metadata. |
 | `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                            |
 | `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                      |

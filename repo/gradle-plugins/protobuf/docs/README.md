@@ -26,8 +26,10 @@ types.
 
 ## Requirements
 
-Version values and dependency coordinates should remain centralized in
-`repo/dependency-catalog/versions.properties` and `repo/gradle-plugins/dependencies`.
+Water My Plants Protobuf versions and coordinates remain in
+`repo/dependency-catalog`; the Gradle plugin version needed to compile this
+included build is also declared locally in
+`repo/gradle-plugins/versions.properties`.
 
 The consuming module owns its `.proto` sources.
 

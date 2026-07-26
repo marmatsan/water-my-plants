@@ -5,6 +5,7 @@ import com.marmatsan.verificationPlatform.domain.model.CiPlan
 import com.marmatsan.verificationPlatform.domain.model.CiTopologyMode
 import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
 import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -19,7 +20,7 @@ class CiTopologyPlannerTest :
                         plan =
                             plan(
                                 ".teamcity/settings.kts",
-                                "repo/figma-documentation-sync/tools/package.json",
+                                "tooling/sync/package.json",
                             ),
                         availableAgents = 2,
                     )
@@ -90,7 +91,7 @@ class CiTopologyPlannerTest :
         private fun plan(
             vararg paths: String,
         ): CiPlan =
-            CiPlanFactory().create(
+            CiPlanFactory(testCiPlanPolicy()).create(
                 changeSet =
                     RepositoryChangeSet(
                         comparisonBase = "base-sha",

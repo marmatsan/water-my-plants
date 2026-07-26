@@ -3,6 +3,7 @@
 !include ../includes/stereotypes.puml
 
 title Module implementation(projects...) consumers
+scale max 3800 width
 
 top to bottom direction
 
@@ -26,11 +27,11 @@ package "module :core:ui" as ModuleCoreUi {
   OnboardingConsumesCore --> CoreUiTarget
 }
 
-package "included build dependency-catalog module :catalog-core" as ModuleCatalogCore {
-  component ":dependency-catalog:water-my-plants-catalog" as WaterMyPlantsCatalogConsumesCore <<gradle>>
-  component ":dependency-catalog:catalog-core" as CatalogCoreTarget <<domain>>
+package "included build dependency-catalog module :catalog-api" as ModuleCatalogApi {
+  component ":dependency-catalog:catalog-gradle-plugin" as CatalogPluginConsumesApi <<gradle>>
+  component ":dependency-catalog:catalog-api" as CatalogApiTarget <<port>>
 
-  WaterMyPlantsCatalogConsumesCore --> CatalogCoreTarget
+  CatalogPluginConsumesApi --> CatalogApiTarget
 }
 
 package "module :dependencies" as ModuleDependencies {
@@ -50,18 +51,45 @@ package "module :dependencies" as ModuleDependencies {
 
 package "included build figma-documentation-sync module :data" as ModuleFigmaDocumentationSyncData {
   component ":figma-documentation-sync:plugin" as FigmaPluginConsumesData <<gradle>>
+  component ":figma-documentation-sync:teamcity-adapter" as FigmaTeamCityConsumesData <<adapter>>
   component ":figma-documentation-sync:data" as FigmaDataTarget <<adapter>>
 
   FigmaPluginConsumesData --> FigmaDataTarget
+  FigmaTeamCityConsumesData --> FigmaDataTarget
 }
 
 package "included build figma-documentation-sync module :domain" as ModuleFigmaDocumentationSyncDomain {
   component ":figma-documentation-sync:data" as FigmaDataConsumesDomain <<adapter>>
   component ":figma-documentation-sync:plugin" as FigmaPluginConsumesDomain <<gradle>>
+  component ":figma-documentation-sync:teamcity-adapter" as FigmaTeamCityConsumesDomain <<adapter>>
   component ":figma-documentation-sync:domain" as FigmaDomainTarget <<domain>>
 
   FigmaDataConsumesDomain --> FigmaDomainTarget
   FigmaPluginConsumesDomain --> FigmaDomainTarget
+  FigmaTeamCityConsumesDomain --> FigmaDomainTarget
+}
+
+package "included build verification-platform module :data" as ModuleVerificationPlatformData {
+  component ":verification-platform:plugin" as VerificationPluginConsumesData <<gradle>>
+  component ":verification-platform:data" as VerificationDataTarget <<adapter>>
+
+  VerificationPluginConsumesData --> VerificationDataTarget
+}
+
+package "included build verification-platform module :domain" as ModuleVerificationPlatformDomain {
+  component ":verification-platform:data" as VerificationDataConsumesDomain <<adapter>>
+  component ":verification-platform:plugin" as VerificationPluginConsumesDomain <<gradle>>
+  component ":verification-platform:domain" as VerificationDomainTarget <<domain>>
+
+  VerificationDataConsumesDomain --> VerificationDomainTarget
+  VerificationPluginConsumesDomain --> VerificationDomainTarget
+}
+
+package "included build water-my-plants-project-config module :catalog" as ModuleWaterMyPlantsCatalog {
+  component ":water-my-plants-project-config:plugin" as ProductPluginConsumesCatalog <<gradle>>
+  component ":water-my-plants-project-config:catalog" as ProductCatalogTarget <<domain>>
+
+  ProductPluginConsumesCatalog --> ProductCatalogTarget
 }
 
 package "modules without incoming implementation(projects...) consumers" as ModuleNoIncomingConsumers {
@@ -69,18 +97,25 @@ package "modules without incoming implementation(projects...) consumers" as Modu
   component ":app" as AppTarget
   component ":bdd-test" as BddTestTarget <<gradle>>
   component ":compose" as ComposeTarget <<gradle>>
+  component ":dependency-catalog:catalog-core" as CatalogCoreTarget <<domain>>
+  component ":dependency-catalog:catalog-gradle-plugin" as CatalogPluginTarget <<gradle>>
   component ":dokka-documentation" as DokkaDocumentationTarget <<gradle>>
   component ":figma-documentation-sync:plugin" as FigmaPluginTarget <<gradle>>
+  component ":figma-documentation-sync:teamcity-adapter" as FigmaTeamCityTarget <<adapter>>
   component ":onboarding:ui" as OnboardingTarget
   component ":protobuf" as ProtobufTarget <<gradle>>
   component ":unit-test" as UnitTestTarget <<gradle>>
-  component ":dependency-catalog:water-my-plants-catalog" as WaterMyPlantsCatalogTarget <<gradle>>
+  component ":verification-platform:plugin" as VerificationPluginTarget <<gradle>>
+  component ":water-my-plants-project-config:plugin" as ProductPluginTarget <<gradle>>
 }
 
-ModuleCoreUi -[hidden]down-> ModuleCatalogCore
-ModuleCatalogCore -[hidden]down-> ModuleDependencies
+ModuleCoreUi -[hidden]down-> ModuleCatalogApi
+ModuleCatalogApi -[hidden]down-> ModuleDependencies
 ModuleDependencies -[hidden]down-> ModuleFigmaDocumentationSyncData
 ModuleFigmaDocumentationSyncData -[hidden]down-> ModuleFigmaDocumentationSyncDomain
-ModuleFigmaDocumentationSyncDomain -[hidden]down-> ModuleNoIncomingConsumers
+ModuleFigmaDocumentationSyncDomain -[hidden]down-> ModuleVerificationPlatformData
+ModuleVerificationPlatformData -[hidden]down-> ModuleVerificationPlatformDomain
+ModuleVerificationPlatformDomain -[hidden]down-> ModuleWaterMyPlantsCatalog
+ModuleWaterMyPlantsCatalog -[hidden]down-> ModuleNoIncomingConsumers
 
 @enduml

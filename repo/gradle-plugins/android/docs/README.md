@@ -35,8 +35,10 @@ defaults.
 The consuming project must already be an Android application or Android library
 project before this convention is applied.
 
-Version values belong in `repo/dependency-catalog/versions.properties` and dependency tree
-definitions belong in `repo/gradle-plugins/dependencies`.
+Water My Plants dependency versions belong in
+`repo/water-my-plants-project-config/versions.properties`; versions used to compile and
+test this included build belong in `repo/gradle-plugins/versions.properties`.
+Dependency tree definitions belong in `repo/water-my-plants-project-config/catalog`.
 
 ## Verification
 

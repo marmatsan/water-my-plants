@@ -9,7 +9,7 @@ import java.io.File
 
 /**
  * Adapter that reads repository version declarations from
- * `repo/dependency-catalog/versions.properties`.
+ * the versions file selected by the consuming project.
  *
  * It preserves both the flat key/value view and the sectioned view so the
  * generator can keep the Figma artifact aligned with the source file.

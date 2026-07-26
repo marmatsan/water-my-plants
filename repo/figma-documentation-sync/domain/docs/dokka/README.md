@@ -30,7 +30,7 @@ dependency diagrams.
 # Package com.marmatsan.figmaDocumentationSync.domain.model.versions
 
 Version models preserve the grouping and ordering from
-`repo/dependency-catalog/versions.properties` so the generated design model can document
+the versions file selected by the consuming project so the generated design model can document
 where repository versions come from.
 
 # Package com.marmatsan.figmaDocumentationSync.domain.port

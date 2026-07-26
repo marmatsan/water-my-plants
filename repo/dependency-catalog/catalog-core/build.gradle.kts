@@ -12,6 +12,16 @@ java {
     withSourcesJar()
 }
 
+dependencies {
+    testImplementation(libs.io.kotest.runner.junit5)
+    testImplementation(libs.io.kotest.assertions.core)
+    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -22,7 +32,7 @@ publishing {
 
             pom {
                 name.set("Repository Catalog Core")
-                description.set("Portable dependency catalog model used by Figma Documentation Sync adapters.")
+                description.set("Optional portable tree DSL for dependency catalog provider implementations.")
                 url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/dependency-catalog")
                 scm {
                     connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")

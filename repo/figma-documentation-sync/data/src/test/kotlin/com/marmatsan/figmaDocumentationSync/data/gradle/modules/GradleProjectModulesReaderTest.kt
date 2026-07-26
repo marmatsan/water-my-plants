@@ -104,7 +104,7 @@ internal class GradleProjectModulesReaderTest :
                             """
                             include(
                                 ":catalog-core",
-                                ":water-my-plants-catalog"
+                                ":catalog-gradle-plugin"
                             )
                             """.trimIndent(),
                     )
@@ -126,7 +126,7 @@ internal class GradleProjectModulesReaderTest :
                 modules shouldBe
                     setOf(
                         ":dependency-catalog:catalog-core",
-                        ":dependency-catalog:water-my-plants-catalog",
+                        ":dependency-catalog:catalog-gradle-plugin",
                     )
             }
         },

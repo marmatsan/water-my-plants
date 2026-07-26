@@ -14,13 +14,13 @@ enum class CiScope {
     @SerialName("teamcity")
     TEAMCITY,
 
-    /** Figma Documentation Sync implementation or tooling changed. */
-    @SerialName("figma-tooling")
-    FIGMA_TOOLING,
+    /** A configured repository-tooling surface changed. */
+    @SerialName("tooling")
+    TOOLING,
 
-    /** Dependency catalog, build conventions, or root Gradle files changed. */
-    @SerialName("dependency-infrastructure")
-    DEPENDENCY_INFRASTRUCTURE,
+    /** A configured build-infrastructure surface changed. */
+    @SerialName("build-infrastructure")
+    BUILD_INFRASTRUCTURE,
 
     /** One or more application modules changed. */
     @SerialName("application")

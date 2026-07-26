@@ -162,7 +162,7 @@ internal class GradleModuleDependenciesReaderTest :
                     ).writeText("")
                 rootDir
                     .resolve(
-                        relative = "water-my-plants-catalog",
+                        relative = "catalog-gradle-plugin",
                     ).also { directory -> directory.mkdirs() }
                     .resolve(
                         relative = "build.gradle.kts",
@@ -185,7 +185,7 @@ internal class GradleModuleDependenciesReaderTest :
                 dependencies shouldBe
                     setOf(
                         ModuleDependency(
-                            dependentModule = ":dependency-catalog:water-my-plants-catalog",
+                            dependentModule = ":dependency-catalog:catalog-gradle-plugin",
                             dependencyModule = ":dependency-catalog:catalog-core",
                         ),
                     )

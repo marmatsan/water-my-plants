@@ -22,13 +22,17 @@ enum class VerificationUnitId {
     @SerialName("teamcity-dsl")
     TEAMCITY_DSL,
 
-    /** Verify Figma Documentation Sync tooling and contracts. */
-    @SerialName("figma-tooling")
-    FIGMA_TOOLING,
+    /** Verify repository-configured tooling and contracts. */
+    @SerialName("tooling")
+    TOOLING,
 
-    /** Verify dependency catalogs and shared Gradle infrastructure. */
-    @SerialName("dependency-catalog")
-    DEPENDENCY_CATALOG,
+    /** Verify repository-configured build infrastructure. */
+    @SerialName("build-infrastructure")
+    BUILD_INFRASTRUCTURE,
+
+    /** Verify staged Maven and npm-facing artifacts through an external consumer. */
+    @SerialName("portable-distribution")
+    PORTABLE_DISTRIBUTION,
 
     /** Execute the selected Gradle verification tasks. */
     @SerialName("gradle-verification")

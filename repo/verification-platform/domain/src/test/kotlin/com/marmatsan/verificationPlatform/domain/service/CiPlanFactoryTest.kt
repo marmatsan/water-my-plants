@@ -5,6 +5,7 @@ import com.marmatsan.verificationPlatform.domain.model.ModuleDependency
 import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
 import com.marmatsan.verificationPlatform.domain.model.RepositoryModuleGraph
 import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
@@ -31,13 +32,27 @@ class CiPlanFactoryTest :
             test("mixed changes keep all matching units") {
                 val plan =
                     plan(
-                        "repo/figma-documentation-sync/tools/package.json",
+                        "tooling/sync/package.json",
                         "app/build.gradle.kts",
                     )
 
                 plan.scope shouldBe CiScope.MIXED
-                plan.requiredUnitIds() shouldContain VerificationUnitId.FIGMA_TOOLING
+                plan.requiredUnitIds() shouldContain VerificationUnitId.TOOLING
                 plan.requiredUnitIds() shouldContain VerificationUnitId.GRADLE_VERIFICATION
+            }
+
+            test("public build-infrastructure changes verify architecture and the staged consumer") {
+                val plan =
+                    plan(
+                        "build-infrastructure/public-api/src/main/kotlin/example/SettingsPlugin.kt",
+                    )
+
+                plan.schemaVersion shouldBe 5
+                plan.requiredUnitIds() shouldContain VerificationUnitId.BUILD_INFRASTRUCTURE
+                plan.requiredUnitIds() shouldContain VerificationUnitId.PORTABLE_DISTRIBUTION
+                plan.gradleTasks() shouldContain "checkBuildInfrastructure"
+                plan.gradleTasks() shouldContain "checkVersionOwnership"
+                plan.gradleTasks() shouldContain "verifyPortableDistribution"
             }
 
             test("empty change sets fail closed") {
@@ -49,11 +64,11 @@ class CiPlanFactoryTest :
             }
 
             test("markdown outside an approved documentation surface is verified as code") {
-                val plan = plan("repo/figma-documentation-sync/tools/implementation-notes.md")
+                val plan = plan("tooling/sync/implementation-notes.md")
 
-                plan.scope shouldBe CiScope.FIGMA_TOOLING
+                plan.scope shouldBe CiScope.TOOLING
                 plan.fullVerification shouldBe true
-                plan.requiredUnitIds() shouldContain VerificationUnitId.FIGMA_TOOLING
+                plan.requiredUnitIds() shouldContain VerificationUnitId.TOOLING
                 plan.requiredUnitIds() shouldContain VerificationUnitId.GRADLE_VERIFICATION
             }
 
@@ -69,7 +84,7 @@ class CiPlanFactoryTest :
                         "checkGitWorkflow",
                         "checkDocumentation",
                         ":app:check",
-                        "checkFigmaCatalogUsage",
+                        "checkSharedUsage",
                     )
             }
 
@@ -108,7 +123,7 @@ class CiPlanFactoryTest :
         private fun plan(
             vararg paths: String,
             moduleGraph: RepositoryModuleGraph = testModuleGraph(),
-        ) = CiPlanFactory().create(
+        ) = CiPlanFactory(testCiPlanPolicy()).create(
             changeSet =
                 RepositoryChangeSet(
                     comparisonBase = "base-sha",

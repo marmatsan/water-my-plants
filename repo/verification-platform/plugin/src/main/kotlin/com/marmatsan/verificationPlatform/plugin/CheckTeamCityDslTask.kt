@@ -3,6 +3,8 @@ package com.marmatsan.verificationPlatform.plugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
@@ -26,6 +28,22 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val teamCityPom: RegularFileProperty
+
+    /** Directory receiving generated TeamCity configuration. */
+    @get:Internal
+    abstract val generatedConfigurationDirectory: DirectoryProperty
+
+    /** TeamCity build type id of the generated pipeline head. */
+    @get:Input
+    abstract val pipelineBuildTypeId: Property<String>
+
+    /** TeamCity build type id of the authoritative composite gate. */
+    @get:Input
+    abstract val gateBuildTypeId: Property<String>
+
+    /** GitHub status name published by the authoritative gate. */
+    @get:Input
+    abstract val authoritativeStatusName: Property<String>
 
     /** Injected process boundary used only by this provider-specific adapter. */
     @get:Inject
@@ -53,9 +71,7 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
             }.assertNormalExitValue()
         validateGeneratedTeamCityConfiguration(
             directory =
-                root.resolve(
-                    relative = GENERATED_CONFIG_DIRECTORY,
-                ),
+                generatedConfigurationDirectory.get().asFile,
         )
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
     }
@@ -87,52 +103,52 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
                 .toList()
         val ciGate =
             buildTypeFiles.singleOrNull { file ->
-                file.name.endsWith("_${CI_GATE_ID}.$XML_EXTENSION")
+                file.name.endsWith("_${gateBuildTypeId.get()}.$XML_EXTENSION")
             }
         check(ciGate != null) {
-            "TeamCity generation did not produce the versioned $CI_GATE_ID build configuration."
+            "TeamCity generation did not produce the versioned ${gateBuildTypeId.get()} build configuration."
         }
 
         val ciGateXml = ciGate.readText()
-        REQUIRED_CI_GATE_FRAGMENTS.forEach { fragment ->
+        requiredCiGateFragments().forEach { fragment ->
             check(fragment in ciGateXml) {
                 "${ciGate.path} is missing the required CI gate contract '$fragment'."
             }
         }
-        check(CI_PIPELINE_DEPENDENCY_REGEX.containsMatchIn(ciGateXml)) {
-            "${ciGate.path} does not snapshot-depend on $CI_PIPELINE_ID."
+        check(ciPipelineDependencyRegex().containsMatchIn(ciGateXml)) {
+            "${ciGate.path} does not snapshot-depend on ${pipelineBuildTypeId.get()}."
         }
 
         val ciPipeline =
             buildTypeFiles.singleOrNull { file ->
-                file.name.endsWith("_${CI_PIPELINE_ID}.$XML_EXTENSION")
+                file.name.endsWith("_${pipelineBuildTypeId.get()}.$XML_EXTENSION")
             }
         check(ciPipeline != null) {
-            "TeamCity generation did not produce the $CI_PIPELINE_ID pipeline head."
+            "TeamCity generation did not produce the ${pipelineBuildTypeId.get()} pipeline head."
         }
         check(VCS_TRIGGER_FRAGMENT !in ciPipeline.readText()) {
-            "${ciPipeline.path} still owns a VCS trigger; $CI_GATE_ID must be the single automatic entry point."
+            "${ciPipeline.path} still owns a VCS trigger; ${gateBuildTypeId.get()} must be the single automatic entry point."
         }
     }
+
+    private fun ciPipelineDependencyRegex(): Regex =
+        Regex("sourceBuildTypeId=\"[^\"]*${Regex.escape(pipelineBuildTypeId.get())}\"")
+
+    private fun requiredCiGateFragments(): List<String> =
+        listOf(
+            "name=\"buildConfigurationType\" value=\"COMPOSITE\"",
+            VCS_TRIGGER_FRAGMENT,
+            "type=\"commit-status-publisher\"",
+            "name=\"build_custom_name\" value=\"${authoritativeStatusName.get()}\"",
+        )
 
     private fun isWindows(): Boolean =
         System.getProperty("os.name").lowercase(Locale.ROOT).contains("windows")
 
     private companion object {
-        const val GENERATED_CONFIG_DIRECTORY = ".teamcity/target/generated-configs"
         const val PIPELINE_FILE_NAME = "pipeline.yml"
         const val XML_EXTENSION = "xml"
-        const val CI_PIPELINE_ID = "WaterMyPlantsCi"
-        const val CI_GATE_ID = "WaterMyPlantsCiGate"
         const val UNSUPPORTED_STATUS_PUBLISHER = "type: commit-status-publisher"
         const val VCS_TRIGGER_FRAGMENT = "type=\"vcsTrigger\""
-        val CI_PIPELINE_DEPENDENCY_REGEX = Regex("sourceBuildTypeId=\"[^\"]*${CI_PIPELINE_ID}\"")
-        val REQUIRED_CI_GATE_FRAGMENTS =
-            listOf(
-                "name=\"buildConfigurationType\" value=\"COMPOSITE\"",
-                VCS_TRIGGER_FRAGMENT,
-                "type=\"commit-status-publisher\"",
-                "name=\"build_custom_name\" value=\"TeamCity CI\"",
-            )
     }
 }

@@ -71,8 +71,6 @@
         "repo/figma-documentation-sync/domain/src/*",
         "repo/figma-documentation-sync/plugin/src/*",
         "repo/figma-documentation-sync/teamcity-adapter/src/*",
-        "repo/figma-documentation-sync/project-config/src/*",
-        "repo/figma-documentation-sync/project-config/water-my-plants/*",
         "repo/figma-documentation-sync/samples/*",
         "repo/figma-documentation-sync/gradle.properties",
         "repo/figma-documentation-sync/*/build.gradle.kts",
@@ -80,7 +78,6 @@
       ],
       "documentationPaths": [
         "repo/figma-documentation-sync/README.md",
-        "repo/figma-documentation-sync/project-config/README.md",
         "repo/figma-documentation-sync/teamcity-adapter/README.md",
         "repo/figma-documentation-sync/docs/guides/*.md",
         "repo/figma-documentation-sync/docs/runbooks/*.md",
@@ -89,10 +86,31 @@
       ]
     },
     {
+      "id": "product-composition",
+      "sourcePaths": [
+        "repo/water-my-plants-project-config/catalog/src/*",
+        "repo/water-my-plants-project-config/plugin/src/*",
+        "repo/water-my-plants-project-config/water-my-plants/*",
+        "repo/water-my-plants-project-config/*/build.gradle.kts",
+        "repo/water-my-plants-project-config/settings.gradle.kts",
+        "repo/water-my-plants-project-config/versions.properties",
+        "settings.gradle.kts",
+        "build.gradle.kts"
+      ],
+      "documentationPaths": [
+        "repo/water-my-plants-project-config/README.md",
+        "docs/decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md",
+        "docs/decisions/adr-0010-isolate-product-composition-from-reusable-builds.md",
+        "docs/reference/project-structure.md",
+        "repo/figma-documentation-sync/docs/reference/target-scopes.md"
+      ]
+    },
+    {
       "id": "dependency-catalog-model",
       "sourcePaths": [
         "repo/dependency-catalog/*/src/*",
         "repo/dependency-catalog/*/build.gradle.kts",
+        "repo/dependency-catalog/samples/*",
         "repo/dependency-catalog/settings.gradle.kts",
         "repo/dependency-catalog/versions.properties",
         "repo/gradle-plugins/*/src/*",
@@ -104,6 +122,7 @@
       ],
       "documentationPaths": [
         "repo/dependency-catalog/README.md",
+        "repo/dependency-catalog/docs/guides/adopt-dependency-catalog.md",
         "repo/gradle-plugins/README.md",
         "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
         "repo/figma-documentation-sync/docs/standards/dependency-version-naming.md",

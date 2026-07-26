@@ -50,17 +50,13 @@ set without changing the Figma canonical model.
    from the standalone consumer:
 
    ```powershell
-   .\gradlew.bat :figma-documentation-sync:verifyStagedPublication --stacktrace
+   .\gradlew.bat -p repo\figma-documentation-sync verifyStagedPublication --stacktrace
    ```
 
 3. Run the Kotlin and TypeScript checks:
 
    ```powershell
-   .\gradlew.bat :figma-documentation-sync:domain:check `
-       :figma-documentation-sync:data:check `
-       :figma-documentation-sync:teamcity-adapter:check `
-       :figma-documentation-sync:plugin:check `
-       :figma-documentation-sync:project-config:check
+   .\gradlew.bat -p repo\figma-documentation-sync check
 
    .\gradlew.bat testFigmaDocumentationSyncTools buildFigmaDocumentationSyncTools
 
@@ -83,8 +79,8 @@ set without changing the Figma canonical model.
    and destination have been approved. Publish the npm package with the same
    version as Maven.
 
-7. Publish in dependency order: `catalog-core`, domain, data, the Gradle plugin
-   implementation and marker, then the optional TeamCity adapter. The Gradle
+7. Publish in dependency order: domain, data, the Gradle plugin implementation
+   and marker, then the optional TeamCity adapter. The Gradle
    aggregate task preserves this dependency set even when the repository
    executes independent upload tasks.
 
@@ -101,7 +97,7 @@ A release is successful only when:
 - the Gradle tasks and `figmaDocumentationSync` extension are registered;
 - the TypeScript package materializes a writer with the consumer's config;
 - all published artifacts report the same version;
-- no Water My Plants `project-config` artifact is present.
+- no Water My Plants product-config artifact is present.
 
 ## Recovery
 
@@ -119,8 +115,7 @@ A release is successful only when:
 
 - Do not publish from a feature branch, dirty checkout, or unverified staging
   repository.
-- Do not publish `project-config` or `water-my-plants-catalog` as portable
-  artifacts.
+- Do not publish `water-my-plants-project-config` as a portable artifact.
 - Do not use different Maven and npm versions.
 - Do not bypass `verifyStagedPublication` or make `includeBuild` part of the
   consumer fixture.

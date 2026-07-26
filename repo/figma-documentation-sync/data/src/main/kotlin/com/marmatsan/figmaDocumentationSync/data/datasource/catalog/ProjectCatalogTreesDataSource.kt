@@ -1,7 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.data.datasource.catalog
 
-import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.DependenciesCatalogTreesReader
-import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.DependencyCatalogProviderFactory
+import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.DependencyDslCatalogProviderFactory
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleCatalogUsageReader
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleConventionPluginTreeReader
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradlePluginTreeReader
@@ -23,7 +22,6 @@ import java.io.File
  * back into [File] instances. Keeping that conversion here preserves the
  * domain module's IO-free boundary.
  *
- * @see DependenciesCatalogTreesReader
  * @see IncludedBuildSettingsCatalogReader
  * @see GradleConventionPluginTreeReader
  * @see GradlePluginTreeReader
@@ -43,11 +41,10 @@ class ProjectCatalogTreesDataSource(
     ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
-                source
-                    .dependenciesCatalogTreesReader(
-                        gradleCatalogUsageReader = gradleCatalogUsageReader,
-                    ).readLibraryTreeWithVersionAliases(
-                        rootDir = File(source.rootDirPath),
+                DependencyDslCatalogProviderFactory
+                    .create(source.providerClassName)
+                    .readLibraryTreeWithVersionAliases(
+                        rootDirPath = source.rootDirPath,
                         conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds,
                     )
             }
@@ -81,11 +78,10 @@ class ProjectCatalogTreesDataSource(
     ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
-                source
-                    .dependenciesCatalogTreesReader(
-                        gradleCatalogUsageReader = gradleCatalogUsageReader,
-                    ).readPluginTreeWithVersionAliases(
-                        rootDir = File(source.rootDirPath),
+                DependencyDslCatalogProviderFactory
+                    .create(source.providerClassName)
+                    .readPluginTreeWithVersionAliases(
+                        rootDirPath = source.rootDirPath,
                         conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds,
                     )
             }
@@ -130,14 +126,6 @@ class ProjectCatalogTreesDataSource(
             }
         }
 }
-
-private fun ProjectCatalogTreeSource.DependenciesDslVersionAliases.dependenciesCatalogTreesReader(
-    gradleCatalogUsageReader: GradleCatalogUsageReader,
-) =
-    DependenciesCatalogTreesReader(
-        gradleCatalogUsageReader = gradleCatalogUsageReader,
-        dependencyCatalogProvider = DependencyCatalogProviderFactory.create(providerClassName),
-    )
 
 private fun List<PluginCatalogTree>.mergePluginTrees(): PluginCatalogTree =
     fold(

@@ -163,7 +163,6 @@ Examples:
 ```powershell
 node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.libraries --section-node-id=SANDBOX_SECTION_ID
 node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=waterMyPlants.plugins --section-node-id=SANDBOX_SECTION_ID
-node dist\write-mcp-preview.mjs --fixture=catalog-tree --target=gradlePlugins.plugins --section-node-id=SANDBOX_SECTION_ID
 ```
 
 Use `--allow-canonical-sections=true` only for supervised manual repair where the

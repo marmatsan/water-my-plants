@@ -3,6 +3,7 @@ package com.marmatsan.verificationPlatform.data.json
 import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
 import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
 import com.marmatsan.verificationPlatform.domain.service.CiTopologyPlanner
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +13,7 @@ class CiExecutionTopologyJsonTest :
         {
             test("round trips the preview topology contract") {
                 val plan =
-                    CiPlanFactory().create(
+                    CiPlanFactory(testCiPlanPolicy()).create(
                         changeSet =
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",

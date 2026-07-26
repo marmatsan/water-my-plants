@@ -34,6 +34,39 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
             }
 
+        val checkIncludedBuildVersions =
+            project.tasks.register(
+                "checkIncludedBuildVersions",
+                CheckIncludedBuildVersionsTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Verifies that configured included builds own their versions.properties."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.includedBuildPaths.convention(emptyList())
+            }
+        val checkModuleBoundaries =
+            project.tasks.register(
+                "checkModuleBoundaries",
+                CheckModuleBoundariesTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Verifies configured module and included-build dependency boundaries."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.reusableScopePaths.convention(emptyList())
+                task.forbiddenReferencesByScope.convention(emptyMap())
+            }
+        val extension =
+            VerificationPlatformExtension(
+                project = project,
+                generateCiPlan = generateCiPlan,
+                checkIncludedBuildVersions = checkIncludedBuildVersions,
+                checkModuleBoundaries = checkModuleBoundaries,
+            )
+        project.extensions.add(
+            "verificationPlatform",
+            extension,
+        )
+
         project.gradle.projectsEvaluated {
             val graph = GradleProjectModuleGraphSource().read(project)
             generateCiPlan.configure { task ->
@@ -62,27 +95,6 @@ class VerificationPlatformPlugin : Plugin<Project> {
                         .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH")),
                 )
             }
-
-        val verificationPlatformBuild = project.gradle.includedBuild("verification-platform")
-        val checkKotlinStyle =
-            project.tasks.register(
-                "checkKotlinStyle",
-            ) { task ->
-                task.group = "verification"
-                task.description = "Checks repository Kotlin sources with the canonical KtLint rules."
-                task.dependsOn(
-                    verificationPlatformBuild.task(":data:checkRepositoryKotlinStyle"),
-                )
-            }
-        project.tasks.register(
-            "formatKotlinStyle",
-        ) { task ->
-            task.group = "formatting"
-            task.description = "Formats repository Kotlin sources with the canonical KtLint rules."
-            task.dependsOn(
-                verificationPlatformBuild.task(":data:formatRepositoryKotlinStyle"),
-            )
-        }
 
         val checkDocumentation =
             project.tasks.register(
@@ -118,14 +130,19 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.description = "Generates and validates the effective TeamCity Kotlin DSL."
                 task.dependsOn(checkDocumentation)
                 task.repositoryRoot.set(project.layout.projectDirectory)
-                task.teamCityPom.set(project.layout.projectDirectory.file(".teamcity/pom.xml"))
+                task.teamCityPom.set(extension.teamCityPom)
+                task.generatedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
+                task.pipelineBuildTypeId.set(extension.teamCityPipelineBuildTypeId)
+                task.gateBuildTypeId.set(extension.teamCityGateBuildTypeId)
+                task.authoritativeStatusName.set(extension.authoritativeStatusName)
             }
 
         project.gradle.projectsEvaluated {
             project.allprojects.forEach { candidate ->
                 candidate.tasks.matching { task -> task.name == "check" }.configureEach { task ->
                     task.dependsOn(checkDocumentation)
-                    task.dependsOn(checkKotlinStyle)
+                    task.dependsOn(checkIncludedBuildVersions)
+                    task.dependsOn(checkModuleBoundaries)
                     task.mustRunAfter(checkTeamCityDsl)
                 }
             }
@@ -175,7 +192,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
             task.buildTypeId.convention(
                 project.providers
                     .gradleProperty("teamCityInfrastructureHealthBuildTypeId")
-                    .orElse("WaterMyPlants_WaterMyPlantsInfrastructureHealth"),
+                    .orElse(extension.infrastructureHealthBuildTypeId),
             )
             task.branch.convention(
                 project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main"),

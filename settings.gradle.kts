@@ -13,9 +13,11 @@ pluginManagement {
         gradlePluginPortal()
     }
     // Custom Gradle plugins
+    includeBuild("./repo/dependency-catalog")
     includeBuild("./repo/gradle-plugins")
     includeBuild("./repo/figma-documentation-sync")
     includeBuild("./repo/verification-platform")
+    includeBuild("./repo/water-my-plants-project-config")
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -26,7 +28,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.marmatsan.dependencies") apply true
+    id("com.marmatsan.waterMyPlantsSettings") apply true
 }
 
 rootProject.name = "water-my-plants"

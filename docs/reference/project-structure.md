@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-21
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -17,8 +17,9 @@ sources:
   - repo/figma-documentation-sync/settings.gradle.kts
   - repo/figma-documentation-sync/data/build.gradle.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
-  - repo/figma-documentation-sync/project-config/build.gradle.kts
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt
+  - repo/water-my-plants-project-config/settings.gradle.kts
+  - repo/water-my-plants-project-config/plugin/build.gradle.kts
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # Project Structure
@@ -72,28 +73,31 @@ modules support the repository and CI; they are not production app modules.
 
 | Path | Included build | Purpose |
 |------|----------------|---------|
-| `repo/dependency-catalog/` | `dependency-catalog` | Parent included build for the reusable catalog engine and the Water My Plants catalog definition. |
+| `repo/dependency-catalog/` | `dependency-catalog` | Reusable catalog API, optional tree DSL, and Gradle settings adapter. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
 | `repo/verification-platform/` | `verification-platform` | Provider-neutral Kotlin platform that plans and executes repository verification through Gradle. |
 | `repo/figma-documentation-sync/` | `figma-documentation-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
+| `repo/water-my-plants-project-config/` | `water-my-plants-project-config` | Product catalog, product versions, and adapters that compose reusable builds for Water My Plants. |
 
-The root build includes `repo/gradle-plugins`, `repo/verification-platform`, and
-`repo/figma-documentation-sync` through `pluginManagement.includeBuild(...)`.
-`repo/gradle-plugins` and `repo/figma-documentation-sync` consume the dependency
-catalog model. `repo/verification-platform` reads only the central version properties while
-remaining independent from the concrete dependency trees.
+The root build includes all five builds through
+`pluginManagement.includeBuild(...)`. Reusable builds do not include sibling
+builds or import product implementations. The root and
+`repo/water-my-plants-project-config` are the composition boundaries that bind
+versioned APIs to local implementations. Every included build reads its own
+root `versions.properties` and remains independent from another build's
+compile/test registry.
 
-`repo/dependency-catalog` contains two Gradle modules with a one-way dependency:
+`repo/dependency-catalog` contains three reusable Gradle modules:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
-| `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Reusable catalog tree model, DSL, traversal, and mappers. It does not know the Water My Plants dependencies. |
-| `repo/dependency-catalog/water-my-plants-catalog/` | `:water-my-plants-catalog` | Concrete library/plugin trees, version schema, and `WaterMyPlantsCatalog` facade. Depends on `:catalog-core`. |
+| `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and `DependencyCatalogProvider` API. |
+| `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, traversal, and mappers for provider implementations. |
+| `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
 
-Repository tooling consumes the stable coordinates
-`com.marmatsan.repo:catalog-core` and
-`com.marmatsan.repo:water-my-plants-catalog`. The included-build root does not
-publish a compatibility artifact.
+Repository tooling consumes stable Maven/plugin coordinates. The included-build
+root does not publish a compatibility artifact; its standalone consumer proves
+that no source include is required.
 
 `repo/verification-platform` separates provider-neutral verification policy from
 infrastructure and Gradle composition:
@@ -113,16 +117,25 @@ configuration:
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/figma-documentation-sync/domain/` | `:domain` | Portable design-model types and ports. |
-| `repo/figma-documentation-sync/data/` | `:data` | Portable filesystem, Gradle, catalog-provider, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on `water-my-plants-catalog` in production. |
+| `repo/figma-documentation-sync/data/` | `:data` | Portable filesystem, Gradle, Figma-owned catalog port, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on Dependency Catalog in production. |
 | `repo/figma-documentation-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-documentation-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
-| `repo/figma-documentation-sync/project-config/` | `:project-config` | Water My Plants paths, concrete catalog and CI providers, Figma identities, visual targets, credential adapters, verified canonical payload upload, repository-specific TeamCity orchestration, and adapter contract tests. |
 | `repo/figma-documentation-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
-the portable plugin; another repository replaces `project-config` without
+the portable plugin; another repository supplies its own composition adapter without
 changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
 `teamcity-adapter` only if its CI provider is TeamCity.
+
+`repo/water-my-plants-project-config` contains the product-owned modules:
+
+| Path | Gradle module | Purpose |
+|------|---------------|---------|
+| `repo/water-my-plants-project-config/catalog/` | `:catalog` | Water My Plants dependency trees, `DependencyCatalogProvider`, and product-version schema. Depends on the public catalog API and optional core DSL. |
+| `repo/water-my-plants-project-config/plugin/` | `:plugin` | Settings/project plugins, Figma catalog adapter, Figma identities, TeamCity wiring, operational tasks, and adapter tests. |
+
+Only this build and the root build may name sibling builds, product paths, or
+concrete implementations. `checkModuleBoundaries` enforces the reusable scopes.
 
 Documentation coverage treats changes to included-build settings and module
 `build.gradle.kts` files as potential structure changes without interpreting
@@ -136,7 +149,7 @@ All product and repository-infrastructure Kotlin sources follow the shared
 changed source layout but did not change the module inventory or dependency
 directions recorded above.
 
-The `project-config` test suite receives the language-neutral writer runtime
+The product-config test suite receives the language-neutral writer runtime
 fixture from `tools/fixtures/contracts/` as a test-only system property. This
 keeps the published contract executable against the typed Water My Plants
 configuration without adding the tools package to production dependencies.

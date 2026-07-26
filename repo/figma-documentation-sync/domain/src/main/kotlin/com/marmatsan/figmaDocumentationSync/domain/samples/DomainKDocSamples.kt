@@ -127,7 +127,7 @@ internal object DomainKDocSamples {
 
         val source =
             VersionsFileSource(
-                path = "repo/dependency-catalog/versions.properties",
+                path = "versions.properties",
             )
         val versions =
             port.readVersions(

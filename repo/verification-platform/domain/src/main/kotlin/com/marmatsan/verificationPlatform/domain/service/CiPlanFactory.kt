@@ -2,6 +2,7 @@ package com.marmatsan.verificationPlatform.domain.service
 
 import com.marmatsan.verificationPlatform.domain.model.CiPlan
 import com.marmatsan.verificationPlatform.domain.model.CiPlanMode
+import com.marmatsan.verificationPlatform.domain.model.CiPlanPolicy
 import com.marmatsan.verificationPlatform.domain.model.CiScope
 import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
 import com.marmatsan.verificationPlatform.domain.model.RepositoryModuleGraph
@@ -16,7 +17,9 @@ import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
  * full repository verification, while safely classified application changes
  * may select affected module tasks.
  */
-class CiPlanFactory {
+class CiPlanFactory(
+    private val policy: CiPlanPolicy = CiPlanPolicy(),
+) {
     /**
      * Creates the authoritative verification plan for [changeSet].
      *
@@ -72,6 +75,15 @@ class CiPlanFactory {
                 } &&
                 moduleImpact.affectedModules.isNotEmpty()
         val fullVerification = !documentationOnly && !targetedModuleVerification
+        val portableDistribution =
+            changedFiles.any { path ->
+                !isDocumentation(
+                    path = path,
+                ) &&
+                    isPortableDistribution(
+                        path = path,
+                    )
+            }
         val fallbackReason =
             when {
                 changedFiles.isEmpty() -> "No changed files were resolved; verification fails closed."
@@ -95,6 +107,7 @@ class CiPlanFactory {
                     documentationOnly = documentationOnly,
                     targetedModuleVerification = targetedModuleVerification,
                     fullVerification = fullVerification,
+                    portableDistribution = portableDistribution,
                     affectedModules = moduleImpact.affectedModules,
                     fallbackReason = fallbackReason,
                 ),
@@ -108,6 +121,7 @@ class CiPlanFactory {
         documentationOnly: Boolean,
         targetedModuleVerification: Boolean,
         fullVerification: Boolean,
+        portableDistribution: Boolean,
         affectedModules: List<String>,
         fallbackReason: String?,
     ): List<VerificationUnit> =
@@ -169,34 +183,56 @@ class CiPlanFactory {
                     ),
             ),
             unit(
-                id = VerificationUnitId.FIGMA_TOOLING,
-                required = PathCategory.FIGMA in categories,
+                id = VerificationUnitId.TOOLING,
+                required = PathCategory.TOOLING in categories,
                 needs = listOf(VerificationUnitId.DOCUMENTATION),
-                capabilities =
-                    listOf(
-                        "java",
-                        "android-sdk",
-                        "node",
+                capabilities = policy.toolingCapabilities,
+                gradleTasks =
+                    requiredTasks(
+                        required = PathCategory.TOOLING in categories,
+                        tasks = policy.toolingVerificationTasks.toTypedArray(),
                     ),
                 reasons =
                     requiredReasons(
-                        required = PathCategory.FIGMA in categories,
-                        reason = "Figma Documentation Sync implementation changed.",
+                        required = PathCategory.TOOLING in categories,
+                        reason = "A configured repository-tooling surface changed.",
                     ),
             ),
             unit(
-                id = VerificationUnitId.DEPENDENCY_CATALOG,
-                required = PathCategory.DEPENDENCY_INFRASTRUCTURE in categories,
+                id = VerificationUnitId.BUILD_INFRASTRUCTURE,
+                required = PathCategory.BUILD_INFRASTRUCTURE in categories,
                 needs = listOf(VerificationUnitId.DOCUMENTATION),
-                capabilities =
-                    listOf(
-                        "java",
-                        "android-sdk",
+                capabilities = policy.buildInfrastructureCapabilities,
+                gradleTasks =
+                    requiredTasks(
+                        required = PathCategory.BUILD_INFRASTRUCTURE in categories,
+                        tasks = policy.buildInfrastructureVerificationTasks.toTypedArray(),
                     ),
                 reasons =
                     requiredReasons(
-                        required = PathCategory.DEPENDENCY_INFRASTRUCTURE in categories,
-                        reason = "Dependency catalog or Gradle infrastructure changed.",
+                        required = PathCategory.BUILD_INFRASTRUCTURE in categories,
+                        reason = "A configured build-infrastructure surface changed.",
+                    ),
+            ),
+            unit(
+                id = VerificationUnitId.PORTABLE_DISTRIBUTION,
+                required = portableDistribution,
+                needs =
+                    listOf(
+                        VerificationUnitId.DOCUMENTATION,
+                        VerificationUnitId.BUILD_INFRASTRUCTURE,
+                        VerificationUnitId.TOOLING,
+                    ),
+                capabilities = policy.portableDistributionCapabilities,
+                gradleTasks =
+                    requiredTasks(
+                        required = portableDistribution,
+                        tasks = policy.portableDistributionVerificationTasks.toTypedArray(),
+                    ),
+                reasons =
+                    requiredReasons(
+                        required = portableDistribution,
+                        reason = "A configured portable-distribution surface changed.",
                     ),
             ),
             unit(
@@ -215,7 +251,8 @@ class CiPlanFactory {
                         }
 
                         targetedModuleVerification -> {
-                            affectedModules.map { module -> "$module:check" } + CHECK_FIGMA_CATALOG_USAGE
+                            affectedModules.map { module -> "$module:check" } +
+                                policy.targetedModuleSupplementalTasks
                         }
 
                         else -> {
@@ -252,8 +289,9 @@ class CiPlanFactory {
                         VerificationUnitId.DOCUMENTATION,
                         VerificationUnitId.REPOSITORY_DIFF,
                         VerificationUnitId.TEAMCITY_DSL,
-                        VerificationUnitId.FIGMA_TOOLING,
-                        VerificationUnitId.DEPENDENCY_CATALOG,
+                        VerificationUnitId.TOOLING,
+                        VerificationUnitId.BUILD_INFRASTRUCTURE,
+                        VerificationUnitId.PORTABLE_DISTRIBUTION,
                         VerificationUnitId.GRADLE_VERIFICATION,
                     ),
                 capabilities = emptyList(),
@@ -306,17 +344,10 @@ class CiPlanFactory {
                 prefix = ".teamcity/",
             ) -> PathCategory.TEAMCITY
 
-            path.startsWith(
-                prefix = "repo/figma-documentation-sync/",
-            ) -> PathCategory.FIGMA
+            policy.toolingPathPrefixes.any(path::startsWith) -> PathCategory.TOOLING
 
-            path.startsWith(
-                prefix = "repo/dependency-catalog/",
-            ) ||
-                path.startsWith(
-                    prefix = "repo/gradle-plugins/",
-                ) ||
-                path in ROOT_GRADLE_FILES -> PathCategory.DEPENDENCY_INFRASTRUCTURE
+            policy.buildInfrastructurePathPrefixes.any(path::startsWith) ||
+                path in policy.buildInfrastructurePaths -> PathCategory.BUILD_INFRASTRUCTURE
 
             moduleImpactAnalyzer.moduleFor(
                 path = path,
@@ -336,8 +367,8 @@ class CiPlanFactory {
             unknown -> CiScope.UNKNOWN
             categories.size > 1 -> CiScope.MIXED
             PathCategory.TEAMCITY in categories -> CiScope.TEAMCITY
-            PathCategory.FIGMA in categories -> CiScope.FIGMA_TOOLING
-            PathCategory.DEPENDENCY_INFRASTRUCTURE in categories -> CiScope.DEPENDENCY_INFRASTRUCTURE
+            PathCategory.TOOLING in categories -> CiScope.TOOLING
+            PathCategory.BUILD_INFRASTRUCTURE in categories -> CiScope.BUILD_INFRASTRUCTURE
             PathCategory.APPLICATION in categories -> CiScope.APPLICATION
             else -> CiScope.UNKNOWN
         }
@@ -389,6 +420,12 @@ class CiPlanFactory {
             )
     }
 
+    private fun isPortableDistribution(
+        path: String,
+    ): Boolean =
+        policy.portableDistributionPathPrefixes.any(path::startsWith) ||
+            path in policy.portableDistributionPaths
+
     private fun normalize(
         path: String,
     ): String =
@@ -400,24 +437,17 @@ class CiPlanFactory {
     private enum class PathCategory {
         DOCUMENTATION,
         TEAMCITY,
-        FIGMA,
-        DEPENDENCY_INFRASTRUCTURE,
+        TOOLING,
+        BUILD_INFRASTRUCTURE,
         APPLICATION,
         UNKNOWN,
     }
 
     private companion object {
-        const val SCHEMA_VERSION = 3
+        const val SCHEMA_VERSION = 5
         const val CHECK_GIT_WORKFLOW = "checkGitWorkflow"
         const val CHECK_DOCUMENTATION = "checkDocumentation"
         const val CHECK_REPOSITORY_DIFF = "checkRepositoryDiff"
         const val CHECK_TEAMCITY_DSL = "checkTeamCityDsl"
-        const val CHECK_FIGMA_CATALOG_USAGE = "checkFigmaCatalogUsage"
-        val ROOT_GRADLE_FILES =
-            setOf(
-                "settings.gradle.kts",
-                "build.gradle.kts",
-                "gradle.properties",
-            )
     }
 }

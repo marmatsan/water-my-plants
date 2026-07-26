@@ -10,8 +10,8 @@ sources:
   - .teamcity/settings.kts
   - docs/ci/external-topology.yaml
   - docs/ci/windows-runtime.yaml
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/RerunTeamCityFigmaSyncTask.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/RerunTeamCityFigmaSyncTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/EnvironmentTeamCityAutomationCredentialsProvider.kt
   - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRestRunStarter.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/RunTeamCityInfrastructureHealthTask.kt
   - .teamcity/scripts/invoke-infrastructure-health-at-startup.ps1

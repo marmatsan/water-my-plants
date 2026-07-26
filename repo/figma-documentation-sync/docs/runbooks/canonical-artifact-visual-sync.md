@@ -4,15 +4,15 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-26
 review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt
   - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityCliClient.kt
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/artifact/ValidateCanonicalFigmaArtifactSetTask.kt
 ---
@@ -128,7 +128,7 @@ Important generation details:
 
 - `content.versions` is the sorted flat map used for deterministic comparison.
 - `content.versionSections` preserves grouping from
-  `repo/dependency-catalog/versions.properties` so the MCP sync can place
+  `repo/water-my-plants-project-config/versions.properties` so the MCP sync can place
   visual version nodes in the correct frame.
 - `checkFigmaVersionNaming` runs through `.\gradlew.bat check` and enforces
   the version key format rendered in Figma: only `androidGradlePluginVersion` and
@@ -147,29 +147,20 @@ Important generation details:
   in `appliedToModules`; the visual `Applied by module` row combines direct
   modules with the modules listed in each
   `providedByConventionPlugins.requiredByModules` entry, which may be empty.
-- `dependencyCatalog` contributes modules and module dependencies but not
-  `content.catalogs.dependencyCatalog` because
-  `repo/dependency-catalog/settings.gradle.kts` does not declare
-  `versionCatalogs.create("libs")` or `versionCatalogs.create("plugins")`.
-  Its modules are `catalog-core` and `water-my-plants-catalog`, with the latter
-  depending on the former through `projects.catalogCore`.
+- `dependencyCatalog` contributes reusable modules and module dependencies but
+  not a visual catalog target. The product `catalog` module is contributed by
+  `waterMyPlantsProjectConfig`, and its adapter supplies the only production
+  library/plugin trees.
 - Custom Gradle convention plugins are detected from `repo/gradle-plugins`
   build files that declare an implementation class ending in
   `GradleConventionPlugin`.
-- Regular custom Gradle plugins are detected from repository included builds
-  that declare a Gradle plugin implementation class that does not end in
-  `GradleConventionPlugin` and whose plugin id is applied from the main build.
-- `com.marmatsan.figmaDocumentationSync` is a regular Gradle plugin, not a convention
-  plugin. It is included in `content.catalogs.waterMyPlants.customGradlePlugins`.
+- Convention plugin detection enriches usage metadata on the production
+  library/plugin catalog. It does not create a separate Water My Plants visual
+  tree.
 - Dependency catalog entries are expected to be used. `checkFigmaCatalogUsage`
   runs through `.\gradlew.bat check` and rejects unused library/plugin entries
-  before they can be merged. Repository-owned custom Gradle plugin inventories
-  are the exception: they may include plugins that no module consumes yet, and
-  the visual sync renders those leaves with a `No module applies it` warning.
-- Included-build catalog targets with no model nodes are hidden by visual sync.
-  An included build may omit `versionCatalogs.create("plugins")`; the resulting
-  `*.plugins` Figma section should disappear instead of staying as an empty
-  section.
+  before they can be merged. Included-build tool catalogs and custom plugin
+  inventories are outside the Water My Plants catalog-tree publication scope.
 - `content.moduleDependencies` contains one graph for the root build and one
   graph per configured included build: `main`, `dependencyCatalog`,
   `figmaDocumentationSync`, and `gradlePlugins`.
@@ -282,8 +273,8 @@ or weaken fingerprint validation to work around the failure.
 - `.teamcity/settings.kts`
 - `plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical/PrepareCanonicalFigmaSyncTask.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityFigmaSyncHandoffPreparer.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt`
 - `teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityCliClient.kt`

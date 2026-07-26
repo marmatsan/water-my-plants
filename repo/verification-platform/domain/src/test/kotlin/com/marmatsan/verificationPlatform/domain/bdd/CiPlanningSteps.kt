@@ -8,6 +8,7 @@ import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
 import com.marmatsan.verificationPlatform.domain.model.VerificationUnit
 import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
 import com.marmatsan.verificationPlatform.domain.service.CiTopologyPlanner
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.En
@@ -83,7 +84,7 @@ class CiPlanningSteps : En {
     }
 
     private fun createPlan(): CiPlan =
-        CiPlanFactory().create(
+        CiPlanFactory(testCiPlanPolicy()).create(
             changeSet =
                 RepositoryChangeSet(
                     comparisonBase = "base-sha",

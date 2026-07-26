@@ -33,10 +33,10 @@ internal class MultilineFunctionArgumentsRule(
     private val compactShortFunctionTypes: Boolean,
     private val callableSignatures: KotlinCallableSignatureIndex,
 ) : Rule(
-        ruleId = RuleId("water-my-plants:multiline-function-arguments"),
+        ruleId = RuleId("repository-verification:multiline-function-arguments"),
         about =
             About(
-                maintainer = "Water My Plants",
+                maintainer = "Repository Verification",
                 repositoryUrl = "https://github.com/marmatsan/water-my-plants",
                 issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
             ),

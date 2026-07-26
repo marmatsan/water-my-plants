@@ -141,8 +141,9 @@ class CiTopologyPlanner {
 
                 VerificationUnitId.REPOSITORY_DIFF,
                 VerificationUnitId.TEAMCITY_DSL,
-                VerificationUnitId.FIGMA_TOOLING,
-                VerificationUnitId.DEPENDENCY_CATALOG,
+                VerificationUnitId.TOOLING,
+                VerificationUnitId.BUILD_INFRASTRUCTURE,
+                VerificationUnitId.PORTABLE_DISTRIBUTION,
                 -> SUPPLEMENTAL_LANE
             }
         } else {
@@ -155,8 +156,9 @@ class CiTopologyPlanner {
                 VerificationUnitId.TEAMCITY_DSL,
                 -> REPOSITORY_LANE
 
-                VerificationUnitId.FIGMA_TOOLING,
-                VerificationUnitId.DEPENDENCY_CATALOG,
+                VerificationUnitId.TOOLING,
+                VerificationUnitId.BUILD_INFRASTRUCTURE,
+                VerificationUnitId.PORTABLE_DISTRIBUTION,
                 -> TOOLING_LANE
 
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE

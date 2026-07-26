@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-22
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
   - repo/figma-documentation-sync/gradle.properties
@@ -40,12 +40,11 @@ The Maven publication set is:
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-gradle-plugin` | Public entry point | Gradle plugin implementation and tasks. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-domain` | Transitive implementation | Portable models and ports. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-data` | Transitive implementation | Portable filesystem, Gradle, catalog, and Figma adapters. |
-| `com.marmatsan.repo:catalog-core` | Transitive supporting API | Reusable dependency catalog model used by catalog providers. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter` | Optional | TeamCity parser and typed CLI boundary. |
 
-Gradle also publishes the standard plugin marker coordinate generated for
-`com.marmatsan.figmaDocumentationSync`. Consumers use the plugin id rather than the
-implementation coordinate directly.
+Gradle also publishes the standard plugin marker coordinates generated for
+`com.marmatsan.figmaDocumentationSync`. Dependency Catalog has an independent
+publication and standalone-consumer contract.
 
 The portable writer package is:
 
@@ -91,20 +90,21 @@ package from assuming the Water My Plants directory structure.
 
 ## Invariants
 
-- Consumers apply one Gradle plugin; they do not include or address the
-  internal `domain`, `data`, or `plugin` projects.
-- `project-config` is never part of the portable publication set.
+- Consumers apply the Figma plugin without including or addressing internal
+  source projects. A consumer that also uses Dependency Catalog resolves that
+  plugin independently and bridges its API through Figma's catalog port.
+- Product composition builds are never part of the portable publication set.
 - Repository identities enter the writer through a transient project-config
   projection; generated JSON is not published as a source artifact.
 - The TeamCity adapter is never a transitive dependency of the portable
   Gradle plugin.
-- Maven artifacts, the plugin marker, `catalog-core`, and the npm package use
-  one release version.
+- Figma Maven artifacts, their plugin marker, and the npm package use one
+  release version.
 - The npm package remains `private` until an explicit release authorizes the
   selected registry and namespace.
-- A release must pass `verifyStagedPublication`, which resolves the plugin from
-  Maven files and applies it from `samples/standalone-consumer` without an
-  included build.
+- A release must pass `verifyStagedPublication`, which resolves the Figma
+  plugin from Maven files and applies it from `samples/standalone-consumer`
+  without a source included build.
 - Publication credentials and signing material never enter versioned files.
 
 ## Sources
@@ -117,4 +117,4 @@ package from assuming the Water My Plants directory structure.
 - [`../../data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt`](../../data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt)
 - [`../../tools/fixtures/contracts/writer-runtime-contract.json`](../../tools/fixtures/contracts/writer-runtime-contract.json)
 - [`../../samples/standalone-consumer`](../../samples/standalone-consumer)
-- [`../../project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`](../../project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt)
+- [`../../../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`](../../../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt)

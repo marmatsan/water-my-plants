@@ -104,7 +104,7 @@ used by CI.
   `build/reports/figma-sync/design-model.json`.
 - `classifyFigmaChangeImpact`: classifies the Git diff using
   the policy selected by the project-config adapter. Water My Plants owns it at
-  `repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json`.
+  `repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`.
   Keep the classifier in Kotlin and do not duplicate its rules in TeamCity scripts.
 - `prepareCanonicalFigmaSync`: cleans stale reports, classifies the change,
   conditionally runs the configured CI adapter and generates the canonical model, then
@@ -115,7 +115,7 @@ used by CI.
   plugin entries that are not used by a module, convention plugin, or tool
   configuration. This task is wired into the root `check` lifecycle.
 - `checkFigmaVersionNaming`: fails when
-  `repo/dependency-catalog/versions.properties` does not use the Figma version
+  `repo/water-my-plants-project-config/versions.properties` does not use the Figma version
   naming contract. This task is wired into the root `check` lifecycle.
 - `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
   validation window in `docs/ci/external-topology.yaml` expires. This task is
@@ -257,8 +257,9 @@ used by CI.
 .\gradlew.bat :figma-documentation-sync:domain:check `
     :figma-documentation-sync:data:check `
     :figma-documentation-sync:teamcity-adapter:check `
-    :figma-documentation-sync:plugin:check `
-    :figma-documentation-sync:project-config:check
+    :figma-documentation-sync:plugin:check
+
+.\gradlew.bat -p repo\water-my-plants-project-config check
 ```
 
 - Useful root-project diagnostic command:

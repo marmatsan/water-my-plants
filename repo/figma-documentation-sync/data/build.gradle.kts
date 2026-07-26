@@ -26,8 +26,6 @@ java {
 
 dependencies {
     implementation(projects.domain)
-    implementation("com.marmatsan.repo:catalog-core:${project.version}")
-    testImplementation("com.marmatsan.repo:water-my-plants-catalog")
 
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 

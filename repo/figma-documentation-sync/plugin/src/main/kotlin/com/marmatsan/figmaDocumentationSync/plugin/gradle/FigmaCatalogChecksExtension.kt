@@ -42,13 +42,14 @@ abstract class FigmaDocumentationSyncIncludedBuild
         val modulePathPrefix: Property<String> = objects.property(String::class.java).convention(":$buildName")
 
         /**
-         * Whether this included build declares `libs` and `plugins` catalogs in
-         * its settings file.
+         * Whether this included build's `libs` and `plugins` catalogs belong in
+         * the host's generated documentation model. Local tool catalogs stay
+         * private by default even when the settings file declares them.
          */
         val publishesCatalogs: Property<Boolean> =
             objects
                 .property(Boolean::class.javaObjectType)
-                .convention(true)
+                .convention(false)
 
         /**
          * Whether this included build publishes repository convention plugins.

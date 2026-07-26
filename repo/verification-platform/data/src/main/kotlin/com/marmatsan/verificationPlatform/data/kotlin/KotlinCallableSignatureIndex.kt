@@ -162,10 +162,10 @@ private class KotlinCallableSignatureCollectorRule(
     private val signatures: MutableSet<KotlinCallableSignature>,
     private val functionValues: MutableSet<KotlinFunctionValue>,
 ) : Rule(
-        ruleId = RuleId("water-my-plants:kotlin-callable-signature-collector"),
+        ruleId = RuleId("repository-verification:kotlin-callable-signature-collector"),
         about =
             About(
-                maintainer = "Water My Plants",
+                maintainer = "Repository Verification",
                 repositoryUrl = "https://github.com/marmatsan/water-my-plants",
                 issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
             ),
