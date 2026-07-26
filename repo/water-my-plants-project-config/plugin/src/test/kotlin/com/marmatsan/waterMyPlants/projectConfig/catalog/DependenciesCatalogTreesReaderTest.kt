@@ -736,11 +736,18 @@ internal class DependenciesCatalogTreesReaderTest :
         },
     )
 
-private fun dependenciesCatalogTreesReader() =
-    DependenciesCatalogTreesReader(
-        gradleCatalogUsageReader = GradleCatalogUsageReader(),
+private fun dependenciesCatalogTreesReader(): DependenciesCatalogTreesReader {
+    val gradleCatalogUsageReader = GradleCatalogUsageReader()
+    return DependenciesCatalogTreesReader(
         dependencyCatalogProvider = WaterMyPlantsCatalogProvider(),
+        catalogTreeMapper = DependencyCatalogTreeMapper(),
+        mainCatalogUsageSource = GradleMainCatalogUsageSource(gradleCatalogUsageReader),
+        conventionPluginCatalogUsageSource =
+            GradleConventionPluginCatalogUsageSource(gradleCatalogUsageReader),
+        libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
+        pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
     )
+}
 
 private fun LibraryCatalogTree.findArtifact(
     groupPath: String,

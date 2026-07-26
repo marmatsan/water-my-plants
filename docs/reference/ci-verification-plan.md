@@ -47,9 +47,8 @@ Stable verification unit identifiers are `git-workflow`, `documentation`,
 `repository-diff`, `teamcity-dsl`, `tooling`, `build-infrastructure`,
 `portable-distribution`, `gradle-verification`, and `publish-reports`.
 The reusable planner does not name Water My Plants modules or tasks. The root
-`VerificationPlatformExtension` configuration supplies path prefixes,
-capabilities, task bindings, local version registries, and reusable-scope
-boundaries.
+`VerificationPlatformExtension` segregates repository configuration into
+`ciPolicy`, `boundaries`, `taskBindings`, and `teamCity` blocks.
 
 ## Invariants
 

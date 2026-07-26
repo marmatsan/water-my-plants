@@ -32,10 +32,9 @@ aggregator so existing consumers do not need to know its internal projects.
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
 - The Gradle plugin registers generic planning, documentation, TeamCity, local
-  version ownership, and module-boundary tasks. Its
-  `VerificationPlatformExtension` accepts repository-specific paths,
-  capabilities, TeamCity ids, source boundaries, and included-build task
-  bindings from the consuming composition root.
+  version ownership, and module-boundary tasks. Its public DSL segregates
+  repository policy into `ciPolicy`, `boundaries`, `taskBindings`, and
+  `teamCity` blocks so consumers configure only the capability they own.
 - Verification Platform production code contains no Water My Plants module
   inventory or sibling build name. Water My Plants binds
   `checkKotlinStyle`, `checkDependencyCatalogArchitecture`, portable

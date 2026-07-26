@@ -91,7 +91,7 @@ compile/test registry.
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
-| `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and `DependencyCatalogProvider` API. |
+| `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and segregated resolved/aliased provider APIs. |
 | `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, traversal, and mappers for provider implementations. |
 | `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
 

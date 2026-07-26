@@ -1,8 +1,8 @@
 import com.marmatsan.dependencies.catalog.api.DependencyCatalog
-import com.marmatsan.dependencies.catalog.api.DependencyCatalogProvider
 import com.marmatsan.dependencies.catalog.api.LibraryCatalogEntry
 import com.marmatsan.dependencies.catalog.api.LibraryCatalogNode
 import com.marmatsan.dependencies.catalog.api.PluginCatalogNode
+import com.marmatsan.dependencies.catalog.api.ResolvedDependencyCatalogProvider
 import java.io.File
 
 pluginManagement {
@@ -35,7 +35,7 @@ plugins {
 dependencyCatalog {
     from(
         provider =
-            object : DependencyCatalogProvider {
+            object : ResolvedDependencyCatalogProvider {
                 override fun resolved(
                     rootDir: File,
                 ): DependencyCatalog =
@@ -60,11 +60,6 @@ dependencyCatalog {
                                     version = "2.4.0",
                                 ),
                             ),
-                    )
-
-                override fun withVersionAliases(): DependencyCatalog =
-                    resolved(
-                        rootDir = File("."),
                     )
             },
     )

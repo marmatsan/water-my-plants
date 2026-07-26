@@ -14,7 +14,7 @@ internal class DependencyCatalogSettingsPluginTest :
                 projectDirectory.resolve("settings.gradle.kts").writeText(
                     """
                     import com.marmatsan.dependencies.catalog.api.DependencyCatalog
-                    import com.marmatsan.dependencies.catalog.api.DependencyCatalogProvider
+                    import com.marmatsan.dependencies.catalog.api.ResolvedDependencyCatalogProvider
                     import com.marmatsan.dependencies.catalog.api.LibraryCatalogEntry
                     import com.marmatsan.dependencies.catalog.api.LibraryCatalogNode
                     import com.marmatsan.dependencies.catalog.api.PluginCatalogNode
@@ -27,7 +27,7 @@ internal class DependencyCatalogSettingsPluginTest :
                     dependencyCatalog {
                         from(
                             provider =
-                                object : DependencyCatalogProvider {
+                                object : ResolvedDependencyCatalogProvider {
                                     override fun resolved(rootDir: File) =
                                         DependencyCatalog(
                                             libraries =
@@ -69,8 +69,6 @@ internal class DependencyCatalogSettingsPluginTest :
                                                     ),
                                                 ),
                                         )
-
-                                    override fun withVersionAliases() = resolved(rootDir = File("."))
                                 },
                         )
                     }

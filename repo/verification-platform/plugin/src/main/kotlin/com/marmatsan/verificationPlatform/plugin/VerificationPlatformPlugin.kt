@@ -130,11 +130,11 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.description = "Generates and validates the effective TeamCity Kotlin DSL."
                 task.dependsOn(checkDocumentation)
                 task.repositoryRoot.set(project.layout.projectDirectory)
-                task.teamCityPom.set(extension.teamCityPom)
-                task.generatedConfigurationDirectory.set(extension.teamCityGeneratedConfigurationDirectory)
-                task.pipelineBuildTypeId.set(extension.teamCityPipelineBuildTypeId)
-                task.gateBuildTypeId.set(extension.teamCityGateBuildTypeId)
-                task.authoritativeStatusName.set(extension.authoritativeStatusName)
+                task.teamCityPom.set(extension.teamCity.pom)
+                task.generatedConfigurationDirectory.set(extension.teamCity.generatedConfigurationDirectory)
+                task.pipelineBuildTypeId.set(extension.teamCity.pipelineBuildTypeId)
+                task.gateBuildTypeId.set(extension.teamCity.gateBuildTypeId)
+                task.authoritativeStatusName.set(extension.teamCity.authoritativeStatusName)
             }
 
         project.gradle.projectsEvaluated {
@@ -192,7 +192,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
             task.buildTypeId.convention(
                 project.providers
                     .gradleProperty("teamCityInfrastructureHealthBuildTypeId")
-                    .orElse(extension.infrastructureHealthBuildTypeId),
+                    .orElse(extension.teamCity.infrastructureHealthBuildTypeId),
             )
             task.branch.convention(
                 project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main"),

@@ -10,15 +10,21 @@ must not contain these paths, ids, or concrete implementations.
 The active adapter consists of:
 
 - `plugin/src/main/kotlin/.../WaterMyPlantsProjectConfigPlugin.kt`, which
-  applies `com.marmatsan.figmaDocumentationSync` and supplies repository paths, Figma
-  metadata identity, included builds, the TeamCity adapter class, its
-  `teamCity` model key, and the optional TeamCity generation command;
+  acts only as the composition entry point and delegates product wiring;
+- `plugin/src/main/kotlin/.../WaterMyPlantsFigmaExtensionConfigurator.kt`,
+  which supplies repository paths, Figma metadata identity, included builds,
+  the TeamCity adapter class, its `teamCity` model key, and the optional
+  TeamCity generation command;
+- `plugin/src/main/kotlin/.../WaterMyPlantsFigmaWriterTasksRegistrar.kt` and
+  `WaterMyPlantsTeamCityFigmaTasksRegistrar.kt`, which independently own writer
+  task bindings and supervised TeamCity operations;
 - `../figma-documentation-sync/teamcity-adapter/src/main/kotlin/.../TeamCityCiConfigurationProvider.kt`,
   which translates TeamCity's generated YAML/XML into the portable CI model;
 - `catalog/src/main/kotlin/.../WaterMyPlantsCatalogProvider.kt`, which adapts
   the concrete product trees to Dependency Catalog's public API;
 - `plugin/src/main/kotlin/.../WaterMyPlantsDependencyDslCatalogProvider.kt`,
-  which maps that public model to Figma's catalog input port;
+  which composes consumer-specific mapping, usage-source, and enrichment ports
+  before exposing Figma's catalog input port;
 - `plugin/src/main/kotlin/.../WaterMyPlantsFigmaWriterProjectConfig.kt`, which owns
   Figma file identity, node ids, component properties, GitHub links, visual
   targets, and MCP namespaces as a typed Kotlin value;
@@ -43,7 +49,8 @@ A new Gradle repository reuses `domain/`, `data/`, `plugin/`, `tools/`, and
 their tests. It reuses `teamcity-adapter/` only when TeamCity is its CI system,
 and supplies a new project-config adapter that:
 
-1. implements Dependency Catalog's `DependencyCatalogProvider` for its product;
+1. implements Dependency Catalog's resolved provider for Gradle and its
+   version-aliased provider when documentation needs stable aliases;
 2. adapts that model to Figma's `DependencyDslCatalogProvider` when Figma
    catalog documentation is enabled;
 3. applies and configures `com.marmatsan.figmaDocumentationSync`;

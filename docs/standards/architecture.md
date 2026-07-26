@@ -1,15 +1,17 @@
 ---
 title: Product architecture standard
 type: standard
-scope: product-modules
+scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
   - docs/reference/project-structure.md
   - repo/gradle-plugins
+  - repo/dependency-catalog/catalog-api
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckModuleBoundariesTask.kt
 ---
 
 # Product Architecture Standard
@@ -59,14 +61,57 @@ Constructor injection is the default. Composition roots may select concrete
 implementations; domain and UI classes MUST NOT use service locators or read a
 global dependency container.
 
+## SOLID Design
+
+SOLID is a review-blocking design contract for all newly implemented or
+materially changed code. The type-level rules below apply to production code
+and test support that contains reusable behavior, across product modules,
+reusable builds, Gradle plugins, adapters, and composition code.
+
+- **Single Responsibility Principle:** a type MUST have one cohesive reason to
+  change. Reading state, mapping models, enriching data, registering tasks,
+  configuring an extension, and executing runtime behavior are separate
+  responsibilities unless the type is an immutable value that represents one
+  contract. A composition root MAY know concrete implementations, but it MUST
+  delegate their configuration and behavior to focused collaborators.
+- **Open/Closed Principle:** reusable behavior MUST be extended through a
+  stable port, strategy, provider, or configuration model instead of adding
+  product-specific branches to reusable modules. Do not create an abstraction
+  without a real consumer boundary or variation point.
+- **Liskov Substitution Principle:** every implementation MUST preserve its
+  interface's inputs, outputs, failure semantics, and invariants. An
+  implementation MUST NOT require stronger preconditions or provide weaker
+  guarantees than its port. Shared contract tests SHOULD cover multiple
+  implementations when more than one exists.
+- **Interface Segregation Principle:** a port MUST be owned by its consumer and
+  expose only the operations that consumer needs. Split resolved, aliased,
+  read, write, verification, and operational capabilities when they change or
+  are consumed independently.
+- **Dependency Inversion Principle:** domain and reusable orchestration MUST
+  depend on inward-facing abstractions. Filesystem, Gradle, network, TeamCity,
+  Figma, Android, and product-specific implementations depend on those ports
+  and are selected only by a composition root.
+
+Module independence does not mean that Gradle scripts contain no module
+coordinates. It means source behavior does not know consumer products or
+sibling implementations, dependencies point toward stable APIs, and concrete
+adapter wiring is confined to an explicit composition root.
+
+Line count alone is not a SOLID rule. Review reasons to change, dependency
+direction, contract size, substitutability, and extension points instead of
+using arbitrary class-size thresholds.
+
 ## Verification
 
-Run `./gradlew check` after dependency-boundary changes. Review
-`settings.gradle.kts` and affected `build.gradle.kts` files together with the
-module documentation.
+Run `./gradlew checkModuleBoundaries checkIncludedBuildVersions` after
+dependency-boundary changes and `./gradlew check` before completion. Review
+each affected production type against all five SOLID principles. Automated
+boundary checks support this review but do not replace it.
 
 ## Sources
 
 - `settings.gradle.kts`
 - `docs/reference/project-structure.md`
 - `repo/gradle-plugins/`
+- `repo/dependency-catalog/catalog-api/`
+- `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckModuleBoundariesTask.kt`

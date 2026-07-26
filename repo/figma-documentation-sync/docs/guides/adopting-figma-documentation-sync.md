@@ -58,9 +58,10 @@ consumer repository.
 
 2. Create a repository-owned versions file and catalog source. When reusing
    Dependency Catalog, follow its separate adoption guide and implement
-   `DependencyCatalogProvider`. Then add a product adapter that maps that API
-   model to Figma's `DependencyDslCatalogProvider`. A consumer may instead
-   implement the Figma-owned port directly.
+   `VersionAliasedDependencyCatalogProvider`. Then add a product adapter that
+   maps that consumer-specific API to Figma's
+   `DependencyDslCatalogProvider`. A consumer may instead implement the
+   Figma-owned port directly.
 
 3. When Dependency Catalog is used, apply its settings plugin and select the provider. `from` is the
    terminal operation because Gradle must register catalogs while evaluating

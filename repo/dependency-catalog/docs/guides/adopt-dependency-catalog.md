@@ -8,6 +8,8 @@ last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalogProvider.kt
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsExtension.kt
   - repo/dependency-catalog/samples/standalone-consumer/settings.gradle.kts
 ---
@@ -34,9 +36,11 @@ included build.
 2. Add a repository-owned `versions.properties`. This file contains the
    versions for the product catalog owned by that build; an included build that
    owns only tooling versions needs no product catalog provider.
-3. Implement `DependencyCatalogProvider`. `resolved(rootDir)` loads concrete
-   values from the repository-owned file; `withVersionAliases()` returns the
-   same tree shape with stable version-key aliases for documentation.
+3. Implement `ResolvedDependencyCatalogProvider`. Its `resolved(rootDir)`
+   operation loads concrete values from the repository-owned file. If the same
+   repository also needs documentation aliases, implement
+   `VersionAliasedDependencyCatalogProvider`; the aggregate
+   `DependencyCatalogProvider` combines both consumer-specific ports.
 4. Register the provider during settings evaluation. Configure custom catalog
    names before the terminal `from` call when `libs` and `plugins` are not
    appropriate:
@@ -54,7 +58,7 @@ included build.
    ```
 
 5. If the repository also adopts Figma Documentation Sync, create a product
-   adapter from `DependencyCatalogProvider` to Figma's
+   adapter from `VersionAliasedDependencyCatalogProvider` to Figma's
    `DependencyDslCatalogProvider`, then configure
    `dependencyCatalogProviderClassName` and `versionsFile`. Define visual
    catalog targets only for trees used to produce that repository's product.

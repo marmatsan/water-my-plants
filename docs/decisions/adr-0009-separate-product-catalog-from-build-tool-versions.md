@@ -8,6 +8,8 @@ last-reviewed: 2026-07-26
 review-cycle-days: 365
 sources:
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalogProvider.kt
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt
   - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogProvider.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt
@@ -30,8 +32,10 @@ different owners and release reasons.
 
 ## Decision
 
-- `catalog-api` owns the immutable model and `DependencyCatalogProvider` port.
-  `catalog-core` is an optional reusable tree DSL for implementing that port.
+- `catalog-api` owns the immutable model and segregated resolved and
+  version-aliased provider ports. `DependencyCatalogProvider` is their
+  convenience aggregate. `catalog-core` is an optional reusable tree DSL for
+  implementing those ports.
 - `catalog-gradle-plugin` publishes the settings plugin
   `com.marmatsan.dependencyCatalog`. Its terminal
   `dependencyCatalog.from(provider)` operation registers `libs` and `plugins`

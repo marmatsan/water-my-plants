@@ -9,10 +9,16 @@ import java.io.File
 
 /** Water My Plants adapter between Dependency Catalog API and the Figma-owned catalog port. */
 class WaterMyPlantsDependencyDslCatalogProvider : DependencyDslCatalogProvider {
+    private val gradleCatalogUsageReader = GradleCatalogUsageReader()
     private val reader =
         DependenciesCatalogTreesReader(
-            gradleCatalogUsageReader = GradleCatalogUsageReader(),
             dependencyCatalogProvider = WaterMyPlantsCatalogProvider(),
+            catalogTreeMapper = DependencyCatalogTreeMapper(),
+            mainCatalogUsageSource = GradleMainCatalogUsageSource(gradleCatalogUsageReader),
+            conventionPluginCatalogUsageSource =
+                GradleConventionPluginCatalogUsageSource(gradleCatalogUsageReader),
+            libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
+            pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
         )
 
     override fun readLibraryTreeWithVersionAliases(

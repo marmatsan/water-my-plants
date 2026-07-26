@@ -1,6 +1,6 @@
 package com.marmatsan.dependencies.gradle
 
-import com.marmatsan.dependencies.catalog.api.DependencyCatalogProvider
+import com.marmatsan.dependencies.catalog.api.ResolvedDependencyCatalogProvider
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
@@ -11,7 +11,7 @@ abstract class DependencyCatalogSettingsExtension
     constructor(
         objects: ObjectFactory,
     ) {
-        internal lateinit var registerCatalogs: (DependencyCatalogProvider, String, String) -> Unit
+        internal lateinit var registerCatalogs: (ResolvedDependencyCatalogProvider, String, String) -> Unit
         private var catalogsRegistered = false
 
         /**
@@ -19,7 +19,7 @@ abstract class DependencyCatalogSettingsExtension
          * catalog names because Gradle must receive version catalogs while evaluating settings.
          */
         fun from(
-            provider: DependencyCatalogProvider,
+            provider: ResolvedDependencyCatalogProvider,
         ) {
             check(!catalogsRegistered) {
                 "dependencyCatalog.from(provider) can only be called once"

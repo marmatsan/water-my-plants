@@ -8,7 +8,7 @@ declarations and can be built or published without any sibling source build.
 
 | Module | Responsibility |
 |--------|----------------|
-| `:catalog-api` | Immutable catalog model and `DependencyCatalogProvider` boundary shared with consumers. |
+| `:catalog-api` | Immutable catalog model plus segregated resolved and version-aliased provider boundaries. |
 | `:catalog-core` | Optional tree DSL, traversal, and mappers used to implement providers. |
 | `:catalog-gradle-plugin` | Settings plugin that maps a provider's API model to Gradle version catalogs. Depends only on `:catalog-api`. |
 
@@ -30,9 +30,10 @@ toolchain. Product dependency values do not live here.
 ## Consumer Contract
 
 A consuming repository implements
-`com.marmatsan.dependencies.catalog.api.DependencyCatalogProvider`, applies
-`com.marmatsan.dependencyCatalog`, and supplies the provider during settings
-evaluation:
+`com.marmatsan.dependencies.catalog.api.ResolvedDependencyCatalogProvider`,
+applies `com.marmatsan.dependencyCatalog`, and supplies the provider during
+settings evaluation. A repository that also publishes version aliases for
+documentation may implement the aggregate `DependencyCatalogProvider`:
 
 ```kotlin
 plugins {

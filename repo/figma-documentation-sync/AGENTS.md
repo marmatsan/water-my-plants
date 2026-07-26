@@ -63,7 +63,7 @@ used by CI.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
 - `data/dependencies/catalog`: portable adapters from the reusable
-  `catalog-core` tree types and the `DependencyCatalogProvider` contract to
+  `catalog-core` tree types and the `VersionAliasedDependencyCatalogProvider` contract to
   domain catalog models. Concrete repository catalogs belong in
   `project-config`.
 - `data/properties/versions`: readers for version properties files.
