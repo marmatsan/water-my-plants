@@ -53,6 +53,11 @@ dependencyResolutionManagement {
                 "junit-platform-launcher",
             ).withoutVersion()
             library(
+                "com.marmatsan.repo.unit.test.dsl",
+                "com.marmatsan.repo",
+                "unit-test-dsl",
+            ).version(versions.getProperty("unitTestDslLibraryVersion"))
+            library(
                 "org.junit.platform.suite",
                 "org.junit.platform",
                 "junit-platform-suite",

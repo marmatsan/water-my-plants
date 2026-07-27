@@ -4,10 +4,11 @@ type: standard
 scope: repository
 owner: quality
 status: active
-last-reviewed: 2026-07-27
+last-reviewed: 2026-07-28
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
+  - repo/gradle-plugins/unit-test-dsl
   - repo/gradle-plugins/bdd-test
   - repo/gradle-plugins/dokka-documentation
   - app/src/test/resources/features
@@ -33,7 +34,19 @@ sources:
 - Kotlin unit and integration tests use Kotest and MockK. Root Android modules
   receive them through repository convention plugins; autonomous included
   builds declare the equivalent test dependencies locally.
-- Tests use explicit `GIVEN`, `WHEN`, and `THEN` sections.
+- Repository source verification runs from the root composite, which substitutes
+  repository-owned test API coordinates. A reusable build executed outside that
+  composite MUST resolve those coordinates from a staged or released repository;
+  it MUST NOT include a sibling build by filesystem path.
+- Kotlin tests that express Given-When-Then behavior MUST use the executable,
+  typed `given { }.whenever { }.then { }` chain from `unit-test-dsl`. The
+  `whenever` name avoids Kotlin's reserved `when` keyword.
+- A `then` phase MAY consume only the action result or both the original
+  fixture and action result. Assertions remain owned by Kotest; the DSL MUST
+  remain independent of test engines and assertion libraries.
+- Legacy Given-When-Then section comments are prohibited. Repository Kotlin
+  style verification rejects them because comments cannot enforce phase order,
+  type transfer, single evaluation, or exception propagation.
 - Cucumber is reserved for executable business behavior and stable
   cross-boundary contracts. Feature files use domain language and must not
   encode implementation classes or technical inventories.
@@ -102,6 +115,7 @@ it in `check` automatically.
 ## Sources
 
 - `repo/gradle-plugins/unit-test/`
+- `repo/gradle-plugins/unit-test-dsl/`
 - `repo/gradle-plugins/bdd-test/`
 - `repo/gradle-plugins/dokka-documentation/`
 - `app/src/test/resources/features/`

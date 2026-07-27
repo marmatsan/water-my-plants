@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.data.json.writer
 
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpExecutionIdentity
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpExecutionState
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -16,26 +17,26 @@ class McpExecutionStateJsonTest :
                 )
 
             test("removes the temporary checkpoint when replacement fails") {
-                // GIVEN
-                val output =
+                given {
                     temporaryDirectory
                         .resolve("execution-state.json")
-                        .apply { mkdirs() }
-                output.resolve("blocking-entry").writeText("keep destination non-empty")
-
-                // WHEN
-                shouldThrowAny {
-                    McpExecutionStateJson().writeAtomic(
-                        state = executionState(),
-                        path = output.absolutePath,
-                    )
+                        .apply {
+                            mkdirs()
+                            resolve("blocking-entry").writeText("keep destination non-empty")
+                        }
+                }.whenever { output ->
+                    shouldThrowAny {
+                        McpExecutionStateJson().writeAtomic(
+                            state = executionState(),
+                            path = output.absolutePath,
+                        )
+                    }
+                }.then {
+                    temporaryDirectory
+                        .listFiles { file -> file.extension == "tmp" }
+                        .orEmpty()
+                        .shouldBeEmpty()
                 }
-
-                // THEN
-                temporaryDirectory
-                    .listFiles { file -> file.extension == "tmp" }
-                    .orEmpty()
-                    .shouldBeEmpty()
             }
         },
     )

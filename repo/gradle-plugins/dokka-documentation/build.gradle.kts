@@ -17,6 +17,7 @@ tasks.withType<Test> {
 
 dependencies {
     implementation(libs.org.jetbrains.dokka.gradle.plugin)
+    testImplementation(projects.unitTestDsl)
 
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)

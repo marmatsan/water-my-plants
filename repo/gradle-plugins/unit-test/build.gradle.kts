@@ -18,6 +18,7 @@ tasks.withType<Test> {
 dependencies {
     // Modules
     implementation(projects.dependencies)
+    testImplementation(projects.unitTestDsl)
 
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)

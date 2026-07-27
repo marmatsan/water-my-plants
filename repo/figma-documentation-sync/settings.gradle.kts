@@ -146,6 +146,16 @@ dependencyResolutionManagement {
             ).withoutVersion()
 
             library(
+                alias = "com.marmatsan.repo.unit.test.dsl",
+                group = "com.marmatsan.repo",
+                artifact = "unit-test-dsl",
+            ).version(
+                version(
+                    key = "unitTestDslLibraryVersion",
+                ),
+            )
+
+            library(
                 alias = "org.junit.platform.suite",
                 group = "org.junit.platform",
                 artifact = "junit-platform-suite",

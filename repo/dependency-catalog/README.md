@@ -59,12 +59,13 @@ integration contract.
 ## Verification
 
 ```powershell
-.\gradlew.bat -p repo\dependency-catalog checkDependencyCatalogArchitecture
-.\gradlew.bat -p repo\dependency-catalog verifyStagedPublication
+.\gradlew.bat checkDependencyCatalogArchitecture
+.\gradlew.bat verifyDependencyCatalogDistribution
 ```
 
-`verifyStagedPublication` publishes the API, core, plugin, and plugin marker to
-a temporary Maven repository, then applies them from
+`verifyDependencyCatalogDistribution` delegates to the included build's
+`verifyStagedPublication`, which publishes the API, core, plugin, and plugin
+marker to a temporary Maven repository, then applies them from
 `samples/standalone-consumer` with no `includeBuild` or source dependency.
 
 ## Sources Of Truth

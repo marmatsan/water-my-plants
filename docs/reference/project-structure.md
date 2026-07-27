@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-28
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -80,12 +80,21 @@ modules support the repository and CI; they are not production app modules.
 | `repo/water-my-plants-project-config/` | `water-my-plants-project-config` | Product catalog, product versions, and adapters that compose reusable builds for Water My Plants. |
 
 The root build includes all five builds through
-`pluginManagement.includeBuild(...)`. Reusable builds do not include sibling
-builds or import product implementations. The root and
+`pluginManagement.includeBuild(...)`. It also includes `gradle-plugins` as a
+regular composite so repository-owned library coordinates such as the typed
+unit-test DSL are substituted from source. Reusable builds do not include
+sibling builds or import product implementations. They declare test-only API
+coordinates in their own catalogs; the root composite substitutes those
+coordinates during repository development. The root and
 `repo/water-my-plants-project-config` are the composition boundaries that bind
 versioned APIs to local implementations. Every included build reads its own
 root `versions.properties` and remains independent from another build's
 compile/test registry.
+
+`repo/gradle-plugins` also contains `:unit-test-dsl`, the Kotlin-only,
+assertion-framework-agnostic behavior-phase API. It is repository test
+infrastructure and never enters the Water My Plants production catalog or app
+runtime graph.
 
 `repo/dependency-catalog` contains three reusable Gradle modules:
 

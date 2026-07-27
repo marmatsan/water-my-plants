@@ -6,6 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogN
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
@@ -20,8 +21,7 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                 )
 
             test("readLibraryTree maps included build settings libs catalog to library catalog tree") {
-                // GIVEN
-                val settingsFile =
+                given {
                     temporaryDirectory.settingsFile(
                         name = "libraries",
                         content =
@@ -45,48 +45,46 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                             }
                             """.trimIndent(),
                     )
-
-                // WHEN
-                val actualTree = IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
-
-                // THEN
-                actualTree shouldBe
-                    LibraryCatalogTree(
-                        roots =
-                            listOf(
-                                LibraryCatalogNode(
-                                    group = "io",
-                                    children =
-                                        listOf(
-                                            LibraryCatalogNode(
-                                                group = "ktor",
-                                                entries =
-                                                    listOf(
-                                                        LibraryCatalogEntry.Artifact(
-                                                            artifact = "ktor-bom",
-                                                            version =
-                                                                CatalogVersion(
-                                                                    value = "ktorLibraryVersion",
-                                                                ),
+                }.whenever { settingsFile ->
+                    IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
+                }.then { actualTree ->
+                    actualTree shouldBe
+                        LibraryCatalogTree(
+                            roots =
+                                listOf(
+                                    LibraryCatalogNode(
+                                        group = "io",
+                                        children =
+                                            listOf(
+                                                LibraryCatalogNode(
+                                                    group = "ktor",
+                                                    entries =
+                                                        listOf(
+                                                            LibraryCatalogEntry.Artifact(
+                                                                artifact = "ktor-bom",
+                                                                version =
+                                                                    CatalogVersion(
+                                                                        value = "ktorLibraryVersion",
+                                                                    ),
+                                                            ),
+                                                            LibraryCatalogEntry.Artifact(
+                                                                artifact = "ktor-client-core",
+                                                                version =
+                                                                    CatalogVersion(
+                                                                        value = null,
+                                                                    ),
+                                                            ),
                                                         ),
-                                                        LibraryCatalogEntry.Artifact(
-                                                            artifact = "ktor-client-core",
-                                                            version =
-                                                                CatalogVersion(
-                                                                    value = null,
-                                                                ),
-                                                        ),
-                                                    ),
+                                                ),
                                             ),
-                                        ),
+                                    ),
                                 ),
-                            ),
-                    )
+                        )
+                }
             }
 
             test("readLibraryTree returns an empty tree when the included build has no libs catalog") {
-                // GIVEN
-                val settingsFile =
+                given {
                     temporaryDirectory.settingsFile(
                         name = "without-libraries",
                         content =
@@ -103,20 +101,18 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                             }
                             """.trimIndent(),
                     )
-
-                // WHEN
-                val actualTree = IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
-
-                // THEN
-                actualTree shouldBe
-                    LibraryCatalogTree(
-                        roots = emptyList(),
-                    )
+                }.whenever { settingsFile ->
+                    IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
+                }.then { actualTree ->
+                    actualTree shouldBe
+                        LibraryCatalogTree(
+                            roots = emptyList(),
+                        )
+                }
             }
 
             test("readPluginTree maps included build settings plugins catalog to plugin catalog tree") {
-                // GIVEN
-                val settingsFile =
+                given {
                     temporaryDirectory.settingsFile(
                         name = "plugins",
                         content =
@@ -133,47 +129,45 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                             }
                             """.trimIndent(),
                     )
-
-                // WHEN
-                val actualTree = IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
-
-                // THEN
-                actualTree shouldBe
-                    PluginCatalogTree(
-                        roots =
-                            listOf(
-                                PluginCatalogNode(
-                                    id = "com",
-                                    children =
-                                        listOf(
-                                            PluginCatalogNode(
-                                                id = "google",
-                                                children =
-                                                    listOf(
-                                                        PluginCatalogNode(
-                                                            id = "devtools",
-                                                            children =
-                                                                listOf(
-                                                                    PluginCatalogNode(
-                                                                        id = "ksp",
-                                                                        version =
-                                                                            CatalogVersion(
-                                                                                value = "kspPluginVersion",
-                                                                            ),
+                }.whenever { settingsFile ->
+                    IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
+                }.then { actualTree ->
+                    actualTree shouldBe
+                        PluginCatalogTree(
+                            roots =
+                                listOf(
+                                    PluginCatalogNode(
+                                        id = "com",
+                                        children =
+                                            listOf(
+                                                PluginCatalogNode(
+                                                    id = "google",
+                                                    children =
+                                                        listOf(
+                                                            PluginCatalogNode(
+                                                                id = "devtools",
+                                                                children =
+                                                                    listOf(
+                                                                        PluginCatalogNode(
+                                                                            id = "ksp",
+                                                                            version =
+                                                                                CatalogVersion(
+                                                                                    value = "kspPluginVersion",
+                                                                                ),
+                                                                        ),
                                                                     ),
-                                                                ),
+                                                            ),
                                                         ),
-                                                    ),
+                                                ),
                                             ),
-                                        ),
+                                    ),
                                 ),
-                            ),
-                    )
+                        )
+                }
             }
 
             test("readPluginTree returns an empty tree when the included build has no plugins catalog") {
-                // GIVEN
-                val settingsFile =
+                given {
                     temporaryDirectory.settingsFile(
                         name = "without-plugins",
                         content =
@@ -191,15 +185,14 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                             }
                             """.trimIndent(),
                     )
-
-                // WHEN
-                val actualTree = IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
-
-                // THEN
-                actualTree shouldBe
-                    PluginCatalogTree(
-                        roots = emptyList(),
-                    )
+                }.whenever { settingsFile ->
+                    IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
+                }.then { actualTree ->
+                    actualTree shouldBe
+                        PluginCatalogTree(
+                            roots = emptyList(),
+                        )
+                }
             }
         },
     )

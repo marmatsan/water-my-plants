@@ -71,12 +71,15 @@ class RepositoryKotlinStyle(
     ): KtLintRuleEngine {
         val ruleProviders =
             StandardRuleSetProvider().getRuleProviders() +
-                RuleProvider {
-                    MultilineFunctionArgumentsRule(
-                        compactShortFunctionTypes = compactShortFunctionTypes,
-                        callableSignatures = callableSignatures,
-                    )
-                }
+                listOf(
+                    RuleProvider {
+                        MultilineFunctionArgumentsRule(
+                            compactShortFunctionTypes = compactShortFunctionTypes,
+                            callableSignatures = callableSignatures,
+                        )
+                    },
+                    RuleProvider(::TypedBehaviorSectionsRule),
+                )
         return KtLintRuleEngine(
             ruleProviders = ruleProviders,
             editorConfigDefaults =

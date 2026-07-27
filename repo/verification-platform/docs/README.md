@@ -43,7 +43,7 @@ Run the standalone included-build check, including tests and strict Dokka
 validation, with:
 
 ```powershell
-.\gradlew.bat -p repo/verification-platform check
+.\gradlew.bat :verification-platform:check
 ```
 
 Run the same Kotlin documentation coverage task used by TeamCity after changing

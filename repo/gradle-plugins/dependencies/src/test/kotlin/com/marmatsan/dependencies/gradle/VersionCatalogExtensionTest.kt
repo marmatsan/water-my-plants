@@ -1,5 +1,6 @@
 package com.marmatsan.dependencies.gradle
 
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -16,141 +17,138 @@ import java.util.Optional
 internal class VersionCatalogExtensionTest :
     FunSpec(
         {
-
             test("requireDependencyNotation returns notation for an existing library alias") {
-                // GIVEN
-                val alias = "androidx.compose.bom"
-                val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
-                val dependency = mockk<MinimalExternalModuleDependency>()
-                val provider = mockk<Provider<MinimalExternalModuleDependency>>()
-                val versionCatalog = mockk<VersionCatalog>()
+                given {
+                    val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
+                    val dependency = mockk<MinimalExternalModuleDependency>()
+                    val provider = mockk<Provider<MinimalExternalModuleDependency>>()
+                    val versionCatalog = mockk<VersionCatalog>()
 
-                every { dependency.toString() } returns dependencyNotation
-                every { provider.get() } returns dependency
-                every { versionCatalog.findLibrary(alias) } returns
-                    Optional.of(
-                        provider,
-                    )
+                    every { dependency.toString() } returns dependencyNotation
+                    every { provider.get() } returns dependency
+                    every { versionCatalog.findLibrary("androidx.compose.bom") } returns
+                        Optional.of(
+                            provider,
+                        )
 
-                // WHEN
-                val actualNotation = versionCatalog.requireDependencyNotation(alias)
-
-                // THEN
-                actualNotation shouldBe dependencyNotation
+                    dependencyNotation to versionCatalog
+                }.whenever { (expectedNotation, versionCatalog) ->
+                    versionCatalog.requireDependencyNotation("androidx.compose.bom") to expectedNotation
+                }.then { (actualNotation, expectedNotation) ->
+                    actualNotation shouldBe expectedNotation
+                }
             }
 
             test("requireBundle returns provider for an existing bundle alias") {
-                // GIVEN
-                val alias = "composeBundle"
-                val provider = mockk<Provider<ExternalModuleDependencyBundle>>()
-                val versionCatalog = mockk<VersionCatalog>()
+                given {
+                    val provider = mockk<Provider<ExternalModuleDependencyBundle>>()
+                    val versionCatalog = mockk<VersionCatalog>()
 
-                every {
-                    versionCatalog.findBundle(
-                        alias,
-                    )
-                } returns
-                    Optional.of(
-                        provider,
-                    )
+                    every {
+                        versionCatalog.findBundle(
+                            "composeBundle",
+                        )
+                    } returns
+                        Optional.of(
+                            provider,
+                        )
 
-                // WHEN
-                val actualProvider =
+                    provider to versionCatalog
+                }.whenever { (expectedProvider, versionCatalog) ->
                     versionCatalog.requireBundle(
-                        alias = alias,
-                    )
-
-                // THEN
-                actualProvider shouldBeSameInstanceAs provider
+                        alias = "composeBundle",
+                    ) to expectedProvider
+                }.then { (actualProvider, expectedProvider) ->
+                    actualProvider shouldBeSameInstanceAs expectedProvider
+                }
             }
 
             test("requireDependencyNotation returns notation for an existing library group and artifact") {
-                // GIVEN
-                val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
-                val dependency = mockk<MinimalExternalModuleDependency>()
-                val provider = mockk<Provider<MinimalExternalModuleDependency>>()
-                val versionCatalog = mockk<VersionCatalog>()
+                given {
+                    val dependencyNotation = "androidx.compose:compose-bom:2025.06.01"
+                    val dependency = mockk<MinimalExternalModuleDependency>()
+                    val provider = mockk<Provider<MinimalExternalModuleDependency>>()
+                    val versionCatalog = mockk<VersionCatalog>()
 
-                every { dependency.toString() } returns dependencyNotation
-                every { provider.get() } returns dependency
-                every { versionCatalog.findLibrary("androidx.compose.bom") } returns
-                    Optional.of(
-                        provider,
-                    )
+                    every { dependency.toString() } returns dependencyNotation
+                    every { provider.get() } returns dependency
+                    every { versionCatalog.findLibrary("androidx.compose.bom") } returns
+                        Optional.of(
+                            provider,
+                        )
 
-                // WHEN
-                val actualNotation =
+                    dependencyNotation to versionCatalog
+                }.whenever { (expectedNotation, versionCatalog) ->
                     versionCatalog.requireDependencyNotation(
                         libraryGroup = "androidx.compose",
                         artifact = "compose-bom",
-                    )
-
-                // THEN
-                actualNotation shouldBe dependencyNotation
+                    ) to expectedNotation
+                }.then { (actualNotation, expectedNotation) ->
+                    actualNotation shouldBe expectedNotation
+                }
             }
 
             test("requireDependencyNotation uses the same multi segment alias rule as catalog registration") {
-                // GIVEN
-                val dependencyNotation = "org.junit.jupiter:junit-jupiter-api"
-                val dependency = mockk<MinimalExternalModuleDependency>()
-                val provider = mockk<Provider<MinimalExternalModuleDependency>>()
-                val versionCatalog = mockk<VersionCatalog>()
+                given {
+                    val dependencyNotation = "org.junit.jupiter:junit-jupiter-api"
+                    val dependency = mockk<MinimalExternalModuleDependency>()
+                    val provider = mockk<Provider<MinimalExternalModuleDependency>>()
+                    val versionCatalog = mockk<VersionCatalog>()
 
-                every { dependency.toString() } returns dependencyNotation
-                every { provider.get() } returns dependency
-                every { versionCatalog.findLibrary("org.junit.jupiter.api") } returns
-                    Optional.of(
-                        provider,
-                    )
+                    every { dependency.toString() } returns dependencyNotation
+                    every { provider.get() } returns dependency
+                    every { versionCatalog.findLibrary("org.junit.jupiter.api") } returns
+                        Optional.of(
+                            provider,
+                        )
 
-                // WHEN
-                val actualNotation =
+                    dependencyNotation to versionCatalog
+                }.whenever { (expectedNotation, versionCatalog) ->
                     versionCatalog.requireDependencyNotation(
                         libraryGroup = "org.junit.jupiter",
                         artifact = "junit-jupiter-api",
-                    )
-
-                // THEN
-                actualNotation shouldBe dependencyNotation
+                    ) to expectedNotation
+                }.then { (actualNotation, expectedNotation) ->
+                    actualNotation shouldBe expectedNotation
+                }
             }
 
             test("requireDependencyNotation throws a catalog-specific message when alias does not exist") {
-                // GIVEN
-                val alias = "androidx.compose.compose.bom"
-                val versionCatalog = mockk<VersionCatalog>()
-
-                every { versionCatalog.name } returns "libs"
-                every { versionCatalog.findLibrary(alias) } returns Optional.empty()
-
-                // WHEN / THEN
-                val exception =
+                given {
+                    val versionCatalog = mockk<VersionCatalog>()
+                    every { versionCatalog.name } returns "libs"
+                    every { versionCatalog.findLibrary("androidx.compose.compose.bom") } returns Optional.empty()
+                    versionCatalog
+                }.whenever { versionCatalog ->
                     shouldThrow<NoSuchElementException> {
-                        versionCatalog.requireDependencyNotation(alias)
+                        versionCatalog.requireDependencyNotation("androidx.compose.compose.bom")
                     }
-                exception.message shouldContain
-                    "Library alias 'androidx.compose.compose.bom' not found in version catalog named libs"
+                }.then { exception ->
+                    exception.message shouldContain
+                        "Library alias 'androidx.compose.compose.bom' not found in version catalog named libs"
+                }
             }
 
             test("requireBundle throws a catalog-specific message when alias does not exist") {
-                // GIVEN
-                val alias = "missingBundle"
-                val versionCatalog = mockk<VersionCatalog>()
-
-                every { versionCatalog.name } returns "libs"
-                every {
-                    versionCatalog.findBundle(
-                        alias,
-                    )
-                } returns Optional.empty()
-
-                // WHEN / THEN
-                val exception =
+                given {
+                    val versionCatalog = mockk<VersionCatalog>()
+                    every { versionCatalog.name } returns "libs"
+                    every {
+                        versionCatalog.findBundle(
+                            "missingBundle",
+                        )
+                    } returns Optional.empty()
+                    versionCatalog
+                }.whenever { versionCatalog ->
                     shouldThrow<NoSuchElementException> {
                         versionCatalog.requireBundle(
-                            alias = alias,
+                            alias = "missingBundle",
                         )
                     }
-                exception.message shouldContain "Bundle alias 'missingBundle' not found in version catalog named libs"
+                }.then { exception ->
+                    exception.message shouldContain
+                        "Bundle alias 'missingBundle' not found in version catalog named libs"
+                }
             }
         },
     )

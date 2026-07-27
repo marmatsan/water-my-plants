@@ -11,6 +11,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTr
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
@@ -24,16 +25,12 @@ internal class CatalogUsageCheckerTest :
                 )
 
             test("check reports unused entries from dependency DSL and included-build catalogs") {
-                // GIVEN
-                val rootDir = temporaryDirectory.resolve("project").apply { mkdirs() }
-                val checker =
+                given {
+                    temporaryDirectory.resolve("project").apply { mkdirs() }
+                }.whenever { rootDir ->
                     CatalogUsageChecker(
                         projectCatalogTreesPort = FakeProjectCatalogTreesPort(),
-                    )
-
-                // WHEN
-                val result =
-                    checker.check(
+                    ).check(
                         CatalogUsageCheckRequest(
                             projectRootDirectory = rootDir,
                             primaryCatalogModelName = "waterMyPlants",
@@ -57,27 +54,27 @@ internal class CatalogUsageCheckerTest :
                                 ),
                         ),
                     )
-
-                // THEN
-                result.unusedEntries shouldBe
-                    listOf(
-                        UnusedCatalogEntry(
-                            catalogName = "gradlePlugins.libraries",
-                            entry = "io.ktor:ktor-client-core",
-                        ),
-                        UnusedCatalogEntry(
-                            catalogName = "gradlePlugins.plugins",
-                            entry = "org.jetbrains.dokka",
-                        ),
-                        UnusedCatalogEntry(
-                            catalogName = "waterMyPlants.libraries",
-                            entry = "androidx.datastore:datastore",
-                        ),
-                        UnusedCatalogEntry(
-                            catalogName = "waterMyPlants.plugins",
-                            entry = "com.google.protobuf",
-                        ),
-                    )
+                }.then { result ->
+                    result.unusedEntries shouldBe
+                        listOf(
+                            UnusedCatalogEntry(
+                                catalogName = "gradlePlugins.libraries",
+                                entry = "io.ktor:ktor-client-core",
+                            ),
+                            UnusedCatalogEntry(
+                                catalogName = "gradlePlugins.plugins",
+                                entry = "org.jetbrains.dokka",
+                            ),
+                            UnusedCatalogEntry(
+                                catalogName = "waterMyPlants.libraries",
+                                entry = "androidx.datastore:datastore",
+                            ),
+                            UnusedCatalogEntry(
+                                catalogName = "waterMyPlants.plugins",
+                                entry = "com.google.protobuf",
+                            ),
+                        )
+                }
             }
         },
     )

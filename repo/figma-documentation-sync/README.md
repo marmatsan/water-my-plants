@@ -309,8 +309,8 @@ by its planner test and the versioned visual contract.
 For code changes in this module:
 
 ```powershell
-.\gradlew.bat -p repo\figma-documentation-sync check
-.\gradlew.bat -p repo\water-my-plants-project-config check
+.\gradlew.bat :figma-documentation-sync:check
+.\gradlew.bat :water-my-plants-project-config:check
 ```
 
 For visual tooling changes:

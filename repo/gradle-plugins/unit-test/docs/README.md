@@ -23,14 +23,27 @@ Platform for unit tests.
 - Adds Kotest runner and assertion dependencies.
 - Adds MockK.
 - Adds the JUnit Platform launcher runtime dependency.
+- Adds the repository-owned typed unit-test DSL to the test classpath.
 
 ## Requirements
 
-Tests should use explicit `GIVEN`, `WHEN`, and `THEN` comment sections according
-to the gradle-plugins testing conventions.
+Kotlin tests that express Given-When-Then behavior use the executable
+`given { }.whenever { }.then { }` chain. Assertions remain in Kotest; the DSL
+only controls typed phase execution and data transfer.
 
 Use Cucumber scenarios through `com.marmatsan.bddTest`, not this unit-test
 convention.
+
+The Water My Plants composition root resolves the convention plugin through
+`pluginManagement.includeBuild` and substitutes the DSL library through a
+regular `includeBuild` of `repo/gradle-plugins`. The second inclusion is
+required because Gradle plugin resolution does not also provide composite
+substitution for ordinary library coordinates.
+
+Reusable included builds declare only the DSL coordinate in their local test
+catalog. They do not include a sibling build: the repository composition root
+performs source substitution, while a standalone consumer resolves a staged or
+released DSL artifact.
 
 ## Verification
 

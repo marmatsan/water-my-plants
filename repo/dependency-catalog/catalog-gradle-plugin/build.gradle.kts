@@ -12,6 +12,7 @@ version = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0
 dependencies {
     implementation(projects.catalogApi)
 
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(gradleTestKit())
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)

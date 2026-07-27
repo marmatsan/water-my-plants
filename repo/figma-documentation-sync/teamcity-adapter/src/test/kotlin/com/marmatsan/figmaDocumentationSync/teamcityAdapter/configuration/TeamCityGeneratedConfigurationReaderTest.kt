@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.teamcityAdapter.configuration
 
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiTrigger
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
@@ -16,128 +17,128 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                 )
 
             test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
-                // GIVEN
-                val root = temporaryDirectory.resolve("configuration").apply { mkdirs() }
-                val pipeline =
-                    root
+                given {
+                    val root = temporaryDirectory.resolve("configuration").apply { mkdirs() }
+                    val pipeline =
+                        root
+                            .resolve(
+                                relative = "Root_Ci",
+                            ).apply { mkdirs() }
+                    pipeline
                         .resolve(
-                            relative = "Root_Ci",
-                        ).apply { mkdirs() }
-                pipeline
-                    .resolve(
-                        relative = "project-config.xml",
-                    ).writeText(
-                        """
-                        <project>
-                          <name>CI</name>
-                        </project>
-                        """.trimIndent(),
+                            relative = "project-config.xml",
+                        ).writeText(
+                            """
+                            <project>
+                              <name>CI</name>
+                            </project>
+                            """.trimIndent(),
+                        )
+                    pipeline
+                        .resolve(
+                            relative = "pipeline.yml",
+                        ).writeText(
+                            """
+                            version: 1
+                            jobs:
+                              verify:
+                                name: Verify
+                                steps:
+                                  - script-content: .\gradlew.bat check
+                                    name: Run Gradle check
+                                    id: RUNNER_1
+                                    type: script
+                                repositories:
+                                  - Root_GitHub:
+                                      enabled: true
+                                      path: ""
+                                files-publication:
+                                  - path: build/report.json
+                                    publish-artifact: true
+                                    share-with-jobs: true
+                                dependencies:
+                                  - prepare:
+                                      files:
+                                        - build/input.json
+                            """.trimIndent(),
+                        )
+                    pipeline
+                        .resolve(
+                            relative = "buildTypes",
+                        ).mkdirs()
+                    pipeline
+                        .resolve(
+                            relative = "buildTypes/Root_Ci.xml",
+                        ).writeText(
+                            """
+                            <build-type>
+                              <settings>
+                                <build-triggers>
+                                  <build-trigger id="TRIGGER_2" type="schedulingTrigger">
+                                    <parameters>
+                                      <param name="branchFilter" value="+:&lt;default&gt;" />
+                                      <param name="hour" value="6" />
+                                      <param name="minute" value="0" />
+                                      <param name="schedulingPolicy" value="daily" />
+                                    </parameters>
+                                  </build-trigger>
+                                </build-triggers>
+                              </settings>
+                            </build-type>
+                            """.trimIndent(),
+                        )
+                    writeStatusGate(
+                        root = root,
                     )
-                pipeline
-                    .resolve(
-                        relative = "pipeline.yml",
-                    ).writeText(
-                        """
-                        version: 1
-                        jobs:
-                          verify:
-                            name: Verify
-                            steps:
-                              - script-content: .\gradlew.bat check
-                                name: Run Gradle check
-                                id: RUNNER_1
-                                type: script
-                            repositories:
-                              - Root_GitHub:
-                                  enabled: true
-                                  path: ""
-                            files-publication:
-                              - path: build/report.json
-                                publish-artifact: true
-                                share-with-jobs: true
-                            dependencies:
-                              - prepare:
-                                  files:
-                                    - build/input.json
-                        """.trimIndent(),
+                    writeVcsRoot(
+                        root = root,
                     )
-                pipeline
-                    .resolve(
-                        relative = "buildTypes",
-                    ).mkdirs()
-                pipeline
-                    .resolve(
-                        relative = "buildTypes/Root_Ci.xml",
-                    ).writeText(
-                        """
-                        <build-type>
-                          <settings>
-                            <build-triggers>
-                              <build-trigger id="TRIGGER_2" type="schedulingTrigger">
-                                <parameters>
-                                  <param name="branchFilter" value="+:&lt;default&gt;" />
-                                  <param name="hour" value="6" />
-                                  <param name="minute" value="0" />
-                                  <param name="schedulingPolicy" value="daily" />
-                                </parameters>
-                              </build-trigger>
-                            </build-triggers>
-                          </settings>
-                        </build-type>
-                        """.trimIndent(),
-                    )
-                writeStatusGate(
-                    root = root,
-                )
-                writeVcsRoot(
-                    root = root,
-                )
+                    root
+                }.whenever { root ->
+                    TeamCityGeneratedConfigurationReader().read(root)
+                }.then { configuration ->
+                    val actualPipeline = configuration.pipelines.single()
+                    actualPipeline.id shouldBe "Root_Ci"
+                    actualPipeline.name shouldBe "CI"
+                    actualPipeline.triggers[0] shouldBe
+                        CiTrigger(
+                            type = CiTrigger.Type.Vcs,
+                            branchFilter = "+:*",
+                            dependencyPipelineId = null,
+                            afterSuccessfulBuildOnly = null,
+                        )
+                    actualPipeline.triggers[1] shouldBe
+                        CiTrigger(
+                            type = CiTrigger.Type.Schedule,
+                            branchFilter = "+:<default>",
+                            dependencyPipelineId = null,
+                            afterSuccessfulBuildOnly = null,
+                        )
 
-                // WHEN
-                val configuration = TeamCityGeneratedConfigurationReader().read(root)
+                    val job = actualPipeline.jobs.single()
+                    job.id shouldBe "verify"
+                    job.name shouldBe "Verify"
+                    job.steps.single().command shouldBe ".\\gradlew.bat check"
+                    job.repositoryIds shouldBe listOf("Root_GitHub")
+                    job.artifacts.single().path shouldBe "build/report.json"
+                    job.dependencies.single().artifactPaths shouldBe listOf("build/input.json")
+                    job.publishedChecks shouldBe
+                        listOf(
+                            CiJob.PublishedCheck(
+                                name = "TeamCity CI",
+                            ),
+                        )
 
-                // THEN
-                val actualPipeline = configuration.pipelines.single()
-                actualPipeline.id shouldBe "Root_Ci"
-                actualPipeline.name shouldBe "CI"
-                actualPipeline.triggers[0] shouldBe
-                    CiTrigger(
-                        type = CiTrigger.Type.Vcs,
-                        branchFilter = "+:*",
-                        dependencyPipelineId = null,
-                        afterSuccessfulBuildOnly = null,
-                    )
-                actualPipeline.triggers[1] shouldBe
-                    CiTrigger(
-                        type = CiTrigger.Type.Schedule,
-                        branchFilter = "+:<default>",
-                        dependencyPipelineId = null,
-                        afterSuccessfulBuildOnly = null,
-                    )
-
-                val job = actualPipeline.jobs.single()
-                job.id shouldBe "verify"
-                job.name shouldBe "Verify"
-                job.steps.single().command shouldBe ".\\gradlew.bat check"
-                job.repositoryIds shouldBe listOf("Root_GitHub")
-                job.artifacts.single().path shouldBe "build/report.json"
-                job.dependencies.single().artifactPaths shouldBe listOf("build/input.json")
-                job.publishedChecks shouldBe
-                    listOf(
-                        CiJob.PublishedCheck(
-                            name = "TeamCity CI",
-                        ),
-                    )
-
-                val vcsRoot = configuration.vcsRoots.single()
-                vcsRoot.id shouldBe "Root_GitHub"
-                vcsRoot.name shouldBe "water-my-plants"
-                vcsRoot.defaultBranchRef shouldBe "refs/heads/main"
-                vcsRoot.branchSpec shouldBe
-                    listOf(
-                        "#! fallbackToDefault: false",
-                        "+:refs/heads/(*)",
-                    )
+                    val vcsRoot = configuration.vcsRoots.single()
+                    vcsRoot.id shouldBe "Root_GitHub"
+                    vcsRoot.name shouldBe "water-my-plants"
+                    vcsRoot.defaultBranchRef shouldBe "refs/heads/main"
+                    vcsRoot.branchSpec shouldBe
+                        listOf(
+                            "#! fallbackToDefault: false",
+                            "+:refs/heads/(*)",
+                        )
+                }
             }
         },
     )

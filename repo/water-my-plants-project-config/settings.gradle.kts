@@ -22,6 +22,7 @@ pluginManagement {
 // build wiring. Reusable included builds never include one another.
 includeBuild("../dependency-catalog")
 includeBuild("../figma-documentation-sync")
+includeBuild("../gradle-plugins")
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

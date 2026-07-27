@@ -78,8 +78,8 @@ under `domain.service.documentation`.
 ## Verification
 
 ```powershell
-.\gradlew.bat -p repo\verification-platform check
-.\gradlew.bat -p repo\verification-platform dokkaGenerate
+.\gradlew.bat :verification-platform:check
+.\gradlew.bat :verification-platform:dokkaGenerate
 .\gradlew.bat checkGitWorkflow
 .\gradlew.bat checkDocumentation
 .\gradlew.bat checkKotlinStyle

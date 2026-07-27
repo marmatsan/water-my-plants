@@ -30,6 +30,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPo
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesSource
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.VersionsFileSource
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.jsonArray
@@ -42,381 +43,361 @@ import java.time.LocalDate
 internal class FigmaDesignModelGeneratorTest :
     FunSpec(
         {
-
             test("generate keeps the same model hash when only generatedAt changes") {
-                // GIVEN
-                val generator = generator()
-
-                // WHEN
-                val first =
-                    generator.generate(
-                        request =
-                            request(
-                                generatedAt =
-                                    Instant.parse(
-                                        "2026-06-19T10:15:30Z",
+                given(::generator)
+                    .whenever { generator ->
+                        val first =
+                            generator.generate(
+                                request =
+                                    request(
+                                        generatedAt =
+                                            Instant.parse(
+                                                "2026-06-19T10:15:30Z",
+                                            ),
                                     ),
-                            ),
-                    )
-                val second =
-                    generator.generate(
-                        request =
-                            request(
-                                generatedAt =
-                                    Instant.parse(
-                                        "2026-06-19T10:16:30Z",
+                            )
+                        val second =
+                            generator.generate(
+                                request =
+                                    request(
+                                        generatedAt =
+                                            Instant.parse(
+                                                "2026-06-19T10:16:30Z",
+                                            ),
                                     ),
-                            ),
-                    )
-
-                // THEN
-                first.modelHash shouldBe second.modelHash
-                first.model["generatedAt"]?.jsonPrimitive?.content shouldBe "2026-06-19T10:15:30Z"
-                second.model["generatedAt"]?.jsonPrimitive?.content shouldBe "2026-06-19T10:16:30Z"
+                            )
+                        first to second
+                    }.then { (first, second) ->
+                        first.modelHash shouldBe second.modelHash
+                        first.model["generatedAt"]?.jsonPrimitive?.content shouldBe "2026-06-19T10:15:30Z"
+                        second.model["generatedAt"]?.jsonPrimitive?.content shouldBe "2026-06-19T10:16:30Z"
+                    }
             }
 
             test("generate keeps the same model hash when only gitSha changes") {
-                // GIVEN
-                val generator = generator()
-
-                // WHEN
-                val first =
-                    generator.generate(
-                        request =
-                            request(
-                                gitSha = "abc123",
-                            ),
-                    )
-                val second =
-                    generator.generate(
-                        request =
-                            request(
-                                gitSha = "def456",
-                            ),
-                    )
-
-                // THEN
-                first.modelHash shouldBe first.model["modelHash"]?.jsonPrimitive?.content
-                second.modelHash shouldBe second.model["modelHash"]?.jsonPrimitive?.content
-                first.modelHash shouldBe second.modelHash
+                given(::generator)
+                    .whenever { generator ->
+                        val first =
+                            generator.generate(
+                                request =
+                                    request(
+                                        gitSha = "abc123",
+                                    ),
+                            )
+                        val second =
+                            generator.generate(
+                                request =
+                                    request(
+                                        gitSha = "def456",
+                                    ),
+                            )
+                        first to second
+                    }.then { (first, second) ->
+                        first.modelHash shouldBe first.model["modelHash"]?.jsonPrimitive?.content
+                        second.modelHash shouldBe second.model["modelHash"]?.jsonPrimitive?.content
+                        first.modelHash shouldBe second.modelHash
+                    }
             }
 
             test("generate writes sorted top-level content") {
-                // GIVEN
-                val generator = generator()
-
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                result.model["content"]
-                    ?.jsonObject
-                    ?.get(
-                        key = "versions",
-                    )?.jsonObject
-                    ?.keys
-                    ?.toList() shouldBe
-                    listOf(
-                        "activityComposeLibraryVersion",
-                        "androidGradlePluginVersion",
-                        "kotlinVersion",
-                        "kspPluginVersion",
-                    )
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        result.model["content"]
+                            ?.jsonObject
+                            ?.get(
+                                key = "versions",
+                            )?.jsonObject
+                            ?.keys
+                            ?.toList() shouldBe
+                            listOf(
+                                "activityComposeLibraryVersion",
+                                "androidGradlePluginVersion",
+                                "kotlinVersion",
+                                "kspPluginVersion",
+                            )
+                    }
             }
 
             test("generate omits CI content when the project adapter disables it") {
-                // GIVEN
-                val generator = generator()
-                val request =
-                    request().copy(
-                        ciDocumentationEnabled = false,
-                        ciExternalTopologyFile = null,
-                        ciWindowsRuntimeFile = null,
-                        ciConfigurationModelName = null,
-                        ciConfigurationProviderClassName = null,
-                        ciGeneratedConfigurationDirectory = null,
-                    )
-
-                // WHEN
-                val result =
+                given {
+                    generator() to
+                        request().copy(
+                            ciDocumentationEnabled = false,
+                            ciExternalTopologyFile = null,
+                            ciWindowsRuntimeFile = null,
+                            ciConfigurationModelName = null,
+                            ciConfigurationProviderClassName = null,
+                            ciGeneratedConfigurationDirectory = null,
+                        )
+                }.whenever { (generator, request) ->
                     generator.generate(
                         request = request,
                     )
-
-                // THEN
-                result.model["content"]?.jsonObject?.get(
-                    key = "ci",
-                ) shouldBe null
+                }.then { result ->
+                    result.model["content"]?.jsonObject?.get(
+                        key = "ci",
+                    ) shouldBe null
+                }
             }
 
             test("generate writes version sections in repository order") {
-                // GIVEN
-                val generator = generator()
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val sections =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "versionSections",
+                                )?.jsonArray
 
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                val sections =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "versionSections",
-                        )?.jsonArray
-
-                sections?.map { section ->
-                    section.jsonObject["name"]?.jsonPrimitive?.content
-                } shouldBe
-                    listOf(
-                        "Main project dependencies",
-                        "Libraries",
-                        "Plugins",
-                    )
+                        sections?.map { section ->
+                            section.jsonObject["name"]?.jsonPrimitive?.content
+                        } shouldBe
+                            listOf(
+                                "Main project dependencies",
+                                "Libraries",
+                                "Plugins",
+                            )
+                    }
             }
 
             test("generate writes convention plugin provenance for library artifacts") {
-                // GIVEN
-                val generator = generator()
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val usages =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "catalogs",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "waterMyPlants",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "libraries",
+                                )?.jsonArray
+                                ?.single()
+                                ?.jsonObject
+                                ?.get(
+                                    key = "entries",
+                                )?.jsonArray
+                                ?.single()
+                                ?.jsonObject
+                                ?.get(
+                                    key = "providedByConventionPlugins",
+                                )?.jsonArray
 
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                val usages =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "catalogs",
-                        )?.jsonObject
-                        ?.get(
-                            key = "waterMyPlants",
-                        )?.jsonObject
-                        ?.get(
-                            key = "libraries",
-                        )?.jsonArray
-                        ?.single()
-                        ?.jsonObject
-                        ?.get(
-                            key = "entries",
-                        )?.jsonArray
-                        ?.single()
-                        ?.jsonObject
-                        ?.get(
-                            key = "providedByConventionPlugins",
-                        )?.jsonArray
-
-                usages?.map { usage ->
-                    val usageObject = usage.jsonObject
-                    Triple(
-                        usageObject["pluginId"]?.jsonPrimitive?.content,
-                        usageObject["pluginModule"]?.jsonPrimitive?.content,
-                        usageObject["requiredByModules"]?.jsonArray?.map { module -> module.jsonPrimitive.content },
-                    )
-                } shouldBe
-                    listOf(
-                        Triple(
-                            "com.marmatsan.compose",
-                            ":gradle-plugins:compose",
+                        usages?.map { usage ->
+                            val usageObject = usage.jsonObject
+                            Triple(
+                                usageObject["pluginId"]?.jsonPrimitive?.content,
+                                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                                usageObject["requiredByModules"]?.jsonArray?.map { module ->
+                                    module.jsonPrimitive.content
+                                },
+                            )
+                        } shouldBe
                             listOf(
-                                ":app",
-                                ":core:ui",
-                            ),
-                        ),
-                    )
+                                Triple(
+                                    "com.marmatsan.compose",
+                                    ":gradle-plugins:compose",
+                                    listOf(
+                                        ":app",
+                                        ":core:ui",
+                                    ),
+                                ),
+                            )
+                    }
             }
 
             test("generate writes convention plugin configuration usage for library artifacts") {
-                // GIVEN
-                val generator = generator()
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val usages =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "catalogs",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "waterMyPlants",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "libraries",
+                                )?.jsonArray
+                                ?.single()
+                                ?.jsonObject
+                                ?.get(
+                                    key = "entries",
+                                )?.jsonArray
+                                ?.single()
+                                ?.jsonObject
+                                ?.get(
+                                    key = "configuredByConventionPlugins",
+                                )?.jsonArray
 
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                val usages =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "catalogs",
-                        )?.jsonObject
-                        ?.get(
-                            key = "waterMyPlants",
-                        )?.jsonObject
-                        ?.get(
-                            key = "libraries",
-                        )?.jsonArray
-                        ?.single()
-                        ?.jsonObject
-                        ?.get(
-                            key = "entries",
-                        )?.jsonArray
-                        ?.single()
-                        ?.jsonObject
-                        ?.get(
-                            key = "configuredByConventionPlugins",
-                        )?.jsonArray
-
-                usages?.map { usage ->
-                    val usageObject = usage.jsonObject
-                    Triple(
-                        usageObject["pluginId"]?.jsonPrimitive?.content,
-                        usageObject["pluginModule"]?.jsonPrimitive?.content,
-                        usageObject["target"]?.jsonPrimitive?.content,
-                    )
-                } shouldBe
-                    listOf(
-                        Triple(
-                            "com.marmatsan.kotlin",
-                            ":gradle-plugins:kotlin",
-                            "kotlin.compiler.classpath",
-                        ),
-                    )
+                        usages?.map { usage ->
+                            val usageObject = usage.jsonObject
+                            Triple(
+                                usageObject["pluginId"]?.jsonPrimitive?.content,
+                                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                                usageObject["target"]?.jsonPrimitive?.content,
+                            )
+                        } shouldBe
+                            listOf(
+                                Triple(
+                                    "com.marmatsan.kotlin",
+                                    ":gradle-plugins:kotlin",
+                                    "kotlin.compiler.classpath",
+                                ),
+                            )
+                    }
             }
 
             test("generate writes convention plugin provenance for plugins") {
-                // GIVEN
-                val generator = generator()
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val usages =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "catalogs",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "waterMyPlants",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "plugins",
+                                )?.jsonArray
+                                ?.single()
+                                ?.jsonObject
+                                ?.get(
+                                    key = "providedByConventionPlugins",
+                                )?.jsonArray
 
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                val usages =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "catalogs",
-                        )?.jsonObject
-                        ?.get(
-                            key = "waterMyPlants",
-                        )?.jsonObject
-                        ?.get(
-                            key = "plugins",
-                        )?.jsonArray
-                        ?.single()
-                        ?.jsonObject
-                        ?.get(
-                            key = "providedByConventionPlugins",
-                        )?.jsonArray
-
-                usages?.map { usage ->
-                    val usageObject = usage.jsonObject
-                    Triple(
-                        usageObject["pluginId"]?.jsonPrimitive?.content,
-                        usageObject["pluginModule"]?.jsonPrimitive?.content,
-                        usageObject["requiredByModules"]?.jsonArray?.map { module -> module.jsonPrimitive.content },
-                    )
-                } shouldBe
-                    listOf(
-                        Triple(
-                            "com.marmatsan.compose",
-                            ":gradle-plugins:compose",
+                        usages?.map { usage ->
+                            val usageObject = usage.jsonObject
+                            Triple(
+                                usageObject["pluginId"]?.jsonPrimitive?.content,
+                                usageObject["pluginModule"]?.jsonPrimitive?.content,
+                                usageObject["requiredByModules"]?.jsonArray?.map { module ->
+                                    module.jsonPrimitive.content
+                                },
+                            )
+                        } shouldBe
                             listOf(
-                                ":app",
-                                ":core:ui",
-                            ),
-                        ),
-                    )
+                                Triple(
+                                    "com.marmatsan.compose",
+                                    ":gradle-plugins:compose",
+                                    listOf(
+                                        ":app",
+                                        ":core:ui",
+                                    ),
+                                ),
+                            )
+                    }
             }
 
             test("generate omits included-build catalog types without roots") {
-                // GIVEN
-                val generator = generator()
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val gradlePluginsCatalog =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "catalogs",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "gradlePlugins",
+                                )?.jsonObject
 
-                // WHEN
-                val result =
-                    generator.generate(
-                        request = request(),
-                    )
-
-                // THEN
-                val gradlePluginsCatalog =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "catalogs",
-                        )?.jsonObject
-                        ?.get(
-                            key = "gradlePlugins",
-                        )?.jsonObject
-
-                gradlePluginsCatalog?.get(
-                    key = "libraries",
-                ) shouldBe null
-                gradlePluginsCatalog?.get(
-                    key = "plugins",
-                ) shouldBe null
+                        gradlePluginsCatalog?.get(
+                            key = "libraries",
+                        ) shouldBe null
+                        gradlePluginsCatalog?.get(
+                            key = "plugins",
+                        ) shouldBe null
+                    }
             }
 
             test("generate writes external topology Windows runtime and effective TeamCity configuration") {
-                // WHEN
-                val result =
-                    generator().generate(
-                        request = request(),
-                    )
-
-                // THEN
-                result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
-                val ci =
-                    result.model["content"]
-                        ?.jsonObject
-                        ?.get(
-                            key = "ci",
-                        )?.jsonObject
-                ci
-                    ?.get(
-                        key = "externalTopology",
-                    )?.jsonObject
-                    ?.get(
-                        key = "nodes",
-                    )?.jsonArray
-                    ?.single()
-                    ?.jsonObject
-                    ?.get(
-                        key = "name",
-                    )?.jsonPrimitive
-                    ?.content shouldBe "Operator"
-                ci
-                    ?.get(
-                        key = "windowsRuntime",
-                    )?.jsonObject
-                    ?.get(
-                        key = "services",
-                    )?.jsonArray
-                    ?.single()
-                    ?.jsonObject
-                    ?.get(
-                        key = "service",
-                    )?.jsonPrimitive
-                    ?.content shouldBe "TeamCity"
-                ci
-                    ?.get(
-                        key = "teamCity",
-                    )?.jsonObject
-                    ?.get(
-                        key = "pipelines",
-                    )?.jsonArray
-                    ?.single()
-                    ?.jsonObject
-                    ?.get(
-                        key = "name",
-                    )?.jsonPrimitive
-                    ?.content shouldBe "CI"
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        result.model["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
+                        val ci =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "ci",
+                                )?.jsonObject
+                        ci
+                            ?.get(
+                                key = "externalTopology",
+                            )?.jsonObject
+                            ?.get(
+                                key = "nodes",
+                            )?.jsonArray
+                            ?.single()
+                            ?.jsonObject
+                            ?.get(
+                                key = "name",
+                            )?.jsonPrimitive
+                            ?.content shouldBe "Operator"
+                        ci
+                            ?.get(
+                                key = "windowsRuntime",
+                            )?.jsonObject
+                            ?.get(
+                                key = "services",
+                            )?.jsonArray
+                            ?.single()
+                            ?.jsonObject
+                            ?.get(
+                                key = "service",
+                            )?.jsonPrimitive
+                            ?.content shouldBe "TeamCity"
+                        ci
+                            ?.get(
+                                key = "teamCity",
+                            )?.jsonObject
+                            ?.get(
+                                key = "pipelines",
+                            )?.jsonArray
+                            ?.single()
+                            ?.jsonObject
+                            ?.get(
+                                key = "name",
+                            )?.jsonPrimitive
+                            ?.content shouldBe "CI"
+                    }
             }
         },
     )
