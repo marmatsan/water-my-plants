@@ -66,6 +66,12 @@ generate Dokka, report undocumented public declarations, and fail on Dokka
 warnings. New public models, services, adapters, tasks, properties, and methods
 therefore add or update KDoc in the same change.
 
+`DocumentationValidator` is a coordinator rather than a rule container. It
+classifies typed documents and delegates metadata, heading, repository-link,
+and change-coverage validation to independently testable collaborators. New
+typed-document rules extend `TypedDocumentationRule`; they do not add another
+reason for the coordinator to change.
+
 ## Verification
 
 ```powershell

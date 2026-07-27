@@ -104,8 +104,11 @@ TeamCity is not required by the portable Kotlin plugin or writer. Water My
 Plants supplies its TeamCity command through the Kotlin project-config plugin
 and invokes the portable Gradle tasks from `.teamcity/settings.kts`.
 
-The Kotlin `prepareTeamCityFigmaSyncHandoff` task owns TeamCity artifact
-inspection, download, contract validation, and executor preparation. The
+The Kotlin `prepareTeamCityFigmaSyncHandoff` task coordinates consumer-owned
+ports for artifact selection, contract verification, runner inspection, and
+summary writing. Focused adapters own TeamCity download, safe ZIP extraction,
+canonical artifact validation, MCP runner inspection, and JSON serialization;
+the coordinator does not depend on those concrete implementations. The
 Kotlin `uploadCanonicalFigmaPayload` task accepts only a successful main
 `Generate main design model` build, verifies the manifest-declared PNG bytes,
 and posts them only to the exact single-use HTTPS endpoint returned by Figma

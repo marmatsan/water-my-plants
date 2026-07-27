@@ -65,6 +65,46 @@ class DocumentationValidatorTest :
                 result.errors shouldContain "[docs/misplaced.md] Typed document is outside its canonical directory."
             }
 
+            test("composes an additional typed-document rule without changing the coordinator") {
+                val customWarning = "[docs/standards/example.md] Custom rule executed."
+                val validator =
+                    DocumentationValidator(
+                        classifier = DocumentationTypeClassifier(),
+                        frontmatterParser = DocumentationFrontmatterParser(),
+                        typedRules =
+                            listOf(
+                                TypedDocumentationRule { _, findings ->
+                                    findings.warnings += customWarning
+                                },
+                            ),
+                        linkValidator = DocumentationLinkValidator(),
+                        coverageValidator = DocumentationCoverageValidator(DocumentationPathResolver()),
+                        paths = DocumentationPathResolver(),
+                    )
+
+                val result =
+                    validator.validate(
+                        snapshot =
+                            DocumentationRepositorySnapshot(
+                                documents =
+                                    listOf(
+                                        DocumentationFile(
+                                            path = "docs/standards/example.md",
+                                            content = validStandard,
+                                        ),
+                                    ),
+                                repositoryEntries =
+                                    setOf(
+                                        "source.txt",
+                                        "docs/standards/example.md",
+                                    ),
+                            ),
+                        currentDate = today,
+                    )
+
+                result.warnings shouldContainExactly listOf(customWarning)
+            }
+
             test("runbooks require recovery guidance") {
                 val incomplete =
                     validRunbook.replace(

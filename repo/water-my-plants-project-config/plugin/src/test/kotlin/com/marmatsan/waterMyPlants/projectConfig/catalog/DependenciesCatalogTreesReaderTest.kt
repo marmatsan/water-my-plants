@@ -1,6 +1,7 @@
 package com.marmatsan.waterMyPlants.projectConfig.catalog
 
-import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleConventionCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleMainCatalogUsageReader
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.CatalogVersion
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogEntry
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
@@ -736,18 +737,19 @@ internal class DependenciesCatalogTreesReaderTest :
         },
     )
 
-private fun dependenciesCatalogTreesReader(): DependenciesCatalogTreesReader {
-    val gradleCatalogUsageReader = GradleCatalogUsageReader()
-    return DependenciesCatalogTreesReader(
+private fun dependenciesCatalogTreesReader(): DependenciesCatalogTreesReader =
+    DependenciesCatalogTreesReader(
         dependencyCatalogProvider = WaterMyPlantsCatalogProvider(),
         catalogTreeMapper = DependencyCatalogTreeMapper(),
-        mainCatalogUsageSource = GradleMainCatalogUsageSource(gradleCatalogUsageReader),
+        mainCatalogUsageSource = GradleMainCatalogUsageSource(GradleMainCatalogUsageReader()),
         conventionPluginCatalogUsageSource =
-            GradleConventionPluginCatalogUsageSource(gradleCatalogUsageReader),
+            GradleConventionPluginCatalogUsageSource(
+                reader = GradleConventionCatalogUsageReader(),
+                mainReader = GradleMainCatalogUsageReader(),
+            ),
         libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
         pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
     )
-}
 
 private fun LibraryCatalogTree.findArtifact(
     groupPath: String,

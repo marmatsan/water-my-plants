@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Files
 
-internal class GradleCatalogUsageReaderTest :
+internal class GradleCatalogUsageReadersTest :
     FunSpec(
         {
 
@@ -53,14 +53,14 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val usages =
-                    GradleCatalogUsageReader().readConventionLibraryUsages(
+                    GradleConventionCatalogUsageReader().readLibraryUsages(
                         rootDir = includedBuildRootDir,
                         modulePathPrefix = ":gradle-plugins",
                     )
 
                 // THEN
                 usages shouldBe
-                    GradleCatalogUsageReader.LibraryUsages(
+                    LibraryUsages(
                         coordinates =
                             mapOf(
                                 "androidx.core:core-ktx" to setOf(":gradle-plugins:android"),
@@ -109,7 +109,7 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val pluginIdsByModule =
-                    GradleCatalogUsageReader().readConventionPluginIdsByModule(
+                    GradleConventionCatalogUsageReader().readPluginIdsByModule(
                         rootDir = includedBuildRootDir,
                         modulePathPrefix = ":gradle-plugins",
                     )
@@ -164,19 +164,19 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val usages =
-                    GradleCatalogUsageReader().readConventionLibraryConfigurationUsages(
+                    GradleConventionCatalogUsageReader().readLibraryConfigurationUsages(
                         rootDir = includedBuildRootDir,
                         modulePathPrefix = ":gradle-plugins",
                     )
 
                 // THEN
                 usages shouldBe
-                    GradleCatalogUsageReader.LibraryConfigurationUsages(
+                    LibraryConfigurationUsages(
                         coordinates =
                             mapOf(
                                 "com.google.protobuf:protoc" to
                                     setOf(
-                                        GradleCatalogUsageReader.LibraryConfigurationUsage(
+                                        LibraryConfigurationUsage(
                                             pluginModule = ":gradle-plugins:protobuf",
                                             target = "protobuf.protoc.artifact",
                                         ),
@@ -219,7 +219,7 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val usages =
-                    GradleCatalogUsageReader().readMainLiteralPluginUsages(
+                    GradleMainCatalogUsageReader().readLiteralPluginUsages(
                         rootDir = rootDir,
                     )
 
@@ -260,7 +260,7 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val usages =
-                    GradleCatalogUsageReader().readMainAppliedLiteralPluginUsages(
+                    GradleMainCatalogUsageReader().readAppliedLiteralPluginUsages(
                         rootDir = rootDir,
                     )
 
@@ -287,7 +287,7 @@ internal class GradleCatalogUsageReaderTest :
 
                 // WHEN
                 val pluginIds =
-                    GradleCatalogUsageReader().readMainAppliedLiteralPluginIds(
+                    GradleMainCatalogUsageReader().readAppliedLiteralPluginIds(
                         rootDir = rootDir,
                     )
 

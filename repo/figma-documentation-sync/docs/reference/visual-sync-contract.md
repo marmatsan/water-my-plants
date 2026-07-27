@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-24
+last-reviewed: 2026-07-27
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -103,7 +103,10 @@ runner does not authorize metadata.
 ## CI Documentation Visual Sync
 
 The Kotlin `CiVisualPlanner` reads only `content.ci` from a `design-model.json`
-through `CiVisualPlanJson`. The canonical runner generator embeds one
+through `CiVisualPlanJson`. The planner composes one `CiVisualSectionPlanner`
+strategy per visual target, so a section can be extended or replaced without
+changing the plan orchestrator; each strategy preserves the same portable
+section contract. The canonical runner generator embeds one
 target-scoped `ciVisualPlan` in `SYNC_OPTIONS`; the TypeScript Figma gateway
 consumes that plan and never decides CI section structure. Preview and
 compatibility runners must receive the same contract through

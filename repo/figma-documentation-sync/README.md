@@ -53,8 +53,16 @@ composition. `plugin` wires portable Gradle tasks to domain ports through
 applies the plugin and selects one repository's concrete catalog port, layout,
 Figma document, and CI adapter.
 
-Pure CI section planning is Kotlin-owned. `CiVisualPlanner` produces a portable
-plan, `CiVisualPlanJson` projects complete or target-scoped JSON, and the
+Gradle catalog usage follows segregated read contracts. A shared source scanner
+and parser own syntax discovery, while main-build, included-build, and
+convention-plugin readers expose only the queries required by their consumers.
+Adding another consumer scope composes those reusable parsing services instead
+of expanding one repository-wide reader.
+
+Pure CI section planning is Kotlin-owned. `CiVisualPlanner` is a composition
+service: independent `CiVisualSectionPlanner` strategies own each section and
+produce a portable plan without adding section-specific branches to the
+orchestrator. `CiVisualPlanJson` projects complete or target-scoped JSON, and the
 `generateFigmaCiVisualPlan` Gradle task exposes that contract to consumers and
 preview tooling. TypeScript requires the generated plan and only interacts with
 Figma nodes. Kotlin

@@ -1,6 +1,9 @@
 package com.marmatsan.waterMyPlants.projectConfig.catalog
 
-import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleConventionCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleMainCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.LibraryConfigurationUsages
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.LibraryUsages
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginConfigurationUsage
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogEntry.ConventionPluginUsage
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
@@ -9,14 +12,15 @@ import java.io.File
 
 /** Reads and normalizes catalog usage contributed by convention-plugin builds. */
 internal class GradleConventionPluginCatalogUsageSource(
-    private val reader: GradleCatalogUsageReader,
+    private val reader: GradleConventionCatalogUsageReader,
+    private val mainReader: GradleMainCatalogUsageReader,
 ) : ConventionPluginCatalogUsageSource {
     override fun libraryUsages(
         rootDir: File,
         includedBuilds: List<IncludedBuildSource>,
     ): ConventionPluginLibraryUsages {
         val modulesByPluginId =
-            reader.readMainAppliedLiteralPluginUsages(
+            mainReader.readAppliedLiteralPluginUsages(
                 rootDir = rootDir,
             )
 
@@ -25,14 +29,14 @@ internal class GradleConventionPluginCatalogUsageSource(
             .fold(ConventionPluginLibraryUsages()) { usages, includedBuild ->
                 val includedBuildRootDir = File(includedBuild.rootDirPath)
                 val pluginIdsByModule =
-                    reader.readConventionPluginIdsByModule(
+                    reader.readPluginIdsByModule(
                         rootDir = includedBuildRootDir,
                         modulePathPrefix = includedBuild.modulePathPrefix,
                     )
                 usages.merge(
                     other =
                         reader
-                            .readConventionLibraryUsages(
+                            .readLibraryUsages(
                                 rootDir = includedBuildRootDir,
                                 modulePathPrefix = includedBuild.modulePathPrefix,
                             ).toConventionPluginLibraryUsages(
@@ -41,7 +45,7 @@ internal class GradleConventionPluginCatalogUsageSource(
                             ).merge(
                                 other =
                                     reader
-                                        .readConventionLibraryConfigurationUsages(
+                                        .readLibraryConfigurationUsages(
                                             rootDir = includedBuildRootDir,
                                             modulePathPrefix = includedBuild.modulePathPrefix,
                                         ).toConventionPluginLibraryConfigurationUsages(
@@ -57,7 +61,7 @@ internal class GradleConventionPluginCatalogUsageSource(
         includedBuilds: List<IncludedBuildSource>,
     ): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> {
         val modulesByPluginId =
-            reader.readMainAppliedLiteralPluginUsages(
+            mainReader.readAppliedLiteralPluginUsages(
                 rootDir = rootDir,
             )
 
@@ -66,14 +70,14 @@ internal class GradleConventionPluginCatalogUsageSource(
             .fold(emptyMap()) { usages, includedBuild ->
                 val includedBuildRootDir = File(includedBuild.rootDirPath)
                 val pluginIdsByModule =
-                    reader.readConventionPluginIdsByModule(
+                    reader.readPluginIdsByModule(
                         rootDir = includedBuildRootDir,
                         modulePathPrefix = includedBuild.modulePathPrefix,
                     )
                 usages.mergePluginUsages(
                     other =
                         reader
-                            .readConventionPluginUsages(
+                            .readPluginUsages(
                                 rootDir = includedBuildRootDir,
                                 modulePathPrefix = includedBuild.modulePathPrefix,
                             ).toConventionPluginPluginUsages(
@@ -85,7 +89,7 @@ internal class GradleConventionPluginCatalogUsageSource(
     }
 }
 
-private fun GradleCatalogUsageReader.LibraryUsages.toConventionPluginLibraryUsages(
+private fun LibraryUsages.toConventionPluginLibraryUsages(
     pluginIdsByModule: Map<String, Set<String>>,
     modulesByPluginId: Map<String, Set<String>>,
 ): ConventionPluginLibraryUsages =
@@ -125,7 +129,7 @@ private fun Map<String, Set<String>>.toConventionPluginUsageMap(
             )
     }.filterValues(List<ConventionPluginUsage>::isNotEmpty)
 
-private fun GradleCatalogUsageReader.LibraryConfigurationUsages.toConventionPluginLibraryConfigurationUsages(
+private fun LibraryConfigurationUsages.toConventionPluginLibraryConfigurationUsages(
     pluginIdsByModule: Map<String, Set<String>>,
 ): ConventionPluginLibraryUsages =
     ConventionPluginLibraryUsages(

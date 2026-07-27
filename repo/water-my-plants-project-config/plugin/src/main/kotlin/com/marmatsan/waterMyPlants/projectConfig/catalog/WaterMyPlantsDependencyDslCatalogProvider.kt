@@ -1,6 +1,7 @@
 package com.marmatsan.waterMyPlants.projectConfig.catalog
 
-import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleConventionCatalogUsageReader
+import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleMainCatalogUsageReader
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.DependencyDslCatalogProvider
@@ -9,14 +10,16 @@ import java.io.File
 
 /** Water My Plants adapter between Dependency Catalog API and the Figma-owned catalog port. */
 class WaterMyPlantsDependencyDslCatalogProvider : DependencyDslCatalogProvider {
-    private val gradleCatalogUsageReader = GradleCatalogUsageReader()
     private val reader =
         DependenciesCatalogTreesReader(
             dependencyCatalogProvider = WaterMyPlantsCatalogProvider(),
             catalogTreeMapper = DependencyCatalogTreeMapper(),
-            mainCatalogUsageSource = GradleMainCatalogUsageSource(gradleCatalogUsageReader),
+            mainCatalogUsageSource = GradleMainCatalogUsageSource(GradleMainCatalogUsageReader()),
             conventionPluginCatalogUsageSource =
-                GradleConventionPluginCatalogUsageSource(gradleCatalogUsageReader),
+                GradleConventionPluginCatalogUsageSource(
+                    reader = GradleConventionCatalogUsageReader(),
+                    mainReader = GradleMainCatalogUsageReader(),
+                ),
             libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
             pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
         )
