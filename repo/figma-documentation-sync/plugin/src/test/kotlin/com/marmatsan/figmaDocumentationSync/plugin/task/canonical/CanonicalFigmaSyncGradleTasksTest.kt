@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -73,6 +74,14 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                                 property,
                                 "--stacktrace",
                             ).build()
+                    val reusedModelPhase =
+                        project
+                            .runner(
+                                "materializeFigmaSyncCiConfiguration",
+                                "generateCanonicalFigmaSyncModel",
+                                property,
+                                "--stacktrace",
+                            ).build()
                     val runnerPhase =
                         project
                             .runner(
@@ -99,6 +108,7 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                     metadataPhase.task(":validateCanonicalFigmaSyncScope") shouldBe null
                     modelPhase.task(":materializeFigmaSyncCiConfiguration")?.outcome shouldBe TaskOutcome.SKIPPED
                     modelPhase.task(":generateCanonicalFigmaSyncModel")?.outcome shouldBe TaskOutcome.SKIPPED
+                    reusedModelPhase.output shouldContain "Configuration cache entry reused."
                     metadataPhase.task(":checkCanonicalFigmaTrunkSync")?.outcome shouldBe TaskOutcome.SKIPPED
                 } finally {
                     project.deleteRecursively()
@@ -114,7 +124,11 @@ private fun File.runner(
         .create()
         .withProjectDir(this)
         .withPluginClasspath()
-        .withArguments(*arguments)
+        .withArguments(
+            *arguments,
+            "--configuration-cache",
+            "--configuration-cache-problems=fail",
+        )
 
 private fun File.writeFixture() {
     resolve(

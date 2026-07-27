@@ -24,6 +24,12 @@ internal fun GenerateFigmaDesignModelTask.configureDesignModelInputs(
     includedBuildSettingsFiles.from(
         context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
     )
+    includedBuildSettingsFilePaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile.absolutePath } },
+    )
+    includedBuildRootDirectoryPaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.rootDirectory.absolutePath } },
+    )
     includedBuildModelNames.set(
         context.includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
     )
@@ -37,7 +43,6 @@ internal fun GenerateFigmaDesignModelTask.configureDesignModelInputs(
         context.includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
-    includedBuildSourcesProvider = context.includedBuildSources
 }
 
 /** Maps the shared plugin extension onto one Figma trunk verification task. */
@@ -60,6 +65,12 @@ internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
     includedBuildSettingsFiles.from(
         context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
     )
+    includedBuildSettingsFilePaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile.absolutePath } },
+    )
+    includedBuildRootDirectoryPaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.rootDirectory.absolutePath } },
+    )
     includedBuildModelNames.set(
         context.includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
     )
@@ -73,7 +84,6 @@ internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
         context.includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
-    includedBuildSourcesProvider = context.includedBuildSources
     figmaToken.set(context.project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
 }
 
@@ -88,6 +98,12 @@ internal fun CheckFigmaCatalogUsageTask.configureCatalogInputs(
     includedBuildSettingsFiles.from(
         context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
     )
+    includedBuildSettingsFilePaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile.absolutePath } },
+    )
+    includedBuildRootDirectoryPaths.set(
+        context.includedBuildSources.map { sources -> sources.map { source -> source.rootDirectory.absolutePath } },
+    )
     includedBuildModelNames.set(
         context.includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
     )
@@ -101,7 +117,6 @@ internal fun CheckFigmaCatalogUsageTask.configureCatalogInputs(
         context.includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
-    includedBuildSourcesProvider = context.includedBuildSources
 }
 
 /** Maps repository change-impact inputs onto one classifier task. */
