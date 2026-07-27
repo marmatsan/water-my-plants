@@ -253,8 +253,9 @@ content` frame preserves the compact reading width. Action descriptions remain
 in the typed model but are hidden visually; phase, decision, group, and outcome
 descriptions remain visible.
 
-Native Figma CI connectors are cloned from the `simple-line_arrow` connector
-at node `64800:262` because the MCP runtime does not expose
+Native Figma CI connectors are cloned from the locked
+`simple-line_arrow / neutral` connector at node `64835:3289` because the MCP
+runtime does not expose
 `figma.createConnector()`. The visual preflight resolves that exact node and
 requires its configured name, elbowed line type, arrow-lines end cap, and
 native text before any CI section is mutated. The locked template is positioned

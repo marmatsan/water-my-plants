@@ -4,11 +4,12 @@ type: adr
 scope: repository
 owner: architecture
 status: accepted
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-27
 review-cycle-days: 365
 sources:
   - settings.gradle.kts
   - repo/water-my-plants-project-config/settings.gradle.kts
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/extension/VerificationPlatformExtension.kt
 ---
@@ -83,6 +84,11 @@ included build.
   coordinates without assuming the Water My Plants directory layout.
 - Product wiring remains explicit and testable instead of being hidden inside
   otherwise portable modules.
+- The product composition owns exact external Figma identities such as node ids,
+  variable collection names, and component names. When a repository path or
+  Figma template changes, migrate the existing external resource in place when
+  identity must be preserved and update the typed composition contract; do not
+  embed the replacement identity in the reusable writer.
 - The composition build intentionally has more dependencies than other builds;
   that concentration is the boundary rather than a violation.
 - Direct standalone builds require a staged or released repository containing

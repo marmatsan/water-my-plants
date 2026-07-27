@@ -84,11 +84,12 @@ their platform, Windows service name, startup mode, and service identity. The
 operational recovery order remains in the linked runbook and is not modeled as
 a dependency between services.
 
-Flow relations render their semantic label in the native text of the
-`simple-line_arrow` connector. Its locked template is positioned over the CI
-component documentation section but remains outside every managed target so a
-partial sync cannot delete it. The visual writer uses side anchors within one
-row and vertical anchors between rows. After node layout stabilizes, it assigns
+Flow relations render their semantic label in the native text of a connector
+cloned from the locked `simple-line_arrow / neutral` palette sample. The sample
+is positioned over the CI component documentation section but remains outside
+every managed target so a partial sync cannot delete it. The visual writer uses
+side anchors within one row and vertical anchors between rows. After node layout
+stabilizes, it assigns
 each connection endpoint a deterministic transparent port along the selected
 node side. Shared sides spread their ports in the order of the opposite nodes,
 so parallel and converging relations do not collapse onto one central anchor.
