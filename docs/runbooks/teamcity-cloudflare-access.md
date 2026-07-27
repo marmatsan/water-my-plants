@@ -103,6 +103,49 @@ Service management requires an elevated shell. Once the services are
 installed, `runAll.bat start` is not the canonical runtime and should not be
 used alongside the Windows services.
 
+### Recover an Agent Upgrade Blocked by Service Permissions
+
+After a TeamCity server upgrade, the Windows agent can remain disconnected with
+`Agent has unregistered (will upgrade)` even though `TCBuildAgent` reports
+`Running`. Confirm this failure mode in
+`C:\TeamCity\buildAgent\logs\upgrade.log`; the relevant signature is
+`OpenSCManager failed - Access is denied` or Windows system error `5` while the
+updater tries to stop or start `TCBuildAgent`.
+
+The virtual service account is intentionally not given broad Windows service
+manager permissions. Do not work around the failure by killing the service
+wrapper, deleting the `update` or `backup` directories, running the agent as
+`LocalSystem`, or granting `FullControl` over `C:\TeamCity`.
+
+Before recovery, confirm that the server is healthy and that the agent is not
+running a build. Drain its queue or temporarily disable the agent because a
+manually started, authorized agent can accept queued builds immediately.
+
+From an elevated PowerShell session, stop the service and start the downloaded
+agent update under the elevated identity:
+
+```powershell
+Stop-Service TCBuildAgent
+Set-Location C:\TeamCity\buildAgent\bin
+.\agent.bat start
+```
+
+Keep that session open. Wait until the TeamCity Agents page reports the agent
+as connected and its version matches the server build number. If the command
+continues running in console mode, use a second elevated PowerShell session to
+return ownership to the Windows service after all active builds finish:
+
+```powershell
+Set-Location C:\TeamCity\buildAgent\bin
+.\agent.bat stop
+Start-Service TCBuildAgent
+```
+
+Verify that `TCBuildAgent` is `Running`, the agent is connected and authorized,
+and the agent and server build numbers still match. If this recovery is needed
+repeatedly, treat changing the service identity or service ACL as a reviewed
+Windows-security change; do not expand permissions ad hoc during an incident.
+
 Validate the local and public boundaries after recovery:
 
 ```powershell
