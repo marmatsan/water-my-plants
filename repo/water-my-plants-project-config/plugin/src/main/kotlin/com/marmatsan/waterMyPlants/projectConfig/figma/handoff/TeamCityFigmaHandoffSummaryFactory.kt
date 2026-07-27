@@ -16,6 +16,7 @@ import java.time.Clock
 internal class TeamCityFigmaHandoffSummaryFactory(
     private val clock: Clock,
 ) {
+    /** Creates an operator handoff from a fully [validated] artifact set and runner [inspection]. */
     fun create(
         request: TeamCityFigmaSyncHandoffPreparer.Request,
         artifacts: CanonicalFigmaArtifactSet,

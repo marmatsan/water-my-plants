@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Plans the high-level pull-request and post-merge journey. */
 internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
+    /** Builds the high-level pull-request and post-merge journey section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

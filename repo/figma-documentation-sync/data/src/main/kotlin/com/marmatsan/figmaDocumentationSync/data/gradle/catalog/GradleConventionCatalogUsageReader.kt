@@ -9,6 +9,7 @@ class GradleConventionCatalogUsageReader {
     private val scanner = GradleCatalogSourceScanner()
     private val parser = GradleCatalogUsageParser(scanner)
 
+    /** Reads direct coordinates and bundles used by convention-plugin implementations. */
     fun readLibraryUsages(
         rootDir: File,
         modulePathPrefix: String,
@@ -25,6 +26,7 @@ class GradleConventionCatalogUsageReader {
                 )
         }
 
+    /** Reads configuration assignments contributed by convention-plugin implementations. */
     fun readLibraryConfigurationUsages(
         rootDir: File,
         modulePathPrefix: String,
@@ -41,6 +43,7 @@ class GradleConventionCatalogUsageReader {
                 )
         }
 
+    /** Reads plugins applied programmatically by convention-plugin implementations. */
     fun readPluginUsages(
         rootDir: File,
         modulePathPrefix: String,
@@ -58,6 +61,7 @@ class GradleConventionCatalogUsageReader {
             )
         }
 
+    /** Reads published plugin ids keyed by convention-plugin module path. */
     fun readPluginIdsByModule(
         rootDir: File,
         modulePathPrefix: String,

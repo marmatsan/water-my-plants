@@ -16,6 +16,7 @@ import kotlinx.serialization.json.put
 
 /** Computes model hashes for visual targets and atomic catalog execution scopes. */
 class FigmaTargetFingerprintCalculator {
+    /** Creates deterministic model fingerprints for [visualTargets] and atomic [catalogTargets]. */
     fun create(
         designModel: JsonObject,
         visualTargets: List<String>,

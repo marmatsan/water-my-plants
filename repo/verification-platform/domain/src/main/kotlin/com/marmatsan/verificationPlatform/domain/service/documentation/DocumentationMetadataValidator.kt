@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException
 internal class DocumentationMetadataValidator(
     private val paths: DocumentationPathResolver = DocumentationPathResolver(),
 ) : TypedDocumentationRule {
+    /** Validates canonical metadata, review windows, and declared source existence. */
     override fun validate(
         context: TypedDocumentationContext,
         findings: DocumentationFindings,

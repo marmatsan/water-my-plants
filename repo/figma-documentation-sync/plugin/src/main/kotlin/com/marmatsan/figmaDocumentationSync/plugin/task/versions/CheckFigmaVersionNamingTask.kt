@@ -20,10 +20,12 @@ import org.gradle.work.DisableCachingByDefault
     because = "The verification task has no reusable output artifact",
 )
 abstract class CheckFigmaVersionNamingTask : DefaultTask() {
+    /** Version properties file whose sections and keys are validated. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
 
+    /** Fails with every actionable version naming violation. */
     @TaskAction
     fun checkVersionNaming() {
         val result =

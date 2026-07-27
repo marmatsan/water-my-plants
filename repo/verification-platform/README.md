@@ -61,10 +61,11 @@ guarantees; KDoc and Dokka explain the types and entry points that provide the
 guarantee. Generated HTML remains under each module's `build/dokka/` directory
 and is not committed.
 
-All three modules enforce strict public-API documentation. Their `check` tasks
-generate Dokka, report undocumented public declarations, and fail on Dokka
-warnings. New public models, services, adapters, tasks, properties, and methods
-therefore add or update KDoc in the same change.
+All three modules enforce strict public and internal API documentation. Their
+`check` tasks generate Dokka, report undocumented declarations, and fail on
+Dokka warnings. New public or internal models, services, adapters, ports,
+tasks, properties, and methods therefore add or update useful KDoc in the same
+change.
 
 `DocumentationValidator` is a coordinator rather than a rule container. It
 classifies typed documents and delegates metadata, heading, repository-link,

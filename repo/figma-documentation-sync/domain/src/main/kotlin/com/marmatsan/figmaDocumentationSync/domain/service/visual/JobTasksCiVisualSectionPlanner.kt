@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Plans executable phases and outcomes for every effective CI job. */
 internal class JobTasksCiVisualSectionPlanner : CiVisualSectionPlanner {
+    /** Builds the effective CI job tasks and outcomes section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

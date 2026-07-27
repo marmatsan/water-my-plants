@@ -3,6 +3,29 @@ package com.marmatsan.waterMyPlants.projectConfig.catalog
 import java.io.File
 import java.util.Properties
 
+/**
+ * Typed snapshot of the Water My Plants version properties consumed by catalog construction.
+ *
+ * @property activityComposeLibraryVersion AndroidX Activity Compose version.
+ * @property androidCoroutinesLibraryVersion Kotlin coroutines Android version.
+ * @property androidGradlePluginVersion Android Gradle Plugin version.
+ * @property composeBomLibraryVersion Jetpack Compose BOM version.
+ * @property coreKtxLibraryVersion AndroidX Core KTX version.
+ * @property cucumberLibraryVersion Cucumber JVM version.
+ * @property dokkaPluginVersion Dokka Gradle plugin version.
+ * @property figmaCodeConnectLibraryVersion Figma Code Connect runtime version.
+ * @property figmaCodeConnectPluginVersion Figma Code Connect Gradle plugin version.
+ * @property junit5PluginVersion JUnit Platform Gradle plugin version.
+ * @property kotestLibraryVersion Kotest library version.
+ * @property kotlinInjectLibraryVersion Kotlin Inject library version.
+ * @property kotlinVersion Kotlin compiler and Gradle plugin version.
+ * @property kspPluginVersion Kotlin Symbol Processing plugin version.
+ * @property lifecycleLibraryVersion AndroidX Lifecycle version.
+ * @property mockkLibraryVersion MockK library version.
+ * @property navigationComposeLibraryVersion Navigation Compose version.
+ * @property protobufLibraryVersion Protocol Buffers runtime and compiler version.
+ * @property protobufPluginVersion Protocol Buffers Gradle plugin version.
+ */
 internal data class Versions(
     val activityComposeLibraryVersion: String,
     val androidCoroutinesLibraryVersion: String,
@@ -24,7 +47,9 @@ internal data class Versions(
     val protobufLibraryVersion: String,
     val protobufPluginVersion: String,
 ) {
+    /** Loads the repository-owned version source used by the production catalog. */
     companion object {
+        /** Resolves and parses `versions.properties` relative to [rootDir]. */
         fun load(
             rootDir: File,
         ): Versions {

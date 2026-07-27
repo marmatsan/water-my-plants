@@ -14,6 +14,7 @@ pluginManagement {
 
     plugins {
         id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
+        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
     }
 }
 

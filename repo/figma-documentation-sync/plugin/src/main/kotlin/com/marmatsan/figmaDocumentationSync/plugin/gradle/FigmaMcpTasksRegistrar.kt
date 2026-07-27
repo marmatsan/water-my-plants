@@ -9,6 +9,7 @@ import java.io.File
 internal class FigmaMcpTasksRegistrar(
     private val context: FigmaPluginContext,
 ) {
+    /** Registers the local MCP runner and endpoint capability probe. */
     fun register() {
         registerRunner()
         registerProbe()

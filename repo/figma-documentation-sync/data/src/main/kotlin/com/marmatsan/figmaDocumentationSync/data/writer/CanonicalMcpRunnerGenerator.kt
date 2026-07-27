@@ -38,6 +38,7 @@ class CanonicalMcpRunnerGenerator(
     private val payloadEncoder: PayloadPngEncoder = PayloadPngEncoder(),
     private val policySource: FigmaChangeImpactPolicyDataSource = FigmaChangeImpactPolicyDataSource(),
 ) {
+    /** Generates deterministic visual and metadata runner artifacts for [request]. */
     fun generate(
         request: Request,
     ): Result {
@@ -698,6 +699,20 @@ class CanonicalMcpRunnerGenerator(
     private fun Map<String, String>.toJsonObject(): JsonObject =
         JsonObject(mapValues { (_, value) -> JsonPrimitive(value) })
 
+    /**
+     * Inputs required to generate portable MCP runner directories.
+     *
+     * @property modelPath Canonical design-model JSON used as the runner input.
+     * @property scriptPath Figma writer script bundled into canonical staging.
+     * @property outputDirectory Root under which visual and metadata runners are recreated.
+     * @property toolsDirectory Base directory used to make manifest paths portable.
+     * @property writerSourceDirectory Root whose writer sources contribute to scope fingerprints.
+     * @property repositoryRootDirectory Repository root used to normalize fingerprint paths.
+     * @property changeImpactPolicyPath Policy file that maps writer changes to affected scopes.
+     * @property config Runtime project contract that selects targets and Figma destinations.
+     * @property transport Payload transport, either [TRANSPORT_PNG] or [TRANSPORT_CHUNKS].
+     * @property chunkSize Maximum staging chunk length when chunk transport is selected.
+     */
     data class Request(
         val modelPath: String,
         val scriptPath: String,
@@ -711,6 +726,12 @@ class CanonicalMcpRunnerGenerator(
         val chunkSize: Int = DEFAULT_CHUNK_SIZE,
     )
 
+    /**
+     * Manifests produced for the two canonical runner directories.
+     *
+     * @property visualManifest Manifest for visual documentation targets.
+     * @property metadataManifest Manifest for the metadata target.
+     */
     data class Result(
         val visualManifest: ExecutableRunnerManifest,
         val metadataManifest: ExecutableRunnerManifest,
@@ -729,9 +750,15 @@ class CanonicalMcpRunnerGenerator(
         val writerScopeFingerprints: Map<String, String>,
     )
 
+    /** Stable wire values shared by Gradle tasks and generated runner manifests. */
     companion object {
+        /** Payload transport that stages canonical input through a PNG asset. */
         const val TRANSPORT_PNG = "png"
+
+        /** Payload transport that stages canonical input through JavaScript chunks. */
         const val TRANSPORT_CHUNKS = "chunks"
+
+        /** Current executable runner manifest schema version. */
         const val MANIFEST_SCHEMA_VERSION = 4
 
         private const val TRANSPORT_CONTRACT_VERSION = 2

@@ -1,6 +1,8 @@
 package com.marmatsan.verificationPlatform.domain.service.documentation
 
+/** Maps canonical documentation paths to the typed-document contract they must satisfy. */
 internal class DocumentationTypeClassifier {
+    /** Document type values that require canonical placement and metadata validation. */
     val typedDocumentTypes =
         setOf(
             "standard",
@@ -10,6 +12,7 @@ internal class DocumentationTypeClassifier {
             "adr",
         )
 
+    /** Returns the required document type for [path], or `null` for untyped documentation. */
     fun expectedType(
         path: String,
     ): String? =

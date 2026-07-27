@@ -9,6 +9,7 @@ internal class PostMergeCiVisualSectionPlanner(
     private val environments: CiVisualEnvironmentResolver,
     private val artifactPaths: CiArtifactPathMatcher,
 ) : CiVisualSectionPlanner {
+    /** Builds the canonical post-merge Figma synchronization section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

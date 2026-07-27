@@ -29,20 +29,25 @@ import org.gradle.work.DisableCachingByDefault
     because = "The default input is the current Git revision graph",
 )
 abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
+    /** Versioned policy mapping repository paths to Figma impact. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val policyFile: RegularFileProperty
 
+    /** Repository root used when changes are read from Git. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
 
+    /** Optional deterministic changed-path input that bypasses Git discovery. */
     @get:Input
     abstract val changedPathsOverride: ListProperty<String>
 
+    /** Optional comparison-base identity paired with overridden changed paths. */
     @get:Input
     @get:Optional
     abstract val comparisonBaseOverride: Property<String>
 
+    /** Machine-readable impact contract consumed by the canonical task chain. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 

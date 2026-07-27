@@ -14,6 +14,7 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
     private val archiveExtractor: ArtifactArchiveExtractor,
     private val clock: Clock,
 ) {
+    /** Selects existing artifacts or downloads and safely expands the requested TeamCity build. */
     fun resolve(
         request: TeamCityFigmaSyncHandoffPreparer.Request,
     ): File {

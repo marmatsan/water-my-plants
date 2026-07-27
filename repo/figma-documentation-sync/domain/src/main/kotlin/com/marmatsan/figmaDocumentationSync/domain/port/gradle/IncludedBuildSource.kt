@@ -18,6 +18,12 @@ package com.marmatsan.figmaDocumentationSync.domain.port.gradle
  *     publishesConventionPlugins = true
  * )
  * ```
+ *
+ * @property settingsFilePath repository-relative included-build settings path.
+ * @property rootDirPath repository-relative included-build root directory.
+ * @property modulePathPrefix logical module prefix used in generated identities.
+ * @property publishesCatalogs whether the build contributes dependency catalogs.
+ * @property publishesConventionPlugins whether the build contributes convention plugins.
  */
 data class IncludedBuildSource(
     val settingsFilePath: String,

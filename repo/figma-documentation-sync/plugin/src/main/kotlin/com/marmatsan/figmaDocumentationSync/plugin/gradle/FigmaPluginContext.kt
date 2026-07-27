@@ -6,9 +6,12 @@ import org.gradle.api.provider.Provider
 
 /** Shared Gradle providers passed from the plugin composition root to focused registrars. */
 internal class FigmaPluginContext(
+    /** Project that owns the applied documentation-sync plugin. */
     val project: Project,
+    /** Consumer-configured extension whose providers feed all task registrars. */
     val extension: figmaDocumentationSyncExtension,
 ) {
+    /** Lazily normalized included-build sources shared by generation and verification tasks. */
     val includedBuildSources: Provider<List<FigmaDesignModelIncludedBuildSource>> =
         project.provider {
             extension.includedBuilds
@@ -26,6 +29,7 @@ internal class FigmaPluginContext(
                 }
         }
 
+    /** Reads Gradle property [name] as a lazy Boolean provider defaulting to `false`. */
     fun booleanProperty(
         name: String,
     ): Provider<Boolean> =

@@ -25,6 +25,7 @@ class McpRunnerExecutor(
     private val clock: Clock = Clock.systemUTC(),
     private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect,
 ) {
+    /** Discovers the write capabilities exposed by an MCP endpoint without mutating Figma. */
     fun probe(
         endpoint: String,
         clientName: String,
@@ -43,6 +44,7 @@ class McpRunnerExecutor(
         }
     }
 
+    /** Resolves the execution decision and files for [request] without invoking MCP tools. */
     fun inspect(
         request: Request,
     ): Inspection {
@@ -64,6 +66,7 @@ class McpRunnerExecutor(
         )
     }
 
+    /** Records an externally executed [file] as a success or failure in the checkpoint state. */
     fun record(
         request: Request,
         file: String,
@@ -116,6 +119,7 @@ class McpRunnerExecutor(
         return state
     }
 
+    /** Executes the pending runner files in manifest order and persists each checkpoint atomically. */
     fun execute(
         request: Request,
     ): Result {
@@ -347,6 +351,19 @@ class McpRunnerExecutor(
         startedAt: Long,
     ): Long = (System.nanoTime() - startedAt) / 1_000_000
 
+    /**
+     * Input needed to inspect, record, or execute one generated runner.
+     *
+     * @property manifestPath Filesystem path to the executable runner manifest.
+     * @property endpoint Streamable HTTP MCP endpoint used for capability discovery and execution.
+     * @property fileKey Figma file key passed to write-capable MCP tools.
+     * @property clientName Identity reported by the Kotlin MCP client.
+     * @property projectDisplayName Human-readable project name used in MCP operation descriptions.
+     * @property statePath Optional checkpoint path; defaults beside the runner manifest.
+     * @property visualStatePath Optional previous visual state used for incremental planning.
+     * @property planPath Optional visual sync plan that limits the execution scope.
+     * @property options Resume, retry, and staging options applied by the execution planner.
+     */
     data class Request(
         val manifestPath: String,
         val endpoint: String = "http://127.0.0.1:3845/mcp",
@@ -359,6 +376,16 @@ class McpRunnerExecutor(
         val options: McpExecutionOptions = McpExecutionOptions(),
     )
 
+    /**
+     * Read-only projection of the execution selected for a runner request.
+     *
+     * @property manifestHash Integrity hash of the loaded executable manifest.
+     * @property statePath Resolved checkpoint path.
+     * @property reuseStaging Whether the selected execution may reuse canonical staging.
+     * @property decision Optional visual plan decision in its wire representation.
+     * @property executionScopes Optional scopes selected by the visual sync plan.
+     * @property executionFiles Ordered runner files that would execute.
+     */
     data class Inspection(
         val manifestHash: String,
         val statePath: String,
@@ -368,6 +395,13 @@ class McpRunnerExecutor(
         val executionFiles: List<String>,
     )
 
+    /**
+     * Outcome of a completed MCP runner invocation.
+     *
+     * @property state Persisted checkpoint state after execution.
+     * @property executionFiles Ordered runner files selected for this invocation.
+     * @property toolNames MCP tools advertised by the endpoint used for execution.
+     */
     data class Result(
         val state: McpExecutionState,
         val executionFiles: List<String>,

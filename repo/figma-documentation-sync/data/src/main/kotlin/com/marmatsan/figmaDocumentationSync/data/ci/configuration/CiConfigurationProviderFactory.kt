@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.data.ci.configuration
 
 /** Creates the CI adapter selected by the project configuration. */
 object CiConfigurationProviderFactory {
+    /** Instantiates the no-argument provider identified by [providerClassName]. */
     fun create(
         providerClassName: String,
     ): CiConfigurationProvider {

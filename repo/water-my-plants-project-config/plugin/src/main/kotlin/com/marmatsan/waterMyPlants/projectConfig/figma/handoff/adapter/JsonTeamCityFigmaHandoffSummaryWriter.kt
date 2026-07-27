@@ -7,6 +7,7 @@ import java.io.File
 
 /** Writes the handoff JSON beside the canonical artifact set. */
 internal class JsonTeamCityFigmaHandoffSummaryWriter : TeamCityFigmaHandoffSummaryWriter {
+    /** Writes pretty, deterministic [summary] JSON into [artifactDirectory]. */
     override fun write(
         artifactDirectory: File,
         summary: JsonObject,

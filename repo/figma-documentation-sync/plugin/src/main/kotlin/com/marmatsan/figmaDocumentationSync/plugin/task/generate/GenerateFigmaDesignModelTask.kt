@@ -41,72 +41,90 @@ import java.time.Instant
     because = "Generation records Git, environment, and current-time runtime state",
 )
 abstract class GenerateFigmaDesignModelTask : DefaultTask() {
+    /** Design-model name of the repository's primary dependency catalog. */
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
 
+    /** Provider class used to expose the main dependency catalog. */
     @get:Input
     abstract val dependencyCatalogProviderClassName: Property<String>
 
+    /** Whether the optional CI documentation adapter contributes model content. */
     @get:Input
     abstract val ciDocumentationEnabled: Property<Boolean>
 
+    /** Optional model name for the generated CI configuration. */
     @get:Input
     @get:Optional
     abstract val ciConfigurationModelName: Property<String>
 
+    /** Optional provider that loads generated CI configuration. */
     @get:Input
     @get:Optional
     abstract val ciConfigurationProviderClassName: Property<String>
 
+    /** Optional CI alias normalized to the canonical `main` branch. */
     @get:Input
     @get:Optional
     abstract val ciDefaultBranchAlias: Property<String>
 
+    /** Repository version sections rendered into the model. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
 
+    /** Main settings script used to discover production modules. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val rootSettingsFile: RegularFileProperty
 
+    /** Optional versioned topology contract for external CI services. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciExternalTopologyFile: RegularFileProperty
 
+    /** Optional versioned contract for the Windows CI runtime. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
+    /** Optional generated CI configuration materialized by the project adapter. */
     @get:InputDirectory
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciGeneratedConfigurationDirectory: DirectoryProperty
 
+    /** Settings scripts of included builds participating in the model. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includedBuildSettingsFiles: ConfigurableFileCollection
 
+    /** Design-model identities aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildModelNames: ListProperty<String>
 
+    /** Module path prefixes aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildModulePathPrefixes: ListProperty<String>
 
+    /** Catalog publication flags aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildPublishesCatalogs: ListProperty<Boolean>
 
+    /** Convention-plugin publication flags aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildPublishesConventionPlugins: ListProperty<Boolean>
 
+    /** Repository root used for module resolution and Git identity checks. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
 
     @get:Internal
     internal var includedBuildSourcesProvider: Provider<List<FigmaDesignModelIncludedBuildSource>>? = null
 
+    /** Canonical `design-model.json` artifact consumed by Figma synchronization. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 

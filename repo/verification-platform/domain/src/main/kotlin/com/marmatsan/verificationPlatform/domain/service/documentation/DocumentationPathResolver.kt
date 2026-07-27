@@ -1,6 +1,8 @@
 package com.marmatsan.verificationPlatform.domain.service.documentation
 
+/** Resolves and matches repository-relative documentation paths without filesystem access. */
 internal class DocumentationPathResolver {
+    /** Returns a slash-separated repository path without leading relative markers. */
     fun normalize(
         path: String,
     ): String =
@@ -14,6 +16,7 @@ internal class DocumentationPathResolver {
                 '/',
             )
 
+    /** Returns whether a literal or wildcard source declaration matches a repository entry. */
     fun sourceExists(
         source: String,
         repositoryEntries: Set<String>,
@@ -34,6 +37,7 @@ internal class DocumentationPathResolver {
         }
     }
 
+    /** Returns whether [path] matches at least one normalized wildcard pattern. */
     fun matchesAny(
         path: String,
         patterns: List<String>,
@@ -48,6 +52,11 @@ internal class DocumentationPathResolver {
             )
         }
 
+    /**
+     * Resolves a Markdown target relative to its containing document.
+     *
+     * @return the repository-relative target, or `null` when traversal escapes the repository root.
+     */
     fun resolve(
         documentPath: String,
         targetPath: String,

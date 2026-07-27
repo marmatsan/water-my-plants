@@ -208,6 +208,16 @@ tasks.register("verifyPortableDistribution") {
     )
 }
 
+val reusableBuildChecks =
+    listOf(
+        "figma-documentation-sync",
+        "gradle-plugins",
+        "verification-platform",
+        "water-my-plants-project-config",
+    ).map { buildName ->
+        gradle.includedBuild(buildName).task(":check")
+    }
+
 tasks.named("check") {
-    dependsOn(gradle.includedBuild("verification-platform").task(":check"))
+    dependsOn(reusableBuildChecks)
 }

@@ -21,16 +21,20 @@ import java.io.ByteArrayOutputStream
     because = "The current Git revision is runtime state",
 )
 abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
+    /** Canonical scope artifact produced by the preparation phase. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val scopeFile: RegularFileProperty
 
+    /** Model artifact required only by a full-verification scope. */
     @get:Internal
     abstract val designModelFile: RegularFileProperty
 
+    /** Repository root whose current Git revision must match the scope identity. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
 
+    /** Small handoff file containing the verified scope wire value. */
     @get:OutputFile
     abstract val verifiedScopeFile: RegularFileProperty
 

@@ -5,9 +5,11 @@ import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.model.CanonicalFi
 import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.CanonicalFigmaRunnerInspector
 import java.nio.file.Path
 
+/** Adapts the reusable MCP executor inspection to the project-config handoff model. */
 internal class DefaultCanonicalFigmaRunnerInspector(
     private val executor: McpRunnerExecutor = McpRunnerExecutor(),
 ) : CanonicalFigmaRunnerInspector {
+    /** Returns the pending execution selected by [manifestPath] and [planPath]. */
     override fun inspect(
         manifestPath: Path,
         planPath: Path,

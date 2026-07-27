@@ -4,12 +4,14 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Resolves versioned CI node identities to the visual environment icon contract. */
 internal class CiVisualEnvironmentResolver {
+    /** Returns the visual environment mapped to an external topology [id]. */
     fun external(
         id: String,
     ): CiVisualPlan.Environment =
         externalEnvironments[id]
             ?: throw IllegalArgumentException("External CI node '$id' has no .ci icon environment mapping.")
 
+    /** Returns the visual environment mapped to a Windows runtime service [id]. */
     fun windowsRuntime(
         id: String,
     ): CiVisualPlan.Environment =

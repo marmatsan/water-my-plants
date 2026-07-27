@@ -6,6 +6,7 @@ class EnvironmentTeamCityAutomationCredentialsProvider(
     private val cloudflareAccessTokenProvider: CloudflareAccessTokenProvider =
         CloudflareHttpAccessTokenProvider(),
 ) : TeamCityAutomationCredentialsProvider {
+    /** Loads TeamCity credentials and obtains a short-lived Access token for [serverUrl]. */
     override fun load(
         serverUrl: String,
     ): TeamCityAutomationCredentials {

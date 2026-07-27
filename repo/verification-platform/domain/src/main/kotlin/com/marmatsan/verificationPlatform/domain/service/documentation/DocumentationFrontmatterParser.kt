@@ -1,6 +1,13 @@
 package com.marmatsan.verificationPlatform.domain.service.documentation
 
+/** Parses the constrained YAML frontmatter subset owned by the documentation contract. */
 internal class DocumentationFrontmatterParser {
+    /**
+     * Parses leading frontmatter without interpreting arbitrary YAML features.
+     *
+     * @param content complete Markdown source.
+     * @return parsed frontmatter, or `null` when the document does not begin with a valid block.
+     */
     fun parse(
         content: String,
     ): DocumentationFrontmatter? {

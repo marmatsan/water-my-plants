@@ -1,8 +1,12 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import java.net.URI
+
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
+    id("org.jetbrains.dokka")
 }
 
 val portableVersion = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
@@ -42,4 +46,40 @@ gradlePlugin {
         id = "com.marmatsan.waterMyPlantsProjectConfig"
         implementationClass = "com.marmatsan.waterMyPlants.projectConfig.WaterMyPlantsProjectConfigPlugin"
     }
+}
+
+dokka {
+    moduleName.set("water-my-plants-project-config-plugin")
+
+    dokkaPublications.html {
+        failOnWarning.set(true)
+        includes.from(
+            "docs/dokka/README.md",
+        )
+    }
+
+    dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
+        reportUndocumented.set(true)
+
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl.set(
+                URI(
+                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
+                        "repo/water-my-plants-project-config/plugin/src/main/kotlin",
+                ),
+            )
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn("dokkaGenerate")
 }

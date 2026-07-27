@@ -21,8 +21,10 @@ class KotlinSdkMcpClient private constructor(
 ) : McpClientPort {
     private val assetUploader = KtorFigmaPngAssetUploader()
 
+    /** Returns the tool names advertised by the connected MCP endpoint. */
     override suspend fun listToolNames(): List<String> = client.listTools().tools.map { tool -> tool.name }
 
+    /** Reads and joins every text segment exposed by the MCP resource at [uri]. */
     override suspend fun readTextResource(
         uri: String,
     ): String =
@@ -38,6 +40,7 @@ class KotlinSdkMcpClient private constructor(
             .joinToString("\n") { content -> content.text }
             .trim()
 
+    /** Evaluates [code] in the target Figma file through the official `use_figma` tool. */
     override suspend fun useFigma(
         fileKey: String,
         code: String,
@@ -56,6 +59,7 @@ class KotlinSdkMcpClient private constructor(
                     ),
             ).toDomain()
 
+    /** Requests [count] single-use upload URLs for [fileKey] from the Figma MCP endpoint. */
     override suspend fun requestAssetUpload(
         fileKey: String,
         count: Int,
@@ -70,6 +74,7 @@ class KotlinSdkMcpClient private constructor(
                     ),
             ).toDomain()
 
+    /** Uploads a validated PNG payload to the single-use Figma [url]. */
     override suspend fun uploadAsset(
         url: String,
         bytes: ByteArray,
@@ -78,6 +83,7 @@ class KotlinSdkMcpClient private constructor(
         bytes = bytes,
     )
 
+    /** Closes both the MCP session and its underlying HTTP client. */
     override fun close() {
         runBlocking { client.close() }
         httpClient.close()
@@ -89,7 +95,9 @@ class KotlinSdkMcpClient private constructor(
             text = content.filterIsInstance<TextContent>().joinToString("\n") { value -> value.text }.trim(),
         )
 
+    /** Creates connected SDK adapters while keeping transport construction outside consumers. */
     companion object {
+        /** Opens a Streamable HTTP MCP session at [endpoint] using [clientName] as its identity. */
         fun connect(
             endpoint: String,
             clientName: String,

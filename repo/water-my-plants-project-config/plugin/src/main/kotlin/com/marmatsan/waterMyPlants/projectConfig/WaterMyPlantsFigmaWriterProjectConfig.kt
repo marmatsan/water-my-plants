@@ -8,10 +8,12 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaProjectLink
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaVersionSectionTarget
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaWriterProjectConfig
 
+/** Repository-owned composition of Water My Plants Figma identities and publication targets. */
 internal object WaterMyPlantsFigmaWriterProjectConfig {
     private const val GITHUB_MAIN_BLOB_URL = "https://github.com/marmatsan/water-my-plants/blob/main"
     private const val GITHUB_MAIN_TREE_URL = "https://github.com/marmatsan/water-my-plants/tree/main"
 
+    /** Complete portable project contract consumed by the reusable Figma plugin and writer. */
     val value =
         FigmaWriterProjectConfig(
             metadataPageId = "62934:908",

@@ -23,6 +23,7 @@ import me.tatarka.inject.annotations.Inject
 internal class CatalogUsageChecker(
     private val projectCatalogTreesPort: ProjectCatalogTreesPort,
 ) {
+    /** Compares catalog declarations with all supported repository usage sources in [request]. */
     fun check(
         request: CatalogUsageCheckRequest,
     ): CatalogUsageCheckResult {

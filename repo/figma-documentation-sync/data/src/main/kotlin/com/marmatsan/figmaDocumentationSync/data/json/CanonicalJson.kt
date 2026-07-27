@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonObject
 
 /** Canonical JSON representation with recursively sorted object keys. */
 object CanonicalJson {
+    /** Serializes [value] with deterministic object-key ordering. */
     fun stringify(
         value: JsonElement,
     ): String =

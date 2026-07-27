@@ -17,6 +17,7 @@ import java.io.File
 internal class CanonicalFigmaSyncTasksRegistrar(
     private val context: FigmaPluginContext,
 ) {
+    /** Registers the canonical classification, generation, validation, and verification task chain. */
     fun register() {
         val project = context.project
         val extension = context.extension

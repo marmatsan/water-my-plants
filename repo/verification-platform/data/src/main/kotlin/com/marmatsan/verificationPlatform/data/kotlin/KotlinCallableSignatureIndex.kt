@@ -51,12 +51,14 @@ internal class KotlinCallableSignatureIndex private constructor(
     }
 
     internal companion object {
+        /** Empty index used when the repository has no Kotlin source files. */
         val EMPTY =
             KotlinCallableSignatureIndex(
                 signaturesByName = emptyMap(),
                 functionValues = emptySet(),
             )
 
+        /** Builds a deterministic callable index from the supplied Kotlin [sourceFiles]. */
         fun from(
             sourceFiles: List<File>,
         ): KotlinCallableSignatureIndex {
@@ -90,7 +92,11 @@ internal class KotlinCallableSignatureIndex private constructor(
     }
 }
 
-/** One call argument used to map positional values to source parameter names. */
+/**
+ * One call argument used to map positional values to source parameter names.
+ *
+ * @property argumentName explicit source name, or `null` when the argument is positional.
+ */
 internal data class KotlinCallArgument(
     val argumentName: String?,
 )

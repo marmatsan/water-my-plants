@@ -18,33 +18,42 @@ import org.gradle.work.DisableCachingByDefault
     because = "Downloads a canonical artifact and uploads its PNG to Figma",
 )
 abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
+    /** Optional TeamCity build to download, mutually exclusive with [artifactDirectory]. */
     @get:Input
     @get:Optional
     abstract val buildId: Property<Long>
 
+    /** Optional existing artifact set, mutually exclusive with [buildId]. */
     @get:InputDirectory
     @get:Optional
     abstract val artifactDirectory: DirectoryProperty
 
+    /** Secret single-use Figma MCP upload URL excluded from cache inputs. */
     @get:Internal
     abstract val uploadUrl: Property<String>
 
+    /** Safe root beneath which downloaded artifacts are extracted. */
     @get:Internal
     abstract val destinationRoot: DirectoryProperty
 
+    /** Project directory used as the TeamCity CLI working directory. */
     @get:Internal
     abstract val projectDirectory: DirectoryProperty
 
+    /** Required repository revision when existing local artifacts are supplied. */
     @get:Input
     @get:Optional
     abstract val expectedGitSha: Property<String>
 
+    /** Accepted TeamCity spellings of the canonical `main` branch. */
     @get:Input
     abstract val mainBranchAliases: ListProperty<String>
 
+    /** Build configuration name allowed to publish production artifacts. */
     @get:Input
     abstract val requiredBuildTypeName: Property<String>
 
+    /** Validates all artifact and payload identities before the single upload side effect. */
     @TaskAction
     fun upload() {
         val artifacts = artifactDirectory.orNull?.asFile

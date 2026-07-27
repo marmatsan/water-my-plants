@@ -8,6 +8,7 @@ import java.io.File
 /** Git adapter that compares the current checkout with `origin/main`. */
 @Inject
 class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
+    /** Resolves committed paths changed from `origin/main` under [repositoryRootPath]. */
     override fun read(
         repositoryRootPath: String,
     ): RepositoryChangeSet {

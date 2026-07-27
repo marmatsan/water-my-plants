@@ -97,7 +97,10 @@ abstract class CheckModuleBoundariesTask : DefaultTask() {
         )
 
     internal companion object {
+        /** Non-printing delimiter used to serialize forbidden references through a Gradle map property. */
         const val REFERENCE_SEPARATOR = "\u001F"
+
+        /** Detects forbidden sibling included-build wiring in a settings script. */
         val RELATIVE_INCLUDED_BUILD = Regex("""includeBuild\s*\(\s*[\"']\.\./""")
     }
 }

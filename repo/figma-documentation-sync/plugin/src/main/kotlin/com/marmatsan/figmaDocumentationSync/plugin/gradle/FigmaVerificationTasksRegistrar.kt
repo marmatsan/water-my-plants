@@ -16,6 +16,7 @@ import java.io.File
 internal class FigmaVerificationTasksRegistrar(
     private val context: FigmaPluginContext,
 ) {
+    /** Registers independent verification tasks and their stable lifecycle dependencies. */
     fun register() {
         registerChangeImpactClassifier()
         registerArtifactValidation()

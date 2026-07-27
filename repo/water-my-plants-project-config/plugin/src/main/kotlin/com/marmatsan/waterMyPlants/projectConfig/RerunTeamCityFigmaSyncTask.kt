@@ -14,27 +14,35 @@ import org.gradle.work.DisableCachingByDefault
     because = "Reads and mutates external TeamCity run state",
 )
 abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
+    /** Public TeamCity HTTPS origin protected by Cloudflare Access. */
     @get:Input
     abstract val serverUrl: Property<String>
 
+    /** Whether to validate access without queueing a run. */
     @get:Input
     abstract val validateOnly: Property<Boolean>
 
+    /** Whether to wait for and require successful run completion. */
     @get:Input
     abstract val waitForCompletion: Property<Boolean>
 
+    /** Bounded interval between TeamCity status polls. */
     @get:Input
     abstract val pollIntervalSeconds: Property<Int>
 
+    /** Bounded maximum number of minutes to await completion. */
     @get:Input
     abstract val timeoutMinutes: Property<Int>
 
+    /** Canonical Figma Sync TeamCity build configuration id. */
     @get:Input
     abstract val buildTypeId: Property<String>
 
+    /** Canonical branch on which the pipeline may be queued. */
     @get:Input
     abstract val branch: Property<String>
 
+    /** Resolves credentials and performs one idempotent validation or rerun. */
     @TaskAction
     fun rerun() {
         val credentials = EnvironmentTeamCityAutomationCredentialsProvider().load(serverUrl.get())

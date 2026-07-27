@@ -5,6 +5,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTr
 
 /** Pure enrichment of plugin catalog entries with their repository usage. */
 internal class DefaultPluginCatalogUsageEnricher : PluginCatalogUsageEnricher {
+    /** Applies [mainUsages] and [conventionPluginUsages] to every node in [tree]. */
     override fun enrich(
         tree: PluginCatalogTree,
         mainUsages: Map<String, Set<String>>,

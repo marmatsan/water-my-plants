@@ -10,8 +10,8 @@ plugins {
 
 ## Purpose
 
-Configures shared Dokka API documentation defaults for gradle-plugins modules that
-expose documented Kotlin APIs.
+Configures shared Dokka API documentation defaults for Kotlin modules that
+expose documented APIs.
 
 Use this convention when a module should generate Dokka HTML documentation with
 consistent visibility, source links, and source-set defaults.
@@ -20,9 +20,9 @@ consistent visibility, source links, and source-set defaults.
 
 - Applies `org.jetbrains.dokka`.
 - Sets the Dokka module name from the Gradle project path.
-- Documents public API only.
-- Keeps undocumented declarations as non-failing while documentation is being
-  introduced incrementally.
+- Documents public and internal Kotlin declarations.
+- Reports undocumented declarations and fails the module `check` lifecycle on
+  Dokka warnings.
 - Skips empty packages.
 - Suppresses generated files.
 - Adds source links for `src/main/kotlin` declarations when that source
@@ -57,16 +57,10 @@ Use `remoteLineSuffix = "#L"` for GitHub line links.
 
 ## Tasks
 
-Use the DGP v2 task names:
+Once the plugin is applied in a consuming build, use the DGP v2 task names:
 
 ```powershell
-.\gradlew.bat -p repo/gradle-plugins :<module>:dokkaGenerate
-```
-
-For example:
-
-```powershell
-.\gradlew.bat -p repo/gradle-plugins :dependencies:dokkaGenerate
+.\gradlew.bat :<documented-module>:dokkaGenerate
 ```
 
 `dokkaGenerateHtml` may appear in the IDE, but it is an alias for the HTML
@@ -81,8 +75,8 @@ used.
 When KDoc in `src/main` references a sample, keep the sample visible to the main
 source set if IDE resolution matters. In practice, internal sample helpers under
 `src/main/kotlin/.../samples/` work well: Dokka can render them, Android Studio
-can resolve them, and they do not become public API when Dokka documents only
-public declarations.
+can resolve them, and their `internal` visibility keeps them outside the
+consumer API even though strict Dokka output includes them.
 
 Register sample files in the consuming module:
 

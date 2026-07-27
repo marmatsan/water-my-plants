@@ -28,6 +28,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.versions.VersionsFileSou
  * module.
  */
 internal object DomainKDocSamples {
+    /** Demonstrates visible and hidden catalog version values. */
     fun catalogVersionSample() {
         val visibleVersion =
             CatalogVersion(
@@ -43,6 +44,7 @@ internal object DomainKDocSamples {
         check(!hiddenVersion.visible)
     }
 
+    /** Demonstrates artifact and bundle catalog entries with usage metadata. */
     fun libraryCatalogEntrySample() {
         val artifact =
             LibraryCatalogEntry.Artifact(
@@ -83,6 +85,7 @@ internal object DomainKDocSamples {
         check(bundle.artifacts.contains("ui-tooling"))
     }
 
+    /** Demonstrates the stable rendered form of a module dependency. */
     fun moduleDependencySample() {
         val dependency =
             ModuleDependency(
@@ -93,6 +96,7 @@ internal object DomainKDocSamples {
         check(dependency.render() == ":app -> :core:ui")
     }
 
+    /** Demonstrates a named repository version section. */
     fun repositoryVersionSectionSample() {
         val section =
             RepositoryVersionSection(
@@ -103,6 +107,7 @@ internal object DomainKDocSamples {
         check(section.versions["kotlinVersion"] == "2.4.0")
     }
 
+    /** Demonstrates a repository versions port and source. */
     fun repositoryVersionsPortSample() {
         val port =
             object : RepositoryVersionsPort {
@@ -142,6 +147,7 @@ internal object DomainKDocSamples {
         check(sections.single().name == "Main project dependencies")
     }
 
+    /** Demonstrates library and plugin catalog tree ports. */
     fun projectCatalogTreesPortSample() {
         val port =
             object : ProjectCatalogTreesPort {
@@ -199,6 +205,7 @@ internal object DomainKDocSamples {
         check(pluginTree.roots.single().id == "org")
     }
 
+    /** Demonstrates reading project modules from an included build source. */
     fun projectModulesPortSample() {
         val port =
             object : ProjectModulesPort {
@@ -229,6 +236,7 @@ internal object DomainKDocSamples {
         check(":gradle-plugins:dependencies" in modules)
     }
 
+    /** Demonstrates reading module dependencies for a project scope. */
     fun projectModuleDependenciesPortSample() {
         val port =
             object : ProjectModuleDependenciesPort {

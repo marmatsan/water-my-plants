@@ -20,11 +20,13 @@ import java.time.ZoneOffset
     because = "The warning depends on the current UTC date",
 )
 abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
+    /** Optional versioned topology contract whose validation date is checked. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciExternalTopologyFile: RegularFileProperty
 
+    /** Emits a warning only after the topology contract's declared freshness interval. */
     @TaskAction
     fun checkFreshness() {
         val topologyFile = ciExternalTopologyFile.orNull?.asFile ?: return

@@ -5,6 +5,7 @@ import org.gradle.api.Project
 
 /** Composes the Water My Plants adapters around the reusable Figma plugin. */
 class WaterMyPlantsProjectConfigPlugin : Plugin<Project> {
+    /** Applies the reusable plugin and delegates repository configuration to focused registrars. */
     override fun apply(
         project: Project,
     ) {

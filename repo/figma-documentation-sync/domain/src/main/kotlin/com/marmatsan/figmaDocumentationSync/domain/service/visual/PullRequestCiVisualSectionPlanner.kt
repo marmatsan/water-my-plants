@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Plans the detailed pull-request merge-gate flow. */
 internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
+    /** Builds the pull-request merge-gate flow section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

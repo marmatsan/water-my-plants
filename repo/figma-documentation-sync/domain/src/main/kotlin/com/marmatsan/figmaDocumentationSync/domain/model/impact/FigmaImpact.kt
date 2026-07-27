@@ -1,6 +1,10 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.impact
 
-/** Kind of effect that a repository change can have on Figma documentation. */
+/**
+ * Kind of effect that a repository change can have on Figma documentation.
+ *
+ * @property wireValue stable value serialized in impact artifacts.
+ */
 enum class FigmaImpact(
     val wireValue: String,
 ) {

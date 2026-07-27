@@ -15,6 +15,7 @@ internal class GradleConventionPluginCatalogUsageSource(
     private val reader: GradleConventionCatalogUsageReader,
     private val mainReader: GradleMainCatalogUsageReader,
 ) : ConventionPluginCatalogUsageSource {
+    /** Aggregates library usage from included builds that publish convention plugins. */
     override fun libraryUsages(
         rootDir: File,
         includedBuilds: List<IncludedBuildSource>,
@@ -56,6 +57,7 @@ internal class GradleConventionPluginCatalogUsageSource(
             }
     }
 
+    /** Aggregates plugin usage from included builds that publish convention plugins. */
     override fun pluginUsages(
         rootDir: File,
         includedBuilds: List<IncludedBuildSource>,

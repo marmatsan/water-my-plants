@@ -6,6 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal class WindowsRuntimeCiVisualSectionPlanner(
     private val environments: CiVisualEnvironmentResolver,
 ) : CiVisualSectionPlanner {
+    /** Builds the Windows CI runtime services section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

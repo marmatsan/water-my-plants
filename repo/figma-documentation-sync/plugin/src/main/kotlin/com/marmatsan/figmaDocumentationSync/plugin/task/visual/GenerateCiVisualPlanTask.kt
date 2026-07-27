@@ -18,21 +18,26 @@ import org.gradle.api.tasks.TaskAction
 /** Generates the deterministic CI visual plan consumed by the TypeScript Figma adapter. */
 @CacheableTask
 abstract class GenerateCiVisualPlanTask : DefaultTask() {
+    /** Canonical design model containing CI configuration and topology. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val designModelFile: RegularFileProperty
 
+    /** Runtime project contract selecting CI visual layout and model names. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val writerProjectConfigFile: RegularFileProperty
 
+    /** Optional single CI visual target to select from the complete plan. */
     @get:Input
     @get:Optional
     abstract val target: Property<String>
 
+    /** Serialized visual plan consumed by the Figma writer adapter. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /** Materializes the deterministic CI visual plan selected by the project contract. */
     @TaskAction
     fun generate() {
         val runtimeConfig =

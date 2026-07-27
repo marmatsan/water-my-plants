@@ -5,6 +5,9 @@ package com.marmatsan.figmaDocumentationSync.domain.model.ci
  *
  * Concrete CI adapters translate their generated configuration into this
  * portable representation before it reaches the design-model generator.
+ *
+ * @property pipelines effective pipelines keyed by their stable ids.
+ * @property vcsRoots repositories referenced by the effective jobs.
  */
 data class CiConfiguration(
     val pipelines: List<CiPipeline>,

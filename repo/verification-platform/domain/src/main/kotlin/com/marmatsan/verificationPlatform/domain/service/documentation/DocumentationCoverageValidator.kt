@@ -7,6 +7,13 @@ import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageViol
 internal class DocumentationCoverageValidator(
     private val paths: DocumentationPathResolver = DocumentationPathResolver(),
 ) {
+    /**
+     * Finds changed source groups whose configured documentation surface was not changed.
+     *
+     * @param changedPaths repository-relative paths included in the change.
+     * @param rules source-to-documentation coverage rules to evaluate.
+     * @return one violation for every matched rule without a documentation change.
+     */
     fun validate(
         changedPaths: List<String>,
         rules: List<DocumentationCoverageRule>,

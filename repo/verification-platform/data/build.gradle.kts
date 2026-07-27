@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.PathSensitivity
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
@@ -93,6 +94,12 @@ dokka {
     }
 
     dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
         reportUndocumented.set(true)
 
         sourceLink {

@@ -7,6 +7,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /** Decodes writer identity values stored in Figma shared plugin data. */
 object FigmaSyncMetadataJson {
+    /** Reads the previous writer identity from [sharedPluginData] under [namespace]. */
     fun read(
         sharedPluginData: Map<String, Map<String, String>>,
         namespace: String,

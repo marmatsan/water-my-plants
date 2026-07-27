@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption
 
 /** Atomic JSON checkpoint adapter for MCP execution state. */
 class McpExecutionStateJson {
+    /** Reads a checkpoint from [path], returning `null` when it does not exist. */
     fun readOptional(
         path: String,
     ): McpExecutionState? {
@@ -38,6 +39,7 @@ class McpExecutionStateJson {
         return state
     }
 
+    /** Atomically replaces [path] with the canonical serialization of [state]. */
     fun writeAtomic(
         state: McpExecutionState,
         path: String,

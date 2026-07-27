@@ -3,7 +3,9 @@ package com.marmatsan.waterMyPlants.projectConfig.catalog
 import com.marmatsan.dependencies.catalog.DependencyCatalogTrees
 import java.io.File
 
+/** Builds the Water My Plants dependency catalog from resolved or symbolic versions. */
 object WaterMyPlantsCatalog {
+    /** Resolves version values from the repository rooted at [rootDir]. */
     fun resolved(
         rootDir: File,
     ): DependencyCatalogTrees =
@@ -11,6 +13,7 @@ object WaterMyPlantsCatalog {
             versions = Versions.load(rootDir),
         )
 
+    /** Builds the same catalog with property names as version aliases for documentation scanning. */
     fun withVersionAliases(): DependencyCatalogTrees =
         catalogTrees(
             versions = versionAliases,

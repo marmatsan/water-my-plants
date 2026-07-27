@@ -9,6 +9,7 @@ class GradleIncludedBuildCatalogUsageReader {
     private val scanner = GradleCatalogSourceScanner()
     private val parser = GradleCatalogUsageParser(scanner)
 
+    /** Reads library catalog aliases consumed by included-build modules. */
     fun readLibraryUsages(
         rootDir: File,
         modulePathPrefix: String,
@@ -23,6 +24,7 @@ class GradleIncludedBuildCatalogUsageReader {
             )
         }
 
+    /** Reads plugin catalog aliases consumed by included-build modules. */
     fun readPluginUsages(
         rootDir: File,
         modulePathPrefix: String,

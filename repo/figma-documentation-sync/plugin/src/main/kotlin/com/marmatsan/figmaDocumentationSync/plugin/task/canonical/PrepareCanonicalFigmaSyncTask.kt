@@ -35,48 +35,61 @@ import java.io.File
     because = "Builds the TypeScript Figma boundary and generates canonical runner artifacts",
 )
 abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
+    /** Classified repository impact that determines whether writer generation is required. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val changeImpactFile: RegularFileProperty
 
+    /** Versioned policy used to fingerprint writer scopes. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val changeImpactPolicyFile: RegularFileProperty
 
+    /** Canonical design model generated earlier in the task chain. */
     @get:Internal
     abstract val designModelFile: RegularFileProperty
 
+    /** Repository root used to resolve sources and the current Git revision. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
 
+    /** Optional Figma metadata node used to plan an incremental visual sync. */
     @get:Input
     @get:Optional
     abstract val metadataNodeUrl: Property<String>
 
+    /** Optional shared plugin-data namespace holding the previous sync identity. */
     @get:Input
     @get:Optional
     abstract val metadataNamespace: Property<String>
 
+    /** Tooling directory containing the Figma writer package and source templates. */
     @get:Internal
     abstract val toolsDirectory: DirectoryProperty
 
+    /** Portable project contract consumed while compiling and generating runners. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val writerProjectConfigFile: RegularFileProperty
 
+    /** Destination recreated with visual and metadata runner directories. */
     @get:OutputDirectory
     abstract val runnerOutputDirectory: DirectoryProperty
 
+    /** Canonical visual plan generated beside the synchronization scope. */
     @get:Internal
     abstract val visualSyncPlanFile: RegularFileProperty
 
+    /** Shared canonical scope consumed by later validation and CI phases. */
     @get:OutputFile
     abstract val scopeFile: RegularFileProperty
 
+    /** Canonical payload transport used by generated runners. */
     @get:Input
     abstract val runnerTransport: Property<String>
 
+    /** Maximum staging chunk length when chunk transport is selected. */
     @get:Input
     abstract val runnerChunkSize: Property<Int>
 

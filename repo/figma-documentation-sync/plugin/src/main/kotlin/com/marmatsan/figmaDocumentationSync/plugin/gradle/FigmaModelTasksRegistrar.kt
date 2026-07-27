@@ -10,6 +10,7 @@ import java.io.File
 internal class FigmaModelTasksRegistrar(
     private val context: FigmaPluginContext,
 ) {
+    /** Registers the design-model and CI visual-plan generators and returns the model task. */
     fun register(): TaskProvider<GenerateFigmaDesignModelTask> {
         registerCiVisualPlan()
         return registerDesignModel()

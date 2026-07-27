@@ -9,6 +9,7 @@ class TeamCityFigmaSyncRerunner(
     private val buildTypeId: String = "WaterMyPlants_WaterMyPlantsFigmaSync",
     private val branch: String = "main",
 ) {
+    /** Validates access, reuses an active run, or queues exactly one run according to [request]. */
     fun rerun(
         request: Request = Request(),
     ): TeamCityFigmaSyncRerunResult {
@@ -140,6 +141,14 @@ class TeamCityFigmaSyncRerunner(
             reused = reused,
         )
 
+    /**
+     * Operator controls for a bounded, idempotent Figma Sync rerun.
+     *
+     * @property validateOnly verifies credentials and read access without queueing a run.
+     * @property waitForCompletion waits for and validates a successful terminal status.
+     * @property pollIntervalSeconds bounded interval passed to TeamCity polling.
+     * @property timeoutMinutes bounded maximum wait for run completion.
+     */
     data class Request(
         val validateOnly: Boolean = false,
         val waitForCompletion: Boolean = false,

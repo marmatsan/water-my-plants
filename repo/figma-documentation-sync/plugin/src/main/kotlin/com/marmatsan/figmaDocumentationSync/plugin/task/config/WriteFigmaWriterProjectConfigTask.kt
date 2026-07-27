@@ -11,12 +11,15 @@ import org.gradle.api.tasks.TaskAction
 /** Writes the repository-owned writer configuration as a transient JSON build input. */
 @CacheableTask
 abstract class WriteFigmaWriterProjectConfigTask : DefaultTask() {
+    /** Canonical project configuration JSON produced by the repository adapter. */
     @get:Input
     abstract val configurationJson: Property<String>
 
+    /** Transient JSON file consumed by the Figma writer toolchain. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /** Materializes [configurationJson] without interpreting repository-specific fields. */
     @TaskAction
     fun write() {
         val destination = outputFile.get().asFile

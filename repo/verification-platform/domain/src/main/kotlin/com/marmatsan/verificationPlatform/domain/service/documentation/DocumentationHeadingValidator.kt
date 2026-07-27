@@ -2,6 +2,7 @@ package com.marmatsan.verificationPlatform.domain.service.documentation
 
 /** Validates required Markdown headings for each typed-document contract. */
 internal class DocumentationHeadingValidator : TypedDocumentationRule {
+    /** Validates the title and type-specific second-level headings required by the document contract. */
     override fun validate(
         context: TypedDocumentationContext,
         findings: DocumentationFindings,

@@ -9,6 +9,7 @@ import java.net.http.HttpResponse
 class CloudflareHttpAccessTokenProvider(
     private val send: (URI, Map<String, String>) -> CloudflareAccessResponse = ::sendRequest,
 ) : CloudflareAccessTokenProvider {
+    /** Performs the HTTPS service-auth exchange and extracts the `CF_Authorization` cookie. */
     override fun exchange(
         serverUrl: String,
         teamCityToken: String,

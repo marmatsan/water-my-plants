@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets
 
 /** Renders the JavaScript boundary evaluated by Figma from packaged templates. */
 class McpRunnerSourceRenderer {
+    /** Renders the operation that removes stale canonical staging data. */
     fun clearStaging(
         metadataPageId: String,
         namespace: String,
@@ -30,6 +31,7 @@ class McpRunnerSourceRenderer {
                 ),
         )
 
+    /** Renders one validated append operation for a chunked staging value. */
     fun appendChunk(
         metadataPageId: String,
         namespace: String,
@@ -66,6 +68,7 @@ class McpRunnerSourceRenderer {
                 ),
         )
 
+    /** Renders the operation that decodes and stages a previously uploaded PNG payload. */
     fun stagePayloadFromPng(
         metadataPageId: String,
         namespace: String,
@@ -99,6 +102,7 @@ class McpRunnerSourceRenderer {
                 ),
         )
 
+    /** Renders the operation that validates and commits the staged canonical identity. */
     fun finalizeStaging(
         metadataPageId: String,
         namespace: String,
@@ -123,6 +127,7 @@ class McpRunnerSourceRenderer {
                 ),
         )
 
+    /** Renders the operation that invokes one model [modelTarget] for [executionScope]. */
     fun runTarget(
         metadataPageId: String,
         namespace: String,
@@ -157,6 +162,7 @@ class McpRunnerSourceRenderer {
                 ),
         )
 
+    /** Builds the canonical identity that generated staging code must verify. */
     fun expectedIdentity(
         modelHash: String,
         gitSha: String,
@@ -196,6 +202,7 @@ class McpRunnerSourceRenderer {
             )
         }
 
+    /** Returns deterministic hashes for every packaged JavaScript template. */
     fun templateHashes(): Map<String, String> =
         TEMPLATE_NAMES.associateWith { templateName ->
             Sha256Hash.of(

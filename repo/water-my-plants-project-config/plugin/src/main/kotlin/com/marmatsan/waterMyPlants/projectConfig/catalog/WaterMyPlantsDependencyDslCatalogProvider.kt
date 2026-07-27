@@ -24,6 +24,7 @@ class WaterMyPlantsDependencyDslCatalogProvider : DependencyDslCatalogProvider {
             pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
         )
 
+    /** Builds the Water My Plants library tree and enriches it with repository usage. */
     override fun readLibraryTreeWithVersionAliases(
         rootDirPath: String,
         conventionPluginIncludedBuilds: List<IncludedBuildSource>,
@@ -33,6 +34,7 @@ class WaterMyPlantsDependencyDslCatalogProvider : DependencyDslCatalogProvider {
             conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
         )
 
+    /** Builds the Water My Plants plugin tree and enriches it with repository usage. */
     override fun readPluginTreeWithVersionAliases(
         rootDirPath: String,
         conventionPluginIncludedBuilds: List<IncludedBuildSource>,

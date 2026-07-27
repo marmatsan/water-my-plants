@@ -4,6 +4,14 @@ package com.marmatsan.verificationPlatform.domain.service.documentation
 internal class DocumentationLinkValidator(
     private val paths: DocumentationPathResolver = DocumentationPathResolver(),
 ) {
+    /**
+     * Adds errors for local Markdown links that cannot resolve to a repository entry.
+     *
+     * @param documentPath repository-relative path of the document containing the links.
+     * @param content complete Markdown source.
+     * @param repositoryEntries normalized repository paths available to link targets.
+     * @param findings accumulator that receives broken-link errors.
+     */
     fun validate(
         documentPath: String,
         content: String,

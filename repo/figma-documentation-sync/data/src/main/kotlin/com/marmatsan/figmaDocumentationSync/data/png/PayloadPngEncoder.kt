@@ -13,6 +13,7 @@ import java.util.zip.DeflaterOutputStream
 
 /** Encodes a canonical writer payload in a valid one-pixel PNG text chunk. */
 class PayloadPngEncoder {
+    /** Serializes [payload] to the language-neutral ASCII JSON embedded in the PNG. */
     fun payloadJson(
         payload: CanonicalSyncPayload,
     ): String {
@@ -37,6 +38,7 @@ class PayloadPngEncoder {
             ).toAsciiJson()
     }
 
+    /** Embeds canonical [payloadJson] in a valid one-pixel PNG `tEXt` chunk. */
     fun encode(
         payloadJson: String,
     ): ByteArray {
@@ -136,11 +138,18 @@ class PayloadPngEncoder {
             }
         }
 
+    /** Constants shared by runner generation, upload validation, and the Figma decoder. */
     companion object {
+        /** PNG text-chunk key under which the canonical payload is stored. */
         const val TEXT_KEYWORD = "figmaSyncPayload"
+
+        /** Version of the JSON contract encoded inside the PNG. */
         const val PAYLOAD_SCHEMA_VERSION = 3
+
+        /** Maximum PNG size accepted by the Figma MCP asset endpoint. */
         const val MAX_FIGMA_UPLOAD_ASSET_BYTES = 10 * 1024 * 1024
 
+        /** Standard eight-byte signature used to identify PNG files. */
         val PNG_SIGNATURE =
             byteArrayOf(
                 -119,

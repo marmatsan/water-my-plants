@@ -3,7 +3,9 @@ package com.marmatsan.verificationPlatform.data.kotlin
 import java.io.File
 import kotlin.system.exitProcess
 
+/** Command-line boundary for checking or formatting the repository Kotlin style contract. */
 internal object RepositoryKotlinStyleCli {
+    /** Executes `check` or `format` for the repository root supplied in [args]. */
     @JvmStatic
     fun main(
         args: Array<String>,

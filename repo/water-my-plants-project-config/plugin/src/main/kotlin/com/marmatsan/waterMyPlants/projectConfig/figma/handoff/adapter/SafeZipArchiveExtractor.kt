@@ -8,6 +8,7 @@ import java.util.zip.ZipInputStream
 
 /** Extracts ZIP archives while preventing entries from escaping the destination root. */
 internal class SafeZipArchiveExtractor : ArtifactArchiveExtractor {
+    /** Extracts [archive] after normalizing and validating every entry below [destination]. */
     override fun extract(
         archive: File,
         destination: File,

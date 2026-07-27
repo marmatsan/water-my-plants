@@ -5,6 +5,13 @@ product dependency catalog, product versions, Figma/TeamCity identities, and
 the adapters that connect reusable repository tooling. Reusable sibling builds
 must not contain these paths, ids, or concrete implementations.
 
+## API Documentation
+
+The `catalog` and `plugin` modules publish Dokka HTML for public and internal
+Kotlin declarations. Each module `check` reports undocumented declarations and
+fails on Dokka warnings, so product composition ports, adapters, models, tasks,
+and configuration types keep their KDoc contracts current.
+
 ## Water My Plants Adapter
 
 The active adapter consists of:

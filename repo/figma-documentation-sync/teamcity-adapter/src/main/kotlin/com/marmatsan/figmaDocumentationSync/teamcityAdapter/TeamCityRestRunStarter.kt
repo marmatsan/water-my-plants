@@ -43,6 +43,7 @@ class TeamCityRestRunStarter(
         }
     }
 
+    /** Queues [buildTypeId] on [branch] through the authenticated public REST endpoint. */
     override fun startRun(
         buildTypeId: String,
         branch: String,
@@ -93,6 +94,12 @@ class TeamCityRestRunStarter(
         )
     }
 
+    /**
+     * Minimal HTTP response projection exposed by the injectable transport boundary.
+     *
+     * @property statusCode HTTP response status used to validate queueing.
+     * @property body UTF-8 response body containing the created run or error details.
+     */
     data class Response(
         val statusCode: Int,
         val body: String,

@@ -7,6 +7,14 @@ import kotlinx.serialization.Serializable
  *
  * The API exposes many more fields; unknown fields are ignored by
  * [com.marmatsan.figmaDocumentationSync.data.figma.client.FigmaFileContentClient].
+ *
+ * @property id stable Figma node id.
+ * @property name current Figma layer name.
+ * @property type Figma node type wire value.
+ * @property visible whether the node participates in visible rendering.
+ * @property characters text content for text nodes.
+ * @property sharedPluginData plugin data keyed by namespace and key.
+ * @property children recursively decoded child nodes.
  */
 @Serializable
 data class FigmaNode(

@@ -17,6 +17,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
     private val uploadPng: (String, ByteArray) -> Unit =
         KtorFigmaPngAssetUploader()::uploadBlocking,
 ) {
+    /** Prepares and verifies one canonical artifact set before uploading its exact PNG payload. */
     fun upload(
         request: Request,
     ): Result {
@@ -95,6 +96,17 @@ class TeamCityCanonicalFigmaPayloadUploader(
         )
     }
 
+    /**
+     * Inputs that identify and constrain the canonical payload being uploaded.
+     *
+     * @property buildId TeamCity build to download, mutually exclusive with [artifactDirectory].
+     * @property artifactDirectory existing local artifact set, mutually exclusive with [buildId].
+     * @property uploadUrl single-use Figma MCP PNG destination.
+     * @property destinationRoot safe root for downloaded and extracted artifacts.
+     * @property expectedGitSha required repository revision for local artifacts.
+     * @property mainBranchAliases accepted TeamCity spellings of the canonical branch.
+     * @property requiredBuildTypeName build configuration allowed to supply production artifacts.
+     */
     data class Request(
         val buildId: Long?,
         val artifactDirectory: File?,
@@ -110,6 +122,17 @@ class TeamCityCanonicalFigmaPayloadUploader(
         val requiredBuildTypeName: String = "Generate main design model",
     )
 
+    /**
+     * Verified identity of the PNG payload accepted for upload.
+     *
+     * @property buildId source TeamCity build when artifacts were downloaded.
+     * @property gitSha repository revision declared by the canonical manifest.
+     * @property modelHash canonical design-model hash declared by the manifest.
+     * @property payloadFileName verified PNG file name.
+     * @property payloadByteLength verified PNG byte length.
+     * @property payloadSha256 verified PNG content hash.
+     * @property artifactDirectory prepared artifact set containing the uploaded payload.
+     */
     data class Result(
         val buildId: Long?,
         val gitSha: String,

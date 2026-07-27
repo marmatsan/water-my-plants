@@ -9,6 +9,7 @@ import org.gradle.kotlin.dsl.configure
 
 /** Selects the Water My Plants catalog through the public catalog settings API. */
 class WaterMyPlantsSettingsPlugin : Plugin<Settings> {
+    /** Applies the reusable settings plugin and supplies the Water My Plants catalog provider. */
     override fun apply(
         settings: Settings,
     ) {

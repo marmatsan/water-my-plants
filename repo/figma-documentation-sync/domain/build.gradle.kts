@@ -1,6 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import org.gradle.api.publish.maven.MavenPublication
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
@@ -71,12 +72,21 @@ dokka {
     moduleName.set("figmaDocumentationSync-domain")
 
     dokkaPublications.html {
+        failOnWarning.set(true)
         includes.from(
             "docs/dokka/README.md",
         )
     }
 
     dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
+        reportUndocumented.set(true)
+
         samples.from(
             file("src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/samples/DomainKDocSamples.kt"),
         )
@@ -92,4 +102,8 @@ dokka {
             remoteLineSuffix.set("#L")
         }
     }
+}
+
+tasks.named("check") {
+    dependsOn("dokkaGenerate")
 }

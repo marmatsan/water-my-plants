@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.catalog.DependencyDslCat
 
 /** Creates the project adapter selected by the Gradle project configuration. */
 object DependencyDslCatalogProviderFactory {
+    /** Instantiates the no-argument catalog provider identified by [providerClassName]. */
     fun create(
         providerClassName: String,
     ): DependencyDslCatalogProvider {

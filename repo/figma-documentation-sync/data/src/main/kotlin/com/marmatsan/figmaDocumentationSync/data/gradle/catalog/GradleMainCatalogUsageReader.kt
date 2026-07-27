@@ -9,6 +9,7 @@ class GradleMainCatalogUsageReader {
     private val scanner = GradleCatalogSourceScanner()
     private val parser = GradleCatalogUsageParser(scanner)
 
+    /** Reads library and bundle aliases consumed by main-build modules. */
     fun readLibraryUsages(
         rootDir: File,
     ): LibraryUsages =
@@ -20,6 +21,7 @@ class GradleMainCatalogUsageReader {
                 )
         }
 
+    /** Reads plugin catalog aliases consumed by main-build modules. */
     fun readPluginUsages(
         rootDir: File,
     ): Map<String, Set<String>> =
@@ -32,6 +34,7 @@ class GradleMainCatalogUsageReader {
             )
         }
 
+    /** Reads literal plugin ids declared by main-build modules. */
     fun readLiteralPluginUsages(
         rootDir: File,
     ): Map<String, Set<String>> =
@@ -44,6 +47,7 @@ class GradleMainCatalogUsageReader {
             )
         }
 
+    /** Reads literal plugin ids applied by main-build modules. */
     fun readAppliedLiteralPluginUsages(
         rootDir: File,
     ): Map<String, Set<String>> =
@@ -56,6 +60,7 @@ class GradleMainCatalogUsageReader {
             )
         }
 
+    /** Returns all literal plugin ids applied in the main build. */
     fun readAppliedLiteralPluginIds(
         rootDir: File,
     ): Set<String> =

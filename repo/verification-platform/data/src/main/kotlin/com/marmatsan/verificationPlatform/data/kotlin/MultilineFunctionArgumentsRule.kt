@@ -42,6 +42,7 @@ internal class MultilineFunctionArgumentsRule(
             ),
     ),
     RuleAutocorrectApproveHandler {
+    /** Inspects parameter and argument lists and emits repository layout or naming violations. */
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,

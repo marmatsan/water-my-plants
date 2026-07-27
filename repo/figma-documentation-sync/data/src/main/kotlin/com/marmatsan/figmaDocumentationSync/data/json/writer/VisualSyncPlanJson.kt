@@ -23,6 +23,7 @@ import java.nio.file.Path
 
 /** Canonical hasher and filesystem JSON adapter for [VisualSyncPlan]. */
 class VisualSyncPlanJson : VisualSyncPlanHasher {
+    /** Returns the canonical language-neutral hash of [body]. */
     override fun hash(
         body: VisualSyncPlanBody,
     ): String =
@@ -33,6 +34,7 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
                 ),
         )
 
+    /** Writes [plan] to [outputPath] using canonical JSON ordering. */
     fun write(
         plan: VisualSyncPlan,
         outputPath: String,
@@ -53,6 +55,7 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
         )
     }
 
+    /** Reads and verifies a visual synchronization plan from [inputPath]. */
     fun read(
         inputPath: String,
     ): VisualSyncPlan {

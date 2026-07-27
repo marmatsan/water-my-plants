@@ -1,10 +1,49 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import org.gradle.api.publish.maven.MavenPublication
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import java.net.URI
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
+    alias(plugins.plugins.org.jetbrains.dokka)
     `maven-publish`
+}
+
+dokka {
+    moduleName.set("figmaDocumentationSync-teamcity-adapter")
+
+    dokkaPublications.html {
+        failOnWarning.set(true)
+        includes.from(
+            "docs/dokka/README.md",
+        )
+    }
+
+    dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
+        reportUndocumented.set(true)
+
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl.set(
+                URI(
+                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
+                        "repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin",
+                ),
+            )
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn("dokkaGenerate")
 }
 
 repositories {

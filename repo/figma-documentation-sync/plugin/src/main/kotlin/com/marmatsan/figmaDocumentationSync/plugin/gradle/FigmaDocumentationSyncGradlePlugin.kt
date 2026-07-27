@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.create
 /** Composes the focused task registrars that expose the Figma documentation-sync Gradle API. */
 @Suppress("unused")
 class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
+    /** Creates the extension and delegates task registration to focused collaborators. */
     override fun apply(
         project: Project,
     ) {

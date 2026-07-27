@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.domain.service.visual
 
 /** Compares TeamCity artifact rules with required portable artifact paths. */
 internal class CiArtifactPathMatcher {
+    /** Returns whether a published artifact rule contains [requiredFile]. */
     fun contains(
         publishedPath: String,
         requiredFile: String,

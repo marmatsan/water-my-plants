@@ -6,6 +6,7 @@ import java.io.File
 internal class GradleCatalogUsageParser(
     private val scanner: GradleCatalogSourceScanner,
 ) {
+    /** Parses direct library coordinates and bundles used by one convention-plugin source. */
     fun conventionLibraryUsages(
         kotlinFile: File,
         rootDir: File,
@@ -33,6 +34,7 @@ internal class GradleCatalogUsageParser(
         )
     }
 
+    /** Parses coordinate-to-configuration assignments in one convention-plugin source. */
     fun conventionLibraryConfigurationUsages(
         kotlinFile: File,
         rootDir: File,
@@ -63,6 +65,7 @@ internal class GradleCatalogUsageParser(
         )
     }
 
+    /** Parses plugins applied programmatically by one convention-plugin source. */
     fun appliedPlugins(
         kotlinFile: File,
         rootDir: File,
@@ -79,6 +82,7 @@ internal class GradleCatalogUsageParser(
                 ),
             ) { match -> match.groupValues[1] }
 
+    /** Parses library aliases consumed by one included-build module. */
     fun includedBuildLibraryAliases(
         buildFile: File,
         rootDir: File,
@@ -94,6 +98,7 @@ internal class GradleCatalogUsageParser(
                 ),
             ) { match -> match.groupValues[1] }
 
+    /** Parses plugin aliases consumed by one included-build module. */
     fun includedBuildPluginAliases(
         buildFile: File,
         rootDir: File,
@@ -109,6 +114,7 @@ internal class GradleCatalogUsageParser(
                 ),
             ) { match -> match.groupValues[1] }
 
+    /** Parses library and bundle aliases consumed by one main-build module. */
     fun mainLibraryAliases(
         buildFile: File,
         rootDir: File,
@@ -132,6 +138,7 @@ internal class GradleCatalogUsageParser(
         )
     }
 
+    /** Parses plugin catalog aliases consumed by one main-build module. */
     fun mainPluginAliases(
         buildFile: File,
         rootDir: File,
@@ -142,6 +149,7 @@ internal class GradleCatalogUsageParser(
             regex = mainPluginAliasRegex,
         )
 
+    /** Parses literal plugin ids declared by one main-build module. */
     fun mainLiteralPluginUsages(
         buildFile: File,
         rootDir: File,
@@ -152,6 +160,7 @@ internal class GradleCatalogUsageParser(
             regex = literalPluginIdRegex,
         )
 
+    /** Parses literal plugin ids applied by one main-build module. */
     fun mainAppliedLiteralPluginUsages(
         buildFile: File,
         rootDir: File,
@@ -170,6 +179,7 @@ internal class GradleCatalogUsageParser(
         }
     }
 
+    /** Returns literal plugin ids applied by [buildFile]. */
     fun appliedLiteralPluginIds(
         buildFile: File,
     ): Sequence<String> =
@@ -177,10 +187,12 @@ internal class GradleCatalogUsageParser(
             content = buildFile.readText(),
         ).map { match -> match.groupValues[1] }
 
+    /** Returns whether [buildFile] declares a Gradle convention-plugin implementation. */
     fun isConventionPluginBuildFile(
         buildFile: File,
     ): Boolean = gradleConventionPluginImplementationRegex.containsMatchIn(buildFile.readText())
 
+    /** Returns plugin ids published by the convention-plugin [buildFile]. */
     fun conventionPluginIds(
         buildFile: File,
     ): Set<String> {

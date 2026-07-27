@@ -6,6 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogT
 
 /** Pure enrichment of library catalog entries with their repository usage. */
 internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher {
+    /** Applies [mainUsages] and [conventionPluginUsages] to every entry in [tree]. */
     override fun enrich(
         tree: LibraryCatalogTree,
         mainUsages: MainLibraryUsages,

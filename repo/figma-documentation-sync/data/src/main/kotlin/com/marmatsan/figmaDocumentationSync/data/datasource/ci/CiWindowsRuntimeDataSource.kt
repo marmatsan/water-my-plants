@@ -14,6 +14,7 @@ import java.io.File
 class CiWindowsRuntimeDataSource(
     private val reader: CiWindowsRuntimeYamlReader,
 ) : CiWindowsRuntimePort {
+    /** Reads the repository-owned Windows runtime YAML selected by [source]. */
     override fun readRuntime(
         source: CiWindowsRuntimeSource,
     ): CiWindowsRuntime =

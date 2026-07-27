@@ -17,27 +17,34 @@ import org.gradle.work.DisableCachingByDefault
     because = "Downloads and inspects canonical TeamCity artifacts",
 )
 abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
+    /** Optional TeamCity build to download, mutually exclusive with [artifactDirectory]. */
     @get:Input
     @get:Optional
     abstract val buildId: Property<Long>
 
+    /** Optional existing artifacts, mutually exclusive with [buildId]. */
     @get:InputDirectory
     @get:Optional
     abstract val artifactDirectory: DirectoryProperty
 
+    /** Safe root beneath which downloaded archives are extracted. */
     @get:Internal
     abstract val destinationRoot: DirectoryProperty
 
+    /** Optional repository revision that the canonical artifact contract must match. */
     @get:Input
     @get:Optional
     abstract val expectedGitSha: Property<String>
 
+    /** Accepted TeamCity spellings of the canonical `main` branch. */
     @get:Input
     abstract val mainBranchAliases: ListProperty<String>
 
+    /** Build configuration name allowed to publish the production artifact set. */
     @get:Input
     abstract val requiredBuildTypeName: Property<String>
 
+    /** Downloads when necessary, validates identity, and writes an operator handoff summary. */
     @TaskAction
     fun prepare() {
         val result =

@@ -10,6 +10,7 @@ import me.tatarka.inject.annotations.Inject
 /** Pure path classifier for repository changes that can affect Figma. */
 @Inject
 internal class FigmaChangeImpactClassifier {
+    /** Classifies [changeSet] with [policy] into verification scope and affected visual targets. */
     fun classify(
         changeSet: RepositoryChangeSet,
         policy: FigmaChangeImpactPolicy,

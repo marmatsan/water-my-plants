@@ -20,11 +20,13 @@ import java.time.ZoneOffset
     because = "The warning depends on the current UTC date",
 )
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
+    /** Optional versioned Windows runtime contract whose validation date is checked. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
+    /** Emits a warning only after the runtime contract's declared freshness interval. */
     @TaskAction
     fun checkFreshness() {
         val runtimeFile = ciWindowsRuntimeFile.orNull?.asFile ?: return

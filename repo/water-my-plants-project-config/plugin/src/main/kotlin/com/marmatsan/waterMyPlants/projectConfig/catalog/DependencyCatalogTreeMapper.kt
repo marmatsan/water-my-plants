@@ -12,6 +12,7 @@ import com.marmatsan.dependencies.catalog.api.PluginCatalogNode as SourcePluginC
 
 /** Pure mapper between the Dependency Catalog API and Figma catalog models. */
 internal class DependencyCatalogTreeMapper : CatalogTreeMapper {
+    /** Maps dependency-catalog library [roots] to a Figma domain tree. */
     override fun libraryTree(
         roots: List<SourceLibraryCatalogNode>,
     ): LibraryCatalogTree =
@@ -19,6 +20,7 @@ internal class DependencyCatalogTreeMapper : CatalogTreeMapper {
             roots = roots.map(::libraryNode),
         )
 
+    /** Maps dependency-catalog plugin [roots] to a Figma domain tree. */
     override fun pluginTree(
         roots: List<SourcePluginCatalogNode>,
     ): PluginCatalogTree =

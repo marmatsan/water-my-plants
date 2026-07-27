@@ -1,6 +1,10 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.impact
 
-/** Amount of repository verification required before evaluating Figma sync. */
+/**
+ * Amount of repository verification required before evaluating Figma sync.
+ *
+ * @property wireValue stable value serialized in scope artifacts.
+ */
 enum class FigmaVerificationScope(
     val wireValue: String,
 ) {

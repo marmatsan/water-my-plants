@@ -6,6 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal class InfrastructureCiVisualSectionPlanner(
     private val environments: CiVisualEnvironmentResolver,
 ) : CiVisualSectionPlanner {
+    /** Builds the external infrastructure and trust-boundary section. */
     override fun create(
         context: CiVisualPlanningContext,
     ): CiVisualPlan.Section {

@@ -13,6 +13,7 @@ class CiVisualPlanner internal constructor(
 ) {
     constructor() : this(defaultCiVisualSectionPlanners())
 
+    /** Creates the complete deterministic CI visual plan from versioned configuration inputs. */
     fun create(
         externalTopology: CiExternalTopology,
         windowsRuntime: CiWindowsRuntime,

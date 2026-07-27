@@ -1,6 +1,12 @@
 package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
 
-/** Usage index for libraries declared as direct coordinates, bundles, or aliases. */
+/**
+ * Usage index for libraries declared as direct coordinates, bundles, or aliases.
+ *
+ * @property coordinates consuming modules keyed by Maven coordinate.
+ * @property bundles consuming modules keyed by bundle alias.
+ * @property aliases consuming modules keyed by library alias.
+ */
 data class LibraryUsages(
     val coordinates: Map<String, Set<String>> = emptyMap(),
     val bundles: Map<String, Set<String>> = emptyMap(),

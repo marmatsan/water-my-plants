@@ -7,6 +7,7 @@ import java.io.File
 internal class GradleMainCatalogUsageSource(
     private val reader: GradleMainCatalogUsageReader,
 ) : MainCatalogUsageSource {
+    /** Reads direct library usages from product Gradle sources below [rootDir]. */
     override fun libraryUsages(
         rootDir: File,
     ): MainLibraryUsages {
@@ -21,6 +22,7 @@ internal class GradleMainCatalogUsageSource(
         )
     }
 
+    /** Reads directly applied plugin ids from product Gradle sources below [rootDir]. */
     override fun pluginUsages(
         rootDir: File,
     ): Map<String, Set<String>> =

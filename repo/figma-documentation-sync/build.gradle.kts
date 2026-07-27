@@ -3,6 +3,26 @@ plugins {
     `kotlin-dsl` apply false
 }
 
+tasks.named("check") {
+    dependsOn(
+        ":data:check",
+        ":domain:check",
+        ":plugin:check",
+        ":teamcity-adapter:check",
+    )
+}
+
+tasks.register("dokkaGenerate") {
+    group = "documentation"
+    description = "Generates all portable Figma documentation sync API references."
+    dependsOn(
+        ":data:dokkaGenerate",
+        ":domain:dokkaGenerate",
+        ":plugin:dokkaGenerate",
+        ":teamcity-adapter:dokkaGenerate",
+    )
+}
+
 @DisableCachingByDefault(
     because = "The verification task has no reusable output artifact",
 )

@@ -59,6 +59,21 @@ convention-plugin readers expose only the queries required by their consumers.
 Adding another consumer scope composes those reusable parsing services instead
 of expanding one repository-wide reader.
 
+## API Documentation
+
+The `domain`, `data`, `plugin`, and `teamcity-adapter` modules generate Dokka
+HTML for public and internal Kotlin declarations. Every module `check` reports
+undocumented declarations and fails on Dokka warnings, so ports, models,
+adapters, tasks, and composition boundaries must keep useful KDoc current.
+Generated HTML remains under each module's `build/dokka/` directory and is not
+committed.
+
+Generate the complete included-build reference with:
+
+```powershell
+.\gradlew.bat -p repo\figma-documentation-sync dokkaGenerate
+```
+
 Pure CI section planning is Kotlin-owned. `CiVisualPlanner` is a composition
 service: independent `CiVisualSectionPlanner` strategies own each section and
 produce a portable plan without adding section-specific branches to the

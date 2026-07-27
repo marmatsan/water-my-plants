@@ -15,6 +15,7 @@ import kotlinx.serialization.json.put
 object FigmaWriterProjectConfigJson {
     private val prettyJson = Json { prettyPrint = true }
 
+    /** Encodes [config] as the portable writer's canonical JSON projection. */
     fun encode(
         config: FigmaWriterProjectConfig,
     ): String =

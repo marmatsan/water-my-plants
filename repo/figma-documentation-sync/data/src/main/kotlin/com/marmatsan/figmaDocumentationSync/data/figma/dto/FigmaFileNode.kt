@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
  *
  * Figma may omit [document] for missing or inaccessible nodes, so callers must
  * validate it before using the node content.
+ *
+ * @property document requested Figma node content when accessible.
  */
 @Serializable
 data class FigmaFileNode(

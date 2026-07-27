@@ -41,6 +41,7 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
         summaryWriter = JsonTeamCityFigmaHandoffSummaryWriter(),
     )
 
+    /** Resolves, validates, inspects, and summarizes one canonical handoff [request]. */
     fun prepare(
         request: Request,
     ): Result {
@@ -82,6 +83,16 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
         )
     }
 
+    /**
+     * Inputs that select and constrain a canonical Figma artifact handoff.
+     *
+     * @property buildId TeamCity build to download, mutually exclusive with [artifactDirectory].
+     * @property artifactDirectory existing local artifacts, mutually exclusive with [buildId].
+     * @property destinationRoot safe root for downloaded and extracted artifacts.
+     * @property expectedGitSha optional repository revision required by the artifact contract.
+     * @property mainBranchAliases accepted TeamCity spellings of the canonical branch.
+     * @property requiredBuildTypeName build configuration allowed to publish production artifacts.
+     */
     data class Request(
         val buildId: Long?,
         val artifactDirectory: File?,
@@ -96,6 +107,13 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
         val requiredBuildTypeName: String = "Generate main design model",
     )
 
+    /**
+     * Prepared artifact set and its materialized operator summary.
+     *
+     * @property artifactDirectory normalized directory containing the validated artifact set.
+     * @property summaryFile JSON handoff written beside the artifacts.
+     * @property summary in-memory handoff contract returned to programmatic consumers.
+     */
     data class Result(
         val artifactDirectory: File,
         val summaryFile: File,

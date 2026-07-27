@@ -24,6 +24,7 @@ import kotlin.io.path.isRegularFile
 /** Filesystem JSON adapter for the canonical Figma Sync scope and runner identities. */
 @Inject
 class CanonicalFigmaSyncScopeJson {
+    /** Reads the classified Figma impact from [sourcePath]. */
     fun readChangeImpact(
         sourcePath: String,
     ): FigmaChangeImpact {
@@ -60,6 +61,7 @@ class CanonicalFigmaSyncScopeJson {
         )
     }
 
+    /** Reads a canonical generation scope from [sourcePath]. */
     fun read(
         sourcePath: String,
     ): CanonicalFigmaSyncScope {
@@ -112,6 +114,7 @@ class CanonicalFigmaSyncScopeJson {
         )
     }
 
+    /** Writes [scope] using canonical JSON ordering to [outputPath]. */
     fun write(
         scope: CanonicalFigmaSyncScope,
         outputPath: String,
@@ -130,6 +133,7 @@ class CanonicalFigmaSyncScopeJson {
         )
     }
 
+    /** Reads the visual and metadata runner identities beneath [rootPath]. */
     fun readRunnerManifests(
         rootPath: String,
     ): List<RunnerManifest> =

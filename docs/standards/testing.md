@@ -4,11 +4,12 @@ type: standard
 scope: repository
 owner: quality
 status: active
-last-reviewed: 2026-07-21
+last-reviewed: 2026-07-27
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
   - repo/gradle-plugins/bdd-test
+  - repo/gradle-plugins/dokka-documentation
   - app/src/test/resources/features
   - repo/verification-platform/domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd
   - repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd
@@ -55,25 +56,30 @@ sources:
 ## Living Documentation
 
 - Gherkin describes what behavior the system guarantees and why it matters.
-- KDoc and generated Dokka describe the public Kotlin API, parameters,
+- KDoc and generated Dokka describe the public and internal Kotlin API, parameters,
   invariants, and technical usage that implement those guarantees.
 - KtLint owns mechanical Kotlin and KDoc formatting; it does not establish that
   API documentation is useful or complete. The KDoc and Dokka rules below own
   that semantic coverage.
-- Every new or changed public Kotlin declaration MUST have useful KDoc in the
-  same change. Public data models document property semantics; services,
-  adapters, and tasks document inputs, results, side effects, invariants, and
-  relevant failures.
+- Every new or changed public or internal Kotlin declaration included in Dokka
+  MUST have useful KDoc in the same change. Data models document property
+  semantics; services, adapters, ports, strategies, and tasks document inputs,
+  results, side effects, invariants, and relevant failures.
 - Private implementation details and inherited behavior MUST NOT receive
   comments that only restate their signatures. Document the reason or contract
   when it is not evident from the code.
 - Module README files describe ownership, boundaries, dependencies, and where
   to find the executable behavior and API reference.
-- Dokka text MUST NOT restate scenarios line by line. It SHOULD link a public
+- Dokka text MUST NOT restate scenarios line by line. It SHOULD link a documented
   entry point to its behavior contract when that relationship is useful.
 - A module MAY adopt strict Dokka coverage incrementally. Once enabled, its
-  `check` task MUST report undocumented public declarations and fail on Dokka
-  warnings so documentation coverage cannot regress.
+  Dokka source sets MUST include `Public` and `Internal` visibility, and its
+  `check` task MUST report undocumented declarations and fail on Dokka warnings
+  so documentation coverage cannot regress.
+- An autonomous included build with strict modules MUST aggregate their `check`
+  tasks in its root `check`. Full repository verification MUST aggregate those
+  included-build checks so CI enforces the same documentation contract as a
+  local module build.
 - Generated Dokka HTML is a build artifact and MUST NOT be committed.
 
 ## Reliability
@@ -89,14 +95,15 @@ sources:
 
 Run the smallest affected test task while iterating and `./gradlew check` before
 merge. BDD changes additionally run `:app:testDebugUnitTest` or the owning
-module's equivalent task. Changes to public Kotlin APIs MUST run the owning
-module's `dokkaGenerate` task; modules with strict coverage include it in
-`check` automatically.
+module's equivalent task. Changes to public or internal Kotlin APIs MUST run
+the owning module's `dokkaGenerate` task; modules with strict coverage include
+it in `check` automatically.
 
 ## Sources
 
 - `repo/gradle-plugins/unit-test/`
 - `repo/gradle-plugins/bdd-test/`
+- `repo/gradle-plugins/dokka-documentation/`
 - `app/src/test/resources/features/`
 - `repo/verification-platform/domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/`
 - `repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/`

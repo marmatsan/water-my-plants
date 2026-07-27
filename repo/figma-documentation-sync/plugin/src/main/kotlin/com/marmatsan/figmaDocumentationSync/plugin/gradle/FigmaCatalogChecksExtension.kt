@@ -59,6 +59,7 @@ abstract class FigmaDocumentationSyncIncludedBuild
                 .property(Boolean::class.javaObjectType)
                 .convention(false)
 
+        /** Returns the stable Gradle container name of this included build. */
         override fun getName(): String = buildName
     }
 

@@ -23,17 +23,21 @@ import org.gradle.work.DisableCachingByDefault
     because = "The output records absolute paths from the staged artifact set",
 )
 abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
+    /** Directory containing the canonical model, scope, plan, manifests, and optional states. */
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val artifactDirectory: DirectoryProperty
 
+    /** Optional repository revision that every artifact identity must match. */
     @get:Input
     @get:Optional
     abstract val expectedGitSha: Property<String>
 
+    /** Typed JSON handoff written after the complete set passes validation. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /** Validates artifact coherence and writes the resolved handoff paths and identity. */
     @TaskAction
     fun validateArtifactSet() {
         val component = figmaDocumentationSyncComponent::class.create()
