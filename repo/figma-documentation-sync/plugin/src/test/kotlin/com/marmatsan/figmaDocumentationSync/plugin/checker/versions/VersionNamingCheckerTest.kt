@@ -3,6 +3,7 @@ package com.marmatsan.figmaDocumentationSync.plugin.checker.versions
 import com.marmatsan.figmaDocumentationSync.domain.model.versions.RepositoryVersionSection
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.VersionsFileSource
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -10,10 +11,8 @@ import java.io.File
 internal class VersionNamingCheckerTest :
     FunSpec(
         {
-
             test("check accepts the expected version section and suffix contract") {
-                // GIVEN
-                val checker =
+                given {
                     VersionNamingChecker(
                         repositoryVersionsPort =
                             FakeRepositoryVersionsPort(
@@ -46,23 +45,20 @@ internal class VersionNamingCheckerTest :
                                     ),
                             ),
                     )
-
-                // WHEN
-                val result =
+                }.whenever { checker ->
                     checker.check(
                         VersionNamingCheckRequest(
                             versionsFile = File("versions.properties"),
                         ),
                     )
-
-                // THEN
-                result.isSuccessful shouldBe true
-                result.violations shouldBe emptyList()
+                }.then { result ->
+                    result.isSuccessful shouldBe true
+                    result.violations shouldBe emptyList()
+                }
             }
 
             test("check reports invalid version sections and suffixes") {
-                // GIVEN
-                val checker =
+                given {
                     VersionNamingChecker(
                         repositoryVersionsPort =
                             FakeRepositoryVersionsPort(
@@ -88,27 +84,25 @@ internal class VersionNamingCheckerTest :
                                     ),
                             ),
                     )
-
-                // WHEN
-                val result =
+                }.whenever { checker ->
                     checker.check(
                         VersionNamingCheckRequest(
                             versionsFile = File("versions.properties"),
                         ),
                     )
-
-                // THEN
-                result.violations.map(
-                    transform = VersionNamingViolation::message,
-                ) shouldBe
-                    listOf(
-                        "Expected version sections in order: Main project dependencies, Libraries, Plugins. " +
-                            "Found: Libraries, Main project dependencies, Plugins.",
-                        "Main project dependencies must declare only androidGradlePluginVersion, kotlinVersion. " +
-                            "Found: androidGradlePluginVersion, kotlinVersion, kspPluginVersion.",
-                        "Libraries version key 'activityComposeVersion' must end with 'LibraryVersion'.",
-                        "Plugins version key 'dokkaVersion' must end with 'PluginVersion'.",
-                    )
+                }.then { result ->
+                    result.violations.map(
+                        transform = VersionNamingViolation::message,
+                    ) shouldBe
+                        listOf(
+                            "Expected version sections in order: Main project dependencies, Libraries, Plugins. " +
+                                "Found: Libraries, Main project dependencies, Plugins.",
+                            "Main project dependencies must declare only androidGradlePluginVersion, kotlinVersion. " +
+                                "Found: androidGradlePluginVersion, kotlinVersion, kspPluginVersion.",
+                            "Libraries version key 'activityComposeVersion' must end with 'LibraryVersion'.",
+                            "Plugins version key 'dokkaVersion' must end with 'PluginVersion'.",
+                        )
+                }
             }
         },
     )

@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
     implementation(libs.org.snakeyaml.engine)
 
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)

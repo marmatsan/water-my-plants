@@ -2,6 +2,7 @@ package com.marmatsan.figmaDocumentationSync.data.yaml.ci
 
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiConnection
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -17,8 +18,7 @@ internal class CiExternalTopologyYamlReaderTest :
                 )
 
             test("read maps versioned nodes connections and validation metadata") {
-                // GIVEN
-                val file =
+                given {
                     temporaryDirectory
                         .resolve("external-topology.yaml")
                         .apply {
@@ -52,45 +52,43 @@ internal class CiExternalTopologyYamlReaderTest :
                                 """.trimIndent(),
                             )
                         }
-
-                // WHEN
-                val topology = CiExternalTopologyYamlReader().read(file)
-
-                // THEN
-                topology.schemaVersion shouldBe 1
-                topology.validation.lastValidatedOn shouldBe
-                    LocalDate.of(
-                        2026,
-                        7,
-                        14,
-                    )
-                topology.validation.warnAfterDays shouldBe 90
-                topology.nodes.map(
-                    transform = CiNode::id,
-                ) shouldBe
-                    listOf(
-                        "operator",
-                        "teamcity-server",
-                    )
-                topology.connections.single() shouldBe
-                    CiConnection(
-                        id = "operator-teamcity",
-                        sourceNodeId = "operator",
-                        targetNodeId = "teamcity-server",
-                        label = "Start build",
-                        description = "Requests a build through TeamCity.",
-                        protocol = "HTTPS",
-                        authentication = listOf("TeamCity access token"),
-                        policy = "Service Auth",
-                        path = null,
-                        automation = CiConnection.Automation.Manual,
-                        annotation = "The interface may be the UI or CLI.",
-                    )
+                }.whenever { file ->
+                    CiExternalTopologyYamlReader().read(file)
+                }.then { topology ->
+                    topology.schemaVersion shouldBe 1
+                    topology.validation.lastValidatedOn shouldBe
+                        LocalDate.of(
+                            2026,
+                            7,
+                            14,
+                        )
+                    topology.validation.warnAfterDays shouldBe 90
+                    topology.nodes.map(
+                        transform = CiNode::id,
+                    ) shouldBe
+                        listOf(
+                            "operator",
+                            "teamcity-server",
+                        )
+                    topology.connections.single() shouldBe
+                        CiConnection(
+                            id = "operator-teamcity",
+                            sourceNodeId = "operator",
+                            targetNodeId = "teamcity-server",
+                            label = "Start build",
+                            description = "Requests a build through TeamCity.",
+                            protocol = "HTTPS",
+                            authentication = listOf("TeamCity access token"),
+                            policy = "Service Auth",
+                            path = null,
+                            automation = CiConnection.Automation.Manual,
+                            annotation = "The interface may be the UI or CLI.",
+                        )
+                }
             }
 
             test("read rejects connections to unknown nodes") {
-                // GIVEN
-                val file =
+                given {
                     temporaryDirectory
                         .resolve("invalid-external-topology.yaml")
                         .apply {
@@ -115,11 +113,13 @@ internal class CiExternalTopologyYamlReaderTest :
                                 """.trimIndent(),
                             )
                         }
-
-                // WHEN / THEN
-                shouldThrow<IllegalArgumentException> {
-                    CiExternalTopologyYamlReader().read(file)
-                }.message shouldBe "Unknown CI connection target 'teamcity-server'"
+                }.whenever { file ->
+                    shouldThrow<IllegalArgumentException> {
+                        CiExternalTopologyYamlReader().read(file)
+                    }
+                }.then { exception ->
+                    exception.message shouldBe "Unknown CI connection target 'teamcity-server'"
+                }
             }
         },
     )

@@ -14,5 +14,6 @@ tasks.named("check") {
         ":dokka-documentation:check",
         ":protobuf:check",
         ":unit-test:check",
+        ":unit-test-dsl:check",
     )
 }

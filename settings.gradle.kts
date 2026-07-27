@@ -19,6 +19,11 @@ pluginManagement {
     includeBuild("./repo/verification-platform")
     includeBuild("./repo/water-my-plants-project-config")
 }
+
+// The regular composite inclusion exposes repository-owned library coordinates
+// contributed by gradle-plugins, in addition to its pluginManagement role.
+includeBuild("./repo/gradle-plugins")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

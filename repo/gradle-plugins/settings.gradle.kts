@@ -12,6 +12,16 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    val versions =
+        java.util.Properties().apply {
+            file("versions.properties").inputStream().use(::load)
+        }
+
+    plugins {
+        id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
+        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
+    }
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -134,4 +144,5 @@ include(
     ":dokka-documentation",
     ":protobuf",
     ":unit-test",
+    ":unit-test-dsl",
 )

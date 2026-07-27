@@ -12,6 +12,8 @@ This directory contains Gradle convention plugins used by the rest of the projec
   - `dokka-documentation`: shared Dokka API documentation setup.
   - `protobuf`: Protobuf Gradle plugin setup and lite runtime dependencies.
   - `unit-test`: Kotest test configuration and shared test dependencies.
+  - `unit-test-dsl`: assertion-framework-agnostic typed behavior phases for
+    Kotlin tests.
 - Do not add product, UI, feature, or Android screen logic here.
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
 - All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
@@ -92,7 +94,13 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Executable BDD scenarios may use Cucumber through the `com.marmatsan.bddTest` convention plugin.
 - When executable BDD scenarios live inside `gradle-plugins` itself, mirror the `bdd-test` convention configuration explicitly because a plugin produced by the same Gradle build cannot be resolved by id from sibling gradle-plugins modules.
 - These test dependencies are available through the gradle-plugins version catalog declared in `settings.gradle.kts`.
-- Structure every test with explicit `GIVEN`, `WHEN`, and `THEN` sections. These words are wrapped in a single-line comment.
+- Structure Kotlin tests that express Given-When-Then behavior with the typed
+  `given { }.whenever { }.then { }` chain from `unit-test-dsl`. Do not use
+  section comments for these phases; repository Kotlin style verification
+  rejects them.
+- Keep assertions in Kotest and keep the behavior DSL independent of Kotest,
+  MockK, JUnit, and Cucumber. Cucumber step definitions remain the executable
+  boundary for `.feature` scenarios and do not use the unit-test DSL.
 - Do not execute tests for documentation-only changes. For gradle-plugins behavior changes, prefer focused verification commands for the modules that changed.
 - Useful verification commands:
   - `.\gradlew.bat check`

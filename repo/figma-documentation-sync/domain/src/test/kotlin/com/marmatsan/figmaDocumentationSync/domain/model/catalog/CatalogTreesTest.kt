@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.domain.model.catalog
 
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -7,41 +8,47 @@ import io.kotest.matchers.shouldBe
 internal class CatalogTreesTest :
     FunSpec(
         {
-
             test("catalog version is visible by default when it has a value") {
-                // WHEN
-                val version =
+                given {
+                    "2.4.0"
+                }.whenever { value ->
                     CatalogVersion(
-                        value = "2.4.0",
+                        value = value,
                     )
-
-                // THEN
-                version.visible shouldBe true
+                }.then { version ->
+                    version.visible shouldBe true
+                }
             }
 
             test("catalog version is hidden by default when it has no value") {
-                // WHEN
-                val version =
+                given<String?> {
+                    null
+                }.whenever { value ->
                     CatalogVersion(
-                        value = null,
+                        value = value,
                     )
-
-                // THEN
-                version.visible shouldBe false
+                }.then { version ->
+                    version.visible shouldBe false
+                }
             }
 
             test("catalog version cannot be visible without a value") {
-                shouldThrow<IllegalArgumentException> {
-                    CatalogVersion(
-                        value = null,
-                        visible = true,
-                    )
+                given<String?> {
+                    null
+                }.whenever { value ->
+                    shouldThrow<IllegalArgumentException> {
+                        CatalogVersion(
+                            value = value,
+                            visible = true,
+                        )
+                    }
+                }.then { exception ->
+                    exception.message shouldBe "A catalog version cannot be visible when its value is null"
                 }
             }
 
             test("library node shows artifacts by default when it has entries") {
-                // GIVEN
-                val entries =
+                given {
                     listOf(
                         LibraryCatalogEntry.Artifact(
                             artifact = "activity-compose",
@@ -51,16 +58,14 @@ internal class CatalogTreesTest :
                                 ),
                         ),
                     )
-
-                // WHEN
-                val node =
+                }.whenever { entries ->
                     LibraryCatalogNode(
                         group = "activity",
                         entries = entries,
                     )
-
-                // THEN
-                node.artifactsVisible shouldBe true
+                }.then { node ->
+                    node.artifactsVisible shouldBe true
+                }
             }
         },
     )

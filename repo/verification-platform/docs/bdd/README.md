@@ -20,9 +20,11 @@ must explain technical usage without copying the scenarios.
 Step definitions live under
 `../../domain/src/test/kotlin/com/marmatsan/verificationPlatform/domain/bdd/`.
 
-`repo/verification-platform` mirrors the shared Cucumber/JUnit Platform convention in its own
-included-build settings so `.\gradlew.bat -p repo/verification-platform ...` remains a supported,
-standalone verification path.
+`repo/verification-platform` mirrors the shared Cucumber/JUnit Platform
+configuration in its own settings. Repository development invokes it through
+the root composite so repository-owned test API coordinates are substituted
+from source. A standalone checkout resolves those coordinates from a staged or
+released repository and never includes a sibling build by filesystem path.
 
 ## Test Strategy
 
