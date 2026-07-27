@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerMan
 import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlanConfig
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaWriterRuntimeConfig
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -13,8 +14,13 @@ import java.nio.file.Files
 internal class CanonicalMcpRunnerGeneratorTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "canonical-mcp-runner-generator",
+                )
+
             test("generates canonical visual and metadata runners entirely from Kotlin") {
-                val root = Files.createTempDirectory("kotlin-mcp-runner")
+                val root = temporaryDirectory.toPath()
                 val tools =
                     root.resolve(
                         "repo/figma-documentation-sync/tools",
@@ -221,8 +227,6 @@ internal class CanonicalMcpRunnerGeneratorTest :
                         prefix = "10-designModelJson-",
                     )
                 } shouldBe true
-
-                root.toFile().deleteRecursively()
             }
         },
     )

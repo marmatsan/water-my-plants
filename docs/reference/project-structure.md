@@ -191,4 +191,6 @@ Generated files and local caches should not be treated as source:
 - generated Figma sync JavaScript under `repo/figma-documentation-sync/tools/`
 
 If a generated artifact is required for review, document how to regenerate it
-instead of treating the generated file as the source of truth.
+instead of treating the generated file as the source of truth. Delete it after
+its final consumer finishes; `./gradlew cleanTemporaryArtifacts` removes the
+repository `tmp/` tree and generated Figma tooling distribution.

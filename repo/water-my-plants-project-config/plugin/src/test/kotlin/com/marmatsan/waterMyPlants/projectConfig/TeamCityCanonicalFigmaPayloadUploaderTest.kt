@@ -8,10 +8,10 @@ import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.TeamCityFigmaSync
 import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.writeArtifactFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -21,9 +21,13 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
         {
             val uploadUrl =
                 "https://mcp.figma.com/mcp/upload/0d188fd2-0c70-46f5-b30a-6dd4f3904998/submit?scaleMode=FILL"
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "teamcity-figma-payload-uploader",
+                )
 
             test("uploads the hash-verified PNG from a successful main TeamCity build") {
-                val root = Files.createTempDirectory("figma-payload-upload").toFile()
+                val root = temporaryDirectory.resolve("upload").apply { mkdirs() }
                 val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
@@ -76,11 +80,10 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                     .resolve(
                         relative = "figma-sync-handoff.json",
                     ).shouldExist()
-                root.deleteRecursively()
             }
 
             test("rejects a PNG whose bytes no longer match the canonical manifest") {
-                val root = Files.createTempDirectory("figma-payload-tamper").toFile()
+                val root = temporaryDirectory.resolve("tamper").apply { mkdirs() }
                 val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
@@ -120,11 +123,10 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                     prefix = "Canonical PNG payload hash mismatch:",
                 ) shouldBe true
                 uploads shouldBe 0
-                root.deleteRecursively()
             }
 
             test("uploads a previously downloaded artifact only with an explicit revision") {
-                val root = Files.createTempDirectory("figma-payload-directory").toFile()
+                val root = temporaryDirectory.resolve("artifact-directory").apply { mkdirs() }
                 val artifacts =
                     root
                         .resolve(
@@ -183,7 +185,6 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 )
 
                 uploads shouldBe 1
-                root.deleteRecursively()
             }
         },
     )

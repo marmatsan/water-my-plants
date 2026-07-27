@@ -6,11 +6,17 @@ import com.marmatsan.verificationPlatform.domain.service.CiTopologyPlanner
 import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 
 class CiExecutionTopologyJsonTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "ci-execution-topology-json",
+                )
+
             test("round trips the preview topology contract") {
                 val plan =
                     CiPlanFactory(testCiPlanPolicy()).create(
@@ -28,10 +34,7 @@ class CiExecutionTopologyJsonTest :
                         availableAgents = 3,
                     )
                 val json = CiExecutionTopologyJson()
-                val output =
-                    kotlin.io.path
-                        .createTempFile()
-                        .toFile()
+                val output = temporaryDirectory.resolve("execution-topology.json")
 
                 json.write(
                     expected,

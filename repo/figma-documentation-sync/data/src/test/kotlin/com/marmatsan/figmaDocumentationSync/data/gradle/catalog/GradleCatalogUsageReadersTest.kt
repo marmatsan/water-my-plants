@@ -1,17 +1,21 @@
 package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 
 internal class GradleCatalogUsageReadersTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "gradle-catalog-usage-readers",
+                )
 
             test("readConventionLibraryUsages maps wrapper catalog dependencies to convention modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("convention-library-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("convention-library-usages").apply { mkdirs() }
                 val includedBuildRootDir =
                     rootDir.resolve(
                         relative = "repo/gradle-plugins",
@@ -75,7 +79,7 @@ internal class GradleCatalogUsageReadersTest :
 
             test("readConventionPluginIdsByModule maps convention plugin ids to their implementing modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("convention-plugin-ids").toFile()
+                val rootDir = temporaryDirectory.resolve("convention-plugin-ids").apply { mkdirs() }
                 val includedBuildRootDir =
                     rootDir.resolve(
                         relative = "repo/gradle-plugins",
@@ -125,7 +129,8 @@ internal class GradleCatalogUsageReadersTest :
                 "readConventionLibraryConfigurationUsages maps requireDependencyNotation calls to convention modules",
             ) {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("convention-library-configuration-usages").toFile()
+                val rootDir =
+                    temporaryDirectory.resolve("convention-library-configuration-usages").apply { mkdirs() }
                 val includedBuildRootDir =
                     rootDir.resolve(
                         relative = "repo/gradle-plugins",
@@ -187,7 +192,7 @@ internal class GradleCatalogUsageReadersTest :
 
             test("readMainLiteralPluginUsages maps literal plugin ids to main modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("main-literal-plugin-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("main-literal-plugin-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "",
                     content =
@@ -237,7 +242,7 @@ internal class GradleCatalogUsageReadersTest :
 
             test("readMainAppliedLiteralPluginUsages maps applied literal plugin ids to main modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("main-applied-literal-plugin-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("main-applied-literal-plugin-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "",
                     content =
@@ -273,7 +278,7 @@ internal class GradleCatalogUsageReadersTest :
 
             test("readMainAppliedLiteralPluginIds includes applied root plugin ids") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("main-applied-literal-plugin-ids").toFile()
+                val rootDir = temporaryDirectory.resolve("main-applied-literal-plugin-ids").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "",
                     content =

@@ -1,21 +1,21 @@
 package com.marmatsan.figmaDocumentationSync.data.properties.versions
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 
 internal class VersionsPropertiesReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "versions-properties-reader",
+                )
 
             test("readSections keeps version groups in file order") {
                 // GIVEN
                 val versionsFile =
-                    Files
-                        .createTempFile(
-                            "versions",
-                            ".properties",
-                        ).toFile()
+                    temporaryDirectory.resolve("versions.properties")
                 versionsFile.writeText(
                     """
                     ## Main project dependencies

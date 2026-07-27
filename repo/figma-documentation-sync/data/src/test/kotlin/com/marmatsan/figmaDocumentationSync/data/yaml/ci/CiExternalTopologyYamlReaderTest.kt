@@ -4,22 +4,23 @@ import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiConnection
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiNode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import java.time.LocalDate
 
 internal class CiExternalTopologyYamlReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "ci-external-topology-yaml",
+                )
 
             test("read maps versioned nodes connections and validation metadata") {
                 // GIVEN
                 val file =
-                    Files
-                        .createTempFile(
-                            "external-topology",
-                            ".yaml",
-                        ).toFile()
+                    temporaryDirectory
+                        .resolve("external-topology.yaml")
                         .apply {
                             writeText(
                                 """
@@ -90,11 +91,8 @@ internal class CiExternalTopologyYamlReaderTest :
             test("read rejects connections to unknown nodes") {
                 // GIVEN
                 val file =
-                    Files
-                        .createTempFile(
-                            "invalid-external-topology",
-                            ".yaml",
-                        ).toFile()
+                    temporaryDirectory
+                        .resolve("invalid-external-topology.yaml")
                         .apply {
                             writeText(
                                 """

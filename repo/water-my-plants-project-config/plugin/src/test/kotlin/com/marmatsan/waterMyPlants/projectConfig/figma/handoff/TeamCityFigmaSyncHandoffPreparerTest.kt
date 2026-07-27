@@ -13,12 +13,12 @@ import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuild
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuildArtifactClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
-import java.nio.file.Files
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
@@ -26,8 +26,13 @@ import java.time.ZoneOffset
 internal class TeamCityFigmaSyncHandoffPreparerTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "teamcity-figma-sync-handoff",
+                )
+
             test("prepares a validated handoff from an existing artifact directory") {
-                val root = Files.createTempDirectory("figma-handoff").toFile()
+                val root = temporaryDirectory.resolve("existing-artifacts").apply { mkdirs() }
                 val artifacts =
                     root
                         .resolve(
@@ -98,11 +103,10 @@ internal class TeamCityFigmaSyncHandoffPreparerTest :
                     "-PfigmaArtifactDirectory=\"${artifacts.toPath().toAbsolutePath().normalize()}\" " +
                     "-PfigmaExpectedGitSha=abc123 " +
                     "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
-                root.deleteRecursively()
             }
 
             test("rejects a TeamCity build that is not successful") {
-                val root = Files.createTempDirectory("figma-handoff-build").toFile()
+                val root = temporaryDirectory.resolve("failed-build").apply { mkdirs() }
                 val client =
                     object : TeamCityBuildArtifactClient {
                         override fun readBuild(
@@ -144,7 +148,6 @@ internal class TeamCityFigmaSyncHandoffPreparerTest :
 
                 exception.message shouldBe
                     "Build 1573 must be finished and successful; found state 'finished' and status 'FAILURE'."
-                root.deleteRecursively()
             }
         },
     )

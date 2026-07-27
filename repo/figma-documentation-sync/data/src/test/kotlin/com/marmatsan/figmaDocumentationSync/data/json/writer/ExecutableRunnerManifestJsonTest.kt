@@ -4,17 +4,22 @@ import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.json.CanonicalJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.nio.file.Files
 
 internal class ExecutableRunnerManifestJsonTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "executable-runner-manifest-json",
+                )
+
             test("rejects legacy schema 2 manifests even when their hash is valid") {
                 val body =
                     buildJsonObject {
@@ -140,25 +145,17 @@ internal class ExecutableRunnerManifestJsonTest :
                             ),
                     )
                 val source = JsonObject(body + ("manifestHash" to JsonPrimitive(manifestHash)))
-                val file =
-                    Files.createTempFile(
-                        "legacy-mcp-manifest",
-                        ".json",
-                    )
-                Files.writeString(
-                    file,
-                    source.toString(),
-                )
+                val file = temporaryDirectory.resolve("legacy-mcp-manifest.json")
+                file.writeText(source.toString())
 
                 val error =
                     shouldThrow<IllegalArgumentException> {
                         ExecutableRunnerManifestJson().read(
-                            path = file.toString(),
+                            path = file.path,
                         )
                     }
 
                 error.message shouldBe "Unsupported MCP manifest schema 2; expected 4 or newer."
-                Files.deleteIfExists(file)
             }
         },
     )

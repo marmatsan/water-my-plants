@@ -4,9 +4,10 @@ type: standard
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-27
 review-cycle-days: 180
 sources:
+  - build.gradle.kts
   - settings.gradle.kts
   - docs/reference/project-structure.md
   - repo/gradle-plugins
@@ -97,6 +98,21 @@ coordinates. It means source behavior does not know consumer products or
 sibling implementations, dependencies point toward stable APIs, and concrete
 adapter wiring is confined to an explicit composition root.
 
+## Temporary Artifact Ownership
+
+- Code that creates a temporary file or directory MUST own its lifecycle and
+  remove it after its final consumer finishes.
+- A producer MUST clean partially written temporary artifacts when it fails.
+- An artifact that intentionally crosses process or operational phases MAY
+  survive its producer, but its final consumer or documented completion step
+  MUST delete it.
+- Repository-local temporary artifacts MUST live below `tmp/`, a module
+  `build/` directory, or another explicitly ignored generated-output root.
+- Tests MUST register temporary resources with a lifecycle-aware fixture or
+  delete them from `finally`; successful assertions alone are not cleanup.
+- Run `./gradlew cleanTemporaryArtifacts` after supervised repository work that
+  creates root-level temporary or generated tooling artifacts.
+
 Line count alone is not a SOLID rule. Review reasons to change, dependency
 direction, contract size, substitutability, and extension points instead of
 using arbitrary class-size thresholds.
@@ -104,12 +120,15 @@ using arbitrary class-size thresholds.
 ## Verification
 
 Run `./gradlew checkModuleBoundaries checkIncludedBuildVersions` after
-dependency-boundary changes and `./gradlew check` before completion. Review
-each affected production type against all five SOLID principles. Automated
-boundary checks support this review but do not replace it.
+dependency-boundary changes, `./gradlew check` before completion, and
+`./gradlew cleanTemporaryArtifacts` after temporary outputs reach their final
+consumer. Review each affected production type against all five SOLID
+principles. Automated boundary checks support this review but do not replace
+it.
 
 ## Sources
 
+- `build.gradle.kts`
 - `settings.gradle.kts`
 - `docs/reference/project-structure.md`
 - `repo/gradle-plugins/`

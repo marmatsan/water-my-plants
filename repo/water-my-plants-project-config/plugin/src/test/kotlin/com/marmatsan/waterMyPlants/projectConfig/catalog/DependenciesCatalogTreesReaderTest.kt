@@ -12,9 +12,9 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNo
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 import com.marmatsan.dependencies.catalog.api.LibraryCatalogEntry as SourceLibraryCatalogEntry
 import com.marmatsan.dependencies.catalog.api.LibraryCatalogNode as SourceLibraryCatalogNode
 import com.marmatsan.dependencies.catalog.api.PluginCatalogNode as SourcePluginCatalogNode
@@ -22,6 +22,10 @@ import com.marmatsan.dependencies.catalog.api.PluginCatalogNode as SourcePluginC
 internal class DependenciesCatalogTreesReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "dependencies-catalog-trees-reader",
+                )
 
             test("readLibraryTree maps dependency library trees to catalog library trees") {
                 // GIVEN
@@ -231,7 +235,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
             test("readLibraryTreeWithVersionAliases scopes required modules to the main build catalog") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("water-my-plants-library-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("library-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "app",
                     content =
@@ -292,7 +296,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
             test("readLibraryTreeWithVersionAliases maps convention plugin providers to main build modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("water-my-plants-convention-library-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("convention-library-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "app",
                     content =
@@ -443,7 +447,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
             test("readLibraryTreeWithVersionAliases maps convention plugin tool artifact configuration") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("water-my-plants-convention-library-configuration").toFile()
+                val rootDir = temporaryDirectory.resolve("convention-library-configuration").apply { mkdirs() }
                 val includedBuildRootDir =
                     rootDir.resolve(
                         relative = "repo/gradle-plugins",
@@ -540,7 +544,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
             test("readPluginTreeWithVersionAliases scopes applied modules to the main build catalog") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("water-my-plants-plugin-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("plugin-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "app",
                     content =
@@ -600,7 +604,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
             test("readPluginTreeWithVersionAliases maps convention plugin providers to main build modules") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("water-my-plants-convention-plugin-usages").toFile()
+                val rootDir = temporaryDirectory.resolve("convention-plugin-usages").apply { mkdirs() }
                 rootDir.writeBuildFile(
                     path = "app",
                     content =

@@ -1,16 +1,24 @@
 package com.marmatsan.dependencies.gradle
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import java.nio.file.Files
 
 internal class DependencyCatalogSettingsPluginTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "dependency-catalog-settings",
+                )
+
             test("registers repository trees as library and plugin catalogs") {
-                val projectDirectory = Files.createTempDirectory("dependency-catalog-consumer").toFile()
+                val projectDirectory =
+                    temporaryDirectory.resolve("consumer").apply {
+                        mkdirs()
+                    }
                 projectDirectory.resolve("settings.gradle.kts").writeText(
                     """
                     import com.marmatsan.dependencies.catalog.api.DependencyCatalog

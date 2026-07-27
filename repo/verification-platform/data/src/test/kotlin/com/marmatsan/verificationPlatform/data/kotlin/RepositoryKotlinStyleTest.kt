@@ -1,24 +1,25 @@
 package com.marmatsan.verificationPlatform.data.kotlin
 
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 
 class RepositoryKotlinStyleTest :
     StringSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "repository-kotlin-style",
+                )
+
             "formats every declaration parameter and multiple call arguments vertically" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "FunctionArgumentLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("FunctionArgumentLayout.kt")
                 sourceFile.writeText(
                     """
                     fun greet(first: String, second: String) = combine(first, second)
@@ -56,11 +57,7 @@ class RepositoryKotlinStyleTest :
             "formats a single named argument vertically but leaves a clear positional argument inline" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "NamedFunctionArgumentLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("NamedFunctionArgumentLayout.kt")
                 sourceFile.writeText(
                     """
                     fun render(label: String) = Unit
@@ -104,11 +101,7 @@ class RepositoryKotlinStyleTest :
             "names arguments for repository Kotlin functions and constructors" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "NamedRepositoryCallLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("NamedRepositoryCallLayout.kt")
                 sourceFile.writeText(
                     """
                     data class Visit(
@@ -171,11 +164,7 @@ class RepositoryKotlinStyleTest :
             "leaves function value invocations positional because Kotlin does not support names" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "FunctionValueCallLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("FunctionValueCallLayout.kt")
                 sourceFile.writeText(
                     """
                     fun transform(
@@ -215,11 +204,7 @@ class RepositoryKotlinStyleTest :
             "indents nested function arguments relative to their own call" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "NestedFunctionArgumentLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("NestedFunctionArgumentLayout.kt")
                 sourceFile.writeText(
                     """
                     fun collect(
@@ -273,11 +258,7 @@ class RepositoryKotlinStyleTest :
             "does not infer repository parameter names for qualified or receiver scope calls" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "ReceiverCallLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("ReceiverCallLayout.kt")
                 sourceFile.writeText(
                     """
                     fun add(
@@ -323,11 +304,7 @@ class RepositoryKotlinStyleTest :
             "names recursive calls when their signature is unambiguous" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "RecursiveCallLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("RecursiveCallLayout.kt")
                 sourceFile.writeText(
                     """
                     fun check(
@@ -372,11 +349,7 @@ class RepositoryKotlinStyleTest :
             "does not infer named arguments for Kotlin Script DSL calls" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "kotlin-script-call-layout",
-                            ".kts",
-                        ).toFile()
+                    temporaryDirectory.resolve("kotlin-script-call-layout.kts")
                 sourceFile.writeText(
                     """
                     fun register(
@@ -421,11 +394,7 @@ class RepositoryKotlinStyleTest :
             "keeps short function type parameters inline inside a vertical declaration" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "FunctionTypeParameterLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("FunctionTypeParameterLayout.kt")
                 sourceFile.writeText(
                     """
                     fun <T, R> traverse(
@@ -464,11 +433,7 @@ class RepositoryKotlinStyleTest :
             "wraps function type parameters when their containing line exceeds the repository limit" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "LongFunctionTypeParameterLayout",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("LongFunctionTypeParameterLayout.kt")
                 sourceFile.writeText(
                     """
                     fun transform(
@@ -501,11 +466,7 @@ class RepositoryKotlinStyleTest :
             "reports violations before formatting and accepts the corrected source" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "function-argument-layout-check",
-                            ".kts",
-                        ).toFile()
+                    temporaryDirectory.resolve("function-argument-layout-check.kts")
                 sourceFile.writeText("register(\"check\", CheckTask::class.java)")
                 val layout = repositoryKotlinStyle()
 
@@ -525,11 +486,7 @@ class RepositoryKotlinStyleTest :
             "reports standard and repository-owned KtLint rules together" {
                 // GIVEN
                 val sourceFile =
-                    Files
-                        .createTempFile(
-                            "CombinedKotlinStyle",
-                            ".kt",
-                        ).toFile()
+                    temporaryDirectory.resolve("CombinedKotlinStyle.kt")
                 sourceFile.writeText("fun greet(name : String)=name")
                 val style = repositoryKotlinStyle()
 

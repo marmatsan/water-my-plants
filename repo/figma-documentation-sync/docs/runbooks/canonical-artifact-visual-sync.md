@@ -221,6 +221,17 @@ visual manifest, PNG length, SHA-256, signature, and destination allow-list
 before posting. It never prints or stores the upload URL. Run
 `10-stage-payload-from-png.mcp.js` only after this command succeeds.
 
+After the last visual unit and its verification have finished, remove the
+downloaded handoff, generated runners, and other repository-local temporary
+artifacts:
+
+```powershell
+.\gradlew.bat cleanTemporaryArtifacts
+```
+
+Do not run cleanup while another supervised handoff or UML publication still
+needs an artifact below `tmp/`.
+
 If the workstation uses reusable command permissions, authorize only
 `.\gradlew.bat uploadCanonicalFigmaPayload`. Do not replace the task with
 `Invoke-WebRequest` or grant a generic outbound-upload permission.

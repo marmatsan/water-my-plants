@@ -208,6 +208,20 @@ tasks.register("verifyPortableDistribution") {
     )
 }
 
+val cleanTemporaryArtifacts =
+    tasks.register<Delete>("cleanTemporaryArtifacts") {
+        group = "build"
+        description = "Deletes repository-owned temporary and generated tooling artifacts."
+        delete(
+            layout.projectDirectory.dir("tmp"),
+            layout.projectDirectory.dir("repo/figma-documentation-sync/tools/dist"),
+        )
+    }
+
+tasks.named("clean") {
+    dependsOn(cleanTemporaryArtifacts)
+}
+
 val reusableBuildChecks =
     listOf(
         "figma-documentation-sync",

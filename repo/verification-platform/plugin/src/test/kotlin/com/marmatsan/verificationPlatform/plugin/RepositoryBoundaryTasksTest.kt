@@ -3,6 +3,7 @@ package com.marmatsan.verificationPlatform.plugin
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import java.io.File
@@ -10,8 +11,16 @@ import java.io.File
 class RepositoryBoundaryTasksTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "repository-boundary-tasks",
+                )
+
             test("accepts local version ownership and independent settings") {
-                val project = temporaryProject()
+                val project =
+                    temporaryProject(
+                        projectDirectory = temporaryDirectory.resolve("local-versions"),
+                    )
                 val build = project.projectDir.resolve("tooling").apply(File::mkdirs)
                 build.resolve("versions.properties").writeText("kotlinVersion=2.4.0")
                 build.resolve("settings.gradle.kts").writeText(
@@ -31,7 +40,10 @@ class RepositoryBoundaryTasksTest :
             }
 
             test("rejects a version registry owned by a sibling build") {
-                val project = temporaryProject()
+                val project =
+                    temporaryProject(
+                        projectDirectory = temporaryDirectory.resolve("sibling-versions"),
+                    )
                 val build = project.projectDir.resolve("tooling").apply(File::mkdirs)
                 build.resolve("versions.properties").writeText("kotlinVersion=2.4.0")
                 build.resolve("settings.gradle.kts").writeText(
@@ -51,7 +63,10 @@ class RepositoryBoundaryTasksTest :
             }
 
             test("rejects relative sibling includes and configured implementation references") {
-                val project = temporaryProject()
+                val project =
+                    temporaryProject(
+                        projectDirectory = temporaryDirectory.resolve("forbidden-references"),
+                    )
                 val scope = project.projectDir.resolve("tooling").apply(File::mkdirs)
                 val settings = scope.resolve("settings.gradle.kts")
                 settings.writeText("includeBuild(\"../implementation\")")
@@ -81,11 +96,10 @@ class RepositoryBoundaryTasksTest :
         },
     )
 
-private fun temporaryProject(): Project =
+private fun temporaryProject(
+    projectDirectory: File,
+): Project =
     ProjectBuilder
         .builder()
-        .withProjectDir(
-            kotlin.io.path
-                .createTempDirectory("verification-boundaries")
-                .toFile(),
-        ).build()
+        .withProjectDir(projectDirectory.apply(File::mkdirs))
+        .build()
