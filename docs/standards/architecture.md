@@ -1,15 +1,18 @@
 ---
 title: Product architecture standard
 type: standard
-scope: product-modules
+scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-27
 review-cycle-days: 180
 sources:
+  - build.gradle.kts
   - settings.gradle.kts
   - docs/reference/project-structure.md
   - repo/gradle-plugins
+  - repo/dependency-catalog/catalog-api
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt
 ---
 
 # Product Architecture Standard
@@ -59,14 +62,106 @@ Constructor injection is the default. Composition roots may select concrete
 implementations; domain and UI classes MUST NOT use service locators or read a
 global dependency container.
 
+## SOLID Design
+
+SOLID is a review-blocking design contract for all newly implemented or
+materially changed code. The type-level rules below apply to production code
+and test support that contains reusable behavior, across product modules,
+reusable builds, Gradle plugins, adapters, and composition code.
+
+- **Single Responsibility Principle:** a type MUST have one cohesive reason to
+  change. Reading state, mapping models, enriching data, registering tasks,
+  configuring an extension, and executing runtime behavior are separate
+  responsibilities unless the type is an immutable value that represents one
+  contract. A composition root MAY know concrete implementations, but it MUST
+  delegate their configuration and behavior to focused collaborators.
+- **Open/Closed Principle:** reusable behavior MUST be extended through a
+  stable port, strategy, provider, or configuration model instead of adding
+  product-specific branches to reusable modules. Do not create an abstraction
+  without a real consumer boundary or variation point.
+- **Liskov Substitution Principle:** every implementation MUST preserve its
+  interface's inputs, outputs, failure semantics, and invariants. An
+  implementation MUST NOT require stronger preconditions or provide weaker
+  guarantees than its port. Shared contract tests SHOULD cover multiple
+  implementations when more than one exists.
+- **Interface Segregation Principle:** a port MUST be owned by its consumer and
+  expose only the operations that consumer needs. Split resolved, aliased,
+  read, write, verification, and operational capabilities when they change or
+  are consumed independently.
+- **Dependency Inversion Principle:** domain and reusable orchestration MUST
+  depend on inward-facing abstractions. Filesystem, Gradle, network, TeamCity,
+  Figma, Android, and product-specific implementations depend on those ports
+  and are selected only by a composition root.
+
+Module independence does not mean that Gradle scripts contain no module
+coordinates. It means source behavior does not know consumer products or
+sibling implementations, dependencies point toward stable APIs, and concrete
+adapter wiring is confined to an explicit composition root.
+
+## Package Cohesion
+
+Package identity is part of the architecture and is review-blocking for every
+new or materially changed Kotlin source, including checked-in code emitted by
+a generator.
+
+- The directory below a Kotlin source root MUST match the declared package
+  exactly. Scaffold or template package names MUST NOT reach reviewed code.
+- A package MUST represent one cohesive capability and one related family of
+  reasons to change. Broad buckets such as `plugin`, `domain.model`,
+  `domain.service`, or `projectConfig` MUST be split by capability once they
+  would mix independently changing concerns.
+- A module or source-set root package is reserved for its public entry point,
+  composition root, or types that genuinely coordinate the whole module.
+  Models, services, tasks, adapters, and configuration types belong in a
+  capability package.
+- Tests MUST mirror the package of the behavior they verify, unless they belong
+  to an explicitly named test-only capability.
+- A Kotlin file SHOULD contain one primary top-level type, use that type's
+  PascalCase name, and match the filename. Tool-required exceptions MUST be
+  documented next to the generator or source set.
+- Generators that emit checked-in Kotlin MUST receive or derive a meaningful
+  capability package and MUST write to its matching directory. Generated build
+  outputs remain under `build/` or another ignored generated-output root.
+- Existing tracked types SHOULD be relocated as file moves so Git history
+  remains attributable; package cleanup is not a reason to recreate a type.
+
+Review both physical package correctness and semantic cohesion. A path can
+match its declaration while still hiding unrelated responsibilities in an
+overly broad namespace.
+
+## Temporary Artifact Ownership
+
+- Code that creates a temporary file or directory MUST own its lifecycle and
+  remove it after its final consumer finishes.
+- A producer MUST clean partially written temporary artifacts when it fails.
+- An artifact that intentionally crosses process or operational phases MAY
+  survive its producer, but its final consumer or documented completion step
+  MUST delete it.
+- Repository-local temporary artifacts MUST live below `tmp/`, a module
+  `build/` directory, or another explicitly ignored generated-output root.
+- Tests MUST register temporary resources with a lifecycle-aware fixture or
+  delete them from `finally`; successful assertions alone are not cleanup.
+- Run `./gradlew cleanTemporaryArtifacts` after supervised repository work that
+  creates root-level temporary or generated tooling artifacts.
+
+Line count alone is not a SOLID rule. Review reasons to change, dependency
+direction, contract size, substitutability, and extension points instead of
+using arbitrary class-size thresholds.
+
 ## Verification
 
-Run `./gradlew check` after dependency-boundary changes. Review
-`settings.gradle.kts` and affected `build.gradle.kts` files together with the
-module documentation.
+Run `./gradlew checkModuleBoundaries checkIncludedBuildVersions` after
+dependency-boundary changes, `./gradlew check` before completion, and
+`./gradlew cleanTemporaryArtifacts` after temporary outputs reach their final
+consumer. Review each affected production type against all five SOLID
+principles. Automated boundary checks support this review but do not replace
+it.
 
 ## Sources
 
+- `build.gradle.kts`
 - `settings.gradle.kts`
 - `docs/reference/project-structure.md`
 - `repo/gradle-plugins/`
+- `repo/dependency-catalog/catalog-api/`
+- `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt`

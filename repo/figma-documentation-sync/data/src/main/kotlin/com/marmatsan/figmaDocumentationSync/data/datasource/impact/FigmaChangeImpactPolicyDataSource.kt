@@ -10,6 +10,7 @@ import java.io.File
 /** JSON adapter for the repository-owned Figma change-impact policy. */
 @Inject
 class FigmaChangeImpactPolicyDataSource : FigmaChangeImpactPolicyPort {
+    /** Reads and validates the versioned JSON impact policy at [sourcePath]. */
     override fun read(
         sourcePath: String,
     ): FigmaChangeImpactPolicy {

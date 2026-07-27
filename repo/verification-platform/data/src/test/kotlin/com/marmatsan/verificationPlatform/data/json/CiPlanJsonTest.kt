@@ -1,7 +1,8 @@
 package com.marmatsan.verificationPlatform.data.json
 
-import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
-import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
+import com.marmatsan.verificationPlatform.domain.model.git.RepositoryChangeSet
+import com.marmatsan.verificationPlatform.domain.service.ci.CiPlanFactory
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -11,7 +12,7 @@ class CiPlanJsonTest :
         {
             test("round trips the versioned verification contract") {
                 val expected =
-                    CiPlanFactory().create(
+                    CiPlanFactory(testCiPlanPolicy()).create(
                         changeSet =
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",

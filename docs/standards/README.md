@@ -5,7 +5,7 @@ review-blocking; `SHOULD` rules require a documented reason when not followed.
 
 | Standard | Scope |
 |----------|-------|
-| [Architecture](architecture.md) | Module boundaries and dependency direction. |
+| [Architecture](architecture.md) | Module boundaries, dependency direction, composition, and SOLID design. |
 | [Kotlin](kotlin.md) | Kotlin source design and concurrency. |
 | [Android](android.md) | Android modules, lifecycle, dependency injection, and build conventions. |
 | [Compose](compose.md) | Compose APIs, state, design-system use, and previews. |

@@ -4,15 +4,15 @@ type: reference
 scope: repository
 owner: repository-tooling
 status: active
-last-reviewed: 2026-07-20
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiPlan.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiExecutionTopology.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiPlanFactory.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiTopologyPlanner.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ModuleImpactAnalyzer.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/ci/CiPlan.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/ci/CiExecutionTopology.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiTopologyPlanner.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/modules/ModuleImpactAnalyzer.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/git/GitBranchNameValidator.kt
 ---
 
 # CI Verification Plan
@@ -26,7 +26,7 @@ parallel without changing this contract.
 
 ## Contract
 
-`generateCiPlan` writes schema version `3` to
+`generateCiPlan` writes schema version `5` to
 `build/reports/ci/ci-plan.json` with:
 
 | Field | Meaning |
@@ -44,8 +44,11 @@ parallel without changing this contract.
 | `fallbackReason` | Fail-closed explanation when targeted classification is unsafe. |
 
 Stable verification unit identifiers are `git-workflow`, `documentation`,
-`repository-diff`, `teamcity-dsl`, `figma-tooling`, `dependency-catalog`,
-`gradle-verification`, and `publish-reports`.
+`repository-diff`, `teamcity-dsl`, `tooling`, `build-infrastructure`,
+`portable-distribution`, `gradle-verification`, and `publish-reports`.
+The reusable planner does not name Water My Plants modules or tasks. The root
+`VerificationPlatformExtension` segregates repository configuration into
+`ciPolicy`, `boundaries`, `taskBindings`, and `teamCity` blocks.
 
 ## Invariants
 
@@ -84,15 +87,16 @@ rules:
 | `documentation` | Always select `checkDocumentation`. |
 | `repository-diff` | Select `checkRepositoryDiff` for documentation-only changes. |
 | `teamcity-dsl` | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution. |
-| `figma-tooling` | Coalesced into the heavy Gradle verification on the single agent. |
-| `dependency-catalog` | Coalesced into the heavy Gradle verification on the single agent. |
+| `tooling` | Uses the configured tooling paths/capabilities and is coalesced into heavy Gradle verification on the single agent. |
+| `build-infrastructure` | Selects the configured architecture, version-ownership, and module-boundary tasks. Water My Plants binds these to `checkDependencyCatalogArchitecture`, `checkIncludedBuildVersions`, and `checkModuleBoundaries`. |
+| `portable-distribution` | Selects the configured staged-consumer aggregate. Water My Plants binds this to `verifyPortableDistribution`, which verifies Dependency Catalog and Figma Documentation Sync independently. |
 | `gradle-verification` | Select affected module checks plus catalog usage for safe module-only changes; otherwise select root `check`. |
 | `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
 
 This topology keeps one checkout, one agent allocation, one Gradle-owned
-verification API, and one authoritative GitHub status. Coalesced units remain
-explicit in the JSON so a later multi-agent adapter can split them without
-changing classification policy.
+verification API, and one authoritative GitHub status. Units remain explicit
+in the JSON so a later multi-agent adapter can split them without changing
+classification policy.
 
 ## Multi-Agent Topology Preview
 

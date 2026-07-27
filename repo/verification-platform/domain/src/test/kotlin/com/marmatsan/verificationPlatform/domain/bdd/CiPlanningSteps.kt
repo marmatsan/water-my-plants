@@ -1,13 +1,14 @@
 package com.marmatsan.verificationPlatform.domain.bdd
 
-import com.marmatsan.verificationPlatform.domain.model.CiExecutionTopology
-import com.marmatsan.verificationPlatform.domain.model.CiPlan
-import com.marmatsan.verificationPlatform.domain.model.CiScope
-import com.marmatsan.verificationPlatform.domain.model.CiTopologyMode
-import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
-import com.marmatsan.verificationPlatform.domain.model.VerificationUnit
-import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
-import com.marmatsan.verificationPlatform.domain.service.CiTopologyPlanner
+import com.marmatsan.verificationPlatform.domain.model.ci.CiExecutionTopology
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlan
+import com.marmatsan.verificationPlatform.domain.model.ci.CiScope
+import com.marmatsan.verificationPlatform.domain.model.ci.CiTopologyMode
+import com.marmatsan.verificationPlatform.domain.model.ci.VerificationUnit
+import com.marmatsan.verificationPlatform.domain.model.git.RepositoryChangeSet
+import com.marmatsan.verificationPlatform.domain.service.ci.CiPlanFactory
+import com.marmatsan.verificationPlatform.domain.service.ci.CiTopologyPlanner
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.En
@@ -83,7 +84,7 @@ class CiPlanningSteps : En {
     }
 
     private fun createPlan(): CiPlan =
-        CiPlanFactory().create(
+        CiPlanFactory(testCiPlanPolicy()).create(
             changeSet =
                 RepositoryChangeSet(
                     comparisonBase = "base-sha",

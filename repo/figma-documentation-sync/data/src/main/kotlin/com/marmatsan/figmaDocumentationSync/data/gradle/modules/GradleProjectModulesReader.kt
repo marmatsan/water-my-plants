@@ -11,6 +11,7 @@ import java.io.File
  */
 @Inject
 class GradleProjectModulesReader {
+    /** Reads logical module identities from the main build and [includedBuilds]. */
     fun readModules(
         rootSettingsFile: File,
         includedBuilds: List<IncludedBuild>,
@@ -24,6 +25,12 @@ class GradleProjectModulesReader {
         return (rootModules + includedBuildModules).toSortedSet()
     }
 
+    /**
+     * Physical included-build settings and logical module prefix.
+     *
+     * @property settingsFile included-build settings script.
+     * @property modulePathPrefix logical prefix used by generated module identities.
+     */
     data class IncludedBuild(
         val settingsFile: File,
         val modulePathPrefix: String,

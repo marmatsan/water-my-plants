@@ -32,9 +32,6 @@ test("header source map covers every managed parent documentation section", () =
       "63685:108540",
       "62936:183",
       "63099:949",
-      "63099:954",
-      "63216:6907",
-      "63330:551",
     ]
   );
   assert.equal(
@@ -54,8 +51,8 @@ test("header source map covers every managed parent documentation section", () =
   assert.deepEqual(
     HEADER_SECTION_TARGETS[2].links.map((link) => link.label),
     [
-      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt",
-      "repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt",
+      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
+      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
     ]
   );
 });

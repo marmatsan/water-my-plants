@@ -34,6 +34,7 @@ import java.time.LocalDate
 object CiVisualPlanJson {
     private val prettyJson = Json { prettyPrint = true }
 
+    /** Creates the serialized CI visual plan from [designModel]. */
     fun create(
         designModel: JsonObject,
         config: CiVisualPlanConfig,
@@ -79,6 +80,7 @@ object CiVisualPlanJson {
         return selected.toJson()
     }
 
+    /** Writes the serialized CI visual plan selected from [designModelPath]. */
     fun write(
         designModelPath: String,
         config: CiVisualPlanConfig,

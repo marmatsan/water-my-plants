@@ -1,8 +1,9 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
-import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
-import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
-import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
+import com.marmatsan.verificationPlatform.domain.model.ci.VerificationUnitId
+import com.marmatsan.verificationPlatform.domain.model.git.RepositoryChangeSet
+import com.marmatsan.verificationPlatform.domain.service.ci.CiPlanFactory
+import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -13,7 +14,7 @@ class TeamCityCiPlanParametersTest :
         {
             test("exports allow-listed parameters for a TeamCity change") {
                 val plan =
-                    CiPlanFactory().create(
+                    CiPlanFactory(testCiPlanPolicy()).create(
                         changeSet =
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
@@ -25,7 +26,7 @@ class TeamCityCiPlanParametersTest :
 
                 TeamCityCiPlanParameters().create(plan) shouldBe
                     linkedMapOf(
-                        "ci.plan.schemaVersion" to "3",
+                        "ci.plan.schemaVersion" to "5",
                         "ci.plan.mode" to "enforced",
                         "ci.plan.scope" to "teamcity",
                         "ci.plan.comparisonBase" to "base-sha",
@@ -39,8 +40,9 @@ class TeamCityCiPlanParametersTest :
                         "ci.unit.documentation.required" to "true",
                         "ci.unit.repository-diff.required" to "false",
                         "ci.unit.teamcity-dsl.required" to "true",
-                        "ci.unit.figma-tooling.required" to "false",
-                        "ci.unit.dependency-catalog.required" to "false",
+                        "ci.unit.tooling.required" to "false",
+                        "ci.unit.build-infrastructure.required" to "false",
+                        "ci.unit.portable-distribution.required" to "false",
                         "ci.unit.gradle-verification.required" to "true",
                         "ci.unit.publish-reports.required" to "true",
                     )
@@ -48,7 +50,7 @@ class TeamCityCiPlanParametersTest :
 
             test("exports affected module tasks as a validated TeamCity value") {
                 val plan =
-                    CiPlanFactory().create(
+                    CiPlanFactory(testCiPlanPolicy()).create(
                         changeSet =
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
@@ -64,12 +66,12 @@ class TeamCityCiPlanParametersTest :
                 parameters["ci.plan.affectedModules"] shouldBe ":app,:core:ui,:onboarding:ui"
                 parameters["ci.plan.gradleTasks"] shouldBe
                     "checkGitWorkflow checkDocumentation :app:check :core:ui:check " +
-                    ":onboarding:ui:check checkFigmaCatalogUsage"
+                    ":onboarding:ui:check checkSharedUsage"
             }
 
             test("rejects Gradle task values that could inject shell content") {
                 val plan =
-                    CiPlanFactory().create(
+                    CiPlanFactory(testCiPlanPolicy()).create(
                         changeSet =
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",

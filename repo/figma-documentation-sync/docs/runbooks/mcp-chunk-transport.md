@@ -11,7 +11,7 @@ sources:
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # MCP Payload Transport Runbook
@@ -309,7 +309,7 @@ the required write tools.
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt`
-- `project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/UploadCanonicalFigmaPayloadTask.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt`
 - `tools/src/sync-trunk-design-model.ts`
 
 ## Run The Planned Visual Sync

@@ -10,8 +10,8 @@ sources:
   - docs/decisions/adr-0007-use-trunk-based-development.md
   - AGENTS.md
   - docs/ci/main-branch-protection.md
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt
-  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckGitWorkflowTask.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/git/GitBranchNameValidator.kt
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/git/CheckGitWorkflowTask.kt
 ---
 
 # Git Workflow Standard

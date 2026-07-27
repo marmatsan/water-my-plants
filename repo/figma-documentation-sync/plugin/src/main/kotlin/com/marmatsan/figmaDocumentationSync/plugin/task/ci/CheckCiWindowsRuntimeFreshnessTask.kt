@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.ci
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -20,16 +20,18 @@ import java.time.ZoneOffset
     because = "The warning depends on the current UTC date",
 )
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
+    /** Optional versioned Windows runtime contract whose validation date is checked. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciWindowsRuntimeFile: RegularFileProperty
 
+    /** Emits a warning only after the runtime contract's declared freshness interval. */
     @TaskAction
     fun checkFreshness() {
         val runtimeFile = ciWindowsRuntimeFile.orNull?.asFile ?: return
         val result =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .ciWindowsRuntimeFreshnessChecker
                 .check(

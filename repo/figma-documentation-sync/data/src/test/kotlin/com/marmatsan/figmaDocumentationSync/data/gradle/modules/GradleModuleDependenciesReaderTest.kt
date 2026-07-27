@@ -2,16 +2,20 @@ package com.marmatsan.figmaDocumentationSync.data.gradle.modules
 
 import com.marmatsan.figmaDocumentationSync.domain.model.modules.ModuleDependency
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 
 internal class GradleModuleDependenciesReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "gradle-module-dependencies-reader",
+                )
 
             test("readMain maps type-safe project accessors to module dependencies") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("main-module-dependencies").toFile()
+                val rootDir = temporaryDirectory.resolve("main").apply { mkdirs() }
                 rootDir
                     .resolve(
                         relative = "app",
@@ -61,7 +65,7 @@ internal class GradleModuleDependenciesReaderTest :
 
             test("readMain ignores project accessors outside dependencies blocks") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("main-module-dependencies-outside-block").toFile()
+                val rootDir = temporaryDirectory.resolve("outside-dependencies-block").apply { mkdirs() }
                 rootDir
                     .resolve(
                         relative = "app",
@@ -96,7 +100,7 @@ internal class GradleModuleDependenciesReaderTest :
 
             test("readIncludedBuild maps type-safe project accessors to included build module dependencies") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("gradle-plugins-module-dependencies").toFile()
+                val rootDir = temporaryDirectory.resolve("included-build").apply { mkdirs() }
                 rootDir
                     .resolve(
                         relative = "android",
@@ -152,7 +156,7 @@ internal class GradleModuleDependenciesReaderTest :
 
             test("readIncludedBuild maps camel case accessors to kebab case module paths") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("dependency-catalog-module-dependencies").toFile()
+                val rootDir = temporaryDirectory.resolve("kebab-case").apply { mkdirs() }
                 rootDir
                     .resolve(
                         relative = "catalog-core",
@@ -162,7 +166,7 @@ internal class GradleModuleDependenciesReaderTest :
                     ).writeText("")
                 rootDir
                     .resolve(
-                        relative = "water-my-plants-catalog",
+                        relative = "catalog-gradle-plugin",
                     ).also { directory -> directory.mkdirs() }
                     .resolve(
                         relative = "build.gradle.kts",
@@ -185,7 +189,7 @@ internal class GradleModuleDependenciesReaderTest :
                 dependencies shouldBe
                     setOf(
                         ModuleDependency(
-                            dependentModule = ":dependency-catalog:water-my-plants-catalog",
+                            dependentModule = ":dependency-catalog:catalog-gradle-plugin",
                             dependencyModule = ":dependency-catalog:catalog-core",
                         ),
                     )

@@ -1,6 +1,6 @@
 package com.marmatsan.verificationPlatform.data.json
 
-import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageRule
+import com.marmatsan.verificationPlatform.domain.model.documentation.DocumentationCoverageRule
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

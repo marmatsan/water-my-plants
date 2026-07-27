@@ -550,7 +550,7 @@ Could not find a component property with name: 'Show is a gradle convention plug
 ```
 
 inspect the `.tree node` component set and update `treeNodeProps` in
-`repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`
+`repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt`
 to match the actual Figma component property name before rerunning the sync.
 
 Do not work around this by writing metadata only; the visual update did not
@@ -566,7 +566,7 @@ If a newer MCP bundle fails against a TeamCity model from `main` with a missing
 catalog target such as:
 
 ```text
-designModel.content.catalogs.figmaDocumentationSync.libraries is required for catalog tree sync.
+designModel.content.catalogs.waterMyPlants.libraries is required for catalog tree sync.
 ```
 
 the bundle and model are from different repository contracts. Rerun with a

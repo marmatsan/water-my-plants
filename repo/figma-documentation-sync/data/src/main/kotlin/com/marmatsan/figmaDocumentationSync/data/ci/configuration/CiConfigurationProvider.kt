@@ -10,6 +10,7 @@ import java.io.File
  * their CI system into the shared [CiConfiguration] model.
  */
 interface CiConfigurationProvider {
+    /** Reads the provider-specific generated files under [directory]. */
     fun read(
         directory: File,
     ): CiConfiguration

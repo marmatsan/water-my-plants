@@ -67,5 +67,6 @@ and `plugin/docs/dokka/`. Generated HTML is derived build output and must not be
 committed.
 
 The three CI modules enforce strict Dokka coverage through their `check` tasks.
-This prevents public Kotlin APIs from being introduced without KDoc while
-keeping scenario behavior in Gherkin rather than duplicating it in API prose.
+This prevents public or internal Kotlin declarations from being introduced
+without KDoc while keeping scenario behavior in Gherkin rather than duplicating
+it in API prose.

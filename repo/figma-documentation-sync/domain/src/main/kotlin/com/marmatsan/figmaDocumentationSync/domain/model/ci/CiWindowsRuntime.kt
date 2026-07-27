@@ -4,6 +4,11 @@ import java.time.LocalDate
 
 /**
  * Versioned snapshot of the Windows services that host the local CI runtime.
+ *
+ * @property schemaVersion Windows runtime contract schema version.
+ * @property validation freshness metadata for the snapshot.
+ * @property platform operating-system and host description.
+ * @property services Windows services required by the CI runtime.
  */
 data class CiWindowsRuntime(
     val schemaVersion: Int,
@@ -26,11 +31,27 @@ data class CiWindowsRuntime(
         }
     }
 
+    /**
+     * Freshness policy for the Windows runtime snapshot.
+     *
+     * @property lastValidatedOn date the service topology was last verified.
+     * @property warnAfterDays age after which CI emits a freshness warning.
+     */
     data class Validation(
         val lastValidatedOn: LocalDate,
         val warnAfterDays: Int,
     )
 
+    /**
+     * One Windows service required by the local CI runtime.
+     *
+     * @property id stable service identity used by the visual model.
+     * @property name human-readable service name.
+     * @property description operational responsibility of the service.
+     * @property service Windows service identifier.
+     * @property startup expected startup mode.
+     * @property identity operating-system identity that runs the service.
+     */
     data class Service(
         val id: String,
         val name: String,

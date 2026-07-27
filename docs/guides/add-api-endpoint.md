@@ -9,7 +9,7 @@ review-cycle-days: 180
 sources:
   - docs/standards/api-client.md
   - docs/standards/architecture.md
-  - repo/dependency-catalog/versions.properties
+  - repo/water-my-plants-project-config/versions.properties
 ---
 
 # Add An API Endpoint

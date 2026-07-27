@@ -10,6 +10,7 @@ import java.io.File
 /** Filesystem boundary for the CI provider selected by project-config. */
 @Inject
 class CiConfigurationDataSource : CiConfigurationPort {
+    /** Selects the configured provider and reads its generated CI directory. */
     override fun readConfiguration(
         source: CiGeneratedConfigurationSource,
     ): CiConfiguration =

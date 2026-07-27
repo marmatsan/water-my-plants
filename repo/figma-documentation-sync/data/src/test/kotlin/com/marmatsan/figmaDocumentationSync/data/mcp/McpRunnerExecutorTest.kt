@@ -7,6 +7,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.ExecutableRunner
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.McpToolResult
 import com.marmatsan.figmaDocumentationSync.domain.port.writer.McpClientPort
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.nio.charset.StandardCharsets
@@ -18,8 +19,13 @@ import java.time.ZoneOffset
 internal class McpRunnerExecutorTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "mcp-runner-executor",
+                )
+
             test("executes manifest files through the Kotlin MCP port and checkpoints each result") {
-                val root = Files.createTempDirectory("mcp-runner-executor")
+                val root = temporaryDirectory.toPath()
                 val sources =
                     linkedMapOf(
                         "00-clear-staging.mcp.js" to "return { cleared: true };\n",
@@ -89,8 +95,6 @@ internal class McpRunnerExecutorTest :
                     )?.completedFiles
                     ?.size shouldBe 2
                 client.closed shouldBe true
-
-                root.toFile().deleteRecursively()
             }
         },
     ) {

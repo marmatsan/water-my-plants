@@ -4,10 +4,10 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-07-26
 review-cycle-days: 90
 sources:
-  - repo/figma-documentation-sync/project-config/src/main/kotlin/com/marmatsan/figmaDocumentationSync/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
 ---
 
@@ -28,12 +28,16 @@ Default included builds:
 | Gradle build name | Model name | Root directory | Module path prefix | Publishes catalogs | Publishes convention plugins |
 |-------------------|------------|----------------|--------------------|--------------------|------------------------------|
 | `dependency-catalog` | `dependencyCatalog` | `repo/dependency-catalog` | `:dependency-catalog` | No | No |
-| `figma-documentation-sync` | `figmaDocumentationSync` | `repo/figma-documentation-sync` | `:figma-documentation-sync` | Yes | No |
-| `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | Yes | Yes |
+| `figma-documentation-sync` | `figmaDocumentationSync` | `repo/figma-documentation-sync` | `:figma-documentation-sync` | No | No |
+| `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | No | Yes |
+| `verification-platform` | `verificationPlatform` | `repo/verification-platform` | `:verification-platform` | No | No |
+| `water-my-plants-project-config` | `waterMyPlantsProjectConfig` | `repo/water-my-plants-project-config` | `:water-my-plants-project-config` | No | No |
 
-`repo/dependency-catalog` has no settings-catalog visual target. It contributes
-the versions file and the `:dependency-catalog:catalog-core` and
-`:dependency-catalog:water-my-plants-catalog` modules.
+Included builds contribute module topology and convention-plugin usage where
+configured, but none publishes its local tool catalog as a Water My Plants
+visual target. `repo/dependency-catalog` contributes only reusable catalog
+modules. The product configuration build contributes its `catalog` and
+`plugin` modules and supplies the production trees through the configured port.
 
 ## Visual Target Map
 
@@ -41,14 +45,13 @@ Catalog tree visual targets:
 
 | Model target | Source | Figma section |
 |--------------|--------|---------------|
-| `waterMyPlants.libraries` | `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/LibraryTrees.kt` | `63069:629` |
-| `waterMyPlants.plugins` | `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/PluginTrees.kt` | `63069:594` |
-| `waterMyPlants.customGradleConventionPlugins` | `repo/gradle-plugins/**/build.gradle.kts` | `63216:6907` |
-| `waterMyPlants.customGradlePlugins` | repository included-build `**/build.gradle.kts` files that declare regular Gradle plugins | `63330:551` |
-| `gradlePlugins.libraries` | `repo/gradle-plugins/settings.gradle.kts` | `63099:951` |
-| `gradlePlugins.plugins` | declared catalog target from `repo/gradle-plugins/settings.gradle.kts` `create("plugins")` | removed when source catalog is absent |
-| `figmaDocumentationSync.libraries` | `repo/figma-documentation-sync/settings.gradle.kts` | `63573:260` |
-| `figmaDocumentationSync.plugins` | `repo/figma-documentation-sync/settings.gradle.kts` | `63573:346` |
+| `waterMyPlants.libraries` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt` | `63069:629` |
+| `waterMyPlants.plugins` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt` | `63069:594` |
+
+The generic domain can model additional catalog collections for another host,
+but the Water My Plants writer does not configure them as targets. Removing
+the former tooling targets requires one supervised deletion of their legacy
+Figma sections after this configuration reaches `main`.
 
 CI documentation visual targets:
 
@@ -114,18 +117,12 @@ produce a `full` plan automatically.
 | 2 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
 | 3 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains `preflight` and this target, and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
 | 4 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
-| 5 | `waterMyPlants.customGradleConventionPlugins` | Convention plugin catalog | Stale convention plugin names or missing usage chip variants | Returned nodes include the convention plugin ids expected from `repo/gradle-plugins`. |
-| 6 | `waterMyPlants.customGradlePlugins` | Regular custom Gradle plugin catalog | A regular plugin is modeled as a convention plugin, or the reverse | Returned nodes include `com.marmatsan.figmaDocumentationSync` as a regular plugin. |
-| 7 | `gradlePlugins.libraries` | `repo/gradle-plugins` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains `preflight` and the target, with no metadata. |
-| 8 | `gradlePlugins.plugins` | Declared catalog target from `repo/gradle-plugins` plugins catalog | Stale hidden section after removing `create("plugins")` | Empty or omitted catalog removes the target section; declared catalog nodes match the settings catalog. |
-| 9 | `figmaDocumentationSync.libraries` | `repo/figma-documentation-sync` libraries catalog | Large artifact/bundle update with stale nested component internals | Returned `completedTargets` contains `preflight` and the target, with no metadata. |
-| 10 | `figmaDocumentationSync.plugins` | `repo/figma-documentation-sync` plugins catalog | Missing plugin tree connector or stale plugin aliases | Returned catalog nodes match the settings catalog. |
-| 11 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
-| 12 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
-| 13 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
-| 14 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
-| 15 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
-| 16 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
+| 5 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
+| 6 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
+| 7 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
+| 8 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
+| 9 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
+| 10 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
 ## Subtree Scoped Runs
 
@@ -169,14 +166,6 @@ Known child sections:
 | `waterMyPlants.plugins` | `com` | `63069:595` |
 | `waterMyPlants.plugins` | `de` | `63069:611` |
 | `waterMyPlants.plugins` | `org` | `63069:617` |
-| `gradlePlugins.libraries` | `com` | `63100:1707` |
-| `gradlePlugins.libraries` | `io` | `63100:2395` |
-| `gradlePlugins.libraries` | `org` | `63100:1708` |
-| `figmaDocumentationSync.libraries` | `io` | `63573:286` |
-| `figmaDocumentationSync.libraries` | `me` | `63573:295` |
-| `figmaDocumentationSync.libraries` | `org` | `63573:273` |
-| `figmaDocumentationSync.plugins` | `com` | `63573:358` |
-| `figmaDocumentationSync.plugins` | `org` | `63573:347` |
 
 Use a subtree scoped run instead of editing `design-model.json` manually. The
 artifact must still come from `main`; the filter is a transport/runtime scope,

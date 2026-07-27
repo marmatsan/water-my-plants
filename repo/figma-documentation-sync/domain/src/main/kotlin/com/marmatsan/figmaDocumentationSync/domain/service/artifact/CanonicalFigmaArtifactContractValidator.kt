@@ -6,6 +6,14 @@ import me.tatarka.inject.annotations.Inject
 /** Validates that downloaded artifacts share one canonical main-branch identity. */
 @Inject
 class CanonicalFigmaArtifactContractValidator {
+    /**
+     * Validates cross-file canonical identity and main-branch write permissions.
+     *
+     * @param contract typed artifact values read from the downloaded artifact set.
+     * @param expectedGitSha optional CI revision that the artifacts must represent.
+     * @return validated identity used by downstream handoff adapters.
+     * @throws IllegalArgumentException when any canonical identity or permission differs.
+     */
     fun validate(
         contract: CanonicalFigmaArtifactContract,
         expectedGitSha: String? = null,
@@ -189,6 +197,13 @@ class CanonicalFigmaArtifactContractValidator {
         }
     }
 
+    /**
+     * Canonical identity proven by successful artifact validation.
+     *
+     * @property gitSha validated canonical Git revision.
+     * @property modelHash validated canonical design-model hash.
+     * @property decision validated visual synchronization decision.
+     */
     data class Result(
         val gitSha: String,
         val modelHash: String,

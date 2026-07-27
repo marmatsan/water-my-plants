@@ -21,4 +21,28 @@ Read this module from its public Gradle entry points:
 
 # Package com.marmatsan.verificationPlatform.plugin
 
-Gradle plugin and task types that compose the CI domain with concrete adapters.
+Contains the public Gradle plugin composition root.
+
+# Package com.marmatsan.verificationPlatform.plugin.extension
+
+Defines consumer-facing configuration grouped by repository capability.
+
+# Package com.marmatsan.verificationPlatform.plugin.task.boundary
+
+Validates included-build version ownership and reusable module boundaries.
+
+# Package com.marmatsan.verificationPlatform.plugin.task.ci
+
+Generates provider-neutral CI plans and non-authoritative topology previews.
+
+# Package com.marmatsan.verificationPlatform.plugin.task.documentation
+
+Validates repository documentation coverage and structure.
+
+# Package com.marmatsan.verificationPlatform.plugin.task.git
+
+Validates Git workflow and repository change-set contracts.
+
+# Package com.marmatsan.verificationPlatform.plugin.task.teamcity
+
+Validates and coordinates the TeamCity-specific execution boundary.

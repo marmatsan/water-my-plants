@@ -1,6 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import org.gradle.api.publish.maven.MavenPublication
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
@@ -26,8 +27,6 @@ java {
 
 dependencies {
     implementation(projects.domain)
-    implementation("com.marmatsan.repo:catalog-core:${project.version}")
-    testImplementation("com.marmatsan.repo:water-my-plants-catalog")
 
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
@@ -86,12 +85,21 @@ dokka {
     moduleName.set("figmaDocumentationSync-data")
 
     dokkaPublications.html {
+        failOnWarning.set(true)
         includes.from(
             "docs/dokka/README.md",
         )
     }
 
     dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
+        reportUndocumented.set(true)
+
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
             remoteUrl.set(
@@ -103,4 +111,8 @@ dokka {
             remoteLineSuffix.set("#L")
         }
     }
+}
+
+tasks.named("check") {
+    dependsOn("dokkaGenerate")
 }

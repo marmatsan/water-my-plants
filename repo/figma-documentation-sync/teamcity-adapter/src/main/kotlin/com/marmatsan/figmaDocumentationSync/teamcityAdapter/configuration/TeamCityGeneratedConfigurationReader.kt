@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 /** Reads the effective YAML and XML emitted by the TeamCity Kotlin DSL. */
 class TeamCityGeneratedConfigurationReader {
+    /** Reconstructs the portable CI model from TeamCity-generated files below [directory]. */
     fun read(
         directory: File,
     ): CiConfiguration {

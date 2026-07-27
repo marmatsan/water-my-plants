@@ -7,6 +7,7 @@ import java.io.File
 
 /** Translates generated TeamCity Kotlin DSL output into the portable CI model. */
 class TeamCityCiConfigurationProvider : CiConfigurationProvider {
+    /** Reads the generated effective configuration rooted at [directory]. */
     override fun read(
         directory: File,
     ): CiConfiguration =

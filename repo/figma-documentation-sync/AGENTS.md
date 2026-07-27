@@ -18,11 +18,11 @@ used by CI.
   Nested types are allowed only when they are owned by and used only by the
   parent type, such as sealed result variants or private implementation
   helpers.
-- Use `kotlin-inject` for classes created by `figmaDocumentationSyncComponent`.
+- Use `kotlin-inject` for classes created by `FigmaDocumentationSyncComponent`.
 - Keep Gradle-created types compatible with Gradle injection. Do not replace
   Gradle constructor injection annotations with
   `me.tatarka.inject.annotations.Inject` on extension/task/plugin types.
-- `figmaDocumentationSyncComponent` is the composition root. Bind domain ports to
+- `FigmaDocumentationSyncComponent` is the composition root. Bind domain ports to
   `data/datasource` implementations there.
 
 ## Package Layout
@@ -63,7 +63,7 @@ used by CI.
 - `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
   catalog declarations, included modules, and module dependencies.
 - `data/dependencies/catalog`: portable adapters from the reusable
-  `catalog-core` tree types and the `DependencyCatalogProvider` contract to
+  `catalog-core` tree types and the `VersionAliasedDependencyCatalogProvider` contract to
   domain catalog models. Concrete repository catalogs belong in
   `project-config`.
 - `data/properties/versions`: readers for version properties files.
@@ -90,10 +90,21 @@ used by CI.
   shared by the canonical TeamCity Figma Sync jobs.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
-- `project-config`: repository adapter that owns Water My Plants paths,
-  dependency catalog provider, Figma identities, visual targets, CI provider
-  selection, branch aliases, and optional CI commands. Portable modules must
-  depend on adapter contracts, never on this concrete implementation.
+- `project-config/catalog`: the Water My Plants dependency catalog provider.
+- `project-config/gradle`: product Gradle entry points and composition
+  registrars.
+- `project-config/figma/configuration`: Water My Plants Figma identities,
+  targets, and reusable extension configuration.
+- `project-config/figma/handoff`: canonical handoff orchestration, with its
+  adapters, ports, and models in the corresponding capability subpackages.
+- `project-config/figma/task` and `project-config/figma/sync`: product-owned
+  operational Gradle tasks and their TeamCity/Figma runtime collaborators.
+- `project-config/teamcity/auth`: TeamCity and Cloudflare credential contracts
+  and adapters.
+- `project-config/platform`: host-platform detection used by composition.
+  Together these packages form the repository adapter that owns Water My
+  Plants paths, identities, branch aliases, and optional CI commands. Portable
+  modules must depend on adapter contracts, never on this implementation.
 - `tools`: portable TypeScript writer and MCP transport. Project-specific
   constants are selected through `@figma-documentation-sync/project-config` and must
   not be added under `tools/src` or `tools/scripts`.
@@ -104,7 +115,7 @@ used by CI.
   `build/reports/figma-sync/design-model.json`.
 - `classifyFigmaChangeImpact`: classifies the Git diff using
   the policy selected by the project-config adapter. Water My Plants owns it at
-  `repo/figma-documentation-sync/project-config/water-my-plants/change-impact-policy.json`.
+  `repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`.
   Keep the classifier in Kotlin and do not duplicate its rules in TeamCity scripts.
 - `prepareCanonicalFigmaSync`: cleans stale reports, classifies the change,
   conditionally runs the configured CI adapter and generates the canonical model, then
@@ -115,7 +126,7 @@ used by CI.
   plugin entries that are not used by a module, convention plugin, or tool
   configuration. This task is wired into the root `check` lifecycle.
 - `checkFigmaVersionNaming`: fails when
-  `repo/dependency-catalog/versions.properties` does not use the Figma version
+  `repo/water-my-plants-project-config/versions.properties` does not use the Figma version
   naming contract. This task is wired into the root `check` lifecycle.
 - `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
   validation window in `docs/ci/external-topology.yaml` expires. This task is
@@ -257,8 +268,9 @@ used by CI.
 .\gradlew.bat :figma-documentation-sync:domain:check `
     :figma-documentation-sync:data:check `
     :figma-documentation-sync:teamcity-adapter:check `
-    :figma-documentation-sync:plugin:check `
-    :figma-documentation-sync:project-config:check
+    :figma-documentation-sync:plugin:check
+
+.\gradlew.bat -p repo\water-my-plants-project-config check
 ```
 
 - Useful root-project diagnostic command:

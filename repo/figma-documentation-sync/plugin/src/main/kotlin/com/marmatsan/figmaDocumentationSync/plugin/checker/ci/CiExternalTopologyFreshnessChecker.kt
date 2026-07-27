@@ -13,6 +13,7 @@ import java.time.LocalDate
 internal class CiExternalTopologyFreshnessChecker(
     private val ciExternalTopologyPort: CiExternalTopologyPort,
 ) {
+    /** Evaluates [topologyFile] against its declared warning interval at [currentDate]. */
     fun check(
         topologyFile: File,
         currentDate: LocalDate,
@@ -35,6 +36,13 @@ internal class CiExternalTopologyFreshnessChecker(
         )
     }
 
+    /**
+     * Freshness projection for a manually verified CI topology.
+     *
+     * @property lastValidatedOn date recorded by the topology contract.
+     * @property warningDate first date after which revalidation is recommended.
+     * @property warningRequired whether the evaluated date is past the warning date.
+     */
     data class Result(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,

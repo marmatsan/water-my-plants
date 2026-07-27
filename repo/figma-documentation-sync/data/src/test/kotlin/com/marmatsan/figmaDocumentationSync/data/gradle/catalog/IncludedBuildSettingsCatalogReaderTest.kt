@@ -7,17 +7,23 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogT
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
+import java.io.File
 
 internal class IncludedBuildSettingsCatalogReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "included-build-settings-catalog-reader",
+                )
 
             test("readLibraryTree maps included build settings libs catalog to library catalog tree") {
                 // GIVEN
                 val settingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        name = "libraries",
                         content =
                             """
                             dependencyResolutionManagement {
@@ -81,7 +87,8 @@ internal class IncludedBuildSettingsCatalogReaderTest :
             test("readLibraryTree returns an empty tree when the included build has no libs catalog") {
                 // GIVEN
                 val settingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        name = "without-libraries",
                         content =
                             """
                             dependencyResolutionManagement {
@@ -110,7 +117,8 @@ internal class IncludedBuildSettingsCatalogReaderTest :
             test("readPluginTree maps included build settings plugins catalog to plugin catalog tree") {
                 // GIVEN
                 val settingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        name = "plugins",
                         content =
                             """
                             dependencyResolutionManagement {
@@ -166,7 +174,8 @@ internal class IncludedBuildSettingsCatalogReaderTest :
             test("readPluginTree returns an empty tree when the included build has no plugins catalog") {
                 // GIVEN
                 val settingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        name = "without-plugins",
                         content =
                             """
                             dependencyResolutionManagement {
@@ -195,14 +204,10 @@ internal class IncludedBuildSettingsCatalogReaderTest :
         },
     )
 
-private fun settingsFile(
+private fun File.settingsFile(
+    name: String,
     content: String,
-) =
-    Files
-        .createTempFile(
-            "settings",
-            ".gradle.kts",
-        ).toFile()
-        .apply {
-            writeText(content)
-        }
+) = resolve("$name.settings.gradle.kts")
+    .apply {
+        writeText(content)
+    }

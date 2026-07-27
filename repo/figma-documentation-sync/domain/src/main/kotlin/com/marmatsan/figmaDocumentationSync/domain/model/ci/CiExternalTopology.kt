@@ -4,6 +4,11 @@ import java.time.LocalDate
 
 /**
  * Versioned snapshot of external CI systems and their directed connections.
+ *
+ * @property schemaVersion topology contract schema version.
+ * @property validation freshness metadata for the snapshot.
+ * @property nodes external systems and actors rendered in the topology.
+ * @property connections validated directed relationships between nodes.
  */
 data class CiExternalTopology(
     val schemaVersion: Int,
@@ -39,6 +44,12 @@ data class CiExternalTopology(
         }
     }
 
+    /**
+     * Freshness policy for the external topology snapshot.
+     *
+     * @property lastValidatedOn date the topology was last verified.
+     * @property warnAfterDays age after which CI emits a freshness warning.
+     */
     data class Validation(
         val lastValidatedOn: LocalDate,
         val warnAfterDays: Int,

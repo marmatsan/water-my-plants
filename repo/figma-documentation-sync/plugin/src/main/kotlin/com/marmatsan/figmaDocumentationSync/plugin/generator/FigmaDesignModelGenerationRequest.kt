@@ -16,7 +16,7 @@ import java.time.Instant
  * @property primaryCatalogModelName Stable JSON key for the project's main catalog.
  * @property dependencyCatalogProviderClassName Project-config catalog adapter.
  * @property ciDocumentationEnabled Whether the optional CI model is included.
- * @property versionsFile Source `repo/dependency-catalog/versions.properties` file.
+ * @property versionsFile source versions file selected by the consuming project.
  * @property rootSettingsFile Root `settings.gradle.kts`.
  * @property ciExternalTopologyFile Versioned external CI topology.
  * @property ciWindowsRuntimeFile Versioned Windows service runtime.

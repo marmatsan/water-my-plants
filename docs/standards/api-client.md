@@ -8,7 +8,7 @@ last-reviewed: 2026-07-18
 review-cycle-days: 180
 sources:
   - docs/standards/architecture.md
-  - repo/dependency-catalog/versions.properties
+  - repo/water-my-plants-project-config/versions.properties
 ---
 
 # API Client Standard
@@ -57,4 +57,4 @@ deterministic server rather than the real service.
 ## Sources
 
 - `docs/standards/architecture.md`
-- `repo/dependency-catalog/versions.properties`
+- `repo/water-my-plants-project-config/versions.properties`

@@ -23,6 +23,36 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+
+    val versions =
+        java.util.Properties().apply {
+            file("versions.properties").inputStream().use(::load)
+        }
+
+    versionCatalogs {
+        create("libs") {
+            library(
+                "io.kotest.runner.junit5",
+                "io.kotest",
+                "kotest-runner-junit5",
+            ).version(versions.getProperty("kotestLibraryVersion"))
+            library(
+                "io.kotest.assertions.core",
+                "io.kotest",
+                "kotest-assertions-core",
+            ).version(versions.getProperty("kotestLibraryVersion"))
+            library(
+                "io.mockk",
+                "io.mockk",
+                "mockk",
+            ).version(versions.getProperty("mockkLibraryVersion"))
+            library(
+                "org.junit.jupiter.platform.launcher",
+                "org.junit.platform",
+                "junit-platform-launcher",
+            ).withoutVersion()
+        }
+    }
 }
 
 rootProject.name = "dependency-catalog"
@@ -30,6 +60,7 @@ rootProject.name = "dependency-catalog"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
+    ":catalog-api",
     ":catalog-core",
-    ":water-my-plants-catalog",
+    ":catalog-gradle-plugin",
 )

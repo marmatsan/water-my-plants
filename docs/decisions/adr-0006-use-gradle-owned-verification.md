@@ -7,7 +7,7 @@ status: accepted
 last-reviewed: 2026-07-20
 review-cycle-days: 365
 sources:
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiPlanFactory.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/VerificationPlatformPlugin.kt
   - .teamcity/settings.kts
 ---

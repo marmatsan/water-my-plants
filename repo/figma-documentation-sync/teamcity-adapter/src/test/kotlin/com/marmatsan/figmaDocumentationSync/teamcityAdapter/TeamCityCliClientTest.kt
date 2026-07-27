@@ -1,12 +1,17 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 
 internal class TeamCityCliClientTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "teamcity-cli-client",
+                )
+
             test("reads build identity through the TeamCity CLI JSON contract") {
                 val commands = mutableListOf<List<String>>()
                 val client =
@@ -57,11 +62,7 @@ internal class TeamCityCliClientTest :
 
             test("downloads one build artifact set into the requested directory") {
                 val output =
-                    Files
-                        .createTempDirectory("teamcity-cli-download")
-                        .resolve(
-                            "artifacts",
-                        ).toFile()
+                    temporaryDirectory.resolve("download/artifacts")
                 val commands = mutableListOf<List<String>>()
                 val client =
                     TeamCityCliClient { command, _ ->
@@ -90,7 +91,6 @@ internal class TeamCityCliClientTest :
                         "--output",
                         output.absolutePath,
                     )
-                output.parentFile.deleteRecursively()
             }
 
             test("lists active runs with the authenticated command environment") {

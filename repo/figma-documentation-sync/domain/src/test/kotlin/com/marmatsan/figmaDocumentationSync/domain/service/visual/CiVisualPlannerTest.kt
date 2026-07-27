@@ -21,6 +21,8 @@ internal class CiVisualPlannerTest :
     FunSpec(
         {
             val planner = CiVisualPlanner()
+            val environments = CiVisualEnvironmentResolver()
+            val artifactPaths = CiArtifactPathMatcher()
 
             test("creates the six CI documentation sections from portable models") {
                 val plan =
@@ -54,6 +56,34 @@ internal class CiVisualPlannerTest :
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
                     )
+            }
+
+            test("composes a replacement section planner without changing the orchestrator") {
+                val expected =
+                    CiVisualPlan.Section(
+                        target = "ci.custom",
+                        name = "Custom",
+                        description = "Consumer supplied section",
+                        orientation = CiVisualPlan.Orientation.HORIZONTAL,
+                        headerSources = emptyList(),
+                        nodes = emptyList(),
+                        connections = emptyList(),
+                    )
+                val customPlanner =
+                    CiVisualPlanner(
+                        sectionPlanners =
+                            listOf(
+                                CiVisualSectionPlanner { expected },
+                            ),
+                    )
+
+                customPlanner
+                    .create(
+                        topology(),
+                        windowsRuntime(),
+                        configuration(),
+                        visualConfig,
+                    ).sections shouldContainExactly listOf(expected)
             }
 
             test("keeps post-merge jobs compact and represents the complete verification loop") {
@@ -266,28 +296,28 @@ internal class CiVisualPlannerTest :
             }
 
             test("maps explicit external and Windows environments") {
-                planner.externalEnvironment(
+                environments.external(
                     id = "operator",
                 ) shouldBe CiVisualPlan.Environment.OPERATOR
-                planner.externalEnvironment(
+                environments.external(
                     id = "codex-mcp-client",
                 ) shouldBe CiVisualPlan.Environment.CODEX
-                planner.windowsRuntimeEnvironment(
+                environments.windowsRuntime(
                     id = "cloudflare-tunnel",
                 ) shouldBe CiVisualPlan.Environment.CLOUDFLARE
                 shouldThrow<IllegalArgumentException> {
-                    planner.externalEnvironment(
+                    environments.external(
                         id = "unknown",
                     )
                 }.message shouldContain "no .ci icon environment mapping"
             }
 
             test("normalizes TeamCity artifact publication paths") {
-                planner.artifactPathContains(
+                artifactPaths.contains(
                     publishedPath = "build\\reports\\figma-sync\\** => figma-sync",
                     requiredFile = "build/reports/figma-sync/design-model.json",
                 ) shouldBe true
-                planner.artifactPathContains(
+                artifactPaths.contains(
                     publishedPath = "build/reports/unrelated",
                     requiredFile = "build/reports/figma-sync/design-model.json",
                 ) shouldBe false

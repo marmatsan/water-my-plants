@@ -13,6 +13,7 @@ import java.nio.file.Path
 
 /** Reads the small project-config projection required by Kotlin runner infrastructure. */
 object FigmaWriterRuntimeConfigJson {
+    /** Reads and decodes a writer runtime configuration from [path]. */
     fun read(
         path: String,
     ): FigmaWriterRuntimeConfig =
@@ -25,6 +26,7 @@ object FigmaWriterRuntimeConfigJson {
                 ),
         )
 
+    /** Decodes a writer runtime configuration from [source]. */
     fun decode(
         source: String,
     ): FigmaWriterRuntimeConfig {

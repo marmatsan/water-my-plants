@@ -19,8 +19,8 @@ Feature: Plan CI execution for available agents
   Scenario: Multiple agents separate independent work behind one gate
     Given a verification plan for these changes:
       | .teamcity/settings.kts                                  |
-      | repo/figma-documentation-sync/tools/package.json        |
-      | repo/dependency-catalog/versions.properties             |
+      | tooling/public-api/package.json                         |
+      | build-infrastructure/settings.gradle.kts                |
     When execution is planned for 3 available agents
     Then the topology mode is MULTI_AGENT_PARALLEL
     And the execution lanes are:

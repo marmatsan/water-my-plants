@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.artifact
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -23,20 +23,24 @@ import org.gradle.work.DisableCachingByDefault
     because = "The output records absolute paths from the staged artifact set",
 )
 abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
+    /** Directory containing the canonical model, scope, plan, manifests, and optional states. */
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val artifactDirectory: DirectoryProperty
 
+    /** Optional repository revision that every artifact identity must match. */
     @get:Input
     @get:Optional
     abstract val expectedGitSha: Property<String>
 
+    /** Typed JSON handoff written after the complete set passes validation. */
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
+    /** Validates artifact coherence and writes the resolved handoff paths and identity. */
     @TaskAction
     fun validateArtifactSet() {
-        val component = figmaDocumentationSyncComponent::class.create()
+        val component = FigmaDocumentationSyncComponent::class.create()
         val artifacts =
             component.canonicalFigmaArtifactSetReader.read(
                 artifactDirectory.get().asFile.absolutePath,

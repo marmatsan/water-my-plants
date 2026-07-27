@@ -15,6 +15,7 @@ import java.io.File
  */
 @Inject
 class GradlePluginTreeReader {
+    /** Builds a plugin tree from ids and their consuming module identities. */
     fun readPluginTree(
         rootDir: File,
         includedPluginIds: Set<String> = emptySet(),

@@ -8,7 +8,7 @@ pluginManagement {
 
     val versions =
         java.util.Properties().apply {
-            file("../dependency-catalog/versions.properties").inputStream().use(::load)
+            file("versions.properties").inputStream().use(::load)
         }
 
     plugins {
@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 
     val versions =
         java.util.Properties().apply {
-            file("../dependency-catalog/versions.properties").inputStream().use(::load)
+            file("versions.properties").inputStream().use(::load)
         }
 
     versionCatalogs {

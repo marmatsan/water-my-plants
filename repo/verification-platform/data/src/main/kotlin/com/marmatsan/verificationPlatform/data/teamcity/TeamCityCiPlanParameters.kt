@@ -1,9 +1,9 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
-import com.marmatsan.verificationPlatform.domain.model.CiPlan
-import com.marmatsan.verificationPlatform.domain.model.CiPlanMode
-import com.marmatsan.verificationPlatform.domain.model.CiScope
-import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlan
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlanMode
+import com.marmatsan.verificationPlatform.domain.model.ci.CiScope
+import com.marmatsan.verificationPlatform.domain.model.ci.VerificationUnitId
 
 /** Maps the provider-neutral plan to allow-listed TeamCity build parameters. */
 class TeamCityCiPlanParameters {
@@ -51,8 +51,8 @@ class TeamCityCiPlanParameters {
         when (this) {
             CiScope.DOCUMENTATION_ONLY -> "documentation-only"
             CiScope.TEAMCITY -> "teamcity"
-            CiScope.FIGMA_TOOLING -> "figma-tooling"
-            CiScope.DEPENDENCY_INFRASTRUCTURE -> "dependency-infrastructure"
+            CiScope.TOOLING -> "tooling"
+            CiScope.BUILD_INFRASTRUCTURE -> "build-infrastructure"
             CiScope.APPLICATION -> "application"
             CiScope.MIXED -> "mixed"
             CiScope.UNKNOWN -> "unknown"
@@ -64,8 +64,9 @@ class TeamCityCiPlanParameters {
             VerificationUnitId.DOCUMENTATION -> "documentation"
             VerificationUnitId.REPOSITORY_DIFF -> "repository-diff"
             VerificationUnitId.TEAMCITY_DSL -> "teamcity-dsl"
-            VerificationUnitId.FIGMA_TOOLING -> "figma-tooling"
-            VerificationUnitId.DEPENDENCY_CATALOG -> "dependency-catalog"
+            VerificationUnitId.TOOLING -> "tooling"
+            VerificationUnitId.BUILD_INFRASTRUCTURE -> "build-infrastructure"
+            VerificationUnitId.PORTABLE_DISTRIBUTION -> "portable-distribution"
             VerificationUnitId.GRADLE_VERIFICATION -> "gradle-verification"
             VerificationUnitId.PUBLISH_REPORTS -> "publish-reports"
         }

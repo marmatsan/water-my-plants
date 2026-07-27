@@ -3,6 +3,26 @@ plugins {
     `kotlin-dsl` apply false
 }
 
+tasks.named("check") {
+    dependsOn(
+        ":data:check",
+        ":domain:check",
+        ":plugin:check",
+        ":teamcity-adapter:check",
+    )
+}
+
+tasks.register("dokkaGenerate") {
+    group = "documentation"
+    description = "Generates all portable Figma documentation sync API references."
+    dependsOn(
+        ":data:dokkaGenerate",
+        ":domain:dokkaGenerate",
+        ":plugin:dokkaGenerate",
+        ":teamcity-adapter:dokkaGenerate",
+    )
+}
+
 @DisableCachingByDefault(
     because = "The verification task has no reusable output artifact",
 )
@@ -49,12 +69,6 @@ val stagingPublicationRepository =
             .dir("publication-repository")
             .get()
             .asFile.absolutePath
-val catalogStagingPublicationRepository =
-    configuredPublicationRepository
-        ?: layout.projectDirectory
-            .dir("../dependency-catalog/build/publication-repository")
-            .asFile.absolutePath
-
 allprojects {
     group = publicationGroup
     version = publicationVersion
@@ -81,15 +95,12 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":data:publishAllPublicationsToStagingRepository",
         ":plugin:publishAllPublicationsToStagingRepository",
         ":teamcity-adapter:publishAllPublicationsToStagingRepository",
-        gradle
-            .includedBuild("dependency-catalog")
-            .task(":catalog-core:publishAllPublicationsToStagingRepository"),
     )
 }
 
 tasks.register<Exec>("verifyStagedPublication") {
     group = "verification"
-    description = "Applies the staged plugin from a standalone consumer build."
+    description = "Applies the staged Figma plugin from a standalone consumer build."
     dependsOn("publishPortablePublicationToStagingRepository")
 
     val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
@@ -113,7 +124,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "verifyPluginApplication",
         "-PfigmaDocumentationSyncVersion=$publicationVersion",
         "-PfigmaDocumentationSyncPublicationRepository=$stagingPublicationRepository",
-        "-PfigmaDocumentationSyncCatalogPublicationRepository=$catalogStagingPublicationRepository",
         "--stacktrace",
     )
 }

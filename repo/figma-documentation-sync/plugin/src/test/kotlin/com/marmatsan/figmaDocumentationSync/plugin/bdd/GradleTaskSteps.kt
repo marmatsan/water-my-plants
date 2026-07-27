@@ -133,8 +133,9 @@ class GradleTaskSteps : En {
 
             modules shouldContainAll
                 listOf(
+                    ":dependency-catalog:catalog-api",
                     ":dependency-catalog:catalog-core",
-                    ":dependency-catalog:water-my-plants-catalog",
+                    ":dependency-catalog:catalog-gradle-plugin",
                     ":figma-documentation-sync:data",
                     ":figma-documentation-sync:domain",
                     ":figma-documentation-sync:plugin",
@@ -154,8 +155,8 @@ class GradleTaskSteps : En {
 
             dependencies shouldBe
                 listOf(
-                    ":dependency-catalog:water-my-plants-catalog" to
-                        ":dependency-catalog:catalog-core",
+                    ":dependency-catalog:catalog-gradle-plugin" to
+                        ":dependency-catalog:catalog-api",
                 )
         }
 
@@ -227,7 +228,7 @@ class GradleTaskSteps : En {
         ).writeText(
             """
             import com.marmatsan.figmaDocumentationSync.data.ci.configuration.EmptyCiConfigurationProvider
-            import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.EmptyDependencyCatalogProvider
+            import com.marmatsan.figmaDocumentationSync.data.dependencies.catalog.EmptyDependencyDslCatalogProvider
 
             plugins {
                 id("com.marmatsan.figmaDocumentationSync")
@@ -235,8 +236,8 @@ class GradleTaskSteps : En {
 
             figmaDocumentationSync {
                 primaryCatalogModelName.set("fixture")
-                dependencyCatalogProviderClassName.set(EmptyDependencyCatalogProvider::class.java.name)
-                versionsFile.set(layout.projectDirectory.file("repo/dependency-catalog/versions.properties"))
+                dependencyCatalogProviderClassName.set(EmptyDependencyDslCatalogProvider::class.java.name)
+                versionsFile.set(layout.projectDirectory.file("versions.properties"))
                 $ciDocumentationConfiguration
 
                 includedBuilds.register("dependency-catalog") {
@@ -345,9 +346,15 @@ class GradleTaskSteps : En {
             """
             rootProject.name = "dependency-catalog"
             enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-            include(":catalog-core", ":water-my-plants-catalog")
+            include(":catalog-api", ":catalog-core", ":catalog-gradle-plugin")
             """.trimIndent(),
         )
+        resolve(
+            relative = "repo/dependency-catalog/catalog-api",
+        ).mkdirs()
+        resolve(
+            relative = "repo/dependency-catalog/catalog-api/build.gradle.kts",
+        ).writeText("")
         resolve(
             relative = "repo/dependency-catalog/catalog-core",
         ).mkdirs()
@@ -355,19 +362,19 @@ class GradleTaskSteps : En {
             relative = "repo/dependency-catalog/catalog-core/build.gradle.kts",
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/water-my-plants-catalog",
+            relative = "repo/dependency-catalog/catalog-gradle-plugin",
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/water-my-plants-catalog/build.gradle.kts",
+            relative = "repo/dependency-catalog/catalog-gradle-plugin/build.gradle.kts",
         ).writeText(
             """
             dependencies {
-                implementation(projects.catalogCore)
+                implementation(projects.catalogApi)
             }
             """.trimIndent(),
         )
         resolve(
-            relative = "repo/dependency-catalog/versions.properties",
+            relative = "versions.properties",
         ).writeText(
             """
             ## Main project dependencies

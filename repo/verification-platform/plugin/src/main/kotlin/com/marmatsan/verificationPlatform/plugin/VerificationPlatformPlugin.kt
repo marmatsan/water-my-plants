@@ -1,6 +1,17 @@
 package com.marmatsan.verificationPlatform.plugin
 
 import com.marmatsan.verificationPlatform.data.gradle.GradleProjectModuleGraphSource
+import com.marmatsan.verificationPlatform.plugin.extension.VerificationPlatformExtension
+import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckIncludedBuildVersionsTask
+import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckModuleBoundariesTask
+import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiPlanTask
+import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiTopologyPreviewTask
+import com.marmatsan.verificationPlatform.plugin.task.documentation.CheckDocumentationTask
+import com.marmatsan.verificationPlatform.plugin.task.git.CheckGitWorkflowTask
+import com.marmatsan.verificationPlatform.plugin.task.git.CheckRepositoryDiffTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.CheckTeamCityDslTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.PrepareTeamCityCiPlanTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.RunTeamCityInfrastructureHealthTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -34,6 +45,39 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.outputFile.convention(project.layout.buildDirectory.file("reports/ci/ci-plan.json"))
             }
 
+        val checkIncludedBuildVersions =
+            project.tasks.register(
+                "checkIncludedBuildVersions",
+                CheckIncludedBuildVersionsTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Verifies that configured included builds own their versions.properties."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.includedBuildPaths.convention(emptyList())
+            }
+        val checkModuleBoundaries =
+            project.tasks.register(
+                "checkModuleBoundaries",
+                CheckModuleBoundariesTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Verifies configured module and included-build dependency boundaries."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+                task.reusableScopePaths.convention(emptyList())
+                task.forbiddenReferencesByScope.convention(emptyMap())
+            }
+        val extension =
+            VerificationPlatformExtension(
+                project = project,
+                generateCiPlan = generateCiPlan,
+                checkIncludedBuildVersions = checkIncludedBuildVersions,
+                checkModuleBoundaries = checkModuleBoundaries,
+            )
+        project.extensions.add(
+            "verificationPlatform",
+            extension,
+        )
+
         project.gradle.projectsEvaluated {
             val graph = GradleProjectModuleGraphSource().read(project)
             generateCiPlan.configure { task ->
@@ -62,27 +106,6 @@ class VerificationPlatformPlugin : Plugin<Project> {
                         .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH")),
                 )
             }
-
-        val verificationPlatformBuild = project.gradle.includedBuild("verification-platform")
-        val checkKotlinStyle =
-            project.tasks.register(
-                "checkKotlinStyle",
-            ) { task ->
-                task.group = "verification"
-                task.description = "Checks repository Kotlin sources with the canonical KtLint rules."
-                task.dependsOn(
-                    verificationPlatformBuild.task(":data:checkRepositoryKotlinStyle"),
-                )
-            }
-        project.tasks.register(
-            "formatKotlinStyle",
-        ) { task ->
-            task.group = "formatting"
-            task.description = "Formats repository Kotlin sources with the canonical KtLint rules."
-            task.dependsOn(
-                verificationPlatformBuild.task(":data:formatRepositoryKotlinStyle"),
-            )
-        }
 
         val checkDocumentation =
             project.tasks.register(
@@ -118,14 +141,19 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.description = "Generates and validates the effective TeamCity Kotlin DSL."
                 task.dependsOn(checkDocumentation)
                 task.repositoryRoot.set(project.layout.projectDirectory)
-                task.teamCityPom.set(project.layout.projectDirectory.file(".teamcity/pom.xml"))
+                task.teamCityPom.set(extension.teamCity.pom)
+                task.generatedConfigurationDirectory.set(extension.teamCity.generatedConfigurationDirectory)
+                task.pipelineBuildTypeId.set(extension.teamCity.pipelineBuildTypeId)
+                task.gateBuildTypeId.set(extension.teamCity.gateBuildTypeId)
+                task.authoritativeStatusName.set(extension.teamCity.authoritativeStatusName)
             }
 
         project.gradle.projectsEvaluated {
             project.allprojects.forEach { candidate ->
                 candidate.tasks.matching { task -> task.name == "check" }.configureEach { task ->
                     task.dependsOn(checkDocumentation)
-                    task.dependsOn(checkKotlinStyle)
+                    task.dependsOn(checkIncludedBuildVersions)
+                    task.dependsOn(checkModuleBoundaries)
                     task.mustRunAfter(checkTeamCityDsl)
                 }
             }
@@ -175,7 +203,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
             task.buildTypeId.convention(
                 project.providers
                     .gradleProperty("teamCityInfrastructureHealthBuildTypeId")
-                    .orElse("WaterMyPlants_WaterMyPlantsInfrastructureHealth"),
+                    .orElse(extension.teamCity.infrastructureHealthBuildTypeId),
             )
             task.branch.convention(
                 project.providers.gradleProperty("teamCityInfrastructureHealthBranch").orElse("main"),

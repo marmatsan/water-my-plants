@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.ci
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -20,16 +20,18 @@ import java.time.ZoneOffset
     because = "The warning depends on the current UTC date",
 )
 abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
+    /** Optional versioned topology contract whose validation date is checked. */
     @get:InputFile
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciExternalTopologyFile: RegularFileProperty
 
+    /** Emits a warning only after the topology contract's declared freshness interval. */
     @TaskAction
     fun checkFreshness() {
         val topologyFile = ciExternalTopologyFile.orNull?.asFile ?: return
         val result =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .ciExternalTopologyFreshnessChecker
                 .check(

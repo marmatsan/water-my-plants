@@ -4,11 +4,11 @@ type: standard
 scope: repository-dependencies
 owner: dependency-catalog
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
-  - repo/dependency-catalog/versions.properties
-  - repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/Versions.kt
+  - repo/water-my-plants-project-config/versions.properties
+  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/Versions.kt
 ---
 
 # Dependency Version Naming
@@ -16,7 +16,7 @@ sources:
 ## Purpose
 
 Use this standard when adding or renaming entries in
-`repo/dependency-catalog/versions.properties`.
+`repo/water-my-plants-project-config/versions.properties`.
 
 The names are rendered in the Figma `versions` section, so the file must keep a
 stable semantic grouping instead of using generic `*Version` keys.
@@ -79,13 +79,13 @@ dokkaPluginVersion=...
 ## Adding A Dependency
 
 1. Add the version key under the correct section in
-   `repo/dependency-catalog/versions.properties`.
+   `repo/water-my-plants-project-config/versions.properties`.
 2. Add the matching property in
-   `repo/dependency-catalog/water-my-plants-catalog/src/main/kotlin/com/marmatsan/dependencies/Versions.kt`.
+   `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/Versions.kt`.
 3. Wire the key into `LibraryTrees.kt` or `PluginTrees.kt`.
-4. Update any included-build settings catalog that consumes the key, such as
-   `repo/gradle-plugins/settings.gradle.kts` or
-   `repo/figma-documentation-sync/settings.gradle.kts`.
+4. Use the generated alias from the product module that consumes the
+   dependency. Do not copy the product key into a reusable included build's
+   local toolchain registry.
 5. Run:
 
 ```powershell

@@ -5,6 +5,7 @@ class TeamCityCompositeRunClient(
     private val readClient: TeamCityRunClient,
     private val runStarter: TeamCityRunStarter,
 ) : TeamCityRunClient {
+    /** Delegates read-only listing to the configured read client. */
     override fun listRuns(
         buildTypeId: String,
         branch: String,
@@ -18,6 +19,7 @@ class TeamCityCompositeRunClient(
             limit = limit,
         )
 
+    /** Delegates queueing to the independently secured mutating boundary. */
     override fun startRun(
         buildTypeId: String,
         branch: String,
@@ -27,6 +29,7 @@ class TeamCityCompositeRunClient(
             branch = branch,
         )
 
+    /** Delegates bounded polling to the configured read client. */
     override fun watchRun(
         buildId: Long,
         pollIntervalSeconds: Int,
@@ -38,6 +41,7 @@ class TeamCityCompositeRunClient(
             timeoutMinutes = timeoutMinutes,
         )
 
+    /** Delegates current-state lookup to the configured read client. */
     override fun readRun(
         buildId: Long,
     ): TeamCityRun =

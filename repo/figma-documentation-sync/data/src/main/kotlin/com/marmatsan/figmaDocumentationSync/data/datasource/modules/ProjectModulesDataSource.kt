@@ -17,6 +17,7 @@ import java.io.File
 class ProjectModulesDataSource(
     private val gradleProjectModulesReader: GradleProjectModulesReader,
 ) : ProjectModulesPort {
+    /** Reads main and included-build modules selected by [source]. */
     override fun readModules(
         source: ProjectModulesSource,
     ): Set<String> =

@@ -2,7 +2,6 @@
 
 plugins {
     `kotlin-dsl`
-    `java-gradle-plugin`
 }
 
 repositories {
@@ -17,21 +16,10 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    implementation("com.marmatsan.repo:catalog-core")
-    implementation("com.marmatsan.repo:water-my-plants-catalog")
-
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
     // MockK
     testImplementation(libs.io.mockk)
-}
-
-gradlePlugin {
-    val pluginName = "com.marmatsan.dependencies"
-    plugins.register(pluginName) {
-        id = pluginName
-        implementationClass = "$pluginName.plugin.DependenciesPlugin"
-    }
 }

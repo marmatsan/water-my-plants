@@ -4,7 +4,7 @@ type: guide
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaDocumentationSyncGradlePlugin.kt
@@ -36,7 +36,7 @@ consumer repository.
 - Follow [the documentation standard](../../../../docs/documentation.md) for
   the consumer repository's project adapter documentation.
 - Keep project identities outside the portable modules as required by
-  [`project-config/README.md`](../../project-config/README.md).
+  [the Water My Plants composition example](../../../water-my-plants-project-config/README.md).
 
 ## Steps
 
@@ -56,10 +56,30 @@ consumer repository.
    }
    ```
 
-2. Create a repository-owned Gradle adapter. It applies the portable plugin,
-   implements `DependencyCatalogProvider`, and configures the
-   `figmaDocumentationSync` extension. Keep Figma node ids, paths, catalog names, and
-   CI commands in that adapter.
+2. Create a repository-owned versions file and catalog source. When reusing
+   Dependency Catalog, follow its separate adoption guide and implement
+   `VersionAliasedDependencyCatalogProvider`. Then add a product adapter that
+   maps that consumer-specific API to Figma's
+   `DependencyDslCatalogProvider`. A consumer may instead implement the
+   Figma-owned port directly.
+
+3. When Dependency Catalog is used, apply its settings plugin and select the provider. `from` is the
+   terminal operation because Gradle must register catalogs while evaluating
+   settings:
+
+   ```kotlin
+   plugins {
+       id("com.marmatsan.dependencyCatalog")
+   }
+
+   dependencyCatalog {
+       from(ExampleCatalogProvider())
+   }
+   ```
+
+4. Create a repository-owned Gradle project adapter. It applies the portable
+   Figma plugin and configures `figmaDocumentationSync`. Keep Figma node ids,
+   paths, catalog names, and CI commands in that adapter.
 
    ```kotlin
    plugins {
@@ -73,14 +93,14 @@ consumer repository.
        )
        primaryCatalogModelName.set("exampleProject")
        dependencyCatalogProviderClassName.set(
-           "com.example.figma.ExampleDependencyCatalogProvider"
+           "com.example.figma.ExampleDependencyDslCatalogProvider"
        )
        versionsFile.set(layout.projectDirectory.file("gradle/versions.properties"))
        toolsDirectory.set(layout.buildDirectory.dir("figma-documentation-sync-tools"))
    }
    ```
 
-3. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
+5. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
    `FigmaWriterProjectConfigJson`, and register
    `WriteFigmaWriterProjectConfigTask`. Wire its output into
    `PrepareCanonicalFigmaSyncTask.writerProjectConfigFile`,
@@ -90,7 +110,7 @@ consumer repository.
    relative repository root used for writer fingerprints. Keep the JSON under
    `build/`; do not version it.
 
-4. Add `@marmatsan/figma-documentation-sync-tools` at the same version and materialize
+6. Add `@marmatsan/figma-documentation-sync-tools` at the same version and materialize
    the configured writer from that transient JSON.
 
    ```powershell
@@ -100,17 +120,19 @@ consumer repository.
        --output-dir=build\figma-documentation-sync-tools
    ```
 
-5. Configure included builds through `figmaDocumentationSync.includedBuilds` only when
-   they contribute catalogs, modules, or convention plugins to the generated
-   model.
+7. Configure included builds through `figmaDocumentationSync.includedBuilds`
+   only when they contribute modules or usage metadata to the generated model.
+   Keep `publishesCatalogs` false unless the host explicitly chooses that
+   included build as product documentation. Water My Plants publishes only its
+   production `libraries` and `plugins` trees.
 
-6. For TeamCity, add the optional
+8. For TeamCity, add the optional
    `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter:<version>`
    dependency to the repository adapter and select
    `TeamCityCiConfigurationProvider`. Other repositories may supply a sibling
    `CiConfigurationProvider` or leave CI documentation disabled.
 
-7. Add the relevant verification tasks to CI. Treat the model generated on the
+9. Add the relevant verification tasks to CI. Treat the model generated on the
    default branch as the only canonical publication input.
 
 ## Verification
@@ -118,7 +140,7 @@ consumer repository.
 Run the standalone staged-consumer test before adopting a release:
 
 ```powershell
-.\gradlew.bat :figma-documentation-sync:verifyStagedPublication
+.\gradlew.bat -p repo\figma-documentation-sync verifyStagedPublication
 ```
 
 In the consumer repository, verify plugin application and its focused checks:
@@ -126,6 +148,14 @@ In the consumer repository, verify plugin application and its focused checks:
 ```powershell
 .\gradlew.bat tasks --group verification
 .\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage
+```
+
+Also verify the catalog settings plugin and staged distribution contract before
+selecting a release:
+
+```powershell
+.\gradlew.bat -p repo\dependency-catalog :catalog-gradle-plugin:test verifyStagedPublication
+.\gradlew.bat -p repo\figma-documentation-sync verifyStagedPublication
 ```
 
 Build the configured writer and run its tests before enabling a canonical
@@ -136,5 +166,6 @@ branch.
 
 - [Distribution contract](../reference/distribution-contract.md)
 - [Publication runbook](../runbooks/publishing-release.md)
-- [Project adapter contract](../../project-config/README.md)
+- [Water My Plants composition example](../../../water-my-plants-project-config/README.md)
 - [Canonical trunk sync](../runbooks/trunk-sync.md)
+- [Reusable dependency catalog adoption](../../../dependency-catalog/docs/guides/adopt-dependency-catalog.md)

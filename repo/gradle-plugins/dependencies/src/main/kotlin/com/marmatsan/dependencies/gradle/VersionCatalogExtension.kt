@@ -75,3 +75,45 @@ fun VersionCatalog.requireDependencyNotation(
                 artifact = artifact,
             ),
     )
+
+/** Keeps convention plugins independent from the catalog implementation. */
+private fun libraryAlias(
+    libraryGroup: String,
+    artifact: String,
+): String {
+    val groupSegments = libraryGroup.split(".")
+    var groupSuffix = ""
+    var artifactAliasSegment: String? = null
+
+    for (index in groupSegments.lastIndex downTo 0) {
+        groupSuffix =
+            if (groupSuffix.isEmpty()) {
+                groupSegments[index]
+            } else {
+                "${groupSegments[index]}-$groupSuffix"
+            }
+
+        artifactAliasSegment =
+            when {
+                artifact == groupSuffix -> ""
+                artifact.startsWith("$groupSuffix-") -> artifact.removePrefix("$groupSuffix-")
+                else -> null
+            }
+
+        if (artifactAliasSegment != null) {
+            break
+        }
+    }
+
+    val normalizedArtifactAliasSegment =
+        (artifactAliasSegment ?: artifact).replace(
+            "-",
+            ".",
+        )
+
+    return if (artifactAliasSegment?.isEmpty() == true) {
+        libraryGroup
+    } else {
+        "$libraryGroup.$normalizedArtifactAliasSegment"
+    }
+}

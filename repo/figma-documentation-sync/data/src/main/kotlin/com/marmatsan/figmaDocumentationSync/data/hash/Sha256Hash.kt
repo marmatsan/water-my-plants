@@ -4,6 +4,7 @@ import java.security.MessageDigest
 
 /** SHA-256 wire format shared by Kotlin and the transitional Node writer. */
 object Sha256Hash {
+    /** Returns the lowercase SHA-256 hash of UTF-8 [value]. */
     fun of(
         value: String,
     ): String =
@@ -11,6 +12,7 @@ object Sha256Hash {
             value = value.toByteArray(Charsets.UTF_8),
         )
 
+    /** Returns the lowercase SHA-256 hash of raw [value]. */
     fun of(
         value: ByteArray,
     ): String =

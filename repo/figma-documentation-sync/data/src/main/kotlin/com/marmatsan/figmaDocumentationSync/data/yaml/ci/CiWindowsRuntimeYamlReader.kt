@@ -12,6 +12,7 @@ import java.time.LocalDate
  */
 @Inject
 class CiWindowsRuntimeYamlReader {
+    /** Reads and validates the Windows runtime YAML [file]. */
     fun read(
         file: File,
     ): CiWindowsRuntime {

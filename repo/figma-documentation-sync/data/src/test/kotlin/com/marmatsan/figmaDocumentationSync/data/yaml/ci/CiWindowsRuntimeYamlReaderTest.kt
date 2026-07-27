@@ -3,21 +3,22 @@ package com.marmatsan.figmaDocumentationSync.data.yaml.ci
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import java.time.LocalDate
 
 internal class CiWindowsRuntimeYamlReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "ci-windows-runtime-yaml",
+                )
 
             test("read maps the versioned Windows service runtime") {
                 val file =
-                    Files
-                        .createTempFile(
-                            "windows-runtime",
-                            ".yaml",
-                        ).toFile()
+                    temporaryDirectory
+                        .resolve("windows-runtime.yaml")
                         .apply {
                             writeText(
                                 """
@@ -61,11 +62,8 @@ internal class CiWindowsRuntimeYamlReaderTest :
 
             test("read rejects duplicate service ids") {
                 val file =
-                    Files
-                        .createTempFile(
-                            "invalid-windows-runtime",
-                            ".yaml",
-                        ).toFile()
+                    temporaryDirectory
+                        .resolve("invalid-windows-runtime.yaml")
                         .apply {
                             writeText(
                                 """

@@ -23,6 +23,7 @@ import java.nio.file.Path
 
 /** Reads, validates, hashes, and writes complete executable runner manifests. */
 class ExecutableRunnerManifestJson {
+    /** Calculates identity fields and writes the finalized [draft] to [outputPath]. */
     fun finalizeAndWrite(
         draft: ExecutableRunnerManifest,
         outputPath: String,
@@ -48,6 +49,7 @@ class ExecutableRunnerManifestJson {
         return finalized
     }
 
+    /** Writes [manifest] to [outputPath] without changing its declared identity. */
     fun write(
         manifest: ExecutableRunnerManifest,
         outputPath: String,
@@ -76,6 +78,7 @@ class ExecutableRunnerManifestJson {
         )
     }
 
+    /** Reads an executable runner manifest from [path]. */
     fun read(
         path: String,
     ): ExecutableRunnerManifest {
@@ -130,6 +133,7 @@ class ExecutableRunnerManifestJson {
         return manifest
     }
 
+    /** Returns the canonical manifest hash with its hash field excluded. */
     fun hash(
         manifest: ExecutableRunnerManifest,
     ): String =

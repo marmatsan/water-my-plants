@@ -12,6 +12,7 @@ import me.tatarka.inject.annotations.Inject
 internal class VersionNamingChecker(
     private val repositoryVersionsPort: RepositoryVersionsPort,
 ) {
+    /** Validates the ordered version sections and suffix rules described by [request]. */
     fun check(
         request: VersionNamingCheckRequest,
     ): VersionNamingCheckResult {

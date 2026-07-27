@@ -6,6 +6,13 @@ import org.gradle.kotlin.dsl.configure
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
+/**
+ * Applies the repository's strict Dokka contract to a Kotlin module.
+ *
+ * The convention owns documentation visibility, warning policy, source links,
+ * and verification lifecycle wiring so consuming modules do not reproduce
+ * those decisions independently.
+ */
 @Suppress("unused")
 class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
     override fun apply(
@@ -26,9 +33,18 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
                 ),
             )
 
+            dokkaPublications.configureEach {
+                failOnWarning.set(true)
+            }
+
             dokkaSourceSets.configureEach {
-                documentedVisibilities.set(setOf(VisibilityModifier.Public))
-                reportUndocumented.set(false)
+                documentedVisibilities.set(
+                    setOf(
+                        VisibilityModifier.Public,
+                        VisibilityModifier.Internal,
+                    ),
+                )
+                reportUndocumented.set(true)
                 skipEmptyPackages.set(true)
                 suppressGeneratedFiles.set(true)
 
@@ -48,6 +64,10 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
                     }
                 }
             }
+        }
+
+        project.tasks.named("check").configure {
+            dependsOn("dokkaGenerate")
         }
     }
 

@@ -3,17 +3,21 @@ package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 
 internal class GradlePluginTreeReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "gradle-plugin-tree-reader",
+                )
 
             test("readPluginTree detects regular Gradle plugins and ignores convention plugins") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("gradle-plugin-tree").toFile()
+                val rootDir = temporaryDirectory.resolve("project").apply { mkdirs() }
                 rootDir.writeSettingsFile(
                     path = "repo/gradle-plugins",
                 )

@@ -12,16 +12,20 @@ import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTr
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 
 internal class CatalogUsageCheckerTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "catalog-usage-checker",
+                )
 
             test("check reports unused entries from dependency DSL and included-build catalogs") {
                 // GIVEN
-                val rootDir = Files.createTempDirectory("catalog-usage-check").toFile()
+                val rootDir = temporaryDirectory.resolve("project").apply { mkdirs() }
                 val checker =
                     CatalogUsageChecker(
                         projectCatalogTreesPort = FakeProjectCatalogTreesPort(),

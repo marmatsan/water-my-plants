@@ -26,13 +26,16 @@ import javax.inject.Inject
 abstract class ProbeFigmaMcpTask
     @Inject
     constructor() : DefaultTask() {
+        /** Streamable HTTP endpoint whose advertised tools are inspected. */
         @get:Input
         abstract val endpoint: Property<String>
 
+        /** Runtime project contract providing the MCP client identity. */
         @get:InputFile
         @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val writerProjectConfigFile: RegularFileProperty
 
+        /** Connects to the endpoint and prints its normalized Figma capabilities as JSON. */
         @TaskAction
         fun probe() {
             val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)

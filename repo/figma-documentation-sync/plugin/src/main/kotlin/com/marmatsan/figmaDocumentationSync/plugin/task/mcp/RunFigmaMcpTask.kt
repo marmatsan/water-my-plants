@@ -29,59 +29,75 @@ import javax.inject.Inject
 abstract class RunFigmaMcpTask
     @Inject
     constructor() : DefaultTask() {
+        /** Path to the executable runner manifest. */
         @get:Input
         abstract val manifestPath: Property<String>
 
+        /** Optional visual sync plan used to select execution scopes. */
         @get:Input
         @get:Optional
         abstract val planPath: Property<String>
 
+        /** Optional checkpoint path overriding the manifest-local default. */
         @get:Input
         @get:Optional
         abstract val statePath: Property<String>
 
+        /** Optional previous visual state used for incremental planning. */
         @get:Input
         @get:Optional
         abstract val visualStatePath: Property<String>
 
+        /** Streamable HTTP MCP endpoint used for execution. */
         @get:Input
         abstract val endpoint: Property<String>
 
+        /** Whether an existing compatible checkpoint must be resumed. */
         @get:Input
         abstract val resume: Property<Boolean>
 
+        /** Whether execution starts again from the last failed file. */
         @get:Input
         abstract val retryFailed: Property<Boolean>
 
+        /** Whether compatible canonical staging may be reused. */
         @get:Input
         abstract val reuseStaging: Property<Boolean>
 
+        /** Whether to inspect the planned execution without calling write tools. */
         @get:Input
         abstract val dryRun: Property<Boolean>
 
+        /** Whether to print only the next pending runner file. */
         @get:Input
         abstract val next: Property<Boolean>
 
+        /** Optional runner file from which execution begins. */
         @get:Input
         @get:Optional
         abstract val from: Property<String>
 
+        /** Optional externally executed file to record as successful. */
         @get:Input
         @get:Optional
         abstract val recordSuccess: Property<String>
 
+        /** Optional externally executed file to record as failed. */
         @get:Input
         @get:Optional
         abstract val recordFailure: Property<String>
 
+        /** Operator summary stored with an externally recorded result. */
         @get:Input
         @get:Optional
         abstract val summary: Property<String>
 
+        /** Runtime project contract providing Figma and MCP identities. */
         @get:InputFile
         @get:PathSensitive(PathSensitivity.RELATIVE)
         abstract val writerProjectConfigFile: RegularFileProperty
 
+        /** Selects inspection, manual recording, or checkpointed MCP execution from task inputs. */
         @TaskAction
         fun runMcp() {
             val config = FigmaWriterRuntimeConfigJson.read(writerProjectConfigFile.get().asFile.absolutePath)

@@ -22,6 +22,7 @@ class TeamCityCliClient(
         },
 ) : TeamCityBuildArtifactClient,
     TeamCityRunClient {
+    /** Reads build and build-type identity through `teamcity run view`. */
     override fun readBuild(
         buildId: Long,
     ): TeamCityBuild {
@@ -46,6 +47,7 @@ class TeamCityCliClient(
         )
     }
 
+    /** Lists matching runs through the non-interactive TeamCity CLI JSON contract. */
     override fun listRuns(
         buildTypeId: String,
         branch: String,
@@ -70,6 +72,7 @@ class TeamCityCliClient(
         return root["build"]?.jsonArray.orEmpty().map { it.jsonObject.toTeamCityRun() }
     }
 
+    /** Queues a run through the TeamCity CLI. */
     override fun startRun(
         buildTypeId: String,
         branch: String,
@@ -83,6 +86,7 @@ class TeamCityCliClient(
             "--json",
         ).toTeamCityRun()
 
+    /** Waits for a run through the CLI with validated polling and timeout bounds. */
     override fun watchRun(
         buildId: Long,
         pollIntervalSeconds: Int,
@@ -106,6 +110,7 @@ class TeamCityCliClient(
         ).toTeamCityRun()
     }
 
+    /** Reads the current run state through `teamcity run view`. */
     override fun readRun(
         buildId: Long,
     ): TeamCityRun =
@@ -116,6 +121,7 @@ class TeamCityCliClient(
             "--json",
         ).toTeamCityRun()
 
+    /** Downloads every artifact published by [buildId] into [outputDirectory]. */
     override fun downloadArtifacts(
         buildId: Long,
         outputDirectory: File,
@@ -155,7 +161,7 @@ class TeamCityCliClient(
     ): JsonObject {
         val result =
             executeTeamCity(
-                arguments = *arguments,
+                arguments = arguments,
             )
         val root =
             runCatching { Json.parseToJsonElement(result.output).jsonObject }
@@ -172,6 +178,13 @@ class TeamCityCliClient(
         return root
     }
 
+    /**
+     * Captured process result supplied by the injectable CLI execution boundary.
+     *
+     * @property exitCode operating-system process exit code.
+     * @property output normalized standard output.
+     * @property error normalized standard error.
+     */
     data class CommandResult(
         val exitCode: Int,
         val output: String,

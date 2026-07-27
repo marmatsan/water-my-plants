@@ -14,6 +14,7 @@ import java.time.LocalDate
  */
 @Inject
 class CiExternalTopologyYamlReader {
+    /** Reads and validates the external topology YAML [file]. */
     fun read(
         file: File,
     ): CiExternalTopology {

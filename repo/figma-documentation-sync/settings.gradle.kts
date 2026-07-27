@@ -16,21 +16,19 @@ pluginManagement {
     }
 }
 
-includeBuild("../dependency-catalog")
-
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-// Versions owned by dependency-catalog and consumed by this included build.
+// Versions owned by this included build.
 val versions =
     java.util.Properties().apply {
-        file("../dependency-catalog/versions.properties").inputStream().use(::load)
+        file("versions.properties").inputStream().use(::load)
     }
 
 fun version(
     key: String,
 ): String =
     versions.getProperty(key)
-        ?: error("Missing version property '$key' in repo/dependency-catalog/versions.properties")
+        ?: error("Missing version property '$key' in repo/figma-documentation-sync/versions.properties")
 
 fun VersionCatalogBuilder.library(
     alias: String,
@@ -233,6 +231,5 @@ include(
     ":data",
     ":domain",
     ":plugin",
-    ":project-config",
     ":teamcity-adapter",
 )

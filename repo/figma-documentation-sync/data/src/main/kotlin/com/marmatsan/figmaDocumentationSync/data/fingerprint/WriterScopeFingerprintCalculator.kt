@@ -13,6 +13,7 @@ import kotlin.io.path.isRegularFile
 
 /** Computes target-scoped hashes for portable writer source files. */
 class WriterScopeFingerprintCalculator {
+    /** Creates deterministic writer fingerprints for model-neutral and visual execution scopes. */
     fun create(
         sourceRoot: Path,
         repositoryRoot: Path,
@@ -220,7 +221,9 @@ class WriterScopeFingerprintCalculator {
         val sourceHash: String,
     )
 
+    /** Fingerprint contract version shared with canonical metadata. */
     companion object {
+        /** Current writer-scope fingerprint calculation schema version. */
         const val SCHEMA_VERSION = 1
     }
 }

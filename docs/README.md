@@ -25,6 +25,8 @@ them.
 - [ADR-0005: Name the Portable Infrastructure Figma Documentation Sync](decisions/adr-0005-name-figma-documentation-sync.md)
 - [ADR-0003: Keep the Figma Runtime Boundary in TypeScript](decisions/adr-0003-keep-figma-runtime-boundary-in-typescript.md)
 - [ADR-0004: Use JSON for Figma Writer Project Configuration](decisions/adr-0004-use-json-for-figma-writer-project-configuration.md)
+- [ADR-0009: Separate the Product Catalog From Build-Tool Versions](decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md)
+- [ADR-0010: Isolate Product Composition From Reusable Builds](decisions/adr-0010-isolate-product-composition-from-reusable-builds.md)
 
 ## CI References
 

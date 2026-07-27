@@ -3,17 +3,21 @@ package com.marmatsan.figmaDocumentationSync.teamcityAdapter.configuration
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiJob
 import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiTrigger
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 
 internal class TeamCityGeneratedConfigurationReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "teamcity-generated-configuration",
+                )
 
             test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
                 // GIVEN
-                val root = Files.createTempDirectory("teamcity-generated").toFile()
+                val root = temporaryDirectory.resolve("configuration").apply { mkdirs() }
                 val pipeline =
                     root
                         .resolve(

@@ -11,6 +11,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlan
 
 /** Selects atomic runner files and evolves compatible execution checkpoints. */
 class McpExecutionPlanner {
+    /** Derives write-relevant endpoint capabilities from advertised MCP [toolNames]. */
     fun capabilities(
         toolNames: List<String>,
     ): McpCapabilities {
@@ -22,6 +23,7 @@ class McpExecutionPlanner {
         )
     }
 
+    /** Fails when the endpoint lacks a tool required by the selected runner files. */
     fun requireWriteCapabilities(
         capabilities: McpCapabilities,
         manifest: ExecutableRunnerManifest,
@@ -50,6 +52,7 @@ class McpExecutionPlanner {
         }
     }
 
+    /** Selects the ordered atomic files permitted by the manifest, plan, options, and checkpoints. */
     fun selectExecutionFiles(
         manifest: ExecutableRunnerManifest,
         options: McpExecutionOptions,
@@ -134,6 +137,7 @@ class McpExecutionPlanner {
         return files
     }
 
+    /** Creates a fresh checkpoint or resumes a compatible checkpoint for [executionFiles]. */
     fun createOrResumeState(
         manifest: ExecutableRunnerManifest,
         existingState: McpExecutionState?,
@@ -166,6 +170,7 @@ class McpExecutionPlanner {
         )
     }
 
+    /** Returns a checkpoint recording successful execution of [file]. */
     fun recordSuccess(
         state: McpExecutionState,
         manifest: ExecutableRunnerManifest,
@@ -191,6 +196,7 @@ class McpExecutionPlanner {
         )
     }
 
+    /** Returns a checkpoint recording the failed [file] and supervised-retry detail. */
     fun recordFailure(
         state: McpExecutionState,
         file: String,
@@ -209,6 +215,7 @@ class McpExecutionPlanner {
             updatedAt = now,
         )
 
+    /** Extracts the checkpoint-compatible cryptographic identity from [manifest]. */
     fun executionIdentity(
         manifest: ExecutableRunnerManifest,
     ): McpExecutionIdentity =
@@ -220,6 +227,7 @@ class McpExecutionPlanner {
             manifestHash = manifest.manifestHash,
         )
 
+    /** Fails when [state] cannot safely resume the supplied [manifest]. */
     fun assertStateIdentity(
         manifest: ExecutableRunnerManifest,
         state: McpExecutionState,
@@ -256,6 +264,7 @@ class McpExecutionPlanner {
         }
     }
 
+    /** Fails unless the visual checkpoint authorizes metadata-runner staging reuse. */
     fun assertCompletedVisualState(
         metadataManifest: ExecutableRunnerManifest,
         visualState: McpExecutionState?,
@@ -309,10 +318,18 @@ class McpExecutionPlanner {
         executionFiles: List<String>,
     ): Boolean = manifest.transport == "png" && PAYLOAD_STAGE_FILE in executionFiles
 
+    /** Stable MCP tool and runner-file identities shared by execution adapters. */
     companion object {
+        /** MCP tool required to execute Figma code. */
         const val REQUIRED_WRITE_TOOL = "use_figma"
+
+        /** MCP tool required to upload canonical payload images. */
         const val REQUIRED_UPLOAD_TOOL = "upload_assets"
+
+        /** Skill resource requested before performing a Figma write. */
         const val FIGMA_USE_SKILL_URI = "skill://figma/figma-use/SKILL.md"
+
+        /** Atomic runner file that stages the canonical PNG payload. */
         const val PAYLOAD_STAGE_FILE = "10-stage-payload-from-png.mcp.js"
 
         private const val STATE_SCHEMA_VERSION = 1

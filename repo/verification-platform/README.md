@@ -13,7 +13,7 @@ This directory is an included Gradle build with three modules:
 |------|------|
 | `domain/` | Provider-neutral plans, topology, module-impact rules, ports, and services. It has no Gradle, TeamCity, Git, filesystem, or HTTP dependencies. |
 | `data/` | Git, filesystem, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries. |
-| `plugin/` | Gradle verification tasks and the `com.marmatsan.verificationPlatform` composition root consumed by Water My Plants. |
+| `plugin/` | Reusable Gradle tasks and the `com.marmatsan.verificationPlatform` configuration API. |
 
 The dependency direction is `plugin -> data -> domain`; `plugin` may also use
 domain types while composing tasks. The included build keeps a root `check`
@@ -31,12 +31,17 @@ aggregator so existing consumers do not need to know its internal projects.
 - The TeamCity adapter converts the plan to escaped, allow-listed build
   parameters and validates every emitted Gradle task name; it does not add
   provider concerns to the domain model.
-- The Gradle plugin is the current composition root and registers
-  `generateCiPlan`, `checkGitWorkflow`, `checkDocumentation`,
-  `checkKotlinStyle`, `formatKotlinStyle`,
-  `checkRepositoryDiff`, `checkTeamCityDsl`, `generateCiTopologyPreview`,
-  `prepareTeamCityCiPlan`, and `runTeamCityInfrastructureHealth` in the Water
-  My Plants root build.
+- The Gradle plugin registers generic planning, documentation, TeamCity, local
+  version ownership, and module-boundary tasks. Its public DSL segregates
+  repository policy into `ciPolicy`, `boundaries`, `taskBindings`, and
+  `teamCity` blocks so consumers configure only the capability they own.
+- Verification Platform production code contains no Water My Plants module
+  inventory or sibling build name. Water My Plants binds
+  `checkKotlinStyle`, `checkDependencyCatalogArchitecture`, portable
+  distribution consumers, and product policy in the root build.
+- This included build resolves its own compile/test toolchain from
+  `repo/verification-platform/versions.properties`; it does not read the
+  Water My Plants product catalog registry.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
 
@@ -56,28 +61,41 @@ guarantees; KDoc and Dokka explain the types and entry points that provide the
 guarantee. Generated HTML remains under each module's `build/dokka/` directory
 and is not committed.
 
-All three modules enforce strict public-API documentation. Their `check` tasks
-generate Dokka, report undocumented public declarations, and fail on Dokka
-warnings. New public models, services, adapters, tasks, properties, and methods
-therefore add or update KDoc in the same change.
+All three modules enforce strict public and internal API documentation. Their
+`check` tasks generate Dokka, report undocumented declarations, and fail on
+Dokka warnings. New public or internal models, services, adapters, ports,
+tasks, properties, and methods therefore add or update useful KDoc in the same
+change.
+
+`DocumentationValidator` is a coordinator rather than a rule container. It
+classifies typed documents and delegates metadata, heading, repository-link,
+and change-coverage validation to independently testable collaborators. New
+typed-document rules extend `TypedDocumentationRule`; they do not add another
+reason for the coordinator to change. The public coordinator remains at
+`domain.service.DocumentationValidator`, while its focused collaborators live
+under `domain.service.documentation`.
 
 ## Verification
 
 ```powershell
-.\gradlew.bat :verification-platform:domain:check :verification-platform:data:check :verification-platform:plugin:check
-.\gradlew.bat :verification-platform:dokkaGenerate
+.\gradlew.bat -p repo\verification-platform check
+.\gradlew.bat -p repo\verification-platform dokkaGenerate
 .\gradlew.bat checkGitWorkflow
 .\gradlew.bat checkDocumentation
 .\gradlew.bat checkKotlinStyle
 .\gradlew.bat formatKotlinStyle
 .\gradlew.bat checkRepositoryDiff
 .\gradlew.bat checkTeamCityDsl
+.\gradlew.bat checkDependencyCatalogArchitecture checkIncludedBuildVersions
+.\gradlew.bat checkModuleBoundaries
+.\gradlew.bat verifyPortableDistribution
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
 ```
 
-`checkKotlinStyle` runs the KtLint 1.8.0 standard rules and the
+`checkKotlinStyle` is a Water My Plants task binding to the reusable KtLint
+adapter. It runs the KtLint 1.8.0 standard rules and the
 repository-owned argument rule over every `.kt` and `.kts` file. It is wired
 into the root `check` lifecycle so future source files are checked locally and
 in CI. The root `.editorconfig` is the executable configuration source.

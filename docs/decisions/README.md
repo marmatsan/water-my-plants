@@ -14,3 +14,5 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0006](adr-0006-use-gradle-owned-verification.md) | Accepted | Use Gradle tasks as the canonical repository verification API. |
 | [ADR-0007](adr-0007-use-trunk-based-development.md) | Accepted | Use one protected trunk with short-lived branches and squash integration. |
 | [ADR-0008](adr-0008-use-canonical-for-authoritative-figma-sync.md) | Accepted | Use canonical for the authoritative Figma Sync process and reserve official for vendor-provided technology. |
+| [ADR-0009](adr-0009-separate-product-catalog-from-build-tool-versions.md) | Accepted | Keep build-tool versions local and publish only the product catalog tree to Figma. |
+| [ADR-0010](adr-0010-isolate-product-composition-from-reusable-builds.md) | Accepted | Keep product wiring in one composition build and allow reusable builds to consume only public APIs. |

@@ -17,6 +17,7 @@ class KtorFigmaPngAssetUploader internal constructor(
 ) {
     constructor() : this(::sendWithKtor)
 
+    /** Validates and uploads [bytes] to the approved single-use Figma MCP [url]. */
     suspend fun upload(
         url: String,
         bytes: ByteArray,
@@ -45,6 +46,7 @@ class KtorFigmaPngAssetUploader internal constructor(
         require(status in 200..299) { "Payload upload failed with HTTP $status." }
     }
 
+    /** Bridges [upload] to callers that cannot enter a coroutine. */
     fun uploadBlocking(
         url: String,
         bytes: ByteArray,

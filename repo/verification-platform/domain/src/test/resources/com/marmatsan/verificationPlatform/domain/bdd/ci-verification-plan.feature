@@ -8,7 +8,7 @@ Feature: Select repository verification
   Scenario: Documentation-only changes avoid full Gradle verification
     Given repository changes include:
       | docs/standards/testing.md |
-      | repo/verification-platform/README.md         |
+      | components/tooling/docs/README.md |
     When the verification plan is created
     Then the plan scope is DOCUMENTATION_ONLY
     And full Gradle verification is not required
@@ -45,7 +45,7 @@ Feature: Select repository verification
       | :app:check             |
       | :core:ui:check         |
       | :onboarding:ui:check   |
-      | checkFigmaCatalogUsage |
+      | checkSharedUsage       |
 
   @domain
   Scenario: Unknown changes fail closed

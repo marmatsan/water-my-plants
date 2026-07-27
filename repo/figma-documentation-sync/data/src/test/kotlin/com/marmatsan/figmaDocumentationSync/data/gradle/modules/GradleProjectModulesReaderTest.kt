@@ -1,18 +1,23 @@
 package com.marmatsan.figmaDocumentationSync.data.gradle.modules
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
 import java.io.File
-import java.nio.file.Files
 
 internal class GradleProjectModulesReaderTest :
     FunSpec(
         {
+            val temporaryDirectory =
+                tempdir(
+                    prefix = "gradle-project-modules-reader",
+                )
 
             test("readModules returns root and included build modules") {
                 // GIVEN
                 val rootSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "modules/root/settings.gradle.kts",
                         content =
                             """
                             include(
@@ -22,7 +27,8 @@ internal class GradleProjectModulesReaderTest :
                             """.trimIndent(),
                     )
                 val includedBuildSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "modules/included/settings.gradle.kts",
                         content =
                             """
                             include(
@@ -63,11 +69,13 @@ internal class GradleProjectModulesReaderTest :
             test("readModules returns standalone included build root module") {
                 // GIVEN
                 val rootSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "standalone/root/settings.gradle.kts",
                         content = "",
                     )
                 val includedBuildSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "standalone/included/settings.gradle.kts",
                         content = "",
                     )
                 includedBuildSettingsFile.parentFile
@@ -95,16 +103,18 @@ internal class GradleProjectModulesReaderTest :
             test("readModules returns dependency catalog submodules without a root module") {
                 // GIVEN
                 val rootSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "catalog/root/settings.gradle.kts",
                         content = "",
                     )
                 val includedBuildSettingsFile =
-                    settingsFile(
+                    temporaryDirectory.settingsFile(
+                        path = "catalog/included/settings.gradle.kts",
                         content =
                             """
                             include(
                                 ":catalog-core",
-                                ":water-my-plants-catalog"
+                                ":catalog-gradle-plugin"
                             )
                             """.trimIndent(),
                     )
@@ -126,20 +136,18 @@ internal class GradleProjectModulesReaderTest :
                 modules shouldBe
                     setOf(
                         ":dependency-catalog:catalog-core",
-                        ":dependency-catalog:water-my-plants-catalog",
+                        ":dependency-catalog:catalog-gradle-plugin",
                     )
             }
         },
     )
 
-private fun settingsFile(
+private fun File.settingsFile(
+    path: String,
     content: String,
 ): File =
-    Files
-        .createTempDirectory("gradle-project-modules-reader")
-        .resolve(
-            "settings.gradle.kts",
-        ).toFile()
+    resolve(path)
         .apply {
+            parentFile.mkdirs()
             writeText(content)
         }

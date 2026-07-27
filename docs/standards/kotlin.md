@@ -4,13 +4,14 @@ type: standard
 scope: repository
 owner: android
 status: active
-last-reviewed: 2026-07-21
+last-reviewed: 2026-07-27
 review-cycle-days: 180
 sources:
   - .gitattributes
   - .editorconfig
   - gradle.properties
   - repo/gradle-plugins/android
+  - repo/gradle-plugins/dokka-documentation
   - repo/gradle-plugins/unit-test
   - repo/verification-platform
 ---
@@ -111,8 +112,10 @@ overlong lines still require a source change. CI MUST run the check and MUST
 NOT format tracked files.
 
 KtLint owns mechanical source style. KDoc owns the meaning, invariants, and
-usage contract of public Kotlin APIs, while Dokka verifies and publishes that
-API documentation. Formatting KDoc does not replace the documentation coverage
+usage contract of public and internal Kotlin APIs included in documentation,
+while Dokka verifies and publishes that API reference. Strict modules include
+both visibilities, report undocumented declarations, fail on warnings, and run
+Dokka from `check`. Formatting KDoc does not replace the documentation coverage
 requirements in the [testing standard](testing.md#living-documentation).
 
 ## Sources
@@ -121,4 +124,5 @@ requirements in the [testing standard](testing.md#living-documentation).
 - `.editorconfig`
 - `repo/gradle-plugins/android/`
 - `repo/gradle-plugins/unit-test/`
+- `repo/gradle-plugins/dokka-documentation/`
 - `repo/verification-platform/`

@@ -13,6 +13,7 @@ import java.time.LocalDate
 internal class CiWindowsRuntimeFreshnessChecker(
     private val ciWindowsRuntimePort: CiWindowsRuntimePort,
 ) {
+    /** Evaluates [runtimeFile] against its declared warning interval at [currentDate]. */
     fun check(
         runtimeFile: File,
         currentDate: LocalDate,
@@ -35,6 +36,13 @@ internal class CiWindowsRuntimeFreshnessChecker(
         )
     }
 
+    /**
+     * Freshness projection for the manually verified Windows CI runtime.
+     *
+     * @property lastValidatedOn date recorded by the runtime contract.
+     * @property warningDate first date after which revalidation is recommended.
+     * @property warningRequired whether the evaluated date is past the warning date.
+     */
     data class Result(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,

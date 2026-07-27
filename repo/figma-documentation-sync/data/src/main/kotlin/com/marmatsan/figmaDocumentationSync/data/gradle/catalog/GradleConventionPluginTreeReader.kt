@@ -14,6 +14,7 @@ import java.io.File
  */
 @Inject
 class GradleConventionPluginTreeReader {
+    /** Builds the convention-plugin tree and attaches applying module identities. */
     fun readPluginTree(
         rootDir: File,
         usageByPluginId: Map<String, Set<String>> = emptyMap(),

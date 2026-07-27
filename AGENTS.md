@@ -59,6 +59,26 @@ because both are part of the contract used by the Figma sync pipeline.
 - Run `.\gradlew.bat checkDocumentation`
   after adding, moving, or editing documentation.
 
+## Architecture and SOLID
+
+- Follow `docs/standards/architecture.md` for module boundaries, dependency
+  direction, composition roots, and the mandatory SOLID design rules.
+- Apply SOLID to all code we implement or materially change, including
+  production types and test support that contains reusable behavior. A change
+  is not complete while a known SOLID violation remains in its implementation.
+- Apply the Package Cohesion rules in `docs/standards/architecture.md` to every
+  new or generated checked-in Kotlin source: use a meaningful capability
+  package, mirror it in the source path, and reserve root packages for public
+  entry points and composition roots.
+- Give each type one cohesive reason to change. Composition roots may select
+  concrete implementations but must delegate configuration, registration, and
+  runtime behavior to focused collaborators.
+- Depend on consumer-owned interfaces at architectural boundaries. Keep ports
+  small enough that consumers implement only the operations they use.
+- Before completing implementation, review the affected production code
+  explicitly against SRP, OCP, LSP, ISP, and DIP. Document and obtain review
+  for any necessary exception.
+
 ## UML Documentation
 
 - Use PlantUML for UML diagrams.

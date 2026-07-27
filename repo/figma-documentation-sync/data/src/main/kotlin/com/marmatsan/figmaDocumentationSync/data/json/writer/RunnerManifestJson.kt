@@ -15,6 +15,7 @@ import kotlin.io.path.isRegularFile
 
 /** Reads MCP runner manifests and computes their canonical manifest identity. */
 class RunnerManifestJson {
+    /** Returns the canonical hash of [body]. */
     fun hash(
         body: JsonObject,
     ): String =
@@ -25,6 +26,7 @@ class RunnerManifestJson {
                 ),
         )
 
+    /** Reads every runner manifest beneath [rootPath]. */
     fun readAll(
         rootPath: String,
     ): List<RunnerManifest> {
@@ -43,6 +45,7 @@ class RunnerManifestJson {
         }
     }
 
+    /** Reads one runner manifest from [path]. */
     fun read(
         path: Path,
     ): RunnerManifest {

@@ -12,6 +12,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.writer.VisualSyncPlanHas
 class VisualSyncPlanner(
     private val planHasher: VisualSyncPlanHasher,
 ) {
+    /** Creates a hashed full, partial, or no-op plan from current and previous identities. */
     fun create(
         manifest: RunnerManifest,
         previousMetadata: FigmaSyncMetadata?,

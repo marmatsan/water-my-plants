@@ -1,3 +1,4 @@
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
@@ -14,13 +15,21 @@ dependencies {
         )
     }
     implementation(gradleApi())
+
+    testImplementation(libs.io.kotest.runner.junit5)
+    testImplementation(libs.io.kotest.assertions.core)
+    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 gradlePlugin {
     plugins.register("com.marmatsan.verificationPlatform") {
         id = "com.marmatsan.verificationPlatform"
         implementationClass = "com.marmatsan.verificationPlatform.plugin.VerificationPlatformPlugin"
-        displayName = "Water My Plants Verification Platform"
+        displayName = "Repository Verification Platform"
         description = "Generates the typed repository verification plan consumed by CI adapters."
     }
 }
@@ -40,6 +49,12 @@ dokka {
     }
 
     dokkaSourceSets.main {
+        documentedVisibilities.set(
+            setOf(
+                VisibilityModifier.Public,
+                VisibilityModifier.Internal,
+            ),
+        )
         reportUndocumented.set(true)
 
         sourceLink {

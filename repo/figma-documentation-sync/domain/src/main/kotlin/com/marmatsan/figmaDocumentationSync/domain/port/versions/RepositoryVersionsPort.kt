@@ -5,7 +5,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.versions.RepositoryVers
 /**
  * Port for reading repository version declarations from a version source.
  *
- * Implementations read `repo/dependency-catalog/versions.properties` and expose both a flat
+ * Implementations read the configured repository versions file and expose both a flat
  * key/value map and ordered [RepositoryVersionSection] values for Figma
  * documentation.
  *

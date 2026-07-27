@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -21,16 +21,20 @@ import java.io.ByteArrayOutputStream
     because = "The current Git revision is runtime state",
 )
 abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
+    /** Canonical scope artifact produced by the preparation phase. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val scopeFile: RegularFileProperty
 
+    /** Model artifact required only by a full-verification scope. */
     @get:Internal
     abstract val designModelFile: RegularFileProperty
 
+    /** Repository root whose current Git revision must match the scope identity. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
 
+    /** Small handoff file containing the verified scope wire value. */
     @get:OutputFile
     abstract val verifiedScopeFile: RegularFileProperty
 
@@ -38,7 +42,7 @@ abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
     @TaskAction
     fun validate() {
         val scope =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .canonicalFigmaSyncScopeJson
                 .read(scopeFile.get().asFile.absolutePath)

@@ -14,6 +14,7 @@ import kotlin.io.path.isRegularFile
 /** Reads the JSON files and filesystem locations that make up a canonical artifact set. */
 @Inject
 class CanonicalFigmaArtifactSetReader {
+    /** Reads required artifact paths and their typed cross-file identity from [artifactDirectory]. */
     fun read(
         artifactDirectory: String,
     ): Result {
@@ -303,6 +304,17 @@ class CanonicalFigmaArtifactSetReader {
         this[name]?.jsonObject
             ?: throw IllegalArgumentException("$context is missing required property '$name'.")
 
+    /**
+     * Filesystem paths and typed values read from one canonical artifact set.
+     *
+     * @property artifactDirectory normalized artifact root.
+     * @property modelPath canonical design-model path.
+     * @property scopePath canonical synchronization scope path.
+     * @property planPath canonical visual plan path.
+     * @property visualManifestPath full-visual runner manifest path when uniquely identified.
+     * @property metadataManifestPath metadata runner manifest path when uniquely identified.
+     * @property contract typed identity values read from all artifacts.
+     */
     data class Result(
         val artifactDirectory: Path,
         val modelPath: Path,

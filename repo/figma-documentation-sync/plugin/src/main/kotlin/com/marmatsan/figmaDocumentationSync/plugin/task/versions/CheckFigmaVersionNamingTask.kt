@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.versions
 
 import com.marmatsan.figmaDocumentationSync.plugin.checker.versions.VersionNamingCheckRequest
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
@@ -20,14 +20,16 @@ import org.gradle.work.DisableCachingByDefault
     because = "The verification task has no reusable output artifact",
 )
 abstract class CheckFigmaVersionNamingTask : DefaultTask() {
+    /** Version properties file whose sections and keys are validated. */
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val versionsFile: RegularFileProperty
 
+    /** Fails with every actionable version naming violation. */
     @TaskAction
     fun checkVersionNaming() {
         val result =
-            figmaDocumentationSyncComponent::class.create().versionNamingChecker.check(
+            FigmaDocumentationSyncComponent::class.create().versionNamingChecker.check(
                 VersionNamingCheckRequest(
                     versionsFile = versionsFile.get().asFile,
                 ),

@@ -19,6 +19,7 @@ import java.io.File
 class ProjectModuleDependenciesDataSource(
     private val gradleModuleDependenciesReader: GradleModuleDependenciesReader,
 ) : ProjectModuleDependenciesPort {
+    /** Reads module edges from the Gradle source and scope selected by [source]. */
     override fun readModuleDependencies(
         source: ProjectModuleDependenciesSource,
     ): Set<ModuleDependency> =

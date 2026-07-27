@@ -1,8 +1,8 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
-import com.marmatsan.verificationPlatform.domain.model.TeamCityQueuedRun
-import com.marmatsan.verificationPlatform.domain.model.TeamCityRunRequest
-import com.marmatsan.verificationPlatform.domain.port.TeamCityRunQueue
+import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityQueuedRun
+import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityRunRequest
+import com.marmatsan.verificationPlatform.domain.port.teamcity.TeamCityRunQueue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
