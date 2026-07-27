@@ -6,22 +6,20 @@ import java.net.URI
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
-    id("org.jetbrains.dokka")
+    alias(plugins.plugins.org.jetbrains.dokka)
 }
 
-val portableVersion = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
-
 dependencies {
-    implementation("com.marmatsan.repo:catalog-api:$portableVersion")
-    implementation("com.marmatsan.repo:catalog-gradle-plugin:$portableVersion")
+    implementation(libs.com.marmatsan.repo.catalog.api)
+    implementation(libs.com.marmatsan.repo.catalog.gradle.plugin)
     implementation(projects.catalog)
-    implementation("com.marmatsan.figma-documentation-sync:domain:$portableVersion")
-    implementation("com.marmatsan.figma-documentation-sync:data:$portableVersion")
-    implementation("com.marmatsan.figma-documentation-sync:plugin:$portableVersion")
-    implementation("com.marmatsan.figma-documentation-sync:teamcity-adapter:$portableVersion")
+    implementation(libs.com.marmatsan.figma.documentation.sync.domain)
+    implementation(libs.com.marmatsan.figma.documentation.sync.data)
+    implementation(libs.com.marmatsan.figma.documentation.sync.plugin)
+    implementation(libs.com.marmatsan.figma.documentation.sync.teamcity.adapter)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
-    testImplementation("com.marmatsan.repo:unit-test-dsl")
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
