@@ -497,8 +497,8 @@ behavior changes.
 
 ## CI Connectors That Cross Nodes
 
-CI relations use the native `simple-line_arrow` connector at node
-`64800:262`, including its centered text. The locked template is positioned
+CI relations use the native `simple-line_arrow / neutral` connector at node
+`64835:3289`, including its centered text. The locked template is positioned
 over the CI component documentation section but remains outside managed CI
 targets so cleanup cannot delete it. Relations do not use a separately grouped
 label. If an elbowed CI connector blocks a node, inspect its endpoints before
@@ -560,10 +560,25 @@ relation actionable instead of reducing the problem to a generic Figma API
 error.
 
 CI connectors have a separate exact-node contract. The preflight must fail if
-node `64800:262` is missing, is not a connector, is not named
-`simple-line_arrow`, is not elbowed with an arrow-lines end cap, or has no
-native text. Do not fall back to `simple-solid_arrow` and do not recreate the
-removed `.ci connector label` structure.
+node `64835:3289` is missing, is not a connector, is not named
+`simple-line_arrow / neutral`, is not elbowed with an arrow-lines end cap, or
+has no native text. Do not fall back to `simple-solid_arrow` and do not recreate
+the removed `.ci connector label` structure.
+
+## Moved Version Collection
+
+The versions preflight resolves the local Figma variable collection by the
+configured canonical `versions.properties` path. When that source moves without
+changing the product catalog identity, the preflight fails before visual writes
+with `Variable collection '...' was not found`.
+
+Inspect local collections before retrying. If exactly one collection has the
+former canonical path, the target path does not exist, and its modes are still
+`Version alias` and `Version number`, rename that collection in place. Do not
+create a second collection or recreate its variables: preserving the collection
+and variable ids preserves existing component bindings. Record the failed
+preflight checkpoint, perform the supervised rename, and retry that same
+preflight runner before continuing with visual targets.
 
 ## Missing Nested Instance After Property Synchronization
 

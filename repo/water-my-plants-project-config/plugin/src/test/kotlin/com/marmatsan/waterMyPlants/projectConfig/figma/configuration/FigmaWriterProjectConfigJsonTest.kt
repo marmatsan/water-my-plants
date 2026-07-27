@@ -27,9 +27,9 @@ internal class FigmaWriterProjectConfigJsonTest :
                 root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
                 root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
                 root.getValue("CI_CONNECTOR_TEMPLATE_NAME").jsonPrimitive.content shouldBe
-                    "simple-line_arrow"
+                    "simple-line_arrow / neutral"
                 root.getValue("CI_CONNECTOR_TEMPLATE_NODE_ID").jsonPrimitive.content shouldBe
-                    "64800:262"
+                    "64835:3289"
                 root.getValue("CI_NODE_PHASE_CONTAINER_NAME").jsonPrimitive.content shouldBe "execution plan"
                 root.getValue("CI_NODE_OUTCOME_CONTAINER_NAME").jsonPrimitive.content shouldBe "outcome"
                 root.getValue("CI_PHASE_STEP_CONTAINER_NAME").jsonPrimitive.content shouldBe "steps"

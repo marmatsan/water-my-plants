@@ -53,8 +53,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "gradle",
                 ),
             ciConnectorName = ".ci connector",
-            ciConnectorTemplateName = "simple-line_arrow",
-            ciConnectorTemplateNodeId = "64800:262",
+            ciConnectorTemplateName = "simple-line_arrow / neutral",
+            ciConnectorTemplateNodeId = "64835:3289",
             ciNodeProps =
                 mapOf(
                     "name" to "name",
