@@ -1,4 +1,4 @@
-package com.marmatsan.verificationPlatform.domain.service
+package com.marmatsan.verificationPlatform.domain.service.documentation
 
 import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageRule
 import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageViolation

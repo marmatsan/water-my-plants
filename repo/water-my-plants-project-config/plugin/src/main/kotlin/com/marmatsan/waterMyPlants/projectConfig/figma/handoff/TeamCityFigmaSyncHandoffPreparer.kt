@@ -1,7 +1,16 @@
-package com.marmatsan.waterMyPlants.projectConfig
+package com.marmatsan.waterMyPlants.projectConfig.figma.handoff
 
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuildArtifactClient
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityCliClient
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.adapter.DefaultCanonicalFigmaArtifactSetSource
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.adapter.DefaultCanonicalFigmaArtifactVerifier
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.adapter.DefaultCanonicalFigmaRunnerInspector
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.adapter.JsonTeamCityFigmaHandoffSummaryWriter
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.adapter.SafeZipArchiveExtractor
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.CanonicalFigmaArtifactSetSource
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.CanonicalFigmaArtifactVerifier
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.CanonicalFigmaRunnerInspector
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.TeamCityFigmaHandoffSummaryWriter
 import kotlinx.serialization.json.JsonObject
 import java.io.File
 import java.time.Clock

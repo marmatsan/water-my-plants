@@ -1,4 +1,4 @@
-package com.marmatsan.waterMyPlants.projectConfig
+package com.marmatsan.waterMyPlants.projectConfig.figma.handoff
 
 import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerManifestJson

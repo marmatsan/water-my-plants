@@ -1,4 +1,4 @@
-package com.marmatsan.verificationPlatform.domain.service
+package com.marmatsan.verificationPlatform.domain.service.documentation
 
 /** Validates required Markdown headings for each typed-document contract. */
 internal class DocumentationHeadingValidator : TypedDocumentationRule {

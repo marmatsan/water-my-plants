@@ -1,4 +1,4 @@
-package com.marmatsan.verificationPlatform.domain.service
+package com.marmatsan.verificationPlatform.domain.service.documentation
 
 /** Validates repository-local Markdown links without applying provider-specific exceptions. */
 internal class DocumentationLinkValidator(

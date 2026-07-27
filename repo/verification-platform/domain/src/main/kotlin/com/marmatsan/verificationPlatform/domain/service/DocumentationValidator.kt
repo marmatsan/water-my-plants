@@ -3,6 +3,16 @@ package com.marmatsan.verificationPlatform.domain.service
 import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageRule
 import com.marmatsan.verificationPlatform.domain.model.DocumentationRepositorySnapshot
 import com.marmatsan.verificationPlatform.domain.model.DocumentationValidationResult
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationCoverageValidator
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationFindings
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationFrontmatterParser
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationHeadingValidator
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationLinkValidator
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationMetadataValidator
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationPathResolver
+import com.marmatsan.verificationPlatform.domain.service.documentation.DocumentationTypeClassifier
+import com.marmatsan.verificationPlatform.domain.service.documentation.TypedDocumentationContext
+import com.marmatsan.verificationPlatform.domain.service.documentation.TypedDocumentationRule
 import java.time.LocalDate
 
 /** Coordinates focused typed-document, link, and change-coverage validators. */

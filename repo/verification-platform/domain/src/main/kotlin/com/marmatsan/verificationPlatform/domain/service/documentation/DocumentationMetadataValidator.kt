@@ -1,4 +1,4 @@
-package com.marmatsan.verificationPlatform.domain.service
+package com.marmatsan.verificationPlatform.domain.service.documentation
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

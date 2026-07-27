@@ -1,6 +1,8 @@
-package com.marmatsan.waterMyPlants.projectConfig
+package com.marmatsan.waterMyPlants.projectConfig.figma.handoff
 
-import kotlinx.serialization.json.Json
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.model.CanonicalFigmaArtifactSet
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.model.CanonicalFigmaRunnerInspection
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.model.ValidatedCanonicalFigmaArtifact
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -8,7 +10,6 @@ import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import java.io.File
 import java.time.Clock
 
 /** Creates the deterministic JSON handoff contract from already validated inputs. */
@@ -155,27 +156,6 @@ internal class TeamCityFigmaHandoffSummaryFactory(
             "-PfigmaArtifactDirectory=\"${artifacts.artifactDirectory}\" " +
             "-PfigmaExpectedGitSha=${validated.gitSha} " +
             "-PfigmaMcpUploadUrl=\"SINGLE_USE_UPLOAD_URL\""
-}
-
-/** Writes the handoff JSON beside the canonical artifact set. */
-internal class JsonTeamCityFigmaHandoffSummaryWriter : TeamCityFigmaHandoffSummaryWriter {
-    override fun write(
-        artifactDirectory: File,
-        summary: JsonObject,
-    ): File {
-        val summaryFile = artifactDirectory.resolve("figma-sync-handoff.json")
-        summaryFile.writeText(
-            prettyJson.encodeToString(
-                JsonObject.serializer(),
-                summary,
-            ) + System.lineSeparator(),
-        )
-        return summaryFile
-    }
-
-    private companion object {
-        val prettyJson = Json { prettyPrint = true }
-    }
 }
 
 private fun JsonObjectBuilder.putNullable(

@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.data.figma.artifact.CanonicalFigmaAr
 import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.json.writer.ExecutableRunnerManifestJson
 import com.marmatsan.figmaDocumentationSync.data.mcp.KtorFigmaPngAssetUploader
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.TeamCityFigmaSyncHandoffPreparer
 import java.io.File
 import java.nio.file.Files
 

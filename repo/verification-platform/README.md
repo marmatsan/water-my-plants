@@ -70,7 +70,9 @@ therefore add or update KDoc in the same change.
 classifies typed documents and delegates metadata, heading, repository-link,
 and change-coverage validation to independently testable collaborators. New
 typed-document rules extend `TypedDocumentationRule`; they do not add another
-reason for the coordinator to change.
+reason for the coordinator to change. The public coordinator remains at
+`domain.service.DocumentationValidator`, while its focused collaborators live
+under `domain.service.documentation`.
 
 ## Verification
 

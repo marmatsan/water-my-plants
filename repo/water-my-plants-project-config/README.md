@@ -108,7 +108,9 @@ The Kotlin `prepareTeamCityFigmaSyncHandoff` task coordinates consumer-owned
 ports for artifact selection, contract verification, runner inspection, and
 summary writing. Focused adapters own TeamCity download, safe ZIP extraction,
 canonical artifact validation, MCP runner inspection, and JSON serialization;
-the coordinator does not depend on those concrete implementations. The
+the coordinator does not depend on those concrete implementations. These
+collaborators live under `projectConfig/figma/handoff`, grouped into `port`,
+`model`, and `adapter` packages. The
 Kotlin `uploadCanonicalFigmaPayload` task accepts only a successful main
 `Generate main design model` build, verifies the manifest-declared PNG bytes,
 and posts them only to the exact single-use HTTPS endpoint returned by Figma

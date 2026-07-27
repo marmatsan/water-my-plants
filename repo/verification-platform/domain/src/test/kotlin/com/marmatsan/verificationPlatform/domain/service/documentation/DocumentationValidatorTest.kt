@@ -1,8 +1,9 @@
-package com.marmatsan.verificationPlatform.domain.service
+package com.marmatsan.verificationPlatform.domain.service.documentation
 
 import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageRule
 import com.marmatsan.verificationPlatform.domain.model.DocumentationFile
 import com.marmatsan.verificationPlatform.domain.model.DocumentationRepositorySnapshot
+import com.marmatsan.verificationPlatform.domain.service.DocumentationValidator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly

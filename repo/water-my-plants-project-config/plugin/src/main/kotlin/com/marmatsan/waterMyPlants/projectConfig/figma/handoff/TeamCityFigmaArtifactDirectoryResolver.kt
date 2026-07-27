@@ -1,13 +1,12 @@
-package com.marmatsan.waterMyPlants.projectConfig
+package com.marmatsan.waterMyPlants.projectConfig.figma.handoff
 
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuildArtifactClient
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.ArtifactArchiveExtractor
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.time.Clock
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.zip.ZipInputStream
 
 /** Resolves a validated local artifact directory from either TeamCity or an explicit path. */
 internal class TeamCityFigmaArtifactDirectoryResolver(
@@ -89,44 +88,6 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
     private companion object {
         val downloadTimestamp: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneOffset.UTC)
-    }
-}
-
-/** Extracts one artifact archive into a caller-owned directory. */
-internal fun interface ArtifactArchiveExtractor {
-    fun extract(
-        archive: File,
-        destination: File,
-    )
-}
-
-/** Extracts ZIP archives while preventing entries from escaping the destination root. */
-internal class SafeZipArchiveExtractor : ArtifactArchiveExtractor {
-    override fun extract(
-        archive: File,
-        destination: File,
-    ) {
-        val root = destination.toPath().toAbsolutePath().normalize()
-        Files.createDirectories(root)
-        ZipInputStream(archive.inputStream().buffered()).use { zip ->
-            var entry = zip.nextEntry
-            while (entry != null) {
-                val target = root.resolve(entry.name).normalize()
-                require(target.startsWith(root)) { "Unsafe ZIP entry '${entry.name}'." }
-                if (entry.isDirectory) {
-                    Files.createDirectories(target)
-                } else {
-                    Files.createDirectories(target.parent)
-                    Files.copy(
-                        zip,
-                        target,
-                        StandardCopyOption.REPLACE_EXISTING,
-                    )
-                }
-                zip.closeEntry()
-                entry = zip.nextEntry
-            }
-        }
     }
 }
 

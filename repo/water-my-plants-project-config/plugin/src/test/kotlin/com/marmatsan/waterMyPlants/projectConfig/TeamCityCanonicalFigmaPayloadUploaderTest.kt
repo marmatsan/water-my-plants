@@ -4,6 +4,8 @@ import com.marmatsan.figmaDocumentationSync.data.hash.Sha256Hash
 import com.marmatsan.figmaDocumentationSync.data.png.PayloadPngEncoder
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuild
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityBuildArtifactClient
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.TeamCityFigmaSyncHandoffPreparer
+import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.writeArtifactFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.file.shouldExist

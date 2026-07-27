@@ -34,20 +34,6 @@ class CiVisualPlanner internal constructor(
     }
 }
 
-internal data class CiVisualPlanningContext(
-    val externalTopology: CiExternalTopology,
-    val windowsRuntime: CiWindowsRuntime,
-    val config: CiVisualPlanConfig,
-    val ciPipeline: CiPipeline,
-    val figmaPipeline: CiPipeline,
-)
-
-internal fun interface CiVisualSectionPlanner {
-    fun create(
-        context: CiVisualPlanningContext,
-    ): CiVisualPlan.Section
-}
-
 private fun CiConfiguration.requirePipeline(
     name: String,
 ): CiPipeline =
