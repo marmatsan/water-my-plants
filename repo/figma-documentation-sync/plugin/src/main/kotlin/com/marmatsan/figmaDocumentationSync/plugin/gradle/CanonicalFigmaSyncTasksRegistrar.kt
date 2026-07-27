@@ -1,17 +1,13 @@
 package com.marmatsan.figmaDocumentationSync.plugin.gradle
 
-import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
-import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
-import com.marmatsan.figmaDocumentationSync.plugin.di.create
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.CheckCanonicalFigmaTrunkSyncTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.GenerateCanonicalFigmaSyncModelTask
+import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.MaterializeFigmaSyncCiConfigurationTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.PrepareCanonicalFigmaSyncTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.ValidateCanonicalFigmaSyncScopeTask
-import com.marmatsan.figmaDocumentationSync.plugin.task.generate.GenerateFigmaDesignModelTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.impact.ClassifyFigmaChangeImpactTask
-import com.marmatsan.figmaDocumentationSync.plugin.task.sync.CheckFigmaTrunkSyncTask
 import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
-import java.io.File
 
 /** Registers the ordered tasks that prepare and verify one canonical Figma synchronization scope. */
 internal class CanonicalFigmaSyncTasksRegistrar(
@@ -36,7 +32,9 @@ internal class CanonicalFigmaSyncTasksRegistrar(
                 configureChangeImpactInputs(context)
             }
         val materializeCi =
-            project.tasks.register<Exec>("materializeFigmaSyncCiConfiguration") {
+            project.tasks.register<MaterializeFigmaSyncCiConfigurationTask>(
+                "materializeFigmaSyncCiConfiguration",
+            ) {
                 group = "documentation"
                 description = "Runs the optional CI adapter when the Figma model can change."
                 if (phasedExecution.get()) {
@@ -44,22 +42,14 @@ internal class CanonicalFigmaSyncTasksRegistrar(
                 } else {
                     dependsOn(classifyChange)
                 }
-                onlyIf("CI documentation adapter is enabled and Figma impact requires full verification") {
-                    extension.ciDocumentationEnabled.get() &&
-                        extension.ciConfigurationCommand.get().isNotEmpty() &&
-                        isFullVerification(
-                            changeImpactFile = extension.changeImpactFile.get().asFile,
-                        )
-                }
-                workingDir(extension.ciConfigurationWorkingDirectory)
-                doFirst {
-                    commandLine(extension.ciConfigurationCommand.get())
-                }
-                outputs.dir(extension.ciGeneratedConfigurationDirectory)
-                outputs.upToDateWhen { false }
+                ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
+                ciConfigurationCommand.set(extension.ciConfigurationCommand)
+                changeImpactFile.set(extension.changeImpactFile)
+                ciConfigurationWorkingDirectory.set(extension.ciConfigurationWorkingDirectory)
+                ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
             }
         val generateModel =
-            project.tasks.register<GenerateFigmaDesignModelTask>("generateCanonicalFigmaSyncModel") {
+            project.tasks.register<GenerateCanonicalFigmaSyncModelTask>("generateCanonicalFigmaSyncModel") {
                 group = "documentation"
                 description = "Generates the model required by the prepared canonical Figma Sync scope."
                 if (phasedExecution.get()) {
@@ -67,11 +57,7 @@ internal class CanonicalFigmaSyncTasksRegistrar(
                 } else {
                     dependsOn(materializeCi)
                 }
-                onlyIf("Figma change impact requires full verification") {
-                    isFullVerification(
-                        changeImpactFile = extension.changeImpactFile.get().asFile,
-                    )
-                }
+                changeImpactFile.set(extension.changeImpactFile)
                 configureDesignModelInputs(context)
                 outputFile.set(extension.designModelFile)
             }
@@ -118,7 +104,7 @@ internal class CanonicalFigmaSyncTasksRegistrar(
                 outputs.upToDateWhen { false }
             }
         val checkTrunkSync =
-            project.tasks.register<CheckFigmaTrunkSyncTask>("checkCanonicalFigmaTrunkSync") {
+            project.tasks.register<CheckCanonicalFigmaTrunkSyncTask>("checkCanonicalFigmaTrunkSync") {
                 group = "verification"
                 description = "Checks Figma metadata only when the validated canonical scope can change the model."
                 if (phasedExecution.get()) {
@@ -126,14 +112,7 @@ internal class CanonicalFigmaSyncTasksRegistrar(
                 } else {
                     dependsOn(validateScope)
                 }
-                onlyIf("Validated Figma scope requires full verification") {
-                    verifiedScopeOutput
-                        .get()
-                        .asFile
-                        .readText()
-                        .trim() ==
-                        FigmaVerificationScope.FULL_VERIFICATION.wireValue
-                }
+                verifiedScopeFile.set(verifiedScopeOutput)
                 configureTrunkSyncInputs(context)
             }
         project.tasks.register("verifyCanonicalFigmaSync") {
@@ -142,13 +121,4 @@ internal class CanonicalFigmaSyncTasksRegistrar(
             dependsOn(checkTrunkSync)
         }
     }
-
-    private fun isFullVerification(
-        changeImpactFile: File,
-    ): Boolean =
-        FigmaDocumentationSyncComponent::class
-            .create()
-            .canonicalFigmaSyncScopeJson
-            .readChangeImpact(changeImpactFile.absolutePath)
-            .scope == FigmaVerificationScope.FULL_VERIFICATION
 }

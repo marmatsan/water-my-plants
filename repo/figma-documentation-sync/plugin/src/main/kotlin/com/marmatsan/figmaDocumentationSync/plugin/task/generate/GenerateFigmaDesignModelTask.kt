@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComp
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
+import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSourceFactory
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.gradle.api.DefaultTask
@@ -13,7 +14,6 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
@@ -101,6 +101,14 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includedBuildSettingsFiles: ConfigurableFileCollection
 
+    /** Settings-file paths aligned by index with included-build identities. */
+    @get:Input
+    abstract val includedBuildSettingsFilePaths: ListProperty<String>
+
+    /** Root-directory paths aligned by index with included-build identities. */
+    @get:Input
+    abstract val includedBuildRootDirectoryPaths: ListProperty<String>
+
     /** Design-model identities aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildModelNames: ListProperty<String>
@@ -120,9 +128,6 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     /** Repository root used for module resolution and Git identity checks. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
-
-    @get:Internal
-    internal var includedBuildSourcesProvider: Provider<List<FigmaDesignModelIncludedBuildSource>>? = null
 
     /** Canonical `design-model.json` artifact consumed by Figma synchronization. */
     @get:OutputFile
@@ -213,7 +218,14 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     }
 
     private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
-        includedBuildSourcesProvider?.get().orEmpty()
+        FigmaDesignModelIncludedBuildSourceFactory().create(
+            settingsFilePaths = includedBuildSettingsFilePaths.get(),
+            rootDirectoryPaths = includedBuildRootDirectoryPaths.get(),
+            modelNames = includedBuildModelNames.get(),
+            modulePathPrefixes = includedBuildModulePathPrefixes.get(),
+            publishesCatalogs = includedBuildPublishesCatalogs.get(),
+            publishesConventionPlugins = includedBuildPublishesConventionPlugins.get(),
+        )
 
     private fun canonicalBranch(): String {
         val canonicalGeneration = System.getenv(CANONICAL_GENERATION_ENVIRONMENT_VARIABLE)

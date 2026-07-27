@@ -4,11 +4,13 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-24
+last-reviewed: 2026-07-27
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
   - repo/figma-documentation-sync/tools/tests
+  - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical
+  - repo/figma-documentation-sync/plugin/src/test/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical/CanonicalFigmaSyncGradleTasksTest.kt
 ---
 
 # Figma Sync Troubleshooting
@@ -39,6 +41,39 @@ artifact from `main`, while the visual write fails later because the Figma
 component contract no longer matches the writer code. In that case, keep using
 the TeamCity artifact as the authoritative model input, fix the visual contract
 or writer, and rerun the failed MCP visual target before writing metadata.
+
+## Canonical Gradle Configuration Cache Failures
+
+The phased TeamCity command that materializes CI configuration and generates the
+canonical model runs with the repository configuration cache enabled. A task can
+finish its action and still fail the build while Gradle stores that cache. The
+failure signature is:
+
+```text
+cannot serialize object of type 'org.gradle.api.internal.project.DefaultProject'
+```
+
+Treat this as a task-boundary defect, not as a reason to disable configuration
+cache. A canonical task must expose execution data through Gradle
+`Property`, `ListProperty`, `RegularFileProperty`, or `DirectoryProperty`
+inputs. External processes use `ExecOperations`; task fields and runtime
+closures must not retain `Project`, an extension, or a registrar that owns a
+project.
+
+To reproduce the TeamCity boundary, run the canonical TestKit contract with
+configuration-cache problems promoted to failures:
+
+```powershell
+.\gradlew.bat -p repo\figma-documentation-sync :plugin:test `
+  --tests '*CanonicalFigmaSyncGradleTasksTest' `
+  --configuration-cache-problems=fail
+```
+
+After correcting the task inputs, run the command twice so the second execution
+can reuse the stored entry, merge the fix through the normal PR gate, and rerun
+the complete post-merge `Figma Sync` chain. Do not accept a successful task
+action when the enclosing Gradle invocation reports a configuration-cache
+failure, and do not weaken `org.gradle.configuration-cache=true` as recovery.
 
 ## Timeout With Unknown Completion
 

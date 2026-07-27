@@ -4,6 +4,7 @@ import com.marmatsan.figmaDocumentationSync.plugin.checker.catalog.CatalogUsageC
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
+import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSourceFactory
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
@@ -11,7 +12,6 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
@@ -47,6 +47,14 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includedBuildSettingsFiles: ConfigurableFileCollection
 
+    /** Settings-file paths aligned by index with included-build identities. */
+    @get:Input
+    abstract val includedBuildSettingsFilePaths: ListProperty<String>
+
+    /** Root-directory paths aligned by index with included-build identities. */
+    @get:Input
+    abstract val includedBuildRootDirectoryPaths: ListProperty<String>
+
     /** Stable design-model names aligned by index with included-build settings. */
     @get:Input
     abstract val includedBuildModelNames: ListProperty<String>
@@ -66,9 +74,6 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     /** Repository root used to locate catalog consumers. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
-
-    @get:Internal
-    internal var includedBuildSourcesProvider: Provider<List<FigmaDesignModelIncludedBuildSource>>? = null
 
     /** Fails when a declared dependency catalog entry has no supported consumer. */
     @TaskAction
@@ -101,5 +106,12 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     }
 
     private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
-        includedBuildSourcesProvider?.get().orEmpty()
+        FigmaDesignModelIncludedBuildSourceFactory().create(
+            settingsFilePaths = includedBuildSettingsFilePaths.get(),
+            rootDirectoryPaths = includedBuildRootDirectoryPaths.get(),
+            modelNames = includedBuildModelNames.get(),
+            modulePathPrefixes = includedBuildModulePathPrefixes.get(),
+            publishesCatalogs = includedBuildPublishesCatalogs.get(),
+            publishesConventionPlugins = includedBuildPublishesConventionPlugins.get(),
+        )
 }
