@@ -1,7 +1,7 @@
 package com.marmatsan.verificationPlatform.domain.bdd
 
-import com.marmatsan.verificationPlatform.domain.model.GitBranchValidation
-import com.marmatsan.verificationPlatform.domain.service.GitBranchNameValidator
+import com.marmatsan.verificationPlatform.domain.model.git.GitBranchValidation
+import com.marmatsan.verificationPlatform.domain.service.git.GitBranchNameValidator
 import io.cucumber.java8.En
 import io.kotest.matchers.shouldBe
 

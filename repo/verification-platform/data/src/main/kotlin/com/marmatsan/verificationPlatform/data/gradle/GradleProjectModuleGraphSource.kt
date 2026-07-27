@@ -1,8 +1,8 @@
 package com.marmatsan.verificationPlatform.data.gradle
 
-import com.marmatsan.verificationPlatform.domain.model.ModuleDependency
-import com.marmatsan.verificationPlatform.domain.model.RepositoryModule
-import com.marmatsan.verificationPlatform.domain.model.RepositoryModuleGraph
+import com.marmatsan.verificationPlatform.domain.model.modules.ModuleDependency
+import com.marmatsan.verificationPlatform.domain.model.modules.RepositoryModule
+import com.marmatsan.verificationPlatform.domain.model.modules.RepositoryModuleGraph
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
 

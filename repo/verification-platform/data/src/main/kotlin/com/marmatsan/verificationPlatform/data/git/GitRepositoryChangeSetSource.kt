@@ -1,6 +1,6 @@
 package com.marmatsan.verificationPlatform.data.git
 
-import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
+import com.marmatsan.verificationPlatform.domain.model.git.RepositoryChangeSet
 import java.io.File
 
 /** Reads the committed change set used by CI without depending on a CI provider. */

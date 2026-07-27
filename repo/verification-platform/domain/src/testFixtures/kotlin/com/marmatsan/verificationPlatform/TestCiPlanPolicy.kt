@@ -1,6 +1,6 @@
 package com.marmatsan.verificationPlatform
 
-import com.marmatsan.verificationPlatform.domain.model.CiPlanPolicy
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlanPolicy
 
 fun testCiPlanPolicy(): CiPlanPolicy =
     CiPlanPolicy(

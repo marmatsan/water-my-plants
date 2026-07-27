@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.artifact
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -40,7 +40,7 @@ abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
     /** Validates artifact coherence and writes the resolved handoff paths and identity. */
     @TaskAction
     fun validateArtifactSet() {
-        val component = figmaDocumentationSyncComponent::class.create()
+        val component = FigmaDocumentationSyncComponent::class.create()
         val artifacts =
             component.canonicalFigmaArtifactSetReader.read(
                 artifactDirectory.get().asFile.absolutePath,

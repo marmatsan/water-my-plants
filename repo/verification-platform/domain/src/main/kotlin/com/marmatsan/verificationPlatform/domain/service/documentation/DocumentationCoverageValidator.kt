@@ -1,7 +1,7 @@
 package com.marmatsan.verificationPlatform.domain.service.documentation
 
-import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageRule
-import com.marmatsan.verificationPlatform.domain.model.DocumentationCoverageViolation
+import com.marmatsan.verificationPlatform.domain.model.documentation.DocumentationCoverageRule
+import com.marmatsan.verificationPlatform.domain.model.documentation.DocumentationCoverageViolation
 
 /** Validates that changed implementation paths include their required documentation surfaces. */
 internal class DocumentationCoverageValidator(

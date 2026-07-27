@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.ci
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -31,7 +31,7 @@ abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
     fun checkFreshness() {
         val topologyFile = ciExternalTopologyFile.orNull?.asFile ?: return
         val result =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .ciExternalTopologyFreshnessChecker
                 .check(

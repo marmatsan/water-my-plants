@@ -1,6 +1,17 @@
 package com.marmatsan.verificationPlatform.plugin
 
 import com.marmatsan.verificationPlatform.data.gradle.GradleProjectModuleGraphSource
+import com.marmatsan.verificationPlatform.plugin.extension.VerificationPlatformExtension
+import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckIncludedBuildVersionsTask
+import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckModuleBoundariesTask
+import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiPlanTask
+import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiTopologyPreviewTask
+import com.marmatsan.verificationPlatform.plugin.task.documentation.CheckDocumentationTask
+import com.marmatsan.verificationPlatform.plugin.task.git.CheckGitWorkflowTask
+import com.marmatsan.verificationPlatform.plugin.task.git.CheckRepositoryDiffTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.CheckTeamCityDslTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.PrepareTeamCityCiPlanTask
+import com.marmatsan.verificationPlatform.plugin.task.teamcity.RunTeamCityInfrastructureHealthTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

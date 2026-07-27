@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.generate
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import kotlinx.serialization.json.Json
@@ -142,7 +142,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
         )
 
         val result =
-            figmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
+            FigmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
                 request =
                     FigmaDesignModelGenerationRequest(
                         branch = branch,

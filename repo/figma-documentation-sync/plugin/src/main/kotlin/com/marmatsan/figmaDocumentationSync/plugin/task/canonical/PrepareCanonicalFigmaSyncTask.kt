@@ -10,8 +10,8 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificatio
 import com.marmatsan.figmaDocumentationSync.domain.model.sync.CanonicalFigmaSyncScope
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaSyncMetadata
 import com.marmatsan.figmaDocumentationSync.domain.service.writer.VisualSyncPlanner
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -96,7 +96,7 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
     /** Runs the writer toolchain only for a full verification, then writes `sync-scope.json`. */
     @TaskAction
     fun prepare() {
-        val component = figmaDocumentationSyncComponent::class.create()
+        val component = FigmaDocumentationSyncComponent::class.create()
         val scopeJson = component.canonicalFigmaSyncScopeJson
         val impact =
             scopeJson.readChangeImpact(

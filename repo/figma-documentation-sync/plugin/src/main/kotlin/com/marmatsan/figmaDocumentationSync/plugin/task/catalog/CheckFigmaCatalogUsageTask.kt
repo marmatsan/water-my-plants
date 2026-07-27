@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.catalog
 
 import com.marmatsan.figmaDocumentationSync.plugin.checker.catalog.CatalogUsageCheckRequest
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -74,7 +74,7 @@ abstract class CheckFigmaCatalogUsageTask : DefaultTask() {
     @TaskAction
     fun checkCatalogUsage() {
         val result =
-            figmaDocumentationSyncComponent::class.create().catalogUsageChecker.check(
+            FigmaDocumentationSyncComponent::class.create().catalogUsageChecker.check(
                 CatalogUsageCheckRequest(
                     projectRootDirectory = projectRootDirectory.get().asFile,
                     primaryCatalogModelName = primaryCatalogModelName.get(),

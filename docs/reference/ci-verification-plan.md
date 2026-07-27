@@ -7,12 +7,12 @@ status: active
 last-reviewed: 2026-07-26
 review-cycle-days: 180
 sources:
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiPlan.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/CiExecutionTopology.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiPlanFactory.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/CiTopologyPlanner.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ModuleImpactAnalyzer.kt
-  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/GitBranchNameValidator.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/ci/CiPlan.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/ci/CiExecutionTopology.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiTopologyPlanner.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/modules/ModuleImpactAnalyzer.kt
+  - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/git/GitBranchNameValidator.kt
 ---
 
 # CI Verification Plan

@@ -19,7 +19,7 @@ sources:
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/water-my-plants-project-config/settings.gradle.kts
   - repo/water-my-plants-project-config/plugin/build.gradle.kts
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # Project Structure

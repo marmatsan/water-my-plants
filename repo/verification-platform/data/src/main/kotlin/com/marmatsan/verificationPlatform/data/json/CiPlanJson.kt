@@ -1,6 +1,6 @@
 package com.marmatsan.verificationPlatform.data.json
 
-import com.marmatsan.verificationPlatform.domain.model.CiPlan
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlan
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File

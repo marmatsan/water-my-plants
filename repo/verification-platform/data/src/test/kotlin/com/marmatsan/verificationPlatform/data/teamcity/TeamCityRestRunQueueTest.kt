@@ -1,7 +1,7 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
-import com.marmatsan.verificationPlatform.domain.model.TeamCityQueuedRun
-import com.marmatsan.verificationPlatform.domain.model.TeamCityRunRequest
+import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityQueuedRun
+import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityRunRequest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldNotContainKey

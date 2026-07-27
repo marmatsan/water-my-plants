@@ -40,11 +40,11 @@ tasks.withType<Test> {
 gradlePlugin {
     plugins.register("com.marmatsan.waterMyPlantsSettings") {
         id = "com.marmatsan.waterMyPlantsSettings"
-        implementationClass = "com.marmatsan.waterMyPlants.projectConfig.WaterMyPlantsSettingsPlugin"
+        implementationClass = "com.marmatsan.waterMyPlants.projectConfig.gradle.WaterMyPlantsSettingsPlugin"
     }
     plugins.register("com.marmatsan.waterMyPlantsProjectConfig") {
         id = "com.marmatsan.waterMyPlantsProjectConfig"
-        implementationClass = "com.marmatsan.waterMyPlants.projectConfig.WaterMyPlantsProjectConfigPlugin"
+        implementationClass = "com.marmatsan.waterMyPlants.projectConfig.gradle.WaterMyPlantsProjectConfigPlugin"
     }
 }
 

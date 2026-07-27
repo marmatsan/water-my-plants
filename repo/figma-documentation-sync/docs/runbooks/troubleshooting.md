@@ -550,7 +550,7 @@ Could not find a component property with name: 'Show is a gradle convention plug
 ```
 
 inspect the `.tree node` component set and update `treeNodeProps` in
-`repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt`
+`repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt`
 to match the actual Figma component property name before rerunning the sync.
 
 Do not work around this by writing metadata only; the visual update did not

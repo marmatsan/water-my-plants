@@ -12,7 +12,7 @@ sources:
   - docs/reference/project-structure.md
   - repo/gradle-plugins
   - repo/dependency-catalog/catalog-api
-  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckModuleBoundariesTask.kt
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt
 ---
 
 # Product Architecture Standard
@@ -98,6 +98,37 @@ coordinates. It means source behavior does not know consumer products or
 sibling implementations, dependencies point toward stable APIs, and concrete
 adapter wiring is confined to an explicit composition root.
 
+## Package Cohesion
+
+Package identity is part of the architecture and is review-blocking for every
+new or materially changed Kotlin source, including checked-in code emitted by
+a generator.
+
+- The directory below a Kotlin source root MUST match the declared package
+  exactly. Scaffold or template package names MUST NOT reach reviewed code.
+- A package MUST represent one cohesive capability and one related family of
+  reasons to change. Broad buckets such as `plugin`, `domain.model`,
+  `domain.service`, or `projectConfig` MUST be split by capability once they
+  would mix independently changing concerns.
+- A module or source-set root package is reserved for its public entry point,
+  composition root, or types that genuinely coordinate the whole module.
+  Models, services, tasks, adapters, and configuration types belong in a
+  capability package.
+- Tests MUST mirror the package of the behavior they verify, unless they belong
+  to an explicitly named test-only capability.
+- A Kotlin file SHOULD contain one primary top-level type, use that type's
+  PascalCase name, and match the filename. Tool-required exceptions MUST be
+  documented next to the generator or source set.
+- Generators that emit checked-in Kotlin MUST receive or derive a meaningful
+  capability package and MUST write to its matching directory. Generated build
+  outputs remain under `build/` or another ignored generated-output root.
+- Existing tracked types SHOULD be relocated as file moves so Git history
+  remains attributable; package cleanup is not a reason to recreate a type.
+
+Review both physical package correctness and semantic cohesion. A path can
+match its declaration while still hiding unrelated responsibilities in an
+overly broad namespace.
+
 ## Temporary Artifact Ownership
 
 - Code that creates a temporary file or directory MUST own its lifecycle and
@@ -133,4 +164,4 @@ it.
 - `docs/reference/project-structure.md`
 - `repo/gradle-plugins/`
 - `repo/dependency-catalog/catalog-api/`
-- `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckModuleBoundariesTask.kt`
+- `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt`

@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.gradle
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.PrepareCanonicalFigmaSyncTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.canonical.ValidateCanonicalFigmaSyncScopeTask
 import com.marmatsan.figmaDocumentationSync.plugin.task.generate.GenerateFigmaDesignModelTask
@@ -146,7 +146,7 @@ internal class CanonicalFigmaSyncTasksRegistrar(
     private fun isFullVerification(
         changeImpactFile: File,
     ): Boolean =
-        figmaDocumentationSyncComponent::class
+        FigmaDocumentationSyncComponent::class
             .create()
             .canonicalFigmaSyncScopeJson
             .readChangeImpact(changeImpactFile.absolutePath)

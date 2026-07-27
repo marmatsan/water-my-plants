@@ -66,6 +66,10 @@ because both are part of the contract used by the Figma sync pipeline.
 - Apply SOLID to all code we implement or materially change, including
   production types and test support that contains reusable behavior. A change
   is not complete while a known SOLID violation remains in its implementation.
+- Apply the Package Cohesion rules in `docs/standards/architecture.md` to every
+  new or generated checked-in Kotlin source: use a meaningful capability
+  package, mirror it in the source path, and reserve root packages for public
+  entry points and composition roots.
 - Give each type one cohesive reason to change. Composition roots may select
   concrete implementations but must delegate configuration, registration, and
   runtime behavior to focused collaborators.

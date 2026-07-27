@@ -9,10 +9,10 @@ review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/PrepareTeamCityFigmaSyncHandoffTask.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/handoff/TeamCityFigmaSyncHandoffPreparer.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/sync/TeamCityCanonicalFigmaPayloadUploader.kt
   - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityCliClient.kt
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/artifact/ValidateCanonicalFigmaArtifactSetTask.kt
 ---
@@ -284,8 +284,8 @@ or weaken fingerprint validation to work around the failure.
 - `.teamcity/settings.kts`
 - `plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical/PrepareCanonicalFigmaSyncTask.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt`
-- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/PrepareTeamCityFigmaSyncHandoffTask.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/PrepareTeamCityFigmaSyncHandoffTask.kt`
 - `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/handoff/TeamCityFigmaSyncHandoffPreparer.kt`
-- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/UploadCanonicalFigmaPayloadTask.kt`
-- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/TeamCityCanonicalFigmaPayloadUploader.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt`
+- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/sync/TeamCityCanonicalFigmaPayloadUploader.kt`
 - `teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityCliClient.kt`

@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.versions
 
 import com.marmatsan.figmaDocumentationSync.plugin.checker.versions.VersionNamingCheckRequest
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
@@ -29,7 +29,7 @@ abstract class CheckFigmaVersionNamingTask : DefaultTask() {
     @TaskAction
     fun checkVersionNaming() {
         val result =
-            figmaDocumentationSyncComponent::class.create().versionNamingChecker.check(
+            FigmaDocumentationSyncComponent::class.create().versionNamingChecker.check(
                 VersionNamingCheckRequest(
                     versionsFile = versionsFile.get().asFile,
                 ),

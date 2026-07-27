@@ -1,9 +1,9 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
-import com.marmatsan.verificationPlatform.domain.model.CiPlan
-import com.marmatsan.verificationPlatform.domain.model.CiPlanMode
-import com.marmatsan.verificationPlatform.domain.model.CiScope
-import com.marmatsan.verificationPlatform.domain.model.VerificationUnitId
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlan
+import com.marmatsan.verificationPlatform.domain.model.ci.CiPlanMode
+import com.marmatsan.verificationPlatform.domain.model.ci.CiScope
+import com.marmatsan.verificationPlatform.domain.model.ci.VerificationUnitId
 
 /** Maps the provider-neutral plan to allow-listed TeamCity build parameters. */
 class TeamCityCiPlanParameters {

@@ -18,11 +18,11 @@ used by CI.
   Nested types are allowed only when they are owned by and used only by the
   parent type, such as sealed result variants or private implementation
   helpers.
-- Use `kotlin-inject` for classes created by `figmaDocumentationSyncComponent`.
+- Use `kotlin-inject` for classes created by `FigmaDocumentationSyncComponent`.
 - Keep Gradle-created types compatible with Gradle injection. Do not replace
   Gradle constructor injection annotations with
   `me.tatarka.inject.annotations.Inject` on extension/task/plugin types.
-- `figmaDocumentationSyncComponent` is the composition root. Bind domain ports to
+- `FigmaDocumentationSyncComponent` is the composition root. Bind domain ports to
   `data/datasource` implementations there.
 
 ## Package Layout
@@ -90,10 +90,21 @@ used by CI.
   shared by the canonical TeamCity Figma Sync jobs.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
-- `project-config`: repository adapter that owns Water My Plants paths,
-  dependency catalog provider, Figma identities, visual targets, CI provider
-  selection, branch aliases, and optional CI commands. Portable modules must
-  depend on adapter contracts, never on this concrete implementation.
+- `project-config/catalog`: the Water My Plants dependency catalog provider.
+- `project-config/gradle`: product Gradle entry points and composition
+  registrars.
+- `project-config/figma/configuration`: Water My Plants Figma identities,
+  targets, and reusable extension configuration.
+- `project-config/figma/handoff`: canonical handoff orchestration, with its
+  adapters, ports, and models in the corresponding capability subpackages.
+- `project-config/figma/task` and `project-config/figma/sync`: product-owned
+  operational Gradle tasks and their TeamCity/Figma runtime collaborators.
+- `project-config/teamcity/auth`: TeamCity and Cloudflare credential contracts
+  and adapters.
+- `project-config/platform`: host-platform detection used by composition.
+  Together these packages form the repository adapter that owns Water My
+  Plants paths, identities, branch aliases, and optional CI commands. Portable
+  modules must depend on adapter contracts, never on this implementation.
 - `tools`: portable TypeScript writer and MCP transport. Project-specific
   constants are selected through `@figma-documentation-sync/project-config` and must
   not be added under `tools/src` or `tools/scripts`.

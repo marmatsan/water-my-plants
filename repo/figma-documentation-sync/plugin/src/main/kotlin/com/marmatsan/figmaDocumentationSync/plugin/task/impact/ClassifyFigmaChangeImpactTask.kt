@@ -2,8 +2,8 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.impact
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaChangeImpact
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.RepositoryChangeSet
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -54,7 +54,7 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
     /** Reads the policy and changed paths, then writes the machine contract. */
     @TaskAction
     fun classify() {
-        val component = figmaDocumentationSyncComponent::class.create()
+        val component = FigmaDocumentationSyncComponent::class.create()
         val policy = component.changeImpactPolicyPort.read(policyFile.get().asFile.absolutePath)
         val changeSet =
             changedPathsOverride.get().takeIf(List<String>::isNotEmpty)?.let { paths ->

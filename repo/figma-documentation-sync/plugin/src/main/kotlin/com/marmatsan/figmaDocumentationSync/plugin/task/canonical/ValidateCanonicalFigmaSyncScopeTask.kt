@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -42,7 +42,7 @@ abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
     @TaskAction
     fun validate() {
         val scope =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .canonicalFigmaSyncScopeJson
                 .read(scopeFile.get().asFile.absolutePath)

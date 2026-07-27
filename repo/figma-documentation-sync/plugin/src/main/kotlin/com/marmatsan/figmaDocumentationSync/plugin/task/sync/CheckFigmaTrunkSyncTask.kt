@@ -1,8 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.sync
 
 import com.marmatsan.figmaDocumentationSync.plugin.checker.sync.FigmaTrunkSyncCheckRequest
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -136,7 +136,7 @@ abstract class CheckFigmaTrunkSyncTask : DefaultTask() {
             figmaToken.orNull
                 ?: throw GradleException("Missing FIGMA_FILE_CONTENT_ACCESS_TOKEN environment variable")
         val result =
-            figmaDocumentationSyncComponent::class.create().trunkSyncChecker.check(
+            FigmaDocumentationSyncComponent::class.create().trunkSyncChecker.check(
                 FigmaTrunkSyncCheckRequest(
                     metadataNodeUrl = metadataNodeUrl.get(),
                     token = token,

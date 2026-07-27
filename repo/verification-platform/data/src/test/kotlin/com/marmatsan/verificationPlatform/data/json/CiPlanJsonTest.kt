@@ -1,7 +1,7 @@
 package com.marmatsan.verificationPlatform.data.json
 
-import com.marmatsan.verificationPlatform.domain.model.RepositoryChangeSet
-import com.marmatsan.verificationPlatform.domain.service.CiPlanFactory
+import com.marmatsan.verificationPlatform.domain.model.git.RepositoryChangeSet
+import com.marmatsan.verificationPlatform.domain.service.ci.CiPlanFactory
 import com.marmatsan.verificationPlatform.testCiPlanPolicy
 import com.marmatsan.verificationPlatform.testModuleGraph
 import io.kotest.core.spec.style.FunSpec

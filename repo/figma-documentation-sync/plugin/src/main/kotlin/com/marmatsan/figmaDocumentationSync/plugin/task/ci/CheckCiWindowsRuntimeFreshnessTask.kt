@@ -1,7 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.ci
 
+import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
-import com.marmatsan.figmaDocumentationSync.plugin.di.figmaDocumentationSyncComponent
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -31,7 +31,7 @@ abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
     fun checkFreshness() {
         val runtimeFile = ciWindowsRuntimeFile.orNull?.asFile ?: return
         val result =
-            figmaDocumentationSyncComponent::class
+            FigmaDocumentationSyncComponent::class
                 .create()
                 .ciWindowsRuntimeFreshnessChecker
                 .check(

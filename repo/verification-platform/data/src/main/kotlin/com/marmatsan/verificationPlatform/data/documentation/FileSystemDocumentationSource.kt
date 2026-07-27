@@ -1,7 +1,7 @@
 package com.marmatsan.verificationPlatform.data.documentation
 
-import com.marmatsan.verificationPlatform.domain.model.DocumentationFile
-import com.marmatsan.verificationPlatform.domain.model.DocumentationRepositorySnapshot
+import com.marmatsan.verificationPlatform.domain.model.documentation.DocumentationFile
+import com.marmatsan.verificationPlatform.domain.model.documentation.DocumentationRepositorySnapshot
 import java.io.File
 
 /** Reads the Markdown and path snapshot required by documentation validation. */

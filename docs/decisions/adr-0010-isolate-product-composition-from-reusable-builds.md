@@ -9,8 +9,8 @@ review-cycle-days: 365
 sources:
   - settings.gradle.kts
   - repo/water-my-plants-project-config/settings.gradle.kts
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsProjectConfigPlugin.kt
-  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/VerificationPlatformExtension.kt
+  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt
+  - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/extension/VerificationPlatformExtension.kt
 ---
 
 # ADR-0010: Isolate Product Composition From Reusable Builds

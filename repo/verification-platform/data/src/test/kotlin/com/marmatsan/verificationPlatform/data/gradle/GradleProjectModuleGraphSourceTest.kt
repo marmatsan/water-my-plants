@@ -1,8 +1,8 @@
 package com.marmatsan.verificationPlatform.data.gradle
 
-import com.marmatsan.verificationPlatform.domain.model.ModuleDependency
-import com.marmatsan.verificationPlatform.domain.model.RepositoryModule
-import com.marmatsan.verificationPlatform.domain.model.RepositoryModuleGraph
+import com.marmatsan.verificationPlatform.domain.model.modules.ModuleDependency
+import com.marmatsan.verificationPlatform.domain.model.modules.RepositoryModule
+import com.marmatsan.verificationPlatform.domain.model.modules.RepositoryModuleGraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.gradle.testfixtures.ProjectBuilder
