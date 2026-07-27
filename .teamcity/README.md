@@ -620,6 +620,13 @@ After changing the service account or these permissions:
    `.gradle` directory;
 4. restart the agent and run the pipeline again.
 
+If a server upgrade leaves the agent at `Agent has unregistered (will upgrade)`
+and its updater reports Windows error `5`, follow the elevated manual-upgrade
+procedure in
+[`docs/runbooks/teamcity-cloudflare-access.md`](../docs/runbooks/teamcity-cloudflare-access.md#recover-an-agent-upgrade-blocked-by-service-permissions).
+Do not grant the virtual service account broad service-manager or filesystem
+permissions as an incident workaround.
+
 The first clean run downloads and compiles more work than later runs. Confirm
 that its log reports the expected JDK and that `BUILD SUCCESSFUL` comes from the
 child `Verify` job.
