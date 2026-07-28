@@ -143,6 +143,13 @@ changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
 | `repo/water-my-plants-project-config/catalog/` | `:catalog` | Water My Plants dependency trees, `DependencyCatalogProvider`, and product-version schema. Depends on the public catalog API and optional core DSL. |
 | `repo/water-my-plants-project-config/plugin/` | `:plugin` | Settings/project plugins, Figma catalog adapter, Figma identities, TeamCity wiring, operational tasks, and adapter tests. |
 
+The composition build's `settings.gradle.kts` owns local `libs` and `plugins`
+catalogs for compiling these modules. Portable repository-tooling aliases share
+the injected `figmaDocumentationSyncVersion` so source substitution and staged
+publication request the same coordinates. These local accessors are build
+inputs only: they do not add tooling artifacts to `WaterMyPlantsCatalogProvider`
+or to the product catalog trees published in Figma.
+
 Only this build and the root build may name sibling builds, product paths, or
 concrete implementations. `checkModuleBoundaries` enforces the reusable scopes.
 
