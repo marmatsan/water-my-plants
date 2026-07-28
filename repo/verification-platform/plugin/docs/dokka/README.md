@@ -29,6 +29,12 @@ Contains the public Gradle plugin composition root.
 
 Defines consumer-facing configuration grouped by repository capability.
 
+# Package com.marmatsan.verificationPlatform.plugin.registration
+
+Contains focused task registrars selected by the plugin composition root. Each
+registrar owns one repository capability and exchanges lazy `TaskProvider`
+contracts so task realization remains controlled by Gradle.
+
 # Package com.marmatsan.verificationPlatform.plugin.task.boundary
 
 Validates included-build version ownership and reusable module boundaries.
