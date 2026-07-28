@@ -23,6 +23,7 @@ import {
   HEADER_INSTANCE_NAME,
   HEADER_SECTION_TARGETS,
   METADATA_NAMESPACE,
+  PARENT_SECTION_CORNER_RADIUS,
 } from "@figma-documentation-sync/project-config";
 import {
   type CiVisualConnection,
@@ -43,6 +44,7 @@ import {
   requireOutlineColorVariable,
   requirePage,
   requireSection,
+  requireSurfaceColorVariable,
   requireVariableCollection,
 } from "./figma-node-gateway";
 import { loadTextNodeFonts } from "./figma-text-gateway";
@@ -63,7 +65,6 @@ const SECTION_PADDING = 100;
 const SECTION_GAP = 114;
 const NODE_COLUMN_GAP = 160;
 const NODE_ROW_GAP = 128;
-const PARENT_CORNER_RADIUS = 28;
 const CI_ROLE_KEY = "ciDocumentationRole";
 const CI_TARGET_KEY = "ciDocumentationTarget";
 const CI_MODEL_ID_KEY = "ciDocumentationModelId";
@@ -119,7 +120,7 @@ export class FigmaCiDocumentationSyncGateway implements CiDocumentationSyncGatew
     const nodeComponent = await requireComponent(CI_NODE_COMPONENT_ID);
     const modeCollection = await requireVariableCollection(CI_VARIABLE_COLLECTION_NAME);
     const outlineVariable = await requireOutlineColorVariable();
-    const surfaceVariable = await requireColorVariable("md/sys/color/surface");
+    const surfaceVariable = await requireSurfaceColorVariable();
     const surfaceCollection = await requireVariableCollectionById(surfaceVariable.variableCollectionId);
     const surfaceModeId = requireModeId(surfaceCollection, LIGHT_MODE_NAME);
     const mutatedNodeIds: string[] = [];
@@ -195,7 +196,7 @@ async function requireOrCreateParentSection(
     parent.y = 0;
   }
   parent.name = name;
-  parent.cornerRadius = PARENT_CORNER_RADIUS;
+  parent.cornerRadius = PARENT_SECTION_CORNER_RADIUS;
   parent.strokes = [];
   parent.setExplicitVariableModeForCollection(surfaceCollection, surfaceModeId);
   parent.fills = [boundColorPaint(surfaceVariable, resolveColorForConsumer(surfaceVariable, parent))];
@@ -1488,13 +1489,6 @@ function cumulativePositionsWithVariableGaps(
     next += (sizes.get(key) ?? 0) + Math.max(defaultGap, gaps.get(key) || 0);
   }
   return positions;
-}
-
-async function requireColorVariable(name) {
-  const variables = await figma.variables.getLocalVariablesAsync("COLOR");
-  const variable = variables.find((candidate) => candidate.name === name);
-  if (!variable) throw new Error(`Color variable '${name}' was not found.`);
-  return variable;
 }
 
 async function requireVariableCollectionById(collectionId) {

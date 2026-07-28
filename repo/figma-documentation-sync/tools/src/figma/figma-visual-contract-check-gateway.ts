@@ -31,6 +31,7 @@ import {
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
   METADATA_PAGE_ID,
+  PARENT_SECTION_CORNER_RADIUS,
   PROJECT_VERSION_COMPONENT_ID,
   TOOL_ARTIFACT_USAGE_INSTANCE_NAME,
   TOOL_ARTIFACT_USAGE_PROPS,
@@ -78,7 +79,10 @@ import {
   requireOutlineColorVariable,
   requirePage,
   requireSection,
+  requireSurfaceColorVariable,
   requireVariableCollection,
+  sectionCornerRadiusContractSatisfied,
+  surfaceFillContractSatisfied,
 } from "./figma-node-gateway";
 
 const CI_PHASES_CONTAINER_NAME = "phases";
@@ -97,7 +101,7 @@ export class FigmaVisualContractCheckGateway implements VisualContractCheckGatew
     checkedSections.push(`metadata:${metadataPage.id}`);
 
     await checkVersionContract(checkedComponents, checkedSections, checkedVariables);
-    await checkHeaderContract(checkedComponents, checkedSections);
+    await checkHeaderContract(checkedComponents, checkedSections, checkedVariables);
     await checkCatalogTreeContract(designModel, options, checkedComponents, checkedSections, checkedTargets);
     await checkCiDocumentationContract(options, checkedComponents, checkedSections, checkedVariables, checkedTargets);
 
@@ -537,9 +541,24 @@ function requireCiPhaseRowsContract(
   }
 }
 
-async function checkHeaderContract(checkedComponents, checkedSections) {
+async function checkHeaderContract(checkedComponents, checkedSections, checkedVariables) {
+  const surfaceVariable = await requireSurfaceColorVariable();
+  checkedVariables.push(surfaceVariable.name);
+
   for (const target of HEADER_SECTION_TARGETS) {
     const section = await requireSection(target.sectionNodeId);
+    if (!surfaceFillContractSatisfied(section, surfaceVariable.id)) {
+      throw new Error(
+        `Parent documentation section '${section.id}' must have exactly one visible solid fill ` +
+          `bound to '${surfaceVariable.name}'.`
+      );
+    }
+    if (!sectionCornerRadiusContractSatisfied(section, PARENT_SECTION_CORNER_RADIUS)) {
+      throw new Error(
+        `Parent documentation section '${section.id}' must have corner radius ` +
+          `${PARENT_SECTION_CORNER_RADIUS}.`
+      );
+    }
     const header = section.children.find(
       (child) => child.type === "INSTANCE" && child.name === HEADER_INSTANCE_NAME
     );

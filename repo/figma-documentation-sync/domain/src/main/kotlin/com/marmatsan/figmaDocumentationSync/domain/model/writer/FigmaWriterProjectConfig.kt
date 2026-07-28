@@ -42,11 +42,13 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property versionAliasModeName variable mode containing version aliases.
  * @property versionNumberModeName variable mode containing resolved version numbers.
  * @property outlineColorVariableName semantic outline color used by generated sections.
+ * @property surfaceColorVariableName semantic surface color used by parent documentation sections.
  * @property dependencyVersionComponentId component used for dependency-version entries.
  * @property dependencyVersionInstanceNames allowed dependency-version instance names.
  * @property dependencyVersionProps semantic-to-Figma property mapping for version entries.
  * @property parentSectionSiblingGap spacing between top-level generated sections.
  * @property parentSectionNodeIds node ids of parent sections managed by the writer.
+ * @property parentSectionCornerRadius corner radius shared by parent documentation sections.
  * @property sectionSiblingGap spacing between generated child sections.
  * @property treeNodeComponentIds tree node type to Figma component id mapping.
  * @property connectorTemplateName dependency-tree connector template name.
@@ -124,11 +126,13 @@ data class FigmaWriterProjectConfig(
     val versionAliasModeName: String,
     val versionNumberModeName: String,
     val outlineColorVariableName: String,
+    val surfaceColorVariableName: String,
     val dependencyVersionComponentId: String,
     val dependencyVersionInstanceNames: List<String>,
     val dependencyVersionProps: Map<String, String>,
     val parentSectionSiblingGap: Int,
     val parentSectionNodeIds: List<String>,
+    val parentSectionCornerRadius: Int,
     val sectionSiblingGap: Int,
     val treeNodeComponentIds: Map<String, String>,
     val connectorTemplateName: String,

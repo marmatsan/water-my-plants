@@ -135,6 +135,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             versionAliasModeName = "Version alias",
             versionNumberModeName = "Version number",
             outlineColorVariableName = "md/sys/color/outline",
+            surfaceColorVariableName = "md/sys/color/surface",
             dependencyVersionComponentId = "63075:591",
             dependencyVersionInstanceNames =
                 listOf(
@@ -155,6 +156,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "64886:247",
                     "64886:248",
                 ),
+            parentSectionCornerRadius = 28,
             sectionSiblingGap = 114,
             treeNodeComponentIds =
                 mapOf(

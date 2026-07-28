@@ -155,12 +155,15 @@ Important generation details:
   build files that declare an implementation class ending in
   `GradleConventionPlugin`.
 - Convention plugin detection enriches usage metadata on the production
-  library/plugin catalog. It does not create a separate Water My Plants visual
-  tree.
+  library/plugin catalog and supplies the independent
+  `waterMyPlants.customGradleConventionPlugins` inventory. The inventory is a
+  repository plugin surface, not an additional dependency catalog.
 - Dependency catalog entries are expected to be used. `checkFigmaCatalogUsage`
   runs through `.\gradlew.bat check` and rejects unused library/plugin entries
-  before they can be merged. Included-build tool catalogs and custom plugin
-  inventories are outside the Water My Plants catalog-tree publication scope.
+  before they can be merged. Included-build tool catalogs remain outside the
+  Water My Plants publication scope; the two custom plugin inventories are
+  first-class visual targets and may explicitly show that no production module
+  applies a plugin yet.
 - `content.moduleDependencies` contains one graph for the root build and one
   graph per configured included build: `main`, `dependencyCatalog`,
   `figmaDocumentationSync`, and `gradlePlugins`.
@@ -183,6 +186,11 @@ Important generation details:
 - The source revision is merged into `main`.
 - TeamCity generated and published the Figma report for that exact revision.
 - The artifact hashes and visual plan are available together.
+- Every catalog target that can render parent/child edges contains a local
+  `simple-solid_arrow` connector that the writer can clone. For a newly created
+  inventory section, retain one hidden connector with
+  `treeConnectorEdge=__template__->__template__` until generated connectors
+  exist; otherwise the first sync fails before metadata is written.
 
 ## Assisted Handoff
 
