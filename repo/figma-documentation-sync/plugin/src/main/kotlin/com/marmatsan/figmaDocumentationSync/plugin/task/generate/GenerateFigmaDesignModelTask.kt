@@ -3,21 +3,18 @@ package com.marmatsan.figmaDocumentationSync.plugin.task.generate
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
-import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
-import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSourceFactory
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.IncludedBuildTaskInputs
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveIncludedBuildSources
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -40,7 +37,9 @@ import java.time.Instant
 @DisableCachingByDefault(
     because = "Generation records Git, environment, and current-time runtime state",
 )
-abstract class GenerateFigmaDesignModelTask : DefaultTask() {
+abstract class GenerateFigmaDesignModelTask :
+    DefaultTask(),
+    IncludedBuildTaskInputs {
     /** Design-model name of the repository's primary dependency catalog. */
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
@@ -96,35 +95,6 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val ciGeneratedConfigurationDirectory: DirectoryProperty
 
-    /** Settings scripts of included builds participating in the model. */
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val includedBuildSettingsFiles: ConfigurableFileCollection
-
-    /** Settings-file paths aligned by index with included-build identities. */
-    @get:Input
-    abstract val includedBuildSettingsFilePaths: ListProperty<String>
-
-    /** Root-directory paths aligned by index with included-build identities. */
-    @get:Input
-    abstract val includedBuildRootDirectoryPaths: ListProperty<String>
-
-    /** Design-model identities aligned by index with included-build settings. */
-    @get:Input
-    abstract val includedBuildModelNames: ListProperty<String>
-
-    /** Module path prefixes aligned by index with included-build settings. */
-    @get:Input
-    abstract val includedBuildModulePathPrefixes: ListProperty<String>
-
-    /** Catalog publication flags aligned by index with included-build settings. */
-    @get:Input
-    abstract val includedBuildPublishesCatalogs: ListProperty<Boolean>
-
-    /** Convention-plugin publication flags aligned by index with included-build settings. */
-    @get:Input
-    abstract val includedBuildPublishesConventionPlugins: ListProperty<Boolean>
-
     /** Repository root used for module resolution and Git identity checks. */
     @get:Internal
     abstract val projectRootDirectory: DirectoryProperty
@@ -168,7 +138,7 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
                         ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
                         ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                         projectRootDirectory = projectRootDirectory.get().asFile,
-                        includedBuilds = includedBuildSources(),
+                        includedBuilds = resolveIncludedBuildSources(),
                     ),
             )
 
@@ -216,16 +186,6 @@ abstract class GenerateFigmaDesignModelTask : DefaultTask() {
 
         return output.toString().trim()
     }
-
-    private fun includedBuildSources(): List<FigmaDesignModelIncludedBuildSource> =
-        FigmaDesignModelIncludedBuildSourceFactory().create(
-            settingsFilePaths = includedBuildSettingsFilePaths.get(),
-            rootDirectoryPaths = includedBuildRootDirectoryPaths.get(),
-            modelNames = includedBuildModelNames.get(),
-            modulePathPrefixes = includedBuildModulePathPrefixes.get(),
-            publishesCatalogs = includedBuildPublishesCatalogs.get(),
-            publishesConventionPlugins = includedBuildPublishesConventionPlugins.get(),
-        )
 
     private fun canonicalBranch(): String {
         val canonicalGeneration = System.getenv(CANONICAL_GENERATION_ENVIRONMENT_VARIABLE)

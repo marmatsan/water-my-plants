@@ -53,6 +53,13 @@ composition. `plugin` wires portable Gradle tasks to domain ports through
 applies the plugin and selects one repository's concrete catalog port, layout,
 Figma document, and CI adapter.
 
+Gradle tasks that consume the same included-build configuration expose the
+public `IncludedBuildTaskInputs` contract from the `plugin.task.input`
+capability package. `FigmaTaskConfiguration` maps the plugin extension into
+that contract once; individual tasks delegate annotated properties and source
+reconstruction instead of duplicating configuration mapping. Existing task
+property accessors remain part of the public Gradle integration contract.
+
 Gradle catalog usage follows segregated read contracts. A shared source scanner
 and parser own syntax discovery, while main-build, included-build, and
 convention-plugin readers expose only the queries required by their consumers.
