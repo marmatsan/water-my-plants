@@ -36,6 +36,12 @@ aggregator so existing consumers do not need to know its internal projects.
   repository policy into `ciPolicy`, `boundaries`, `typedErrorHandling`,
   `taskBindings`, and `teamCity` blocks so consumers configure only the
   capability they own.
+- `VerificationPlatformPlugin` is the composition root and delegates task
+  registration to internal registrars grouped by configurable, repository,
+  CI, TeamCity, and lifecycle capabilities. A shared registration helper owns
+  common task metadata while preserving lazy `TaskProvider` configuration.
+  Adding a capability extends the relevant registrar instead of growing the
+  composition root or exposing internal collaborators as public API.
 - Verification Platform production code contains no Water My Plants module
   inventory or sibling build name. Water My Plants binds
   `checkKotlinStyle`, `checkDependencyCatalogArchitecture`, portable
