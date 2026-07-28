@@ -167,7 +167,7 @@ for the adapter contract required by another repository.
 
 Consumers will apply one versioned Gradle plugin rather than addressing the
 internal projects. The staged publication contains the plugin marker,
-`figma-documentation-sync-gradle-plugin`, transitive domain and data artifacts, the
+`figma-documentation-sync-gradle-plugin`, transitive domain and data artifacts,
 and the optional `teamcity-adapter`. Dependency Catalog is distributed and
 verified independently. Water My Plants product configuration is deliberately
 excluded.
@@ -177,6 +177,14 @@ The TypeScript writer is prepared as
 Kotlin-generated, repository-owned JSON projection, so the published package
 does not own Figma node ids or repository paths. Maven and npm versions must
 remain aligned.
+
+`FigmaWriterProjectConfigJson` remains the stable public serialization facade.
+It delegates ordered projection to focused internal sections for identity, CI,
+versions, visual structure, repository, and catalogs. Those sections preserve
+schema version `4`, field order, optional-field omission, aggregate target
+derivation, and the trailing newline expected by the TypeScript runtime. A new
+top-level concern extends the ordered section set instead of growing the
+facade.
 
 Validate the complete staged distribution without publishing externally:
 

@@ -29,3 +29,9 @@ usage from Gradle files without exposing Gradle APIs to the domain.
 # Package com.marmatsan.figmaDocumentationSync.data.figma
 
 Figma classes handle URL parsing, HTTP access, and DTOs for the Figma file API.
+
+# Package com.marmatsan.figmaDocumentationSync.data.json.writer.config
+
+Ordered JSON section projectors adapt the typed writer project configuration to
+the portable schema. Each section owns one capability while the public encoder
+preserves the canonical field order and trailing-line contract.
