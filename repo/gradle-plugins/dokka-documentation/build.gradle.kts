@@ -24,8 +24,6 @@ dependencies {
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testRuntimeOnly(libs.org.junit.platform.launcher)
-    // MockK
-    testImplementation(libs.io.mockk)
 }
 
 gradlePlugin {

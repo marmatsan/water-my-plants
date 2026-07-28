@@ -3,6 +3,12 @@
 `figma-documentation-sync` owns the generated design model used by the Figma
 publication workflow and the Gradle checks that verify Figma sync metadata.
 
+The included-build root owns repositories, JUnit Platform setup, sources JARs,
+shared Dokka policy, and the staging publication repository for its JVM
+subprojects. Module build scripts retain capability-specific dependencies,
+tests, Dokka inputs, and Maven publication identity. This boundary keeps the
+modules autonomous without duplicating common Gradle policy.
+
 Use this directory as the module documentation index:
 
 | Path | Role | Purpose |

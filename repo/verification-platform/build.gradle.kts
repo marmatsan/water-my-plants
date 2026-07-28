@@ -1,7 +1,12 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import java.net.URI
 import java.util.Properties
 
 plugins {
@@ -32,6 +37,61 @@ allprojects {
 }
 
 subprojects {
+    pluginManager.withPlugin("java") {
+        extensions.configure<JavaPluginExtension> {
+            withSourcesJar()
+        }
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
+    }
+
+    pluginManager.withPlugin("org.jetbrains.dokka") {
+        extensions.configure<DokkaExtension> {
+            moduleName.convention("verification-platform-${project.name}")
+
+            dokkaPublications.configureEach {
+                failOnWarning.set(true)
+
+                val moduleReadme = layout.projectDirectory.file("docs/dokka/README.md")
+                if (moduleReadme.asFile.exists()) {
+                    includes.from(moduleReadme)
+                }
+            }
+
+            dokkaSourceSets.configureEach {
+                documentedVisibilities.set(
+                    setOf(
+                        VisibilityModifier.Public,
+                        VisibilityModifier.Internal,
+                    ),
+                )
+                reportUndocumented.set(true)
+
+                val localSourceDirectory = layout.projectDirectory.dir("src/main/kotlin")
+                if (localSourceDirectory.asFile.exists()) {
+                    sourceLink {
+                        localDirectory.set(localSourceDirectory)
+                        remoteUrl.set(
+                            URI(
+                                "https://github.com/marmatsan/water-my-plants/tree/main/" +
+                                    "repo/verification-platform/" +
+                                    localSourceDirectory.asFile
+                                        .relativeTo(rootProject.projectDir)
+                                        .invariantSeparatorsPath,
+                            ),
+                        )
+                        remoteLineSuffix.set("#L")
+                    }
+                }
+            }
+        }
+
+        tasks.matching { task -> task.name == "check" }.configureEach {
+            dependsOn("dokkaGenerate")
+        }
+    }
+
     pluginManager.withPlugin("maven-publish") {
         extensions.configure<PublishingExtension> {
             repositories {
