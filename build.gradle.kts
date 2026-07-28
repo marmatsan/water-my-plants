@@ -175,6 +175,17 @@ extensions.configure<VerificationPlatformExtension> {
         )
     }
 
+    typedErrorHandling {
+        standardResult(
+            qualifiedName = "com.github.michaelbull.result.Result",
+        )
+        listOf(
+            "app",
+            "core",
+            "onboarding",
+        ).forEach(::productSourceScope)
+    }
+
     taskBindings {
         includedBuildTask(
             name = "checkDependencyCatalogArchitecture",

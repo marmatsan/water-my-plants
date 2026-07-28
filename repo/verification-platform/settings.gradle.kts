@@ -58,6 +58,11 @@ dependencyResolutionManagement {
                 "unit-test-dsl",
             ).version(versions.getProperty("unitTestDslLibraryVersion"))
             library(
+                "com.michael.bull.kotlin.result",
+                "com.michael-bull.kotlin-result",
+                "kotlin-result",
+            ).version(versions.getProperty("kotlinResultLibraryVersion"))
+            library(
                 "org.junit.platform.suite",
                 "org.junit.platform",
                 "junit-platform-suite",

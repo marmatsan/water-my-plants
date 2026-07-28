@@ -33,8 +33,9 @@ aggregator so existing consumers do not need to know its internal projects.
   provider concerns to the domain model.
 - The Gradle plugin registers generic planning, documentation, TeamCity, local
   version ownership, and module-boundary tasks. Its public DSL segregates
-  repository policy into `ciPolicy`, `boundaries`, `taskBindings`, and
-  `teamCity` blocks so consumers configure only the capability they own.
+  repository policy into `ciPolicy`, `boundaries`, `typedErrorHandling`,
+  `taskBindings`, and `teamCity` blocks so consumers configure only the
+  capability they own.
 - Verification Platform production code contains no Water My Plants module
   inventory or sibling build name. Water My Plants binds
   `checkKotlinStyle`, `checkDependencyCatalogArchitecture`, portable
@@ -88,11 +89,24 @@ under `domain.service.documentation`.
 .\gradlew.bat checkTeamCityDsl
 .\gradlew.bat checkDependencyCatalogArchitecture checkIncludedBuildVersions
 .\gradlew.bat checkModuleBoundaries
+.\gradlew.bat checkTypedResultUsage
 .\gradlew.bat verifyPortableDistribution
 .\gradlew.bat generateCiPlan
 .\gradlew.bat generateCiTopologyPreview -PciAvailableAgents=3
 .\gradlew.bat prepareTeamCityCiPlan
 ```
+
+`checkTypedResultUsage` is a reusable syntax boundary. Its
+`typedErrorHandling` DSL selects the accepted fully qualified `Result` type
+and the production source scopes to inspect; Verification Platform itself
+contains no Water My Plants module inventory. The domain validator is the
+first real kotlin-result consumer and exposes
+`Result<Unit, TypedResultUsageError>`; the `domain` publication therefore
+declares kotlin-result as an `api` dependency and this included build owns
+version `2.3.1` in its local `versions.properties`. The Water My Plants root
+binds its product scopes and standard type. Review and the
+[typed error handling standard](../../docs/standards/error-handling.md) remain
+responsible for semantic error ownership and exception boundaries.
 
 `checkKotlinStyle` is a Water My Plants task binding to the reusable KtLint
 adapter. It runs the KtLint 1.8.0 standard rules and the

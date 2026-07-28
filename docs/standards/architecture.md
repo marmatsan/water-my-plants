@@ -10,6 +10,7 @@ sources:
   - build.gradle.kts
   - settings.gradle.kts
   - docs/reference/project-structure.md
+  - docs/standards/error-handling.md
   - repo/gradle-plugins
   - repo/unit-testing
   - repo/dependency-catalog/catalog-api
@@ -86,6 +87,14 @@ Compose state are not domain models and MUST NOT leak across their boundary.
 Constructor injection is the default. Composition roots may select concrete
 implementations; domain and UI classes MUST NOT use service locators or read a
 global dependency container.
+
+## Typed Errors
+
+Expected recoverable failures follow the repository-wide
+[`error-handling.md`](error-handling.md) standard. Capabilities own their error
+hierarchies and use the standard `com.github.michaelbull.result.Result`
+container; they do not depend on a global error root or a repository-owned
+replacement. Lifecycle state remains a separate capability contract.
 
 ## SOLID Design
 
@@ -187,6 +196,7 @@ it.
 - `build.gradle.kts`
 - `settings.gradle.kts`
 - `docs/reference/project-structure.md`
+- `docs/standards/error-handling.md`
 - `repo/gradle-plugins/`
 - `repo/unit-testing/`
 - `repo/dependency-catalog/catalog-api/`

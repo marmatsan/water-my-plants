@@ -3,6 +3,7 @@ package com.marmatsan.verificationPlatform.plugin.extension
 import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckIncludedBuildVersionsTask
 import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckModuleBoundariesTask
 import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiPlanTask
+import com.marmatsan.verificationPlatform.plugin.task.errorhandling.CheckTypedResultUsageTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskProvider
 
@@ -12,6 +13,7 @@ class VerificationPlatformExtension internal constructor(
     generateCiPlan: TaskProvider<GenerateCiPlanTask>,
     checkIncludedBuildVersions: TaskProvider<CheckIncludedBuildVersionsTask>,
     checkModuleBoundaries: TaskProvider<CheckModuleBoundariesTask>,
+    checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>,
 ) {
     /** Provider-neutral CI classification and task-selection policy. */
     val ciPolicy =
@@ -26,6 +28,13 @@ class VerificationPlatformExtension internal constructor(
             project = project,
             checkIncludedBuildVersions = checkIncludedBuildVersions,
             checkModuleBoundaries = checkModuleBoundaries,
+        )
+
+    /** Product typed-error and `Result` implementation policy. */
+    val typedErrorHandling =
+        TypedErrorHandlingExtension(
+            project = project,
+            checkTypedResultUsage = checkTypedResultUsage,
         )
 
     /** Root bindings for tasks owned by included builds. */
@@ -43,6 +52,11 @@ class VerificationPlatformExtension internal constructor(
     fun boundaries(
         configure: RepositoryBoundariesExtension.() -> Unit,
     ) = boundaries.configure()
+
+    /** Configures [typedErrorHandling]. */
+    fun typedErrorHandling(
+        configure: TypedErrorHandlingExtension.() -> Unit,
+    ) = typedErrorHandling.configure()
 
     /** Configures [taskBindings]. */
     fun taskBindings(

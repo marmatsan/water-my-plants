@@ -7,6 +7,7 @@ import com.marmatsan.verificationPlatform.plugin.task.boundary.CheckModuleBounda
 import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiPlanTask
 import com.marmatsan.verificationPlatform.plugin.task.ci.GenerateCiTopologyPreviewTask
 import com.marmatsan.verificationPlatform.plugin.task.documentation.CheckDocumentationTask
+import com.marmatsan.verificationPlatform.plugin.task.errorhandling.CheckTypedResultUsageTask
 import com.marmatsan.verificationPlatform.plugin.task.git.CheckGitWorkflowTask
 import com.marmatsan.verificationPlatform.plugin.task.git.CheckRepositoryDiffTask
 import com.marmatsan.verificationPlatform.plugin.task.teamcity.CheckTeamCityDslTask
@@ -66,12 +67,22 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 task.reusableScopePaths.convention(emptyList())
                 task.forbiddenReferencesByScope.convention(emptyMap())
             }
+        val checkTypedResultUsage =
+            project.tasks.register(
+                "checkTypedResultUsage",
+                CheckTypedResultUsageTask::class.java,
+            ) { task ->
+                task.group = "verification"
+                task.description = "Verifies that product sources use the configured typed Result."
+                task.repositoryRoot.set(project.layout.projectDirectory)
+            }
         val extension =
             VerificationPlatformExtension(
                 project = project,
                 generateCiPlan = generateCiPlan,
                 checkIncludedBuildVersions = checkIncludedBuildVersions,
                 checkModuleBoundaries = checkModuleBoundaries,
+                checkTypedResultUsage = checkTypedResultUsage,
             )
         project.extensions.add(
             "verificationPlatform",
@@ -154,6 +165,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
                     task.dependsOn(checkDocumentation)
                     task.dependsOn(checkIncludedBuildVersions)
                     task.dependsOn(checkModuleBoundaries)
+                    task.dependsOn(checkTypedResultUsage)
                     task.mustRunAfter(checkTeamCityDsl)
                 }
             }
