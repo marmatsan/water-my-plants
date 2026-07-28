@@ -64,6 +64,13 @@ not add tooling artifacts to `WaterMyPlantsCatalogProvider` and therefore do
 not expand the `waterMyPlants.libraries` or `waterMyPlants.plugins` trees
 published to Figma.
 
+The repository [error-handling standard](../../docs/standards/error-handling.md)
+selects kotlin-result, but the product catalog intentionally omits it until a
+Water My Plants production module consumes the contract. This keeps the Figma
+product tree limited to dependencies used to produce the app. The first real
+consumer adds the coordinate and its type-safe `libs` accessor in the same
+change.
+
 ## Reusing The Engine
 
 A new Gradle repository reuses `domain/`, `data/`, `plugin/`, `tools/`, and

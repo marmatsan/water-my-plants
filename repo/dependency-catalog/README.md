@@ -53,6 +53,13 @@ Water My Plants keeps its implementation in
 `repo/water-my-plants-project-config/catalog` and its product versions in
 `repo/water-my-plants-project-config/versions.properties`.
 
+Each autonomous included build declares only the dependencies it consumes in
+its own `versions.properties` and local catalog. A dependency first used by
+repository tooling, such as `kotlin-result` in `verification-platform`, is not
+copied into the Water My Plants product catalog. It enters that catalog only
+when production app source has a real consumer; until then it is deliberately
+absent from both the generated product catalog and its Figma dependency tree.
+
 See [the adoption guide](docs/guides/adopt-dependency-catalog.md) for the full
 integration contract.
 

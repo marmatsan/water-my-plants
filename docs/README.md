@@ -27,6 +27,12 @@ them.
 - [ADR-0004: Use JSON for Figma Writer Project Configuration](decisions/adr-0004-use-json-for-figma-writer-project-configuration.md)
 - [ADR-0009: Separate the Product Catalog From Build-Tool Versions](decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md)
 - [ADR-0010: Isolate Product Composition From Reusable Builds](decisions/adr-0010-isolate-product-composition-from-reusable-builds.md)
+- [ADR-0011: Standardize Typed Errors With kotlin-result](decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md)
+
+## Engineering Standards
+
+- [Product Architecture Standard](standards/architecture.md)
+- [Typed Error Handling Standard](standards/error-handling.md)
 
 ## CI References
 

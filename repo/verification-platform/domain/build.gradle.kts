@@ -9,6 +9,7 @@ plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm)
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     alias(plugins.plugins.org.jetbrains.dokka)
+    `java-library`
     `java-test-fixtures`
     `maven-publish`
 }
@@ -27,6 +28,7 @@ components.named<AdhocComponentWithVariants>("java") {
 }
 
 dependencies {
+    api(libs.com.michael.bull.kotlin.result)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)

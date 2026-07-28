@@ -58,6 +58,7 @@
       ],
       "documentationPaths": [
         "repo/verification-platform/README.md",
+        "docs/standards/error-handling.md",
         "docs/reference/ci-verification-plan.md",
         ".teamcity/README.md"
       ]
@@ -101,8 +102,29 @@
         "repo/water-my-plants-project-config/README.md",
         "docs/decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md",
         "docs/decisions/adr-0010-isolate-product-composition-from-reusable-builds.md",
+        "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
+        "docs/standards/error-handling.md",
         "docs/reference/project-structure.md",
         "repo/figma-documentation-sync/docs/reference/target-scopes.md"
+      ]
+    },
+    {
+      "id": "typed-error-handling",
+      "sourcePaths": [
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/errorhandling/*",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/errorhandling/*",
+        "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/extension/TypedErrorHandlingExtension.kt",
+        "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/errorhandling/*",
+        "repo/verification-platform/domain/build.gradle.kts",
+        "repo/verification-platform/settings.gradle.kts",
+        "repo/verification-platform/versions.properties",
+        "build.gradle.kts"
+      ],
+      "documentationPaths": [
+        "docs/standards/error-handling.md",
+        "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
+        "repo/verification-platform/README.md",
+        "repo/water-my-plants-project-config/README.md"
       ]
     },
     {
