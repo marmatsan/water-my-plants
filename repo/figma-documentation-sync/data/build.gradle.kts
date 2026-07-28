@@ -5,7 +5,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    kotlin("jvm")
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     alias(plugins.plugins.org.jetbrains.dokka)
     `maven-publish`

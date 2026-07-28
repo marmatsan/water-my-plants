@@ -1,10 +1,17 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.dokka")
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.dokka)
     `java-gradle-plugin`
+    `maven-publish`
+}
+
+java {
+    withSourcesJar()
 }
 
 dependencies {

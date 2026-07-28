@@ -88,6 +88,21 @@ dependencyResolutionManagement {
                 "ktlint-ruleset-standard",
             ).version(versions.getProperty("ktlintLibraryVersion"))
         }
+
+        create("plugins") {
+            plugin(
+                "org.jetbrains.kotlin.jvm",
+                "org.jetbrains.kotlin.jvm",
+            ).version(versions.getProperty("kotlinVersion"))
+            plugin(
+                "org.jetbrains.kotlin.plugin.serialization",
+                "org.jetbrains.kotlin.plugin.serialization",
+            ).version(versions.getProperty("kotlinVersion"))
+            plugin(
+                "org.jetbrains.dokka",
+                "org.jetbrains.dokka",
+            ).version(versions.getProperty("dokkaPluginVersion"))
+        }
     }
 }
 

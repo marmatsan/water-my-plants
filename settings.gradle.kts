@@ -20,9 +20,9 @@ pluginManagement {
     includeBuild("./repo/water-my-plants-project-config")
 }
 
-// The regular composite inclusion exposes repository-owned library coordinates
-// contributed by gradle-plugins, in addition to its pluginManagement role.
+// Regular composite inclusions expose repository-owned library coordinates.
 includeBuild("./repo/gradle-plugins")
+includeBuild("./repo/unit-testing")
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)

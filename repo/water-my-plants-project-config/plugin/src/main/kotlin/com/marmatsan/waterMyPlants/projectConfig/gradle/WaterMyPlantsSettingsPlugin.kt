@@ -3,6 +3,7 @@ package com.marmatsan.waterMyPlants.projectConfig.gradle
 import com.marmatsan.dependencies.gradle.DependencyCatalogSettingsExtension
 import com.marmatsan.dependencies.gradle.DependencyCatalogSettingsPlugin
 import com.marmatsan.waterMyPlants.projectConfig.catalog.WaterMyPlantsCatalogProvider
+import com.marmatsan.waterMyPlants.projectConfig.catalog.configuration.WaterMyPlantsTestCatalogConfigurator
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.configure
@@ -17,5 +18,8 @@ class WaterMyPlantsSettingsPlugin : Plugin<Settings> {
         settings.extensions.configure<DependencyCatalogSettingsExtension> {
             from(WaterMyPlantsCatalogProvider())
         }
+        WaterMyPlantsTestCatalogConfigurator().configure(
+            settings = settings,
+        )
     }
 }

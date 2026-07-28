@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import com.marmatsan.verificationPlatform.plugin.extension.VerificationPlatformExtension
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -29,6 +31,8 @@ extensions.configure<VerificationPlatformExtension> {
             listOf(
                 "repo/dependency-catalog/",
                 "repo/gradle-plugins/",
+                "repo/unit-testing/",
+                "repo/verification-platform/",
                 "repo/water-my-plants-project-config/",
             ),
         )
@@ -44,22 +48,36 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/dependency-catalog/catalog-api/",
                 "repo/dependency-catalog/catalog-core/",
                 "repo/dependency-catalog/catalog-gradle-plugin/",
+                "repo/dependency-catalog/samples/standalone-consumer/",
                 "repo/figma-documentation-sync/domain/",
                 "repo/figma-documentation-sync/data/",
                 "repo/figma-documentation-sync/plugin/",
                 "repo/figma-documentation-sync/teamcity-adapter/",
                 "repo/figma-documentation-sync/tools/",
                 "repo/figma-documentation-sync/samples/standalone-consumer/",
+                "repo/gradle-plugins/",
+                "repo/unit-testing/",
+                "repo/verification-platform/",
             ),
         )
         portableDistributionPaths.set(
             listOf(
                 "repo/dependency-catalog/build.gradle.kts",
                 "repo/dependency-catalog/settings.gradle.kts",
+                "repo/dependency-catalog/versions.properties",
                 "repo/figma-documentation-sync/build.gradle.kts",
                 "repo/figma-documentation-sync/gradle.properties",
                 "repo/figma-documentation-sync/settings.gradle.kts",
                 "repo/figma-documentation-sync/versions.properties",
+                "repo/gradle-plugins/build.gradle.kts",
+                "repo/gradle-plugins/settings.gradle.kts",
+                "repo/gradle-plugins/versions.properties",
+                "repo/unit-testing/build.gradle.kts",
+                "repo/unit-testing/settings.gradle.kts",
+                "repo/unit-testing/versions.properties",
+                "repo/verification-platform/build.gradle.kts",
+                "repo/verification-platform/settings.gradle.kts",
+                "repo/verification-platform/versions.properties",
             ),
         )
         toolingCapabilities.set(
@@ -107,6 +125,7 @@ extensions.configure<VerificationPlatformExtension> {
             "repo/gradle-plugins",
             "repo/figma-documentation-sync",
             "repo/verification-platform",
+            "repo/unit-testing",
             "repo/water-my-plants-project-config",
         ).forEach(::versionedBuild)
 
@@ -143,6 +162,11 @@ extensions.configure<VerificationPlatformExtension> {
             "com.marmatsan.waterMyPlants",
         )
         reusableScope(
+            "repo/unit-testing",
+            "com.marmatsan.figmaDocumentationSync",
+            "com.marmatsan.verificationPlatform",
+        )
+        reusableScope(
             "repo/verification-platform",
             "repo/dependency-catalog",
             "repo/figma-documentation-sync",
@@ -170,6 +194,24 @@ extensions.configure<VerificationPlatformExtension> {
             buildName = "figma-documentation-sync",
             taskPath = ":verifyStagedPublication",
             description = "Verifies the staged Figma plugin through a standalone consumer.",
+        )
+        includedBuildTask(
+            name = "verifyGradlePluginsDistribution",
+            buildName = "gradle-plugins",
+            taskPath = ":verifyStagedPublication",
+            description = "Verifies staged convention plugins through a standalone consumer.",
+        )
+        includedBuildTask(
+            name = "verifyUnitTestingDistribution",
+            buildName = "unit-testing",
+            taskPath = ":verifyStagedPublication",
+            description = "Verifies the staged unit-test DSL through a standalone consumer.",
+        )
+        includedBuildTask(
+            name = "verifyVerificationPlatformDistribution",
+            buildName = "verification-platform",
+            taskPath = ":verifyStagedPublication",
+            description = "Verifies the staged verification plugin through a standalone consumer.",
         )
         includedBuildTask(
             name = "checkKotlinStyle",
@@ -205,6 +247,9 @@ tasks.register("verifyPortableDistribution") {
     dependsOn(
         "verifyDependencyCatalogDistribution",
         "verifyFigmaDocumentationSyncDistribution",
+        "verifyGradlePluginsDistribution",
+        "verifyUnitTestingDistribution",
+        "verifyVerificationPlatformDistribution",
     )
 }
 
@@ -226,6 +271,7 @@ val reusableBuildChecks =
     listOf(
         "figma-documentation-sync",
         "gradle-plugins",
+        "unit-testing",
         "verification-platform",
         "water-my-plants-project-config",
     ).map { buildName ->

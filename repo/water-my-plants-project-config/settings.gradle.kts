@@ -13,6 +13,7 @@ pluginManagement {
 includeBuild("../dependency-catalog")
 includeBuild("../figma-documentation-sync")
 includeBuild("../gradle-plugins")
+includeBuild("../unit-testing")
 
 val versions =
     java.util.Properties().apply {

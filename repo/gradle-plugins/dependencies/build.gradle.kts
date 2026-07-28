@@ -2,6 +2,7 @@
 
 plugins {
     `kotlin-dsl`
+    `maven-publish`
 }
 
 repositories {
@@ -16,7 +17,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
-    testImplementation(projects.unitTestDsl)
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
 
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)

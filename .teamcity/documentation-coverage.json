@@ -130,6 +130,44 @@
       ]
     },
     {
+      "id": "repository-tooling-distribution",
+      "sourcePaths": [
+        "repo/dependency-catalog/build.gradle.kts",
+        "repo/dependency-catalog/settings.gradle.kts",
+        "repo/dependency-catalog/versions.properties",
+        "repo/dependency-catalog/samples/*",
+        "repo/figma-documentation-sync/build.gradle.kts",
+        "repo/figma-documentation-sync/settings.gradle.kts",
+        "repo/figma-documentation-sync/versions.properties",
+        "repo/figma-documentation-sync/samples/*",
+        "repo/gradle-plugins/build.gradle.kts",
+        "repo/gradle-plugins/settings.gradle.kts",
+        "repo/gradle-plugins/versions.properties",
+        "repo/gradle-plugins/samples/*",
+        "repo/unit-testing/*",
+        "repo/unit-testing/unit-test-dsl/*",
+        "repo/unit-testing/unit-test-dsl/src/*",
+        "repo/unit-testing/samples/*",
+        "repo/verification-platform/build.gradle.kts",
+        "repo/verification-platform/settings.gradle.kts",
+        "repo/verification-platform/versions.properties",
+        "repo/verification-platform/samples/*",
+        "settings.gradle.kts",
+        "build.gradle.kts"
+      ],
+      "documentationPaths": [
+        "docs/guides/adopt-repository-tooling.md",
+        "docs/reference/project-structure.md",
+        "docs/reference/ci-verification-plan.md",
+        "repo/dependency-catalog/README.md",
+        "repo/figma-documentation-sync/README.md",
+        "repo/gradle-plugins/README.md",
+        "repo/unit-testing/README.md",
+        "repo/unit-testing/unit-test-dsl/docs/README.md",
+        "repo/verification-platform/README.md"
+      ]
+    },
+    {
       "id": "ci-topology",
       "sourcePaths": ["docs/ci/external-topology.yaml", "docs/ci/windows-runtime.yaml"],
       "documentationPaths": [

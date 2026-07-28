@@ -10,6 +10,7 @@ sources:
   - settings.gradle.kts
   - repo/dependency-catalog/settings.gradle.kts
   - repo/gradle-plugins/settings.gradle.kts
+  - repo/unit-testing/settings.gradle.kts
   - repo/verification-platform/settings.gradle.kts
   - repo/verification-platform/domain/build.gradle.kts
   - repo/verification-platform/data/build.gradle.kts
@@ -75,14 +76,15 @@ modules support the repository and CI; they are not production app modules.
 |------|----------------|---------|
 | `repo/dependency-catalog/` | `dependency-catalog` | Reusable catalog API, optional tree DSL, and Gradle settings adapter. |
 | `repo/gradle-plugins/` | `gradle-plugins` | Convention plugins used by app modules and other repository builds. |
+| `repo/unit-testing/` | `unit-testing` | Assertion-framework-agnostic typed test APIs that can be consumed independently. |
 | `repo/verification-platform/` | `verification-platform` | Provider-neutral Kotlin platform that plans and executes repository verification through Gradle. |
 | `repo/figma-documentation-sync/` | `figma-documentation-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
 | `repo/water-my-plants-project-config/` | `water-my-plants-project-config` | Product catalog, product versions, and adapters that compose reusable builds for Water My Plants. |
 
-The root build includes all five builds through
-`pluginManagement.includeBuild(...)`. It also includes `gradle-plugins` as a
-regular composite so repository-owned library coordinates such as the typed
-unit-test DSL are substituted from source. Reusable builds do not include
+The root build includes the five plugin-producing builds through
+`pluginManagement.includeBuild(...)`. It includes `gradle-plugins` and
+`unit-testing` as regular composite participants so repository-owned library
+coordinates are substituted from source. Reusable builds do not include
 sibling builds or import product implementations. They declare test-only API
 coordinates in their own catalogs; the root composite substitutes those
 coordinates during repository development. The root and
@@ -91,10 +93,11 @@ versioned APIs to local implementations. Every included build reads its own
 root `versions.properties` and remains independent from another build's
 compile/test registry.
 
-`repo/gradle-plugins` also contains `:unit-test-dsl`, the Kotlin-only,
-assertion-framework-agnostic behavior-phase API. It is repository test
-infrastructure and never enters the Water My Plants production catalog or app
-runtime graph.
+`repo/unit-testing` owns `:unit-test-dsl`, the Kotlin-only,
+assertion-framework-agnostic behavior-phase API. It publishes
+`com.marmatsan.repo:unit-test-dsl` independently from the convention plugins
+that consume it. Water My Plants registers it in the consumer-owned `testLibs`
+catalog, so it never enters the production `libs` tree or app runtime graph.
 
 `repo/dependency-catalog` contains three reusable Gradle modules:
 

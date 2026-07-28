@@ -208,6 +208,15 @@ dependencyResolutionManagement {
 
         create("plugins") {
             plugin(
+                alias = "org.jetbrains.kotlin.jvm",
+                id = "org.jetbrains.kotlin.jvm",
+            ).version(
+                version(
+                    key = "kotlinVersion",
+                ),
+            )
+
+            plugin(
                 alias = "com.google.devtools.ksp",
                 id = "com.google.devtools.ksp",
             ).version(

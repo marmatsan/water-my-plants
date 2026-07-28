@@ -12,8 +12,10 @@ This directory contains Gradle convention plugins used by the rest of the projec
   - `dokka-documentation`: shared Dokka API documentation setup.
   - `protobuf`: Protobuf Gradle plugin setup and lite runtime dependencies.
   - `unit-test`: Kotest test configuration and shared test dependencies.
-  - `unit-test-dsl`: assertion-framework-agnostic typed behavior phases for
-    Kotlin tests.
+- Keep the assertion-framework-agnostic behavior API in the autonomous
+  `repo/unit-testing` build. Convention plugins consume its published
+  `com.marmatsan.repo:unit-test-dsl` coordinate through the consumer-owned
+  `testLibs` catalog.
 - Do not add product, UI, feature, or Android screen logic here.
 - Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
 - All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
@@ -47,6 +49,9 @@ This directory contains Gradle convention plugins used by the rest of the projec
   adding or moving dependency catalog entries.
 - Prefer adding dependencies through the existing dependency tree helpers instead of hardcoding aliases across product modules.
 - Keep gradle-plugins's own catalog in `settings.gradle.kts` limited to dependencies needed to compile and test the convention plugins.
+- Do not add library-only test support modules to this plugin-producing build;
+  publish them from `repo/unit-testing` so consumers can adopt them without
+  adopting the convention plugins.
 
 ## Dependency Tree and Catalog Model
 
@@ -95,7 +100,8 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - When executable BDD scenarios live inside `gradle-plugins` itself, mirror the `bdd-test` convention configuration explicitly because a plugin produced by the same Gradle build cannot be resolved by id from sibling gradle-plugins modules.
 - These test dependencies are available through the gradle-plugins version catalog declared in `settings.gradle.kts`.
 - Structure Kotlin tests that express Given-When-Then behavior with the typed
-  `given { }.whenever { }.then { }` chain from `unit-test-dsl`. Do not use
+  `given { }.whenever { }.then { }` chain from
+  `com.marmatsan.repo:unit-test-dsl`. Do not use
   section comments for these phases; repository Kotlin style verification
   rejects them.
 - Keep assertions in Kotest and keep the behavior DSL independent of Kotest,

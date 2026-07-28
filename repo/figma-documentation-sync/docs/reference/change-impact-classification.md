@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-07-28
 review-cycle-days: 90
 sources:
   - repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json
@@ -36,6 +36,12 @@ Path rules for this repository live in
 `repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`.
 The project-config policy is the only source for documentation-only, transport-only,
 model-neutral, model-content, visual-writer, and visual-target path patterns.
+
+For included builds, `settings.gradle.kts` and module `build.gradle.kts` files
+are model content because they can change the documented module topology.
+Library implementation sources, samples, and local tool versions are
+model-neutral when they cannot change that topology or a configured visual
+target. The `unit-testing` rules follow this split explicitly.
 
 Tests may provide `figmaChangedPaths` and `figmaComparisonBase` Gradle
 properties. Production CI MUST use the Git-derived defaults.

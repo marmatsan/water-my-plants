@@ -4,13 +4,14 @@ type: standard
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-27
+last-reviewed: 2026-07-28
 review-cycle-days: 180
 sources:
   - build.gradle.kts
   - settings.gradle.kts
   - docs/reference/project-structure.md
   - repo/gradle-plugins
+  - repo/unit-testing
   - repo/dependency-catalog/catalog-api
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt
 ---
@@ -47,6 +48,30 @@ interfaces but domain code MUST remain free of Android framework types.
 
 Cross-layer types MUST be explicit. Transport DTOs, persistence entities, and
 Compose state are not domain models and MUST NOT leak across their boundary.
+
+## Gradle Build Scripts
+
+- Every checked-in `build.gradle.kts` MUST declare
+  `@file:Suppress("AvoidDuplicateDependencies")` as its first line. This
+  suppresses the IDE inspection that reports version-catalog-backed
+  dependencies as duplicate declarations even when Gradle resolves them
+  correctly.
+- External plugins declared in `build.gradle.kts` MUST use a type-safe plugin
+  catalog alias. A build whose `kotlin-dsl` classpath owns Kotlin MAY use the
+  type-safe `kotlin("...")` accessor without a second plugin version request.
+  External dependencies MUST use type-safe `libs` accessors.
+- Gradle core plugins MUST use their Kotlin DSL accessors, such as
+  `` `maven-publish` ``, because Gradle does not generate catalog aliases for
+  core plugins.
+- Repository-owned convention plugins supplied directly by an included build
+  MAY use a versionless literal `id(...)`; the ID is the plugin's public API
+  and source composite substitution owns its implementation.
+- Literal external plugin IDs remain valid only in `settings.gradle.kts`
+  `pluginManagement` declarations, where Gradle resolves the versions used to
+  generate the type-safe build-script accessors.
+- Every custom Gradle task MUST declare its cache contract explicitly with
+  `@CacheableTask`, `@DisableCachingByDefault`, or `@UntrackedTask`. Validation
+  tasks with no reusable output SHOULD disable caching with a concrete reason.
 
 ## Public API
 
@@ -163,5 +188,6 @@ it.
 - `settings.gradle.kts`
 - `docs/reference/project-structure.md`
 - `repo/gradle-plugins/`
+- `repo/unit-testing/`
 - `repo/dependency-catalog/catalog-api/`
 - `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt`

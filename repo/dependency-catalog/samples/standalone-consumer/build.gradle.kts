@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
 tasks.register("verifyCatalogs") {

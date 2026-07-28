@@ -88,6 +88,11 @@ because it has a local `versions.properties`. Water My Plants sets
 `publishesCatalogs=false` for tooling builds and configures only
 `waterMyPlants.libraries` and `waterMyPlants.plugins` as visual catalog targets.
 
+The settings adapter also creates a separate consumer-owned `testLibs` catalog
+for `com.marmatsan.repo:unit-test-dsl`. The `com.marmatsan.unitTest` convention
+uses that catalog, keeping repository test tooling out of the production
+`libs` tree and its Figma catalog targets.
+
 The reusable plugin defaults `ciDocumentationEnabled` to `false`. A project
 that does not enable it needs no generated CI directory, provider, topology
 files, or materialization command; its generated model simply omits

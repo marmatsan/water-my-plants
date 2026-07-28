@@ -1,3 +1,7 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
+import java.util.Properties
+
 plugins {
     base
     `kotlin-dsl` apply false
@@ -58,7 +62,12 @@ val publicationGroup =
 val publicationVersion =
     providers
         .gradleProperty("figmaDocumentationSyncVersion")
-        .getOrElse("0.1.0-SNAPSHOT")
+        .getOrElse(
+            Properties().run {
+                file("versions.properties").inputStream().use(::load)
+                getProperty("figmaDocumentationSyncVersion")
+            },
+        )
 val configuredPublicationRepository =
     providers
         .gradleProperty("figmaDocumentationSyncPublicationRepository")

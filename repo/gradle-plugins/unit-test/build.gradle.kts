@@ -3,6 +3,7 @@
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
+    `maven-publish`
 }
 
 repositories {
@@ -18,8 +19,6 @@ tasks.withType<Test> {
 dependencies {
     // Modules
     implementation(projects.dependencies)
-    testImplementation(projects.unitTestDsl)
-
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)

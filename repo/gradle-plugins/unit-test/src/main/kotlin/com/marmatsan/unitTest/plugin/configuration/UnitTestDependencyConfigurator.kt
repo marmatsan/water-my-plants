@@ -12,19 +12,22 @@ internal class UnitTestDependencyConfigurator {
      * Adds dependencies to the consumer's unit-test configurations.
      *
      * Product dependency versions remain owned by the consumer's `libs` catalog.
-     * The typed behavior API is resolved from its repository-owned module coordinate.
+     * The typed behavior API is resolved from the consumer's `testLibs` catalog,
+     * keeping repository test tooling outside the product catalog.
      *
      * @param project Gradle project receiving the shared test dependencies.
      */
     fun configure(
         project: Project,
     ) {
-        val versionCatalog = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
+        val versionCatalogs = project.extensions.getByType<VersionCatalogsExtension>()
+        val productLibraries = versionCatalogs.named("libs")
+        val testLibraries = versionCatalogs.named("testLibs")
 
         project.dependencies {
             val catalogDependencies =
                 withVersionCatalog(
-                    libs = versionCatalog,
+                    libs = productLibraries,
                 )
 
             catalogDependencies.testImplementation(
@@ -43,14 +46,12 @@ internal class UnitTestDependencyConfigurator {
                 libraryGroup = "io.mockk",
                 artifact = "mockk",
             )
-            add(
-                "testImplementation",
-                UNIT_TEST_DSL_DEPENDENCY,
+            withVersionCatalog(
+                libs = testLibraries,
+            ).testImplementation(
+                libraryGroup = "com.marmatsan.repo",
+                artifact = "unit-test-dsl",
             )
         }
-    }
-
-    private companion object {
-        const val UNIT_TEST_DSL_DEPENDENCY = "com.marmatsan.repo:unit-test-dsl"
     }
 }

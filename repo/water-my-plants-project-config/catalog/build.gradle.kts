@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
