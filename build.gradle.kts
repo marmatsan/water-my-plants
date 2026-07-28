@@ -129,6 +129,8 @@ extensions.configure<VerificationPlatformExtension> {
             "repo/water-my-plants-project-config",
         ).forEach(::versionedBuild)
 
+        alignedVersion("kotlinResultLibraryVersion")
+
         reusableScope(
             "repo/dependency-catalog/catalog-api",
             "com.marmatsan.dependencies.catalog.DependencyCatalogTrees",
@@ -183,7 +185,8 @@ extensions.configure<VerificationPlatformExtension> {
             "app",
             "core",
             "onboarding",
-        ).forEach(::productSourceScope)
+            "repo",
+        ).forEach(::productionSourceScope)
     }
 
     taskBindings {

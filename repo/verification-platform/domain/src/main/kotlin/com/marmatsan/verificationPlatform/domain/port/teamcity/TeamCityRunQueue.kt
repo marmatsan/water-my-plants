@@ -1,5 +1,7 @@
 package com.marmatsan.verificationPlatform.domain.port.teamcity
 
+import com.github.michaelbull.result.Result
+import com.marmatsan.verificationPlatform.domain.model.teamcity.QueueTeamCityRunError
 import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityQueuedRun
 import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityRunRequest
 
@@ -8,10 +10,11 @@ fun interface TeamCityRunQueue {
     /**
      * Queues [request] and returns the identity reported by the provider.
      *
-     * Implementations must reject transport failures and malformed provider
-     * responses instead of fabricating a successful run.
+     * Implementations translate expected transport, provider, and response
+     * failures into [QueueTeamCityRunError] instead of fabricating a run or
+     * leaking infrastructure exceptions.
      */
     fun queue(
         request: TeamCityRunRequest,
-    ): TeamCityQueuedRun
+    ): Result<TeamCityQueuedRun, QueueTeamCityRunError>
 }

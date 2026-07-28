@@ -17,7 +17,7 @@ class CanonicalFigmaArtifactSetReader {
     /** Reads required artifact paths and their typed cross-file identity from [artifactDirectory]. */
     fun read(
         artifactDirectory: String,
-    ): Result {
+    ): Artifacts {
         val root =
             Path
                 .of(
@@ -72,7 +72,7 @@ class CanonicalFigmaArtifactSetReader {
         val visualManifestPaths = manifests.filter { it.second.fullVisualSync }.map { it.first }
         val metadataManifestPaths = manifests.filter { it.second.writeMetadata }.map { it.first }
 
-        return Result(
+        return Artifacts(
             artifactDirectory = root,
             modelPath = modelPath,
             scopePath = scopePath,
@@ -315,7 +315,7 @@ class CanonicalFigmaArtifactSetReader {
      * @property metadataManifestPath metadata runner manifest path when uniquely identified.
      * @property contract typed identity values read from all artifacts.
      */
-    data class Result(
+    data class Artifacts(
         val artifactDirectory: Path,
         val modelPath: Path,
         val scopePath: Path,

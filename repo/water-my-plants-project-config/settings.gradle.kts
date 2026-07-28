@@ -96,6 +96,12 @@ dependencyResolutionManagement {
             ).withoutVersion()
 
             library(
+                "com.michael.bull.kotlin.result",
+                "com.michael-bull.kotlin-result",
+                "kotlin-result",
+            ).version(version("kotlinResultLibraryVersion"))
+
+            library(
                 "org.jetbrains.kotlinx.serialization.json",
                 "org.jetbrains.kotlinx",
                 "kotlinx-serialization-json",

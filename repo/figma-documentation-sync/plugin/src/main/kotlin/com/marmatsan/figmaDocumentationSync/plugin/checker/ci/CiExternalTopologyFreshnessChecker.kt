@@ -17,7 +17,7 @@ internal class CiExternalTopologyFreshnessChecker(
     fun check(
         topologyFile: File,
         currentDate: LocalDate,
-    ): Result {
+    ): Freshness {
         val topology =
             ciExternalTopologyPort.readTopology(
                 source =
@@ -29,7 +29,7 @@ internal class CiExternalTopologyFreshnessChecker(
             topology.validation.lastValidatedOn
                 .plusDays(topology.validation.warnAfterDays.toLong())
 
-        return Result(
+        return Freshness(
             lastValidatedOn = topology.validation.lastValidatedOn,
             warningDate = warningDate,
             warningRequired = currentDate.isAfter(warningDate),
@@ -43,7 +43,7 @@ internal class CiExternalTopologyFreshnessChecker(
      * @property warningDate first date after which revalidation is recommended.
      * @property warningRequired whether the evaluated date is past the warning date.
      */
-    data class Result(
+    data class Freshness(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,
         val warningRequired: Boolean,

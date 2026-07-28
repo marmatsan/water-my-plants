@@ -55,10 +55,16 @@ Water My Plants keeps its implementation in
 
 Each autonomous included build declares only the dependencies it consumes in
 its own `versions.properties` and local catalog. A dependency first used by
-repository tooling, such as `kotlin-result` in `verification-platform`, is not
-copied into the Water My Plants product catalog. It enters that catalog only
-when production app source has a real consumer; until then it is deliberately
-absent from both the generated product catalog and its Figma dependency tree.
+repository tooling, such as `kotlin-result` in Verification Platform and Figma
+Documentation Sync, is not copied into the Water My Plants product catalog. It
+enters that catalog only when production app source has a real consumer; until
+then it is deliberately absent from both the generated product catalog and its
+Figma dependency tree.
+
+When autonomous builds must use one compatible tooling version, the root
+`boundaries.alignedVersion` contract compares that property only across builds
+that declare it. A build without that dependency omits the property instead of
+copying an unused catalog entry solely for alignment.
 
 See [the adoption guide](docs/guides/adopt-dependency-catalog.md) for the full
 integration contract.

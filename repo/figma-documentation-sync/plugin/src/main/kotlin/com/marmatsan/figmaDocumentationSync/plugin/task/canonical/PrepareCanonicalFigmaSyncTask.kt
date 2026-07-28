@@ -1,6 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.canonical
 
-import com.marmatsan.figmaDocumentationSync.data.figma.client.FigmaFileContentClient
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onErr
 import com.marmatsan.figmaDocumentationSync.data.figma.common.FigmaNodeUrl
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaSyncMetadataJson
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterRuntimeConfigJson
@@ -9,9 +10,11 @@ import com.marmatsan.figmaDocumentationSync.data.writer.CanonicalMcpRunnerGenera
 import com.marmatsan.figmaDocumentationSync.domain.model.impact.FigmaVerificationScope
 import com.marmatsan.figmaDocumentationSync.domain.model.sync.CanonicalFigmaSyncScope
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaSyncMetadata
+import com.marmatsan.figmaDocumentationSync.domain.port.figma.FigmaNodeContentSource
 import com.marmatsan.figmaDocumentationSync.domain.service.writer.VisualSyncPlanner
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
+import com.marmatsan.figmaDocumentationSync.plugin.errorhandling.operatorMessage
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -178,7 +181,9 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                         planHasher = planJson,
                     ).create(
                         visualManifest,
-                        readPreviousMetadata(),
+                        readPreviousMetadata(
+                            source = component.figmaNodeContentSource,
+                        ),
                     )
                 planJson.write(
                     visualPlan,
@@ -229,7 +234,9 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
         logger.lifecycle("Prepared canonical Figma Sync scope: ${scope.scope.wireValue}")
     }
 
-    private fun readPreviousMetadata(): FigmaSyncMetadata? {
+    private fun readPreviousMetadata(
+        source: FigmaNodeContentSource,
+    ): FigmaSyncMetadata? {
         val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
         val nodeUrl = metadataNodeUrl.orNull ?: return null
         val namespace = metadataNamespace.orNull ?: return null
@@ -238,16 +245,17 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                 url = nodeUrl,
             )
         val node =
-            runCatching {
-                FigmaFileContentClient().getNodeContent(
+            source
+                .readNodeContent(
                     fileKey = reference.fileKey,
                     token = token,
                     nodeId = reference.nodeId,
                     pluginData = "shared",
-                )
-            }.onFailure { failure ->
-                logger.warn("Figma metadata is unavailable; selecting a full visual sync: ${failure.message}")
-            }.getOrNull() ?: return null
+                ).onErr { error ->
+                    logger.warn(
+                        "Figma metadata is unavailable; selecting a full visual sync: ${error.operatorMessage()}",
+                    )
+                }.getOrElse { return null }
         return FigmaSyncMetadataJson.read(
             node.sharedPluginData,
             namespace,

@@ -17,7 +17,7 @@ internal class CiWindowsRuntimeFreshnessChecker(
     fun check(
         runtimeFile: File,
         currentDate: LocalDate,
-    ): Result {
+    ): Freshness {
         val runtime =
             ciWindowsRuntimePort.readRuntime(
                 source =
@@ -29,7 +29,7 @@ internal class CiWindowsRuntimeFreshnessChecker(
             runtime.validation.lastValidatedOn
                 .plusDays(runtime.validation.warnAfterDays.toLong())
 
-        return Result(
+        return Freshness(
             lastValidatedOn = runtime.validation.lastValidatedOn,
             warningDate = warningDate,
             warningRequired = currentDate.isAfter(warningDate),
@@ -43,7 +43,7 @@ internal class CiWindowsRuntimeFreshnessChecker(
      * @property warningDate first date after which revalidation is recommended.
      * @property warningRequired whether the evaluated date is past the warning date.
      */
-    data class Result(
+    data class Freshness(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,
         val warningRequired: Boolean,

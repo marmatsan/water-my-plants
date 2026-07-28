@@ -59,6 +59,16 @@ convention-plugin readers expose only the queries required by their consumers.
 Adding another consumer scope composes those reusable parsing services instead
 of expanding one repository-wide reader.
 
+Expected failures at reusable boundaries use the repository's
+[`kotlin-result` standard](../../docs/standards/error-handling.md). The domain
+owns `FigmaNodeContentSource` and `FigmaNodeContentError`; the data adapter maps
+Ktor and wire DTO behavior into that provider-neutral contract. The optional
+TeamCity adapter similarly exposes `TeamCityRunStartError`. Gradle tasks remain
+the terminal operator boundary and convert an unrecoverable `Err` into a build
+failure or an explicit full-sync fallback. This included build owns version
+`2.3.1` in its local `versions.properties`, independently of the product
+catalog.
+
 ## API Documentation
 
 The `domain`, `data`, `plugin`, and `teamcity-adapter` modules generate Dokka

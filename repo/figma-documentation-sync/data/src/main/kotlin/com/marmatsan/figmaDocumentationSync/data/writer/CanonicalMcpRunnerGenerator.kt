@@ -41,7 +41,7 @@ class CanonicalMcpRunnerGenerator(
     /** Generates deterministic visual and metadata runner artifacts for [request]. */
     fun generate(
         request: Request,
-    ): Result {
+    ): Manifests {
         require(request.transport in SUPPORTED_TRANSPORTS) {
             "Unsupported MCP transport '${request.transport}'. Expected png or chunks."
         }
@@ -157,7 +157,7 @@ class CanonicalMcpRunnerGenerator(
                 writeMetadata = true,
                 fullVisualSync = false,
             )
-        return Result(
+        return Manifests(
             visualManifest = visual,
             metadataManifest = metadata,
         )
@@ -732,7 +732,7 @@ class CanonicalMcpRunnerGenerator(
      * @property visualManifest Manifest for visual documentation targets.
      * @property metadataManifest Manifest for the metadata target.
      */
-    data class Result(
+    data class Manifests(
         val visualManifest: ExecutableRunnerManifest,
         val metadataManifest: ExecutableRunnerManifest,
     )

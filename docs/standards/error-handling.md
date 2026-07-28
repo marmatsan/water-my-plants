@@ -13,6 +13,8 @@ sources:
   - repo/verification-platform/domain/build.gradle.kts
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/errorhandling/TypedResultUsageValidator.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/errorhandling/CheckTypedResultUsageTask.kt
+  - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/figma/FigmaNodeContentSource.kt
+  - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRunStarter.kt
 ---
 
 # Typed Error Handling Standard
@@ -36,15 +38,16 @@ boundaries, lifecycle state, and use of `kotlin-result`.
   abstraction.
 - Transform success values with `map`, error values with `mapError`, sequence
   dependent operations with `andThen`, and collapse both tracks with `fold` or
-  `mapBoth`. Use `onSuccess` and `onFailure` only for side effects; do not use
+  `mapBoth`. Use `onOk` and `onErr` only for side effects; do not use
   observation callbacks as the primary transformation mechanism.
 - Modules MUST declare `kotlin-result` only when they use it. A reusable module
   MUST use Gradle `api` when `Result` is present in its public ABI and
   `implementation` otherwise.
 - Reusable included builds MUST keep any kotlin-result version in their own
   catalog and `versions.properties`. They MUST NOT reach into another build's
-  catalog; version alignment is reviewed when the dependency is introduced or
-  upgraded.
+  catalog. The root `boundaries.alignedVersion("kotlinResultLibraryVersion")`
+  contract verifies that every included build which declares the key uses the
+  same value; builds that do not consume the dependency omit the key.
 - The Water My Plants product catalog MUST add kotlin-result only with its first
   production consumer. An approved standard alone is not catalog usage and
   MUST NOT expand the production dependency tree published to Figma.
@@ -93,7 +96,9 @@ domain contract.
 
 - Run `./gradlew checkTypedResultUsage` after adding or changing production
   error-handling contracts. The root `check` lifecycle and TeamCity CI already
-  depend on this task.
+  depend on this task. Its configured production scopes include both app
+  modules and reusable code under `repo/`; generated and test sources are not
+  part of this syntax boundary.
 - Run the affected module tests, `./gradlew checkDocumentation`, and
   `./gradlew check` before completion.
 - Review must verify error ownership, exception-to-error translation,
@@ -109,3 +114,5 @@ domain contract.
 - `repo/verification-platform/domain/build.gradle.kts`
 - `repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/errorhandling/TypedResultUsageValidator.kt`
 - `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/errorhandling/CheckTypedResultUsageTask.kt`
+- `repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/figma/FigmaNodeContentSource.kt`
+- `repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRunStarter.kt`

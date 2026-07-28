@@ -19,6 +19,7 @@ java {
 dependencies {
     implementation(projects.domain)
     implementation(gradleApi())
+    implementation(libs.com.michael.bull.kotlin.result)
     implementation(libs.com.pinterest.ktlint.rule.engine)
     implementation(libs.com.pinterest.ktlint.ruleset.standard)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)

@@ -1,5 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.shouldBe
@@ -165,7 +168,7 @@ internal class TeamCityCliClientTest :
 
             test("queues and waits for a run through typed commands") {
                 val commands = mutableListOf<List<String>>()
-                val client =
+                given {
                     TeamCityCliClient { command, _ ->
                         commands += command
                         val finished = command.contains("watch")
@@ -184,45 +187,82 @@ internal class TeamCityCliClientTest :
                             error = "",
                         )
                     }
-
-                client
-                    .startRun(
+                }.whenever { client ->
+                    client.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
                         branch = "main",
-                    ).state shouldBe "queued"
-                client
-                    .watchRun(
-                        buildId = 1581,
-                        pollIntervalSeconds = 10,
-                        timeoutMinutes = 60,
-                    ).status shouldBe "SUCCESS"
-                commands shouldBe
-                    listOf(
+                    ) to
+                        client.watchRun(
+                            buildId = 1581,
+                            pollIntervalSeconds = 10,
+                            timeoutMinutes = 60,
+                        )
+                }.then { (started, finished) ->
+                    started shouldBe
+                        Ok(
+                            TeamCityRun(
+                                id = 1581,
+                                state = "queued",
+                                status = "UNKNOWN",
+                                statusText = null,
+                                branchName = "main",
+                                webUrl = "https://teamcity.example/build/1581",
+                            ),
+                        )
+                    finished.status shouldBe "SUCCESS"
+                    commands shouldBe
                         listOf(
-                            "teamcity",
-                            "--no-color",
-                            "--no-input",
-                            "run",
-                            "start",
-                            "WaterMyPlants_WaterMyPlantsFigmaSync",
-                            "--branch",
-                            "main",
-                            "--json",
-                        ),
-                        listOf(
-                            "teamcity",
-                            "--no-color",
-                            "--no-input",
-                            "run",
-                            "watch",
-                            "1581",
-                            "--interval",
-                            "10",
-                            "--timeout",
-                            "60m",
-                            "--json",
-                        ),
+                            listOf(
+                                "teamcity",
+                                "--no-color",
+                                "--no-input",
+                                "run",
+                                "start",
+                                "WaterMyPlants_WaterMyPlantsFigmaSync",
+                                "--branch",
+                                "main",
+                                "--json",
+                            ),
+                            listOf(
+                                "teamcity",
+                                "--no-color",
+                                "--no-input",
+                                "run",
+                                "watch",
+                                "1581",
+                                "--interval",
+                                "10",
+                                "--timeout",
+                                "60m",
+                                "--json",
+                            ),
+                        )
+                }
+            }
+
+            test("returns a typed failure when the queue command exits unsuccessfully") {
+                given {
+                    TeamCityCliClient { _, _ ->
+                        TeamCityCliClient.CommandResult(
+                            exitCode = 1,
+                            output = "",
+                            error = "not authorized",
+                        )
+                    }
+                }.whenever { client ->
+                    client.startRun(
+                        buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                        branch = "main",
                     )
+                }.then { result ->
+                    result shouldBe
+                        Err(
+                            TeamCityRunStartError.CommandFailed(
+                                exitCode = 1,
+                                detail = "not authorized",
+                            ),
+                        )
+                }
             }
         },
     )

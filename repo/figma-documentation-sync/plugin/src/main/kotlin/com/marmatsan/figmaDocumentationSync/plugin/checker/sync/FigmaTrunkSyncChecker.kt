@@ -1,7 +1,9 @@
 package com.marmatsan.figmaDocumentationSync.plugin.checker.sync
 
-import com.marmatsan.figmaDocumentationSync.data.figma.client.FigmaFileContentClient
+import com.github.michaelbull.result.getOrElse
 import com.marmatsan.figmaDocumentationSync.data.figma.common.FigmaNodeUrl
+import com.marmatsan.figmaDocumentationSync.domain.port.figma.FigmaNodeContentSource
+import com.marmatsan.figmaDocumentationSync.plugin.errorhandling.operatorMessage
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerator
 import me.tatarka.inject.annotations.Inject
@@ -18,7 +20,7 @@ import org.gradle.api.GradleException
  */
 @Inject
 internal class FigmaTrunkSyncChecker(
-    private val figmaFileContentClient: FigmaFileContentClient,
+    private val figmaNodeContentSource: FigmaNodeContentSource,
     private val figmaDesignModelGenerator: FigmaDesignModelGenerator,
 ) {
     /**
@@ -56,13 +58,15 @@ internal class FigmaTrunkSyncChecker(
                 url = request.metadataNodeUrl,
             )
         val figmaMetadata =
-            figmaFileContentClient
-                .getNodeContent(
+            figmaNodeContentSource
+                .readNodeContent(
                     fileKey = metadataNode.fileKey,
                     token = request.token,
                     nodeId = metadataNode.nodeId,
                     pluginData = "shared",
-                ).sharedPluginData[request.metadataNamespace]
+                ).getOrElse { error ->
+                    throw GradleException(error.operatorMessage())
+                }.sharedPluginData[request.metadataNamespace]
                 ?: throw GradleException(
                     "Figma sync metadata namespace '${request.metadataNamespace}' was not found.",
                 )

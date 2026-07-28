@@ -7,6 +7,7 @@ import java.net.URI
 plugins {
     kotlin("jvm")
     alias(plugins.plugins.org.jetbrains.dokka)
+    `java-library`
     `maven-publish`
 }
 
@@ -25,6 +26,7 @@ java {
 }
 
 dependencies {
+    api(libs.com.michael.bull.kotlin.result)
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
     // Kotest

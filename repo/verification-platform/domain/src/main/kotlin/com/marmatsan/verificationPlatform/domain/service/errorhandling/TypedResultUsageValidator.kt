@@ -6,7 +6,7 @@ import com.github.michaelbull.result.Result
 import com.marmatsan.verificationPlatform.domain.model.errorhandling.TypedResultUsageError
 import com.marmatsan.verificationPlatform.domain.model.errorhandling.TypedResultUsageViolation
 
-/** Validates that product Kotlin sources use one configured typed-result implementation. */
+/** Validates that production Kotlin sources use one configured typed-result implementation. */
 class TypedResultUsageValidator(
     private val acceptedResultQualifiedName: String,
 ) {

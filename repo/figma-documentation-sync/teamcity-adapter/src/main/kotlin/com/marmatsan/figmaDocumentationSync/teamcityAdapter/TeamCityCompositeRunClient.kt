@@ -1,5 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
+import com.github.michaelbull.result.Result
+
 /** Composes read-only TeamCity operations with an independently secured run starter. */
 class TeamCityCompositeRunClient(
     private val readClient: TeamCityRunClient,
@@ -23,7 +25,7 @@ class TeamCityCompositeRunClient(
     override fun startRun(
         buildTypeId: String,
         branch: String,
-    ): TeamCityRun =
+    ): Result<TeamCityRun, TeamCityRunStartError> =
         runStarter.startRun(
             buildTypeId = buildTypeId,
             branch = branch,
