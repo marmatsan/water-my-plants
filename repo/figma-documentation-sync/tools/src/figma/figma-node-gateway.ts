@@ -4,6 +4,7 @@ import {
   PARENT_SECTION_NODE_IDS,
   PARENT_SECTION_SIBLING_GAP,
   SECTION_SIBLING_GAP,
+  SURFACE_COLOR_VARIABLE_NAME,
 } from "@figma-documentation-sync/project-config";
 
 const SECTION_STROKE_WEIGHT = 2;
@@ -42,10 +43,18 @@ export async function loadVariablesByVersionKey(collection) {
 }
 
 export async function requireOutlineColorVariable() {
+  return requireColorVariable(OUTLINE_COLOR_VARIABLE_NAME);
+}
+
+export async function requireSurfaceColorVariable() {
+  return requireColorVariable(SURFACE_COLOR_VARIABLE_NAME);
+}
+
+async function requireColorVariable(variableName) {
   const variables = await figma.variables.getLocalVariablesAsync("COLOR");
-  const variable = variables.find((candidate) => candidate.name === OUTLINE_COLOR_VARIABLE_NAME);
+  const variable = variables.find((candidate) => candidate.name === variableName);
   if (!variable) {
-    throw new Error(`Color variable '${OUTLINE_COLOR_VARIABLE_NAME}' was not found.`);
+    throw new Error(`Color variable '${variableName}' was not found.`);
   }
   return variable;
 }
@@ -175,10 +184,24 @@ export function outlineStrokeContractSatisfied(node, outlineVariableId) {
   if (!Array.isArray(node.strokes) || node.strokes.length !== 1) return false;
 
   const stroke = node.strokes[0];
-  return stroke.type === "SOLID" &&
-    stroke.visible !== false &&
-    (stroke.opacity ?? 1) === 1 &&
-    stroke.boundVariables?.color?.id === outlineVariableId;
+  return boundSolidPaintContractSatisfied(stroke, outlineVariableId);
+}
+
+export function surfaceFillContractSatisfied(node, surfaceVariableId) {
+  if (!Array.isArray(node.fills) || node.fills.length !== 1) return false;
+
+  return boundSolidPaintContractSatisfied(node.fills[0], surfaceVariableId);
+}
+
+export function sectionCornerRadiusContractSatisfied(section, expectedCornerRadius) {
+  return section.cornerRadius === expectedCornerRadius;
+}
+
+function boundSolidPaintContractSatisfied(paint, variableId) {
+  return paint.type === "SOLID" &&
+    paint.visible !== false &&
+    (paint.opacity ?? 1) === 1 &&
+    paint.boundVariables?.color?.id === variableId;
 }
 
 function applySectionStrokeContract(section, outlineVariable, mutatedNodeIds) {

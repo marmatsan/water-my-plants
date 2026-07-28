@@ -203,6 +203,10 @@ object FigmaWriterProjectConfigJson {
                 outlineColorVariableName,
             )
             put(
+                "SURFACE_COLOR_VARIABLE_NAME",
+                surfaceColorVariableName,
+            )
+            put(
                 "DEPENDENCY_VERSION_COMPONENT_ID",
                 dependencyVersionComponentId,
             )
@@ -225,6 +229,10 @@ object FigmaWriterProjectConfigJson {
             put(
                 "PARENT_SECTION_NODE_IDS",
                 parentSectionNodeIds.toJsonArray(),
+            )
+            put(
+                "PARENT_SECTION_CORNER_RADIUS",
+                parentSectionCornerRadius,
             )
             put(
                 "SECTION_SIBLING_GAP",

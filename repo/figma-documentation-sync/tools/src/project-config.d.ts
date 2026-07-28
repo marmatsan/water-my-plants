@@ -41,12 +41,14 @@ declare module "@figma-documentation-sync/project-config" {
   export const VERSION_ALIAS_MODE_NAME: any;
   export const VERSION_NUMBER_MODE_NAME: any;
   export const OUTLINE_COLOR_VARIABLE_NAME: any;
+  export const SURFACE_COLOR_VARIABLE_NAME: any;
   export const DEPENDENCY_VERSION_COMPONENT_ID: any;
   export const PROJECT_VERSION_COMPONENT_ID: any;
   export const DEPENDENCY_VERSION_INSTANCE_NAMES: any;
   export const DEPENDENCY_VERSION_PROPS: any;
   export const PARENT_SECTION_SIBLING_GAP: any;
   export const PARENT_SECTION_NODE_IDS: any;
+  export const PARENT_SECTION_CORNER_RADIUS: any;
   export const SECTION_SIBLING_GAP: any;
   export const TREE_NODE_COMPONENT_IDS: any;
   export const CONNECTOR_TEMPLATE_NAME: any;

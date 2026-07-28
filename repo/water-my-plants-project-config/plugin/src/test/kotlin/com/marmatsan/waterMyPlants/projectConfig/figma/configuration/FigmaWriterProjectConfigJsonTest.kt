@@ -25,6 +25,9 @@ internal class FigmaWriterProjectConfigJsonTest :
                 root.getValue("CANONICAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
                     "water_my_plants_sync_staging"
                 root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
+                root.getValue("SURFACE_COLOR_VARIABLE_NAME").jsonPrimitive.content shouldBe
+                    "md/sys/color/surface"
+                root.getValue("PARENT_SECTION_CORNER_RADIUS").jsonPrimitive.content shouldBe "28"
                 root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
                 root.getValue("CI_CONNECTOR_TEMPLATE_NAME").jsonPrimitive.content shouldBe
                     "simple-line_arrow / neutral"
@@ -209,12 +212,14 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "VERSION_ALIAS_MODE_NAME",
                 "VERSION_NUMBER_MODE_NAME",
                 "OUTLINE_COLOR_VARIABLE_NAME",
+                "SURFACE_COLOR_VARIABLE_NAME",
                 "DEPENDENCY_VERSION_COMPONENT_ID",
                 "PROJECT_VERSION_COMPONENT_ID",
                 "DEPENDENCY_VERSION_INSTANCE_NAMES",
                 "DEPENDENCY_VERSION_PROPS",
                 "PARENT_SECTION_SIBLING_GAP",
                 "PARENT_SECTION_NODE_IDS",
+                "PARENT_SECTION_CORNER_RADIUS",
                 "SECTION_SIBLING_GAP",
                 "TREE_NODE_COMPONENT_IDS",
                 "CONNECTOR_TEMPLATE_NAME",

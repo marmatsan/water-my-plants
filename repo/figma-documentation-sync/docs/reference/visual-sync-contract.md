@@ -654,10 +654,15 @@ For each section:
   plugin data after removal.
 - Fail without writing metadata if an existing or cloned instance cannot
   represent artifact text or consumer module structure from the generated model.
-- Library/plugin catalog tree sections must not have fill. Only parent
-  documentation sections, such as the configured Gradle dependencies parent
-  section, keep the `md/sys/color/surface` fill. Child catalog sections keep
-  their section geometry and stroke but use an empty `fills` array.
+- Child library/plugin catalog sections must not have fill. Every configured
+  parent documentation section keeps exactly one visible solid fill bound to
+  `md/sys/color/surface`; preflight rejects a missing, duplicated, hidden, or
+  unbound fill. Every parent also keeps corner radius `28`, which preflight
+  validates from the typed project configuration. This includes the
+  independent top-level plugin inventories
+  `64886:247` and `64886:248`, even though the writer also synchronizes catalog
+  tree nodes directly inside them. Child catalog sections keep their geometry
+  and outline stroke but use an empty `fills` array.
 
 ## Tree Node Component
 
@@ -699,6 +704,10 @@ is group-based:
 - `simple-solid_arrow` connectors with `treeConnectorEdge` are managed sync
   state. Cleanup, stale-node removal, and connector reconciliation must identify
   them by metadata and id, not by visual position alone.
+- A newly created catalog target with parent/child edges must retain one hidden
+  local `simple-solid_arrow` carrying
+  `treeConnectorEdge=__template__->__template__`. It is the clone source before
+  the target has any generated connector and is not a model edge.
 
 Do not bind connectors directly to `.tree node` instances. Figma rejects that
 endpoint shape with:

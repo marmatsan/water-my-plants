@@ -64,7 +64,9 @@ Plants version catalogs`). The plugin inventory sections `64886:247` and
 `62934:908`: they are independent top-level sections, each owns its own direct
 `.Header`, and both are listed in `PARENT_SECTION_NODE_IDS` so the writer lays
 them out beside the other managed documentation sections rather than inside the
-catalog container.
+catalog container. As parent documentation sections, both keep exactly one fill
+bound to `md/sys/color/surface` and corner radius `28`; catalog synchronization
+must never clear or flatten either property.
 
 The generic domain can model additional catalog collections for another host,
 but the Water My Plants writer does not configure included-build catalogs as

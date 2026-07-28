@@ -6,7 +6,9 @@ import {
 } from "../src/figma/figma-version-sync-gateway";
 import {
   outlineStrokeContractSatisfied,
+  sectionCornerRadiusContractSatisfied,
   sectionStrokeContractSatisfied,
+  surfaceFillContractSatisfied,
 } from "../src/figma/figma-node-gateway";
 
 test("version sync removes stale renamed dependency versions and exact duplicates", () => {
@@ -119,6 +121,39 @@ test("parent sections with a direct Header satisfy the contract only without str
     }, "outline-variable"),
     false
   );
+});
+
+test("parent documentation sections require one visible fill bound to the surface variable", () => {
+  const compliantSection = {
+    fills: [{
+      type: "SOLID",
+      opacity: 1,
+      visible: true,
+      boundVariables: { color: { id: "surface-variable" } },
+    }],
+  };
+
+  assert.equal(surfaceFillContractSatisfied(compliantSection, "surface-variable"), true);
+  assert.equal(surfaceFillContractSatisfied({ fills: [] }, "surface-variable"), false);
+  assert.equal(
+    surfaceFillContractSatisfied({
+      fills: [{ ...compliantSection.fills[0], visible: false }],
+    }, "surface-variable"),
+    false
+  );
+  assert.equal(
+    surfaceFillContractSatisfied({
+      fills: [...compliantSection.fills, ...compliantSection.fills],
+    }, "surface-variable"),
+    false
+  );
+  assert.equal(surfaceFillContractSatisfied(compliantSection, "another-variable"), false);
+});
+
+test("parent documentation sections require the configured corner radius", () => {
+  assert.equal(sectionCornerRadiusContractSatisfied({ cornerRadius: 28 }, 28), true);
+  assert.equal(sectionCornerRadiusContractSatisfied({ cornerRadius: 0 }, 28), false);
+  assert.equal(sectionCornerRadiusContractSatisfied({ cornerRadius: 24 }, 28), false);
 });
 
 function dependencyVersion(id: string, versionKey: string) {
