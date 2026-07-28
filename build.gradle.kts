@@ -218,10 +218,15 @@ extensions.configure<VerificationPlatformExtension> {
             taskPath = ":verifyStagedPublication",
             description = "Verifies the staged Figma plugin through a standalone consumer.",
         )
-        includedBuildTask(
+        isolatedGradleBuildTask(
             name = "verifyGradlePluginsDistribution",
-            buildName = "gradle-plugins",
+            buildDirectory = file("repo/gradle-plugins"),
             taskPath = ":verifyStagedPublication",
+            projectProperties =
+                mapOf(
+                    "dependencyCatalogSourceBuild" to
+                        file("repo/dependency-catalog").absolutePath,
+                ),
             description = "Verifies staged convention plugins through a standalone consumer.",
         )
         includedBuildTask(

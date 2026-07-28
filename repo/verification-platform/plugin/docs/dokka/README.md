@@ -18,6 +18,8 @@ Read this module from its public Gradle entry points:
    preview.
 6. `PrepareTeamCityCiPlanTask` exports allow-listed TeamCity parameters.
 7. `RunTeamCityInfrastructureHealthTask` queues the infrastructure-health run.
+8. `IncludedBuildVerificationTasksExtension` binds direct included tasks and
+   isolated wrapper invocations with explicit composition properties.
 
 # Package com.marmatsan.verificationPlatform.plugin
 
