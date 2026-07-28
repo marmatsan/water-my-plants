@@ -2,17 +2,15 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.dokka")
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.dokka)
 }
 
 group = "com.marmatsan.repo"
 
-val portableVersion = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
-
 dependencies {
-    implementation("com.marmatsan.repo:catalog-api:$portableVersion")
-    implementation("com.marmatsan.repo:catalog-core:$portableVersion")
+    implementation(libs.com.marmatsan.repo.catalog.api)
+    implementation(libs.com.marmatsan.repo.catalog.core)
 }
 
 dokka {

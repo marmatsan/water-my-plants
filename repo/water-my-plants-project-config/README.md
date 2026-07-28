@@ -50,6 +50,20 @@ plugins {
 
 The adapter then applies the reusable `com.marmatsan.figmaDocumentationSync` plugin.
 
+## Local Build Catalogs
+
+The included build declares type-safe `libs` and `plugins` catalogs in
+`settings.gradle.kts`. Its module build scripts consume reusable repository
+tooling through generated catalog accessors rather than repeating Maven
+coordinates or external plugin ids. The portable Maven aliases share the
+`figmaDocumentationSyncVersion` Gradle property so composite source substitution
+and staged publication verification resolve the same coordinated version.
+
+These local aliases are compile-time inputs for the composition build. They do
+not add tooling artifacts to `WaterMyPlantsCatalogProvider` and therefore do
+not expand the `waterMyPlants.libraries` or `waterMyPlants.plugins` trees
+published to Figma.
+
 ## Reusing The Engine
 
 A new Gradle repository reuses `domain/`, `data/`, `plugin/`, `tools/`, and
