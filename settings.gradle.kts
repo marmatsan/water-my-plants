@@ -1,6 +1,14 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
+    // The application composition root supplies source substitution; reusable builds only know
+    // the generic property and can otherwise resolve the published plugin independently.
+    val dependencyCatalogSourceBuildProperty = "dependencyCatalogSourceBuild"
+    if (dependencyCatalogSourceBuildProperty !in gradle.startParameter.projectProperties) {
+        gradle.startParameter.projectProperties = gradle.startParameter.projectProperties +
+            (dependencyCatalogSourceBuildProperty to file("repo/dependency-catalog").absolutePath)
+    }
+
     repositories {
         google {
             content {

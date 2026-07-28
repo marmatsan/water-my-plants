@@ -2,194 +2,190 @@ package com.marmatsan.dependencies.tree.dsl.plugin
 
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.node.Node
+import com.marmatsan.unitTest.dsl.given
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 internal class PluginScopeTest :
     FunSpec(
         {
-
-            test("plugin adds a child plugin node with version") {
-                val root =
-                    Node(
-                        DependencyNode.Plugin(
-                            pluginId = "root",
-                        ),
-                    )
-                val scope =
-                    PluginScope(
-                        root = root,
-                    )
-
-                scope.plugin(
-                    id = "com.android.application",
-                    version = "9.2.1",
-                )
-
-                root.children shouldBe
-                    mutableListOf(
-                        Node(
-                            DependencyNode.Plugin(
-                                pluginId = "com.android.application",
-                                version = "9.2.1",
-                            ),
-                        ),
-                    )
-            }
-
-            test("plugin adds a child plugin node without version") {
-                val root =
-                    Node(
-                        DependencyNode.Plugin(
-                            pluginId = "root",
-                        ),
-                    )
-                val scope =
-                    PluginScope(
-                        root = root,
-                    )
-
-                scope.plugin("com.marmatsan.android")
-
-                root.children shouldBe
-                    mutableListOf(
-                        Node(
-                            DependencyNode.Plugin(
-                                pluginId = "com.marmatsan.android",
-                            ),
-                        ),
-                    )
-            }
-
-            test("plugin supports nested plugin groups") {
-                val root =
-                    Node(
-                        DependencyNode.Plugin(
-                            pluginId = "root",
-                        ),
-                    )
-                val scope =
-                    PluginScope(
-                        root = root,
-                    )
-
-                scope.plugin("org.jetbrains.kotlin") {
-                    plugin(
-                        id = "android",
-                        version = "2.3.21",
-                    )
-                    plugin("plugin") {
-                        plugin(
-                            id = "compose",
-                            version = "2.3.21",
+            test("plugin expands a compact path and assigns the version to its terminal node") {
+                given(::pluginScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.plugin(
+                            id = "figma.code.connect",
+                            version = "1.2.3",
                         )
-                    }
-                }
-
-                root.children shouldBe
-                    mutableListOf(
-                        Node(
-                            value =
-                                DependencyNode.Plugin(
-                                    pluginId = "org.jetbrains.kotlin",
-                                ),
-                            children =
-                                mutableListOf(
-                                    Node(
-                                        DependencyNode.Plugin(
-                                            pluginId = "android",
-                                            version = "2.3.21",
-                                        ),
-                                    ),
-                                    Node(
-                                        value =
-                                            DependencyNode.Plugin(
-                                                pluginId = "plugin",
-                                            ),
-                                        children =
-                                            mutableListOf(
-                                                Node(
-                                                    DependencyNode.Plugin(
-                                                        pluginId = "compose",
-                                                        version = "2.3.21",
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                pluginNode(
+                                    id = "figma",
+                                    children =
+                                        mutableListOf(
+                                            pluginNode(
+                                                id = "code",
+                                                children =
+                                                    mutableListOf(
+                                                        pluginNode(
+                                                            id = "connect",
+                                                            version = "1.2.3",
+                                                        ),
                                                     ),
-                                                ),
                                             ),
-                                    ),
+                                        ),
                                 ),
-                        ),
-                    )
+                            )
+                    }
             }
 
-            test("plugin restores parent after nested content and keeps sibling order") {
-                val root =
-                    Node(
-                        DependencyNode.Plugin(
-                            pluginId = "root",
-                        ),
-                    )
-                val scope =
-                    PluginScope(
-                        root = root,
-                    )
-
-                scope.plugin("com.android") {
-                    plugin(
-                        id = "application",
-                        version = "9.2.1",
-                    )
-                }
-                scope.plugin("com.google") {
-                    plugin("devtools") {
-                        plugin(
-                            id = "ksp",
-                            version = "2.3.9",
-                        )
-                    }
-                }
-
-                root.children shouldBe
-                    mutableListOf(
-                        Node(
-                            value =
-                                DependencyNode.Plugin(
-                                    pluginId = "com.android",
-                                ),
-                            children =
-                                mutableListOf(
-                                    Node(
-                                        DependencyNode.Plugin(
-                                            pluginId = "application",
-                                            version = "9.2.1",
-                                        ),
-                                    ),
-                                ),
-                        ),
-                        Node(
-                            value =
-                                DependencyNode.Plugin(
-                                    pluginId = "com.google",
-                                ),
-                            children =
-                                mutableListOf(
-                                    Node(
-                                        value =
-                                            DependencyNode.Plugin(
-                                                pluginId = "devtools",
-                                            ),
-                                        children =
-                                            mutableListOf(
-                                                Node(
-                                                    DependencyNode.Plugin(
-                                                        pluginId = "ksp",
-                                                        version = "2.3.9",
+            test("plugin executes nested declarations below the terminal compact path node") {
+                given(::pluginScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.plugin("figma.code") {
+                            plugin(
+                                id = "connect",
+                                version = "1.2.3",
+                            )
+                        }
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                pluginNode(
+                                    id = "figma",
+                                    children =
+                                        mutableListOf(
+                                            pluginNode(
+                                                id = "code",
+                                                children =
+                                                    mutableListOf(
+                                                        pluginNode(
+                                                            id = "connect",
+                                                            version = "1.2.3",
+                                                        ),
                                                     ),
-                                                ),
                                             ),
-                                    ),
+                                        ),
                                 ),
-                        ),
-                    )
+                            )
+                    }
+            }
+
+            test("plugin reuses compact path prefixes and preserves terminal sibling order") {
+                given(::pluginScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.plugin("jetbrains.kotlin") {
+                            plugin(
+                                id = "jvm",
+                                version = "2.3.21",
+                            )
+                        }
+                        fixture.scope.plugin("jetbrains.kotlin.plugin") {
+                            plugin(
+                                id = "compose",
+                                version = "2.3.21",
+                            )
+                        }
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                pluginNode(
+                                    id = "jetbrains",
+                                    children =
+                                        mutableListOf(
+                                            pluginNode(
+                                                id = "kotlin",
+                                                children =
+                                                    mutableListOf(
+                                                        pluginNode(
+                                                            id = "jvm",
+                                                            version = "2.3.21",
+                                                        ),
+                                                        pluginNode(
+                                                            id = "plugin",
+                                                            children =
+                                                                mutableListOf(
+                                                                    pluginNode(
+                                                                        id = "compose",
+                                                                        version = "2.3.21",
+                                                                    ),
+                                                                ),
+                                                        ),
+                                                    ),
+                                            ),
+                                        ),
+                                ),
+                            )
+                    }
+            }
+
+            test("plugin rejects a conflicting version for an existing terminal path") {
+                given(::pluginScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.plugin(
+                            id = "android.application",
+                            version = "9.2.1",
+                        )
+                        shouldThrow<IllegalArgumentException> {
+                            fixture.scope.plugin(
+                                id = "android.application",
+                                version = "9.3.0",
+                            )
+                        }
+                    }.then { failure ->
+                        failure.message shouldBe
+                            "Plugin path 'android.application' already declares version '9.2.1' " +
+                            "and cannot declare '9.3.0'"
+                    }
+            }
+
+            test("plugin rejects a path with an empty segment") {
+                given(::pluginScopeFixture)
+                    .whenever { fixture ->
+                        shouldThrow<IllegalArgumentException> {
+                            fixture.scope.plugin("figma..code")
+                        }
+                    }.then { failure ->
+                        failure.message shouldBe
+                            "Dependency path 'figma..code' must contain non-blank segments without surrounding whitespace"
+                    }
             }
         },
     )
+
+private fun pluginScopeFixture(): PluginScopeFixture {
+    val root =
+        pluginNode(
+            id = "com",
+        )
+    return PluginScopeFixture(
+        root = root,
+        scope =
+            PluginScope(
+                root = root,
+            ),
+    )
+}
+
+private fun pluginNode(
+    id: String,
+    version: String? = null,
+    children: MutableList<Node<DependencyNode.Plugin>> = mutableListOf(),
+): Node<DependencyNode.Plugin> =
+    Node(
+        value =
+            DependencyNode.Plugin(
+                pluginId = id,
+                version = version,
+            ),
+        children = children,
+    )
+
+private data class PluginScopeFixture(
+    val root: Node<DependencyNode.Plugin>,
+    val scope: PluginScope,
+)

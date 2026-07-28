@@ -13,6 +13,7 @@ pluginManagement {
         }
 
     plugins {
+        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
         id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
     }
 }
@@ -60,6 +61,10 @@ dependencyResolutionManagement {
 
         create("plugins") {
             plugin(
+                "org.jetbrains.dokka",
+                "org.jetbrains.dokka",
+            ).version(versions.getProperty("dokkaPluginVersion"))
+            plugin(
                 "org.jetbrains.kotlin.jvm",
                 "org.jetbrains.kotlin.jvm",
             ).version(versions.getProperty("kotlinVersion"))
@@ -75,4 +80,5 @@ include(
     ":catalog-api",
     ":catalog-core",
     ":catalog-gradle-plugin",
+    ":catalog-tree-gradle-plugin",
 )

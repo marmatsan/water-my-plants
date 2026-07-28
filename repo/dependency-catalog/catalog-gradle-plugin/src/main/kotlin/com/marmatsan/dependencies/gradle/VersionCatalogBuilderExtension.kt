@@ -207,11 +207,23 @@ private fun VersionCatalogBuilder.registerLibrary(
     return libraryAlias
 }
 
+/**
+ * Flattened library group ready for Gradle catalog registration.
+ *
+ * @property group Complete Maven group.
+ * @property entries Entries registered below [group].
+ */
 internal data class ResolvedLibrary(
     val group: String,
     val entries: List<LibraryCatalogEntry>,
 )
 
+/**
+ * Flattened plugin ready for Gradle catalog registration.
+ *
+ * @property id Complete Gradle plugin id and catalog alias.
+ * @property version Concrete plugin version.
+ */
 internal data class ResolvedPlugin(
     val id: String,
     val version: String,

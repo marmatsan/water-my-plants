@@ -5,18 +5,27 @@ import com.marmatsan.dependencies.catalog.api.LibraryCatalogNode
 import com.marmatsan.dependencies.catalog.api.PluginCatalogNode
 import org.gradle.api.initialization.resolve.DependencyResolutionManagement
 
+/**
+ * Registers [catalog] as separate library and plugin Gradle version catalogs.
+ *
+ * @param catalog Immutable hierarchical catalog to flatten and register.
+ * @param librariesCatalogName Name of the generated library catalog.
+ * @param pluginsCatalogName Name of the generated plugin catalog.
+ */
 fun DependencyResolutionManagement.configureVersionCatalogs(
     catalog: DependencyCatalog,
     librariesCatalogName: String = "libs",
     pluginsCatalogName: String = "plugins",
 ) {
-    versionCatalogs {
-        create(librariesCatalogName) {
-            registerLibraries(catalog.libraries.toLibraries())
-        }
-        create(pluginsCatalogName) {
-            registerPlugins(catalog.plugins.toPlugins())
-        }
+    versionCatalogs.create(librariesCatalogName) { catalogBuilder ->
+        catalogBuilder.registerLibraries(
+            libraries = catalog.libraries.toLibraries(),
+        )
+    }
+    versionCatalogs.create(pluginsCatalogName) { catalogBuilder ->
+        catalogBuilder.registerPlugins(
+            plugins = catalog.plugins.toPlugins(),
+        )
     }
 }
 

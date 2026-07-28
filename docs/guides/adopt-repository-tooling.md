@@ -50,7 +50,7 @@ provide that repository or build the artifacts from source.
 
 | Build | Public contract |
 |-------|-----------------|
-| `dependency-catalog` | `com.marmatsan.dependencyCatalog`; `com.marmatsan.repo:catalog-api`, `catalog-core`, and `catalog-gradle-plugin` |
+| `dependency-catalog` | `com.marmatsan.dependencyCatalog`, `com.marmatsan.dependencyCatalog.tree`; `com.marmatsan.repo:catalog-api`, `catalog-core`, `catalog-gradle-plugin`, and `catalog-tree-gradle-plugin` |
 | `figma-documentation-sync` | `com.marmatsan.figmaDocumentationSync`; portable domain, data, plugin, and optional TeamCity adapter artifacts |
 | `gradle-plugins` | `com.marmatsan.android`, `bddTest`, `compose`, `dokkaDocumentation`, `protobuf`, and `unitTest` |
 | `unit-testing` | `com.marmatsan.repo:unit-test-dsl` |

@@ -48,7 +48,9 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/dependency-catalog/catalog-api/",
                 "repo/dependency-catalog/catalog-core/",
                 "repo/dependency-catalog/catalog-gradle-plugin/",
+                "repo/dependency-catalog/catalog-tree-gradle-plugin/",
                 "repo/dependency-catalog/samples/standalone-consumer/",
+                "repo/dependency-catalog/samples/standalone-tree-consumer/",
                 "repo/figma-documentation-sync/domain/",
                 "repo/figma-documentation-sync/data/",
                 "repo/figma-documentation-sync/plugin/",
@@ -130,6 +132,7 @@ extensions.configure<VerificationPlatformExtension> {
         ).forEach(::versionedBuild)
 
         alignedVersion("kotlinResultLibraryVersion")
+        alignedVersion("dependencyCatalogVersion")
 
         reusableScope(
             "repo/dependency-catalog/catalog-api",
@@ -150,6 +153,12 @@ extensions.configure<VerificationPlatformExtension> {
             "com.marmatsan.dependencies.tree",
             "com.marmatsan.figmaDocumentationSync",
             "com.marmatsan.verificationPlatform",
+        )
+        reusableScope(
+            "repo/dependency-catalog/catalog-tree-gradle-plugin",
+            "com.marmatsan.figmaDocumentationSync",
+            "com.marmatsan.verificationPlatform",
+            "com.marmatsan.waterMyPlants",
         )
         reusableScope(
             "repo/figma-documentation-sync",

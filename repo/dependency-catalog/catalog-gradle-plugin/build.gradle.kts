@@ -3,13 +3,19 @@
 import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
-    `kotlin-dsl`
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.dokka)
     `java-gradle-plugin`
     `maven-publish`
 }
 
+java {
+    withSourcesJar()
+}
+
 dependencies {
     implementation(projects.catalogApi)
+    implementation(gradleApi())
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(gradleTestKit())

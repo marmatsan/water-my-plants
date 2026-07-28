@@ -4,13 +4,15 @@ type: adr
 scope: repository
 owner: architecture
 status: accepted
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-28
 review-cycle-days: 365
 sources:
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt
+  - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsPlugin.kt
+  - repo/figma-documentation-sync/settings.gradle.kts
   - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogProvider.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
@@ -40,6 +42,11 @@ different owners and release reasons.
   `com.marmatsan.dependencyCatalog`. Its terminal
   `dependencyCatalog.from(provider)` operation registers `libs` and `plugins`
   while Gradle evaluates settings.
+- `catalog-tree-gradle-plugin` publishes the settings plugin
+  `com.marmatsan.dependencyCatalog.tree`. It exposes the optional `catalog-core`
+  DSL directly during settings evaluation, resolves values from the consuming
+  build's `versions.properties`, and delegates registration to the provider-based
+  plugin. A build needs no dedicated catalog module to use this adapter.
 - A consuming repository owns one provider for each product catalog it chooses
   to expose. It does not create a `*-catalog` module for every included build.
 - Every included build owns a local `versions.properties` for the dependencies
@@ -64,6 +71,7 @@ The dependency direction is:
 ```text
 repository provider -> catalog-api (+ optional catalog-core)
 catalog-gradle-plugin -> catalog-api
+catalog-tree-gradle-plugin -> catalog-core + catalog-api + catalog-gradle-plugin
 Gradle settings adapter -> catalog-gradle-plugin + repository provider
 Water My Plants Figma adapter -> catalog-api + figma-documentation-sync port
 Water My Plants catalog -> catalog-api + catalog-core
@@ -73,6 +81,8 @@ Water My Plants catalog -> catalog-api + catalog-core
 
 - Included builds can be evaluated, tested, and versioned without reading the
   Water My Plants catalog registry.
+- Included builds may standardize their local build-tool catalogs on the tree
+  settings plugin without turning those catalogs into product or Figma targets.
 - Another repository can consume staged or released Maven artifacts and supply
   its own provider and versions file without including this source tree.
 - A shared dependency version may intentionally appear in more than one local

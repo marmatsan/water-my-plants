@@ -91,27 +91,21 @@ private fun comLibrariesTree(
 ) = libraryTree(
     rootGroup = "com",
 ) {
-    library("figma") {
-        library("code") {
-            library("connect") {
-                artifact(
-                    artifact = "code-connect-lib",
-                    version = versions.figmaCodeConnectLibraryVersion,
-                )
-            }
-        }
+    library("figma.code.connect") {
+        artifact(
+            artifact = "code-connect-lib",
+            version = versions.figmaCodeConnectLibraryVersion,
+        )
     }
-    library("google") {
-        library("protobuf") {
-            artifact(
-                artifact = "protobuf-kotlin",
-                version = versions.protobufLibraryVersion,
-            )
-            artifact(
-                artifact = "protoc",
-                version = versions.protobufLibraryVersion,
-            )
-        }
+    library("google.protobuf") {
+        artifact(
+            artifact = "protobuf-kotlin",
+            version = versions.protobufLibraryVersion,
+        )
+        artifact(
+            artifact = "protoc",
+            version = versions.protobufLibraryVersion,
+        )
     }
 }
 
@@ -155,17 +149,15 @@ private fun meLibrariesTree(
 ) = libraryTree(
     rootGroup = "me",
 ) {
-    library("tatarka") {
-        library("inject") {
-            artifact(
-                artifact = "kotlin-inject-compiler-ksp",
-                version = versions.kotlinInjectLibraryVersion,
-            )
-            artifact(
-                artifact = "kotlin-inject-runtime",
-                version = versions.kotlinInjectLibraryVersion,
-            )
-        }
+    library("tatarka.inject") {
+        artifact(
+            artifact = "kotlin-inject-compiler-ksp",
+            version = versions.kotlinInjectLibraryVersion,
+        )
+        artifact(
+            artifact = "kotlin-inject-runtime",
+            version = versions.kotlinInjectLibraryVersion,
+        )
     }
 }
 
@@ -174,22 +166,18 @@ private fun orgLibrariesTree(
 ) = libraryTree(
     rootGroup = "org",
 ) {
-    library("jetbrains") {
-        library("kotlinx") {
-            artifact(
-                artifact = "kotlinx-coroutines-android",
-                version = versions.androidCoroutinesLibraryVersion,
-            )
-        }
+    library("jetbrains.kotlinx") {
+        artifact(
+            artifact = "kotlinx-coroutines-android",
+            version = versions.androidCoroutinesLibraryVersion,
+        )
     }
-    library("junit") {
-        library("platform") {
-            artifact(
-                artifact = "junit-platform-launcher",
-            )
-            artifact(
-                artifact = "junit-platform-suite",
-            )
-        }
+    library("junit.platform") {
+        artifact(
+            artifact = "junit-platform-launcher",
+        )
+        artifact(
+            artifact = "junit-platform-suite",
+        )
     }
 }

@@ -6,6 +6,7 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
 import com.marmatsan.unitTest.dsl.given
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -335,7 +336,159 @@ internal class LibraryScopeTest :
                             )
                     }
             }
+
+            test("library expands a compact path and applies artifacts to its terminal node") {
+                given(::libraryScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.library("figma.code.connect") {
+                            artifact(
+                                artifact = "code-connect-lib",
+                                version = "1.2.3",
+                            )
+                        }
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                libraryNode(
+                                    group = "figma",
+                                    children =
+                                        mutableListOf(
+                                            libraryNode(
+                                                group = "code",
+                                                children =
+                                                    mutableListOf(
+                                                        libraryNode(
+                                                            group = "connect",
+                                                            entries =
+                                                                listOf(
+                                                                    LibraryEntry.Single(
+                                                                        artifact =
+                                                                            Artifact(
+                                                                                artifact = "code-connect-lib",
+                                                                                version = "1.2.3",
+                                                                            ),
+                                                                    ),
+                                                                ),
+                                                        ),
+                                                    ),
+                                            ),
+                                        ),
+                                ),
+                            )
+                    }
+            }
+
+            test("library reuses compact path prefixes and preserves child declaration order") {
+                given(::libraryScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.library("compose.ui") {
+                            artifact(
+                                artifact = "ui",
+                            )
+                        }
+                        fixture.scope.library("compose.material3") {
+                            artifact(
+                                artifact = "material3",
+                            )
+                        }
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                libraryNode(
+                                    group = "compose",
+                                    children =
+                                        mutableListOf(
+                                            libraryNode(
+                                                group = "ui",
+                                                entries =
+                                                    listOf(
+                                                        LibraryEntry.Single(
+                                                            artifact = Artifact("ui"),
+                                                        ),
+                                                    ),
+                                            ),
+                                            libraryNode(
+                                                group = "material3",
+                                                entries =
+                                                    listOf(
+                                                        LibraryEntry.Single(
+                                                            artifact = Artifact("material3"),
+                                                        ),
+                                                    ),
+                                            ),
+                                        ),
+                                ),
+                            )
+                    }
+            }
+
+            test("library appends entries when the same compact terminal path is configured again") {
+                given(::libraryScopeFixture)
+                    .whenever { fixture ->
+                        fixture.scope.library("compose.ui") {
+                            artifact(
+                                artifact = "ui",
+                            )
+                        }
+                        fixture.scope.library("compose.ui") {
+                            artifact(
+                                artifact = "ui-tooling",
+                            )
+                        }
+                        fixture.root
+                    }.then { root ->
+                        root.children shouldBe
+                            mutableListOf(
+                                libraryNode(
+                                    group = "compose",
+                                    children =
+                                        mutableListOf(
+                                            libraryNode(
+                                                group = "ui",
+                                                entries =
+                                                    listOf(
+                                                        LibraryEntry.Single(
+                                                            artifact = Artifact("ui"),
+                                                        ),
+                                                        LibraryEntry.Single(
+                                                            artifact = Artifact("ui-tooling"),
+                                                        ),
+                                                    ),
+                                            ),
+                                        ),
+                                ),
+                            )
+                    }
+            }
+
+            test("library rejects a path with surrounding whitespace") {
+                given(::libraryScopeFixture)
+                    .whenever { fixture ->
+                        shouldThrow<IllegalArgumentException> {
+                            fixture.scope.library("figma. code")
+                        }
+                    }.then { failure ->
+                        failure.message shouldBe
+                            "Dependency path 'figma. code' must contain non-blank segments without surrounding whitespace"
+                    }
+            }
         },
+    )
+
+private fun libraryNode(
+    group: String,
+    entries: List<LibraryEntry>? = null,
+    children: MutableList<Node<DependencyNode.Library>> = mutableListOf(),
+): Node<DependencyNode.Library> =
+    Node(
+        value =
+            DependencyNode.Library(
+                libraryGroup = group,
+                entries = entries,
+            ),
+        children = children,
     )
 
 private fun libraryScopeFixture(): LibraryScopeFixture {

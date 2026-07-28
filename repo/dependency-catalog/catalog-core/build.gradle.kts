@@ -4,6 +4,7 @@ import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.dokka)
     `maven-publish`
 }
 

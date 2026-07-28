@@ -99,13 +99,14 @@ assertion-framework-agnostic behavior-phase API. It publishes
 that consume it. Water My Plants registers it in the consumer-owned `testLibs`
 catalog, so it never enters the production `libs` tree or app runtime graph.
 
-`repo/dependency-catalog` contains three reusable Gradle modules:
+`repo/dependency-catalog` contains four reusable Gradle modules:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and segregated resolved/aliased provider APIs. |
 | `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, traversal, and mappers for provider implementations. |
 | `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
+| `repo/dependency-catalog/catalog-tree-gradle-plugin/` | `:catalog-tree-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog.tree` settings plugin for consumer-owned compact trees and version registries. |
 
 Repository tooling consumes stable Maven/plugin coordinates. The included-build
 root does not publish a compatibility artifact; its standalone consumer proves
