@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 plugins {
     alias(plugins.plugins.com.android.application)
     id("com.marmatsan.android")

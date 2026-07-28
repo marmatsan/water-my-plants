@@ -30,13 +30,15 @@ Default included builds:
 | `dependency-catalog` | `dependencyCatalog` | `repo/dependency-catalog` | `:dependency-catalog` | No | No |
 | `figma-documentation-sync` | `figmaDocumentationSync` | `repo/figma-documentation-sync` | `:figma-documentation-sync` | No | No |
 | `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | No | Yes |
+| `unit-testing` | `unitTesting` | `repo/unit-testing` | `:unit-testing` | No | No |
 | `verification-platform` | `verificationPlatform` | `repo/verification-platform` | `:verification-platform` | No | No |
 | `water-my-plants-project-config` | `waterMyPlantsProjectConfig` | `repo/water-my-plants-project-config` | `:water-my-plants-project-config` | No | No |
 
 Included builds contribute module topology and convention-plugin usage where
 configured, but none publishes its local tool catalog as a Water My Plants
 visual target. `repo/dependency-catalog` contributes only reusable catalog
-modules. The product configuration build contributes its `catalog` and
+modules, while `repo/unit-testing` contributes its independent test API module.
+The product configuration build contributes its `catalog` and
 `plugin` modules and supplies the production trees through the configured port.
 
 ## Visual Target Map

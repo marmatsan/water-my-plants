@@ -75,6 +75,14 @@ internal class WaterMyPlantsFigmaExtensionConfigurator(
                 publishesConventionPlugins.set(true)
             }
 
+            includedBuilds.register("unit-testing") {
+                modelName.set("unitTesting")
+                settingsFile.set(project.layout.projectDirectory.file("repo/unit-testing/settings.gradle.kts"))
+                rootDirectory.set(project.layout.projectDirectory.dir("repo/unit-testing"))
+                modulePathPrefix.set(":unit-testing")
+                publishesCatalogs.set(false)
+            }
+
             includedBuilds.register("verification-platform") {
                 modelName.set("verificationPlatform")
                 settingsFile.set(

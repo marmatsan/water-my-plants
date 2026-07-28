@@ -1,11 +1,29 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
+import org.gradle.api.component.AdhocComponentWithVariants
+import org.gradle.api.publish.maven.MavenPublication
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.net.URI
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("org.jetbrains.dokka")
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
+    alias(plugins.plugins.org.jetbrains.dokka)
     `java-test-fixtures`
+    `maven-publish`
+}
+
+java {
+    withSourcesJar()
+}
+
+components.named<AdhocComponentWithVariants>("java") {
+    withVariantsFromConfiguration(configurations["testFixturesApiElements"]) {
+        skip()
+    }
+    withVariantsFromConfiguration(configurations["testFixturesRuntimeElements"]) {
+        skip()
+    }
 }
 
 dependencies {
@@ -78,6 +96,15 @@ dokka {
                 ),
             )
             remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            artifactId = "domain"
         }
     }
 }

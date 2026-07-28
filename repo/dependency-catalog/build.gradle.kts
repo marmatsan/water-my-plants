@@ -1,14 +1,30 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
+import java.util.Properties
+
 plugins {
     base
 }
 
-val publicationVersion = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
+val versions =
+    Properties().apply {
+        file("versions.properties").inputStream().use(::load)
+    }
+val publicationVersion =
+    providers.gradleProperty("dependencyCatalogVersion").getOrElse(
+        versions.getProperty("dependencyCatalogVersion"),
+    )
 val stagingPublicationRepository =
-    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+    providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")
             .get()
             .asFile.absolutePath
+
+allprojects {
+    group = "com.marmatsan.repo"
+    version = publicationVersion
+}
 
 val checkDependencyCatalogArchitecture =
     tasks.register("checkDependencyCatalogArchitecture") {

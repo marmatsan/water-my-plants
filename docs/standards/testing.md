@@ -8,7 +8,7 @@ last-reviewed: 2026-07-28
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
-  - repo/gradle-plugins/unit-test-dsl
+  - repo/unit-testing/unit-test-dsl
   - repo/gradle-plugins/bdd-test
   - repo/gradle-plugins/dokka-documentation
   - app/src/test/resources/features
@@ -115,7 +115,7 @@ it in `check` automatically.
 ## Sources
 
 - `repo/gradle-plugins/unit-test/`
-- `repo/gradle-plugins/unit-test-dsl/`
+- `repo/unit-testing/unit-test-dsl/`
 - `repo/gradle-plugins/bdd-test/`
 - `repo/gradle-plugins/dokka-documentation/`
 - `app/src/test/resources/features/`

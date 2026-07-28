@@ -1,8 +1,45 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.kotlin.dsl.configure
+import java.util.Properties
+
 plugins {
     base
     `kotlin-dsl` apply false
+}
+
+val versions =
+    Properties().apply {
+        file("versions.properties").inputStream().use(::load)
+    }
+val publicationVersion =
+    providers.gradleProperty("gradlePluginsVersion").getOrElse(
+        versions.getProperty("gradlePluginsVersion"),
+    )
+val stagingPublicationRepository =
+    providers.gradleProperty("gradlePluginsPublicationRepository").orNull
+        ?: layout.buildDirectory
+            .dir("publication-repository")
+            .get()
+            .asFile.absolutePath
+
+allprojects {
+    group = "com.marmatsan.gradle-plugins"
+    version = publicationVersion
+}
+
+subprojects {
+    pluginManager.withPlugin("maven-publish") {
+        extensions.configure<PublishingExtension> {
+            repositories {
+                maven {
+                    name = "staging"
+                    url = uri(stagingPublicationRepository)
+                }
+            }
+        }
+    }
 }
 
 tasks.named("check") {
@@ -14,6 +51,53 @@ tasks.named("check") {
         ":dokka-documentation:check",
         ":protobuf:check",
         ":unit-test:check",
-        ":unit-test-dsl:check",
+    )
+}
+
+tasks.register("publishPortablePublicationToStagingRepository") {
+    group = "publishing"
+    description = "Publishes every convention plugin and its shared implementation library."
+    dependsOn(
+        ":android:publishAllPublicationsToStagingRepository",
+        ":bdd-test:publishAllPublicationsToStagingRepository",
+        ":compose:publishAllPublicationsToStagingRepository",
+        ":dependencies:publishAllPublicationsToStagingRepository",
+        ":dokka-documentation:publishAllPublicationsToStagingRepository",
+        ":protobuf:publishAllPublicationsToStagingRepository",
+        ":unit-test:publishAllPublicationsToStagingRepository",
+    )
+}
+
+tasks.register<Exec>("verifyStagedPublication") {
+    group = "verification"
+    description = "Resolves staged convention plugin markers from a source-independent consumer."
+    dependsOn("publishPortablePublicationToStagingRepository")
+
+    val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
+    val wrapper =
+        layout.projectDirectory.file(
+            if (System.getProperty("os.name").startsWith(
+                    "Windows",
+                    ignoreCase = true,
+                )
+            ) {
+                "../../gradlew.bat"
+            } else {
+                "../../gradlew"
+            },
+        )
+
+    workingDir(sampleDirectory)
+    commandLine(
+        wrapper.asFile.absolutePath,
+        "--no-daemon",
+        "verifyPluginConsumption",
+        "-PgradlePluginsVersion=$publicationVersion",
+        "-PgradlePluginsPublicationRepository=$stagingPublicationRepository",
+        "-PunitTestDslVersion=${versions.getProperty("unitTestDslLibraryVersion")}",
+        "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
+        "-PkotestVersion=${versions.getProperty("kotestLibraryVersion")}",
+        "-PmockkVersion=${versions.getProperty("mockkLibraryVersion")}",
+        "--stacktrace",
     )
 }

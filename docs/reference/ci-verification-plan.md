@@ -89,7 +89,7 @@ rules:
 | `teamcity-dsl` | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution. |
 | `tooling` | Uses the configured tooling paths/capabilities and is coalesced into heavy Gradle verification on the single agent. |
 | `build-infrastructure` | Selects the configured architecture, version-ownership, and module-boundary tasks. Water My Plants binds these to `checkDependencyCatalogArchitecture`, `checkIncludedBuildVersions`, and `checkModuleBoundaries`. |
-| `portable-distribution` | Selects the configured staged-consumer aggregate. Water My Plants binds this to `verifyPortableDistribution`, which verifies Dependency Catalog and Figma Documentation Sync independently. |
+| `portable-distribution` | Selects the configured staged-consumer aggregate. Water My Plants binds this to `verifyPortableDistribution`, which independently stages and consumes Dependency Catalog, Figma Documentation Sync, Gradle Plugins, Unit Testing, and Verification Platform. |
 | `gradle-verification` | Select affected module checks plus catalog usage for safe module-only changes; otherwise select root `check`. |
 | `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
 

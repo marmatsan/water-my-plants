@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 plugins {
     id("com.marmatsan.figmaDocumentationSync")
 }

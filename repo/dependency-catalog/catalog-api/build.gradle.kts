@@ -1,12 +1,11 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
     `maven-publish`
 }
-
-group = "com.marmatsan.repo"
-version = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
 
 java {
     withSourcesJar()
@@ -35,7 +34,7 @@ publishing {
             name = "staging"
             url =
                 uri(
-                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+                    providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
                         ?: rootProject.layout.buildDirectory
                             .dir("publication-repository")
                             .get()

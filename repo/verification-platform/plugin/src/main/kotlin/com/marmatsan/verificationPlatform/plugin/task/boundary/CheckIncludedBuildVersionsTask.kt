@@ -10,8 +10,12 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /** Verifies that every repository included build owns its version registry. */
+@DisableCachingByDefault(
+    because = "This validation produces no reusable output artifact",
+)
 abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
     /** Repository root containing the included builds. */
     @get:Internal

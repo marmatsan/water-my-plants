@@ -93,6 +93,16 @@ dependencyResolutionManagement {
                 ),
             )
 
+            library(
+                alias = "com.marmatsan.repo.unit.test.dsl",
+                group = "com.marmatsan.repo",
+                artifact = "unit-test-dsl",
+            ).version(
+                version(
+                    key = "unitTestDslLibraryVersion",
+                ),
+            )
+
             // Testing
             // JUnit Platform
             library(
@@ -144,5 +154,4 @@ include(
     ":dokka-documentation",
     ":protobuf",
     ":unit-test",
-    ":unit-test-dsl",
 )

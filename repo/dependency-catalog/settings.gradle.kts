@@ -57,6 +57,13 @@ dependencyResolutionManagement {
                 "unit-test-dsl",
             ).version(versions.getProperty("unitTestDslLibraryVersion"))
         }
+
+        create("plugins") {
+            plugin(
+                "org.jetbrains.kotlin.jvm",
+                "org.jetbrains.kotlin.jvm",
+            ).version(versions.getProperty("kotlinVersion"))
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+@file:Suppress("AvoidDuplicateDependencies")
+
 import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
@@ -5,9 +7,6 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
 }
-
-group = "com.marmatsan.repo"
-version = providers.gradleProperty("figmaDocumentationSyncVersion").getOrElse("0.1.0-SNAPSHOT")
 
 dependencies {
     implementation(projects.catalogApi)
@@ -56,7 +55,7 @@ publishing {
             name = "staging"
             url =
                 uri(
-                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
+                    providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
                         ?: rootProject.layout.buildDirectory
                             .dir("publication-repository")
                             .get()
