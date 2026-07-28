@@ -1,64 +1,12 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import org.gradle.api.publish.maven.MavenPublication
-import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import java.net.URI
 
 plugins {
     kotlin("jvm")
     alias(plugins.plugins.org.jetbrains.dokka)
     `java-library`
     `maven-publish`
-}
-
-dokka {
-    moduleName.set("figmaDocumentationSync-teamcity-adapter")
-
-    dokkaPublications.html {
-        failOnWarning.set(true)
-        includes.from(
-            "docs/dokka/README.md",
-        )
-    }
-
-    dokkaSourceSets.main {
-        documentedVisibilities.set(
-            setOf(
-                VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
-        )
-        reportUndocumented.set(true)
-
-        sourceLink {
-            localDirectory.set(file("src/main/kotlin"))
-            remoteUrl.set(
-                URI(
-                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin",
-                ),
-            )
-            remoteLineSuffix.set("#L")
-        }
-    }
-}
-
-tasks.named("check") {
-    dependsOn("dokkaGenerate")
-}
-
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-java {
-    withSourcesJar()
 }
 
 dependencies {
@@ -91,20 +39,6 @@ publishing {
                     url.set("https://github.com/marmatsan/water-my-plants")
                 }
             }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "staging"
-            url =
-                uri(
-                    providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull
-                        ?: rootProject.layout.buildDirectory
-                            .dir("publication-repository")
-                            .get()
-                            .asFile,
-                )
         }
     }
 }

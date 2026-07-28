@@ -2,18 +2,12 @@
 
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.PathSensitivity
-import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import java.net.URI
 
 plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm)
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.serialization)
     alias(plugins.plugins.org.jetbrains.dokka)
     `maven-publish`
-}
-
-java {
-    withSourcesJar()
 }
 
 dependencies {
@@ -34,7 +28,6 @@ dependencies {
 val repositoryRootDirectory = layout.projectDirectory.dir("../../..")
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
     jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     systemProperty(
         "waterMyPlants.repositoryRoot",
@@ -87,42 +80,6 @@ tasks.register<JavaExec>("formatRepositoryKotlinStyle") {
         repositoryRootDirectory.asFile.absolutePath,
     )
     outputs.upToDateWhen { false }
-}
-
-tasks.named("check") {
-    dependsOn("dokkaGenerate")
-}
-
-dokka {
-    moduleName.set("verification-platform-data")
-
-    dokkaPublications.html {
-        failOnWarning.set(true)
-        includes.from(
-            "docs/dokka/README.md",
-        )
-    }
-
-    dokkaSourceSets.main {
-        documentedVisibilities.set(
-            setOf(
-                VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
-        )
-        reportUndocumented.set(true)
-
-        sourceLink {
-            localDirectory.set(file("src/main/kotlin"))
-            remoteUrl.set(
-                URI(
-                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/verification-platform/data/src/main/kotlin",
-                ),
-            )
-            remoteLineSuffix.set("#L")
-        }
-    }
 }
 
 publishing {

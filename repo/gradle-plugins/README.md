@@ -3,6 +3,8 @@
 This autonomous included build owns the reusable Gradle convention plugins.
 It contains no Water My Plants product configuration and can publish every
 plugin marker to a Maven repository without hard-coding a sibling source path.
+See the [documentation index](docs/README.md) for its boundaries and shared
+build-policy contract.
 
 | Module | Plugin ID |
 |--------|-----------|
@@ -20,7 +22,10 @@ instead of duplicating catalog identity rules. The typed test API is deliberatel
 `testLibs` catalog, while Kotest, MockK, and JUnit remain in `libs`.
 
 `versions.properties` owns the compile, test, and publication versions for
-this build. Build scripts use type-safe `libs` and `plugins` accessors.
+this build. Build scripts use type-safe `libs` and `plugins` accessors. A
+plugin module declares a test engine and test libraries only when it owns test
+sources; source-free plugin modules rely on compilation and standalone
+distribution verification instead of carrying an unused test classpath.
 
 ## Verification
 

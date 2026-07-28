@@ -87,6 +87,11 @@ adapters, tasks, and composition boundaries must keep useful KDoc current.
 Generated HTML remains under each module's `build/dokka/` directory and is not
 committed.
 
+The included-build root owns the common Dokka visibility, source-link,
+failure, JUnit, sources-JAR, repository, and staging-publication policies.
+Module build scripts keep only capability-specific inputs such as the domain
+KDoc samples and Maven publication identity.
+
 Generate the complete included-build reference with:
 
 ```powershell

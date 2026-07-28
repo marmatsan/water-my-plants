@@ -19,6 +19,11 @@ repository `docs/standards/` directory, and TeamCity operations remain under
 The implementation overview and current task contract live in the
 [module README](../README.md).
 
+The included-build root owns repositories, JUnit Platform setup, sources JARs,
+shared Dokka policy, and the staging publication repository for the JVM
+subprojects. Individual module scripts retain only capability-specific test
+configuration and Maven publication identity.
+
 ## Dependencies
 
 | Module | Direct project dependencies | Responsibility |

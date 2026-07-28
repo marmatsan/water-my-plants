@@ -73,6 +73,11 @@ Dokka warnings. New public or internal models, services, adapters, ports,
 tasks, properties, and methods therefore add or update useful KDoc in the same
 change.
 
+The included-build root owns the common Dokka visibility, source links,
+failure policy, JUnit Platform setup, sources JARs, and staging repository.
+Module build scripts retain only capability-specific test settings and Maven
+publication identity.
+
 `DocumentationValidator` is a coordinator rather than a rule container. It
 classifies typed documents and delegates metadata, heading, repository-link,
 and change-coverage validation to independently testable collaborators. New

@@ -2,8 +2,6 @@
 
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.publish.maven.MavenPublication
-import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import java.net.URI
 
 plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm)
@@ -12,10 +10,6 @@ plugins {
     `java-library`
     `java-test-fixtures`
     `maven-publish`
-}
-
-java {
-    withSourcesJar()
 }
 
 components.named<AdhocComponentWithVariants>("java") {
@@ -42,7 +36,6 @@ dependencies {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
     systemProperty(
         "cucumber.junit-platform.naming-strategy",
         "long",
@@ -63,42 +56,6 @@ tasks.withType<Test>().configureEach {
             "cucumber.features",
             features,
         )
-    }
-}
-
-tasks.named("check") {
-    dependsOn("dokkaGenerate")
-}
-
-dokka {
-    moduleName.set("verification-platform-domain")
-
-    dokkaPublications.html {
-        failOnWarning.set(true)
-        includes.from(
-            "docs/dokka/README.md",
-        )
-    }
-
-    dokkaSourceSets.main {
-        documentedVisibilities.set(
-            setOf(
-                VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
-        )
-        reportUndocumented.set(true)
-
-        sourceLink {
-            localDirectory.set(file("src/main/kotlin"))
-            remoteUrl.set(
-                URI(
-                    "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/verification-platform/domain/src/main/kotlin",
-                ),
-            )
-            remoteLineSuffix.set("#L")
-        }
     }
 }
 
