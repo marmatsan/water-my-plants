@@ -13,6 +13,10 @@ sources:
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsPlugin.kt
   - repo/figma-documentation-sync/settings.gradle.kts
+  - repo/gradle-plugins/settings.gradle.kts
+  - repo/unit-testing/settings.gradle.kts
+  - repo/verification-platform/settings.gradle.kts
+  - repo/water-my-plants-project-config/settings.gradle.kts
   - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogProvider.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
@@ -53,6 +57,11 @@ different owners and release reasons.
   needed to compile and test that build. Cross-build reads of another build's
   registry are forbidden. Deliberate duplicated version values are acceptable;
   they express independent ownership rather than a shared runtime contract.
+- Every catalog consumer included build uses
+  `com.marmatsan.dependencyCatalog.tree` to construct its local `libs` and
+  `plugins` catalogs. `repo/dependency-catalog` retains a manual bootstrap
+  catalog because a plugin producer cannot resolve the settings plugin that it
+  is currently building.
 - `repo/water-my-plants-project-config/versions.properties` is the Water My
   Plants product catalog source. `repo/dependency-catalog/versions.properties`
   contains only the reusable build's compile/test versions.
@@ -81,7 +90,7 @@ Water My Plants catalog -> catalog-api + catalog-core
 
 - Included builds can be evaluated, tested, and versioned without reading the
   Water My Plants catalog registry.
-- Included builds may standardize their local build-tool catalogs on the tree
+- Included builds standardize their local build-tool catalogs on the tree
   settings plugin without turning those catalogs into product or Figma targets.
 - Another repository can consume staged or released Maven artifacts and supply
   its own provider and versions file without including this source tree.

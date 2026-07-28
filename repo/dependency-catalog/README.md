@@ -73,10 +73,14 @@ See [the adoption guide](docs/guides/adopt-dependency-catalog.md) for the full
 integration contract and the [tree settings DSL API reference](docs/reference/tree-settings-dsl.md)
 for every public property and declaration operation.
 
-`figma-documentation-sync` exercises the tree settings plugin with its own
+`figma-documentation-sync`, `gradle-plugins`, `unit-testing`,
+`verification-platform`, and `water-my-plants-project-config` construct their
+local build catalogs with the tree settings plugin and their own
 `versions.properties`. The repository composition root injects the source-build
 location for local substitution; an independent checkout resolves the same
-plugin id and version from its configured Maven repository.
+plugin id and version from its configured Maven repository. The
+`dependency-catalog` producer keeps its own catalog manual to avoid a
+self-hosting plugin-resolution cycle.
 
 ## Verification
 

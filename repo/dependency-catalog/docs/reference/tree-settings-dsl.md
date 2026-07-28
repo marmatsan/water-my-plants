@@ -162,6 +162,11 @@ the source. JetBrains tracks improvements to this association in
   lookup.
 - A missing versions file or invalid path produces `IllegalArgumentException`;
   a missing version key produces `IllegalStateException`.
+- Library aliases are derived from their Maven group and artifact. When a
+  migrated manual alias disagrees with that coordinate-derived name, update the
+  consumer accessor instead of adding a repository-specific alias exception;
+  for example, `org.junit.platform:junit-platform-launcher` becomes
+  `org.junit.platform.launcher`.
 - Artifact names, bundle aliases, catalog names, and duplicate generated aliases
   are ultimately validated by Gradle during catalog registration.
 - All public and internal declarations must remain documented so strict Dokka

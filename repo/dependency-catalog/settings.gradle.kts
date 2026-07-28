@@ -48,7 +48,7 @@ dependencyResolutionManagement {
                 "mockk",
             ).version(versions.getProperty("mockkLibraryVersion"))
             library(
-                "org.junit.jupiter.platform.launcher",
+                "org.junit.platform.launcher",
                 "org.junit.platform",
                 "junit-platform-launcher",
             ).withoutVersion()

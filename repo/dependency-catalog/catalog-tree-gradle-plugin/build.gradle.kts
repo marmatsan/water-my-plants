@@ -23,7 +23,7 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
-    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
 tasks.withType<Test> {

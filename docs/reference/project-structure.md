@@ -93,6 +93,13 @@ versioned APIs to local implementations. Every included build reads its own
 root `versions.properties` and remains independent from another build's
 compile/test registry.
 
+Every catalog-consuming included build constructs its local `libs` and
+`plugins` catalogs through `com.marmatsan.dependencyCatalog.tree`.
+`repo/dependency-catalog` is the deliberate bootstrap exception: it declares
+its own build catalog manually because it cannot resolve the plugin that it is
+currently producing. These local tool catalogs are not Water My Plants product
+catalogs and are not published as Figma dependency trees.
+
 `repo/unit-testing` owns `:unit-test-dsl`, the Kotlin-only,
 assertion-framework-agnostic behavior-phase API. It publishes
 `com.marmatsan.repo:unit-test-dsl` independently from the convention plugins

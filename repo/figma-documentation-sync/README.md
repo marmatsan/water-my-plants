@@ -59,6 +59,15 @@ convention-plugin readers expose only the queries required by their consumers.
 Adding another consumer scope composes those reusable parsing services instead
 of expanding one repository-wide reader.
 
+The included build declares its private tool catalog through the
+`com.marmatsan.dependencyCatalog.tree` settings plugin and owns the corresponding
+versions in `versions.properties`. Local source substitution is selected with
+the generic `dependencyCatalogSourceBuild` Gradle property; a standalone
+consumer can instead resolve the published plugin from its configured Maven
+repository. This keeps the reusable build independent of repository sibling
+paths. The generated local aliases are build inputs only and are not added to
+the Water My Plants dependency trees published to Figma.
+
 Expected failures at reusable boundaries use the repository's
 [`kotlin-result` standard](../../docs/standards/error-handling.md). The domain
 owns `FigmaNodeContentSource` and `FigmaNodeContentError`; the data adapter maps

@@ -69,6 +69,11 @@ catalog libraries, then use `alias(plugins...)` and `libs...` in
 only for building and testing itself; those files do not choose versions for a
 consumer.
 
+When adopting `com.marmatsan.dependencyCatalog.tree`, use that settings plugin
+to build both catalogs from the consumer-owned `versions.properties`. Keep the
+plugin producer's own bootstrap catalog independent; a build must not require
+the plugin it is currently compiling in order to evaluate its settings.
+
 If `com.marmatsan.unitTest` is applied, the consumer must expose
 `com.marmatsan.repo:unit-test-dsl` in a separate `testLibs` catalog. The
 convention plugin asks for that consumer-owned alias instead of embedding a

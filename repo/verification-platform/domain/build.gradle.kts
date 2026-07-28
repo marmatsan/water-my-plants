@@ -38,7 +38,7 @@ dependencies {
     testImplementation(libs.io.cucumber.java8)
     testImplementation(libs.io.cucumber.junit.platform.engine)
     testImplementation(libs.org.junit.platform.suite)
-    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
 tasks.withType<Test>().configureEach {
