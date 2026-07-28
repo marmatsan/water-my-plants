@@ -35,3 +35,9 @@ Figma classes handle URL parsing, HTTP access, and DTOs for the Figma file API.
 Ordered JSON section projectors adapt the typed writer project configuration to
 the portable schema. Each section owns one capability while the public encoder
 preserves the canonical field order and trailing-line contract.
+
+# Package com.marmatsan.figmaDocumentationSync.data.writer.generation
+
+Canonical runner collaborators validate and fingerprint requests, plan payload
+staging and target sources, replace output directories, and finalize manifests.
+`CanonicalMcpRunnerGenerator` remains the public composition facade.

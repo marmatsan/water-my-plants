@@ -186,6 +186,14 @@ derivation, and the trailing newline expected by the TypeScript runtime. A new
 top-level concern extends the ordered section set instead of growing the
 facade.
 
+`CanonicalMcpRunnerGenerator` remains the public runner-generation facade and
+preserves its request, manifest, transport, schema, and filesystem contracts.
+Internal collaborators separately validate inputs and compute fingerprints,
+plan PNG or chunk staging, plan target sources, generate each target directory,
+replace output directories, and finalize manifests. Generation validates and
+plans before mutating the output tree, while manifest finalization remains the
+last step after every target has been stored.
+
 Validate the complete staged distribution without publishing externally:
 
 ```powershell
