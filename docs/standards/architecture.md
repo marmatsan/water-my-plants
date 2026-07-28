@@ -78,9 +78,11 @@ Compose state are not domain models and MUST NOT leak across their boundary.
   `com.marmatsan.waterMyPlantsSettings` in `settings.gradle.kts` and
   `com.marmatsan.waterMyPlantsProjectConfig` in the root `build.gradle.kts` as
   explicit composition exceptions.
-- Literal external plugin IDs remain valid only in `settings.gradle.kts`
-  `pluginManagement` declarations, where Gradle resolves the versions used to
-  generate the type-safe build-script accessors.
+- Literal plugin IDs in `settings.gradle.kts` `pluginManagement` declarations
+  are reserved for settings/bootstrap plugins that must resolve before their
+  generated catalog exists. Project-plugin defaults are redundant when the
+  generated plugin alias already carries its version and MUST NOT be repeated
+  in `pluginManagement.plugins`.
 - Repository-owned catalogs built with `dependencyCatalogTree` MUST declare
   every top-level declaration through `root`; top-level `library` and `plugin`
   leaves are prohibited. A root MUST contain exactly one path segment. Relative

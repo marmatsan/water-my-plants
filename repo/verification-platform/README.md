@@ -54,6 +54,11 @@ aggregator so existing consumers do not need to know its internal projects.
 - This included build resolves its own compile/test toolchain from
   `repo/verification-platform/versions.properties`; it does not read the
   Water My Plants product catalog registry.
+- Its generated `plugins` catalog owns the versions of Kotlin JVM, Kotlin
+  Serialization, and Dokka. `pluginManagement.plugins` declares only the
+  `com.marmatsan.dependencyCatalog.tree` settings bootstrap; repeating project
+  plugin defaults there would duplicate the versions already carried by the
+  type-safe aliases.
 - CI providers consume allow-listed unit identifiers and Gradle task names;
   they must never execute arbitrary commands read from the JSON report.
 

@@ -75,6 +75,13 @@ repository. This keeps the reusable build independent of repository sibling
 paths. The generated local aliases are build inputs only and are not added to
 the Water My Plants dependency trees published to Figma.
 
+The settings bootstrap plugin remains a literal declaration because it must
+run before the generated catalogs exist. Project plugins carry their versions
+only in the generated `plugins` catalog and are consumed with `alias(...)`;
+they are not repeated as `pluginManagement.plugins` defaults. The standalone
+publication fixture follows the same consumption contract with its own plugin
+catalog and proves the alias without an included build.
+
 Expected failures at reusable boundaries use the repository's
 [`kotlin-result` standard](../../docs/standards/error-handling.md). The domain
 owns `FigmaNodeContentSource` and `FigmaNodeContentError`; the data adapter maps

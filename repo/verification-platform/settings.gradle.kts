@@ -21,9 +21,6 @@ pluginManagement {
     plugins {
         id("com.marmatsan.dependencyCatalog.tree") version
             versions.getProperty("dependencyCatalogVersion")
-        id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
-        id("org.jetbrains.kotlin.plugin.serialization") version versions.getProperty("kotlinVersion")
-        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
     }
 }
 
