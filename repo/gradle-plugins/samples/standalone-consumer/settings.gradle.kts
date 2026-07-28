@@ -3,6 +3,9 @@ pluginManagement {
         maven {
             url = uri(providers.gradleProperty("gradlePluginsPublicationRepository").get())
         }
+        maven {
+            url = uri(providers.gradleProperty("dependencyCatalogPublicationRepository").get())
+        }
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -14,6 +17,9 @@ dependencyResolutionManagement {
     repositories {
         maven {
             url = uri(providers.gradleProperty("gradlePluginsPublicationRepository").get())
+        }
+        maven {
+            url = uri(providers.gradleProperty("dependencyCatalogPublicationRepository").get())
         }
         google()
         mavenCentral()

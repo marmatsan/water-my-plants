@@ -8,6 +8,17 @@ plugins {
     `maven-publish`
 }
 
+dependencies {
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
+    testImplementation(libs.io.kotest.runner.junit5)
+    testImplementation(libs.io.kotest.assertions.core)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 java {
     withSourcesJar()
 }

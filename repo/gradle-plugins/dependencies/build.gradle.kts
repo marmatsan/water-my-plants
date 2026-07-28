@@ -17,6 +17,7 @@ tasks.withType<Test> {
 }
 
 dependencies {
+    implementation(libs.com.marmatsan.repo.catalog.api)
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
 
     // Kotest

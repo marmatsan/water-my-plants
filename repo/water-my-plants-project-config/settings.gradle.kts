@@ -57,91 +57,82 @@ dependencyCatalogTree {
     versionsFile.set(file("versions.properties"))
 
     libraries {
-        root("com") {
-            // Portable composition APIs. Local included builds substitute these
-            // versioned coordinates during repository development.
-            library("marmatsan.repo") {
-                artifact(
-                    artifact = "catalog-api",
-                    version = portableVersion,
-                )
-                artifact(
-                    artifact = "catalog-core",
-                    version = portableVersion,
-                )
-                artifact(
-                    artifact = "catalog-gradle-plugin",
-                    version = portableVersion,
-                )
-                artifact("unit-test-dsl")
-            }
-            library("marmatsan.figma-documentation-sync") {
-                artifact(
-                    artifact = "domain",
-                    version = portableVersion,
-                )
-                artifact(
-                    artifact = "data",
-                    version = portableVersion,
-                )
-                artifact(
-                    artifact = "plugin",
-                    version = portableVersion,
-                )
-                artifact(
-                    artifact = "teamcity-adapter",
-                    version = portableVersion,
-                )
-            }
-            library("michael-bull.kotlin-result") {
-                artifact(
-                    artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion"),
-                )
-            }
-        }
-
-        root("org") {
-            library("jetbrains.kotlinx") {
-                artifact(
-                    artifact = "kotlinx-serialization-json",
-                    version = version("serializationLibraryVersion"),
-                )
-            }
-            library("junit.platform") {
-                artifact("junit-platform-launcher")
-            }
-        }
-
-        root("io") {
-            library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
-                    version = version("kotestLibraryVersion"),
-                )
-            }
-        }
+        // Portable composition APIs. Local included builds substitute these
+        // versioned coordinates during repository development.
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "catalog-api",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "catalog-core",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "catalog-gradle-plugin",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "unit-test-dsl",
+        )
+        library(
+            group = "com.marmatsan.figma-documentation-sync",
+            artifact = "domain",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.figma-documentation-sync",
+            artifact = "data",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.figma-documentation-sync",
+            artifact = "plugin",
+            version = portableVersion,
+        )
+        library(
+            group = "com.marmatsan.figma-documentation-sync",
+            artifact = "teamcity-adapter",
+            version = portableVersion,
+        )
+        library(
+            group = "com.michael-bull.kotlin-result",
+            artifact = "kotlin-result",
+            version = version("kotlinResultLibraryVersion"),
+        )
+        library(
+            group = "org.jetbrains.kotlinx",
+            artifact = "kotlinx-serialization-json",
+            version = version("serializationLibraryVersion"),
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-launcher",
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-runner-junit5",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-assertions-core",
+            version = version("kotestLibraryVersion"),
+        )
     }
 
     plugins {
-        root("org") {
-            plugin("jetbrains") {
-                plugin("kotlin") {
-                    plugin(
-                        id = "jvm",
-                        version = version("kotlinVersion"),
-                    )
-                }
-                plugin(
-                    id = "dokka",
-                    version = version("dokkaPluginVersion"),
-                )
-            }
-        }
+        plugin(
+            id = "org.jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.dokka",
+            version = version("dokkaPluginVersion"),
+        )
     }
 }
 

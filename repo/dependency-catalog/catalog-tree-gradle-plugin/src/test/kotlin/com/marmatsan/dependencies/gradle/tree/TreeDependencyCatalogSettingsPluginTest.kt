@@ -29,25 +29,36 @@ internal class TreeDependencyCatalogSettingsPluginTest :
 
                             dependencyCatalogTree {
                                 libraries {
-                                    root("com") {
-                                        library("example.tools") {
-                                            artifact(
-                                                artifact = "tools-core",
-                                                version = version("exampleLibraryVersion"),
-                                            )
-                                        }
-                                    }
+                                    library(
+                                        group = "com.example.tools",
+                                        artifact = "tools-core",
+                                        version = version("exampleLibraryVersion"),
+                                    )
+                                    library(
+                                        group = "com.example.format",
+                                        artifact = "format-core",
+                                        version = version("exampleLibraryVersion"),
+                                    )
+                                    library(
+                                        group = "tools",
+                                        artifact = "core",
+                                        version = version("exampleLibraryVersion"),
+                                    )
                                 }
 
                                 plugins {
-                                    root("com") {
-                                        plugin("example") {
-                                            plugin(
-                                                id = "quality",
-                                                version = version("examplePluginVersion"),
-                                            )
-                                        }
-                                    }
+                                    plugin(
+                                        id = "com.example.quality",
+                                        version = version("examplePluginVersion"),
+                                    )
+                                    plugin(
+                                        id = "com.example.format",
+                                        version = version("examplePluginVersion"),
+                                    )
+                                    plugin(
+                                        id = "quality",
+                                        version = version("examplePluginVersion"),
+                                    )
                                 }
                             }
 
@@ -62,7 +73,11 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                                 doLast {
                                     val catalogs = project.extensions.getByType<VersionCatalogsExtension>()
                                     check(catalogs.named("libs").findLibrary("com.example.tools.core").isPresent)
+                                    check(catalogs.named("libs").findLibrary("com.example.format.core").isPresent)
+                                    check(catalogs.named("libs").findLibrary("tools.core").isPresent)
                                     check(catalogs.named("plugins").findPlugin("com.example.quality").isPresent)
+                                    check(catalogs.named("plugins").findPlugin("com.example.format").isPresent)
+                                    check(catalogs.named("plugins").findPlugin("quality").isPresent)
                                 }
                             }
                             """.trimIndent(),

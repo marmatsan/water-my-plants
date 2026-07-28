@@ -41,41 +41,31 @@ dependencyCatalogTree {
     versionsFile.set(file("versions.properties"))
 
     libraries {
-        root("io") {
-            library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
-                    version = version("kotestLibraryVersion"),
-                )
-            }
-        }
-
-        root("org") {
-            library("junit.platform") {
-                artifact("junit-platform-launcher")
-            }
-        }
+        library(
+            group = "io.kotest",
+            artifact = "kotest-runner-junit5",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-assertions-core",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-launcher",
+        )
     }
 
     plugins {
-        root("org") {
-            plugin("jetbrains") {
-                plugin("kotlin") {
-                    plugin(
-                        id = "jvm",
-                        version = version("kotlinVersion"),
-                    )
-                }
-                plugin(
-                    id = "dokka",
-                    version = version("dokkaPluginVersion"),
-                )
-            }
-        }
+        plugin(
+            id = "org.jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.dokka",
+            version = version("dokkaPluginVersion"),
+        )
     }
 }
 

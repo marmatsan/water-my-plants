@@ -38,5 +38,77 @@ class PluginCatalogTreesScope internal constructor() {
             )
     }
 
+    /**
+     * Adds one plugin from its complete [id] and [version].
+     *
+     * This leaf-oriented shortcut is equivalent to declaring a [root] and nested relative
+     * `plugin(...)` paths. Declarations sharing the same first id segment reuse one root, which
+     * keeps sparse plugin catalogs flat while preserving the same hierarchical model and generated
+     * type-safe accessor.
+     *
+     * Example:
+     *
+     * ```
+     * plugins {
+     *     plugin(
+     *         id = "org.jetbrains.kotlin.jvm",
+     *         version = version("kotlinVersion"),
+     *     )
+     * }
+     * ```
+     *
+     * @param id Complete Gradle plugin id.
+     * @param version Concrete plugin version.
+     * @throws IllegalArgumentException if [id] is not a valid dot-separated catalog path or the
+     * same plugin id already has a different version.
+     */
+    fun plugin(
+        id: String,
+        version: String,
+    ) {
+        val segments = catalogPathSegments(id)
+        val rootIndex =
+            rootIndex(
+                id = segments.first(),
+            )
+        val root =
+            if (rootIndex >= 0) {
+                roots[rootIndex]
+            } else {
+                Node(
+                    value =
+                        DependencyNode.Plugin(
+                            pluginId = segments.first(),
+                        ),
+                ).also(roots::add)
+            }
+
+        if (segments.size == 1) {
+            val existingVersion = root.value.version
+            require(existingVersion == null || existingVersion == version) {
+                "Plugin path '$id' already declares version '$existingVersion' and cannot declare '$version'"
+            }
+            roots[roots.indexOf(root)] =
+                root.copy(
+                    value =
+                        root.value.copy(
+                            version = version,
+                        ),
+                )
+        } else {
+            PluginScope(root).plugin(
+                id = segments.drop(1).joinToString("."),
+                version = version,
+            )
+        }
+    }
+
+    private fun rootIndex(
+        id: String,
+    ): Int =
+        roots.indexOfFirst { root ->
+            root.value.pluginId == id
+        }
+
     internal fun values(): List<Node<DependencyNode.Plugin>> = roots.toList()
 }

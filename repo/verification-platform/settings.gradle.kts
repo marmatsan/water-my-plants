@@ -43,87 +43,77 @@ dependencyCatalogTree {
     versionsFile.set(file("versions.properties"))
 
     libraries {
-        root("org") {
-            library("jetbrains.kotlinx") {
-                artifact(
-                    artifact = "kotlinx-serialization-json",
-                    version = version("serializationLibraryVersion"),
-                )
-            }
-            library("junit.platform") {
-                artifact("junit-platform-launcher")
-                artifact("junit-platform-suite")
-            }
-        }
-
-        root("io") {
-            library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
-                    version = version("kotestLibraryVersion"),
-                )
-            }
-            library("cucumber") {
-                artifact(
-                    artifact = "cucumber-bom",
-                    version = version("cucumberLibraryVersion"),
-                )
-                artifact("cucumber-java8")
-                artifact("cucumber-junit-platform-engine")
-            }
-        }
-
-        root("com") {
-            library("marmatsan.repo") {
-                artifact(
-                    artifact = "unit-test-dsl",
-                    version = version("unitTestDslLibraryVersion"),
-                )
-            }
-            library("michael-bull.kotlin-result") {
-                artifact(
-                    artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion"),
-                )
-            }
-            library("pinterest.ktlint") {
-                artifact(
-                    artifact = "ktlint-rule-engine",
-                    version = version("ktlintLibraryVersion"),
-                )
-                artifact(
-                    artifact = "ktlint-ruleset-standard",
-                    version = version("ktlintLibraryVersion"),
-                )
-            }
-        }
+        library(
+            group = "org.jetbrains.kotlinx",
+            artifact = "kotlinx-serialization-json",
+            version = version("serializationLibraryVersion"),
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-launcher",
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-suite",
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-runner-junit5",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-assertions-core",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-bom",
+            version = version("cucumberLibraryVersion"),
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-java8",
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-junit-platform-engine",
+        )
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "unit-test-dsl",
+            version = version("unitTestDslLibraryVersion"),
+        )
+        library(
+            group = "com.michael-bull.kotlin-result",
+            artifact = "kotlin-result",
+            version = version("kotlinResultLibraryVersion"),
+        )
+        library(
+            group = "com.pinterest.ktlint",
+            artifact = "ktlint-rule-engine",
+            version = version("ktlintLibraryVersion"),
+        )
+        library(
+            group = "com.pinterest.ktlint",
+            artifact = "ktlint-ruleset-standard",
+            version = version("ktlintLibraryVersion"),
+        )
     }
 
     plugins {
-        root("org") {
-            plugin("jetbrains") {
-                plugin("kotlin") {
-                    plugin(
-                        id = "jvm",
-                        version = version("kotlinVersion"),
-                    )
-                    plugin("plugin") {
-                        plugin(
-                            id = "serialization",
-                            version = version("kotlinVersion"),
-                        )
-                    }
-                }
-                plugin(
-                    id = "dokka",
-                    version = version("dokkaPluginVersion"),
-                )
-            }
-        }
+        plugin(
+            id = "org.jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.kotlin.plugin.serialization",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.dokka",
+            version = version("dokkaPluginVersion"),
+        )
     }
 }
 

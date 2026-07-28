@@ -1,5 +1,6 @@
 package com.marmatsan.waterMyPlants.projectConfig.catalog
 
+import com.marmatsan.dependencies.catalog.api.libraryAlias
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogEntry
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogNode
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
@@ -91,49 +92,4 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
                 )
             }
         }
-
-    private fun libraryAlias(
-        libraryGroup: String,
-        artifact: String,
-    ): String {
-        val groupSegments = libraryGroup.split(".")
-        var groupSuffix = ""
-        var artifactAliasSegment: String? = null
-
-        for (index in groupSegments.lastIndex downTo 0) {
-            groupSuffix =
-                if (groupSuffix.isEmpty()) {
-                    groupSegments[index]
-                } else {
-                    "${groupSegments[index]}-$groupSuffix"
-                }
-
-            artifactAliasSegment =
-                when {
-                    artifact == groupSuffix -> ""
-
-                    artifact.startsWith(
-                        prefix = "$groupSuffix-",
-                    ) -> artifact.removePrefix("$groupSuffix-")
-
-                    else -> null
-                }
-
-            if (artifactAliasSegment != null) {
-                break
-            }
-        }
-
-        val normalizedArtifactAliasSegment =
-            (artifactAliasSegment ?: artifact).replace(
-                "-",
-                ".",
-            )
-
-        return if (artifactAliasSegment?.isEmpty() == true) {
-            libraryGroup
-        } else {
-            "$libraryGroup.$normalizedArtifactAliasSegment"
-        }
-    }
 }
