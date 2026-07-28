@@ -425,7 +425,12 @@ the requested target.
 
 The version sync reads `content.versionSections` from `design-model.json` and
 uses the Figma variable collection named
-`repo\dependency-catalog\versions.properties`.
+`repo\water-my-plants-project-config\versions.properties`.
+
+The `Project versions` header definition and source link are managed from the
+writer project configuration. Both must name
+`repo/water-my-plants-project-config/versions.properties`; the header must not
+retain the retired product-catalog path under `repo/dependency-catalog`.
 
 For each repository version:
 

@@ -27,13 +27,13 @@ class TeamCityCliClient(
         },
 ) : TeamCityBuildArtifactClient,
     TeamCityRunClient {
-    /** Reads build and build-type identity through `teamcity run view`. */
+    /** Reads build and build-type identity through `teamcity build view`. */
     override fun readBuild(
         buildId: Long,
     ): TeamCityBuild {
         val root =
             executeJson(
-                "run",
+                "build",
                 "view",
                 buildId.toString(),
                 "--json",
@@ -62,7 +62,7 @@ class TeamCityCliClient(
         require(limit > 0) { "TeamCity run list limit must be positive." }
         val root =
             executeJson(
-                "run",
+                "build",
                 "list",
                 "--job",
                 buildTypeId,
@@ -83,7 +83,7 @@ class TeamCityCliClient(
         branch: String,
     ): Result<TeamCityRun, TeamCityRunStartError> =
         executeStartRun(
-            "run",
+            "build",
             "start",
             buildTypeId,
             "--branch",
@@ -112,7 +112,7 @@ class TeamCityCliClient(
             "TeamCity timeout must be between 1 and 1440 minutes."
         }
         return executeJson(
-            "run",
+            "build",
             "watch",
             buildId.toString(),
             "--interval",
@@ -123,12 +123,12 @@ class TeamCityCliClient(
         ).toTeamCityRun()
     }
 
-    /** Reads the current run state through `teamcity run view`. */
+    /** Reads the current run state through `teamcity build view`. */
     override fun readRun(
         buildId: Long,
     ): TeamCityRun =
         executeJson(
-            "run",
+            "build",
             "view",
             buildId.toString(),
             "--json",
@@ -141,7 +141,7 @@ class TeamCityCliClient(
     ) {
         outputDirectory.mkdirs()
         executeTeamCity(
-            "run",
+            "build",
             "download",
             buildId.toString(),
             "--output",
@@ -164,7 +164,8 @@ class TeamCityCliClient(
                 environment,
             )
         require(result.exitCode == 0) {
-            "TeamCity CLI failed with exit code ${result.exitCode}: ${result.error.trim()}"
+            "TeamCity CLI command '${arguments.joinToString(" ")}' failed with exit code " +
+                "${result.exitCode}: ${result.error.trim()}"
         }
         return result
     }

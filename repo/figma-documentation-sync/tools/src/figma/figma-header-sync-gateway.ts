@@ -1,4 +1,5 @@
 import {
+  HEADER_DEFINITION_PROPERTY_NAME,
   HEADER_INSTANCE_NAME,
   HEADER_LINK_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
@@ -31,9 +32,14 @@ export class FigmaHeaderSyncGateway implements HeaderSyncGateway {
       await loadTextNodeFonts(linkText);
 
       const linkTextValue = headerLinkText(target.links);
-      const linkProperty = requireTextProperty(header, HEADER_LINK_PROPERTY_NAME);
-      if (linkProperty.value !== linkTextValue) {
-        header.setProperties({ [linkProperty.key]: linkTextValue });
+      const propertyUpdates = headerTextPropertyUpdates(
+        header.componentProperties || {},
+        target,
+        linkTextValue,
+        header.id
+      );
+      if (Object.keys(propertyUpdates).length > 0) {
+        header.setProperties(propertyUpdates);
         mutatedNodeIds.push(header.id);
       }
 
@@ -85,6 +91,34 @@ export function headerLinkNeedsLeftAlignment(linkText) {
   return linkText.textAlignHorizontal !== "LEFT";
 }
 
+export function headerTextPropertyUpdates(
+  componentProperties,
+  target,
+  linkTextValue,
+  headerId = "unknown"
+) {
+  const updates: Record<string, string> = {};
+  const linkProperty = requireTextProperty(
+    componentProperties,
+    HEADER_LINK_PROPERTY_NAME,
+    headerId
+  );
+  if (linkProperty.value !== linkTextValue) {
+    updates[linkProperty.key] = linkTextValue;
+  }
+  if (target.definition !== undefined) {
+    const definitionProperty = requireTextProperty(
+      componentProperties,
+      HEADER_DEFINITION_PROPERTY_NAME,
+      headerId
+    );
+    if (definitionProperty.value !== target.definition) {
+      updates[definitionProperty.key] = target.definition;
+    }
+  }
+  return updates;
+}
+
 function requireDirectHeader(section) {
   const header = section.children.find(
     (child) => child.type === "INSTANCE" && child.name === HEADER_INSTANCE_NAME
@@ -104,14 +138,14 @@ function requireLinkText(header) {
   return linkTexts[0];
 }
 
-function requireTextProperty(instance, propertyName) {
-  const properties: Record<string, { type: string; value: unknown }> = instance.componentProperties || {};
+function requireTextProperty(componentProperties, propertyName, headerId) {
+  const properties: Record<string, { type: string; value: unknown }> = componentProperties;
   const entry = Object.entries(properties)
     .find(([key, property]) =>
       (key === propertyName || key.startsWith(`${propertyName}#`)) && property.type === "TEXT"
-    );
+  );
   if (!entry) {
-    throw new Error(`Header '${instance.id}' is missing TEXT property '${propertyName}'.`);
+    throw new Error(`Header '${headerId}' is missing TEXT property '${propertyName}'.`);
   }
   return {
     key: entry[0],

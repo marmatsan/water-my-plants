@@ -54,6 +54,7 @@ declare module "@figma-documentation-sync/project-config" {
   export const CONNECTOR_TEMPLATE_NAME: any;
   export const HEADER_INSTANCE_NAME: any;
   export const HEADER_LINK_PROPERTY_NAME: any;
+  export const HEADER_DEFINITION_PROPERTY_NAME: any;
   export const GITHUB_MAIN_BLOB_URL: any;
   export const GITHUB_MAIN_TREE_URL: any;
   export const CI_CONFIGURATION_MODEL_NAME: any;

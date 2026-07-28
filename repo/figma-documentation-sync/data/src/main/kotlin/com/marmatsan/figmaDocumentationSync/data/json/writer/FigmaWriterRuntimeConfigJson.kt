@@ -96,6 +96,6 @@ object FigmaWriterRuntimeConfigJson {
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
-    private const val SUPPORTED_SCHEMA_VERSION = 3
+    private const val SUPPORTED_SCHEMA_VERSION = 4
     private const val UTF8_BOM = "\uFEFF"
 }

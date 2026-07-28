@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-28
 review-cycle-days: 90
 sources:
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
@@ -67,6 +67,14 @@ them out beside the other managed documentation sections rather than inside the
 catalog container. As parent documentation sections, both keep exactly one fill
 bound to `md/sys/color/surface` and corner radius `28`; catalog synchronization
 must never clear or flatten either property.
+
+The `headers` target also owns the `Definition` text of section `62936:183`.
+Its product configuration identifies
+`repo/water-my-plants-project-config/versions.properties` as the
+repository-owned source for dependency and plugin versions consumed by the
+Gradle builds. Both that definition and the `Link` property are generated from
+`WaterMyPlantsFigmaWriterProjectConfig`; operators must not maintain either
+value manually in Figma.
 
 The generic domain can model additional catalog collections for another host,
 but the Water My Plants writer does not configure included-build catalogs as

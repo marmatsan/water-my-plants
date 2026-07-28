@@ -1,6 +1,7 @@
 package com.marmatsan.waterMyPlants.projectConfig.figma.configuration
 
 import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterProjectConfigJson
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -13,156 +14,168 @@ internal class FigmaWriterProjectConfigJsonTest :
     FunSpec(
         {
             test("projects the typed Water My Plants writer config to the versioned JSON schema") {
-                val root =
+                given {
+                    FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
+                }.whenever { source ->
                     Json
                         .parseToJsonElement(
-                            FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value),
+                            source,
                         ).jsonObject
-
-                root.keys shouldBe expectedKeys
-                root.getValue("schemaVersion").jsonPrimitive.content shouldBe "3"
-                root.getValue("METADATA_NAMESPACE").jsonPrimitive.content shouldBe "water_my_plants_sync"
-                root.getValue("CANONICAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
-                    "water_my_plants_sync_staging"
-                root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
-                root.getValue("SURFACE_COLOR_VARIABLE_NAME").jsonPrimitive.content shouldBe
-                    "md/sys/color/surface"
-                root.getValue("PARENT_SECTION_CORNER_RADIUS").jsonPrimitive.content shouldBe "28"
-                root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
-                root.getValue("CI_CONNECTOR_TEMPLATE_NAME").jsonPrimitive.content shouldBe
-                    "simple-line_arrow / neutral"
-                root.getValue("CI_CONNECTOR_TEMPLATE_NODE_ID").jsonPrimitive.content shouldBe
-                    "64835:3289"
-                root.getValue("CI_NODE_PHASE_CONTAINER_NAME").jsonPrimitive.content shouldBe "execution plan"
-                root.getValue("CI_NODE_OUTCOME_CONTAINER_NAME").jsonPrimitive.content shouldBe "outcome"
-                root.getValue("CI_PHASE_STEP_CONTAINER_NAME").jsonPrimitive.content shouldBe "steps"
-                root
-                    .getValue("CI_NODE_PROPS")
-                    .jsonObject
-                    .also { properties ->
-                        properties.keys shouldBe
-                            setOf(
-                                "name",
-                                "description",
-                                "executionPlanHeading",
-                                "source",
-                                "runtimePlatform",
-                                "runtimeService",
-                                "runtimeStartup",
-                                "runtimeIdentity",
-                                "showExecutionPlan",
-                                "showOutcome",
-                                "showSource",
-                                "showRuntime",
-                                "showOptionalDetails",
-                            )
-                        properties
-                            .getValue("executionPlanHeading")
-                            .jsonPrimitive.content shouldBe "execution plan heading"
-                        properties
-                            .getValue("showExecutionPlan")
-                            .jsonPrimitive.content shouldBe "show execution plan"
-                        properties
-                            .getValue("showOutcome")
-                            .jsonPrimitive.content shouldBe "show outcome"
-                    }
-                root
-                    .getValue("CI_PHASE_PROPS")
-                    .jsonObject
-                    .also { properties ->
-                        properties.keys shouldBe
-                            setOf(
-                                "order",
-                                "title",
-                                "technicalId",
-                                "description",
-                                "showTechnicalId",
-                                "showDescription",
-                                "showSteps",
-                            )
-                        properties
-                            .getValue("showSteps")
-                            .jsonPrimitive.content shouldBe "show steps"
-                    }
-                root
-                    .getValue("CI_STEP_PROPS")
-                    .jsonObject
-                    .also { properties ->
-                        properties.keys shouldBe
-                            setOf(
-                                "order",
-                                "title",
-                                "technicalId",
-                                "tasks",
-                                "description",
-                                "condition",
-                                "showTechnicalId",
-                                "showDescription",
-                                "showCondition",
-                                "role",
-                            )
-                        properties
-                            .getValue("tasks")
-                            .jsonPrimitive.content shouldBe "tasks"
-                    }
-                root.getValue("CI_STEP_SLOT_NAME_PREFIX").jsonPrimitive.content shouldBe "step"
-                root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
-                root.getValue("CI_PHASE_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
-                root.getValue("CI_OUTCOME_SLOT_COUNT").jsonPrimitive.content shouldBe "4"
-                root
-                    .getValue("CI_ICON_ENVIRONMENTS")
-                    .jsonArray
-                    .map { it.jsonPrimitive.content }
-                    .shouldContainExactly(
-                        "github",
-                        "teamcity",
-                        "cloudflare",
-                        "figma",
-                        "codex",
-                        "browser",
-                        "terminal",
-                        "operator",
-                        "json",
-                        "gradle",
-                    )
-                root
-                    .getValue("CATALOG_TARGET_NAMES")
-                    .jsonArray
-                    .map { it.jsonPrimitive.content }
-                    .shouldContainExactly(
-                        "waterMyPlants.libraries",
-                        "waterMyPlants.plugins",
-                        "waterMyPlants.customGradleConventionPlugins",
-                        "waterMyPlants.customGradlePlugins",
-                    )
-                root
-                    .getValue("PARENT_SECTION_NODE_IDS")
-                    .jsonArray
-                    .map { it.jsonPrimitive.content }
-                    .shouldContainExactly(
-                        "63685:108540",
-                        "62936:183",
-                        "63099:949",
-                        "64886:247",
-                        "64886:248",
-                    )
-
-                val firstCatalogTarget =
+                }.then { root ->
+                    root.keys shouldBe expectedKeys
+                    root.getValue("schemaVersion").jsonPrimitive.content shouldBe "4"
+                    root.getValue("METADATA_NAMESPACE").jsonPrimitive.content shouldBe "water_my_plants_sync"
+                    root.getValue("CANONICAL_STAGING_NAMESPACE").jsonPrimitive.content shouldBe
+                        "water_my_plants_sync_staging"
+                    root.getValue("PROJECT_VERSION_COMPONENT_ID").jsonPrimitive.content shouldBe "63075:591"
+                    root.getValue("SURFACE_COLOR_VARIABLE_NAME").jsonPrimitive.content shouldBe
+                        "md/sys/color/surface"
+                    root.getValue("PARENT_SECTION_CORNER_RADIUS").jsonPrimitive.content shouldBe "28"
+                    root.getValue("HEADER_DEFINITION_PROPERTY_NAME").jsonPrimitive.content shouldBe "Definition"
+                    root.getValue("CI_CONFIGURATION_MODEL_NAME").jsonPrimitive.content shouldBe "teamCity"
+                    root.getValue("CI_CONNECTOR_TEMPLATE_NAME").jsonPrimitive.content shouldBe
+                        "simple-line_arrow / neutral"
+                    root.getValue("CI_CONNECTOR_TEMPLATE_NODE_ID").jsonPrimitive.content shouldBe
+                        "64835:3289"
+                    root.getValue("CI_NODE_PHASE_CONTAINER_NAME").jsonPrimitive.content shouldBe "execution plan"
+                    root.getValue("CI_NODE_OUTCOME_CONTAINER_NAME").jsonPrimitive.content shouldBe "outcome"
+                    root.getValue("CI_PHASE_STEP_CONTAINER_NAME").jsonPrimitive.content shouldBe "steps"
                     root
-                        .getValue("CATALOG_TREE_TARGETS")
-                        .jsonArray
-                        .first()
+                        .getValue("CI_NODE_PROPS")
                         .jsonObject
-                firstCatalogTarget
-                    .getValue("nodesPath")
-                    .jsonArray
-                    .map { it.jsonPrimitive.content }
-                    .shouldContainExactly(
-                        "content",
-                        "catalogs",
-                        "waterMyPlants",
-                        "libraries",
-                    )
+                        .also { properties ->
+                            properties.keys shouldBe
+                                setOf(
+                                    "name",
+                                    "description",
+                                    "executionPlanHeading",
+                                    "source",
+                                    "runtimePlatform",
+                                    "runtimeService",
+                                    "runtimeStartup",
+                                    "runtimeIdentity",
+                                    "showExecutionPlan",
+                                    "showOutcome",
+                                    "showSource",
+                                    "showRuntime",
+                                    "showOptionalDetails",
+                                )
+                            properties
+                                .getValue("executionPlanHeading")
+                                .jsonPrimitive.content shouldBe "execution plan heading"
+                            properties
+                                .getValue("showExecutionPlan")
+                                .jsonPrimitive.content shouldBe "show execution plan"
+                            properties
+                                .getValue("showOutcome")
+                                .jsonPrimitive.content shouldBe "show outcome"
+                        }
+                    root
+                        .getValue("CI_PHASE_PROPS")
+                        .jsonObject
+                        .also { properties ->
+                            properties.keys shouldBe
+                                setOf(
+                                    "order",
+                                    "title",
+                                    "technicalId",
+                                    "description",
+                                    "showTechnicalId",
+                                    "showDescription",
+                                    "showSteps",
+                                )
+                            properties
+                                .getValue("showSteps")
+                                .jsonPrimitive.content shouldBe "show steps"
+                        }
+                    root
+                        .getValue("CI_STEP_PROPS")
+                        .jsonObject
+                        .also { properties ->
+                            properties.keys shouldBe
+                                setOf(
+                                    "order",
+                                    "title",
+                                    "technicalId",
+                                    "tasks",
+                                    "description",
+                                    "condition",
+                                    "showTechnicalId",
+                                    "showDescription",
+                                    "showCondition",
+                                    "role",
+                                )
+                            properties
+                                .getValue("tasks")
+                                .jsonPrimitive.content shouldBe "tasks"
+                        }
+                    root.getValue("CI_STEP_SLOT_NAME_PREFIX").jsonPrimitive.content shouldBe "step"
+                    root.getValue("CI_STEP_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
+                    root.getValue("CI_PHASE_SLOT_COUNT").jsonPrimitive.content shouldBe "8"
+                    root.getValue("CI_OUTCOME_SLOT_COUNT").jsonPrimitive.content shouldBe "4"
+                    root
+                        .getValue("CI_ICON_ENVIRONMENTS")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly(
+                            "github",
+                            "teamcity",
+                            "cloudflare",
+                            "figma",
+                            "codex",
+                            "browser",
+                            "terminal",
+                            "operator",
+                            "json",
+                            "gradle",
+                        )
+                    root
+                        .getValue("CATALOG_TARGET_NAMES")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly(
+                            "waterMyPlants.libraries",
+                            "waterMyPlants.plugins",
+                            "waterMyPlants.customGradleConventionPlugins",
+                            "waterMyPlants.customGradlePlugins",
+                        )
+                    root
+                        .getValue("PARENT_SECTION_NODE_IDS")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly(
+                            "63685:108540",
+                            "62936:183",
+                            "63099:949",
+                            "64886:247",
+                            "64886:248",
+                        )
+
+                    val firstCatalogTarget =
+                        root
+                            .getValue("CATALOG_TREE_TARGETS")
+                            .jsonArray
+                            .first()
+                            .jsonObject
+                    firstCatalogTarget
+                        .getValue("nodesPath")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly(
+                            "content",
+                            "catalogs",
+                            "waterMyPlants",
+                            "libraries",
+                        )
+                    root
+                        .getValue("HEADER_SECTION_TARGETS")
+                        .jsonArray[1]
+                        .jsonObject
+                        .getValue("definition")
+                        .jsonPrimitive.content shouldBe
+                        "Represents repo/water-my-plants-project-config/versions.properties, " +
+                        "the repository-owned source for dependency and plugin versions consumed by the Gradle builds."
+                }
             }
         },
     ) {
@@ -225,6 +238,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "CONNECTOR_TEMPLATE_NAME",
                 "HEADER_INSTANCE_NAME",
                 "HEADER_LINK_PROPERTY_NAME",
+                "HEADER_DEFINITION_PROPERTY_NAME",
                 "GITHUB_MAIN_BLOB_URL",
                 "GITHUB_MAIN_TREE_URL",
                 "CI_CONFIGURATION_MODEL_NAME",

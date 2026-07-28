@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  HEADER_DEFINITION_PROPERTY_NAME,
   HEADER_SECTION_TARGETS,
   PARENT_SECTION_NODE_IDS,
 } from "@figma-documentation-sync/project-config";
@@ -8,6 +9,7 @@ import {
   headerLinkNeedsLeftAlignment,
   headerLinkRanges,
   headerLinkText,
+  headerTextPropertyUpdates,
 } from "../src/figma/figma-header-sync-gateway";
 
 test("header link text gives every source its own hyperlink range", () => {
@@ -28,7 +30,29 @@ test("header links require left horizontal alignment", () => {
   assert.equal(headerLinkNeedsLeftAlignment({ textAlignHorizontal: "LEFT" }), false);
 });
 
+test("header text updates include an explicitly managed definition", () => {
+  assert.deepEqual(
+    headerTextPropertyUpdates(
+      {
+        "Link#1": { type: "TEXT", value: "old.kt" },
+        "Definition#2": { type: "TEXT", value: "Old definition" },
+      },
+      {
+        links: [{ label: "current.kt", url: "https://example.test/current.kt" }],
+        definition: "Current definition",
+      },
+      "current.kt",
+      "header-id"
+    ),
+    {
+      "Link#1": "current.kt",
+      "Definition#2": "Current definition",
+    }
+  );
+});
+
 test("header source map covers every managed parent documentation section", () => {
+  assert.equal(HEADER_DEFINITION_PROPERTY_NAME, "Definition");
   assert.deepEqual(PARENT_SECTION_NODE_IDS, [
     "63685:108540",
     "62936:183",
@@ -60,6 +84,11 @@ test("header source map covers every managed parent documentation section", () =
       "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
       "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
     ]
+  );
+  assert.equal(
+    HEADER_SECTION_TARGETS[1].definition,
+    "Represents repo/water-my-plants-project-config/versions.properties, " +
+      "the repository-owned source for dependency and plugin versions consumed by the Gradle builds."
   );
   assert.deepEqual(
     HEADER_SECTION_TARGETS[3].links.map((link) => link.label),

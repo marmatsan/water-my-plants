@@ -302,9 +302,10 @@ TeamCity. Delete the temporary branch after validation.
 
 ## Mutating Requests And CSRF
 
-Read-only CLI commands such as `teamcity auth status`, `teamcity run list`, and
-`teamcity run view` work through the public HTTPS route. A mutating command such
-as `teamcity run start` or `teamcity run restart` can fail with:
+Read-only CLI commands such as `teamcity auth status`, `teamcity build list`,
+and `teamcity build view` work through the public HTTPS route. A mutating
+command such as `teamcity build start` or `teamcity build restart` can fail
+with:
 
 ```text
 403 Forbidden: failed CSRF check
