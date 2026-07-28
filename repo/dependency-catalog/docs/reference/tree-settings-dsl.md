@@ -4,11 +4,12 @@ type: reference
 scope: repo/dependency-catalog
 owner: dependency-catalog
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
   - repo/dependency-catalog/build.gradle.kts
   - repo/dependency-catalog/settings.gradle.kts
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalog.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/dsl/LibraryCatalogTreesScope.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/dsl/PluginCatalogTreesScope.kt
@@ -64,8 +65,8 @@ dependencyCatalogTree
 
 | API | Parameters | Contract |
 |-----|------------|----------|
-| `root(group) { ... }` | `group: String`, `content` | Creates a unique top-level Maven group value, conventionally `com`, `io`, `me`, or `org`. It becomes the first part of descendant coordinates and aliases. |
-| `library(group) { ... }` | `group: String`, optional `content` | Creates or reuses a relative Maven group path. Dots create real nested nodes: `library("figma.code")` equals nested `figma` and `code` declarations. A node without entries is only a namespace. |
+| `root(group) { ... }` | `group: String`, `content` | Creates a unique top-level Maven group value containing exactly one path segment, conventionally `com`, `io`, `me`, or `org`. It becomes the first part of descendant coordinates and aliases and may own artifacts directly for a single-segment Maven group. |
+| `library(group) { ... }` | `group: String`, optional `content` | Creates or reuses a relative Maven group path. Dots create real nested nodes: below `root("org")`, `library("jetbrains.kotlinx")` equals nested `jetbrains` and `kotlinx` declarations. A node without entries is only a namespace. |
 | `artifact(artifact, version)` | `artifact: String`, `version: String? = null` | Registers `<full-group>:<artifact>`. A null version calls Gradle's `withoutVersion()` and requires external version management. |
 | `artifactsBundle(*artifacts, alias, version)` | artifact names, required bundle `alias`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. |
 
@@ -83,7 +84,7 @@ removed; hyphens in the remaining artifact part become dots.
 
 | API | Parameters | Contract |
 |-----|------------|----------|
-| `root(id) { ... }` | `id: String`, `content` | Creates a unique top-level plugin id value, conventionally `com` or `org`. |
+| `root(id, version) { ... }` | `id: String`, optional `version`, optional `content` | Creates a unique top-level plugin id containing exactly one path segment, conventionally `com` or `org`. A non-null version registers the root itself, which represents a single-segment plugin id. |
 | `plugin(id, version) { ... }` | `id: String`, `version: String? = null`, optional `content` | Creates or reuses a relative plugin id path. Dots create nested nodes. Only nodes with a version are registered; unversioned nodes are namespaces. |
 
 A registered plugin uses its complete dotted path as both its Gradle plugin id
@@ -94,13 +95,28 @@ and catalog alias. For example, the following declaration registers
 ```kotlin
 plugins {
     root("org") {
-        plugin("jetbrains.kotlin") {
-            plugin(
-                id = "jvm",
-                version = version("kotlinVersion"),
-            )
-        }
+        plugin(
+            id = "jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
     }
+}
+```
+
+Maintained catalogs use the complete dotted path for every maximal linear
+plugin chain. A namespace block is retained only at a branch point with
+multiple plugin descendants; path resolution still creates one model node per
+segment.
+
+A versioned plugin whose complete id has one segment is represented by a
+versioned root, without inventing an additional namespace node:
+
+```kotlin
+plugins {
+    root(
+        id = "quality",
+        version = version("qualityPluginVersion"),
+    )
 }
 ```
 
@@ -151,8 +167,13 @@ the source. JetBrains tracks improvements to this association in
 ## Invariants
 
 - At least one library or plugin root must be declared.
+- The only library and plugin declarations available at catalog top level are
+  `root`; leaves cannot exist outside a root.
 - A library `root(group)` value is unique within one settings extension.
 - A plugin `root(id)` value is unique within one settings extension.
+- Every root and stored catalog node contains exactly one non-blank path
+  segment without dots or whitespace. Dotted relative declarations are parsed
+  before storage and create one node per segment.
 - Relative `library` and `plugin` paths cannot be blank or contain empty or
   whitespace-padded segments.
 - Repeated relative paths reuse existing prefix nodes and retain declaration

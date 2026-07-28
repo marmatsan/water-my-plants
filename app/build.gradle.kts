@@ -2,10 +2,10 @@
 
 plugins {
     alias(plugins.plugins.com.android.application)
-    id("com.marmatsan.android")
-    id("com.marmatsan.bddTest")
-    id("com.marmatsan.compose")
-    id("com.marmatsan.unitTest")
+    alias(plugins.plugins.com.marmatsan.android)
+    alias(plugins.plugins.com.marmatsan.bddTest)
+    alias(plugins.plugins.com.marmatsan.compose)
+    alias(plugins.plugins.com.marmatsan.unitTest)
 }
 
 dependencies {

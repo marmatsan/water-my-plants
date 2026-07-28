@@ -45,6 +45,7 @@ private val versionAliases =
         dokkaPluginVersion = Versions::dokkaPluginVersion.name,
         figmaCodeConnectLibraryVersion = Versions::figmaCodeConnectLibraryVersion.name,
         figmaCodeConnectPluginVersion = Versions::figmaCodeConnectPluginVersion.name,
+        gradleConventionPluginVersion = Versions::gradleConventionPluginVersion.name,
         junit5PluginVersion = Versions::junit5PluginVersion.name,
         kotestLibraryVersion = Versions::kotestLibraryVersion.name,
         kotlinInjectLibraryVersion = Versions::kotlinInjectLibraryVersion.name,

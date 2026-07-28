@@ -13,6 +13,51 @@ import io.kotest.matchers.shouldBe
 internal class LibraryScopeTest :
     FunSpec(
         {
+            test("libraryTree preserves artifacts declared directly on its root") {
+                given {
+                    libraryTree(
+                        rootGroup = "tools",
+                    ) {
+                        artifact(
+                            artifact = "core",
+                            version = "1.2.3",
+                        )
+                    }
+                }.whenever { root ->
+                    root
+                }.then { root ->
+                    root.value shouldBe
+                        DependencyNode.Library(
+                            libraryGroup = "tools",
+                            entries =
+                                listOf(
+                                    LibraryEntry.Single(
+                                        artifact =
+                                            Artifact(
+                                                artifact = "core",
+                                                version = "1.2.3",
+                                            ),
+                                    ),
+                                ),
+                        )
+                }
+            }
+
+            test("libraryTree rejects a compact path as its root") {
+                given {
+                    "org.jetbrains"
+                }.whenever { compactRoot ->
+                    shouldThrow<IllegalArgumentException> {
+                        libraryTree(
+                            rootGroup = compactRoot,
+                        ) {}
+                    }
+                }.then { failure ->
+                    failure.message shouldBe
+                        "Library group 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
+                }
+            }
+
             test("artifact adds a single entry with version to the created library") {
                 given(::libraryScopeFixture)
                     .whenever { fixture ->
@@ -463,7 +508,7 @@ internal class LibraryScopeTest :
                     }
             }
 
-            test("library rejects a path with surrounding whitespace") {
+            test("library rejects a path with whitespace") {
                 given(::libraryScopeFixture)
                     .whenever { fixture ->
                         shouldThrow<IllegalArgumentException> {
@@ -471,7 +516,7 @@ internal class LibraryScopeTest :
                         }
                     }.then { failure ->
                         failure.message shouldBe
-                            "Dependency path 'figma. code' must contain non-blank segments without surrounding whitespace"
+                            "Dependency path 'figma. code' must contain non-blank segments without whitespace"
                     }
             }
         },

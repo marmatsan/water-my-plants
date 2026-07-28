@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
   - build.gradle.kts
@@ -64,12 +64,30 @@ Compose state are not domain models and MUST NOT leak across their boundary.
 - Gradle core plugins MUST use their Kotlin DSL accessors, such as
   `` `maven-publish` ``, because Gradle does not generate catalog aliases for
   core plugins.
-- Repository-owned convention plugins supplied directly by an included build
-  MAY use a versionless literal `id(...)`; the ID is the plugin's public API
-  and source composite substitution owns its implementation.
+- Repository-owned plugins with a stable marker and a consumer-owned catalog
+  entry MUST use a type-safe alias at their direct `build.gradle.kts`
+  consumption point. When `pluginManagement.includeBuild` supplies the source
+  implementation, the root build MUST NOT preload those versioned aliases with
+  `apply false` before subprojects consume them: Gradle exposes an included
+  plugin on the shared classpath with an unknown version and cannot validate a
+  later versioned catalog request.
+- A repository-owned plugin MAY use a versionless literal `id(...)` only at a
+  settings/bootstrap boundary or when a settings plugin has already placed the
+  same implementation JAR on the build-script classpath with an unknown
+  version. Water My Plants therefore keeps
+  `com.marmatsan.waterMyPlantsSettings` in `settings.gradle.kts` and
+  `com.marmatsan.waterMyPlantsProjectConfig` in the root `build.gradle.kts` as
+  explicit composition exceptions.
 - Literal external plugin IDs remain valid only in `settings.gradle.kts`
   `pluginManagement` declarations, where Gradle resolves the versions used to
   generate the type-safe build-script accessors.
+- Repository-owned catalogs built with `dependencyCatalogTree` MUST declare
+  every top-level declaration through `root`; top-level `library` and `plugin`
+  leaves are prohibited. A root MUST contain exactly one path segment. Relative
+  `library` and `plugin` declarations MAY use dotted compact paths because the
+  DSL expands every segment into a distinct node. Within a plugin root, dotted
+  paths MUST collapse every maximal linear namespace chain; retain a nested
+  block only where one node owns multiple plugin descendants.
 - Every custom Gradle task MUST declare its cache contract explicitly with
   `@CacheableTask`, `@DisableCachingByDefault`, or `@UntrackedTask`. Validation
   tasks with no reusable output SHOULD disable caching with a concrete reason.

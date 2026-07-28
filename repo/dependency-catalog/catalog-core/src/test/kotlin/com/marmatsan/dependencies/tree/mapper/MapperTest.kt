@@ -14,7 +14,7 @@ internal class MapperTest :
             test("maps NodeData_Library to Dependency_Library when entries is not null") {
                 given {
                     DependencyNode.Library(
-                        libraryGroup = "androidx.activity",
+                        libraryGroup = "activity",
                         entries =
                             listOf(
                                 LibraryEntry.Single(
@@ -51,7 +51,7 @@ internal class MapperTest :
             test("maps NodeData_Plugin to Dependency_Plugin when version is not null") {
                 given {
                     DependencyNode.Plugin(
-                        pluginId = "com.android.application",
+                        pluginId = "application",
                         version = "8.10.1",
                     )
                 }.whenever { node ->

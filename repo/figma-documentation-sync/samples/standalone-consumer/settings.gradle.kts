@@ -9,13 +9,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-
-    plugins {
-        id("com.marmatsan.figmaDocumentationSync") version
-            providers
-                .gradleProperty("figmaDocumentationSyncVersion")
-                .get()
-    }
 }
 
 dependencyResolutionManagement {
@@ -26,6 +19,17 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+    }
+
+    versionCatalogs {
+        create("plugins") {
+            plugin(
+                "com.marmatsan.figmaDocumentationSync",
+                "com.marmatsan.figmaDocumentationSync",
+            ).version(
+                providers.gradleProperty("figmaDocumentationSyncVersion").get(),
+            )
+        }
     }
 }
 

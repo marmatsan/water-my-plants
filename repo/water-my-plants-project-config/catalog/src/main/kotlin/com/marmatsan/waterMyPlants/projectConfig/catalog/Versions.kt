@@ -15,6 +15,7 @@ import java.util.Properties
  * @property dokkaPluginVersion Dokka Gradle plugin version.
  * @property figmaCodeConnectLibraryVersion Figma Code Connect runtime version.
  * @property figmaCodeConnectPluginVersion Figma Code Connect Gradle plugin version.
+ * @property gradleConventionPluginVersion Repository-owned Gradle convention plugins version.
  * @property junit5PluginVersion JUnit Platform Gradle plugin version.
  * @property kotestLibraryVersion Kotest library version.
  * @property kotlinInjectLibraryVersion Kotlin Inject library version.
@@ -36,6 +37,7 @@ internal data class Versions(
     val dokkaPluginVersion: String,
     val figmaCodeConnectLibraryVersion: String,
     val figmaCodeConnectPluginVersion: String,
+    val gradleConventionPluginVersion: String,
     val junit5PluginVersion: String,
     val kotestLibraryVersion: String,
     val kotlinInjectLibraryVersion: String,
@@ -104,6 +106,10 @@ internal data class Versions(
                 figmaCodeConnectPluginVersion =
                     get(
                         key = "figmaCodeConnectPluginVersion",
+                    ),
+                gradleConventionPluginVersion =
+                    get(
+                        key = "gradleConventionPluginVersion",
                     ),
                 junit5PluginVersion =
                     get(

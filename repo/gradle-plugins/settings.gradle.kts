@@ -63,66 +63,82 @@ dependencyCatalogTree {
     versionsFile.set(file("versions.properties"))
 
     libraries {
-        library(
-            group = "com.android.tools.build",
-            artifact = "gradle",
-            version = version("androidGradlePluginVersion"),
-        )
-        library(
-            group = "com.google.protobuf",
-            artifact = "protobuf-gradle-plugin",
-            version = version("protobufPluginVersion"),
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "catalog-api",
-            version = version("dependencyCatalogVersion"),
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "unit-test-dsl",
-            version = version("unitTestDslLibraryVersion"),
-        )
-        library(
-            group = "org.jetbrains.kotlin",
-            artifact = "kotlin-gradle-plugin",
-            version = version("kotlinVersion"),
-        )
-        library(
-            group = "org.jetbrains.dokka",
-            artifact = "dokka-gradle-plugin",
-            version = version("dokkaPluginVersion"),
-        )
-        library(
-            group = "org.junit.platform",
-            artifact = "junit-platform-launcher",
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-runner-junit5",
-            version = version("kotestLibraryVersion"),
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-assertions-core",
-            version = version("kotestLibraryVersion"),
-        )
-        library(
-            group = "io.mockk",
-            artifact = "mockk",
-            version = version("mockkLibraryVersion"),
-        )
+        root("com") {
+            library("android.tools.build") {
+                artifact(
+                    artifact = "gradle",
+                    version = version("androidGradlePluginVersion"),
+                )
+            }
+            library("google.protobuf") {
+                artifact(
+                    artifact = "protobuf-gradle-plugin",
+                    version = version("protobufPluginVersion"),
+                )
+            }
+            library("marmatsan.repo") {
+                artifact(
+                    artifact = "catalog-api",
+                    version = version("dependencyCatalogVersion"),
+                )
+                artifact(
+                    artifact = "unit-test-dsl",
+                    version = version("unitTestDslLibraryVersion"),
+                )
+            }
+        }
+        root("org") {
+            library("jetbrains.kotlin") {
+                artifact(
+                    artifact = "kotlin-gradle-plugin",
+                    version = version("kotlinVersion"),
+                )
+            }
+            library("jetbrains.dokka") {
+                artifact(
+                    artifact = "dokka-gradle-plugin",
+                    version = version("dokkaPluginVersion"),
+                )
+            }
+            library("junit.platform") {
+                artifact(
+                    artifact = "junit-platform-launcher",
+                )
+            }
+        }
+        root("io") {
+            library("kotest") {
+                artifact(
+                    artifact = "kotest-runner-junit5",
+                    version = version("kotestLibraryVersion"),
+                )
+                artifact(
+                    artifact = "kotest-assertions-core",
+                    version = version("kotestLibraryVersion"),
+                )
+            }
+            library("mockk") {
+                artifact(
+                    artifact = "mockk",
+                    version = version("mockkLibraryVersion"),
+                )
+            }
+        }
     }
 
     plugins {
-        plugin(
-            id = "org.jetbrains.kotlin.jvm",
-            version = version("kotlinVersion"),
-        )
-        plugin(
-            id = "org.jetbrains.dokka",
-            version = version("dokkaPluginVersion"),
-        )
+        root("org") {
+            plugin("jetbrains") {
+                plugin(
+                    id = "dokka",
+                    version = version("dokkaPluginVersion"),
+                )
+                plugin(
+                    id = "kotlin.jvm",
+                    version = version("kotlinVersion"),
+                )
+            }
+        }
     }
 }
 

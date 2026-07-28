@@ -1,7 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 plugins {
-    id("com.marmatsan.figmaDocumentationSync")
+    alias(plugins.plugins.com.marmatsan.figmaDocumentationSync)
 }
 
 tasks.register("verifyPluginApplication") {

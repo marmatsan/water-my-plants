@@ -19,6 +19,9 @@ class LibraryScope(
 ) : TreeBuilder<DependencyNode.Library>(root) {
     private var entries: MutableList<LibraryEntry>? = root.value.entries?.toMutableList()
 
+    /** Returns the immutable entries configured directly on this scope's node. */
+    internal fun configuredEntries(): List<LibraryEntry>? = entries?.toList()
+
     /**
      * Adds a single artifact entry to the current library.
      *

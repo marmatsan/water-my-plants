@@ -3,8 +3,8 @@ package com.marmatsan.dependencies.tree.dsl.path
 /**
  * Represents a validated dependency path relative to the current DSL node.
  *
- * Dots separate path segments. Empty segments and surrounding whitespace are rejected so a
- * compact declaration always expands into an unambiguous node hierarchy.
+ * Dots separate path segments. Empty segments and whitespace are rejected so a compact
+ * declaration always expands into an unambiguous node hierarchy.
  *
  * @property segments Ordered path segments to resolve below the current node.
  */
@@ -29,10 +29,11 @@ internal class DependencyPath private constructor(
 
             require(
                 segments.all { segment ->
-                    segment.isNotBlank() && segment == segment.trim()
+                    segment.isNotEmpty() &&
+                        segment.none { character -> character.isWhitespace() }
                 },
             ) {
-                "Dependency path '$value' must contain non-blank segments without surrounding whitespace"
+                "Dependency path '$value' must contain non-blank segments without whitespace"
             }
 
             return DependencyPath(

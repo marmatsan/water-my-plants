@@ -10,6 +10,38 @@ import io.kotest.matchers.shouldBe
 internal class PluginScopeTest :
     FunSpec(
         {
+            test("pluginTree registers a versioned single-segment root") {
+                given {
+                    pluginTree(
+                        rootId = "quality",
+                        version = "1.2.3",
+                    )
+                }.whenever { root ->
+                    root.value
+                }.then { rootPlugin ->
+                    rootPlugin shouldBe
+                        DependencyNode.Plugin(
+                            pluginId = "quality",
+                            version = "1.2.3",
+                        )
+                }
+            }
+
+            test("pluginTree rejects a compact path as its root") {
+                given {
+                    "org.jetbrains"
+                }.whenever { compactRoot ->
+                    shouldThrow<IllegalArgumentException> {
+                        pluginTree(
+                            rootId = compactRoot,
+                        )
+                    }
+                }.then { failure ->
+                    failure.message shouldBe
+                        "Plugin id 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
+                }
+            }
+
             test("plugin expands a compact path and assigns the version to its terminal node") {
                 given(::pluginScopeFixture)
                     .whenever { fixture ->
@@ -151,7 +183,7 @@ internal class PluginScopeTest :
                         }
                     }.then { failure ->
                         failure.message shouldBe
-                            "Dependency path 'figma..code' must contain non-blank segments without surrounding whitespace"
+                            "Dependency path 'figma..code' must contain non-blank segments without whitespace"
                     }
             }
         },

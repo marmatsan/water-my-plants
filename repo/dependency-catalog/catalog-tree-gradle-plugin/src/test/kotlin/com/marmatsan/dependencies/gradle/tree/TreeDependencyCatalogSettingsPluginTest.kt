@@ -10,7 +10,7 @@ import org.gradle.testkit.runner.TaskOutcome
 internal class TreeDependencyCatalogSettingsPluginTest :
     FunSpec(
         {
-            test("registers compact library and plugin trees with versions owned by the consuming settings") {
+            test("registers explicit library and plugin trees with versions owned by the consuming settings") {
                 given {
                     tempdir(
                         prefix = "tree-dependency-catalog-settings",
@@ -29,33 +29,44 @@ internal class TreeDependencyCatalogSettingsPluginTest :
 
                             dependencyCatalogTree {
                                 libraries {
-                                    library(
-                                        group = "com.example.tools",
-                                        artifact = "tools-core",
-                                        version = version("exampleLibraryVersion"),
-                                    )
-                                    library(
-                                        group = "com.example.format",
-                                        artifact = "format-core",
-                                        version = version("exampleLibraryVersion"),
-                                    )
-                                    library(
-                                        group = "tools",
-                                        artifact = "core",
-                                        version = version("exampleLibraryVersion"),
-                                    )
+                                    root("com") {
+                                        library("example") {
+                                            library("tools") {
+                                                artifact(
+                                                    artifact = "tools-core",
+                                                    version = version("exampleLibraryVersion"),
+                                                )
+                                            }
+                                            library("format") {
+                                                artifact(
+                                                    artifact = "format-core",
+                                                    version = version("exampleLibraryVersion"),
+                                                )
+                                            }
+                                        }
+                                    }
+                                    root("tools") {
+                                        artifact(
+                                            artifact = "core",
+                                            version = version("exampleLibraryVersion"),
+                                        )
+                                    }
                                 }
 
                                 plugins {
-                                    plugin(
-                                        id = "com.example.quality",
-                                        version = version("examplePluginVersion"),
-                                    )
-                                    plugin(
-                                        id = "com.example.format",
-                                        version = version("examplePluginVersion"),
-                                    )
-                                    plugin(
+                                    root("com") {
+                                        plugin("example") {
+                                            plugin(
+                                                id = "quality",
+                                                version = version("examplePluginVersion"),
+                                            )
+                                            plugin(
+                                                id = "format",
+                                                version = version("examplePluginVersion"),
+                                            )
+                                        }
+                                    }
+                                    root(
                                         id = "quality",
                                         version = version("examplePluginVersion"),
                                     )

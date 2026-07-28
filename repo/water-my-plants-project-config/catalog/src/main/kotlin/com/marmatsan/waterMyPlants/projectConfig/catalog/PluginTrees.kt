@@ -31,22 +31,36 @@ private fun comPluginTree(
             version = versions.androidGradlePluginVersion,
         )
     }
-    plugin("figma.code") {
-        plugin(
-            id = "connect",
-            version = versions.figmaCodeConnectPluginVersion,
-        )
-    }
+    plugin(
+        id = "figma.code.connect",
+        version = versions.figmaCodeConnectPluginVersion,
+    )
     plugin("google") {
-        plugin("devtools") {
-            plugin(
-                id = "ksp",
-                version = versions.kspPluginVersion,
-            )
-        }
+        plugin(
+            id = "devtools.ksp",
+            version = versions.kspPluginVersion,
+        )
         plugin(
             id = "protobuf",
             version = versions.protobufPluginVersion,
+        )
+    }
+    plugin("marmatsan") {
+        plugin(
+            id = "android",
+            version = versions.gradleConventionPluginVersion,
+        )
+        plugin(
+            id = "bddTest",
+            version = versions.gradleConventionPluginVersion,
+        )
+        plugin(
+            id = "compose",
+            version = versions.gradleConventionPluginVersion,
+        )
+        plugin(
+            id = "unitTest",
+            version = versions.gradleConventionPluginVersion,
         )
     }
 }
@@ -56,12 +70,10 @@ private fun dePluginTree(
 ) = pluginTree(
     rootId = "de",
 ) {
-    plugin("mannodermaus") {
-        plugin(
-            id = "android-junit5",
-            version = versions.junit5PluginVersion,
-        )
-    }
+    plugin(
+        id = "mannodermaus.android-junit5",
+        version = versions.junit5PluginVersion,
+    )
 }
 
 private fun orgPluginTree(
@@ -74,11 +86,9 @@ private fun orgPluginTree(
             id = "dokka",
             version = versions.dokkaPluginVersion,
         )
-        plugin("kotlin.plugin") {
-            plugin(
-                id = "compose",
-                version = versions.kotlinVersion,
-            )
-        }
+        plugin(
+            id = "kotlin.plugin.compose",
+            version = versions.kotlinVersion,
+        )
     }
 }

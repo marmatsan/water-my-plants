@@ -18,18 +18,23 @@ plugins {
 
 dependencyCatalogTree {
     libraries {
-        library(
-            group = "com.example.tools",
-            artifact = "tools-core",
-            version = version("exampleLibraryVersion"),
-        )
+        root("com") {
+            library("example.tools") {
+                artifact(
+                    artifact = "tools-core",
+                    version = version("exampleLibraryVersion"),
+                )
+            }
+        }
     }
 
     plugins {
-        plugin(
-            id = "com.example.quality",
-            version = version("examplePluginVersion"),
-        )
+        root("com") {
+            plugin(
+                id = "example.quality",
+                version = version("examplePluginVersion"),
+            )
+        }
     }
 }
 

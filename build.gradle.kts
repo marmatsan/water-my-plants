@@ -9,15 +9,10 @@ plugins {
     alias(plugins.plugins.com.figma.code.connect) apply false
     alias(plugins.plugins.com.google.devtools.ksp) apply false
     alias(plugins.plugins.com.google.protobuf) apply false
+    alias(toolPlugins.plugins.com.marmatsan.verificationPlatform) apply true
     alias(plugins.plugins.de.mannodermaus.android.junit5) apply false
     alias(plugins.plugins.org.jetbrains.kotlin.plugin.compose) apply false
-    id("com.marmatsan.android") apply false
-    id("com.marmatsan.bddTest") apply false
-    id("com.marmatsan.compose") apply false
-    id("com.marmatsan.verificationPlatform") apply true
     id("com.marmatsan.waterMyPlantsProjectConfig") apply true
-    id("com.marmatsan.protobuf") apply false
-    id("com.marmatsan.unitTest") apply false
 }
 
 extensions.configure<VerificationPlatformExtension> {
