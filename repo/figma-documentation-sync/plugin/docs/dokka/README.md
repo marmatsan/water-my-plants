@@ -27,6 +27,11 @@ explicit metadata such as `generatedAt`.
 Task classes expose the pipeline to Gradle. Keep IO and Gradle annotations here
 instead of leaking them into the domain module.
 
+# Package com.marmatsan.figmaDocumentationSync.plugin.task.input
+
+Shared task-input contracts keep related Gradle properties, annotations, and
+model reconstruction consistent across tasks without coupling task behavior.
+
 # Package com.marmatsan.figmaDocumentationSync.plugin.checker
 
 Checker classes compare generated model metadata with the shared plugin data
