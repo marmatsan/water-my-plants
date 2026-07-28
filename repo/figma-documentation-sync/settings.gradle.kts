@@ -54,6 +54,16 @@ dependencyResolutionManagement {
         create("libs") {
             // Runtime
             library(
+                alias = "com.michael.bull.kotlin.result",
+                group = "com.michael-bull.kotlin-result",
+                artifact = "kotlin-result",
+            ).version(
+                version(
+                    key = "kotlinResultLibraryVersion",
+                ),
+            )
+
+            library(
                 alias = "io.ktor.bom",
                 group = "io.ktor",
                 artifact = "ktor-bom",

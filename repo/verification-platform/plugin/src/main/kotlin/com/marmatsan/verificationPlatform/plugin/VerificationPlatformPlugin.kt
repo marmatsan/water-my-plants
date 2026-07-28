@@ -52,9 +52,11 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 CheckIncludedBuildVersionsTask::class.java,
             ) { task ->
                 task.group = "verification"
-                task.description = "Verifies that configured included builds own their versions.properties."
+                task.description =
+                    "Verifies included-build version ownership and configured cross-build alignment."
                 task.repositoryRoot.set(project.layout.projectDirectory)
                 task.includedBuildPaths.convention(emptyList())
+                task.alignedVersionProperties.convention(emptyList())
             }
         val checkModuleBoundaries =
             project.tasks.register(
@@ -73,7 +75,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 CheckTypedResultUsageTask::class.java,
             ) { task ->
                 task.group = "verification"
-                task.description = "Verifies that product sources use the configured typed Result."
+                task.description = "Verifies that production sources use the configured typed Result."
                 task.repositoryRoot.set(project.layout.projectDirectory)
             }
         val extension =

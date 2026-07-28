@@ -20,7 +20,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
     /** Prepares and verifies one canonical artifact set before uploading its exact PNG payload. */
     fun upload(
         request: Request,
-    ): Result {
+    ): UploadedPayload {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
         }
@@ -85,7 +85,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
             request.uploadUrl,
             bytes,
         )
-        return Result(
+        return UploadedPayload(
             buildId = request.buildId,
             gitSha = manifest.gitSha,
             modelHash = manifest.modelHash,
@@ -133,7 +133,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
      * @property payloadSha256 verified PNG content hash.
      * @property artifactDirectory prepared artifact set containing the uploaded payload.
      */
-    data class Result(
+    data class UploadedPayload(
         val buildId: Long?,
         val gitSha: String,
         val modelHash: String,

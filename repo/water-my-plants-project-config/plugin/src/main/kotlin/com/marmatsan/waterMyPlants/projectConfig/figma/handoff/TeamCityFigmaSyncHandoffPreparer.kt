@@ -44,7 +44,7 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
     /** Resolves, validates, inspects, and summarizes one canonical handoff [request]. */
     fun prepare(
         request: Request,
-    ): Result {
+    ): PreparedHandoff {
         val artifactDirectory = artifactDirectoryResolver.resolve(request)
         val artifacts = artifactSetSource.read(artifactDirectory)
         val validated =
@@ -76,7 +76,7 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
                 artifacts.artifactDirectory.toFile(),
                 summary,
             )
-        return Result(
+        return PreparedHandoff(
             artifactDirectory = artifactDirectory,
             summaryFile = summaryFile,
             summary = summary,
@@ -114,7 +114,7 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
      * @property summaryFile JSON handoff written beside the artifacts.
      * @property summary in-memory handoff contract returned to programmatic consumers.
      */
-    data class Result(
+    data class PreparedHandoff(
         val artifactDirectory: File,
         val summaryFile: File,
         val summary: JsonObject,

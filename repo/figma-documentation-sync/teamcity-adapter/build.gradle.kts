@@ -7,6 +7,7 @@ import java.net.URI
 plugins {
     kotlin("jvm")
     alias(plugins.plugins.org.jetbrains.dokka)
+    `java-library`
     `maven-publish`
 }
 
@@ -61,6 +62,7 @@ java {
 }
 
 dependencies {
+    api(libs.com.michael.bull.kotlin.result)
     implementation(projects.domain)
     implementation(projects.data)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)

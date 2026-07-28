@@ -65,11 +65,12 @@ not expand the `waterMyPlants.libraries` or `waterMyPlants.plugins` trees
 published to Figma.
 
 The repository [error-handling standard](../../docs/standards/error-handling.md)
-selects kotlin-result, but the product catalog intentionally omits it until a
-Water My Plants production module consumes the contract. This keeps the Figma
-product tree limited to dependencies used to produce the app. The first real
-consumer adds the coordinate and its type-safe `libs` accessor in the same
-change.
+selects kotlin-result. This composition build consumes it through its local
+type-safe `libs` catalog to collapse the TeamCity queue contract at the
+Water My Plants operator boundary. That tooling alias is deliberately absent
+from `WaterMyPlantsCatalogProvider`, so the product catalog still omits the
+library until an app production module consumes it. This keeps the Figma
+product tree limited to dependencies used to produce the app.
 
 ## Reusing The Engine
 

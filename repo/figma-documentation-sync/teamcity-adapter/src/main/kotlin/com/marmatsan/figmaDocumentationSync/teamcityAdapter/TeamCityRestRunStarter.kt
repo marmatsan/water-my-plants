@@ -1,5 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -7,6 +10,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -47,7 +51,7 @@ class TeamCityRestRunStarter(
     override fun startRun(
         buildTypeId: String,
         branch: String,
-    ): TeamCityRun {
+    ): Result<TeamCityRun, TeamCityRunStartError> {
         require(buildTypeId.isNotBlank()) { "The TeamCity build type id must not be blank." }
         require(branch.isNotBlank()) { "The TeamCity branch must not be blank." }
         val body =
@@ -67,31 +71,53 @@ class TeamCityRestRunStarter(
                 )
             }.toString()
         val response =
-            send(
-                endpoint,
-                mapOf(
-                    "Accept" to "application/json",
-                    "Authorization" to "Bearer $teamCityToken",
-                    "CF-Access-Token" to cloudflareAccessToken,
-                    "Content-Type" to "application/json",
+            try {
+                send(
+                    endpoint,
+                    mapOf(
+                        "Accept" to "application/json",
+                        "Authorization" to "Bearer $teamCityToken",
+                        "CF-Access-Token" to cloudflareAccessToken,
+                        "Content-Type" to "application/json",
+                    ),
+                    body,
+                )
+            } catch (
+                exception: InterruptedException,
+            ) {
+                Thread.currentThread().interrupt()
+                throw exception
+            } catch (
+                exception: IOException,
+            ) {
+                return Err(
+                    TeamCityRunStartError.Unavailable(
+                        detail = exception.message.orEmpty(),
+                    ),
+                )
+            }
+        if (response.statusCode !in 200..299) {
+            return Err(
+                TeamCityRunStartError.RequestRejected(
+                    statusCode = response.statusCode,
+                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH),
                 ),
-                body,
             )
-        require(response.statusCode in 200..299) {
-            "TeamCity REST queue request failed with HTTP ${response.statusCode}: " +
-                response.body.take(MAX_ERROR_BODY_LENGTH)
         }
-        val root =
-            runCatching { Json.parseToJsonElement(response.body).jsonObject }
-                .getOrElse { error ->
-                    throw IllegalArgumentException(
-                        "TeamCity REST returned invalid JSON.",
-                        error,
-                    )
-                }
-        return root.toTeamCityRun(
-            defaultBranch = branch,
-        )
+        return try {
+            Ok(
+                Json
+                    .parseToJsonElement(response.body)
+                    .jsonObject
+                    .toTeamCityRun(
+                        defaultBranch = branch,
+                    ),
+            )
+        } catch (
+            _: RuntimeException,
+        ) {
+            Err(TeamCityRunStartError.InvalidResponse)
+        }
     }
 
     /**

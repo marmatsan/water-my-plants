@@ -1,5 +1,8 @@
 package com.marmatsan.figmaDocumentationSync.teamcityAdapter
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldNotContainKey
@@ -13,7 +16,7 @@ internal class TeamCityRestRunStarterTest :
                 var requestedUri: URI? = null
                 var requestedHeaders: Map<String, String>? = null
                 var requestedBody: String? = null
-                val starter =
+                given {
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example/",
                         teamCityToken = "teamcity-token",
@@ -35,35 +38,40 @@ internal class TeamCityRestRunStarterTest :
                                 """.trimIndent(),
                         )
                     }
-
-                starter.startRun(
-                    buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                    branch = "main",
-                ) shouldBe
-                    TeamCityRun(
-                        id = 1680,
-                        state = "queued",
-                        status = null,
-                        statusText = null,
-                        branchName = "main",
-                        webUrl = "https://teamcity.example/build/1680",
+                }.whenever { starter ->
+                    starter.startRun(
+                        buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                        branch = "main",
                     )
-                requestedUri shouldBe URI.create("https://teamcity.example/app/rest/buildQueue")
-                requestedHeaders shouldBe
-                    mapOf(
-                        "Accept" to "application/json",
-                        "Authorization" to "Bearer teamcity-token",
-                        "CF-Access-Token" to "cloudflare-token",
-                        "Content-Type" to "application/json",
-                    )
-                requestedHeaders.orEmpty().shouldNotContainKey("Cookie")
-                requestedBody shouldBe
-                    "{\"buildType\":{\"id\":\"WaterMyPlants_WaterMyPlantsFigmaSync\"}," +
-                    "\"branchName\":\"main\"}"
+                }.then { result ->
+                    result shouldBe
+                        Ok(
+                            TeamCityRun(
+                                id = 1680,
+                                state = "queued",
+                                status = null,
+                                statusText = null,
+                                branchName = "main",
+                                webUrl = "https://teamcity.example/build/1680",
+                            ),
+                        )
+                    requestedUri shouldBe URI.create("https://teamcity.example/app/rest/buildQueue")
+                    requestedHeaders shouldBe
+                        mapOf(
+                            "Accept" to "application/json",
+                            "Authorization" to "Bearer teamcity-token",
+                            "CF-Access-Token" to "cloudflare-token",
+                            "Content-Type" to "application/json",
+                        )
+                    requestedHeaders.orEmpty().shouldNotContainKey("Cookie")
+                    requestedBody shouldBe
+                        "{\"buildType\":{\"id\":\"WaterMyPlants_WaterMyPlantsFigmaSync\"}," +
+                        "\"branchName\":\"main\"}"
+                }
             }
 
-            test("rejects redirects instead of following them with authorization headers") {
-                val starter =
+            test("returns rejected requests instead of following authorization redirects") {
+                given {
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example",
                         teamCityToken = "teamcity-token",
@@ -74,21 +82,24 @@ internal class TeamCityRestRunStarterTest :
                             body = "redirect",
                         )
                     }
-
-                val exception =
-                    shouldThrow<IllegalArgumentException> {
-                        starter.startRun(
-                            buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                            branch = "main",
+                }.whenever { starter ->
+                    starter.startRun(
+                        buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                        branch = "main",
+                    )
+                }.then { result ->
+                    result shouldBe
+                        Err(
+                            TeamCityRunStartError.RequestRejected(
+                                statusCode = 302,
+                                responseBody = "redirect",
+                            ),
                         )
-                    }
-
-                exception.message shouldBe
-                    "TeamCity REST queue request failed with HTTP 302: redirect"
+                }
             }
 
-            test("rejects a malformed successful response") {
-                val starter =
+            test("returns an invalid response for malformed successful JSON") {
+                given {
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example",
                         teamCityToken = "teamcity-token",
@@ -99,29 +110,30 @@ internal class TeamCityRestRunStarterTest :
                             body = "not-json",
                         )
                     }
-
-                val exception =
-                    shouldThrow<IllegalArgumentException> {
-                        starter.startRun(
-                            buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                            branch = "main",
-                        )
-                    }
-
-                exception.message shouldBe "TeamCity REST returned invalid JSON."
+                }.whenever { starter ->
+                    starter.startRun(
+                        buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                        branch = "main",
+                    )
+                }.then { result ->
+                    result shouldBe Err(TeamCityRunStartError.InvalidResponse)
+                }
             }
 
             test("requires an HTTPS TeamCity origin") {
-                val exception =
+                given {
+                    "http://teamcity.example"
+                }.whenever { serverUrl ->
                     shouldThrow<IllegalArgumentException> {
                         TeamCityRestRunStarter(
-                            serverUrl = "http://teamcity.example",
+                            serverUrl = serverUrl,
                             teamCityToken = "teamcity-token",
                             cloudflareAccessToken = "cloudflare-token",
                         )
                     }
-
-                exception.message shouldBe "The public TeamCity automation endpoint must use HTTPS."
+                }.then { exception ->
+                    exception.message shouldBe "The public TeamCity automation endpoint must use HTTPS."
+                }
             }
         },
     )

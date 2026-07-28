@@ -50,6 +50,7 @@ java {
 dependencies {
     implementation(projects.domain)
     implementation(projects.data)
+    implementation(libs.com.michael.bull.kotlin.result)
 
     ksp(libs.me.tatarka.inject.kotlin.inject.compiler.ksp)
 

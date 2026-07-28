@@ -1,7 +1,9 @@
 package com.marmatsan.waterMyPlants.projectConfig.figma.sync
 
+import com.github.michaelbull.result.getOrElse
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRun
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRunClient
+import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityRunStartError
 
 /** Coordinates one idempotent rerun of the canonical TeamCity Figma Sync pipeline. */
 class TeamCityFigmaSyncRerunner(
@@ -45,16 +47,13 @@ class TeamCityFigmaSyncRerunner(
         }
 
         val queuedRun =
-            try {
-                teamCityClient.startRun(
+            teamCityClient
+                .startRun(
                     buildTypeId = buildTypeId,
                     branch = branch,
-                )
-            } catch (
-                startError: RuntimeException,
-            ) {
-                findActiveRun() ?: throw startError
-            }
+                ).getOrElse { startError ->
+                    findActiveRun() ?: throw IllegalStateException(startError.operatorMessage())
+                }
         val run =
             if (request.waitForCompletion) {
                 waitForSuccess(
@@ -156,3 +155,22 @@ class TeamCityFigmaSyncRerunner(
         val timeoutMinutes: Int = 60,
     )
 }
+
+private fun TeamCityRunStartError.operatorMessage(): String =
+    when (this) {
+        is TeamCityRunStartError.RequestRejected -> {
+            "TeamCity REST queue request failed with HTTP $statusCode: $responseBody"
+        }
+
+        is TeamCityRunStartError.CommandFailed -> {
+            "TeamCity CLI queue command failed with exit code $exitCode: $detail"
+        }
+
+        TeamCityRunStartError.InvalidResponse -> {
+            "TeamCity returned an invalid queue response."
+        }
+
+        is TeamCityRunStartError.Unavailable -> {
+            "TeamCity queue transport is unavailable: $detail"
+        }
+    }

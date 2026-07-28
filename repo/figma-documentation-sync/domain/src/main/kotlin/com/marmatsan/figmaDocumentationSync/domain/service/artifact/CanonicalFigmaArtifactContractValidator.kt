@@ -17,7 +17,7 @@ class CanonicalFigmaArtifactContractValidator {
     fun validate(
         contract: CanonicalFigmaArtifactContract,
         expectedGitSha: String? = null,
-    ): Result {
+    ): ValidatedIdentity {
         val model = contract.model
         require(model.branch == MAIN_BRANCH) {
             "Canonical Figma artifacts require model branch 'main'; found '${model.branch}'."
@@ -93,7 +93,7 @@ class CanonicalFigmaArtifactContractValidator {
                     "Unsupported visual sync decision '${contract.plan.decision}'.",
                 )
 
-        return Result(
+        return ValidatedIdentity(
             gitSha = model.gitSha,
             modelHash = model.modelHash,
             decision = decision,
@@ -204,7 +204,7 @@ class CanonicalFigmaArtifactContractValidator {
      * @property modelHash validated canonical design-model hash.
      * @property decision validated visual synchronization decision.
      */
-    data class Result(
+    data class ValidatedIdentity(
         val gitSha: String,
         val modelHash: String,
         val decision: CanonicalFigmaArtifactContract.Decision,

@@ -15,7 +15,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/** Enforces the configured typed-result implementation across product Kotlin sources. */
+/** Enforces the configured typed-result implementation across production Kotlin sources. */
 @DisableCachingByDefault(
     because = "This validation produces no reusable output artifact",
 )
@@ -24,17 +24,17 @@ abstract class CheckTypedResultUsageTask : DefaultTask() {
     @get:Internal
     abstract val repositoryRoot: DirectoryProperty
 
-    /** Optional fully qualified `Result` type accepted by the product architecture. */
+    /** Optional fully qualified `Result` type accepted by the repository architecture. */
     @get:Input
     @get:Optional
     abstract val acceptedResultQualifiedName: Property<String>
 
-    /** Product Kotlin sources inspected by this task. */
+    /** Production Kotlin sources inspected by this task. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inspectedFiles: ConfigurableFileCollection
 
-    /** Fails when product code imports or declares an incompatible `Result` contract. */
+    /** Fails when production code imports or declares an incompatible `Result` contract. */
     @TaskAction
     fun checkTypedResultUsage() {
         val acceptedResult = acceptedResultQualifiedName.orNull ?: return

@@ -122,7 +122,7 @@ class McpRunnerExecutor(
     /** Executes the pending runner files in manifest order and persists each checkpoint atomically. */
     fun execute(
         request: Request,
-    ): Result {
+    ): Execution {
         val loaded =
             load(
                 request = request,
@@ -140,7 +140,7 @@ class McpRunnerExecutor(
                 state = state,
                 path = loaded.statePath.toString(),
             )
-            return Result(
+            return Execution(
                 state = state,
                 executionFiles = emptyList(),
                 toolNames = emptyList(),
@@ -245,7 +245,7 @@ class McpRunnerExecutor(
                     capabilities.toolNames
                 }
             }
-        return Result(
+        return Execution(
             state = state,
             executionFiles = loaded.executionFiles,
             toolNames = toolNames,
@@ -402,7 +402,7 @@ class McpRunnerExecutor(
      * @property executionFiles Ordered runner files selected for this invocation.
      * @property toolNames MCP tools advertised by the endpoint used for execution.
      */
-    data class Result(
+    data class Execution(
         val state: McpExecutionState,
         val executionFiles: List<String>,
         val toolNames: List<String>,

@@ -28,6 +28,7 @@ java {
 dependencies {
     implementation(projects.domain)
 
+    implementation(libs.com.michael.bull.kotlin.result)
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
     // Ktor

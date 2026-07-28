@@ -16,6 +16,7 @@ java {
 
 dependencies {
     implementation(projects.domain)
+    implementation(libs.com.michael.bull.kotlin.result)
     implementation(projects.data) {
         exclude(
             group = "com.pinterest.ktlint",

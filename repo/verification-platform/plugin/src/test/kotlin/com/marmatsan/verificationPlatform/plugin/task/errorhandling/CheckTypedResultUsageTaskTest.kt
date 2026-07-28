@@ -29,7 +29,7 @@ internal class CheckTypedResultUsageTaskTest :
                 }.then { Unit }
             }
 
-            test("accepts the configured product Result") {
+            test("accepts the configured production Result") {
                 given {
                     typedResultFixture(
                         projectDirectory = temporaryDirectory.resolve("accepted"),
@@ -47,7 +47,7 @@ internal class CheckTypedResultUsageTaskTest :
                 }.then { Unit }
             }
 
-            test("rejects an incompatible product Result") {
+            test("rejects an incompatible production Result") {
                 given {
                     typedResultFixture(
                         projectDirectory = temporaryDirectory.resolve("rejected"),

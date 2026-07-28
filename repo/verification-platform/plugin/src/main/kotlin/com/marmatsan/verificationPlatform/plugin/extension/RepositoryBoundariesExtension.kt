@@ -24,6 +24,21 @@ class RepositoryBoundariesExtension internal constructor(
         }
     }
 
+    /**
+     * Requires every configured included build that declares [propertyName] to
+     * use the same value while allowing non-consumers to omit the property.
+     */
+    fun alignedVersion(
+        propertyName: String,
+    ) {
+        require(propertyName.isNotBlank()) {
+            "The aligned version property name must not be blank."
+        }
+        checkIncludedBuildVersions.configure { task ->
+            task.alignedVersionProperties.add(propertyName)
+        }
+    }
+
     /** Adds a reusable source scope and the implementation references it must not know. */
     fun reusableScope(
         relativePath: String,

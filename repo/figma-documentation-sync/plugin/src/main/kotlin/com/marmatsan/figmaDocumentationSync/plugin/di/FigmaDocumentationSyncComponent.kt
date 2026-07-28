@@ -16,6 +16,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTr
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologyPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimePort
+import com.marmatsan.figmaDocumentationSync.domain.port.figma.FigmaNodeContentSource
 import com.marmatsan.figmaDocumentationSync.domain.port.impact.FigmaChangeImpactPolicyPort
 import com.marmatsan.figmaDocumentationSync.domain.port.impact.RepositoryChangeSetPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
@@ -95,11 +96,14 @@ internal abstract class FigmaDocumentationSyncComponent {
     /** Reads and writes the scope shared by canonical Figma Sync jobs. */
     abstract val canonicalFigmaSyncScopeJson: CanonicalFigmaSyncScopeJson
 
+    /** Reads the narrow Figma node-content contract used by sync decisions. */
+    abstract val figmaNodeContentSource: FigmaNodeContentSource
+
     /**
      * Provides the narrow Figma API client used only by the sync checker.
      */
     @Provides
-    protected fun figmaFileContentClient(): FigmaFileContentClient = FigmaFileContentClient()
+    protected fun figmaNodeContentSource(): FigmaNodeContentSource = FigmaFileContentClient()
 
     @Provides
     protected fun repositoryVersionsPort(

@@ -13,6 +13,8 @@ sources:
   - repo/verification-platform/domain/build.gradle.kts
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/errorhandling/TypedResultUsageValidator.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/errorhandling/CheckTypedResultUsageTask.kt
+  - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/figma/FigmaNodeContentSource.kt
+  - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRunStarter.kt
 ---
 
 # ADR-0011: Standardize Typed Errors With kotlin-result
@@ -33,12 +35,16 @@ leaving error vocabularies with the domain that owns them.
 
 - Water My Plants uses `com.github.michaelbull.result.Result<Value, Error>` as
   the standard contract for expected, recoverable failures.
-- Verification Platform is the first real consumer. Its autonomous build pins
-  `com.michael-bull.kotlin-result:kotlin-result` at version `2.3.1` and its
-  domain validator returns the public typed result contract.
+- Verification Platform, Figma Documentation Sync, and Water My Plants Project
+  Configuration are current repository-tooling consumers. Their autonomous
+  builds pin `com.michael-bull.kotlin-result:kotlin-result` at version `2.3.1`;
+  their validation, Figma-node, and TeamCity queue boundaries return the public
+  typed result contract where the caller can recover.
 - Every autonomous included build that later consumes the library owns its
   dependency and version in that build's local catalog and
-  `versions.properties`; it does not read another build's catalog.
+  `versions.properties`; it does not read another build's catalog. Root
+  verification aligns the key across the builds that declare it, while
+  non-consumers omit it.
 - The Water My Plants product catalog does not declare kotlin-result until an
   application production module consumes it. This preserves the executable
   rule that the Figma product tree contains only production dependencies.
@@ -78,7 +84,8 @@ The detailed rules and review contract live in
 - Version upgrades are local catalog changes in each consuming autonomous
   build. A product-catalog upgrade additionally requires Figma synchronization.
 - Static verification rejects incompatible `Result` imports, aliases, and
-  custom contracts in the configured product source scopes. Code
+  custom contracts in the configured production source scopes, including
+  reusable modules under `repo/`. Code
   review remains responsible for deciding whether a failure is expected and
   whether its error hierarchy belongs to the correct capability.
 

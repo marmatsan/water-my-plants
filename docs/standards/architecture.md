@@ -96,6 +96,13 @@ hierarchies and use the standard `com.github.michaelbull.result.Result`
 container; they do not depend on a global error root or a repository-owned
 replacement. Lifecycle state remains a separate capability contract.
 
+A reusable module that exposes `Result` in its public ABI MUST declare
+`kotlin-result` with Gradle `api`; an adapter or composition module that only
+implements or collapses the contract MUST use `implementation`. Each consuming
+included build owns its type-safe alias and version locally. Root verification
+MAY align that version key across declaring builds, but MUST NOT require a
+non-consumer to add the dependency.
+
 ## SOLID Design
 
 SOLID is a review-blocking design contract for all newly implemented or

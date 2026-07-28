@@ -98,13 +98,18 @@ under `domain.service.documentation`.
 
 `checkTypedResultUsage` is a reusable syntax boundary. Its
 `typedErrorHandling` DSL selects the accepted fully qualified `Result` type
-and the production source scopes to inspect; Verification Platform itself
-contains no Water My Plants module inventory. The domain validator is the
-first real kotlin-result consumer and exposes
-`Result<Unit, TypedResultUsageError>`; the `domain` publication therefore
-declares kotlin-result as an `api` dependency and this included build owns
-version `2.3.1` in its local `versions.properties`. The Water My Plants root
-binds its product scopes and standard type. Review and the
+and each `productionSourceScope`; Verification Platform itself contains no
+Water My Plants module inventory. The root configures app and reusable `repo/`
+production scopes, while tests and generated sources remain outside this
+syntax check. The domain validator and TeamCity queue contract expose typed
+results; `domain` therefore publishes kotlin-result as `api`, while adapters
+that only implement or collapse the contract use `implementation`.
+
+Each autonomous consumer owns version `2.3.1` in its local
+`versions.properties`. The root `boundaries.alignedVersion` rule compares only
+included builds that declare `kotlinResultLibraryVersion`, so a non-consumer
+does not acquire an unused dependency merely to satisfy version alignment.
+Review and the
 [typed error handling standard](../../docs/standards/error-handling.md) remain
 responsible for semantic error ownership and exception boundaries.
 

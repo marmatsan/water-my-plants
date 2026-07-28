@@ -11,8 +11,9 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import java.util.Properties
 
-/** Verifies that every repository included build owns its version registry. */
+/** Verifies included-build version ownership and configured cross-build alignment. */
 @DisableCachingByDefault(
     because = "This validation produces no reusable output artifact",
 )
@@ -30,11 +31,15 @@ abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includedBuildConfigurationFiles: ConfigurableFileCollection
 
-    /** Fails when an included build has no local registry or reads another build's registry. */
+    /** Version property names that must agree whenever multiple included builds declare them. */
+    @get:Input
+    abstract val alignedVersionProperties: ListProperty<String>
+
+    /** Fails when version ownership or a configured alignment contract is violated. */
     @TaskAction
     fun checkIncludedBuildVersions() {
         val repositoryDirectory = repositoryRoot.get().asFile
-        val failures =
+        val ownershipFailures =
             includedBuildPaths.get().flatMap { relativePath ->
                 val buildDirectory = repositoryDirectory.resolve(relativePath)
                 val versionsFile = buildDirectory.resolve("versions.properties")
@@ -64,6 +69,38 @@ abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
                     }
                 }
             }
+        val alignmentFailures =
+            alignedVersionProperties.getOrElse(emptyList()).flatMap { propertyName ->
+                val declarations =
+                    includedBuildPaths.get().mapNotNull { relativePath ->
+                        val versionsFile =
+                            repositoryDirectory
+                                .resolve(relativePath)
+                                .resolve("versions.properties")
+                        if (!versionsFile.isFile) {
+                            null
+                        } else {
+                            val properties =
+                                Properties().apply {
+                                    versionsFile.inputStream().use(::load)
+                                }
+                            properties.getProperty(propertyName)?.let { value ->
+                                relativePath to value
+                            }
+                        }
+                    }
+                if (declarations.map { (_, value) -> value }.distinct().size > 1) {
+                    listOf(
+                        "$propertyName must align across consuming included builds: " +
+                            declarations.joinToString { (relativePath, value) ->
+                                "$relativePath=$value"
+                            },
+                    )
+                } else {
+                    emptyList()
+                }
+            }
+        val failures = ownershipFailures + alignmentFailures
 
         check(failures.isEmpty()) {
             failures.joinToString(

@@ -1,5 +1,9 @@
 package com.marmatsan.verificationPlatform.data.teamcity
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.marmatsan.verificationPlatform.domain.model.teamcity.QueueTeamCityRunError
 import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityQueuedRun
 import com.marmatsan.verificationPlatform.domain.model.teamcity.TeamCityRunRequest
 import com.marmatsan.verificationPlatform.domain.port.teamcity.TeamCityRunQueue
@@ -9,6 +13,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.put
+import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -37,12 +42,12 @@ class TeamCityRestRunQueue(
     /**
      * Queues [request] through TeamCity's `buildQueue` REST resource.
      *
-     * @throws IllegalArgumentException when TeamCity rejects the request or
-     * returns a malformed response.
+     * Expected transport, rejection, and response failures are translated to
+     * [QueueTeamCityRunError]. Thread interruption is preserved and rethrown.
      */
     override fun queue(
         request: TeamCityRunRequest,
-    ): TeamCityQueuedRun {
+    ): Result<TeamCityQueuedRun, QueueTeamCityRunError> {
         val uri =
             serverUri.resolve(
                 "/app/rest/buildQueue",
@@ -70,27 +75,48 @@ class TeamCityRestRunQueue(
                 )
             }.toString()
         val response =
-            post(
-                uri,
-                headers,
-                body,
+            try {
+                post(
+                    uri,
+                    headers,
+                    body,
+                )
+            } catch (
+                exception: InterruptedException,
+            ) {
+                Thread.currentThread().interrupt()
+                throw exception
+            } catch (
+                exception: IOException,
+            ) {
+                return Err(
+                    QueueTeamCityRunError.Unavailable(
+                        detail = exception.message.orEmpty(),
+                    ),
+                )
+            }
+        if (response.statusCode !in 200..299) {
+            return Err(
+                QueueTeamCityRunError.RequestRejected(
+                    statusCode = response.statusCode,
+                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH),
+                ),
             )
-        require(response.statusCode in 200..299) {
-            "TeamCity REST queue request failed with HTTP ${response.statusCode}: ${response.body.take(500)}"
         }
-        return runCatching {
+        return try {
             val json = Json.parseToJsonElement(response.body).jsonObject
-            TeamCityQueuedRun(
-                id = json.getValue("id").jsonPrimitive.long,
-                state = json.getValue("state").jsonPrimitive.content,
-                branch = json.getValue("branchName").jsonPrimitive.content,
-                webUrl = json["webUrl"]?.jsonPrimitive?.content,
+            Ok(
+                TeamCityQueuedRun(
+                    id = json.getValue("id").jsonPrimitive.long,
+                    state = json.getValue("state").jsonPrimitive.content,
+                    branch = json.getValue("branchName").jsonPrimitive.content,
+                    webUrl = json["webUrl"]?.jsonPrimitive?.content,
+                ),
             )
-        }.getOrElse {
-            throw IllegalArgumentException(
-                "TeamCity REST returned invalid JSON.",
-                it,
-            )
+        } catch (
+            _: RuntimeException,
+        ) {
+            Err(QueueTeamCityRunError.InvalidResponse)
         }
     }
 
@@ -107,6 +133,8 @@ class TeamCityRestRunQueue(
     )
 
     private companion object {
+        const val MAX_ERROR_BODY_LENGTH = 500
+
         val HTTP_CLIENT: HttpClient =
             HttpClient
                 .newBuilder()
