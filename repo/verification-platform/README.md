@@ -40,6 +40,11 @@ aggregator so existing consumers do not need to know its internal projects.
   inventory or sibling build name. Water My Plants binds
   `checkKotlinStyle`, `checkDependencyCatalogArchitecture`, portable
   distribution consumers, and product policy in the root build.
+- `taskBindings` uses direct included-build task references when no invocation
+  inputs are needed. Distribution checks that must compose multiple reusable
+  builds use `isolatedGradleBuildTask` with an explicit build directory and
+  project-property map owned by the consuming root; Verification Platform does
+  not infer sibling paths or dependency coordinates.
 - This included build resolves its own compile/test toolchain from
   `repo/verification-platform/versions.properties`; it does not read the
   Water My Plants product catalog registry.

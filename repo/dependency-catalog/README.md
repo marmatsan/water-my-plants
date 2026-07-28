@@ -11,18 +11,21 @@ declarations and can be built or published without any sibling source build.
 | `:catalog-api` | Immutable catalog model plus segregated resolved and version-aliased provider boundaries. |
 | `:catalog-core` | Optional tree DSL, traversal, and mappers used to implement providers. |
 | `:catalog-gradle-plugin` | Settings plugin that maps a provider's API model to Gradle version catalogs. Depends only on `:catalog-api`. |
+| `:catalog-tree-gradle-plugin` | Settings-facing tree DSL plugin that reads a consumer-owned version registry and delegates registration to `:catalog-gradle-plugin`. |
 
 The allowed dependency direction is:
 
 ```text
 catalog-gradle-plugin -> catalog-api
 catalog-core          (independent implementation toolkit)
+catalog-tree-gradle-plugin -> catalog-core + catalog-api + catalog-gradle-plugin
 ```
 
-The included-build root publishes no compatibility artifact. The three modules
-publish `com.marmatsan.repo:catalog-api`, `catalog-core`, and
-`catalog-gradle-plugin`; the plugin marker exposes
-`com.marmatsan.dependencyCatalog`.
+The included-build root publishes no compatibility artifact. The four modules
+publish `com.marmatsan.repo:catalog-api`, `catalog-core`,
+`catalog-gradle-plugin`, and `catalog-tree-gradle-plugin`. Their plugin markers
+expose `com.marmatsan.dependencyCatalog` and
+`com.marmatsan.dependencyCatalog.tree` respectively.
 
 `versions.properties` belongs only to this included build's compile/test
 toolchain. Product dependency values do not live here.
@@ -67,12 +70,23 @@ that declare it. A build without that dependency omits the property instead of
 copying an unused catalog entry solely for alignment.
 
 See [the adoption guide](docs/guides/adopt-dependency-catalog.md) for the full
-integration contract.
+integration contract and the [tree settings DSL API reference](docs/reference/tree-settings-dsl.md)
+for every public property and declaration operation.
+
+`figma-documentation-sync`, `gradle-plugins`, `unit-testing`,
+`verification-platform`, and `water-my-plants-project-config` construct their
+local build catalogs with the tree settings plugin and their own
+`versions.properties`. The repository composition root injects the source-build
+location for local substitution; an independent checkout resolves the same
+plugin id and version from its configured Maven repository. The
+`dependency-catalog` producer keeps its own catalog manual to avoid a
+self-hosting plugin-resolution cycle.
 
 ## Verification
 
 ```powershell
 .\gradlew.bat checkDependencyCatalogArchitecture
+.\gradlew.bat :dependency-catalog:dokkaGenerate
 .\gradlew.bat verifyDependencyCatalogDistribution
 ```
 
@@ -86,5 +100,6 @@ marker to a temporary Maven repository, then applies them from
 - Public provider/model API: `catalog-api/src/main/kotlin/`.
 - Optional tree DSL: `catalog-core/src/main/kotlin/`.
 - Gradle settings adapter: `catalog-gradle-plugin/src/main/kotlin/`.
-- Independent consumer proof: `samples/standalone-consumer/`.
+- Independent consumer proofs: `samples/standalone-consumer/` and
+  `samples/standalone-tree-consumer/`.
 - Build tool versions: `versions.properties`.

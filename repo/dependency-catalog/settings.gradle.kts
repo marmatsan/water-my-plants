@@ -13,6 +13,7 @@ pluginManagement {
         }
 
     plugins {
+        id("org.jetbrains.dokka") version versions.getProperty("dokkaPluginVersion")
         id("org.jetbrains.kotlin.jvm") version versions.getProperty("kotlinVersion")
     }
 }
@@ -47,7 +48,7 @@ dependencyResolutionManagement {
                 "mockk",
             ).version(versions.getProperty("mockkLibraryVersion"))
             library(
-                "org.junit.jupiter.platform.launcher",
+                "org.junit.platform.launcher",
                 "org.junit.platform",
                 "junit-platform-launcher",
             ).withoutVersion()
@@ -59,6 +60,10 @@ dependencyResolutionManagement {
         }
 
         create("plugins") {
+            plugin(
+                "org.jetbrains.dokka",
+                "org.jetbrains.dokka",
+            ).version(versions.getProperty("dokkaPluginVersion"))
             plugin(
                 "org.jetbrains.kotlin.jvm",
                 "org.jetbrains.kotlin.jvm",
@@ -75,4 +80,5 @@ include(
     ":catalog-api",
     ":catalog-core",
     ":catalog-gradle-plugin",
+    ":catalog-tree-gradle-plugin",
 )

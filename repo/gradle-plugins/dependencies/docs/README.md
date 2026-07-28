@@ -11,8 +11,9 @@ catalog.
 
 - Product settings apply `com.marmatsan.dependencyCatalog` through their own
   composition adapter.
-- Convention plugins depend only on this module's helper API and Gradle's
-  `VersionCatalogsExtension`.
+- Convention plugins depend on this module's helper API and Gradle's
+  `VersionCatalogsExtension`; the module delegates coordinate-to-alias identity
+  to the stable `com.marmatsan.repo:catalog-api` contract.
 - This module must not import `WaterMyPlantsCatalog`, catalog implementation
   classes, or sibling included builds.
 - Product versions and trees live under

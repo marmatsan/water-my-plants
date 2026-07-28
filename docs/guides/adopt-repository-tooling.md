@@ -50,7 +50,7 @@ provide that repository or build the artifacts from source.
 
 | Build | Public contract |
 |-------|-----------------|
-| `dependency-catalog` | `com.marmatsan.dependencyCatalog`; `com.marmatsan.repo:catalog-api`, `catalog-core`, and `catalog-gradle-plugin` |
+| `dependency-catalog` | `com.marmatsan.dependencyCatalog`, `com.marmatsan.dependencyCatalog.tree`; `com.marmatsan.repo:catalog-api`, `catalog-core`, `catalog-gradle-plugin`, and `catalog-tree-gradle-plugin` |
 | `figma-documentation-sync` | `com.marmatsan.figmaDocumentationSync`; portable domain, data, plugin, and optional TeamCity adapter artifacts |
 | `gradle-plugins` | `com.marmatsan.android`, `bddTest`, `compose`, `dokkaDocumentation`, `protobuf`, and `unitTest` |
 | `unit-testing` | `com.marmatsan.repo:unit-test-dsl` |
@@ -68,6 +68,11 @@ catalog libraries, then use `alias(plugins...)` and `libs...` in
 `build.gradle.kts`. Each reusable build keeps its own `versions.properties`
 only for building and testing itself; those files do not choose versions for a
 consumer.
+
+When adopting `com.marmatsan.dependencyCatalog.tree`, use that settings plugin
+to build both catalogs from the consumer-owned `versions.properties`. Keep the
+plugin producer's own bootstrap catalog independent; a build must not require
+the plugin it is currently compiling in order to evaluate its settings.
 
 If `com.marmatsan.unitTest` is applied, the consumer must expose
 `com.marmatsan.repo:unit-test-dsl` in a separate `testLibs` catalog. The

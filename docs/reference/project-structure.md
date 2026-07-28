@@ -93,19 +93,27 @@ versioned APIs to local implementations. Every included build reads its own
 root `versions.properties` and remains independent from another build's
 compile/test registry.
 
+Every catalog-consuming included build constructs its local `libs` and
+`plugins` catalogs through `com.marmatsan.dependencyCatalog.tree`.
+`repo/dependency-catalog` is the deliberate bootstrap exception: it declares
+its own build catalog manually because it cannot resolve the plugin that it is
+currently producing. These local tool catalogs are not Water My Plants product
+catalogs and are not published as Figma dependency trees.
+
 `repo/unit-testing` owns `:unit-test-dsl`, the Kotlin-only,
 assertion-framework-agnostic behavior-phase API. It publishes
 `com.marmatsan.repo:unit-test-dsl` independently from the convention plugins
 that consume it. Water My Plants registers it in the consumer-owned `testLibs`
 catalog, so it never enters the production `libs` tree or app runtime graph.
 
-`repo/dependency-catalog` contains three reusable Gradle modules:
+`repo/dependency-catalog` contains four reusable Gradle modules:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and segregated resolved/aliased provider APIs. |
 | `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, traversal, and mappers for provider implementations. |
 | `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
+| `repo/dependency-catalog/catalog-tree-gradle-plugin/` | `:catalog-tree-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog.tree` settings plugin for consumer-owned compact trees and version registries. |
 
 Repository tooling consumes stable Maven/plugin coordinates. The included-build
 root does not publish a compatibility artifact; its standalone consumer proves

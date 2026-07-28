@@ -3,20 +3,26 @@
 import org.gradle.api.publish.maven.MavenPublication
 
 plugins {
-    `kotlin-dsl`
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm)
+    alias(plugins.plugins.org.jetbrains.dokka)
     `java-gradle-plugin`
     `maven-publish`
 }
 
+java {
+    withSourcesJar()
+}
+
 dependencies {
     implementation(projects.catalogApi)
+    implementation(gradleApi())
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(gradleTestKit())
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
     testImplementation(libs.io.mockk)
-    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
 tasks.withType<Test> {

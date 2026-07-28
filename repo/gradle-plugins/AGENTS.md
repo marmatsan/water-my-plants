@@ -48,7 +48,7 @@ This directory contains Gradle convention plugins used by the rest of the projec
 - Run `.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage` after
   adding or moving dependency catalog entries.
 - Prefer adding dependencies through the existing dependency tree helpers instead of hardcoding aliases across product modules.
-- Keep gradle-plugins's own catalog in `settings.gradle.kts` limited to dependencies needed to compile and test the convention plugins.
+- Keep gradle-plugins's own catalog in `settings.gradle.kts` limited to dependencies needed to compile and test the convention plugins. Declare that catalog through `com.marmatsan.dependencyCatalog.tree`; do not reintroduce manual `VersionCatalogBuilder` entries.
 - Do not add library-only test support modules to this plugin-producing build;
   publish them from `repo/unit-testing` so consumers can adopt them without
   adopting the convention plugins.

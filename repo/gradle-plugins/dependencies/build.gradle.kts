@@ -17,12 +17,13 @@ tasks.withType<Test> {
 }
 
 dependencies {
+    implementation(libs.com.marmatsan.repo.catalog.api)
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
 
     // Kotest
     testImplementation(libs.io.kotest.runner.junit5)
     testImplementation(libs.io.kotest.assertions.core)
-    testRuntimeOnly(libs.org.junit.jupiter.platform.launcher)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
     // MockK
     testImplementation(libs.io.mockk)
 }

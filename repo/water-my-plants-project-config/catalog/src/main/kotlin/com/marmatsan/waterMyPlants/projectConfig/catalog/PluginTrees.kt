@@ -31,13 +31,11 @@ private fun comPluginTree(
             version = versions.androidGradlePluginVersion,
         )
     }
-    plugin("figma") {
-        plugin("code") {
-            plugin(
-                id = "connect",
-                version = versions.figmaCodeConnectPluginVersion,
-            )
-        }
+    plugin("figma.code") {
+        plugin(
+            id = "connect",
+            version = versions.figmaCodeConnectPluginVersion,
+        )
     }
     plugin("google") {
         plugin("devtools") {
@@ -76,13 +74,11 @@ private fun orgPluginTree(
             id = "dokka",
             version = versions.dokkaPluginVersion,
         )
-        plugin("kotlin") {
-            plugin("plugin") {
-                plugin(
-                    id = "compose",
-                    version = versions.kotlinVersion,
-                )
-            }
+        plugin("kotlin.plugin") {
+            plugin(
+                id = "compose",
+                version = versions.kotlinVersion,
+            )
         }
     }
 }

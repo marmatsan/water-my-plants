@@ -1,60 +1,71 @@
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "unit-testing"
-
 pluginManagement {
+    val versions =
+        java.util.Properties().apply {
+            file("versions.properties").inputStream().use(::load)
+        }
+
+    providers.gradleProperty("dependencyCatalogSourceBuild").orNull?.let { sourceBuild ->
+        includeBuild(sourceBuild)
+    }
+
     repositories {
+        providers.gradleProperty("dependencyCatalogPublicationRepository").orNull?.let { repository ->
+            maven { url = uri(repository) }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
+
+    plugins {
+        id("com.marmatsan.dependencyCatalog.tree") version
+            versions.getProperty("dependencyCatalogVersion")
+    }
 }
 
-val versions =
-    java.util.Properties().apply {
-        file("versions.properties").inputStream().use(::load)
-    }
+plugins {
+    id("com.marmatsan.dependencyCatalog.tree")
+}
 
-fun version(
-    key: String,
-): String =
-    versions.getProperty(key)
-        ?: error("Missing version property '$key' in repo/unit-testing/versions.properties")
+rootProject.name = "unit-testing"
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
     }
+}
 
-    versionCatalogs {
-        create("libs") {
-            library(
-                "io.kotest.runner.junit5",
-                "io.kotest",
-                "kotest-runner-junit5",
-            ).version(version("kotestLibraryVersion"))
-            library(
-                "io.kotest.assertions.core",
-                "io.kotest",
-                "kotest-assertions-core",
-            ).version(version("kotestLibraryVersion"))
-            library(
-                "org.junit.jupiter.platform.launcher",
-                "org.junit.platform",
-                "junit-platform-launcher",
-            ).withoutVersion()
-        }
+dependencyCatalogTree {
+    versionsFile.set(file("versions.properties"))
 
-        create("plugins") {
-            plugin(
-                "org.jetbrains.kotlin.jvm",
-                "org.jetbrains.kotlin.jvm",
-            ).version(version("kotlinVersion"))
-            plugin(
-                "org.jetbrains.dokka",
-                "org.jetbrains.dokka",
-            ).version(version("dokkaPluginVersion"))
-        }
+    libraries {
+        library(
+            group = "io.kotest",
+            artifact = "kotest-runner-junit5",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-assertions-core",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-launcher",
+        )
+    }
+
+    plugins {
+        plugin(
+            id = "org.jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.dokka",
+            version = version("dokkaPluginVersion"),
+        )
     }
 }
 

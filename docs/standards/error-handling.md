@@ -45,9 +45,12 @@ boundaries, lifecycle state, and use of `kotlin-result`.
   `implementation` otherwise.
 - Reusable included builds MUST keep any kotlin-result version in their own
   catalog and `versions.properties`. They MUST NOT reach into another build's
-  catalog. The root `boundaries.alignedVersion("kotlinResultLibraryVersion")`
-  contract verifies that every included build which declares the key uses the
-  same value; builds that do not consume the dependency omit the key.
+  catalog. Catalog consumers MUST declare the dependency through the shared
+  dependency-tree settings DSL and use its coordinate-derived type-safe alias
+  (for example, `libs.com.michael.bull.kotlin.result.kotlin.result`). The root
+  `boundaries.alignedVersion("kotlinResultLibraryVersion")` contract verifies
+  that every included build which declares the key uses the same value; builds
+  that do not consume the dependency omit the key.
 - The Water My Plants product catalog MUST add kotlin-result only with its first
   production consumer. An approved standard alone is not catalog usage and
   MUST NOT expand the production dependency tree published to Figma.

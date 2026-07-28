@@ -1,23 +1,35 @@
 package com.marmatsan.dependencies.tree.dsl.library
 
 import com.marmatsan.dependencies.tree.TreeBuilder
+import com.marmatsan.dependencies.tree.dsl.path.DependencyPath
+import com.marmatsan.dependencies.tree.dsl.path.resolvePath
 import com.marmatsan.dependencies.tree.model.Artifact
 import com.marmatsan.dependencies.tree.model.ArtifactsBundle
 import com.marmatsan.dependencies.tree.model.DependencyNode
 import com.marmatsan.dependencies.tree.model.LibraryEntry
 import com.marmatsan.dependencies.tree.node.Node
 
+/**
+ * Builds library dependency nodes, entries, and relative group paths below [root].
+ *
+ * @param root Node whose subtree is configured by this scope.
+ */
 class LibraryScope(
     root: Node<DependencyNode.Library>,
 ) : TreeBuilder<DependencyNode.Library>(root) {
-    private var entries: MutableList<LibraryEntry>? = null
+    private var entries: MutableList<LibraryEntry>? = root.value.entries?.toMutableList()
 
     /**
      * Adds a single artifact entry to the current library.
      *
-     * This represents a standalone dependency in the format `artifact:version`.
+     * The enclosing root and [library] path provide the Maven group, producing the coordinate
+     * `<full-group>:[artifact]`. Catalog registration derives the alias from that full group and
+     * artifact, collapsing a repeated group suffix and replacing remaining artifact hyphens with
+     * dots. For example, `io.ktor:ktor-client-core` becomes `libs.io.ktor.client.core` in the
+     * default catalog.
      *
-     * If no [version] is provided, the version is expected to be managed externally (e.g., via a BOM).
+     * If [version] is `null`, the entry is registered with `withoutVersion()` and must receive its
+     * version from a BOM or another dependency constraint.
      *
      * @param artifact The name of the artifact (e.g., `"activity-compose"`).
      * @param version The optional version of the artifact. If `null`, the artifact will be registered without a version.
@@ -49,8 +61,9 @@ class LibraryScope(
      * together via the specified [alias], used when defining library bundles in a Gradle
      * [Version Catalog](https://docs.gradle.org/current/userguide/version_catalogs.html).
      *
-     * Each artifact will be registered under the same [version]. If [version] is `null`, it is
-     * expected that the version will be managed externally, (e.g., via a BOM).
+     * Each artifact is also registered as an individual library alias derived by [artifact]. If
+     * [version] is `null`, every entry is versionless and must be managed by a BOM or another
+     * dependency constraint.
      *
      * @param artifacts A vararg list of artifact names to include in the bundle (e.g., `"ui"`, `"ui-tooling"`).
      * @param alias The unique alias that identifies the bundle. This is used to reference all artifacts together so
@@ -86,12 +99,12 @@ class LibraryScope(
     }
 
     /**
-     * Defines and registers a nested library group within the current [LibraryScope] tree structure.
+     * Defines and registers a relative library path within the current [LibraryScope] tree.
      *
-     * This function allows building a hierarchical DSL-style declaration of library dependencies.
-     * It creates a new [Node] representing a [DependencyNode.Library] group, applies the provided
-     * [content] block (which may define individual artifacts or nested groups), and then inserts
-     * the result into the parent's children list.
+     * Dots in [group] delimit path segments, so `library("figma.code")` is equivalent to nesting
+     * `library("figma") { library("code") { ... } }`. Existing prefixes are reused and [content]
+     * is applied to the terminal node. A path without dots retains the ordinary single-node form.
+     * Nodes without entries remain namespace nodes and are not registered as library aliases.
      *
      *
      * **Example**
@@ -107,49 +120,38 @@ class LibraryScope(
      * }
      * ```
      *
-     * @param group The group name of the library (e.g., `"compose"` or `"lifecycle"`).
+     * @param group Relative group path (e.g., `"compose"` or `"figma.code"`).
      * @param content A DSL block that configures the entries (artifacts or nested groups) for this library group.
+     * @throws IllegalArgumentException if [group] is not a valid dependency path.
      */
     fun library(
         group: String,
         content: (LibraryScope.() -> Unit)? = null,
     ) {
-        val node =
-            Node(
-                DependencyNode.Library(
-                    libraryGroup = group,
-                ),
+        val resolvedNode =
+            currentParent.resolvePath(
+                path = DependencyPath.parse(group),
+                segment = DependencyNode.Library::libraryGroup,
+                createValue = { pathSegment ->
+                    DependencyNode.Library(
+                        libraryGroup = pathSegment,
+                    )
+                },
             )
-        currentParent.add(
-            child = node,
-        )
 
         val childScope =
             LibraryScope(
-                root = node,
+                root = resolvedNode.terminalNode(),
             )
         content?.invoke(
             childScope,
         )
 
-        val updatedNodeValue =
-            node.value.copy(
-                entries = childScope.entries?.toList(),
-            )
-        val updatedNode =
-            Node(
-                value = updatedNodeValue,
-                children = node.children,
-            )
-
-        val siblings = currentParent.children
-
-        if (siblings.isNotEmpty()) {
-            siblings[siblings.lastIndex] = updatedNode
-        } else {
-            siblings.add(
-                element = updatedNode,
-            )
-        }
+        resolvedNode.replaceValue(
+            value =
+                resolvedNode.value().copy(
+                    entries = childScope.entries?.toList(),
+                ),
+        )
     }
 }

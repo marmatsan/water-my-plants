@@ -8,6 +8,7 @@ last-reviewed: 2026-07-27
 review-cycle-days: 365
 sources:
   - settings.gradle.kts
+  - repo/figma-documentation-sync/settings.gradle.kts
   - repo/water-my-plants-project-config/settings.gradle.kts
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
   - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt
@@ -34,6 +35,11 @@ boundary.
 - Reusable included builds may depend only on documented API artifacts. They
   must not import another build's product implementation, include a sibling by
   relative path, or embed the sibling's repository path or task identity.
+- A reusable build MAY accept an externally supplied source-build location for
+  composite substitution of a versioned plugin. The reusable build owns only
+  the property contract; the product composition root owns and injects the
+  concrete path. Without the override, the build resolves the published
+  coordinate.
 - `repo/water-my-plants-project-config` is the single product composition
   build. It is the only included build allowed to know Water My Plants catalog
   providers, Figma identities, TeamCity adapters, included-build names, and

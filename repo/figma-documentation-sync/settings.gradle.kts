@@ -1,9 +1,19 @@
 @file:Suppress("UnstableApiUsage")
 
-rootProject.name = "figma-documentation-sync"
-
 pluginManagement {
+    val versions =
+        java.util.Properties().apply {
+            file("versions.properties").inputStream().use(::load)
+        }
+
+    providers.gradleProperty("dependencyCatalogSourceBuild").orNull?.let { sourceBuild ->
+        includeBuild(sourceBuild)
+    }
+
     repositories {
+        providers.gradleProperty("dependencyCatalogPublicationRepository").orNull?.let { repository ->
+            maven { url = uri(repository) }
+        }
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
@@ -14,245 +24,131 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    plugins {
+        id("com.marmatsan.dependencyCatalog.tree") version
+            versions.getProperty("dependencyCatalogVersion")
+    }
 }
+
+plugins {
+    id("com.marmatsan.dependencyCatalog.tree")
+}
+
+rootProject.name = "figma-documentation-sync"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-// Versions owned by this included build.
-val versions =
-    java.util.Properties().apply {
-        file("versions.properties").inputStream().use(::load)
+dependencyCatalogTree {
+    versionsFile.set(file("versions.properties"))
+
+    libraries {
+        library(
+            group = "com.michael-bull.kotlin-result",
+            artifact = "kotlin-result",
+            version = version("kotlinResultLibraryVersion"),
+        )
+        library(
+            group = "com.marmatsan.repo",
+            artifact = "unit-test-dsl",
+            version = version("unitTestDslLibraryVersion"),
+        )
+        library(
+            group = "io.ktor",
+            artifact = "ktor-bom",
+            version = version("ktorLibraryVersion"),
+        )
+        library(
+            group = "io.ktor",
+            artifact = "ktor-client-core",
+        )
+        library(
+            group = "io.ktor",
+            artifact = "ktor-client-cio",
+        )
+        library(
+            group = "io.ktor",
+            artifact = "ktor-client-content-negotiation",
+        )
+        library(
+            group = "io.ktor",
+            artifact = "ktor-serialization-kotlinx-json",
+        )
+        library(
+            group = "io.modelcontextprotocol",
+            artifact = "kotlin-sdk-client",
+            version = version("mcpKotlinSdkLibraryVersion"),
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-bom",
+            version = version("cucumberLibraryVersion"),
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-java8",
+        )
+        library(
+            group = "io.cucumber",
+            artifact = "cucumber-junit-platform-engine",
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-runner-junit5",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "io.kotest",
+            artifact = "kotest-assertions-core",
+            version = version("kotestLibraryVersion"),
+        )
+        library(
+            group = "me.tatarka.inject",
+            artifact = "kotlin-inject-compiler-ksp",
+            version = version("kotlinInjectLibraryVersion"),
+        )
+        library(
+            group = "me.tatarka.inject",
+            artifact = "kotlin-inject-runtime",
+            version = version("kotlinInjectLibraryVersion"),
+        )
+        library(
+            group = "org.jetbrains.kotlinx",
+            artifact = "kotlinx-serialization-json",
+            version = version("serializationLibraryVersion"),
+        )
+        library(
+            group = "org.snakeyaml",
+            artifact = "snakeyaml-engine",
+            version = version("snakeYamlLibraryVersion"),
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-launcher",
+        )
+        library(
+            group = "org.junit.platform",
+            artifact = "junit-platform-suite",
+        )
     }
 
-fun version(
-    key: String,
-): String =
-    versions.getProperty(key)
-        ?: error("Missing version property '$key' in repo/figma-documentation-sync/versions.properties")
-
-fun VersionCatalogBuilder.library(
-    alias: String,
-    group: String,
-    artifact: String,
-) = library(
-    alias,
-    group,
-    artifact,
-)
-
-fun VersionCatalogBuilder.plugin(
-    alias: String,
-    id: String,
-) = plugin(
-    alias,
-    id,
-)
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        // figma-documentation-sync libraries
-        create("libs") {
-            // Runtime
-            library(
-                alias = "com.michael.bull.kotlin.result",
-                group = "com.michael-bull.kotlin-result",
-                artifact = "kotlin-result",
-            ).version(
-                version(
-                    key = "kotlinResultLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "io.ktor.bom",
-                group = "io.ktor",
-                artifact = "ktor-bom",
-            ).version(
-                version(
-                    key = "ktorLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "io.ktor.client.core",
-                group = "io.ktor",
-                artifact = "ktor-client-core",
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.client.cio",
-                group = "io.ktor",
-                artifact = "ktor-client-cio",
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.client.content.negotiation",
-                group = "io.ktor",
-                artifact = "ktor-client-content-negotiation",
-            ).withoutVersion()
-
-            library(
-                alias = "io.ktor.serialization.kotlinx.json",
-                group = "io.ktor",
-                artifact = "ktor-serialization-kotlinx-json",
-            ).withoutVersion()
-
-            library(
-                alias = "org.jetbrains.kotlinx.serialization.json",
-                group = "org.jetbrains.kotlinx",
-                artifact = "kotlinx-serialization-json",
-            ).version(
-                version(
-                    key = "serializationLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "org.snakeyaml.engine",
-                group = "org.snakeyaml",
-                artifact = "snakeyaml-engine",
-            ).version(
-                version(
-                    key = "snakeYamlLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "io.modelcontextprotocol.kotlin.sdk.client",
-                group = "io.modelcontextprotocol",
-                artifact = "kotlin-sdk-client",
-            ).version(
-                version(
-                    key = "mcpKotlinSdkLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "me.tatarka.inject.kotlin.inject.compiler.ksp",
-                group = "me.tatarka.inject",
-                artifact = "kotlin-inject-compiler-ksp",
-            ).version(
-                version(
-                    key = "kotlinInjectLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "me.tatarka.inject.kotlin.inject.runtime",
-                group = "me.tatarka.inject",
-                artifact = "kotlin-inject-runtime",
-            ).version(
-                version(
-                    key = "kotlinInjectLibraryVersion",
-                ),
-            )
-
-            // Testing
-            // JUnit Platform
-            library(
-                alias = "org.junit.jupiter.platform.launcher",
-                group = "org.junit.platform",
-                artifact = "junit-platform-launcher",
-            ).withoutVersion()
-
-            library(
-                alias = "com.marmatsan.repo.unit.test.dsl",
-                group = "com.marmatsan.repo",
-                artifact = "unit-test-dsl",
-            ).version(
-                version(
-                    key = "unitTestDslLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "org.junit.platform.suite",
-                group = "org.junit.platform",
-                artifact = "junit-platform-suite",
-            ).withoutVersion()
-
-            // Cucumber
-            library(
-                alias = "io.cucumber.bom",
-                group = "io.cucumber",
-                artifact = "cucumber-bom",
-            ).version(
-                version(
-                    key = "cucumberLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "io.cucumber.java8",
-                group = "io.cucumber",
-                artifact = "cucumber-java8",
-            ).withoutVersion()
-
-            library(
-                alias = "io.cucumber.junit.platform.engine",
-                group = "io.cucumber",
-                artifact = "cucumber-junit-platform-engine",
-            ).withoutVersion()
-
-            // Kotest
-            library(
-                alias = "io.kotest.runner.junit5",
-                group = "io.kotest",
-                artifact = "kotest-runner-junit5",
-            ).version(
-                version(
-                    key = "kotestLibraryVersion",
-                ),
-            )
-
-            library(
-                alias = "io.kotest.assertions.core",
-                group = "io.kotest",
-                artifact = "kotest-assertions-core",
-            ).version(
-                version(
-                    key = "kotestLibraryVersion",
-                ),
-            )
-        }
-
-        create("plugins") {
-            plugin(
-                alias = "org.jetbrains.kotlin.jvm",
-                id = "org.jetbrains.kotlin.jvm",
-            ).version(
-                version(
-                    key = "kotlinVersion",
-                ),
-            )
-
-            plugin(
-                alias = "com.google.devtools.ksp",
-                id = "com.google.devtools.ksp",
-            ).version(
-                version(
-                    key = "kspPluginVersion",
-                ),
-            )
-
-            plugin(
-                alias = "org.jetbrains.kotlin.plugin.serialization",
-                id = "org.jetbrains.kotlin.plugin.serialization",
-            ).version(
-                version(
-                    key = "kotlinVersion",
-                ),
-            )
-
-            plugin(
-                alias = "org.jetbrains.dokka",
-                id = "org.jetbrains.dokka",
-            ).version(
-                version(
-                    key = "dokkaPluginVersion",
-                ),
-            )
-        }
+    plugins {
+        plugin(
+            id = "com.google.devtools.ksp",
+            version = version("kspPluginVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.kotlin.jvm",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.kotlin.plugin.serialization",
+            version = version("kotlinVersion"),
+        )
+        plugin(
+            id = "org.jetbrains.dokka",
+            version = version("dokkaPluginVersion"),
+        )
     }
 }
 

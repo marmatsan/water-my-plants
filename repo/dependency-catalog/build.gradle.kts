@@ -1,9 +1,15 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import java.net.URI
 import java.util.Properties
 
 plugins {
     base
+    alias(plugins.plugins.org.jetbrains.dokka) apply false
+    alias(plugins.plugins.org.jetbrains.kotlin.jvm) apply false
 }
 
 val versions =
@@ -26,6 +32,66 @@ allprojects {
     version = publicationVersion
 }
 
+subprojects {
+    pluginManager.withPlugin("org.jetbrains.dokka") {
+        extensions.configure<DokkaExtension> {
+            moduleName.convention(
+                path.removePrefix(":").replace(
+                    ':',
+                    '/',
+                ),
+            )
+
+            dokkaPublications.configureEach {
+                failOnWarning.set(true)
+            }
+
+            dokkaSourceSets.configureEach {
+                documentedVisibilities.set(
+                    setOf(
+                        VisibilityModifier.Public,
+                        VisibilityModifier.Internal,
+                    ),
+                )
+                reportUndocumented.set(true)
+                skipEmptyPackages.set(true)
+                suppressGeneratedFiles.set(true)
+
+                val localSourceDirectory = layout.projectDirectory.dir("src/main/kotlin")
+                if (localSourceDirectory.asFile.exists()) {
+                    sourceLink {
+                        localDirectory.set(localSourceDirectory)
+                        remoteUrl.set(
+                            URI(
+                                "https://github.com/marmatsan/water-my-plants/tree/main/" +
+                                    "repo/dependency-catalog/" +
+                                    localSourceDirectory.asFile
+                                        .relativeTo(rootProject.projectDir)
+                                        .invariantSeparatorsPath,
+                            ),
+                        )
+                        remoteLineSuffix.set("#L")
+                    }
+                }
+            }
+        }
+    }
+
+    tasks.matching { task -> task.name == "check" }.configureEach {
+        dependsOn("dokkaGenerate")
+    }
+}
+
+tasks.register("dokkaGenerate") {
+    group = "documentation"
+    description = "Generates Dokka API documentation for every dependency-catalog module."
+    dependsOn(
+        subprojects.map { project ->
+            "${project.path}:dokkaGenerate"
+        },
+    )
+}
+
 val checkDependencyCatalogArchitecture =
     tasks.register("checkDependencyCatalogArchitecture") {
         group = "verification"
@@ -34,6 +100,7 @@ val checkDependencyCatalogArchitecture =
             ":catalog-api:check",
             ":catalog-core:check",
             ":catalog-gradle-plugin:check",
+            ":catalog-tree-gradle-plugin:check",
         )
     }
 
@@ -48,35 +115,77 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":catalog-api:publishAllPublicationsToStagingRepository",
         ":catalog-core:publishAllPublicationsToStagingRepository",
         ":catalog-gradle-plugin:publishAllPublicationsToStagingRepository",
+        ":catalog-tree-gradle-plugin:publishAllPublicationsToStagingRepository",
     )
 }
 
-tasks.register<Exec>("verifyStagedPublication") {
-    group = "verification"
-    description = "Applies the staged catalog plugin from a source-independent consumer."
-    dependsOn("publishPortablePublicationToStagingRepository")
+val verifyProviderStagedPublication =
+    tasks.register<Exec>("verifyProviderStagedPublication") {
+        group = "verification"
+        description = "Applies the staged provider-based catalog plugin from a source-independent consumer."
+        dependsOn("publishPortablePublicationToStagingRepository")
 
-    val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
-    val wrapper =
-        layout.projectDirectory.file(
-            if (System.getProperty("os.name").startsWith(
-                    "Windows",
-                    ignoreCase = true,
-                )
-            ) {
-                "../../gradlew.bat"
-            } else {
-                "../../gradlew"
-            },
+        val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
+        val wrapper =
+            layout.projectDirectory.file(
+                if (System.getProperty("os.name").startsWith(
+                        "Windows",
+                        ignoreCase = true,
+                    )
+                ) {
+                    "../../gradlew.bat"
+                } else {
+                    "../../gradlew"
+                },
+            )
+
+        workingDir(sampleDirectory)
+        commandLine(
+            wrapper.asFile.absolutePath,
+            "--no-daemon",
+            "verifyCatalogs",
+            "-PdependencyCatalogVersion=$publicationVersion",
+            "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
+            "--stacktrace",
         )
+    }
 
-    workingDir(sampleDirectory)
-    commandLine(
-        wrapper.asFile.absolutePath,
-        "--no-daemon",
-        "verifyCatalogs",
-        "-PdependencyCatalogVersion=$publicationVersion",
-        "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
-        "--stacktrace",
+val verifyTreeStagedPublication =
+    tasks.register<Exec>("verifyTreeStagedPublication") {
+        group = "verification"
+        description = "Applies the staged tree catalog plugin from a source-independent consumer."
+        dependsOn("publishPortablePublicationToStagingRepository")
+
+        val sampleDirectory = layout.projectDirectory.dir("samples/standalone-tree-consumer")
+        val wrapper =
+            layout.projectDirectory.file(
+                if (System.getProperty("os.name").startsWith(
+                        "Windows",
+                        ignoreCase = true,
+                    )
+                ) {
+                    "../../gradlew.bat"
+                } else {
+                    "../../gradlew"
+                },
+            )
+
+        workingDir(sampleDirectory)
+        commandLine(
+            wrapper.asFile.absolutePath,
+            "--no-daemon",
+            "verifyCatalogs",
+            "-PdependencyCatalogVersion=$publicationVersion",
+            "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
+            "--stacktrace",
+        )
+    }
+
+tasks.register("verifyStagedPublication") {
+    group = "verification"
+    description = "Verifies both staged dependency catalog settings adapters."
+    dependsOn(
+        verifyProviderStagedPublication,
+        verifyTreeStagedPublication,
     )
 }

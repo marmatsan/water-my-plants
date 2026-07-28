@@ -2,6 +2,7 @@ package com.marmatsan.dependencies.gradle
 
 import com.marmatsan.dependencies.catalog.api.LibraryCatalogEntry
 import org.gradle.api.initialization.dsl.VersionCatalogBuilder
+import com.marmatsan.dependencies.catalog.api.libraryAlias as catalogLibraryAlias
 
 /**
  * Registers all library dependencies in this [VersionCatalogBuilder].
@@ -191,7 +192,7 @@ private fun VersionCatalogBuilder.registerLibrary(
     version: String?,
 ): String {
     val libraryAlias =
-        libraryAlias(
+        catalogLibraryAlias(
             libraryGroup = libraryGroup,
             artifact = artifact,
         )
@@ -207,75 +208,49 @@ private fun VersionCatalogBuilder.registerLibrary(
     return libraryAlias
 }
 
+/**
+ * Flattened library group ready for Gradle catalog registration.
+ *
+ * @property group Complete Maven group.
+ * @property entries Entries registered below [group].
+ */
 internal data class ResolvedLibrary(
     val group: String,
     val entries: List<LibraryCatalogEntry>,
 )
 
+/**
+ * Flattened plugin ready for Gradle catalog registration.
+ *
+ * @property id Complete Gradle plugin id and catalog alias.
+ * @property version Concrete plugin version.
+ */
 internal data class ResolvedPlugin(
     val id: String,
     val version: String,
 )
 
 /**
- * Builds the version catalog alias for a Maven coordinate.
- *
- * The alias starts with [libraryGroup]. If the [artifact] starts with a suffix already represented by the group path,
- * that overlapping prefix is removed before appending the remaining artifact segment. Hyphens in the appended segment
- * are normalized to dots.
- *
- * Examples:
- *
- * - `androidx.compose` + `compose-bom` -> `androidx.compose.bom`
- * - `androidx.activity` + `activity-compose` -> `androidx.activity.compose`
- * - `org.junit.jupiter` + `junit-jupiter-api` -> `org.junit.jupiter.api`
- * - `com.google.protobuf` + `protoc` -> `com.google.protobuf.protoc`
+ * Builds the stable version-catalog alias for a Maven coordinate.
  *
  * @param libraryGroup Maven group identifier.
  * @param artifact Maven artifact identifier.
- * @return Version catalog alias used to register and resolve the library.
+ * @return Stable version-catalog alias for the coordinate.
+ * @see com.marmatsan.dependencies.catalog.api.libraryAlias
  */
+@Deprecated(
+    message = "Import libraryAlias from catalog-api",
+    replaceWith =
+        ReplaceWith(
+            expression = "libraryAlias(libraryGroup, artifact)",
+            imports = ["com.marmatsan.dependencies.catalog.api.libraryAlias"],
+        ),
+)
 fun libraryAlias(
     libraryGroup: String,
     artifact: String,
-): String {
-    val groupSegments = libraryGroup.split(".")
-    var groupSuffix = ""
-    var artifactAliasSegment: String? = null
-
-    for (index in groupSegments.lastIndex downTo 0) {
-        groupSuffix =
-            if (groupSuffix.isEmpty()) {
-                groupSegments[index]
-            } else {
-                "${groupSegments[index]}-$groupSuffix"
-            }
-
-        artifactAliasSegment =
-            when {
-                artifact == groupSuffix -> ""
-
-                artifact.startsWith(
-                    prefix = "$groupSuffix-",
-                ) -> artifact.removePrefix("$groupSuffix-")
-
-                else -> null
-            }
-
-        if (artifactAliasSegment != null) {
-            break
-        }
-    }
-
-    val normalizedArtifactAliasSegment =
-        (artifactAliasSegment ?: artifact).replace(
-            "-",
-            ".",
-        )
-
-    return if (artifactAliasSegment?.isEmpty() == true) {
-        libraryGroup
-    } else {
-        "$libraryGroup.$normalizedArtifactAliasSegment"
-    }
-}
+): String =
+    catalogLibraryAlias(
+        libraryGroup = libraryGroup,
+        artifact = artifact,
+    )

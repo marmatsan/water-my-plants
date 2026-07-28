@@ -23,6 +23,16 @@ val stagingPublicationRepository =
             .dir("publication-repository")
             .get()
             .asFile.absolutePath
+val dependencyCatalogSourceBuild =
+    providers.gradleProperty("dependencyCatalogSourceBuild").orNull
+val dependencyCatalogPublicationRepository =
+    providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
+        ?: dependencyCatalogSourceBuild?.let {
+            layout.buildDirectory
+                .dir("dependency-catalog-publication-repository")
+                .get()
+                .asFile.absolutePath
+        }
 
 allprojects {
     group = "com.marmatsan.gradle-plugins"
@@ -72,6 +82,17 @@ tasks.register<Exec>("verifyStagedPublication") {
     group = "verification"
     description = "Resolves staged convention plugin markers from a source-independent consumer."
     dependsOn("publishPortablePublicationToStagingRepository")
+    if (dependencyCatalogSourceBuild != null) {
+        dependsOn(
+            gradle
+                .includedBuild("dependency-catalog")
+                .task(":catalog-api:publishAllPublicationsToStagingRepository"),
+        )
+    }
+
+    requireNotNull(dependencyCatalogPublicationRepository) {
+        "verifyStagedPublication requires dependencyCatalogPublicationRepository or dependencyCatalogSourceBuild"
+    }
 
     val sampleDirectory = layout.projectDirectory.dir("samples/standalone-consumer")
     val wrapper =
@@ -94,6 +115,7 @@ tasks.register<Exec>("verifyStagedPublication") {
         "verifyPluginConsumption",
         "-PgradlePluginsVersion=$publicationVersion",
         "-PgradlePluginsPublicationRepository=$stagingPublicationRepository",
+        "-PdependencyCatalogPublicationRepository=$dependencyCatalogPublicationRepository",
         "-PunitTestDslVersion=${versions.getProperty("unitTestDslLibraryVersion")}",
         "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
         "-PkotestVersion=${versions.getProperty("kotestLibraryVersion")}",

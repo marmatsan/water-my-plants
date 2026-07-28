@@ -165,6 +165,7 @@
       "documentationPaths": [
         "repo/dependency-catalog/README.md",
         "repo/dependency-catalog/docs/guides/adopt-dependency-catalog.md",
+        "repo/dependency-catalog/docs/reference/tree-settings-dsl.md",
         "repo/gradle-plugins/README.md",
         "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
         "repo/figma-documentation-sync/docs/standards/dependency-version-naming.md",
