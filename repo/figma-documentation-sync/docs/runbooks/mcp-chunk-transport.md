@@ -119,7 +119,7 @@ Request a new URL after any failed or consumed upload attempt; do not reuse an
 old URL.
 
 If the environment cannot start the TeamCity CLI from a Gradle child process,
-download the child run with the authenticated `teamcity run download` command
+download the child run with the authenticated `teamcity build download` command
 and use `-PfigmaArtifactDirectory` plus the mandatory
 `-PfigmaExpectedGitSha`. This fallback still accepts only a complete canonical
 artifact set and its manifest-declared PNG; it never accepts a standalone image

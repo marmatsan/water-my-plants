@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.visual
 
+import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
@@ -16,32 +17,31 @@ internal class GenerateCiVisualPlanGradleTaskTest :
             test("generates a target-scoped Kotlin plan from portable JSON inputs") {
                 val project = Files.createTempDirectory("figma-ci-visual-plan-gradle").toFile()
                 try {
-                    project
-                        .resolve(
-                            relative = "settings.gradle.kts",
-                        ).writeText("rootProject.name = \"ci-visual-plan-test\"")
-                    project
-                        .resolve(
-                            relative = "build.gradle.kts",
-                        ).writeText(
-                            "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }",
-                        )
-                    val model =
+                    given {
                         project
                             .resolve(
-                                relative = "design-model.json",
-                            ).apply { writeText(designModelFixture) }
-                    val config =
+                                relative = "settings.gradle.kts",
+                            ).writeText("rootProject.name = \"ci-visual-plan-test\"")
                         project
                             .resolve(
-                                relative = "writer-project-config.json",
-                            ).apply { writeText(writerConfigFixture) }
-                    val output =
-                        project.resolve(
-                            relative = "build/ci-visual-plan.json",
+                                relative = "build.gradle.kts",
+                            ).writeText(
+                                "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }",
+                            )
+                        Triple(
+                            project
+                                .resolve(
+                                    relative = "design-model.json",
+                                ).apply { writeText(designModelFixture) },
+                            project
+                                .resolve(
+                                    relative = "writer-project-config.json",
+                                ).apply { writeText(writerConfigFixture) },
+                            project.resolve(
+                                relative = "build/ci-visual-plan.json",
+                            ),
                         )
-
-                    val result =
+                    }.whenever { (model, config, output) ->
                         GradleRunner
                             .create()
                             .withProjectDir(project)
@@ -52,18 +52,19 @@ internal class GenerateCiVisualPlanGradleTaskTest :
                                 "-PfigmaWriterProjectConfig=${config.absolutePath}",
                                 "-PfigmaCiVisualTarget=ci.windowsRuntime",
                                 "-PfigmaCiVisualPlanOutput=${output.absolutePath}",
-                            ).build()
-
-                    result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
-                    val plan = Json.parseToJsonElement(output.readText()).jsonObject
-                    plan.getValue("schemaVersion").jsonPrimitive.content shouldBe "4"
-                    plan
-                        .getValue("sections")
-                        .jsonArray
-                        .single()
-                        .jsonObject
-                        .getValue("target")
-                        .jsonPrimitive.content shouldBe "ci.windowsRuntime"
+                            ).build() to output
+                    }.then { (result, output) ->
+                        result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
+                        val plan = Json.parseToJsonElement(output.readText()).jsonObject
+                        plan.getValue("schemaVersion").jsonPrimitive.content shouldBe "4"
+                        plan
+                            .getValue("sections")
+                            .jsonArray
+                            .single()
+                            .jsonObject
+                            .getValue("target")
+                            .jsonPrimitive.content shouldBe "ci.windowsRuntime"
+                    }
                 } finally {
                     project.deleteRecursively()
                 }
@@ -125,7 +126,7 @@ private val designModelFixture =
 private val writerConfigFixture =
     """
     {
-      "schemaVersion": 3,
+      "schemaVersion": 4,
       "METADATA_PAGE_ID": "1:1",
       "METADATA_NAMESPACE": "test",
       "FIGMA_FILE_KEY": "file",

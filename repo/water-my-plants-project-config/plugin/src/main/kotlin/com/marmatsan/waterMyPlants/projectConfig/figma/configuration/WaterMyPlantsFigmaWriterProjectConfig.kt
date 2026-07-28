@@ -166,6 +166,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             connectorTemplateName = "simple-solid_arrow",
             headerInstanceName = ".Header",
             headerLinkPropertyName = "Link",
+            headerDefinitionPropertyName = "Definition",
             githubMainBlobUrl = GITHUB_MAIN_BLOB_URL,
             githubMainTreeUrl = GITHUB_MAIN_TREE_URL,
             ciConfigurationModelName = "teamCity",
@@ -202,6 +203,10 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                             links(
                                 "repo/water-my-plants-project-config/versions.properties",
                             ),
+                        definition =
+                            "Represents repo/water-my-plants-project-config/versions.properties, " +
+                                "the repository-owned source for dependency and plugin versions " +
+                                "consumed by the Gradle builds.",
                     ),
                     FigmaHeaderSectionTarget(
                         sectionNodeId = "63099:949",

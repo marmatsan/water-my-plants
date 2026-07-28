@@ -214,6 +214,16 @@ Codex-operated Figma MCP unit at a time, then record success or failure through
 the Kotlin checkpoint executor. The task never writes to Figma and never
 records a unit automatically.
 
+The adapter invokes the canonical TeamCity CLI command group
+`teamcity build`, including `teamcity build download` for artifacts. Do not
+substitute the `teamcity run` alias in recovery scripts: current CLI versions
+can accept it for read operations yet fail while decoding an artifact download.
+If an authenticated direct CLI command succeeds but the same CLI process
+started by Gradle receives an HTML authentication response, use the documented
+`teamcity build download` plus `-PfigmaArtifactDirectory` fallback. Do not copy
+credentials into the repository or weaken the protected TeamCity route to make
+the child process work.
+
 For PNG transport, request one upload URL from Figma `upload_assets`, then pass
 that single-use URL and the same child run id to the narrow Kotlin uploader:
 

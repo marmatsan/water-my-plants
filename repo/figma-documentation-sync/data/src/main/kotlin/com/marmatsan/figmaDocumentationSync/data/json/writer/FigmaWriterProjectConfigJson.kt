@@ -32,7 +32,7 @@ object FigmaWriterProjectConfigJson {
         return buildJsonObject {
             put(
                 "schemaVersion",
-                3,
+                4,
             )
             put(
                 "METADATA_PAGE_ID",
@@ -255,6 +255,10 @@ object FigmaWriterProjectConfigJson {
                 headerLinkPropertyName,
             )
             put(
+                "HEADER_DEFINITION_PROPERTY_NAME",
+                headerDefinitionPropertyName,
+            )
+            put(
                 "GITHUB_MAIN_BLOB_URL",
                 githubMainBlobUrl,
             )
@@ -420,6 +424,12 @@ object FigmaWriterProjectConfigJson {
                         },
                     ),
                 )
+                target.definition?.let { definition ->
+                    put(
+                        "definition",
+                        definition,
+                    )
+                }
             }
         }.let(::JsonArray)
 

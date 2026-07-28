@@ -54,6 +54,7 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property connectorTemplateName dependency-tree connector template name.
  * @property headerInstanceName canonical header instance layer name.
  * @property headerLinkPropertyName header property that receives repository links.
+ * @property headerDefinitionPropertyName header property that receives a managed definition.
  * @property githubMainBlobUrl GitHub main-branch URL prefix for files.
  * @property githubMainTreeUrl GitHub main-branch URL prefix for directories.
  * @property ciConfigurationModelName selected CI configuration model.
@@ -138,6 +139,7 @@ data class FigmaWriterProjectConfig(
     val connectorTemplateName: String,
     val headerInstanceName: String,
     val headerLinkPropertyName: String,
+    val headerDefinitionPropertyName: String,
     val githubMainBlobUrl: String,
     val githubMainTreeUrl: String,
     val ciConfigurationModelName: String,

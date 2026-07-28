@@ -17,7 +17,7 @@ internal class TeamCityCliClientTest :
 
             test("reads build identity through the TeamCity CLI JSON contract") {
                 val commands = mutableListOf<List<String>>()
-                val client =
+                given {
                     TeamCityCliClient { command, _ ->
                         commands += command
                         TeamCityCliClient.CommandResult(
@@ -36,38 +36,38 @@ internal class TeamCityCliClientTest :
                             error = "",
                         )
                     }
-
-                val build =
+                }.whenever { client ->
                     client.readBuild(
                         buildId = 1573,
                     )
-
-                build shouldBe
-                    TeamCityBuild(
-                        id = 1573,
-                        state = "finished",
-                        status = "SUCCESS",
-                        branchName = "main",
-                        buildTypeName = "Generate main design model",
-                        webUrl = "https://teamcity.example/build/1573",
-                    )
-                commands.single() shouldBe
-                    listOf(
-                        "teamcity",
-                        "--no-color",
-                        "--no-input",
-                        "run",
-                        "view",
-                        "1573",
-                        "--json",
-                    )
+                }.then { build ->
+                    build shouldBe
+                        TeamCityBuild(
+                            id = 1573,
+                            state = "finished",
+                            status = "SUCCESS",
+                            branchName = "main",
+                            buildTypeName = "Generate main design model",
+                            webUrl = "https://teamcity.example/build/1573",
+                        )
+                    commands.single() shouldBe
+                        listOf(
+                            "teamcity",
+                            "--no-color",
+                            "--no-input",
+                            "build",
+                            "view",
+                            "1573",
+                            "--json",
+                        )
+                }
             }
 
             test("downloads one build artifact set into the requested directory") {
                 val output =
                     temporaryDirectory.resolve("download/artifacts")
                 val commands = mutableListOf<List<String>>()
-                val client =
+                given {
                     TeamCityCliClient { command, _ ->
                         commands += command
                         TeamCityCliClient.CommandResult(
@@ -76,24 +76,47 @@ internal class TeamCityCliClientTest :
                             error = "",
                         )
                     }
-
-                client.downloadArtifacts(
-                    buildId = 1573,
-                    outputDirectory = output,
-                )
-
-                output.isDirectory shouldBe true
-                commands.single() shouldBe
-                    listOf(
-                        "teamcity",
-                        "--no-color",
-                        "--no-input",
-                        "run",
-                        "download",
-                        "1573",
-                        "--output",
-                        output.absolutePath,
+                }.whenever { client ->
+                    client.downloadArtifacts(
+                        buildId = 1573,
+                        outputDirectory = output,
                     )
+                }.then {
+                    output.isDirectory shouldBe true
+                    commands.single() shouldBe
+                        listOf(
+                            "teamcity",
+                            "--no-color",
+                            "--no-input",
+                            "build",
+                            "download",
+                            "1573",
+                            "--output",
+                            output.absolutePath,
+                        )
+                }
+            }
+
+            test("reports the canonical command when a read operation fails") {
+                given {
+                    TeamCityCliClient { _, _ ->
+                        TeamCityCliClient.CommandResult(
+                            exitCode = 1,
+                            output = "",
+                            error = "authentication response was HTML",
+                        )
+                    }
+                }.whenever { client ->
+                    runCatching {
+                        client.readBuild(
+                            buildId = 1573,
+                        )
+                    }.exceptionOrNull()
+                }.then { failure ->
+                    failure?.message shouldBe
+                        "TeamCity CLI command 'build view 1573 --json' failed with exit code 1: " +
+                        "authentication response was HTML"
+                }
             }
 
             test("lists active runs with the authenticated command environment") {
@@ -107,7 +130,7 @@ internal class TeamCityCliClientTest :
                         "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID" to null,
                         "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null,
                     )
-                val client =
+                given {
                     TeamCityCliClient(
                         environment = expectedEnvironment,
                     ) { command, environment ->
@@ -130,40 +153,43 @@ internal class TeamCityCliClientTest :
                             error = "",
                         )
                     }
-
-                client.listRuns(
-                    buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                    branch = "main",
-                    status = "running",
-                ) shouldBe
-                    listOf(
-                        TeamCityRun(
-                            id = 1580,
-                            state = "running",
-                            status = null,
-                            statusText = null,
-                            branchName = "main",
-                            webUrl = "https://teamcity.example/build/1580",
-                        ),
+                }.whenever { client ->
+                    client.listRuns(
+                        buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
+                        branch = "main",
+                        status = "running",
                     )
-                commands.single() shouldBe
-                    listOf(
-                        "teamcity",
-                        "--no-color",
-                        "--no-input",
-                        "run",
-                        "list",
-                        "--job",
-                        "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        "--branch",
-                        "main",
-                        "--status",
-                        "running",
-                        "--limit",
-                        "1",
-                        "--json",
-                    )
-                environments.single() shouldBe expectedEnvironment
+                }.then { runs ->
+                    runs shouldBe
+                        listOf(
+                            TeamCityRun(
+                                id = 1580,
+                                state = "running",
+                                status = null,
+                                statusText = null,
+                                branchName = "main",
+                                webUrl = "https://teamcity.example/build/1580",
+                            ),
+                        )
+                    commands.single() shouldBe
+                        listOf(
+                            "teamcity",
+                            "--no-color",
+                            "--no-input",
+                            "build",
+                            "list",
+                            "--job",
+                            "WaterMyPlants_WaterMyPlantsFigmaSync",
+                            "--branch",
+                            "main",
+                            "--status",
+                            "running",
+                            "--limit",
+                            "1",
+                            "--json",
+                        )
+                    environments.single() shouldBe expectedEnvironment
+                }
             }
 
             test("queues and waits for a run through typed commands") {
@@ -216,7 +242,7 @@ internal class TeamCityCliClientTest :
                                 "teamcity",
                                 "--no-color",
                                 "--no-input",
-                                "run",
+                                "build",
                                 "start",
                                 "WaterMyPlants_WaterMyPlantsFigmaSync",
                                 "--branch",
@@ -227,7 +253,7 @@ internal class TeamCityCliClientTest :
                                 "teamcity",
                                 "--no-color",
                                 "--no-input",
-                                "run",
+                                "build",
                                 "watch",
                                 "1581",
                                 "--interval",
