@@ -9,6 +9,8 @@ const FULL_VISUAL_TARGETS = [
   "versions",
   "waterMyPlants.libraries",
   "waterMyPlants.plugins",
+  "waterMyPlants.customGradleConventionPlugins",
+  "waterMyPlants.customGradlePlugins",
   "ci.overview",
   "ci.pullRequestIntegration",
   "ci.postMergeDesignDocumentation",

@@ -129,6 +129,19 @@ internal class FigmaWriterProjectConfigJsonTest :
                     .shouldContainExactly(
                         "waterMyPlants.libraries",
                         "waterMyPlants.plugins",
+                        "waterMyPlants.customGradleConventionPlugins",
+                        "waterMyPlants.customGradlePlugins",
+                    )
+                root
+                    .getValue("PARENT_SECTION_NODE_IDS")
+                    .jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .shouldContainExactly(
+                        "63685:108540",
+                        "62936:183",
+                        "63099:949",
+                        "64886:247",
+                        "64886:248",
                     )
 
                 val firstCatalogTarget =

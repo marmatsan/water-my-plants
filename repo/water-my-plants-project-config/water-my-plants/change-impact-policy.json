@@ -109,7 +109,13 @@
         "repo/figma-documentation-sync/tools/src/figma/figma-tree-node-*",
         "repo/figma-documentation-sync/tools/src/domain/catalog/*"
       ],
-      "targets": ["preflight", "waterMyPlants.libraries", "waterMyPlants.plugins"]
+      "targets": [
+        "preflight",
+        "waterMyPlants.libraries",
+        "waterMyPlants.plugins",
+        "waterMyPlants.customGradleConventionPlugins",
+        "waterMyPlants.customGradlePlugins"
+      ]
     }
   ]
 }

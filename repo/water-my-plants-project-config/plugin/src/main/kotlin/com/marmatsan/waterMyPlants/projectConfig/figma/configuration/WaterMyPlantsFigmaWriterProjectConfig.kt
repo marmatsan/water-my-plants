@@ -152,6 +152,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "63685:108540",
                     "62936:183",
                     "63099:949",
+                    "64886:247",
+                    "64886:248",
                 ),
             sectionSiblingGap = 114,
             treeNodeComponentIds =
@@ -207,6 +209,35 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                                     "com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
                                 "repo/water-my-plants-project-config/catalog/src/main/kotlin/" +
                                     "com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
+                            ),
+                    ),
+                    FigmaHeaderSectionTarget(
+                        sectionNodeId = "64886:247",
+                        links =
+                            listOf(
+                                FigmaProjectLink(
+                                    label = "repo/gradle-plugins",
+                                    url = "$GITHUB_MAIN_TREE_URL/repo/gradle-plugins",
+                                ),
+                            ),
+                    ),
+                    FigmaHeaderSectionTarget(
+                        sectionNodeId = "64886:248",
+                        links =
+                            links(
+                                "repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/" +
+                                    "com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt",
+                                "repo/figma-documentation-sync/plugin/src/main/kotlin/" +
+                                    "com/marmatsan/figmaDocumentationSync/plugin/gradle/" +
+                                    "FigmaDocumentationSyncGradlePlugin.kt",
+                                "repo/verification-platform/plugin/src/main/kotlin/" +
+                                    "com/marmatsan/verificationPlatform/plugin/VerificationPlatformPlugin.kt",
+                                "repo/water-my-plants-project-config/plugin/src/main/kotlin/" +
+                                    "com/marmatsan/waterMyPlants/projectConfig/gradle/" +
+                                    "WaterMyPlantsProjectConfigPlugin.kt",
+                                "repo/water-my-plants-project-config/plugin/src/main/kotlin/" +
+                                    "com/marmatsan/waterMyPlants/projectConfig/gradle/" +
+                                    "WaterMyPlantsSettingsPlugin.kt",
                             ),
                     ),
                 ),
@@ -291,6 +322,26 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
                         catalog = "waterMyPlants",
                         collection = "plugins",
+                    ),
+                    catalogTarget(
+                        name = "waterMyPlants.customGradleConventionPlugins",
+                        sectionNodeId = "64886:247",
+                        type = FigmaCatalogTreeTargetType.PLUGIN,
+                        lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
+                        catalog = "waterMyPlants",
+                        collection = "customGradleConventionPlugins",
+                        gradlePluginNodes = true,
+                        warnWhenUnused = true,
+                    ),
+                    catalogTarget(
+                        name = "waterMyPlants.customGradlePlugins",
+                        sectionNodeId = "64886:248",
+                        type = FigmaCatalogTreeTargetType.PLUGIN,
+                        lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
+                        catalog = "waterMyPlants",
+                        collection = "customGradlePlugins",
+                        gradlePluginNodes = true,
+                        warnWhenUnused = true,
                     ),
                 ),
             ciVisualTargetNames =
