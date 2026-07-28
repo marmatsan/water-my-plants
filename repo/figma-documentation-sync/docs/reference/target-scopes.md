@@ -49,11 +49,26 @@ Catalog tree visual targets:
 |--------------|--------|---------------|
 | `waterMyPlants.libraries` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt` | `63069:629` |
 | `waterMyPlants.plugins` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt` | `63069:594` |
+| `waterMyPlants.customGradleConventionPlugins` | Convention-plugin declarations under `repo/gradle-plugins` | `64886:247` |
+| `waterMyPlants.customGradlePlugins` | Regular repository Gradle plugin declarations | `64886:248` |
+
+The first two targets are the only dependency-catalog trees used by Water My
+Plants. The other two are product-wide plugin inventories: they show the
+convention plugins and regular Gradle plugins that can participate in composing
+the application build. They do not expose any included build's private library
+or plugin version catalog.
+
+The two dependency-catalog targets are child sections of `63099:949` (`Water My
+Plants version catalogs`). The plugin inventory sections `64886:247` and
+`64886:248` are instead direct children of the Gradle dependencies page
+`62934:908`: they are independent top-level sections, each owns its own direct
+`.Header`, and both are listed in `PARENT_SECTION_NODE_IDS` so the writer lays
+them out beside the other managed documentation sections rather than inside the
+catalog container.
 
 The generic domain can model additional catalog collections for another host,
-but the Water My Plants writer does not configure them as targets. Removing
-the former tooling targets requires one supervised deletion of their legacy
-Figma sections after this configuration reaches `main`.
+but the Water My Plants writer does not configure included-build catalogs as
+targets.
 
 CI documentation visual targets:
 
@@ -119,12 +134,15 @@ produce a `full` plan automatically.
 | 2 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
 | 3 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains `preflight` and this target, and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
 | 4 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
-| 5 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
-| 6 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
-| 7 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
-| 8 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
-| 9 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
-| 10 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
+| 5 | `waterMyPlants.customGradleConventionPlugins` | Convention plugins available to compose application modules | Stale plugin IDs or incorrect module usage | Returned nodes match the convention plugins declared under `repo/gradle-plugins`. |
+| 6 | `waterMyPlants.customGradlePlugins` | Regular Gradle plugins in the repository | A convention plugin is classified as regular, or a regular plugin is omitted | Returned nodes contain only regular repository Gradle plugin declarations. |
+| 7 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
+| 8 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
+| 9 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
+| 10 | `ci.jobTasks` | Ordered TeamCity phases, tasks, decisions, and outcomes | Job steps or selected Gradle tasks differ from the effective CI model | Job details match the generated TeamCity configuration and CI plan contract. |
+| 11 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
+| 12 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
+| 13 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
 
 ## Subtree Scoped Runs
 

@@ -318,6 +318,46 @@ internal class FigmaDesignModelGeneratorTest :
                     }
             }
 
+            test("generate writes Gradle convention plugin and regular plugin inventories") {
+                given(::generator)
+                    .whenever { generator ->
+                        generator.generate(
+                            request = request(),
+                        )
+                    }.then { result ->
+                        val waterMyPlantsCatalog =
+                            result.model["content"]
+                                ?.jsonObject
+                                ?.get(
+                                    key = "catalogs",
+                                )?.jsonObject
+                                ?.get(
+                                    key = "waterMyPlants",
+                                )?.jsonObject
+
+                        waterMyPlantsCatalog
+                            ?.get(
+                                key = "customGradleConventionPlugins",
+                            )?.jsonArray
+                            ?.single()
+                            ?.jsonObject
+                            ?.get(
+                                key = "id",
+                            )?.jsonPrimitive
+                            ?.content shouldBe "com.marmatsan.compose"
+                        waterMyPlantsCatalog
+                            ?.get(
+                                key = "customGradlePlugins",
+                            )?.jsonArray
+                            ?.single()
+                            ?.jsonObject
+                            ?.get(
+                                key = "id",
+                            )?.jsonPrimitive
+                            ?.content shouldBe "com.marmatsan.figmaDocumentationSync"
+                    }
+            }
+
             test("generate omits included-build catalog types without roots") {
                 given(::generator)
                     .whenever { generator ->
@@ -562,6 +602,28 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         if (source is ProjectCatalogTreeSource.IncludedBuildSettings) {
             return PluginCatalogTree(
                 roots = emptyList(),
+            )
+        }
+        if (source is ProjectCatalogTreeSource.CustomGradleConventionPlugins) {
+            return PluginCatalogTree(
+                roots =
+                    listOf(
+                        PluginCatalogNode(
+                            id = "com.marmatsan.compose",
+                            appliedToModules = listOf(":app"),
+                        ),
+                    ),
+            )
+        }
+        if (source is ProjectCatalogTreeSource.CustomGradlePlugins) {
+            return PluginCatalogTree(
+                roots =
+                    listOf(
+                        PluginCatalogNode(
+                            id = "com.marmatsan.figmaDocumentationSync",
+                            appliedToModules = listOf(":"),
+                        ),
+                    ),
             )
         }
 

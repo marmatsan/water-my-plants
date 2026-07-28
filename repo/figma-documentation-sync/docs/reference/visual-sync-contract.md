@@ -480,8 +480,14 @@ changed strokes are normalized on the next targeted sync.
 Direct child sections are positioned 100 px from their parent section's left
 edge before the parent is resized to fit. This keeps the left padding equal to
 the 100 px right and bottom padding added by the resize operation, including the
-`gradle-plugins` and `figma-documentation-sync` sections inside the repository tooling
-catalog container.
+two Water My Plants catalog trees inside `Water My Plants version catalogs`.
+
+The `Gradle convention plugins` and `Gradle plugins` inventories are not child
+sections of that catalog container. They are independent top-level sections on
+the Gradle dependencies page, each with its own direct `.Header`. Their node ids
+must be present in `PARENT_SECTION_NODE_IDS`; the writer then positions them
+horizontally beside the other managed top-level documentation sections using
+`PARENT_SECTION_SIBLING_GAP`.
 
 ## Catalog Tree Sync
 
@@ -492,10 +498,6 @@ updates these visual sections:
 - Water My Plants plugins.
 - Custom Gradle convention plugins.
 - Custom Gradle plugins.
-- `gradle-plugins` libraries.
-- `gradle-plugins` plugins.
-- `figma-documentation-sync` libraries.
-- `figma-documentation-sync` plugins.
 
 Consumer modules are scoped to the catalog that owns the visual section:
 
@@ -506,12 +508,15 @@ Consumer modules are scoped to the catalog that owns the visual section:
 - `waterMyPlants.*` sections are stable documentation targets. If their model
   nodes are empty, the writer may hide the section, but the target remains part
   of the stable documentation surface.
-- `gradlePlugins.*` sections are declared catalog targets from catalogs declared
-  by `repo/gradle-plugins/settings.gradle.kts`. Their consumers may be
-  `:gradle-plugins:*` modules.
-- `figmaDocumentationSync.*` sections are declared catalog targets from catalogs
-  declared by `repo/figma-documentation-sync/settings.gradle.kts`. Their consumers may
-  be `:figma-documentation-sync:*` modules.
+- `waterMyPlants.customGradleConventionPlugins` is populated from included
+  builds explicitly marked as convention-plugin publishers. In this repository
+  that source is `repo/gradle-plugins`.
+- `waterMyPlants.customGradlePlugins` is populated from regular Gradle plugin
+  declarations in the repository and excludes convention-plugin implementation
+  classes.
+- Included-build library and plugin catalogs are not Water My Plants visual
+  targets. Their aliases may inform model usage, but their private catalog trees
+  must not be rendered beside the product catalog.
 
 Do not merge consumers across catalogs just because the same plugin id,
 artifact coordinate, or version alias appears in more than one catalog. When an
@@ -594,9 +599,9 @@ For each section:
 - The portable writer may support a host-configured custom Gradle plugin
   inventory. Those leaves are not dependency catalog entries and may use the
   static warning block `No module applies it` instead of `Unused catalog
-  entry`. Water My Plants does not configure such an inventory as a visual
-  target; its catalog-tree contract contains only `waterMyPlants.libraries`
-  and `waterMyPlants.plugins`.
+  entry`. Water My Plants configures separate inventories for convention
+  plugins and regular Gradle plugins; neither inventory is an included-build
+  dependency catalog.
 - Control plugin usage blocks through their own component boolean on `.tree
   node` `Plugin`: `Show applied by module`,
   `Show used by convention plugin`, and
@@ -753,12 +758,10 @@ Layout rules:
   - `Project versions`: `repo/water-my-plants-project-config/versions.properties`.
   - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`
     under `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/`.
-  - `Repository Gradle tooling version catalogs`:
-    `repo/gradle-plugins/settings.gradle.kts` and
-    `repo/figma-documentation-sync/settings.gradle.kts`.
-  - `Custom Gradle convention plugins`: the `repo/gradle-plugins` directory.
-  - `Custom Gradle plugins`: the regular plugin implementation at
-    `repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaDocumentationSyncGradlePlugin.kt`.
+  - `Gradle convention plugins`: the `repo/gradle-plugins` directory.
+  - `Gradle plugins`: the regular plugin implementations under
+    `repo/dependency-catalog`, `repo/figma-documentation-sync`,
+    `repo/verification-platform`, and `repo/water-my-plants-project-config`.
 - Keep explanatory prose outside generated catalog containers. In particular,
   do not recreate the removed free-standing `Not actually trees` text in the
   repository tooling catalog parent; future contextual guidance belongs in a

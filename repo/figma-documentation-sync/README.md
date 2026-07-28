@@ -114,15 +114,18 @@ The Water My Plants included-build sources are configured by the
 |----------------|------------|---------|
 | `repo/dependency-catalog` | `dependencyCatalog` | Describes the reusable catalog API, core, and Gradle adapter; it does not publish a product catalog tree. |
 | `repo/figma-documentation-sync` | `figmaDocumentationSync` | Describes tooling modules and dependency edges; it does not publish a catalog tree to Figma. |
-| `repo/gradle-plugins` | `gradlePlugins` | Describes convention-plugin modules and usage; it does not publish a catalog tree to Figma. |
+| `repo/gradle-plugins` | `gradlePlugins` | Describes convention-plugin modules and usage. Its private catalogs are not visual targets; its convention-plugin declarations feed the Water My Plants plugin inventory. |
 | `repo/verification-platform` | `verificationPlatform` | Describes provider-neutral verification modules; it does not publish a catalog tree to Figma. |
 | `repo/water-my-plants-project-config` | `waterMyPlantsProjectConfig` | Describes the product catalog and composition modules; its provider supplies the two production trees below. |
 
-The only catalog-tree visual targets in the Water My Plants adapter are
+The only dependency-catalog visual targets in the Water My Plants adapter are
 `waterMyPlants.libraries` and `waterMyPlants.plugins`. They describe the
-dependency catalog used to build and test the application. Included-build
-`versions.properties` files are private build-tool inputs and are not rendered
-as application dependency trees.
+catalog used to build and test the application. The adapter additionally owns
+`waterMyPlants.customGradleConventionPlugins` and
+`waterMyPlants.customGradlePlugins`, which are plugin inventories rather than
+included-build version catalogs. Included-build `versions.properties` files
+remain private build-tool inputs and are not rendered as application dependency
+trees.
 
 The portable plugin id is `com.marmatsan.figmaDocumentationSync`. It intentionally has
 no Water My Plants defaults. See

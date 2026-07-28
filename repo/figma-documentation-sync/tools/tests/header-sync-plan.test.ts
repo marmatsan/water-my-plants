@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { HEADER_SECTION_TARGETS } from "@figma-documentation-sync/project-config";
+import {
+  HEADER_SECTION_TARGETS,
+  PARENT_SECTION_NODE_IDS,
+} from "@figma-documentation-sync/project-config";
 import {
   headerLinkNeedsLeftAlignment,
   headerLinkRanges,
@@ -26,13 +29,16 @@ test("header links require left horizontal alignment", () => {
 });
 
 test("header source map covers every managed parent documentation section", () => {
+  assert.deepEqual(PARENT_SECTION_NODE_IDS, [
+    "63685:108540",
+    "62936:183",
+    "63099:949",
+    "64886:247",
+    "64886:248",
+  ]);
   assert.deepEqual(
     HEADER_SECTION_TARGETS.map((target) => target.sectionNodeId),
-    [
-      "63685:108540",
-      "62936:183",
-      "63099:949",
-    ]
+    PARENT_SECTION_NODE_IDS
   );
   assert.equal(
     HEADER_SECTION_TARGETS
@@ -53,6 +59,20 @@ test("header source map covers every managed parent documentation section", () =
     [
       "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
       "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
+    ]
+  );
+  assert.deepEqual(
+    HEADER_SECTION_TARGETS[3].links.map((link) => link.label),
+    ["repo/gradle-plugins"]
+  );
+  assert.deepEqual(
+    HEADER_SECTION_TARGETS[4].links.map((link) => link.label),
+    [
+      "repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt",
+      "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaDocumentationSyncGradlePlugin.kt",
+      "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/VerificationPlatformPlugin.kt",
+      "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt",
+      "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsSettingsPlugin.kt",
     ]
   );
 });

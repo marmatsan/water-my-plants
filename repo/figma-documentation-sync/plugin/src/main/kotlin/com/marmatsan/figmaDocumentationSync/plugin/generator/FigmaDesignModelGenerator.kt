@@ -254,6 +254,25 @@ internal class FigmaDesignModelGenerator(
                                 ),
                             ).toDesignJson(),
                     )
+                    put(
+                        "customGradleConventionPlugins",
+                        projectCatalogTreesPort
+                            .readPluginTree(
+                                ProjectCatalogTreeSource.CustomGradleConventionPlugins(
+                                    rootDirPath = request.projectRootDirectory.absolutePath,
+                                    includedBuilds = conventionPluginIncludedBuilds,
+                                ),
+                            ).toDesignJson(),
+                    )
+                    put(
+                        "customGradlePlugins",
+                        projectCatalogTreesPort
+                            .readPluginTree(
+                                ProjectCatalogTreeSource.CustomGradlePlugins(
+                                    rootDirPath = request.projectRootDirectory.absolutePath,
+                                ),
+                            ).toDesignJson(),
+                    )
                 },
             )
             request.includedBuilds
