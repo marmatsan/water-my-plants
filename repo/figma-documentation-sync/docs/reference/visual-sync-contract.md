@@ -570,6 +570,12 @@ For each section:
   artifacts declared inside a bundle only to child `.artifact` rows inside the
   corresponding `.artifacts bundle`; they must not consume sibling `.artifact`
   slots in the `.tree node` `artifacts` frame.
+- Render every bundle alias with its source `Bundle` suffix. The catalog model
+  rejects aliases without that suffix, so the writer must not invent or remove
+  it as a presentation-only transformation.
+- Render shared version metadata on the `.artifacts bundle` instance only.
+  Nested `.artifact` rows identify bundle members and must keep `Show version`
+  disabled even when the bundle has a visible version.
 - Update `Used by module` instances for library artifacts from
   `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.

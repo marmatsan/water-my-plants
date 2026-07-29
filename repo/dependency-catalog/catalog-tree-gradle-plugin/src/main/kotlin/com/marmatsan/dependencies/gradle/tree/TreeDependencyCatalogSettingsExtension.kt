@@ -3,8 +3,8 @@ package com.marmatsan.dependencies.gradle.tree
 import com.marmatsan.dependencies.catalog.dsl.DependencyCatalogTreesBuilder
 import com.marmatsan.dependencies.catalog.dsl.LibraryCatalogTreesScope
 import com.marmatsan.dependencies.catalog.dsl.PluginCatalogTreesScope
+import com.marmatsan.dependencies.catalog.mapping.toDependencyCatalog
 import com.marmatsan.dependencies.catalog.version.PropertiesDependencyVersionResolver
-import com.marmatsan.dependencies.gradle.tree.mapping.DependencyCatalogTreeApiMapper
 import com.marmatsan.dependencies.gradle.tree.provider.TreeResolvedDependencyCatalogProvider
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
@@ -115,7 +115,7 @@ abstract class TreeDependencyCatalogSettingsExtension
             val trees = catalogBuilder.build()
             registerCatalog(
                 TreeResolvedDependencyCatalogProvider(
-                    catalog = DependencyCatalogTreeApiMapper().map(trees)
+                    catalog = trees.toDependencyCatalog()
                 ),
                 librariesCatalogName.get(),
                 pluginsCatalogName.get()

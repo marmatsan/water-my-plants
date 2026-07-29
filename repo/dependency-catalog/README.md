@@ -17,7 +17,7 @@ The allowed dependency direction is:
 
 ```text
 catalog-gradle-plugin -> catalog-api
-catalog-core          (independent implementation toolkit)
+catalog-core -> catalog-api
 catalog-tree-gradle-plugin -> catalog-core + catalog-api + catalog-gradle-plugin
 ```
 
@@ -54,6 +54,8 @@ its own implementation, or a different adapter; the Gradle plugin never
 imports a product implementation. The shared builder lets one declaration
 produce concrete Gradle versions through `PropertiesDependencyVersionResolver`
 and symbolic documentation aliases through `DependencyVersionAliasResolver`.
+`toDependencyCatalog()` then maps those trees to the stable provider model; the
+mapping is shared by provider implementations and the Settings adapter.
 
 Water My Plants keeps its implementation in
 `repo/water-my-plants-project-config/catalog` and its product versions in
@@ -102,7 +104,8 @@ marker to a temporary Maven repository, then applies them from
 ## Sources Of Truth
 
 - Public provider/model API: `catalog-api/src/main/kotlin/`.
-- Shared catalog-tree builder and optional tree DSL: `catalog-core/src/main/kotlin/`.
+- Shared catalog-tree builder, API mapping, and optional tree DSL:
+  `catalog-core/src/main/kotlin/`.
 - Gradle settings adapter: `catalog-gradle-plugin/src/main/kotlin/`.
 - Independent consumer proofs: `samples/standalone-consumer/` and
   `samples/standalone-tree-consumer/`.

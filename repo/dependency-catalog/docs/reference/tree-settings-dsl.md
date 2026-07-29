@@ -14,6 +14,7 @@ sources:
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesBuilder.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/LibraryCatalogTreesScope.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/PluginCatalogTreesScope.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/mapping/DependencyCatalogApiMapping.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/DependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/PropertiesDependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt
@@ -72,7 +73,7 @@ dependencyCatalogTree
 | `root(group) { ... }` | `group: String`, `content` | Creates a unique top-level Maven group value containing exactly one path segment, conventionally `com`, `io`, `me`, or `org`. It becomes the first part of descendant coordinates and aliases and may own artifacts directly for a single-segment Maven group. |
 | `library(group) { ... }` | `group: String`, optional `content` | Creates or reuses a relative Maven group path. Dots create real nested nodes: below `root("org")`, `library("jetbrains.kotlinx")` equals nested `jetbrains` and `kotlinx` declarations. A node without entries is only a namespace. |
 | `artifact(artifact, version)` | `artifact: String`, `version: String? = null` | Registers `<full-group>:<artifact>`. A null version calls Gradle's `withoutVersion()` and requires external version management. |
-| `artifactsBundle(*artifacts, alias, version)` | artifact names, required bundle `alias`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. |
+| `artifactsBundle(*artifacts, alias, version)` | artifact names, required `alias` ending in `Bundle`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. The public catalog model rejects aliases without the `Bundle` suffix. |
 
 Use `artifactsBundle` only when every artifact represents one cohesive dependency
 set, shares version management, and is normally added to the same Gradle
@@ -80,6 +81,11 @@ configuration. Keep BOMs outside the bundle so consumers can add them through
 `platform(...)`. Keep artifacts separate when they belong to different
 configurations, such as a compiler on `ksp`, a runtime on `implementation`, or
 a launcher on `testRuntimeOnly`.
+
+Bundle aliases use lower camel case and the explicit `Bundle` suffix, for
+example `composeBundle`, `lifecycleComposeBundle`, or `kotestBundle`. This keeps
+bundle identity unambiguous in Gradle accessors, source scanners, and generated
+documentation.
 
 Library aliases start with the complete group. When the artifact begins with a
 suffix already represented by that group, the longest repeated prefix is
@@ -108,7 +114,7 @@ plugins {
     root("org") {
         plugin(
             id = "jetbrains.kotlin.jvm",
-            version = version("kotlinVersion"),
+            version = version("kotlinVersion")
         )
     }
 }
@@ -126,7 +132,7 @@ versioned root, without inventing an additional namespace node:
 plugins {
     root(
         id = "quality",
-        version = version("qualityPluginVersion"),
+        version = version("qualityPluginVersion")
     )
 }
 ```
@@ -182,6 +188,12 @@ The builder fails when no root was declared and cannot be changed or built a
 second time after `build()` returns. The settings adapter delegates collection
 and those invariants to this builder; it owns only Gradle properties and
 registration timing.
+
+`DependencyCatalogTrees.toDependencyCatalog()` is the canonical mapping from
+the tree implementation model to the stable `catalog-api` model. It preserves
+root and child order, namespace nodes, artifacts, bundles, and version text.
+Provider implementations and the Settings adapter use this same mapping rather
+than maintaining consumer-specific conversions.
 
 ### Registration lifecycle
 
@@ -261,6 +273,7 @@ the source. JetBrains tracks improvements to this association in
 
 - Settings extension: `catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt`.
 - Shared catalog builder: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt`.
+- Public API mapping: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/mapping/DependencyCatalogApiMapping.kt`.
 - Version strategies: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/`.
 - Library tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt`.
 - Plugin tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginScope.kt`.

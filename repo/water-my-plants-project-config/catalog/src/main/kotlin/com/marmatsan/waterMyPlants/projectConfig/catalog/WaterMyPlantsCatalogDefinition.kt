@@ -58,7 +58,7 @@ internal fun waterMyPlantsCatalogTrees(
                     artifactsBundle(
                         "lifecycle-viewmodel-compose",
                         "lifecycle-runtime-compose",
-                        alias = "lifecycleCompose",
+                        alias = "lifecycleComposeBundle",
                         version = version("lifecycleLibraryVersion")
                     )
                 }
@@ -96,14 +96,14 @@ internal fun waterMyPlantsCatalogTrees(
                     artifactsBundle(
                         "cucumber-java8",
                         "cucumber-junit-platform-engine",
-                        alias = "cucumber"
+                        alias = "cucumberBundle"
                     )
                 }
                 library("kotest") {
                     artifactsBundle(
                         "kotest-runner-junit5",
                         "kotest-assertions-core",
-                        alias = "kotest",
+                        alias = "kotestBundle",
                         version = version("kotestLibraryVersion")
                     )
                 }

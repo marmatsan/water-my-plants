@@ -110,7 +110,7 @@ dependencyCatalogTree {
                 artifactsBundle(
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
-                    alias = "kotest",
+                    alias = "kotestBundle",
                     version = version("kotestLibraryVersion")
                 )
             }

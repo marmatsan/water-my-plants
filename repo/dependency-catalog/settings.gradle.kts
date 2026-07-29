@@ -31,7 +31,7 @@ dependencyResolutionManagement {
                 "kotest-assertions-core"
             ).version(versions.getProperty("kotestLibraryVersion"))
             bundle(
-                "kotest",
+                "kotestBundle",
                 listOf(
                     "io.kotest.runner.junit5",
                     "io.kotest.assertions.core"

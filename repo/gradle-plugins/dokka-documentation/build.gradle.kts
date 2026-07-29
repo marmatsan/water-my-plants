@@ -10,7 +10,7 @@ dependencies {
     implementation(libs.org.jetbrains.dokka.gradle.plugin)
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
 
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

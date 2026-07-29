@@ -60,7 +60,7 @@ dependencyCatalogTree {
                 artifactsBundle(
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
-                    alias = "kotest",
+                    alias = "kotestBundle",
                     version = version("kotestLibraryVersion")
                 )
             }
@@ -72,7 +72,7 @@ dependencyCatalogTree {
                 artifactsBundle(
                     "cucumber-java8",
                     "cucumber-junit-platform-engine",
-                    alias = "cucumber"
+                    alias = "cucumberBundle"
                 )
             }
         }
@@ -93,7 +93,7 @@ dependencyCatalogTree {
                 artifactsBundle(
                     "ktlint-rule-engine",
                     "ktlint-ruleset-standard",
-                    alias = "ktlint",
+                    alias = "ktlintBundle",
                     version = version("ktlintLibraryVersion")
                 )
             }

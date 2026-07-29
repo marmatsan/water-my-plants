@@ -16,13 +16,13 @@ dependencies {
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
     implementation(platform(libs.io.ktor.bom))
-    implementation(libs.bundles.ktorClient)
+    implementation(libs.bundles.ktorClientBundle)
     implementation(libs.io.modelcontextprotocol.kotlin.sdk.client)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
     implementation(libs.org.snakeyaml.engine)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

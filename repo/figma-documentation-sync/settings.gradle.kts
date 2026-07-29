@@ -75,7 +75,7 @@ dependencyCatalogTree {
                     "ktor-client-cio",
                     "ktor-client-content-negotiation",
                     "ktor-serialization-kotlinx-json",
-                    alias = "ktorClient"
+                    alias = "ktorClientBundle"
                 )
             }
             library("modelcontextprotocol") {
@@ -92,14 +92,14 @@ dependencyCatalogTree {
                 artifactsBundle(
                     "cucumber-java8",
                     "cucumber-junit-platform-engine",
-                    alias = "cucumber"
+                    alias = "cucumberBundle"
                 )
             }
             library("kotest") {
                 artifactsBundle(
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
-                    alias = "kotest",
+                    alias = "kotestBundle",
                     version = version("kotestLibraryVersion")
                 )
             }

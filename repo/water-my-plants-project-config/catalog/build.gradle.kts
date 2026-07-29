@@ -13,6 +13,14 @@ group = "com.marmatsan.repo"
 dependencies {
     implementation(libs.com.marmatsan.repo.catalog.api)
     implementation(libs.com.marmatsan.repo.catalog.core)
+
+    testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
+    testImplementation(libs.bundles.kotestBundle)
+    testRuntimeOnly(libs.org.junit.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 dokka {

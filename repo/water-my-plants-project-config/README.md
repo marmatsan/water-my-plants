@@ -30,10 +30,13 @@ The active adapter consists of:
 - `catalog/src/main/kotlin/.../WaterMyPlantsCatalogDefinition.kt`, which owns
   the single product library-and-plugin tree declaration shared by Gradle and
   Figma;
+- `catalog/src/main/kotlin/.../version/WaterMyPlantsVersionProperties.kt`,
+  which owns the single product-registry lookup policy and delegates exact-key
+  reads to Dependency Catalog's reusable properties resolver;
 - `catalog/src/main/kotlin/.../WaterMyPlantsCatalogProvider.kt`, which resolves
   that declaration with concrete property values for Gradle or symbolic
-  property aliases for documentation, then adapts it to Dependency Catalog's
-  public API;
+  property aliases for documentation, then uses Dependency Catalog's canonical
+  tree-to-API mapping;
 - `plugin/src/main/kotlin/.../WaterMyPlantsDependencyDslCatalogProvider.kt`,
   which composes consumer-specific mapping, usage-source, and enrichment ports
   before exposing Figma's catalog input port;

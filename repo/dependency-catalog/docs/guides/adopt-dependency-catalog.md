@@ -12,6 +12,7 @@ sources:
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/mapping/DependencyCatalogApiMapping.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/DependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/PropertiesDependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt
@@ -115,21 +116,22 @@ private fun exampleCatalog(
 
 fun resolvedCatalog(
     versionsFile: File
-): DependencyCatalogTrees =
+): DependencyCatalog =
     exampleCatalog(
         versionResolver = PropertiesDependencyVersionResolver(versionsFile)
-    )
+    ).toDependencyCatalog()
 
-fun documentationCatalog(): DependencyCatalogTrees =
+fun documentationCatalog(): DependencyCatalog =
     exampleCatalog(
         versionResolver = DependencyVersionAliasResolver
-    )
+    ).toDependencyCatalog()
 ```
 
-Map the resulting `DependencyCatalogTrees` to the public provider API at the
-consumer boundary. This keeps product ownership in the consumer, prevents the
-reusable settings plugin from importing a product, and prevents separate
-library/plugin declarations from drifting between Gradle and documentation.
+Map `DependencyCatalogTrees` with the canonical `toDependencyCatalog()`
+extension at the consumer boundary. This keeps product ownership in the
+consumer, prevents the reusable settings plugin from importing a product, and
+prevents both separate declarations and duplicate tree-to-API conversions from
+drifting between Gradle and documentation.
 
 ## Settings-Owned Tree Adapter
 

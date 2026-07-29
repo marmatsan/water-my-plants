@@ -14,12 +14,12 @@ dependencies {
     implementation(projects.domain)
     implementation(gradleApi())
     implementation(libs.com.michael.bull.kotlin.result)
-    implementation(libs.bundles.ktlint)
+    implementation(libs.bundles.ktlintBundle)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(testFixtures(projects.domain))
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
