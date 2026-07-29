@@ -9,7 +9,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlanConf
 
 /** Composes independently extensible CI section planners into one deterministic visual plan. */
 class CiVisualPlanner internal constructor(
-    private val sectionPlanners: List<CiVisualSectionPlanner>,
+    private val sectionPlanners: List<CiVisualSectionPlanner>
 ) {
     constructor() : this(defaultCiVisualSectionPlanners())
 
@@ -18,7 +18,7 @@ class CiVisualPlanner internal constructor(
         externalTopology: CiExternalTopology,
         windowsRuntime: CiWindowsRuntime,
         configuration: CiConfiguration,
-        config: CiVisualPlanConfig,
+        config: CiVisualPlanConfig
     ): CiVisualPlan {
         val context =
             CiVisualPlanningContext(
@@ -26,17 +26,17 @@ class CiVisualPlanner internal constructor(
                 windowsRuntime = windowsRuntime,
                 config = config,
                 ciPipeline = configuration.requirePipeline(config.ciPipelineName),
-                figmaPipeline = configuration.requirePipeline(config.figmaPipelineName),
+                figmaPipeline = configuration.requirePipeline(config.figmaPipelineName)
             )
         return CiVisualPlan(
             parentName = "Continuous Integration and Documentation Automation",
-            sections = sectionPlanners.map { planner -> planner.create(context) },
+            sections = sectionPlanners.map { planner -> planner.create(context) }
         )
     }
 }
 
 private fun CiConfiguration.requirePipeline(
-    name: String,
+    name: String
 ): CiPipeline =
     pipelines.find { pipeline -> pipeline.name == name }
         ?: throw IllegalArgumentException("Effective CI configuration is missing pipeline '$name'.")
@@ -49,10 +49,10 @@ private fun defaultCiVisualSectionPlanners(): List<CiVisualSectionPlanner> {
         PullRequestCiVisualSectionPlanner(),
         PostMergeCiVisualSectionPlanner(
             environments,
-            artifactPaths,
+            artifactPaths
         ),
         JobTasksCiVisualSectionPlanner(),
         InfrastructureCiVisualSectionPlanner(environments),
-        WindowsRuntimeCiVisualSectionPlanner(environments),
+        WindowsRuntimeCiVisualSectionPlanner(environments)
     )
 }

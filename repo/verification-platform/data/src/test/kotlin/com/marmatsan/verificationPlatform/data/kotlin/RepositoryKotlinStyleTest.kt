@@ -14,7 +14,7 @@ class RepositoryKotlinStyleTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "repository-kotlin-style",
+                    prefix = "repository-kotlin-style"
                 )
 
             "formats every declaration parameter and multiple call arguments vertically" {
@@ -26,15 +26,15 @@ class RepositoryKotlinStyleTest :
                         fun greet(first: String, second: String) = combine(first, second)
 
                         fun printSingle(value: String) = println(value)
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { formatted ->
                     formatted shouldBe
@@ -42,17 +42,71 @@ class RepositoryKotlinStyleTest :
                             source = """
                             fun greet(
                                 first: String,
-                                second: String,
+                                second: String
                             ) = combine(
                                 first,
-                                second,
+                                second
                             )
 
                             fun printSingle(
-                                value: String,
+                                value: String
                             ) = println(value)
-                            """,
+                            """
                         )
+                }
+            }
+
+            "removes trailing commas from function parameters and arguments" {
+                given {
+                    val sourceFile =
+                        temporaryDirectory.resolve("TrailingFunctionComma.kt")
+                    sourceFile.writeText(
+                        """
+                        fun render(
+                            label: String,
+                        ) = Unit
+
+                        fun show(
+                            value: String,
+                        ) {
+                            render(
+                                label = value,
+                            )
+                        }
+                        """.trimIndent()
+                    )
+                    FormattingFixture(
+                        sourceFile = sourceFile,
+                        style = repositoryKotlinStyle()
+                    )
+                }.whenever { fixture ->
+                    FormattingResult(
+                        violations = fixture.style.inspect(fixture.sourceFile),
+                        formatted =
+                            fixture.style.format(
+                                file = fixture.sourceFile
+                            )
+                    )
+                }.then { fixture, result ->
+                    result.violations.shouldNotBeEmpty()
+                    result.formatted shouldBe
+                        canonicalKotlin(
+                            source = """
+                            fun render(
+                                label: String
+                            ) = Unit
+
+                            fun show(
+                                value: String
+                            ) {
+                                render(
+                                    label = value
+                                )
+                            }
+                            """
+                        )
+                    fixture.sourceFile.writeText(result.formatted)
+                    fixture.style.inspect(fixture.sourceFile).shouldBeEmpty()
                 }
             }
 
@@ -68,33 +122,33 @@ class RepositoryKotlinStyleTest :
                             render(label = value)
                             println(value)
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { fixture, formatted ->
                     formatted shouldBe
                         canonicalKotlin(
                             source = """
                             fun render(
-                                label: String,
+                                label: String
                             ) = Unit
 
                             fun show(
-                                value: String,
+                                value: String
                             ) {
                                 render(
-                                    label = value,
+                                    label = value
                                 )
                                 println(value)
                             }
-                            """,
+                            """
                         )
                     fixture.sourceFile.writeText(formatted)
                     fixture.style.inspect(fixture.sourceFile).shouldBeEmpty()
@@ -117,22 +171,22 @@ class RepositoryKotlinStyleTest :
                         fun walk(child: String, currentPath: List<String>) {
                             visit(child, currentPath)
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     FormattingResult(
                         violations = fixture.style.inspect(fixture.sourceFile),
                         formatted =
                             fixture.style.format(
-                                file = fixture.sourceFile,
-                            ),
+                                file = fixture.sourceFile
+                            )
                     )
                 }.then { fixture, result ->
                     result.violations.shouldNotBeEmpty()
@@ -141,27 +195,27 @@ class RepositoryKotlinStyleTest :
                             source = """
                             data class Visit(
                                 val node: String,
-                                val path: List<String>,
+                                val path: List<String>
                             )
 
                             fun visit(
                                 node: String,
-                                path: List<String>,
+                                path: List<String>
                             ) = Visit(
                                 node = node,
-                                path = path,
+                                path = path
                             )
 
                             fun walk(
                                 child: String,
-                                currentPath: List<String>,
+                                currentPath: List<String>
                             ) {
                                 visit(
                                     node = child,
-                                    path = currentPath,
+                                    path = currentPath
                                 )
                             }
-                            """,
+                            """
                         )
                     fixture.sourceFile.writeText(result.formatted)
                     fixture.style.inspect(fixture.sourceFile).shouldBeEmpty()
@@ -179,18 +233,18 @@ class RepositoryKotlinStyleTest :
                             value: String,
                             fullPath: String
                         ) = mapNode(value, fullPath)
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { formatted ->
                     formatted shouldBe
@@ -199,12 +253,12 @@ class RepositoryKotlinStyleTest :
                             fun transform(
                                 mapNode: (value: String, fullPath: String) -> String,
                                 value: String,
-                                fullPath: String,
+                                fullPath: String
                             ) = mapNode(
                                 value,
-                                fullPath,
+                                fullPath
                             )
-                            """,
+                            """
                         )
                 }
             }
@@ -226,22 +280,22 @@ class RepositoryKotlinStyleTest :
                             )
                             )
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     FormattingResult(
                         violations = fixture.style.inspect(fixture.sourceFile),
                         formatted =
                             fixture.style.format(
-                                file = fixture.sourceFile,
-                            ),
+                                file = fixture.sourceFile
+                            )
                     )
                 }.then { fixture, result ->
                     result.violations.shouldNotBeEmpty()
@@ -251,16 +305,16 @@ class RepositoryKotlinStyleTest :
                             fun collect(
                                 results: MutableList<String>,
                                 mapNode: (value: String) -> String,
-                                value: String,
+                                value: String
                             ) {
                                 results.add(
                                     element =
                                         mapNode(
-                                            value,
-                                        ),
+                                            value
+                                        )
                                 )
                             }
-                            """,
+                            """
                         )
                     fixture.sourceFile.writeText(result.formatted)
                     fixture.style.inspect(fixture.sourceFile).shouldBeEmpty()
@@ -284,14 +338,14 @@ class RepositoryKotlinStyleTest :
                             children.add(child)
                             children.apply { add(child) }
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.style.format(fixture.sourceFile)
@@ -300,17 +354,17 @@ class RepositoryKotlinStyleTest :
                         canonicalKotlin(
                             source = """
                             fun add(
-                                child: String,
+                                child: String
                             ) = Unit
 
                             fun collect(
                                 children: MutableList<String>,
-                                child: String,
+                                child: String
                             ) {
                                 children.add(child)
                                 children.apply { add(child) }
                             }
-                            """,
+                            """
                         )
                 }
             }
@@ -330,18 +384,18 @@ class RepositoryKotlinStyleTest :
                                 message
                             )
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { formatted ->
                     formatted shouldBe
@@ -349,14 +403,14 @@ class RepositoryKotlinStyleTest :
                             source = """
                             fun check(
                                 condition: Boolean,
-                                message: String,
+                                message: String
                             ) {
                                 check(
                                     condition = condition,
-                                    message = message,
+                                    message = message
                                 )
                             }
-                            """,
+                            """
                         )
                 }
             }
@@ -376,18 +430,18 @@ class RepositoryKotlinStyleTest :
                             "check",
                             "verification"
                         )
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
                         style =
                             repositoryKotlinStyle(
-                                sourceFiles = listOf(sourceFile),
-                            ),
+                                sourceFiles = listOf(sourceFile)
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { formatted ->
                     formatted shouldBe
@@ -395,14 +449,14 @@ class RepositoryKotlinStyleTest :
                             source = """
                             fun register(
                                 name: String,
-                                type: String,
+                                type: String
                             ) = Unit
 
                             register(
                                 "check",
-                                "verification",
+                                "verification"
                             )
-                            """,
+                            """
                         )
                 }
             }
@@ -422,15 +476,15 @@ class RepositoryKotlinStyleTest :
                                 fullPath: String
                             ) -> R
                         ) = Unit
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { fixture, formatted ->
                     formatted shouldBe
@@ -438,9 +492,9 @@ class RepositoryKotlinStyleTest :
                             source = """
                             fun <T, R> traverse(
                                 pathSegment: (T) -> String,
-                                mapNode: (value: T, fullPath: String) -> R,
+                                mapNode: (value: T, fullPath: String) -> R
                             ) = Unit
-                            """,
+                            """
                         )
                     fixture.sourceFile.writeText(formatted)
                     fixture.style.inspect(fixture.sourceFile).shouldBeEmpty()
@@ -456,15 +510,15 @@ class RepositoryKotlinStyleTest :
                         fun transform(
                             mapper: (firstValue: ExtremelyLongDomainValueNameThatMakesTheSignatureExceedTheConfiguredMargin, secondValue: AnotherExtremelyLongDomainValueName) -> String
                         ) = Unit
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.format(
-                        file = fixture.sourceFile,
+                        file = fixture.sourceFile
                     )
                 }.then { formatted ->
                     formatted shouldBe
@@ -473,10 +527,10 @@ class RepositoryKotlinStyleTest :
                             fun transform(
                                 mapper: (
                                     firstValue: ExtremelyLongDomainValueNameThatMakesTheSignatureExceedTheConfiguredMargin,
-                                    secondValue: AnotherExtremelyLongDomainValueName,
-                                ) -> String,
+                                    secondValue: AnotherExtremelyLongDomainValueName
+                                ) -> String
                             ) = Unit
-                            """,
+                            """
                         )
                 }
             }
@@ -488,14 +542,14 @@ class RepositoryKotlinStyleTest :
                     sourceFile.writeText("register(\"check\", CheckTask::class.java)")
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.inspect(fixture.sourceFile).also {
                         fixture.sourceFile.writeText(
                             fixture.style.format(
-                                file = fixture.sourceFile,
-                            ),
+                                file = fixture.sourceFile
+                            )
                         )
                     }
                 }.then { fixture, violations ->
@@ -511,7 +565,7 @@ class RepositoryKotlinStyleTest :
                     sourceFile.writeText("fun greet(name : String)=name")
                     FormattingFixture(
                         sourceFile = sourceFile,
-                        style = repositoryKotlinStyle(),
+                        style = repositoryKotlinStyle()
                     )
                 }.whenever { fixture ->
                     fixture.style.inspect(fixture.sourceFile).map(RepositoryKotlinStyle.Violation::ruleId)
@@ -526,7 +580,7 @@ class RepositoryKotlinStyleTest :
                     listOf(
                         "GIVEN",
                         "WHEN",
-                        "THEN",
+                        "THEN"
                     )
                 }.whenever { markers ->
                     markers.map { marker ->
@@ -537,10 +591,10 @@ class RepositoryKotlinStyleTest :
                                 "fun behavior() {",
                                 "    " + "// " + marker,
                                 "    Unit",
-                                "}",
+                                "}"
                             ).joinToString(
-                                separator = "\n",
-                            ),
+                                separator = "\n"
+                            )
                         )
                         repositoryKotlinStyle()
                             .inspect(sourceFile)
@@ -552,31 +606,31 @@ class RepositoryKotlinStyleTest :
                     }
                 }
             }
-        },
+        }
     )
 
 private data class FormattingFixture(
     val sourceFile: File,
-    val style: RepositoryKotlinStyle,
+    val style: RepositoryKotlinStyle
 )
 
 private data class FormattingResult(
     val violations: List<RepositoryKotlinStyle.Violation>,
-    val formatted: String,
+    val formatted: String
 )
 
 private fun repositoryKotlinStyle(
-    sourceFiles: List<File> = emptyList(),
+    sourceFiles: List<File> = emptyList()
 ): RepositoryKotlinStyle =
     RepositoryKotlinStyle(
         sourceFiles = sourceFiles,
         editorConfigFile =
             File(
                 checkNotNull(System.getProperty("waterMyPlants.repositoryRoot")),
-                ".editorconfig",
-            ),
+                ".editorconfig"
+            )
     )
 
 private fun canonicalKotlin(
-    source: String,
+    source: String
 ): String = source.trimIndent() + "\n"

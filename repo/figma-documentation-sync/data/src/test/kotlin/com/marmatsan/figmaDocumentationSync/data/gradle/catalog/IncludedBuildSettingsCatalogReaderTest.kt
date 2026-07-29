@@ -17,7 +17,7 @@ internal class IncludedBuildSettingsCatalogReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "included-build-settings-catalog-reader",
+                    prefix = "included-build-settings-catalog-reader"
                 )
 
             test("readLibraryTree maps included build settings libs catalog to library catalog tree") {
@@ -43,7 +43,7 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { settingsFile ->
                     IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
@@ -64,21 +64,21 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                                                 artifact = "ktor-bom",
                                                                 version =
                                                                     CatalogVersion(
-                                                                        value = "ktorLibraryVersion",
-                                                                    ),
+                                                                        value = "ktorLibraryVersion"
+                                                                    )
                                                             ),
                                                             LibraryCatalogEntry.Artifact(
                                                                 artifact = "ktor-client-core",
                                                                 version =
                                                                     CatalogVersion(
-                                                                        value = null,
-                                                                    ),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                        value = null
+                                                                    )
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -99,14 +99,14 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { settingsFile ->
                     IncludedBuildSettingsCatalogReader().readLibraryTree(settingsFile)
                 }.then { actualTree ->
                     actualTree shouldBe
                         LibraryCatalogTree(
-                            roots = emptyList(),
+                            roots = emptyList()
                         )
                 }
             }
@@ -127,7 +127,7 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { settingsFile ->
                     IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
@@ -152,16 +152,16 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                                                             id = "ksp",
                                                                             version =
                                                                                 CatalogVersion(
-                                                                                    value = "kspPluginVersion",
-                                                                                ),
-                                                                        ),
-                                                                    ),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                                    value = "kspPluginVersion"
+                                                                                )
+                                                                        )
+                                                                    )
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -183,23 +183,23 @@ internal class IncludedBuildSettingsCatalogReaderTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { settingsFile ->
                     IncludedBuildSettingsCatalogReader().readPluginTree(settingsFile)
                 }.then { actualTree ->
                     actualTree shouldBe
                         PluginCatalogTree(
-                            roots = emptyList(),
+                            roots = emptyList()
                         )
                 }
             }
-        },
+        }
     )
 
 private fun File.settingsFile(
     name: String,
-    content: String,
+    content: String
 ) = resolve("$name.settings.gradle.kts")
     .apply {
         writeText(content)

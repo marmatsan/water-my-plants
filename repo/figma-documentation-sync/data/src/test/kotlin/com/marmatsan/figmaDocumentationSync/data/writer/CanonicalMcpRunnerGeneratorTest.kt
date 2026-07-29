@@ -16,29 +16,29 @@ internal class CanonicalMcpRunnerGeneratorTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "canonical-mcp-runner-generator",
+                    prefix = "canonical-mcp-runner-generator"
                 )
 
             test("generates canonical visual and metadata runners entirely from Kotlin") {
                 val root = temporaryDirectory.toPath()
                 val tools =
                     root.resolve(
-                        "repo/figma-documentation-sync/tools",
+                        "repo/figma-documentation-sync/tools"
                     )
                 val sourceRoot =
                     tools.resolve(
-                        "src/app",
+                        "src/app"
                     )
                 Files.createDirectories(sourceRoot)
                 Files.writeString(
                     sourceRoot.resolve(
-                        "writer.ts",
+                        "writer.ts"
                     ),
-                    "export const writer = true;",
+                    "export const writer = true;"
                 )
                 val model =
                     root.resolve(
-                        "design-model.json",
+                        "design-model.json"
                     )
                 Files.writeString(
                     model,
@@ -97,20 +97,20 @@ internal class CanonicalMcpRunnerGeneratorTest :
                         }
                       }
                     }
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
                 val script =
                     tools.resolve(
-                        "sync-trunk-design-model.mcp.js",
+                        "sync-trunk-design-model.mcp.js"
                     )
                 Files.createDirectories(script.parent)
                 Files.writeString(
                     script,
-                    "const DESIGN_MODEL = undefined;\nconst SYNC_OPTIONS = undefined;\nreturn SYNC_OPTIONS;\n",
+                    "const DESIGN_MODEL = undefined;\nconst SYNC_OPTIONS = undefined;\nreturn SYNC_OPTIONS;\n"
                 )
                 val policy =
                     root.resolve(
-                        "change-impact-policy.json",
+                        "change-impact-policy.json"
                     )
                 Files.writeString(
                     policy,
@@ -124,11 +124,11 @@ internal class CanonicalMcpRunnerGeneratorTest :
                       "figmaVisualWriterPaths":["repo/figma-documentation-sync/tools/src/*"],
                       "figmaVisualTargetRules":[]
                     }
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
                 val output =
                     root.resolve(
-                        "out",
+                        "out"
                     )
                 val generator = CanonicalMcpRunnerGenerator()
                 val request =
@@ -140,15 +140,15 @@ internal class CanonicalMcpRunnerGeneratorTest :
                         writerSourceDirectory =
                             tools
                                 .resolve(
-                                    "src",
+                                    "src"
                                 ).toString(),
                         repositoryRootDirectory = root.toString(),
                         changeImpactPolicyPath = policy.toString(),
-                        config = runtimeConfig,
+                        config = runtimeConfig
                     )
                 val result =
                     generator.generate(
-                        request = request,
+                        request = request
                     )
 
                 result.visualManifest.targets shouldContainExactly
@@ -156,7 +156,7 @@ internal class CanonicalMcpRunnerGeneratorTest :
                         "preflight",
                         "versions",
                         "waterMyPlants.libraries",
-                        "ci.windowsRuntime",
+                        "ci.windowsRuntime"
                     )
                 result.visualManifest.fullVisualSync shouldBe true
                 result.visualManifest.executionScopes.values shouldContainExactly
@@ -166,7 +166,7 @@ internal class CanonicalMcpRunnerGeneratorTest :
                         "waterMyPlants.libraries.androidx",
                         "waterMyPlants.libraries.com",
                         "waterMyPlants.libraries.cleanup",
-                        "ci.windowsRuntime",
+                        "ci.windowsRuntime"
                     )
                 result.visualManifest.payloadImage.shouldNotBeNull()
                 result.metadataManifest.targets shouldContainExactly listOf("metadata")
@@ -174,25 +174,25 @@ internal class CanonicalMcpRunnerGeneratorTest :
 
                 val visualDirectory =
                     output.resolve(
-                        "visual",
+                        "visual"
                     )
                 val stageSource =
                     Files.readString(
                         visualDirectory.resolve(
-                            "10-stage-payload-from-png.mcp.js",
-                        ),
+                            "10-stage-payload-from-png.mcp.js"
+                        )
                     )
                 val androidxSource =
                     Files.readString(
                         visualDirectory.resolve(
-                            "99-02-00-waterMyPlants-libraries-androidx.mcp.js",
-                        ),
+                            "99-02-00-waterMyPlants-libraries-androidx.mcp.js"
+                        )
                     )
                 val ciSource =
                     Files.readString(
                         visualDirectory.resolve(
-                            "99-03-ci-windowsRuntime.mcp.js",
-                        ),
+                            "99-03-ci-windowsRuntime.mcp.js"
+                        )
                     )
                 stageSource shouldContain "for (const documentPage of figma.root.children)"
                 stageSource shouldContain "page.setSharedPluginData(namespace, \"script\", payload.script)"
@@ -204,8 +204,8 @@ internal class CanonicalMcpRunnerGeneratorTest :
                     .read(
                         visualDirectory
                             .resolve(
-                                "manifest.json",
-                            ).toString(),
+                                "manifest.json"
+                            ).toString()
                     ).manifestHash shouldBe result.visualManifest.manifestHash
 
                 val chunkResult =
@@ -215,20 +215,20 @@ internal class CanonicalMcpRunnerGeneratorTest :
                                 outputDirectory =
                                     root
                                         .resolve(
-                                            "chunks",
+                                            "chunks"
                                         ).toString(),
                                 transport = "chunks",
-                                chunkSize = 1_000,
-                            ),
+                                chunkSize = 1_000
+                            )
                     )
                 chunkResult.visualManifest.payloadImage shouldBe null
                 chunkResult.visualManifest.files.any { file ->
                     file.startsWith(
-                        prefix = "10-designModelJson-",
+                        prefix = "10-designModelJson-"
                     )
                 } shouldBe true
             }
-        },
+        }
     )
 
 private val runtimeConfig =
@@ -246,7 +246,7 @@ private val runtimeConfig =
                 "versions",
                 "waterMyPlants.libraries",
                 "ci.windowsRuntime",
-                "metadata",
+                "metadata"
             ),
         catalogTargetNames = listOf("waterMyPlants.libraries"),
         ciVisualPlanConfig =
@@ -262,6 +262,6 @@ private val runtimeConfig =
                 visualContractSource = "docs/ci/visual-model-contract.md",
                 branchProtectionSource = "docs/ci/main-branch-protection.md",
                 canonicalSyncSource = "docs/runbooks/canonical-sync.md",
-                canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
-            ),
+                canonicalDesignModelPath = "build/reports/figma-sync/design-model.json"
+            )
     )

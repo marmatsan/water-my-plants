@@ -10,12 +10,44 @@ import io.kotest.matchers.shouldBe
 internal class PluginScopeTest :
     FunSpec(
         {
+            test("pluginTree registers a versioned single-segment root") {
+                given {
+                    pluginTree(
+                        rootId = "quality",
+                        version = "1.2.3"
+                    )
+                }.whenever { root ->
+                    root.value
+                }.then { rootPlugin ->
+                    rootPlugin shouldBe
+                        DependencyNode.Plugin(
+                            pluginId = "quality",
+                            version = "1.2.3"
+                        )
+                }
+            }
+
+            test("pluginTree rejects a compact path as its root") {
+                given {
+                    "org.jetbrains"
+                }.whenever { compactRoot ->
+                    shouldThrow<IllegalArgumentException> {
+                        pluginTree(
+                            rootId = compactRoot
+                        )
+                    }
+                }.then { failure ->
+                    failure.message shouldBe
+                        "Plugin id 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
+                }
+            }
+
             test("plugin expands a compact path and assigns the version to its terminal node") {
                 given(::pluginScopeFixture)
                     .whenever { fixture ->
                         fixture.scope.plugin(
                             id = "figma.code.connect",
-                            version = "1.2.3",
+                            version = "1.2.3"
                         )
                         fixture.root
                     }.then { root ->
@@ -31,12 +63,12 @@ internal class PluginScopeTest :
                                                     mutableListOf(
                                                         pluginNode(
                                                             id = "connect",
-                                                            version = "1.2.3",
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                            version = "1.2.3"
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -47,7 +79,7 @@ internal class PluginScopeTest :
                         fixture.scope.plugin("figma.code") {
                             plugin(
                                 id = "connect",
-                                version = "1.2.3",
+                                version = "1.2.3"
                             )
                         }
                         fixture.root
@@ -64,12 +96,12 @@ internal class PluginScopeTest :
                                                     mutableListOf(
                                                         pluginNode(
                                                             id = "connect",
-                                                            version = "1.2.3",
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                            version = "1.2.3"
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -80,13 +112,13 @@ internal class PluginScopeTest :
                         fixture.scope.plugin("jetbrains.kotlin") {
                             plugin(
                                 id = "jvm",
-                                version = "2.3.21",
+                                version = "2.3.21"
                             )
                         }
                         fixture.scope.plugin("jetbrains.kotlin.plugin") {
                             plugin(
                                 id = "compose",
-                                version = "2.3.21",
+                                version = "2.3.21"
                             )
                         }
                         fixture.root
@@ -103,7 +135,7 @@ internal class PluginScopeTest :
                                                     mutableListOf(
                                                         pluginNode(
                                                             id = "jvm",
-                                                            version = "2.3.21",
+                                                            version = "2.3.21"
                                                         ),
                                                         pluginNode(
                                                             id = "plugin",
@@ -111,14 +143,14 @@ internal class PluginScopeTest :
                                                                 mutableListOf(
                                                                     pluginNode(
                                                                         id = "compose",
-                                                                        version = "2.3.21",
-                                                                    ),
-                                                                ),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                                        version = "2.3.21"
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -128,12 +160,12 @@ internal class PluginScopeTest :
                     .whenever { fixture ->
                         fixture.scope.plugin(
                             id = "android.application",
-                            version = "9.2.1",
+                            version = "9.2.1"
                         )
                         shouldThrow<IllegalArgumentException> {
                             fixture.scope.plugin(
                                 id = "android.application",
-                                version = "9.3.0",
+                                version = "9.3.0"
                             )
                         }
                     }.then { failure ->
@@ -151,41 +183,41 @@ internal class PluginScopeTest :
                         }
                     }.then { failure ->
                         failure.message shouldBe
-                            "Dependency path 'figma..code' must contain non-blank segments without surrounding whitespace"
+                            "Dependency path 'figma..code' must contain non-blank segments without whitespace"
                     }
             }
-        },
+        }
     )
 
 private fun pluginScopeFixture(): PluginScopeFixture {
     val root =
         pluginNode(
-            id = "com",
+            id = "com"
         )
     return PluginScopeFixture(
         root = root,
         scope =
             PluginScope(
-                root = root,
-            ),
+                root = root
+            )
     )
 }
 
 private fun pluginNode(
     id: String,
     version: String? = null,
-    children: MutableList<Node<DependencyNode.Plugin>> = mutableListOf(),
+    children: MutableList<Node<DependencyNode.Plugin>> = mutableListOf()
 ): Node<DependencyNode.Plugin> =
     Node(
         value =
             DependencyNode.Plugin(
                 pluginId = id,
-                version = version,
+                version = version
             ),
-        children = children,
+        children = children
     )
 
 private data class PluginScopeFixture(
     val root: Node<DependencyNode.Plugin>,
-    val scope: PluginScope,
+    val scope: PluginScope
 )

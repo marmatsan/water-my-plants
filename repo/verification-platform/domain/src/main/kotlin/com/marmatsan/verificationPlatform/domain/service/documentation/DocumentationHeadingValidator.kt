@@ -5,7 +5,7 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
     /** Validates the title and type-specific second-level headings required by the document contract. */
     override fun validate(
         context: TypedDocumentationContext,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     ) {
         val body = context.frontmatter.body
         if (!LEVEL_ONE_HEADING_PATTERN.containsMatchIn(body)) {
@@ -40,12 +40,12 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
         val LEVEL_ONE_HEADING_PATTERN =
             Regex(
                 """^#\s+\S""",
-                RegexOption.MULTILINE,
+                RegexOption.MULTILINE
             )
         val LEVEL_TWO_HEADING_PATTERN =
             Regex(
                 """^##\s+(?<name>.+?)\s*$""",
-                RegexOption.MULTILINE,
+                RegexOption.MULTILINE
             )
         val RUNBOOK_SECTIONS =
             listOf(
@@ -54,15 +54,15 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
                 "Verification" to
                     setOf(
                         "verification",
-                        "verify",
+                        "verify"
                     ),
                 "Recovery" to
                     setOf(
                         "recovery",
-                        "failure recovery",
+                        "failure recovery"
                     ),
                 "Prohibited Actions" to setOf("prohibited actions"),
-                "Sources" to setOf("sources"),
+                "Sources" to setOf("sources")
             )
         val ADR_SECTIONS =
             setOf(
@@ -70,7 +70,7 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
                 "decision",
                 "consequences",
                 "alternatives",
-                "supersession",
+                "supersession"
             )
     }
 }

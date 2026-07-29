@@ -8,7 +8,7 @@ internal object RepositoryKotlinStyleCli {
     /** Executes `check` or `format` for the repository root supplied in [args]. */
     @JvmStatic
     fun main(
-        args: Array<String>,
+        args: Array<String>
     ) {
         require(args.size == EXPECTED_ARGUMENT_COUNT) {
             "Expected <check|format> <repository-root>."
@@ -23,14 +23,14 @@ internal object RepositoryKotlinStyleCli {
         val style =
             RepositoryKotlinStyle(
                 sourceFiles = sourceFiles,
-                editorConfigFile = repositoryRoot.resolve(".editorconfig"),
+                editorConfigFile = repositoryRoot.resolve(".editorconfig")
             )
         when (operation) {
             "check" -> {
                 checkStyle(
                     repositoryRoot = repositoryRoot,
                     sourceFiles = sourceFiles,
-                    style = style,
+                    style = style
                 )
             }
 
@@ -38,7 +38,7 @@ internal object RepositoryKotlinStyleCli {
                 formatStyle(
                     repositoryRoot = repositoryRoot,
                     sourceFiles = sourceFiles,
-                    style = style,
+                    style = style
                 )
             }
 
@@ -51,13 +51,13 @@ internal object RepositoryKotlinStyleCli {
     private fun checkStyle(
         repositoryRoot: File,
         sourceFiles: List<File>,
-        style: RepositoryKotlinStyle,
+        style: RepositoryKotlinStyle
     ) {
         val violations =
             sourceFiles.flatMap { file ->
                 style.inspect(file).map { violation ->
                     "${file.relativePathFrom(
-                        repositoryRoot = repositoryRoot,
+                        repositoryRoot = repositoryRoot
                     )}:${violation.line}:${violation.column}: " +
                         "${violation.ruleId}: ${violation.detail}"
                 }
@@ -76,14 +76,14 @@ internal object RepositoryKotlinStyleCli {
     private fun formatStyle(
         repositoryRoot: File,
         sourceFiles: List<File>,
-        style: RepositoryKotlinStyle,
+        style: RepositoryKotlinStyle
     ) {
         var formattedFileCount = 0
         sourceFiles.forEach { file ->
             val source = file.readText()
             val formatted =
                 style.format(
-                    file = file,
+                    file = file
                 )
             if (formatted != source) {
                 file.writeText(formatted)
@@ -92,7 +92,7 @@ internal object RepositoryKotlinStyleCli {
         }
         println(
             "Formatted Kotlin style in $formattedFileCount of " +
-                "${sourceFiles.size} file(s) under ${repositoryRoot.invariantSeparatorsPath}.",
+                "${sourceFiles.size} file(s) under ${repositoryRoot.invariantSeparatorsPath}."
         )
     }
 
@@ -103,12 +103,12 @@ internal object RepositoryKotlinStyleCli {
             .filter { file -> file.extension == "kt" || file.extension == "kts" }
             .sortedBy { file ->
                 file.relativePathFrom(
-                    repositoryRoot = this,
+                    repositoryRoot = this
                 )
             }.toList()
 
     private fun File.relativePathFrom(
-        repositoryRoot: File,
+        repositoryRoot: File
     ): String =
         relativeTo(repositoryRoot).invariantSeparatorsPath
 
@@ -121,6 +121,6 @@ internal object RepositoryKotlinStyleCli {
             ".kotlin",
             "build",
             "node_modules",
-            "tmp",
+            "tmp"
         )
 }

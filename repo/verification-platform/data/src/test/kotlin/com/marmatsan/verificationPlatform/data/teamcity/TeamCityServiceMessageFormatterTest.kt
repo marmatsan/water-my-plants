@@ -8,11 +8,11 @@ class TeamCityServiceMessageFormatterTest :
         {
             test("escapes TeamCity service message values") {
                 TeamCityServiceMessageFormatter().setParameters(
-                    parameters = mapOf("ci.plan.reason" to "unknown | path ['x']\nfull"),
+                    parameters = mapOf("ci.plan.reason" to "unknown | path ['x']\nfull")
                 ) shouldBe
                     listOf(
-                        "##teamcity[setParameter name='ci.plan.reason' value='unknown || path |[|'x|'|]|nfull']",
+                        "##teamcity[setParameter name='ci.plan.reason' value='unknown || path |[|'x|'|]|nfull']"
                     )
             }
-        },
+        }
     )

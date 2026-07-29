@@ -12,7 +12,7 @@ import java.io.File
 class FigmaChangeImpactPolicyDataSource : FigmaChangeImpactPolicyPort {
     /** Reads and validates the versioned JSON impact policy at [sourcePath]. */
     override fun read(
-        sourcePath: String,
+        sourcePath: String
     ): FigmaChangeImpactPolicy {
         val source = File(sourcePath)
         require(source.isFile) { "Figma change-impact policy was not found: ${source.path}" }
@@ -32,9 +32,9 @@ class FigmaChangeImpactPolicyDataSource : FigmaChangeImpactPolicyPort {
                 dto.figmaVisualTargetRules.map { rule ->
                     FigmaVisualTargetRule(
                         paths = rule.paths,
-                        targets = rule.targets,
+                        targets = rule.targets
                     )
-                },
+                }
         )
     }
 

@@ -17,5 +17,5 @@ internal data class CanonicalFigmaArtifactSet(
     val planPath: Path,
     val visualManifestPath: Path?,
     val metadataManifestPath: Path?,
-    val contract: CanonicalFigmaArtifactContract,
+    val contract: CanonicalFigmaArtifactContract
 )

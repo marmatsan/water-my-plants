@@ -16,7 +16,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for uploading one verified canonical TeamCity PNG payload. */
 @DisableCachingByDefault(
-    because = "Downloads a canonical artifact and uploads its PNG to Figma",
+    because = "Downloads a canonical artifact and uploads its PNG to Figma"
 )
 abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
     /** Optional TeamCity build to download, mutually exclusive with [artifactDirectory]. */
@@ -68,15 +68,15 @@ abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
         }
         val teamCityClient =
             TeamCityCliClient(
-                workingDirectory = projectDirectory.get().asFile,
+                workingDirectory = projectDirectory.get().asFile
             )
         val handoffPreparer =
             TeamCityFigmaSyncHandoffPreparer(
-                teamCityClient = teamCityClient,
+                teamCityClient = teamCityClient
             )
         val result =
             TeamCityCanonicalFigmaPayloadUploader(
-                handoffPreparer = handoffPreparer,
+                handoffPreparer = handoffPreparer
             ).upload(
                 TeamCityCanonicalFigmaPayloadUploader.Request(
                     buildId = buildId.orNull,
@@ -85,8 +85,8 @@ abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
                     destinationRoot = destinationRoot.get().asFile,
                     expectedGitSha = expectedGitSha.orNull,
                     mainBranchAliases = mainBranchAliases.get().toSet(),
-                    requiredBuildTypeName = requiredBuildTypeName.get(),
-                ),
+                    requiredBuildTypeName = requiredBuildTypeName.get()
+                )
             )
         logger.lifecycle(
             "Uploaded canonical Figma payload from " +
@@ -95,7 +95,7 @@ abstract class UploadCanonicalFigmaPayloadTask : DefaultTask() {
                         ?: "the validated artifact directory"
                 ) + ": " +
                 "${result.payloadFileName} (${result.payloadByteLength} bytes, " +
-                "${result.payloadSha256}); gitSha=${result.gitSha}, modelHash=${result.modelHash}.",
+                "${result.payloadSha256}); gitSha=${result.gitSha}, modelHash=${result.modelHash}."
         )
     }
 }

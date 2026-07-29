@@ -7,10 +7,10 @@ import java.io.File
 class EmptyCiConfigurationProvider : CiConfigurationProvider {
     /** Returns an empty configuration without reading [directory]. */
     override fun read(
-        directory: File,
+        directory: File
     ): CiConfiguration =
         CiConfiguration(
             pipelines = emptyList(),
-            vcsRoots = emptyList(),
+            vcsRoots = emptyList()
         )
 }

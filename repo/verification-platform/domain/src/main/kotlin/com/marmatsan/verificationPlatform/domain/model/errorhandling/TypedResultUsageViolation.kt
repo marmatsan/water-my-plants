@@ -10,5 +10,5 @@ package com.marmatsan.verificationPlatform.domain.model.errorhandling
 data class TypedResultUsageViolation(
     val relativePath: String,
     val lineNumber: Int,
-    val reason: String,
+    val reason: String
 )

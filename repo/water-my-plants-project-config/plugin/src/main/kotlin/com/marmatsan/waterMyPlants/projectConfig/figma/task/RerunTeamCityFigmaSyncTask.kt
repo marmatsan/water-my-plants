@@ -13,7 +13,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for validating or rerunning the canonical TeamCity Figma Sync pipeline. */
 @DisableCachingByDefault(
-    because = "Reads and mutates external TeamCity run state",
+    because = "Reads and mutates external TeamCity run state"
 )
 abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
     /** Public TeamCity HTTPS origin protected by Cloudflare Access. */
@@ -56,8 +56,8 @@ abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
                         "TEAMCITY_TOKEN" to credentials.teamCityToken,
                         "TEAMCITY_HEADER_CF_ACCESS_TOKEN" to credentials.cloudflareAccessToken,
                         "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID" to null,
-                        "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null,
-                    ),
+                        "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null
+                    )
             )
         val client =
             TeamCityCompositeRunClient(
@@ -66,27 +66,27 @@ abstract class RerunTeamCityFigmaSyncTask : DefaultTask() {
                     TeamCityRestRunStarter(
                         serverUrl = credentials.serverUrl,
                         teamCityToken = credentials.teamCityToken,
-                        cloudflareAccessToken = credentials.cloudflareAccessToken,
-                    ),
+                        cloudflareAccessToken = credentials.cloudflareAccessToken
+                    )
             )
         val result =
             TeamCityFigmaSyncRerunner(
                 teamCityClient = client,
                 buildTypeId = buildTypeId.get(),
-                branch = branch.get(),
+                branch = branch.get()
             ).rerun(
                 request =
                     TeamCityFigmaSyncRerunner.Request(
                         validateOnly = validateOnly.get(),
                         waitForCompletion = waitForCompletion.get(),
                         pollIntervalSeconds = pollIntervalSeconds.get(),
-                        timeoutMinutes = timeoutMinutes.get(),
-                    ),
+                        timeoutMinutes = timeoutMinutes.get()
+                    )
             )
         logger.lifecycle(
             "TeamCity Figma Sync: runId=${result.runId ?: "none"}, " +
                 "branch=${result.branch}, state=${result.state}, reused=${result.reused}, " +
-                "webUrl=${result.webUrl ?: "none"}",
+                "webUrl=${result.webUrl ?: "none"}"
         )
     }
 }

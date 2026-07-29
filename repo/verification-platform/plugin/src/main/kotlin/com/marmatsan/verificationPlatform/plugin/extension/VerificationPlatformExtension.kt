@@ -13,13 +13,13 @@ class VerificationPlatformExtension internal constructor(
     generateCiPlan: TaskProvider<GenerateCiPlanTask>,
     checkIncludedBuildVersions: TaskProvider<CheckIncludedBuildVersionsTask>,
     checkModuleBoundaries: TaskProvider<CheckModuleBoundariesTask>,
-    checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>,
+    checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>
 ) {
     /** Provider-neutral CI classification and task-selection policy. */
     val ciPolicy =
         CiVerificationPolicyExtension(
             project = project,
-            generateCiPlan = generateCiPlan,
+            generateCiPlan = generateCiPlan
         )
 
     /** Included-build version ownership and forbidden-reference boundaries. */
@@ -27,14 +27,14 @@ class VerificationPlatformExtension internal constructor(
         RepositoryBoundariesExtension(
             project = project,
             checkIncludedBuildVersions = checkIncludedBuildVersions,
-            checkModuleBoundaries = checkModuleBoundaries,
+            checkModuleBoundaries = checkModuleBoundaries
         )
 
     /** Product typed-error and `Result` implementation policy. */
     val typedErrorHandling =
         TypedErrorHandlingExtension(
             project = project,
-            checkTypedResultUsage = checkTypedResultUsage,
+            checkTypedResultUsage = checkTypedResultUsage
         )
 
     /** Root bindings for tasks owned by included builds. */
@@ -45,26 +45,26 @@ class VerificationPlatformExtension internal constructor(
 
     /** Configures [ciPolicy]. */
     fun ciPolicy(
-        configure: CiVerificationPolicyExtension.() -> Unit,
+        configure: CiVerificationPolicyExtension.() -> Unit
     ) = ciPolicy.configure()
 
     /** Configures [boundaries]. */
     fun boundaries(
-        configure: RepositoryBoundariesExtension.() -> Unit,
+        configure: RepositoryBoundariesExtension.() -> Unit
     ) = boundaries.configure()
 
     /** Configures [typedErrorHandling]. */
     fun typedErrorHandling(
-        configure: TypedErrorHandlingExtension.() -> Unit,
+        configure: TypedErrorHandlingExtension.() -> Unit
     ) = typedErrorHandling.configure()
 
     /** Configures [taskBindings]. */
     fun taskBindings(
-        configure: IncludedBuildVerificationTasksExtension.() -> Unit,
+        configure: IncludedBuildVerificationTasksExtension.() -> Unit
     ) = taskBindings.configure()
 
     /** Configures [teamCity]. */
     fun teamCity(
-        configure: TeamCityVerificationExtension.() -> Unit,
+        configure: TeamCityVerificationExtension.() -> Unit
     ) = teamCity.configure()
 }

@@ -19,9 +19,9 @@ internal class FigmaChangeImpactClassifierTest :
                         changeSet =
                             changeSet(
                                 "docs/documentation.md",
-                                "core/ui/docs/README.md",
+                                "core/ui/docs/README.md"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.DOCUMENTATION_ONLY
@@ -35,9 +35,9 @@ internal class FigmaChangeImpactClassifierTest :
                         changeSet =
                             changeSet(
                                 "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt",
-                                "repo/figma-documentation-sync/docs/runbooks/mcp-chunk-transport.md",
+                                "repo/figma-documentation-sync/docs/runbooks/mcp-chunk-transport.md"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.TRANSPORT_ONLY
@@ -50,9 +50,9 @@ internal class FigmaChangeImpactClassifierTest :
                         changeSet =
                             changeSet(
                                 "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt",
-                                "docs/ci/documentation-coverage.md",
+                                "docs/ci/documentation-coverage.md"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.MODEL_NEUTRAL
@@ -65,9 +65,9 @@ internal class FigmaChangeImpactClassifierTest :
                         changeSet =
                             changeSet(
                                 "repo/figma-documentation-sync/tools/src/figma/figma-version-sync-gateway.ts",
-                                "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md",
+                                "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
@@ -80,9 +80,9 @@ internal class FigmaChangeImpactClassifierTest :
                     classifier.classify(
                         changeSet =
                             changeSet(
-                                "repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts",
+                                "repo/figma-documentation-sync/tools/src/usecases/sync-figma-design-model.ts"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.impact shouldBe FigmaImpact.VISUAL_TARGETS
@@ -94,9 +94,9 @@ internal class FigmaChangeImpactClassifierTest :
                     classifier.classify(
                         changeSet =
                             changeSet(
-                                "app/build.gradle.kts",
+                                "app/build.gradle.kts"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
@@ -108,22 +108,22 @@ internal class FigmaChangeImpactClassifierTest :
                     classifier.classify(
                         changeSet =
                             changeSet(
-                                "gradle.properties",
+                                "gradle.properties"
                             ),
-                        policy = policy(),
+                        policy = policy()
                     )
 
                 result.scope shouldBe FigmaVerificationScope.FULL_VERIFICATION
                 result.impact shouldBe FigmaImpact.UNKNOWN
             }
-        },
+        }
     )
 
 private fun changeSet(
-    vararg paths: String,
+    vararg paths: String
 ) = RepositoryChangeSet(
     comparisonBase = "base-sha",
-    changedPaths = paths.toList(),
+    changedPaths = paths.toList()
 )
 
 private fun policy() =
@@ -132,11 +132,11 @@ private fun policy() =
             listOf(
                 "docs/*.md",
                 "*/docs/*.md",
-                "*/*/docs/*.md",
+                "*/*/docs/*.md"
             ),
         transportOnlyPaths =
             listOf(
-                "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*",
+                "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*"
             ),
         modelNeutralPaths = listOf("repo/verification-platform/*"),
         modelContentPaths = listOf("*/build.gradle.kts"),
@@ -145,7 +145,7 @@ private fun policy() =
             listOf(
                 FigmaVisualTargetRule(
                     paths = listOf("repo/figma-documentation-sync/tools/src/figma/figma-version-*"),
-                    targets = listOf("versions"),
-                ),
-            ),
+                    targets = listOf("versions")
+                )
+            )
     )

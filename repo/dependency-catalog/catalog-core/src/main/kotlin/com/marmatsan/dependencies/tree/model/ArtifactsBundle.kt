@@ -14,5 +14,5 @@ package com.marmatsan.dependencies.tree.model
 data class ArtifactsBundle(
     val alias: String,
     val artifacts: List<Artifact>,
-    val version: String? = null,
+    val version: String? = null
 )

@@ -12,7 +12,7 @@ internal class UnitTestTaskConfigurator {
      * @param project Gradle project whose current and future test tasks are configured.
      */
     fun configure(
-        project: Project,
+        project: Project
     ) {
         project.tasks.withType<Test>().configureEach {
             useJUnitPlatform()

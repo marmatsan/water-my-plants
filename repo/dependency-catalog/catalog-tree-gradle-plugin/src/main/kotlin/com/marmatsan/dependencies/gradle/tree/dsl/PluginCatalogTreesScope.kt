@@ -17,16 +17,21 @@ class PluginCatalogTreesScope internal constructor() {
     /**
      * Adds one Gradle plugin id root and configures its dependency subtree.
      *
-     * [id] becomes the first part of every descendant Gradle plugin id and catalog alias. The
-     * conventional form is one top-level segment such as `com` or `org`.
+     * [id] becomes the first part of every descendant Gradle plugin id and catalog alias. It must
+     * be exactly one segment such as `com` or `org`; compact dotted paths belong in
+     * [PluginScope.plugin] declarations below this root. A non-null [version] registers a
+     * single-segment plugin directly at the root.
      *
      * @param id Exact top-level Gradle plugin id value.
+     * @param version Optional version when the root itself is a registered plugin.
      * @param content Plugin declarations below the root.
-     * @throws IllegalArgumentException if the same [id] was already declared in this catalog.
+     * @throws IllegalArgumentException if [id] is not exactly one path segment or the same root
+     * was already declared in this catalog.
      */
     fun root(
         id: String,
-        content: PluginScope.() -> Unit,
+        version: String? = null,
+        content: PluginScope.() -> Unit = {}
     ) {
         require(roots.none { root -> root.value.pluginId == id }) {
             "Plugin catalog root '$id' is already declared"
@@ -34,81 +39,10 @@ class PluginCatalogTreesScope internal constructor() {
         roots +=
             pluginTree(
                 rootId = id,
-                content = content,
-            )
-    }
-
-    /**
-     * Adds one plugin from its complete [id] and [version].
-     *
-     * This leaf-oriented shortcut is equivalent to declaring a [root] and nested relative
-     * `plugin(...)` paths. Declarations sharing the same first id segment reuse one root, which
-     * keeps sparse plugin catalogs flat while preserving the same hierarchical model and generated
-     * type-safe accessor.
-     *
-     * Example:
-     *
-     * ```
-     * plugins {
-     *     plugin(
-     *         id = "org.jetbrains.kotlin.jvm",
-     *         version = version("kotlinVersion"),
-     *     )
-     * }
-     * ```
-     *
-     * @param id Complete Gradle plugin id.
-     * @param version Concrete plugin version.
-     * @throws IllegalArgumentException if [id] is not a valid dot-separated catalog path or the
-     * same plugin id already has a different version.
-     */
-    fun plugin(
-        id: String,
-        version: String,
-    ) {
-        val segments = catalogPathSegments(id)
-        val rootIndex =
-            rootIndex(
-                id = segments.first(),
-            )
-        val root =
-            if (rootIndex >= 0) {
-                roots[rootIndex]
-            } else {
-                Node(
-                    value =
-                        DependencyNode.Plugin(
-                            pluginId = segments.first(),
-                        ),
-                ).also(roots::add)
-            }
-
-        if (segments.size == 1) {
-            val existingVersion = root.value.version
-            require(existingVersion == null || existingVersion == version) {
-                "Plugin path '$id' already declares version '$existingVersion' and cannot declare '$version'"
-            }
-            roots[roots.indexOf(root)] =
-                root.copy(
-                    value =
-                        root.value.copy(
-                            version = version,
-                        ),
-                )
-        } else {
-            PluginScope(root).plugin(
-                id = segments.drop(1).joinToString("."),
                 version = version,
+                content = content
             )
-        }
     }
-
-    private fun rootIndex(
-        id: String,
-    ): Int =
-        roots.indexOfFirst { root ->
-            root.value.pluginId == id
-        }
 
     internal fun values(): List<Node<DependencyNode.Plugin>> = roots.toList()
 }

@@ -14,7 +14,7 @@ sealed interface LibraryEntry {
      * @property artifact Artifact to register.
      */
     data class Single(
-        val artifact: Artifact,
+        val artifact: Artifact
     ) : LibraryEntry
 
     /**
@@ -23,6 +23,6 @@ sealed interface LibraryEntry {
      * @property artifactsBundle Bundle to register.
      */
     data class Bundle(
-        val artifactsBundle: ArtifactsBundle,
+        val artifactsBundle: ArtifactsBundle
     ) : LibraryEntry
 }

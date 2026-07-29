@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  */
 data class McpToolResult(
     val isError: Boolean,
-    val text: String,
+    val text: String
 )

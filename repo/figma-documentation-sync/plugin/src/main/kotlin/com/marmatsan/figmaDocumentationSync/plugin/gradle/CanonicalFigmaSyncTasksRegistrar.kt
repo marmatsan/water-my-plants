@@ -11,7 +11,7 @@ import org.gradle.kotlin.dsl.register
 
 /** Registers the ordered tasks that prepare and verify one canonical Figma synchronization scope. */
 internal class CanonicalFigmaSyncTasksRegistrar(
-    private val context: FigmaPluginContext,
+    private val context: FigmaPluginContext
 ) {
     /** Registers the canonical classification, generation, validation, and verification task chain. */
     fun register() {
@@ -33,7 +33,7 @@ internal class CanonicalFigmaSyncTasksRegistrar(
             }
         val materializeCi =
             project.tasks.register<MaterializeFigmaSyncCiConfigurationTask>(
-                "materializeFigmaSyncCiConfiguration",
+                "materializeFigmaSyncCiConfiguration"
             ) {
                 group = "documentation"
                 description = "Runs the optional CI adapter when the Figma model can change."
@@ -81,13 +81,13 @@ internal class CanonicalFigmaSyncTasksRegistrar(
             visualSyncPlanFile.set(project.layout.buildDirectory.file("reports/figma-sync/visual-sync-plan.json"))
             scopeFile.set(project.layout.buildDirectory.file("reports/figma-sync/sync-scope.json"))
             runnerTransport.convention(
-                project.providers.gradleProperty("figmaMcpTransport").orElse("png"),
+                project.providers.gradleProperty("figmaMcpTransport").orElse("png")
             )
             runnerChunkSize.convention(
                 project.providers
                     .gradleProperty("figmaMcpChunkSize")
                     .map(String::toInt)
-                    .orElse(12_000),
+                    .orElse(12_000)
             )
             outputs.upToDateWhen { false }
         }

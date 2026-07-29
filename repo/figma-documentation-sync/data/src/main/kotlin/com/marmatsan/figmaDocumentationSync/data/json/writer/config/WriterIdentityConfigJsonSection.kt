@@ -7,40 +7,40 @@ import kotlinx.serialization.json.put
 internal object WriterIdentityConfigJsonSection : FigmaWriterProjectConfigJsonSection {
     override fun write(
         context: FigmaWriterProjectConfigJsonContext,
-        json: JsonObjectBuilder,
+        json: JsonObjectBuilder
     ) {
         val config = context.config
         json.put(
             "schemaVersion",
-            4,
+            4
         )
         json.put(
             "METADATA_PAGE_ID",
-            config.metadataPageId,
+            config.metadataPageId
         )
         json.put(
             "METADATA_NAMESPACE",
-            config.metadataNamespace,
+            config.metadataNamespace
         )
         json.put(
             "FIGMA_FILE_KEY",
-            config.figmaFileKey,
+            config.figmaFileKey
         )
         json.put(
             "PROJECT_DISPLAY_NAME",
-            config.projectDisplayName,
+            config.projectDisplayName
         )
         json.put(
             "MCP_CLIENT_NAME",
-            config.mcpClientName,
+            config.mcpClientName
         )
         json.put(
             "CANONICAL_STAGING_NAMESPACE",
-            "${config.metadataNamespace}_staging",
+            "${config.metadataNamespace}_staging"
         )
         json.put(
             "PREVIEW_STAGING_NAMESPACE",
-            "${config.metadataNamespace}_preview",
+            "${config.metadataNamespace}_preview"
         )
     }
 }

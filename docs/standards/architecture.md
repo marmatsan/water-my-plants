@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
   - build.gradle.kts
@@ -64,12 +64,50 @@ Compose state are not domain models and MUST NOT leak across their boundary.
 - Gradle core plugins MUST use their Kotlin DSL accessors, such as
   `` `maven-publish` ``, because Gradle does not generate catalog aliases for
   core plugins.
-- Repository-owned convention plugins supplied directly by an included build
-  MAY use a versionless literal `id(...)`; the ID is the plugin's public API
-  and source composite substitution owns its implementation.
-- Literal external plugin IDs remain valid only in `settings.gradle.kts`
-  `pluginManagement` declarations, where Gradle resolves the versions used to
-  generate the type-safe build-script accessors.
+- Each multi-project included build MUST centralize dependency repositories in
+  its `settings.gradle.kts` `dependencyResolutionManagement` block and enforce
+  `RepositoriesMode.FAIL_ON_PROJECT_REPOS`. Module `build.gradle.kts` files
+  MUST NOT repeat dependency-resolution repositories. Publication repositories
+  remain owned by the included build's publishing configuration.
+- Configuration shared by every compatible subproject in one included build,
+  such as JUnit Platform activation, sources JARs, common Dokka metadata, or a
+  staging publication repository, SHOULD be declared once in that included
+  build's root `build.gradle.kts` and activated lazily with `withPlugin`.
+  Configuration MUST remain module-local when root preloading would put an
+  incompatible plugin version on a shared classpath, as can happen when a
+  build mixes versioned Kotlin JVM aliases with Gradle's embedded
+  `kotlin-dsl` plugin. Reusable included builds MUST NOT deduplicate by
+  importing scripts or conventions from sibling builds through filesystem
+  paths.
+- `java-gradle-plugin` modules MUST use the Gradle API and TestKit dependencies
+  supplied by that plugin. They MUST NOT redeclare `gradleApi()` or
+  `gradleTestKit()` in their dependency blocks.
+- Repository-owned plugins with a stable marker and a consumer-owned catalog
+  entry MUST use a type-safe alias at their direct `build.gradle.kts`
+  consumption point. When `pluginManagement.includeBuild` supplies the source
+  implementation, the root build MUST NOT preload those versioned aliases with
+  `apply false` before subprojects consume them: Gradle exposes an included
+  plugin on the shared classpath with an unknown version and cannot validate a
+  later versioned catalog request.
+- A repository-owned plugin MAY use a versionless literal `id(...)` only at a
+  settings/bootstrap boundary or when a settings plugin has already placed the
+  same implementation JAR on the build-script classpath with an unknown
+  version. Water My Plants therefore keeps
+  `com.marmatsan.waterMyPlantsSettings` in `settings.gradle.kts` and
+  `com.marmatsan.waterMyPlantsProjectConfig` in the root `build.gradle.kts` as
+  explicit composition exceptions.
+- Literal plugin IDs in `settings.gradle.kts` `pluginManagement` declarations
+  are reserved for settings/bootstrap plugins that must resolve before their
+  generated catalog exists. Project-plugin defaults are redundant when the
+  generated plugin alias already carries its version and MUST NOT be repeated
+  in `pluginManagement.plugins`.
+- Repository-owned catalogs built with `dependencyCatalogTree` MUST declare
+  every top-level declaration through `root`; top-level `library` and `plugin`
+  leaves are prohibited. A root MUST contain exactly one path segment. Relative
+  `library` and `plugin` declarations MAY use dotted compact paths because the
+  DSL expands every segment into a distinct node. Within a plugin root, dotted
+  paths MUST collapse every maximal linear namespace chain; retain a nested
+  block only where one node owns multiple plugin descendants.
 - Every custom Gradle task MUST declare its cache contract explicitly with
   `@CacheableTask`, `@DisableCachingByDefault`, or `@UntrackedTask`. Validation
   tasks with no reusable output SHOULD disable caching with a concrete reason.

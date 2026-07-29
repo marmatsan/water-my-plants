@@ -12,5 +12,5 @@ package com.marmatsan.dependencies.tree.model
  */
 data class Artifact(
     val artifact: String,
-    val version: String? = null,
+    val version: String? = null
 )

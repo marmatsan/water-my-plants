@@ -3,13 +3,13 @@ package com.marmatsan.dependencies.tree.dsl.path
 /**
  * Represents a validated dependency path relative to the current DSL node.
  *
- * Dots separate path segments. Empty segments and surrounding whitespace are rejected so a
- * compact declaration always expands into an unambiguous node hierarchy.
+ * Dots separate path segments. Empty segments and whitespace are rejected so a compact
+ * declaration always expands into an unambiguous node hierarchy.
  *
  * @property segments Ordered path segments to resolve below the current node.
  */
 internal class DependencyPath private constructor(
-    val segments: List<String>,
+    val segments: List<String>
 ) {
     /** Parses and validates compact dependency path text. */
     companion object {
@@ -19,7 +19,7 @@ internal class DependencyPath private constructor(
          * @throws IllegalArgumentException if the path is blank or contains an invalid segment.
          */
         fun parse(
-            value: String,
+            value: String
         ): DependencyPath {
             require(value.isNotBlank()) {
                 "Dependency path must not be blank"
@@ -29,14 +29,15 @@ internal class DependencyPath private constructor(
 
             require(
                 segments.all { segment ->
-                    segment.isNotBlank() && segment == segment.trim()
-                },
+                    segment.isNotEmpty() &&
+                        segment.none { character -> character.isWhitespace() }
+                }
             ) {
-                "Dependency path '$value' must contain non-blank segments without surrounding whitespace"
+                "Dependency path '$value' must contain non-blank segments without whitespace"
             }
 
             return DependencyPath(
-                segments = segments,
+                segments = segments
             )
         }
     }

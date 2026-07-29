@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.impact
  */
 data class FigmaVisualTargetRule(
     val paths: List<String>,
-    val targets: List<String>,
+    val targets: List<String>
 )

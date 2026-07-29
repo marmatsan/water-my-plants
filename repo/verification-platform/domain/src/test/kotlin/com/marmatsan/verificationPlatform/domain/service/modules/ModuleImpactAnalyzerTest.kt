@@ -16,34 +16,34 @@ class ModuleImpactAnalyzerTest :
                             listOf(
                                 RepositoryModule(
                                     id = ":app",
-                                    directory = "app",
+                                    directory = "app"
                                 ),
                                 RepositoryModule(
                                     id = ":core:domain",
-                                    directory = "core/domain",
+                                    directory = "core/domain"
                                 ),
                                 RepositoryModule(
                                     id = ":feature:plants:domain",
-                                    directory = "feature/plants/domain",
-                                ),
+                                    directory = "feature/plants/domain"
+                                )
                             ),
                         dependencies =
                             listOf(
                                 ModuleDependency(
                                     dependentModule = ":app",
-                                    dependencyModule = ":feature:plants:domain",
+                                    dependencyModule = ":feature:plants:domain"
                                 ),
                                 ModuleDependency(
                                     dependentModule = ":feature:plants:domain",
-                                    dependencyModule = ":core:domain",
-                                ),
-                            ),
+                                    dependencyModule = ":core:domain"
+                                )
+                            )
                     )
 
                 val impact =
                     ModuleImpactAnalyzer().analyze(
                         changedFiles = listOf("core/domain/src/main/kotlin/Plant.kt"),
-                        graph = graph,
+                        graph = graph
                     )
 
                 impact.changedModules shouldBe listOf(":core:domain")
@@ -51,9 +51,9 @@ class ModuleImpactAnalyzerTest :
                     listOf(
                         ":app",
                         ":core:domain",
-                        ":feature:plants:domain",
+                        ":feature:plants:domain"
                     )
                 impact.fallbackReason shouldBe null
             }
-        },
+        }
     )

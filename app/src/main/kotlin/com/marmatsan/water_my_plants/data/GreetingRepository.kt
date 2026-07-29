@@ -6,6 +6,6 @@ class GreetingRepository
     @Inject
     constructor() {
         fun greeting(
-            name: String,
+            name: String
         ) = "Hello $name!"
     }

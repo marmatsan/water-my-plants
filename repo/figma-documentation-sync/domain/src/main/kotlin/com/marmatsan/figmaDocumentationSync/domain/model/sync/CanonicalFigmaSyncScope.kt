@@ -37,5 +37,5 @@ data class CanonicalFigmaSyncScope(
     val visualRunnerManifestHash: String?,
     val metadataRunnerManifestHash: String?,
     val visualSyncDecision: String?,
-    val visualSyncPlanHash: String?,
+    val visualSyncPlanHash: String?
 )

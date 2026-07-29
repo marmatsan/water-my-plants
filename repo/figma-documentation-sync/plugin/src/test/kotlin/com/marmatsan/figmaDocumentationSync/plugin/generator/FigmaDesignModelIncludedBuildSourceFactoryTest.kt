@@ -20,7 +20,7 @@ internal class FigmaDesignModelIncludedBuildSourceFactoryTest :
                         modelNames = listOf("example"),
                         modulePathPrefixes = listOf(":example"),
                         publishesCatalogs = listOf(false),
-                        publishesConventionPlugins = listOf(true),
+                        publishesConventionPlugins = listOf(true)
                     ).single() shouldBe
                     FigmaDesignModelIncludedBuildSource(
                         modelName = "example",
@@ -28,7 +28,7 @@ internal class FigmaDesignModelIncludedBuildSourceFactoryTest :
                         rootDirectory = rootDirectory,
                         modulePathPrefix = ":example",
                         publishesCatalogs = false,
-                        publishesConventionPlugins = true,
+                        publishesConventionPlugins = true
                     )
             }
 
@@ -41,11 +41,11 @@ internal class FigmaDesignModelIncludedBuildSourceFactoryTest :
                             modelNames = listOf("example"),
                             modulePathPrefixes = listOf(":example"),
                             publishesCatalogs = listOf(false),
-                            publishesConventionPlugins = listOf(false),
+                            publishesConventionPlugins = listOf(false)
                         )
                     }
 
                 error.message shouldContain "Included-build task inputs must have matching sizes"
             }
-        },
+        }
     )

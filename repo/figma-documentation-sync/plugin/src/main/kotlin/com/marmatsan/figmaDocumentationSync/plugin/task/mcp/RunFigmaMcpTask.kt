@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 /** Inspects, records, or executes a canonical checkpointed runner through the Kotlin MCP client. */
 @DisableCachingByDefault(
-    because = "May invoke a local write-capable MCP endpoint",
+    because = "May invoke a local write-capable MCP endpoint"
 )
 abstract class RunFigmaMcpTask
     @Inject
@@ -106,7 +106,7 @@ abstract class RunFigmaMcpTask
                     resume = resume.get(),
                     retryFailed = retryFailed.get(),
                     reuseStaging = reuseStaging.get(),
-                    from = from.orNull,
+                    from = from.orNull
                 )
             val request =
                 McpRunnerExecutor.Request(
@@ -118,7 +118,7 @@ abstract class RunFigmaMcpTask
                     statePath = statePath.orNull,
                     visualStatePath = visualStatePath.orNull,
                     planPath = planPath.orNull,
-                    options = options,
+                    options = options
                 )
             val executor = McpRunnerExecutor()
             require(recordSuccess.orNull == null || recordFailure.orNull == null) {
@@ -135,42 +135,42 @@ abstract class RunFigmaMcpTask
                             buildJsonObject {
                                 put(
                                     "manifestHash",
-                                    inspection.manifestHash,
+                                    inspection.manifestHash
                                 )
                                 put(
                                     "statePath",
-                                    inspection.statePath,
+                                    inspection.statePath
                                 )
                                 put(
                                     "reuseStaging",
-                                    inspection.reuseStaging,
+                                    inspection.reuseStaging
                                 )
                                 put(
                                     "decision",
-                                    inspection.decision?.let(::JsonPrimitive) ?: JsonNull,
+                                    inspection.decision?.let(::JsonPrimitive) ?: JsonNull
                                 )
                                 put(
                                     "executionScopes",
                                     inspection.executionScopes
                                         ?.map(
-                                            transform = ::JsonPrimitive,
+                                            transform = ::JsonPrimitive
                                         )?.let(::JsonArray)
-                                        ?: JsonNull,
+                                        ?: JsonNull
                                 )
                                 put(
                                     "executionFiles",
                                     JsonArray(
                                         inspection.executionFiles.map(
-                                            transform = ::JsonPrimitive,
-                                        ),
-                                    ),
+                                            transform = ::JsonPrimitive
+                                        )
+                                    )
                                 )
                             }
                         logger.lifecycle(
                             prettyJson.encodeToString(
                                 JsonObject.serializer(),
-                                output,
-                            ),
+                                output
+                            )
                         )
                     }
                 }
@@ -182,7 +182,7 @@ abstract class RunFigmaMcpTask
                         request = request,
                         file = file,
                         success = successFile != null,
-                        summary = summary.orNull ?: "Recorded by MCP operator",
+                        summary = summary.orNull ?: "Recorded by MCP operator"
                     )
                     logger.lifecycle("${if (successFile != null) "Completed" else "Failed"}: $file")
                 }
@@ -191,7 +191,7 @@ abstract class RunFigmaMcpTask
                     val result = executor.execute(request)
                     logger.lifecycle(
                         "Figma MCP complete: ${result.executionFiles.size} unit(s); " +
-                            "${result.toolNames.size} advertised tool(s).",
+                            "${result.toolNames.size} advertised tool(s)."
                     )
                 }
             }

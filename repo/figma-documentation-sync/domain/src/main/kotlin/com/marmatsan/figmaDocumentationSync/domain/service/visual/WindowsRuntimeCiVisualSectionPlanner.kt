@@ -4,11 +4,11 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Plans the versioned Windows services that host the local CI runtime. */
 internal class WindowsRuntimeCiVisualSectionPlanner(
-    private val environments: CiVisualEnvironmentResolver,
+    private val environments: CiVisualEnvironmentResolver
 ) : CiVisualSectionPlanner {
     /** Builds the Windows CI runtime services section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val runtime = context.windowsRuntime
@@ -23,15 +23,15 @@ internal class WindowsRuntimeCiVisualSectionPlanner(
                     source = config.windowsRuntimeSource,
                     row = 0,
                     column = index,
-                    config = config,
+                    config = config
                 ).copy(
                     runtime =
                         CiVisualPlan.Runtime(
                             platform = runtime.platform,
                             service = service.service,
                             startup = service.startup,
-                            identity = service.identity,
-                        ),
+                            identity = service.identity
+                        )
                 )
             }
         return visualSection(
@@ -41,12 +41,12 @@ internal class WindowsRuntimeCiVisualSectionPlanner(
             sources =
                 listOf(
                     config.windowsRuntimeSource,
-                    config.windowsRuntimeRunbookSource,
+                    config.windowsRuntimeRunbookSource
                 ),
             orientation = CiVisualPlan.Orientation.GRID,
             nodes = nodes,
             connections = emptyList(),
-            config = config,
+            config = config
         )
     }
 }

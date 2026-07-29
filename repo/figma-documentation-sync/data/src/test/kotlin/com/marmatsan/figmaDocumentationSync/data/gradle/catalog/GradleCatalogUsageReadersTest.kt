@@ -11,7 +11,7 @@ internal class GradleCatalogUsageReadersTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "gradle-catalog-usage-readers",
+                    prefix = "gradle-catalog-usage-readers"
                 )
 
             test("readConventionLibraryUsages maps wrapper catalog dependencies to convention modules") {
@@ -19,7 +19,7 @@ internal class GradleCatalogUsageReadersTest :
                     val rootDir = temporaryDirectory.resolve("convention-library-usages").apply { mkdirs() }
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "android",
@@ -30,7 +30,7 @@ internal class GradleCatalogUsageReadersTest :
                                     implementationClass = "com.marmatsan.android.plugin.AndroidGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "android/src/main/kotlin/com/marmatsan/android/plugin",
@@ -52,14 +52,17 @@ internal class GradleCatalogUsageReadersTest :
                                 libs.implementationBundle(
                                     bundle = "composeBundle"
                                 )
+                                libs.testImplementationBundle(
+                                    bundle = "kotest"
+                                )
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir
                 }.whenever { includedBuildRootDir ->
                     GradleConventionCatalogUsageReader().readLibraryUsages(
                         rootDir = includedBuildRootDir,
-                        modulePathPrefix = ":gradle-plugins",
+                        modulePathPrefix = ":gradle-plugins"
                     )
                 }.then { usages ->
                     usages shouldBe
@@ -67,12 +70,13 @@ internal class GradleCatalogUsageReadersTest :
                             coordinates =
                                 mapOf(
                                     "androidx.core:core-ktx" to setOf(":gradle-plugins:android"),
-                                    "androidx.compose:compose-bom" to setOf(":gradle-plugins:android"),
+                                    "androidx.compose:compose-bom" to setOf(":gradle-plugins:android")
                                 ),
                             bundles =
                                 mapOf(
                                     "composeBundle" to setOf(":gradle-plugins:android"),
-                                ),
+                                    "kotest" to setOf(":gradle-plugins:android")
+                                )
                         )
                 }
             }
@@ -82,7 +86,7 @@ internal class GradleCatalogUsageReadersTest :
                     val rootDir = temporaryDirectory.resolve("convention-plugin-ids").apply { mkdirs() }
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "compose",
@@ -95,7 +99,7 @@ internal class GradleCatalogUsageReadersTest :
                                     implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "figma-documentation-sync",
@@ -108,31 +112,31 @@ internal class GradleCatalogUsageReadersTest :
                                     implementationClass = "com.marmatsan.figmaDocumentationSync.plugin.FigmaDocumentationSyncGradlePlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir
                 }.whenever { includedBuildRootDir ->
                     GradleConventionCatalogUsageReader().readPluginIdsByModule(
                         rootDir = includedBuildRootDir,
-                        modulePathPrefix = ":gradle-plugins",
+                        modulePathPrefix = ":gradle-plugins"
                     )
                 }.then { pluginIdsByModule ->
                     pluginIdsByModule shouldBe
                         mapOf(
-                            ":gradle-plugins:compose" to setOf("com.marmatsan.compose"),
+                            ":gradle-plugins:compose" to setOf("com.marmatsan.compose")
                         )
                 }
             }
 
             test(
-                "readConventionLibraryConfigurationUsages maps requireDependencyNotation calls to convention modules",
+                "readConventionLibraryConfigurationUsages maps requireDependencyNotation calls to convention modules"
             ) {
                 given {
                     val rootDir =
                         temporaryDirectory.resolve("convention-library-configuration-usages").apply { mkdirs() }
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "protobuf",
@@ -144,7 +148,7 @@ internal class GradleCatalogUsageReadersTest :
                                     implementationClass = "com.marmatsan.protobuf.plugin.ProtobufGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "protobuf/src/main/kotlin/com/marmatsan/protobuf/plugin",
@@ -163,13 +167,13 @@ internal class GradleCatalogUsageReadersTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir
                 }.whenever { includedBuildRootDir ->
                     GradleConventionCatalogUsageReader().readLibraryConfigurationUsages(
                         rootDir = includedBuildRootDir,
-                        modulePathPrefix = ":gradle-plugins",
+                        modulePathPrefix = ":gradle-plugins"
                     )
                 }.then { usages ->
                     usages shouldBe
@@ -180,10 +184,10 @@ internal class GradleCatalogUsageReadersTest :
                                         setOf(
                                             LibraryConfigurationUsage(
                                                 pluginModule = ":gradle-plugins:protobuf",
-                                                target = "protobuf.protoc.artifact",
-                                            ),
-                                        ),
-                                ),
+                                                target = "protobuf.protoc.artifact"
+                                            )
+                                        )
+                                )
                         )
                 }
             }
@@ -198,7 +202,7 @@ internal class GradleCatalogUsageReadersTest :
                             plugins {
                                 id("com.marmatsan.android") apply false
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "app",
@@ -208,7 +212,7 @@ internal class GradleCatalogUsageReadersTest :
                                 id("com.marmatsan.android")
                                 id("com.marmatsan.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "core/ui",
@@ -217,12 +221,12 @@ internal class GradleCatalogUsageReadersTest :
                             plugins {
                                 id("com.marmatsan.android")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
                     GradleMainCatalogUsageReader().readLiteralPluginUsages(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { usages ->
                     usages shouldBe
@@ -230,9 +234,9 @@ internal class GradleCatalogUsageReadersTest :
                             "com.marmatsan.android" to
                                 setOf(
                                     ":app",
-                                    ":core:ui",
+                                    ":core:ui"
                                 ),
-                            "com.marmatsan.compose" to setOf(":app"),
+                            "com.marmatsan.compose" to setOf(":app")
                         )
                 }
             }
@@ -248,7 +252,7 @@ internal class GradleCatalogUsageReadersTest :
                                 id("com.marmatsan.android") apply false
                                 id("com.marmatsan.figmaDocumentationSync") apply true
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "app",
@@ -257,17 +261,17 @@ internal class GradleCatalogUsageReadersTest :
                             plugins {
                                 id("com.marmatsan.android")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
                     GradleMainCatalogUsageReader().readAppliedLiteralPluginUsages(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { usages ->
                     usages shouldBe
                         mapOf(
-                            "com.marmatsan.android" to setOf(":app"),
+                            "com.marmatsan.android" to setOf(":app")
                         )
                 }
             }
@@ -283,47 +287,47 @@ internal class GradleCatalogUsageReadersTest :
                                 id("com.marmatsan.android") apply false
                                 id("com.marmatsan.figmaDocumentationSync") apply true
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
                     GradleMainCatalogUsageReader().readAppliedLiteralPluginIds(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { pluginIds ->
                     pluginIds shouldBe setOf("com.marmatsan.figmaDocumentationSync")
                 }
             }
-        },
+        }
     )
 
 private fun File.writeKotlinFile(
     path: String,
     fileName: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = fileName,
+            relative = fileName
         ).writeText(content)
 }
 
 private fun File.writeBuildFile(
     path: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "build.gradle.kts",
+            relative = "build.gradle.kts"
         ).writeText(content)
 }

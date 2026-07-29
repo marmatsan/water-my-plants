@@ -6,17 +6,8 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
-    // Modules
     implementation(projects.dependencies)
-
-    // Protobuf
     implementation(libs.com.google.protobuf.gradle.plugin)
 }
 

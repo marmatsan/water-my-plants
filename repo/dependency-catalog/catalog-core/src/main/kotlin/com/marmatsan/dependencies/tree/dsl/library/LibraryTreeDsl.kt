@@ -13,23 +13,29 @@ import com.marmatsan.dependencies.tree.node.Node
  * @param rootGroup Top-level Maven group value stored in the root node.
  * @param content Library tree declarations below the root.
  * @return Root node containing the configured library tree.
+ * @throws IllegalArgumentException if [rootGroup] is not exactly one path segment.
  */
 fun libraryTree(
     rootGroup: String,
-    content: LibraryScope.() -> Unit,
+    content: LibraryScope.() -> Unit
 ): Node<DependencyNode.Library> {
     val root =
         Node(
             DependencyNode.Library(
-                libraryGroup = rootGroup,
-            ),
+                libraryGroup = rootGroup
+            )
         )
     val scope =
         LibraryScope(
-            root = root,
+            root = root
         )
     content.invoke(
-        scope,
+        scope
     )
-    return root
+    return root.copy(
+        value =
+            root.value.copy(
+                entries = scope.configuredEntries()
+            )
+    )
 }

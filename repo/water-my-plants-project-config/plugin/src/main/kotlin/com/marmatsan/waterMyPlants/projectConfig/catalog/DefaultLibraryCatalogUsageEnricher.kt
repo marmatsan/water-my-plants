@@ -11,7 +11,7 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
     override fun enrich(
         tree: LibraryCatalogTree,
         mainUsages: MainLibraryUsages,
-        conventionPluginUsages: ConventionPluginLibraryUsages,
+        conventionPluginUsages: ConventionPluginLibraryUsages
     ): LibraryCatalogTree =
         tree.copy(
             roots =
@@ -19,21 +19,21 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
                     enrichNode(
                         node = node,
                         mainUsages = mainUsages,
-                        conventionPluginUsages = conventionPluginUsages,
+                        conventionPluginUsages = conventionPluginUsages
                     )
-                },
+                }
         )
 
     private fun enrichNode(
         node: LibraryCatalogNode,
         mainUsages: MainLibraryUsages,
         conventionPluginUsages: ConventionPluginLibraryUsages,
-        parentGroup: String = "",
+        parentGroup: String = ""
     ): LibraryCatalogNode {
         val groupPath =
             listOf(
                 parentGroup,
-                node.group,
+                node.group
             ).filter(String::isNotBlank)
                 .joinToString(".")
 
@@ -44,7 +44,7 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
                         entry = entry,
                         group = groupPath,
                         mainUsages = mainUsages,
-                        conventionPluginUsages = conventionPluginUsages,
+                        conventionPluginUsages = conventionPluginUsages
                     )
                 },
             children =
@@ -53,9 +53,9 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
                         node = child,
                         mainUsages = mainUsages,
                         conventionPluginUsages = conventionPluginUsages,
-                        parentGroup = groupPath,
+                        parentGroup = groupPath
                     )
-                },
+                }
         )
     }
 
@@ -63,7 +63,7 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
         entry: LibraryCatalogEntry,
         group: String,
         mainUsages: MainLibraryUsages,
-        conventionPluginUsages: ConventionPluginLibraryUsages,
+        conventionPluginUsages: ConventionPluginLibraryUsages
     ): LibraryCatalogEntry =
         when (entry) {
             is LibraryCatalogEntry.Artifact -> {
@@ -75,20 +75,20 @@ internal class DefaultLibraryCatalogUsageEnricher : LibraryCatalogUsageEnricher 
                                 mainUsages.aliases[
                                     libraryAlias(
                                         libraryGroup = group,
-                                        artifact = entry.artifact,
-                                    ),
+                                        artifact = entry.artifact
+                                    )
                                 ].orEmpty()
                         ).sorted(),
                     providedByConventionPlugins = conventionPluginUsages.coordinates[coordinate].orEmpty(),
                     configuredByConventionPlugins =
-                        conventionPluginUsages.configuredCoordinates[coordinate].orEmpty(),
+                        conventionPluginUsages.configuredCoordinates[coordinate].orEmpty()
                 )
             }
 
             is LibraryCatalogEntry.ArtifactsBundle -> {
                 entry.copy(
                     requiredByModules = mainUsages.bundles[entry.alias].orEmpty().sorted(),
-                    providedByConventionPlugins = conventionPluginUsages.bundles[entry.alias].orEmpty(),
+                    providedByConventionPlugins = conventionPluginUsages.bundles[entry.alias].orEmpty()
                 )
             }
         }

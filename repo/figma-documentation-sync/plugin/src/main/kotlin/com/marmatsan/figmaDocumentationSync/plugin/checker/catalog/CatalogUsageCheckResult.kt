@@ -6,7 +6,7 @@ package com.marmatsan.figmaDocumentationSync.plugin.checker.catalog
  * @property unusedEntries deterministically ordered entries without a detected consumer.
  */
 internal data class CatalogUsageCheckResult(
-    val unusedEntries: List<UnusedCatalogEntry>,
+    val unusedEntries: List<UnusedCatalogEntry>
 ) {
     /** Whether every declared catalog entry has at least one repository consumer. */
     val isSuccessful: Boolean = unusedEntries.isEmpty()
@@ -21,5 +21,5 @@ internal data class CatalogUsageCheckResult(
  */
 internal data class UnusedCatalogEntry(
     val catalogName: String,
-    val entry: String,
+    val entry: String
 )

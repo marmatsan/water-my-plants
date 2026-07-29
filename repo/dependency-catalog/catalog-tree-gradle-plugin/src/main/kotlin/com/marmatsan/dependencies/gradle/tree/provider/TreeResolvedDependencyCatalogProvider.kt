@@ -6,7 +6,7 @@ import java.io.File
 
 /** Supplies the catalog assembled by the settings tree DSL to the provider-based adapter. */
 internal class TreeResolvedDependencyCatalogProvider(
-    private val catalog: DependencyCatalog,
+    private val catalog: DependencyCatalog
 ) : ResolvedDependencyCatalogProvider {
     /**
      * Returns the settings-assembled [catalog].
@@ -17,6 +17,6 @@ internal class TreeResolvedDependencyCatalogProvider(
      * @return Immutable resolved catalog assembled during settings evaluation.
      */
     override fun resolved(
-        rootDir: File,
+        rootDir: File
     ): DependencyCatalog = catalog
 }

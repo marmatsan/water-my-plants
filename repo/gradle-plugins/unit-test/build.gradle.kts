@@ -6,14 +6,7 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
-    // Modules
     implementation(projects.dependencies)
 }
 

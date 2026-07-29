@@ -23,7 +23,7 @@ import org.gradle.work.DisableCachingByDefault
  * not used by any module, convention plugin, or tool configuration.
  */
 @DisableCachingByDefault(
-    because = "The check inspects repository sources outside its declared settings inputs",
+    because = "The check inspects repository sources outside its declared settings inputs"
 )
 abstract class CheckFigmaCatalogUsageTask :
     DefaultTask(),
@@ -54,8 +54,8 @@ abstract class CheckFigmaCatalogUsageTask :
                     projectRootDirectory = projectRootDirectory.get().asFile,
                     primaryCatalogModelName = primaryCatalogModelName.get(),
                     dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
-                    includedBuilds = resolveIncludedBuildSources(),
-                ),
+                    includedBuilds = resolveIncludedBuildSources()
+                )
             )
 
         if (!result.isSuccessful) {
@@ -63,12 +63,12 @@ abstract class CheckFigmaCatalogUsageTask :
                 buildString {
                     appendLine("Unused dependency catalog entries found.")
                     appendLine(
-                        "Remove each entry or make it used by a module, convention plugin, or tool configuration:",
+                        "Remove each entry or make it used by a module, convention plugin, or tool configuration:"
                     )
                     result.unusedEntries.forEach { entry ->
                         appendLine("- ${entry.catalogName}: ${entry.entry}")
                     }
-                }.trimEnd(),
+                }.trimEnd()
             )
         }
 

@@ -34,7 +34,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "Job",
                     "Artifact",
                     "Check",
-                    "Gate",
+                    "Gate"
                 ),
             ciNodeInstanceName = ".ci node",
             ciIconInstanceName = ".ci icon",
@@ -50,7 +50,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "terminal",
                     "operator",
                     "json",
-                    "gradle",
+                    "gradle"
                 ),
             ciConnectorName = ".ci connector",
             ciConnectorTemplateName = "simple-line_arrow / neutral",
@@ -69,7 +69,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showOutcome" to "show outcome",
                     "showSource" to "show source",
                     "showRuntime" to "show runtime",
-                    "showOptionalDetails" to "show optional details",
+                    "showOptionalDetails" to "show optional details"
                 ),
             ciNodePhaseContainerName = "execution plan",
             ciNodeOutcomeContainerName = "outcome",
@@ -84,7 +84,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "description" to "description",
                     "showTechnicalId" to "show technical id",
                     "showDescription" to "show description",
-                    "showSteps" to "show steps",
+                    "showSteps" to "show steps"
                 ),
             ciPhaseStepContainerName = "steps",
             ciStepComponentSetId = "64665:2991",
@@ -94,7 +94,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 listOf(
                     "action",
                     "decision",
-                    "group",
+                    "group"
                 ),
             ciStepProps =
                 mapOf(
@@ -107,7 +107,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showTechnicalId" to "show technical id",
                     "showDescription" to "show description",
                     "showCondition" to "show condition",
-                    "role" to "role",
+                    "role" to "role"
                 ),
             ciOutcomeComponentSetId = "64669:3118",
             ciOutcomeSlotNamePrefix = "outcome",
@@ -117,7 +117,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "artifact",
                     "check",
                     "success",
-                    "action",
+                    "action"
                 ),
             ciOutcomeProps =
                 mapOf(
@@ -129,7 +129,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showTechnicalId" to "show technical id",
                     "showDescription" to "show description",
                     "showCondition" to "show condition",
-                    "kind" to "kind",
+                    "kind" to "kind"
                 ),
             versionsCollectionName = "repo\\water-my-plants-project-config\\versions.properties",
             versionAliasModeName = "Version alias",
@@ -140,12 +140,12 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             dependencyVersionInstanceNames =
                 listOf(
                     ".dependency version",
-                    ".project version",
+                    ".project version"
                 ),
             dependencyVersionProps =
                 mapOf(
                     "alias" to "version alias#63075:0",
-                    "number" to "version number#63075:1",
+                    "number" to "version number#63075:1"
                 ),
             parentSectionSiblingGap = 1139,
             parentSectionNodeIds =
@@ -154,14 +154,14 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "62936:183",
                     "63099:949",
                     "64886:247",
-                    "64886:248",
+                    "64886:248"
                 ),
             parentSectionCornerRadius = 28,
             sectionSiblingGap = 114,
             treeNodeComponentIds =
                 mapOf(
                     "Library" to "63069:681",
-                    "Plugin" to "63069:694",
+                    "Plugin" to "63069:694"
                 ),
             connectorTemplateName = "simple-solid_arrow",
             headerInstanceName = ".Header",
@@ -194,19 +194,19 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                                 "repo/dependency-catalog/catalog-core/src/main/kotlin/" +
                                     "com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt",
                                 "repo/dependency-catalog/catalog-core/src/main/kotlin/" +
-                                    "com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt",
-                            ),
+                                    "com/marmatsan/dependencies/tree/dsl/plugin/PluginTreeDsl.kt"
+                            )
                     ),
                     FigmaHeaderSectionTarget(
                         sectionNodeId = "62936:183",
                         links =
                             links(
-                                "repo/water-my-plants-project-config/versions.properties",
+                                "repo/water-my-plants-project-config/versions.properties"
                             ),
                         definition =
                             "Represents repo/water-my-plants-project-config/versions.properties, " +
                                 "the repository-owned source for dependency and plugin versions " +
-                                "consumed by the Gradle builds.",
+                                "consumed by the Gradle builds."
                     ),
                     FigmaHeaderSectionTarget(
                         sectionNodeId = "63099:949",
@@ -215,8 +215,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                                 "repo/water-my-plants-project-config/catalog/src/main/kotlin/" +
                                     "com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
                                 "repo/water-my-plants-project-config/catalog/src/main/kotlin/" +
-                                    "com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
-                            ),
+                                    "com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt"
+                            )
                     ),
                     FigmaHeaderSectionTarget(
                         sectionNodeId = "64886:247",
@@ -224,9 +224,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                             listOf(
                                 FigmaProjectLink(
                                     label = "repo/gradle-plugins",
-                                    url = "$GITHUB_MAIN_TREE_URL/repo/gradle-plugins",
-                                ),
-                            ),
+                                    url = "$GITHUB_MAIN_TREE_URL/repo/gradle-plugins"
+                                )
+                            )
                     ),
                     FigmaHeaderSectionTarget(
                         sectionNodeId = "64886:248",
@@ -244,27 +244,27 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                                     "WaterMyPlantsProjectConfigPlugin.kt",
                                 "repo/water-my-plants-project-config/plugin/src/main/kotlin/" +
                                     "com/marmatsan/waterMyPlants/projectConfig/gradle/" +
-                                    "WaterMyPlantsSettingsPlugin.kt",
-                            ),
-                    ),
+                                    "WaterMyPlantsSettingsPlugin.kt"
+                            )
+                    )
                 ),
             versionSectionTargets =
                 mapOf(
                     "Main project dependencies" to
                         FigmaVersionSectionTarget(
                             parentNodeId = "64247:3827",
-                            variableFolder = "Main project dependencies",
+                            variableFolder = "Main project dependencies"
                         ),
                     "Libraries" to
                         FigmaVersionSectionTarget(
                             parentNodeId = "64247:3853",
-                            variableFolder = "Libraries",
+                            variableFolder = "Libraries"
                         ),
                     "Plugins" to
                         FigmaVersionSectionTarget(
                             parentNodeId = "64247:3854",
-                            variableFolder = "Plugins",
-                        ),
+                            variableFolder = "Plugins"
+                        )
                 ),
             treeNodeProps =
                 mapOf(
@@ -277,7 +277,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showUsedByConventionPlugin" to "Show used by convention plugin",
                     "showUnused" to "Show unused",
                     "showIsGradlePlugin" to "Show is a gradle plugin#63112:4",
-                    "type" to "Type",
+                    "type" to "Type"
                 ),
             artifactProps =
                 mapOf(
@@ -286,7 +286,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "showVersion" to "Show version",
                     "showAppliedByPlugin" to "Show applied by plugin",
                     "showUsedByModule" to "Show used by module",
-                    "showConfiguredAsTool" to "Show configured as tool",
+                    "showConfiguredAsTool" to "Show configured as tool"
                 ),
             artifactsBundleProps =
                 mapOf(
@@ -294,7 +294,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "version" to "Version",
                     "showVersion" to "With version",
                     "showAppliedByPlugin" to "Show applied by plugin",
-                    "showUsedByModule" to "Show used by module",
+                    "showUsedByModule" to "Show used by module"
                 ),
             artifactInstanceName = ".artifact",
             artifactsBundleInstanceName = ".artifacts bundle",
@@ -305,12 +305,12 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
             usageChipProps =
                 mapOf(
                     "kind" to "kind",
-                    "name" to "name",
+                    "name" to "name"
                 ),
             usageChipKinds =
                 mapOf(
                     "module" to "module",
-                    "conventionPlugin" to "convention-plugin",
+                    "conventionPlugin" to "convention-plugin"
                 ),
             catalogTreeTargets =
                 listOf(
@@ -320,7 +320,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         type = FigmaCatalogTreeTargetType.LIBRARY,
                         lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
                         catalog = "waterMyPlants",
-                        collection = "libraries",
+                        collection = "libraries"
                     ),
                     catalogTarget(
                         name = "waterMyPlants.plugins",
@@ -328,7 +328,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         type = FigmaCatalogTreeTargetType.PLUGIN,
                         lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
                         catalog = "waterMyPlants",
-                        collection = "plugins",
+                        collection = "plugins"
                     ),
                     catalogTarget(
                         name = "waterMyPlants.customGradleConventionPlugins",
@@ -338,7 +338,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         catalog = "waterMyPlants",
                         collection = "customGradleConventionPlugins",
                         gradlePluginNodes = true,
-                        warnWhenUnused = true,
+                        warnWhenUnused = true
                     ),
                     catalogTarget(
                         name = "waterMyPlants.customGradlePlugins",
@@ -348,8 +348,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         catalog = "waterMyPlants",
                         collection = "customGradlePlugins",
                         gradlePluginNodes = true,
-                        warnWhenUnused = true,
-                    ),
+                        warnWhenUnused = true
+                    )
                 ),
             ciVisualTargetNames =
                 listOf(
@@ -358,22 +358,22 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                     "ci.postMergeDesignDocumentation",
                     "ci.jobTasks",
                     "ci.infrastructureAndAccess",
-                    "ci.windowsRuntime",
+                    "ci.windowsRuntime"
                 ),
             defaultFixtureTargets =
                 mapOf(
                     "catalog-tree" to "waterMyPlants.plugins",
-                    "versions" to "versions",
-                ),
+                    "versions" to "versions"
+                )
         )
 
     private fun links(
-        vararg paths: String,
+        vararg paths: String
     ): List<FigmaProjectLink> =
         paths.map { path ->
             FigmaProjectLink(
                 label = path,
-                url = "$GITHUB_MAIN_BLOB_URL/$path",
+                url = "$GITHUB_MAIN_BLOB_URL/$path"
             )
         }
 
@@ -385,7 +385,7 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         catalog: String,
         collection: String,
         gradlePluginNodes: Boolean = false,
-        warnWhenUnused: Boolean = false,
+        warnWhenUnused: Boolean = false
     ) = FigmaCatalogTreeTargetConfig(
         name = name,
         sectionNodeId = sectionNodeId,
@@ -396,9 +396,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 "content",
                 "catalogs",
                 catalog,
-                collection,
+                collection
             ),
         gradlePluginNodes = gradlePluginNodes,
-        warnWhenUnused = warnWhenUnused,
+        warnWhenUnused = warnWhenUnused
     )
 }

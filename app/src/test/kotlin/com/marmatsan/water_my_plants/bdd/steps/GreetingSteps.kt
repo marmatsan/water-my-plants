@@ -17,7 +17,7 @@ class GreetingSteps : En {
         When("the greeting is requested") {
             val useCase =
                 GreetingUseCase(
-                    repository = GreetingRepository(),
+                    repository = GreetingRepository()
                 )
 
             message = useCase(name)

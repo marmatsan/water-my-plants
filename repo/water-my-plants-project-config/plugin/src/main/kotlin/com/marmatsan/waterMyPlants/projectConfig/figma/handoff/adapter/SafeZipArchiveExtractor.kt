@@ -11,7 +11,7 @@ internal class SafeZipArchiveExtractor : ArtifactArchiveExtractor {
     /** Extracts [archive] after normalizing and validating every entry below [destination]. */
     override fun extract(
         archive: File,
-        destination: File,
+        destination: File
     ) {
         val root = destination.toPath().toAbsolutePath().normalize()
         Files.createDirectories(root)
@@ -27,7 +27,7 @@ internal class SafeZipArchiveExtractor : ArtifactArchiveExtractor {
                     Files.copy(
                         zip,
                         target,
-                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.REPLACE_EXISTING
                     )
                 }
                 zip.closeEntry()

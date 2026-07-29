@@ -20,7 +20,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Validates a canonical artifact set and writes its typed handoff identity. */
 @DisableCachingByDefault(
-    because = "The output records absolute paths from the staged artifact set",
+    because = "The output records absolute paths from the staged artifact set"
 )
 abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
     /** Directory containing the canonical model, scope, plan, manifests, and optional states. */
@@ -43,12 +43,12 @@ abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
         val component = FigmaDocumentationSyncComponent::class.create()
         val artifacts =
             component.canonicalFigmaArtifactSetReader.read(
-                artifactDirectory.get().asFile.absolutePath,
+                artifactDirectory.get().asFile.absolutePath
             )
         val validated =
             component.canonicalFigmaArtifactContractValidator.validate(
                 contract = artifacts.contract,
-                expectedGitSha = expectedGitSha.orNull,
+                expectedGitSha = expectedGitSha.orNull
             )
         val visualManifestPath =
             requireNotNull(artifacts.visualManifestPath) {
@@ -79,17 +79,17 @@ abstract class ValidateCanonicalFigmaArtifactSetTask : DefaultTask() {
                             JsonPrimitive(
                                 visualManifestPath.parent
                                     .resolve(
-                                        "execution-state.json",
-                                    ).toString(),
-                            ),
-                    ),
-                ),
-            ) + System.lineSeparator(),
+                                        "execution-state.json"
+                                    ).toString()
+                            )
+                    )
+                )
+            ) + System.lineSeparator()
         )
 
         logger.lifecycle(
             "Validated canonical Figma artifact set at ${validated.gitSha} " +
-                "(${validated.decision.wireValue}).",
+                "(${validated.decision.wireValue})."
         )
     }
 

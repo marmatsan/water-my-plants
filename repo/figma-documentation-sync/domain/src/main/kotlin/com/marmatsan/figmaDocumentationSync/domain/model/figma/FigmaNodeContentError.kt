@@ -10,7 +10,7 @@ sealed interface FigmaNodeContentError {
      */
     data class RequestRejected(
         val statusCode: Int,
-        val responseBody: String,
+        val responseBody: String
     ) : FigmaNodeContentError
 
     /**
@@ -19,7 +19,7 @@ sealed interface FigmaNodeContentError {
      * @property timeoutMillis configured request timeout.
      */
     data class TimedOut(
-        val timeoutMillis: Long,
+        val timeoutMillis: Long
     ) : FigmaNodeContentError
 
     /**
@@ -28,7 +28,7 @@ sealed interface FigmaNodeContentError {
      * @property nodeId requested Figma node identity.
      */
     data class NotFound(
-        val nodeId: String,
+        val nodeId: String
     ) : FigmaNodeContentError
 
     /** Figma returned a successful response that could not satisfy the content contract. */
@@ -40,6 +40,6 @@ sealed interface FigmaNodeContentError {
      * @property detail non-sensitive transport detail.
      */
     data class Unavailable(
-        val detail: String,
+        val detail: String
     ) : FigmaNodeContentError
 }

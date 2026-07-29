@@ -11,7 +11,7 @@ internal class DependencyCatalogSettingsPluginTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "dependency-catalog-settings",
+                    prefix = "dependency-catalog-settings"
                 )
 
             test("registers repository trees as library and plugin catalogs") {
@@ -50,12 +50,12 @@ internal class DependencyCatalogSettingsPluginTest :
                                                                         listOf(
                                                                             LibraryCatalogEntry.Artifact(
                                                                                 name = "library",
-                                                                                version = "1.2.3",
-                                                                            ),
-                                                                        ),
-                                                                ),
-                                                            ),
-                                                    ),
+                                                                                version = "1.2.3"
+                                                                            )
+                                                                        )
+                                                                )
+                                                            )
+                                                    )
                                                 ),
                                             plugins =
                                                 listOf(
@@ -69,22 +69,22 @@ internal class DependencyCatalogSettingsPluginTest :
                                                                         listOf(
                                                                             PluginCatalogNode(
                                                                                 id = "example-plugin",
-                                                                                version = "2.0.0",
-                                                                            ),
-                                                                        ),
-                                                                ),
-                                                            ),
-                                                    ),
-                                                ),
+                                                                                version = "2.0.0"
+                                                                            )
+                                                                        )
+                                                                )
+                                                            )
+                                                    )
+                                                )
                                         )
-                                },
+                                }
                         )
                     }
 
                     check(dependencyResolutionManagement.versionCatalogs.names == setOf("libs", "plugins"))
 
                     rootProject.name = "consumer"
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
                 projectDirectory.resolve("build.gradle.kts").writeText(
                     """
@@ -97,7 +97,7 @@ internal class DependencyCatalogSettingsPluginTest :
                             check(catalogs.named("plugins").findPlugin("com.example.example-plugin").isPresent)
                         }
                     }
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
 
                 val result =
@@ -106,11 +106,11 @@ internal class DependencyCatalogSettingsPluginTest :
                         .withProjectDir(projectDirectory)
                         .withArguments(
                             "verifyCatalogs",
-                            "--stacktrace",
+                            "--stacktrace"
                         ).withPluginClasspath()
                         .build()
 
                 result.task(":verifyCatalogs")?.outcome shouldBe TaskOutcome.SUCCESS
             }
-        },
+        }
     )

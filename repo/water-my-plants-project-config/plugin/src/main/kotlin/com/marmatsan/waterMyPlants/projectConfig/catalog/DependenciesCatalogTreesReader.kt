@@ -15,49 +15,49 @@ class DependenciesCatalogTreesReader internal constructor(
     private val mainCatalogUsageSource: MainCatalogUsageSource,
     private val conventionPluginCatalogUsageSource: ConventionPluginCatalogUsageSource,
     private val libraryCatalogUsageEnricher: LibraryCatalogUsageEnricher,
-    private val pluginCatalogUsageEnricher: PluginCatalogUsageEnricher,
+    private val pluginCatalogUsageEnricher: PluginCatalogUsageEnricher
 ) {
     /** Reads an aliased library tree enriched with direct and convention-plugin usage. */
     fun readLibraryTreeWithVersionAliases(
         rootDir: File,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList(),
+        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): LibraryCatalogTree =
         libraryCatalogUsageEnricher.enrich(
             tree =
                 readLibraryTree(
-                    roots = dependencyCatalogProvider.withVersionAliases().libraries,
+                    roots = dependencyCatalogProvider.withVersionAliases().libraries
                 ),
             mainUsages = mainCatalogUsageSource.libraryUsages(rootDir),
             conventionPluginUsages =
                 conventionPluginCatalogUsageSource.libraryUsages(
                     rootDir = rootDir,
-                    includedBuilds = conventionPluginIncludedBuilds,
-                ),
+                    includedBuilds = conventionPluginIncludedBuilds
+                )
         )
 
     /** Reads an aliased plugin tree enriched with direct and convention-plugin usage. */
     fun readPluginTreeWithVersionAliases(
         rootDir: File,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList(),
+        conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ): PluginCatalogTree =
         pluginCatalogUsageEnricher.enrich(
             tree =
                 readPluginTree(
-                    roots = dependencyCatalogProvider.withVersionAliases().plugins,
+                    roots = dependencyCatalogProvider.withVersionAliases().plugins
                 ),
             mainUsages = mainCatalogUsageSource.pluginUsages(rootDir),
             conventionPluginUsages =
                 conventionPluginCatalogUsageSource.pluginUsages(
                     rootDir = rootDir,
-                    includedBuilds = conventionPluginIncludedBuilds,
-                ),
+                    includedBuilds = conventionPluginIncludedBuilds
+                )
         )
 
     internal fun readLibraryTree(
-        roots: List<SourceLibraryCatalogNode>,
+        roots: List<SourceLibraryCatalogNode>
     ): LibraryCatalogTree = catalogTreeMapper.libraryTree(roots)
 
     internal fun readPluginTree(
-        roots: List<SourcePluginCatalogNode>,
+        roots: List<SourcePluginCatalogNode>
     ): PluginCatalogTree = catalogTreeMapper.pluginTree(roots)
 }

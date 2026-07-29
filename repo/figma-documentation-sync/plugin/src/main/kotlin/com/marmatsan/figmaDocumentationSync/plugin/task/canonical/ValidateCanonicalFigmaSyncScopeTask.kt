@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream
 
 /** Validates that the consumed sync scope belongs to the current checkout. */
 @DisableCachingByDefault(
-    because = "The current Git revision is runtime state",
+    because = "The current Git revision is runtime state"
 )
 abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
     /** Canonical scope artifact produced by the preparation phase. */
@@ -49,16 +49,16 @@ abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
         val currentGitSha =
             git(
                 "rev-parse",
-                "HEAD",
+                "HEAD"
             )
         if (scope.gitSha != currentGitSha) {
             throw GradleException(
-                "Figma Sync scope artifact belongs to '${scope.gitSha}', not '$currentGitSha'.",
+                "Figma Sync scope artifact belongs to '${scope.gitSha}', not '$currentGitSha'."
             )
         }
         if (scope.scope == FigmaVerificationScope.FULL_VERIFICATION && !designModelFile.get().asFile.isFile) {
             throw GradleException(
-                "Missing canonical Figma design model artifact: ${designModelFile.get().asFile.path}",
+                "Missing canonical Figma design model artifact: ${designModelFile.get().asFile.path}"
             )
         }
 
@@ -73,21 +73,21 @@ abstract class ValidateCanonicalFigmaSyncScopeTask : DefaultTask() {
     }
 
     private fun git(
-        vararg arguments: String,
+        vararg arguments: String
     ): String {
         val root = projectRootDirectory.get().asFile
         val safeDirectory =
             root.absolutePath.replace(
                 '\\',
-                '/',
+                '/'
             )
         val process =
             ProcessBuilder(
                 listOf(
                     "git",
                     "-c",
-                    "safe.directory=$safeDirectory",
-                ) + arguments,
+                    "safe.directory=$safeDirectory"
+                ) + arguments
             ).directory(root)
                 .start()
         val output = ByteArrayOutputStream()

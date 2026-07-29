@@ -20,37 +20,37 @@ class CiTopologyPlannerTest :
                         plan =
                             plan(
                                 ".teamcity/settings.kts",
-                                "tooling/sync/package.json",
+                                "tooling/sync/package.json"
                             ),
-                        availableAgents = 2,
+                        availableAgents = 2
                     )
 
                 topology.mode shouldBe CiTopologyMode.MULTI_AGENT_PARALLEL
                 topology.lanes.map(
-                    transform = CiExecutionLane::id,
+                    transform = CiExecutionLane::id
                 ) shouldBe
                     listOf(
                         "documentation",
                         "supplemental-verification",
                         "gradle-verification",
-                        "ci-gate",
+                        "ci-gate"
                     )
                 topology
                     .lane(
-                        id = "supplemental-verification",
+                        id = "supplemental-verification"
                     ).needs shouldBe listOf("documentation")
                 topology
                     .lane(
-                        id = "gradle-verification",
+                        id = "gradle-verification"
                     ).needs shouldBe listOf("documentation")
                 topology
                     .lane(
-                        id = "ci-gate",
+                        id = "ci-gate"
                     ).needs shouldBe
                     listOf(
                         "documentation",
                         "supplemental-verification",
-                        "gradle-verification",
+                        "gradle-verification"
                     )
                 topology.authoritativeStatusPublisherLaneId shouldBe "ci-gate"
             }
@@ -59,20 +59,20 @@ class CiTopologyPlannerTest :
                 val topology =
                     CiTopologyPlanner().create(
                         plan = plan("docs/README.md"),
-                        availableAgents = 3,
+                        availableAgents = 3
                     )
 
                 topology.lanes.map(
-                    transform = CiExecutionLane::id,
+                    transform = CiExecutionLane::id
                 ) shouldBe
                     listOf(
                         "documentation",
                         "repository-verification",
-                        "ci-gate",
+                        "ci-gate"
                     )
                 topology
                     .lane(
-                        id = "repository-verification",
+                        id = "repository-verification"
                     ).verificationUnits shouldBe
                     listOf(VerificationUnitId.REPOSITORY_DIFF)
             }
@@ -81,31 +81,31 @@ class CiTopologyPlannerTest :
                 shouldThrow<IllegalArgumentException> {
                     CiTopologyPlanner().create(
                         plan = plan("docs/README.md"),
-                        availableAgents = 0,
+                        availableAgents = 0
                     )
                 }.message shouldBe "CI topology requires at least one available agent."
             }
-        },
+        }
     ) {
     companion object {
         private fun plan(
-            vararg paths: String,
+            vararg paths: String
         ): CiPlan =
             CiPlanFactory(testCiPlanPolicy()).create(
                 changeSet =
                     RepositoryChangeSet(
                         comparisonBase = "base-sha",
                         head = "head-sha",
-                        changedFiles = paths.toList(),
+                        changedFiles = paths.toList()
                     ),
-                moduleGraph = testModuleGraph(),
+                moduleGraph = testModuleGraph()
             )
 
         private fun CiPlan.requiredUnitIds() =
             verificationUnits.filter { unit -> unit.required }.map { unit -> unit.id }
 
         private fun com.marmatsan.verificationPlatform.domain.model.ci.CiExecutionTopology.lane(
-            id: String,
+            id: String
         ) =
             lanes.single { lane -> lane.id == id }
     }

@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.port.ci
  */
 data class CiGeneratedConfigurationSource(
     val directoryPath: String,
-    val providerClassName: String,
+    val providerClassName: String
 )

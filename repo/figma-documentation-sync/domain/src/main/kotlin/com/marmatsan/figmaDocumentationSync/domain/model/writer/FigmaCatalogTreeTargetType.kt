@@ -6,8 +6,8 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property wireValue serialized component-family value consumed by the writer.
  */
 enum class FigmaCatalogTreeTargetType(
-    val wireValue: String,
+    val wireValue: String
 ) {
     LIBRARY("Library"),
-    PLUGIN("Plugin"),
+    PLUGIN("Plugin")
 }

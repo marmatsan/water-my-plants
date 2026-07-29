@@ -14,21 +14,21 @@ internal class MapperTest :
             test("maps NodeData_Library to Dependency_Library when entries is not null") {
                 given {
                     DependencyNode.Library(
-                        libraryGroup = "androidx.activity",
+                        libraryGroup = "activity",
                         entries =
                             listOf(
                                 LibraryEntry.Single(
                                     artifact =
                                         Artifact(
                                             artifact = "activity-compose",
-                                            version = "1.9.1",
-                                        ),
-                                ),
-                            ),
+                                            version = "1.9.1"
+                                        )
+                                )
+                            )
                     )
                 }.whenever { node ->
                     node.toDependencyLibrary(
-                        libraryGroup = "androidx.activity",
+                        libraryGroup = "androidx.activity"
                     )
                 }.then { dependency ->
                     dependency shouldBe
@@ -40,10 +40,10 @@ internal class MapperTest :
                                         artifact =
                                             Artifact(
                                                 artifact = "activity-compose",
-                                                version = "1.9.1",
-                                            ),
-                                    ),
-                                ),
+                                                version = "1.9.1"
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -51,20 +51,20 @@ internal class MapperTest :
             test("maps NodeData_Plugin to Dependency_Plugin when version is not null") {
                 given {
                     DependencyNode.Plugin(
-                        pluginId = "com.android.application",
-                        version = "8.10.1",
+                        pluginId = "application",
+                        version = "8.10.1"
                     )
                 }.whenever { node ->
                     node.toDependencyPlugin(
-                        pluginId = "com.android.application",
+                        pluginId = "com.android.application"
                     )
                 }.then { dependency ->
                     dependency shouldBe
                         Dependency.Plugin(
                             pluginId = "com.android.application",
-                            version = "8.10.1",
+                            version = "8.10.1"
                         )
                 }
             }
-        },
+        }
     )

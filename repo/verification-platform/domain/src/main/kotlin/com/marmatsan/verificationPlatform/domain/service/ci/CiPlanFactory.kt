@@ -19,7 +19,7 @@ import com.marmatsan.verificationPlatform.domain.service.modules.ModuleImpactAna
  * may select affected module tasks.
  */
 class CiPlanFactory(
-    private val policy: CiPlanPolicy = CiPlanPolicy(),
+    private val policy: CiPlanPolicy = CiPlanPolicy()
 ) {
     /**
      * Creates the authoritative verification plan for [changeSet].
@@ -31,19 +31,19 @@ class CiPlanFactory(
      */
     fun create(
         changeSet: RepositoryChangeSet,
-        moduleGraph: RepositoryModuleGraph,
+        moduleGraph: RepositoryModuleGraph
     ): CiPlan {
         val changedFiles =
             changeSet.changedFiles
                 .map(
-                    transform = ::normalize,
+                    transform = ::normalize
                 ).distinct()
                 .sorted()
         val moduleImpactAnalyzer = ModuleImpactAnalyzer()
         val moduleImpact =
             moduleImpactAnalyzer.analyze(
                 changedFiles = changedFiles.filterNot(::isDocumentation),
-                graph = moduleGraph,
+                graph = moduleGraph
             )
         val categories =
             changedFiles
@@ -51,14 +51,14 @@ class CiPlanFactory(
                     category(
                         path = path,
                         moduleGraph = moduleGraph,
-                        moduleImpactAnalyzer = moduleImpactAnalyzer,
+                        moduleImpactAnalyzer = moduleImpactAnalyzer
                     )
                 }.toSet()
         val documentationOnly = changedFiles.isNotEmpty() && categories == setOf(PathCategory.DOCUMENTATION)
         val moduleGraphInvalid =
             changedFiles.any { path ->
                 !isDocumentation(
-                    path = path,
+                    path = path
                 )
             } && !moduleImpact.isValid
         val unknown = changedFiles.isEmpty() || PathCategory.UNKNOWN in categories || moduleGraphInvalid
@@ -66,7 +66,7 @@ class CiPlanFactory(
             scope(
                 categories = categories,
                 documentationOnly = documentationOnly,
-                unknown = unknown,
+                unknown = unknown
             )
         val targetedModuleVerification =
             !unknown &&
@@ -79,10 +79,10 @@ class CiPlanFactory(
         val portableDistribution =
             changedFiles.any { path ->
                 !isDocumentation(
-                    path = path,
+                    path = path
                 ) &&
                     isPortableDistribution(
-                        path = path,
+                        path = path
                     )
             }
         val fallbackReason =
@@ -110,10 +110,10 @@ class CiPlanFactory(
                     fullVerification = fullVerification,
                     portableDistribution = portableDistribution,
                     affectedModules = moduleImpact.affectedModules,
-                    fallbackReason = fallbackReason,
+                    fallbackReason = fallbackReason
                 ),
             fullVerification = fullVerification,
-            fallbackReason = fallbackReason,
+            fallbackReason = fallbackReason
         )
     }
 
@@ -124,7 +124,7 @@ class CiPlanFactory(
         fullVerification: Boolean,
         portableDistribution: Boolean,
         affectedModules: List<String>,
-        fallbackReason: String?,
+        fallbackReason: String?
     ): List<VerificationUnit> =
         listOf(
             unit(
@@ -132,7 +132,7 @@ class CiPlanFactory(
                 required = true,
                 capabilities = listOf("git"),
                 gradleTasks = listOf(CHECK_GIT_WORKFLOW),
-                reasons = listOf("Every checkout must satisfy the trunk-based branch contract."),
+                reasons = listOf("Every checkout must satisfy the trunk-based branch contract.")
             ),
             unit(
                 id = VerificationUnitId.DOCUMENTATION,
@@ -142,10 +142,10 @@ class CiPlanFactory(
                     listOf(
                         "java",
                         "android-sdk",
-                        "git",
+                        "git"
                     ),
                 gradleTasks = listOf(CHECK_DOCUMENTATION),
-                reasons = listOf("Documentation structure and coverage are repository-wide invariants."),
+                reasons = listOf("Documentation structure and coverage are repository-wide invariants.")
             ),
             unit(
                 id = VerificationUnitId.REPOSITORY_DIFF,
@@ -155,13 +155,13 @@ class CiPlanFactory(
                 gradleTasks =
                     requiredTasks(
                         required = documentationOnly,
-                        CHECK_REPOSITORY_DIFF,
+                        CHECK_REPOSITORY_DIFF
                     ),
                 reasons =
                     requiredReasons(
                         required = documentationOnly,
-                        reason = "Every changed path is documentation-only.",
-                    ),
+                        reason = "Every changed path is documentation-only."
+                    )
             ),
             unit(
                 id = VerificationUnitId.TEAMCITY_DSL,
@@ -170,18 +170,18 @@ class CiPlanFactory(
                 capabilities =
                     listOf(
                         "java",
-                        "maven-wrapper",
+                        "maven-wrapper"
                     ),
                 gradleTasks =
                     requiredTasks(
                         required = PathCategory.TEAMCITY in categories,
-                        CHECK_TEAMCITY_DSL,
+                        CHECK_TEAMCITY_DSL
                     ),
                 reasons =
                     requiredReasons(
                         required = PathCategory.TEAMCITY in categories,
-                        reason = "TeamCity configuration changed.",
-                    ),
+                        reason = "TeamCity configuration changed."
+                    )
             ),
             unit(
                 id = VerificationUnitId.TOOLING,
@@ -191,13 +191,13 @@ class CiPlanFactory(
                 gradleTasks =
                     requiredTasks(
                         required = PathCategory.TOOLING in categories,
-                        tasks = policy.toolingVerificationTasks.toTypedArray(),
+                        tasks = policy.toolingVerificationTasks.toTypedArray()
                     ),
                 reasons =
                     requiredReasons(
                         required = PathCategory.TOOLING in categories,
-                        reason = "A configured repository-tooling surface changed.",
-                    ),
+                        reason = "A configured repository-tooling surface changed."
+                    )
             ),
             unit(
                 id = VerificationUnitId.BUILD_INFRASTRUCTURE,
@@ -207,13 +207,13 @@ class CiPlanFactory(
                 gradleTasks =
                     requiredTasks(
                         required = PathCategory.BUILD_INFRASTRUCTURE in categories,
-                        tasks = policy.buildInfrastructureVerificationTasks.toTypedArray(),
+                        tasks = policy.buildInfrastructureVerificationTasks.toTypedArray()
                     ),
                 reasons =
                     requiredReasons(
                         required = PathCategory.BUILD_INFRASTRUCTURE in categories,
-                        reason = "A configured build-infrastructure surface changed.",
-                    ),
+                        reason = "A configured build-infrastructure surface changed."
+                    )
             ),
             unit(
                 id = VerificationUnitId.PORTABLE_DISTRIBUTION,
@@ -222,19 +222,19 @@ class CiPlanFactory(
                     listOf(
                         VerificationUnitId.DOCUMENTATION,
                         VerificationUnitId.BUILD_INFRASTRUCTURE,
-                        VerificationUnitId.TOOLING,
+                        VerificationUnitId.TOOLING
                     ),
                 capabilities = policy.portableDistributionCapabilities,
                 gradleTasks =
                     requiredTasks(
                         required = portableDistribution,
-                        tasks = policy.portableDistributionVerificationTasks.toTypedArray(),
+                        tasks = policy.portableDistributionVerificationTasks.toTypedArray()
                     ),
                 reasons =
                     requiredReasons(
                         required = portableDistribution,
-                        reason = "A configured portable-distribution surface changed.",
-                    ),
+                        reason = "A configured portable-distribution surface changed."
+                    )
             ),
             unit(
                 id = VerificationUnitId.GRADLE_VERIFICATION,
@@ -243,7 +243,7 @@ class CiPlanFactory(
                 capabilities =
                     listOf(
                         "java",
-                        "android-sdk",
+                        "android-sdk"
                     ),
                 gradleTasks =
                     when {
@@ -268,7 +268,7 @@ class CiPlanFactory(
 
                         targetedModuleVerification -> {
                             listOf(
-                                "Changed modules and their transitive reverse dependents can be verified independently.",
+                                "Changed modules and their transitive reverse dependents can be verified independently."
                             )
                         }
 
@@ -279,7 +279,7 @@ class CiPlanFactory(
                         else -> {
                             emptyList()
                         }
-                    },
+                    }
             ),
             unit(
                 id = VerificationUnitId.PUBLISH_REPORTS,
@@ -293,12 +293,12 @@ class CiPlanFactory(
                         VerificationUnitId.TOOLING,
                         VerificationUnitId.BUILD_INFRASTRUCTURE,
                         VerificationUnitId.PORTABLE_DISTRIBUTION,
-                        VerificationUnitId.GRADLE_VERIFICATION,
+                        VerificationUnitId.GRADLE_VERIFICATION
                     ),
                 capabilities = emptyList(),
                 parallelSafe = false,
-                reasons = listOf("The plan and verification evidence must remain inspectable."),
-            ),
+                reasons = listOf("The plan and verification evidence must remain inspectable.")
+            )
         )
 
     private fun unit(
@@ -308,7 +308,7 @@ class CiPlanFactory(
         capabilities: List<String>,
         parallelSafe: Boolean = true,
         gradleTasks: List<String> = emptyList(),
-        reasons: List<String>,
+        reasons: List<String>
     ) = VerificationUnit(
         id = id,
         required = required,
@@ -316,33 +316,33 @@ class CiPlanFactory(
         capabilities = capabilities,
         parallelSafe = parallelSafe,
         gradleTasks = gradleTasks,
-        reasons = reasons,
+        reasons = reasons
     )
 
     private fun requiredReasons(
         required: Boolean,
-        reason: String,
+        reason: String
     ): List<String> =
         if (required) listOf(reason) else emptyList()
 
     private fun requiredTasks(
         required: Boolean,
-        vararg tasks: String,
+        vararg tasks: String
     ): List<String> =
         if (required) tasks.toList() else emptyList()
 
     private fun category(
         path: String,
         moduleGraph: RepositoryModuleGraph,
-        moduleImpactAnalyzer: ModuleImpactAnalyzer,
+        moduleImpactAnalyzer: ModuleImpactAnalyzer
     ): PathCategory =
         when {
             isDocumentation(
-                path = path,
+                path = path
             ) -> PathCategory.DOCUMENTATION
 
             path.startsWith(
-                prefix = ".teamcity/",
+                prefix = ".teamcity/"
             ) -> PathCategory.TEAMCITY
 
             policy.toolingPathPrefixes.any(path::startsWith) -> PathCategory.TOOLING
@@ -352,7 +352,7 @@ class CiPlanFactory(
 
             moduleImpactAnalyzer.moduleFor(
                 path = path,
-                graph = moduleGraph,
+                graph = moduleGraph
             ) != null -> PathCategory.APPLICATION
 
             else -> PathCategory.UNKNOWN
@@ -361,7 +361,7 @@ class CiPlanFactory(
     private fun scope(
         categories: Set<PathCategory>,
         documentationOnly: Boolean,
-        unknown: Boolean,
+        unknown: Boolean
     ): CiScope =
         when {
             documentationOnly -> CiScope.DOCUMENTATION_ONLY
@@ -375,11 +375,11 @@ class CiPlanFactory(
         }
 
     private fun isDocumentation(
-        path: String,
+        path: String
     ): Boolean {
         if (!path.endsWith(
                 ".md",
-                ignoreCase = true,
+                ignoreCase = true
             )
         ) {
             return false
@@ -388,51 +388,51 @@ class CiPlanFactory(
         val segments = path.split('/')
         return path.equals(
             "README.md",
-            ignoreCase = true,
+            ignoreCase = true
         ) ||
             path.equals(
                 "AGENTS.md",
-                ignoreCase = true,
+                ignoreCase = true
             ) ||
             path.equals(
                 ".teamcity/README.md",
-                ignoreCase = true,
+                ignoreCase = true
             ) ||
             path.endsWith(
                 "/AGENTS.md",
-                ignoreCase = true,
+                ignoreCase = true
             ) ||
             segments.any { segment ->
                 segment.equals(
                     "docs",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             } ||
             (
                 segments.size == 3 &&
                     segments.first().equals(
                         "repo",
-                        ignoreCase = true,
+                        ignoreCase = true
                     ) &&
                     segments.last().equals(
                         "README.md",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
             )
     }
 
     private fun isPortableDistribution(
-        path: String,
+        path: String
     ): Boolean =
         policy.portableDistributionPathPrefixes.any(path::startsWith) ||
             path in policy.portableDistributionPaths
 
     private fun normalize(
-        path: String,
+        path: String
     ): String =
         path.trim().replace(
             '\\',
-            '/',
+            '/'
         )
 
     private enum class PathCategory {
@@ -441,7 +441,7 @@ class CiPlanFactory(
         TOOLING,
         BUILD_INFRASTRUCTURE,
         APPLICATION,
-        UNKNOWN,
+        UNKNOWN
     }
 
     private companion object {

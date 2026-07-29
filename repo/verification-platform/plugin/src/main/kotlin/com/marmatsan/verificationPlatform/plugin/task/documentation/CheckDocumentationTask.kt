@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Validates repository documentation and committed change coverage in Kotlin. */
 @DisableCachingByDefault(
-    because = "Documentation coverage depends on the committed Git change set",
+    because = "Documentation coverage depends on the committed Git change set"
 )
 abstract class CheckDocumentationTask : DefaultTask() {
     /** Repository checkout containing Markdown and canonical source files. */
@@ -44,7 +44,7 @@ abstract class CheckDocumentationTask : DefaultTask() {
             DocumentationValidator().validate(
                 snapshot = FileSystemDocumentationSource().read(root),
                 coverageRules = rules,
-                changedPaths = plan.changedFiles,
+                changedPaths = plan.changedFiles
             )
 
         result.warnings.forEach(logger::warn)
@@ -62,7 +62,7 @@ abstract class CheckDocumentationTask : DefaultTask() {
 
         logger.lifecycle(
             "Documentation validation passed for {} typed documents.",
-            result.validatedDocuments.size,
+            result.validatedDocuments.size
         )
     }
 }

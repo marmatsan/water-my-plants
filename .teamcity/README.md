@@ -9,6 +9,11 @@ change pipeline topology, but every formatting migration still runs
 repository-wide KtLint adoption preserved the pipeline, trigger, dependency,
 and status-publisher contracts described below.
 
+The 2026-07-29 migration that disabled trailing commas changed only the Kotlin
+formatting of `.teamcity/settings.kts`. Its contract review preserved the CI
+and Figma Sync jobs, triggers, snapshot dependencies, branch filters, agent
+requirements, and the `TeamCity CI` status publisher described in this file.
+
 The contract used to derive the Figma representation of CI from these settings
 is documented in
 [`docs/ci/visual-model-contract.md`](../docs/ci/visual-model-contract.md).

@@ -14,7 +14,7 @@ class GitRepositoryDiffChecker {
     fun check(
         repositoryRoot: File,
         comparisonBase: String,
-        head: String,
+        head: String
     ) {
         require(comparisonBase.isNotBlank()) { "A comparison base is required for repository diff verification." }
         require(head.isNotBlank()) { "A head revision is required for repository diff verification." }
@@ -23,7 +23,7 @@ class GitRepositoryDiffChecker {
         val safeDirectory =
             root.absolutePath.replace(
                 '\\',
-                '/',
+                '/'
             )
         val arguments =
             listOf(
@@ -32,7 +32,7 @@ class GitRepositoryDiffChecker {
                 "safe.directory=$safeDirectory",
                 "diff",
                 "--check",
-                "$comparisonBase..$head",
+                "$comparisonBase..$head"
             )
         val process =
             ProcessBuilder(arguments)
@@ -42,7 +42,7 @@ class GitRepositoryDiffChecker {
         val output = process.inputStream.bufferedReader().use { reader -> reader.readText() }
         val exitCode = process.waitFor()
         check(
-            exitCode == 0,
+            exitCode == 0
         ) {
             "Repository diff verification failed: ${output.trim()}"
         }

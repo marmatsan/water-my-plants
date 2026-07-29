@@ -19,14 +19,14 @@ enum class AssetsLeafVariant {
     Leaf2,
     Leaf3,
     Leaf4,
-    Leaf5,
+    Leaf5
 }
 
 @Composable
 fun AssetsLeaf(
     variant: AssetsLeafVariant,
     modifier: Modifier = Modifier,
-    tintColor: Color? = null,
+    tintColor: Color? = null
 ) {
     val colorFilter = tintColor?.let { ColorFilter.tint(it) }
     val (resId, width, height) =
@@ -35,7 +35,7 @@ fun AssetsLeaf(
                 Triple(
                     R.drawable.assets_leaf_leaf1,
                     50.dp,
-                    87.dp,
+                    87.dp
                 )
             }
 
@@ -43,7 +43,7 @@ fun AssetsLeaf(
                 Triple(
                     R.drawable.assets_leaf_leaf2,
                     122.dp,
-                    83.dp,
+                    83.dp
                 )
             }
 
@@ -51,7 +51,7 @@ fun AssetsLeaf(
                 Triple(
                     R.drawable.assets_leaf_leaf3,
                     167.11.dp,
-                    116.86.dp,
+                    116.86.dp
                 )
             }
 
@@ -59,7 +59,7 @@ fun AssetsLeaf(
                 Triple(
                     R.drawable.assets_leaf_leaf4,
                     109.839.dp,
-                    111.949.dp,
+                    111.949.dp
                 )
             }
 
@@ -67,7 +67,7 @@ fun AssetsLeaf(
                 Triple(
                     R.drawable.assets_leaf_leaf5,
                     98.107.dp,
-                    124.907.dp,
+                    124.907.dp
                 )
             }
         }
@@ -75,29 +75,29 @@ fun AssetsLeaf(
     Image(
         painter =
             painterResource(
-                id = resId,
+                id = resId
             ),
         contentDescription = null,
         modifier =
             modifier.size(
                 width = width,
-                height = height,
+                height = height
             ),
         contentScale = ContentScale.Fit,
-        colorFilter = colorFilter,
+        colorFilter = colorFilter
     )
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
 )
 @Composable
 private fun AssetsLeafPreview(
     @PreviewParameter(AssetsLeafPreviewParameterProvider::class)
-    variant: AssetsLeafVariant,
+    variant: AssetsLeafVariant
 ) {
     AssetsLeaf(
-        variant = variant,
+        variant = variant
     )
 }
 

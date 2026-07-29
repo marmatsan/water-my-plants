@@ -8,5 +8,5 @@ package com.marmatsan.verificationPlatform.domain.model.modules
  */
 data class RepositoryModuleGraph(
     val modules: List<RepositoryModule>,
-    val dependencies: List<ModuleDependency>,
+    val dependencies: List<ModuleDependency>
 )

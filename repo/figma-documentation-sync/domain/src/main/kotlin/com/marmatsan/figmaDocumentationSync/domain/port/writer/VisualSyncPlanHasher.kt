@@ -6,6 +6,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlanBo
 fun interface VisualSyncPlanHasher {
     /** Returns the canonical language-neutral hash for [body]. */
     fun hash(
-        body: VisualSyncPlanBody,
+        body: VisualSyncPlanBody
     ): String
 }

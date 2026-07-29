@@ -10,7 +10,7 @@ sealed interface TeamCityRunStartError {
      */
     data class RequestRejected(
         val statusCode: Int,
-        val responseBody: String,
+        val responseBody: String
     ) : TeamCityRunStartError
 
     /**
@@ -21,7 +21,7 @@ sealed interface TeamCityRunStartError {
      */
     data class CommandFailed(
         val exitCode: Int,
-        val detail: String,
+        val detail: String
     ) : TeamCityRunStartError
 
     /** TeamCity reported success but returned a response outside the public contract. */
@@ -33,6 +33,6 @@ sealed interface TeamCityRunStartError {
      * @property detail non-sensitive transport detail.
      */
     data class Unavailable(
-        val detail: String,
+        val detail: String
     ) : TeamCityRunStartError
 }

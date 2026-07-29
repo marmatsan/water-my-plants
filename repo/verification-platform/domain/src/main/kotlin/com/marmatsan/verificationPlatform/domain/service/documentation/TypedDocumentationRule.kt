@@ -5,6 +5,6 @@ internal fun interface TypedDocumentationRule {
     /** Adds this rule's errors or warnings for [context] to [findings]. */
     fun validate(
         context: TypedDocumentationContext,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     )
 }

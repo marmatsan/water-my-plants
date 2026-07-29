@@ -18,7 +18,7 @@ class VersionsPropertiesReader {
      * Reads a sorted flat key/value map.
      */
     fun read(
-        file: File,
+        file: File
     ): Map<String, String> {
         val properties =
             Properties().apply {
@@ -38,7 +38,7 @@ class VersionsPropertiesReader {
      * lines are ignored.
      */
     fun readSections(
-        file: File,
+        file: File
     ): List<RepositoryVersionSection> {
         val sections = linkedMapOf<String, MutableMap<String, String>>()
         var currentSection = DEFAULT_SECTION
@@ -47,21 +47,21 @@ class VersionsPropertiesReader {
             val trimmed = line.trim()
             when {
                 trimmed.startsWith(
-                    prefix = "## ",
+                    prefix = "## "
                 ) -> {
                     currentSection = trimmed.removePrefix("##").trim()
                     sections.getOrPut(
                         currentSection,
-                        ::linkedMapOf,
+                        ::linkedMapOf
                     )
                 }
 
                 trimmed.isEmpty() ||
                     trimmed.startsWith(
-                        prefix = "#",
+                        prefix = "#"
                     ) ||
                     trimmed.startsWith(
-                        prefix = "!",
+                        prefix = "!"
                     )
                 -> {
                     Unit
@@ -73,12 +73,12 @@ class VersionsPropertiesReader {
                         trimmed
                             .substring(
                                 0,
-                                separatorIndex,
+                                separatorIndex
                             ).trim()
                     val value = trimmed.substring(separatorIndex + 1).trim()
                     sections.getOrPut(
                         currentSection,
-                        ::linkedMapOf,
+                        ::linkedMapOf
                     )[key] = value
                 }
             }
@@ -89,7 +89,7 @@ class VersionsPropertiesReader {
             .map { (name, versions) ->
                 RepositoryVersionSection(
                     name = name,
-                    versions = versions.toSortedMap(),
+                    versions = versions.toSortedMap()
                 )
             }
     }

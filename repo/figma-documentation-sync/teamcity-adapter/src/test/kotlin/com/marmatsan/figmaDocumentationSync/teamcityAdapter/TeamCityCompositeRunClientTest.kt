@@ -17,7 +17,7 @@ internal class TeamCityCompositeRunClientTest :
                         status = null,
                         statusText = null,
                         branchName = "main",
-                        webUrl = "https://teamcity.example/build/1681",
+                        webUrl = "https://teamcity.example/build/1681"
                     )
                 given {
                     val readClient =
@@ -26,23 +26,23 @@ internal class TeamCityCompositeRunClientTest :
                                 buildTypeId: String,
                                 branch: String,
                                 status: String,
-                                limit: Int,
+                                limit: Int
                             ): List<TeamCityRun> = emptyList()
 
                             override fun startRun(
                                 buildTypeId: String,
-                                branch: String,
+                                branch: String
                             ): Result<TeamCityRun, TeamCityRunStartError> =
                                 error("The read client must not queue a run")
 
                             override fun watchRun(
                                 buildId: Long,
                                 pollIntervalSeconds: Int,
-                                timeoutMinutes: Int,
+                                timeoutMinutes: Int
                             ): TeamCityRun = error("Not used")
 
                             override fun readRun(
-                                buildId: Long,
+                                buildId: Long
                             ): TeamCityRun = error("Not used")
                         }
                     TeamCityCompositeRunClient(
@@ -52,16 +52,16 @@ internal class TeamCityCompositeRunClientTest :
                                 buildTypeId shouldBe "WaterMyPlants_WaterMyPlantsFigmaSync"
                                 branch shouldBe "main"
                                 Ok(queued)
-                            },
+                            }
                     )
                 }.whenever { client ->
                     client.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     )
                 }.then { result ->
                     result shouldBe Ok(queued)
                 }
             }
-        },
+        }
     )

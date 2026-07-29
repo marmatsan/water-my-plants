@@ -22,17 +22,17 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             listRunsBehavior = { _, _, status, _ ->
                                 requestedStatuses += status
                                 emptyList()
-                            },
+                            }
                         )
                     client to requestedStatuses
                 }.whenever { (client, requestedStatuses) ->
                     TeamCityFigmaSyncRerunner(
-                        teamCityClient = client,
+                        teamCityClient = client
                     ).rerun(
                         request =
                             TeamCityFigmaSyncRerunner.Request(
-                                validateOnly = true,
-                            ),
+                                validateOnly = true
+                            )
                     ) to requestedStatuses
                 }.then { (result, requestedStatuses) ->
                     result shouldBe
@@ -41,12 +41,12 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             webUrl = null,
                             branch = "main",
                             state = "Validated",
-                            reused = false,
+                            reused = false
                         )
                     requestedStatuses shouldBe
                         listOf(
                             "running",
-                            "queued",
+                            "queued"
                         )
                 }
             }
@@ -56,13 +56,13 @@ internal class TeamCityFigmaSyncRerunnerTest :
                     val active =
                         teamCityRun(
                             id = 1580,
-                            state = "running",
+                            state = "running"
                         )
                     val finished =
                         teamCityRun(
                             id = 1580,
                             state = "finished",
-                            status = "SUCCESS",
+                            status = "SUCCESS"
                         )
                     teamCityRunClient(
                         listRunsBehavior = { _, _, status, _ ->
@@ -73,18 +73,18 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             pollIntervalSeconds shouldBe 5
                             timeoutMinutes shouldBe 30
                             finished
-                        },
+                        }
                     )
                 }.whenever { client ->
                     TeamCityFigmaSyncRerunner(
-                        teamCityClient = client,
+                        teamCityClient = client
                     ).rerun(
                         request =
                             TeamCityFigmaSyncRerunner.Request(
                                 waitForCompletion = true,
                                 pollIntervalSeconds = 5,
-                                timeoutMinutes = 30,
-                            ),
+                                timeoutMinutes = 30
+                            )
                     )
                 }.then { result ->
                     result shouldBe
@@ -93,7 +93,7 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             webUrl = "https://teamcity.example/build/1580",
                             branch = "main",
                             state = "finished",
-                            reused = true,
+                            reused = true
                         )
                 }
             }
@@ -104,7 +104,7 @@ internal class TeamCityFigmaSyncRerunnerTest :
                     val concurrent =
                         teamCityRun(
                             id = 1581,
-                            state = "queued",
+                            state = "queued"
                         )
                     teamCityRunClient(
                         listRunsBehavior = { _, _, status, _ ->
@@ -113,11 +113,11 @@ internal class TeamCityFigmaSyncRerunnerTest :
                         },
                         startRunBehavior = { _, _ ->
                             Err(TeamCityRunStartError.Unavailable("uncertain start"))
-                        },
+                        }
                     )
                 }.whenever { client ->
                     TeamCityFigmaSyncRerunner(
-                        teamCityClient = client,
+                        teamCityClient = client
                     ).rerun()
                 }.then { result ->
                     result shouldBe
@@ -126,7 +126,7 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             webUrl = "https://teamcity.example/build/1581",
                             branch = "main",
                             state = "queued",
-                            reused = false,
+                            reused = false
                         )
                 }
             }
@@ -138,15 +138,15 @@ internal class TeamCityFigmaSyncRerunnerTest :
                             Err(
                                 TeamCityRunStartError.RequestRejected(
                                     statusCode = 403,
-                                    responseBody = "forbidden",
-                                ),
+                                    responseBody = "forbidden"
+                                )
                             )
-                        },
+                        }
                     )
                 }.whenever { client ->
                     shouldThrow<IllegalStateException> {
                         TeamCityFigmaSyncRerunner(
-                            teamCityClient = client,
+                            teamCityClient = client
                         ).rerun()
                     }
                 }.then { exception ->
@@ -160,28 +160,28 @@ internal class TeamCityFigmaSyncRerunnerTest :
                     val queued =
                         teamCityRun(
                             id = 1582,
-                            state = "queued",
+                            state = "queued"
                         )
                     val failed =
                         teamCityRun(
                             id = 1582,
                             state = "finished",
                             status = "FAILURE",
-                            statusText = "Figma metadata is stale",
+                            statusText = "Figma metadata is stale"
                         )
                     teamCityRunClient(
                         startRunBehavior = { _, _ -> Ok(queued) },
-                        watchRunBehavior = { _, _, _ -> failed },
+                        watchRunBehavior = { _, _, _ -> failed }
                     )
                 }.whenever { client ->
                     shouldThrow<IllegalStateException> {
                         TeamCityFigmaSyncRerunner(
-                            teamCityClient = client,
+                            teamCityClient = client
                         ).rerun(
                             request =
                                 TeamCityFigmaSyncRerunner.Request(
-                                    waitForCompletion = true,
-                                ),
+                                    waitForCompletion = true
+                                )
                         )
                     }
                 }.then { exception ->
@@ -189,7 +189,7 @@ internal class TeamCityFigmaSyncRerunnerTest :
                         "TeamCity Figma Sync run 1582 finished with status 'FAILURE': Figma metadata is stale"
                 }
             }
-        },
+        }
     )
 
 /** Creates a focused TeamCity port double whose unsupported operations fail fast. */
@@ -199,44 +199,44 @@ private fun teamCityRunClient(
         error("Queueing was not expected")
     },
     watchRunBehavior: (Long, Int, Int) -> TeamCityRun = { _, _, _ -> error("Waiting was not expected") },
-    readRunBehavior: (Long) -> TeamCityRun = { error("Reading was not expected") },
+    readRunBehavior: (Long) -> TeamCityRun = { error("Reading was not expected") }
 ): TeamCityRunClient =
     object : TeamCityRunClient {
         override fun listRuns(
             buildTypeId: String,
             branch: String,
             status: String,
-            limit: Int,
+            limit: Int
         ): List<TeamCityRun> =
             listRunsBehavior(
                 buildTypeId,
                 branch,
                 status,
-                limit,
+                limit
             )
 
         override fun startRun(
             buildTypeId: String,
-            branch: String,
+            branch: String
         ): Result<TeamCityRun, TeamCityRunStartError> =
             startRunBehavior(
                 buildTypeId,
-                branch,
+                branch
             )
 
         override fun watchRun(
             buildId: Long,
             pollIntervalSeconds: Int,
-            timeoutMinutes: Int,
+            timeoutMinutes: Int
         ): TeamCityRun =
             watchRunBehavior(
                 buildId,
                 pollIntervalSeconds,
-                timeoutMinutes,
+                timeoutMinutes
             )
 
         override fun readRun(
-            buildId: Long,
+            buildId: Long
         ): TeamCityRun = readRunBehavior(buildId)
     }
 
@@ -244,7 +244,7 @@ private fun teamCityRun(
     id: Long,
     state: String,
     status: String? = null,
-    statusText: String? = null,
+    statusText: String? = null
 ): TeamCityRun =
     TeamCityRun(
         id = id,
@@ -252,5 +252,5 @@ private fun teamCityRun(
         status = status,
         statusText = statusText,
         branchName = "main",
-        webUrl = "https://teamcity.example/build/$id",
+        webUrl = "https://teamcity.example/build/$id"
     )

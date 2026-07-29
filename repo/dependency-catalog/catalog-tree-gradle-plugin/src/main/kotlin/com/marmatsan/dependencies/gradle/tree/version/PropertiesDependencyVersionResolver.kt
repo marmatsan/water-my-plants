@@ -15,12 +15,12 @@ internal class PropertiesDependencyVersionResolver {
      */
     fun resolve(
         file: File,
-        key: String,
+        key: String
     ): String {
         val versions =
             loadedVersions
                 ?: load(
-                    file = file,
+                    file = file
                 ).also { loadedVersions = it }
         require(versions.file == file.canonicalFile) {
             "Dependency versions file cannot change after its first value is resolved"
@@ -30,7 +30,7 @@ internal class PropertiesDependencyVersionResolver {
     }
 
     private fun load(
-        file: File,
+        file: File
     ): LoadedVersions {
         val canonicalFile = file.canonicalFile
         require(canonicalFile.isFile) {
@@ -41,7 +41,7 @@ internal class PropertiesDependencyVersionResolver {
             properties =
                 Properties().apply {
                     canonicalFile.inputStream().use(::load)
-                },
+                }
         )
     }
 }
@@ -49,5 +49,5 @@ internal class PropertiesDependencyVersionResolver {
 /** Canonical versions source and its properties cached for one settings evaluation. */
 private data class LoadedVersions(
     val file: File,
-    val properties: Properties,
+    val properties: Properties
 )

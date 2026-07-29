@@ -18,39 +18,39 @@ internal class WriterScopeFingerprintCalculatorTest :
                     val sourceRoot =
                         root
                             .resolve(
-                                "repo/tools/src",
+                                "repo/tools/src"
                             ).apply { createDirectories() }
                     val ciSource =
                         sourceRoot
                             .resolve(
-                                "figma/figma-ci-gateway.ts",
+                                "figma/figma-ci-gateway.ts"
                             ).apply {
                                 parent.createDirectories()
                                 writeText("export const ci = 1;\n")
                             }
                     sourceRoot
                         .resolve(
-                            "figma/figma-catalog-gateway.ts",
+                            "figma/figma-catalog-gateway.ts"
                         ).writeText("export const catalog = 1;\n")
                     sourceRoot
                         .resolve(
-                            "figma/figma-node-gateway.ts",
+                            "figma/figma-node-gateway.ts"
                         ).writeText("export const shared = 1;\n")
                     sourceRoot
                         .resolve(
-                            "preview.ts",
+                            "preview.ts"
                         ).writeText("export const preview = 1;\n")
 
                     val before =
                         fingerprints(
                             repositoryRoot = root,
-                            sourceRoot = sourceRoot,
+                            sourceRoot = sourceRoot
                         )
                     ciSource.writeText("export const ci = 2;\n")
                     val after =
                         fingerprints(
                             repositoryRoot = root,
-                            sourceRoot = sourceRoot,
+                            sourceRoot = sourceRoot
                         )
 
                     after["ci.overview"] shouldNotBe before["ci.overview"]
@@ -72,16 +72,16 @@ internal class WriterScopeFingerprintCalculatorTest :
                     val sourceRoot =
                         root
                             .resolve(
-                                "repo/tools/src",
+                                "repo/tools/src"
                             ).apply { createDirectories() }
                     sourceRoot
                         .resolve(
-                            "shared.ts",
+                            "shared.ts"
                         ).writeText("export const shared = 1;\n")
                     val kotlinPlanner =
                         root
                             .resolve(
-                                "repo/visual/CiVisualPlanner.kt",
+                                "repo/visual/CiVisualPlanner.kt"
                             ).apply {
                                 parent.createDirectories()
                                 writeText("class CiVisualPlanner\n")
@@ -90,13 +90,13 @@ internal class WriterScopeFingerprintCalculatorTest :
                     val before =
                         fingerprints(
                             repositoryRoot = root,
-                            sourceRoot = sourceRoot,
+                            sourceRoot = sourceRoot
                         )
                     kotlinPlanner.writeText("class CiVisualPlannerV2\n")
                     val after =
                         fingerprints(
                             repositoryRoot = root,
-                            sourceRoot = sourceRoot,
+                            sourceRoot = sourceRoot
                         )
 
                     after["ci.overview"] shouldNotBe before["ci.overview"]
@@ -105,12 +105,12 @@ internal class WriterScopeFingerprintCalculatorTest :
                     root.toFile().deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private fun fingerprints(
     repositoryRoot: java.nio.file.Path,
-    sourceRoot: java.nio.file.Path,
+    sourceRoot: java.nio.file.Path
 ) =
     WriterScopeFingerprintCalculator().create(
         sourceRoot = sourceRoot,
@@ -124,27 +124,27 @@ private fun fingerprints(
                 visualWriterPaths =
                     listOf(
                         "repo/tools/src/*",
-                        "repo/visual/*",
+                        "repo/visual/*"
                     ),
                 visualTargetRules =
                     listOf(
                         FigmaVisualTargetRule(
                             paths = listOf("repo/tools/src/figma/figma-ci-*"),
-                            targets = listOf("ci.overview"),
+                            targets = listOf("ci.overview")
                         ),
                         FigmaVisualTargetRule(
                             paths = listOf("repo/tools/src/figma/figma-catalog-*"),
                             targets =
                                 listOf(
                                     "preflight",
-                                    "waterMyPlants.libraries",
-                                ),
+                                    "waterMyPlants.libraries"
+                                )
                         ),
                         FigmaVisualTargetRule(
                             paths = listOf("repo/visual/*"),
-                            targets = listOf("ci.overview"),
-                        ),
-                    ),
+                            targets = listOf("ci.overview")
+                        )
+                    )
             ),
         writerTargets =
             listOf(
@@ -152,7 +152,7 @@ private fun fingerprints(
                 "versions",
                 "waterMyPlants.libraries",
                 "ci.overview",
-                "metadata",
+                "metadata"
             ),
         catalogTargets = listOf("waterMyPlants.libraries"),
         scopes =
@@ -161,6 +161,6 @@ private fun fingerprints(
                 "versions",
                 "waterMyPlants.libraries.androidx",
                 "waterMyPlants.libraries.cleanup",
-                "ci.overview",
-            ),
+                "ci.overview"
+            )
     )

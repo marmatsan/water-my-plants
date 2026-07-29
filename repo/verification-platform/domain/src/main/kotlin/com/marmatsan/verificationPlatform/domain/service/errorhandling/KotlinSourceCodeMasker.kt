@@ -4,7 +4,7 @@ package com.marmatsan.verificationPlatform.domain.service.errorhandling
 internal class KotlinSourceCodeMasker {
     /** Returns [source] with non-code characters replaced by spaces. */
     fun mask(
-        source: String,
+        source: String
     ): String {
         val masked = StringBuilder(source.length)
         var index = 0
@@ -17,12 +17,12 @@ internal class KotlinSourceCodeMasker {
                     when {
                         source.startsWith(
                             prefix = "//",
-                            startIndex = index,
+                            startIndex = index
                         ) -> {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 2,
+                                length = 2
                             )
                             index += 2
                             state = State.LINE_COMMENT
@@ -30,12 +30,12 @@ internal class KotlinSourceCodeMasker {
 
                         source.startsWith(
                             prefix = "/*",
-                            startIndex = index,
+                            startIndex = index
                         ) -> {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 2,
+                                length = 2
                             )
                             index += 2
                             blockCommentDepth = 1
@@ -44,12 +44,12 @@ internal class KotlinSourceCodeMasker {
 
                         source.startsWith(
                             prefix = "\"\"\"",
-                            startIndex = index,
+                            startIndex = index
                         ) -> {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 3,
+                                length = 3
                             )
                             index += 3
                             state = State.RAW_STRING
@@ -87,12 +87,12 @@ internal class KotlinSourceCodeMasker {
                     when {
                         source.startsWith(
                             prefix = "/*",
-                            startIndex = index,
+                            startIndex = index
                         ) -> {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 2,
+                                length = 2
                             )
                             index += 2
                             blockCommentDepth += 1
@@ -100,12 +100,12 @@ internal class KotlinSourceCodeMasker {
 
                         source.startsWith(
                             prefix = "*/",
-                            startIndex = index,
+                            startIndex = index
                         ) -> {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 2,
+                                length = 2
                             )
                             index += 2
                             blockCommentDepth -= 1
@@ -125,13 +125,13 @@ internal class KotlinSourceCodeMasker {
                     if (
                         source.startsWith(
                             prefix = "\"\"\"",
-                            startIndex = index,
+                            startIndex = index
                         )
                     ) {
                         masked.appendMasked(
                             source = source,
                             startIndex = index,
-                            length = 3,
+                            length = 3
                         )
                         index += 3
                         state = State.CODE
@@ -142,7 +142,7 @@ internal class KotlinSourceCodeMasker {
                 }
 
                 State.STRING,
-                State.CHARACTER,
+                State.CHARACTER
                 -> {
                     val character = source[index]
                     when {
@@ -150,7 +150,7 @@ internal class KotlinSourceCodeMasker {
                             masked.appendMasked(
                                 source = source,
                                 startIndex = index,
-                                length = 2,
+                                length = 2
                             )
                             index += 2
                         }
@@ -182,26 +182,26 @@ internal class KotlinSourceCodeMasker {
     private fun StringBuilder.appendMasked(
         source: String,
         startIndex: Int,
-        length: Int,
+        length: Int
     ) {
         repeat(
-            times = length,
+            times = length
         ) { offset ->
             appendMasked(
-                character = source[startIndex + offset],
+                character = source[startIndex + offset]
             )
         }
     }
 
     private fun StringBuilder.appendMasked(
-        character: Char,
+        character: Char
     ) {
         append(
             if (character.isLineBreak()) {
                 character
             } else {
                 ' '
-            },
+            }
         )
     }
 
@@ -213,6 +213,6 @@ internal class KotlinSourceCodeMasker {
         BLOCK_COMMENT,
         STRING,
         RAW_STRING,
-        CHARACTER,
+        CHARACTER
     }
 }

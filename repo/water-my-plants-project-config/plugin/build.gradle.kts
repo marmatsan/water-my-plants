@@ -21,8 +21,7 @@ dependencies {
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
@@ -32,8 +31,8 @@ tasks.withType<Test> {
         "figmaDocumentationSyncWriterRuntimeContract",
         rootProject
             .file(
-                "../figma-documentation-sync/tools/fixtures/contracts/writer-runtime-contract.json",
-            ).absolutePath,
+                "../figma-documentation-sync/tools/fixtures/contracts/writer-runtime-contract.json"
+            ).absolutePath
     )
 }
 
@@ -54,7 +53,7 @@ dokka {
     dokkaPublications.html {
         failOnWarning.set(true)
         includes.from(
-            "docs/dokka/README.md",
+            "docs/dokka/README.md"
         )
     }
 
@@ -62,8 +61,8 @@ dokka {
         documentedVisibilities.set(
             setOf(
                 VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
+                VisibilityModifier.Internal
+            )
         )
         reportUndocumented.set(true)
 
@@ -72,8 +71,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/water-my-plants-project-config/plugin/src/main/kotlin",
-                ),
+                        "repo/water-my-plants-project-config/plugin/src/main/kotlin"
+                )
             )
             remoteLineSuffix.set("#L")
         }

@@ -25,23 +25,23 @@ import java.nio.file.Path
 class VisualSyncPlanJson : VisualSyncPlanHasher {
     /** Returns the canonical language-neutral hash of [body]. */
     override fun hash(
-        body: VisualSyncPlanBody,
+        body: VisualSyncPlanBody
     ): String =
         Sha256Hash.of(
             value =
                 CanonicalJson.stringify(
-                    value = body.toJson(),
-                ),
+                    value = body.toJson()
+                )
         )
 
     /** Writes [plan] to [outputPath] using canonical JSON ordering. */
     fun write(
         plan: VisualSyncPlan,
-        outputPath: String,
+        outputPath: String
     ) {
         val output =
             Path.of(
-                outputPath,
+                outputPath
             )
         output.parent?.let(Files::createDirectories)
         val body = plan.body.toJson().toMutableMap()
@@ -50,14 +50,14 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
             output,
             prettyJson.encodeToString(
                 JsonObject.serializer(),
-                JsonObject(body),
-            ) + System.lineSeparator(),
+                JsonObject(body)
+            ) + System.lineSeparator()
         )
     }
 
     /** Reads and verifies a visual synchronization plan from [inputPath]. */
     fun read(
-        inputPath: String,
+        inputPath: String
     ): VisualSyncPlan {
         val source =
             Json
@@ -65,9 +65,9 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
                     Files
                         .readString(
                             Path.of(
-                                inputPath,
-                            ),
-                        ).removePrefix(UTF8_BOM),
+                                inputPath
+                            )
+                        ).removePrefix(UTF8_BOM)
                 ).jsonObject
         val identity = source.getValue("identity").jsonObject
         val decisionValue = source.getValue("decision").jsonPrimitive.content
@@ -83,7 +83,7 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
                 executionScopes =
                     source
                         .getValue(
-                            "executionScopes",
+                            "executionScopes"
                         ).jsonArray
                         .map { value -> value.jsonPrimitive.content },
                 identity =
@@ -92,23 +92,23 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
                         writerHash = identity.getValue("writerHash").jsonPrimitive.content,
                         transportHash = identity.getValue("transportHash").jsonPrimitive.content,
                         writerScopeFingerprintSchemaVersion =
-                            identity.getValue("writerScopeFingerprintSchemaVersion").jsonPrimitive.int,
+                            identity.getValue("writerScopeFingerprintSchemaVersion").jsonPrimitive.int
                     ),
-                manifestHash = source.getValue("manifestHash").jsonPrimitive.content,
+                manifestHash = source.getValue("manifestHash").jsonPrimitive.content
             )
         val plan =
             VisualSyncPlan(
                 body = body,
-                planHash = source.getValue("planHash").jsonPrimitive.content,
+                planHash = source.getValue("planHash").jsonPrimitive.content
             )
         require(
             plan.planHash ==
                 hash(
-                    body = body,
-                ),
+                    body = body
+                )
         ) {
             "Visual sync plan hash mismatch: ${plan.planHash} != ${hash(
-                body = body,
+                body = body
             )}."
         }
         return plan
@@ -118,56 +118,56 @@ class VisualSyncPlanJson : VisualSyncPlanHasher {
         buildJsonObject {
             put(
                 "schemaVersion",
-                schemaVersion,
+                schemaVersion
             )
             put(
                 "decision",
-                decision.wireValue,
+                decision.wireValue
             )
             put(
                 "reason",
-                reason,
+                reason
             )
             put(
                 "requiresVisualWrite",
-                requiresVisualWrite,
+                requiresVisualWrite
             )
             put(
                 "requiresMetadataWrite",
-                requiresMetadataWrite,
+                requiresMetadataWrite
             )
             put(
                 "executionScopes",
                 JsonArray(
                     executionScopes.map(
-                        transform = ::JsonPrimitive,
-                    ),
-                ),
+                        transform = ::JsonPrimitive
+                    )
+                )
             )
             put(
                 "identity",
                 buildJsonObject {
                     put(
                         "modelHash",
-                        identity.modelHash,
+                        identity.modelHash
                     )
                     put(
                         "writerHash",
-                        identity.writerHash,
+                        identity.writerHash
                     )
                     put(
                         "transportHash",
-                        identity.transportHash,
+                        identity.transportHash
                     )
                     put(
                         "writerScopeFingerprintSchemaVersion",
-                        identity.writerScopeFingerprintSchemaVersion,
+                        identity.writerScopeFingerprintSchemaVersion
                     )
-                },
+                }
             )
             put(
                 "manifestHash",
-                manifestHash,
+                manifestHash
             )
         }
 

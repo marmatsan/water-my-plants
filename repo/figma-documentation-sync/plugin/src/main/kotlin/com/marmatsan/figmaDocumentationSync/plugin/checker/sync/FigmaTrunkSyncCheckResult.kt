@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.plugin.checker.sync
  */
 internal data class FigmaTrunkSyncCheckResult(
     val modelHash: String,
-    val gitSha: String,
+    val gitSha: String
 )

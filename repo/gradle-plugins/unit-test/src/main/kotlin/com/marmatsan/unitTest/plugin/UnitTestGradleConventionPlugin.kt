@@ -14,7 +14,7 @@ import org.gradle.api.Project
 @Suppress("unused")
 class UnitTestGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         UnitTestTaskConfigurator().configure(project)
         UnitTestDependencyConfigurator().configure(project)

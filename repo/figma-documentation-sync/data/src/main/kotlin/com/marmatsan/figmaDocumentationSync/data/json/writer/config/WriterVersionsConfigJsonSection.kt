@@ -7,48 +7,48 @@ import kotlinx.serialization.json.put
 internal object WriterVersionsConfigJsonSection : FigmaWriterProjectConfigJsonSection {
     override fun write(
         context: FigmaWriterProjectConfigJsonContext,
-        json: JsonObjectBuilder,
+        json: JsonObjectBuilder
     ) {
         val config = context.config
         json.put(
             "VERSIONS_COLLECTION_NAME",
-            config.versionsCollectionName,
+            config.versionsCollectionName
         )
         json.put(
             "VERSIONS_COLLECTION_NAMES",
-            listOf(config.versionsCollectionName).toJsonArray(),
+            listOf(config.versionsCollectionName).toJsonArray()
         )
         json.put(
             "VERSION_ALIAS_MODE_NAME",
-            config.versionAliasModeName,
+            config.versionAliasModeName
         )
         json.put(
             "VERSION_NUMBER_MODE_NAME",
-            config.versionNumberModeName,
+            config.versionNumberModeName
         )
         json.put(
             "OUTLINE_COLOR_VARIABLE_NAME",
-            config.outlineColorVariableName,
+            config.outlineColorVariableName
         )
         json.put(
             "SURFACE_COLOR_VARIABLE_NAME",
-            config.surfaceColorVariableName,
+            config.surfaceColorVariableName
         )
         json.put(
             "DEPENDENCY_VERSION_COMPONENT_ID",
-            config.dependencyVersionComponentId,
+            config.dependencyVersionComponentId
         )
         json.put(
             "PROJECT_VERSION_COMPONENT_ID",
-            config.dependencyVersionComponentId,
+            config.dependencyVersionComponentId
         )
         json.put(
             "DEPENDENCY_VERSION_INSTANCE_NAMES",
-            config.dependencyVersionInstanceNames.toJsonArray(),
+            config.dependencyVersionInstanceNames.toJsonArray()
         )
         json.put(
             "DEPENDENCY_VERSION_PROPS",
-            config.dependencyVersionProps.toJsonObject(),
+            config.dependencyVersionProps.toJsonObject()
         )
     }
 }

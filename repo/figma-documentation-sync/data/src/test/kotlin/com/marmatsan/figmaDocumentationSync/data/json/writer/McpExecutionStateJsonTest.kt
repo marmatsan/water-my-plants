@@ -13,7 +13,7 @@ class McpExecutionStateJsonTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "mcp-execution-state",
+                    prefix = "mcp-execution-state"
                 )
 
             test("removes the temporary checkpoint when replacement fails") {
@@ -28,7 +28,7 @@ class McpExecutionStateJsonTest :
                     shouldThrowAny {
                         McpExecutionStateJson().writeAtomic(
                             state = executionState(),
-                            path = output.absolutePath,
+                            path = output.absolutePath
                         )
                     }
                 }.then {
@@ -38,7 +38,7 @@ class McpExecutionStateJsonTest :
                         .shouldBeEmpty()
                 }
             }
-        },
+        }
     )
 
 private fun executionState(): McpExecutionState =
@@ -50,11 +50,11 @@ private fun executionState(): McpExecutionState =
                 gitSha = "git-sha",
                 writerHash = "writer-hash",
                 transportHash = "transport-hash",
-                manifestHash = "manifest-hash",
+                manifestHash = "manifest-hash"
             ),
         startedAt = "2026-07-27T00:00:00Z",
         updatedAt = "2026-07-27T00:00:00Z",
         completedFiles = emptyList(),
         plannedFiles = emptyList(),
-        failedFile = null,
+        failedFile = null
     )

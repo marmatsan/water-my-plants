@@ -8,5 +8,5 @@ package com.marmatsan.verificationPlatform.domain.model.teamcity
  */
 data class TeamCityRunRequest(
     val buildTypeId: String,
-    val branch: String,
+    val branch: String
 )

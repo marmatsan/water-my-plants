@@ -14,5 +14,5 @@ data class TeamCityFigmaSyncRerunResult(
     val webUrl: String?,
     val branch: String,
     val state: String,
-    val reused: Boolean,
+    val reused: Boolean
 )

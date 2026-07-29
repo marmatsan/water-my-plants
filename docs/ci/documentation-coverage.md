@@ -51,6 +51,13 @@ migration. This evidence is required before committing or publishing the
 branch; an earlier `checkDocumentation` run against an uncommitted working tree
 does not prove committed-diff coverage.
 
+The 2026-07-29 repository migration disabled trailing commas according to the
+[Kotlin standard](../standards/kotlin.md). The corresponding review of
+`FileSystemDocumentationSource` and `DocumentationCoverageJson` found no change
+to traversal, manifest parsing, JSON projection, or failure behavior; only
+their Kotlin formatting changed. This note is the committed coverage evidence
+for that documentation-system review.
+
 When adding a documentation coverage area, add a narrow rule to the manifest
 and focused Kotlin cases under `repo/verification-platform/domain` and `repo/verification-platform/data`. When adding
 a Figma-relevant source area, update

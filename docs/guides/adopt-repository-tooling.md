@@ -69,6 +69,13 @@ catalog libraries, then use `alias(plugins...)` and `libs...` in
 only for building and testing itself; those files do not choose versions for a
 consumer.
 
+Apply repository-owned plugin aliases only where they are consumed. When their
+implementation comes from `pluginManagement.includeBuild`, do not also declare
+the same aliases with `apply false` in the root build: Gradle can place the
+source plugin on the shared classpath without version metadata, preventing a
+subproject from validating its versioned alias request. Settings plugins that
+must run before catalogs exist remain literal bootstrap declarations.
+
 When adopting `com.marmatsan.dependencyCatalog.tree`, use that settings plugin
 to build both catalogs from the consumer-owned `versions.properties`. Keep the
 plugin producer's own bootstrap catalog independent; a build must not require

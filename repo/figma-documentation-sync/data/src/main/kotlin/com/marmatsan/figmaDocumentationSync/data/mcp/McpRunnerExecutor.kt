@@ -23,22 +23,22 @@ class McpRunnerExecutor(
     private val planJson: VisualSyncPlanJson = VisualSyncPlanJson(),
     private val planner: McpExecutionPlanner = McpExecutionPlanner(),
     private val clock: Clock = Clock.systemUTC(),
-    private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect,
+    private val clientFactory: (String, String) -> McpClientPort = KotlinSdkMcpClient::connect
 ) {
     /** Discovers the write capabilities exposed by an MCP endpoint without mutating Figma. */
     fun probe(
         endpoint: String,
-        clientName: String,
+        clientName: String
     ): McpCapabilities {
         val client =
             clientFactory(
                 endpoint,
-                clientName,
+                clientName
             )
         return client.use { connected ->
             runBlocking {
                 planner.capabilities(
-                    toolNames = connected.listToolNames(),
+                    toolNames = connected.listToolNames()
                 )
             }
         }
@@ -46,11 +46,11 @@ class McpRunnerExecutor(
 
     /** Resolves the execution decision and files for [request] without invoking MCP tools. */
     fun inspect(
-        request: Request,
+        request: Request
     ): Inspection {
         val loaded =
             load(
-                request = request,
+                request = request
             )
         return Inspection(
             manifestHash = loaded.manifest.manifestHash,
@@ -62,7 +62,7 @@ class McpRunnerExecutor(
                     ?.decision
                     ?.wireValue,
             executionScopes = loaded.plan?.body?.executionScopes,
-            executionFiles = loaded.executionFiles,
+            executionFiles = loaded.executionFiles
         )
     }
 
@@ -71,11 +71,11 @@ class McpRunnerExecutor(
         request: Request,
         file: String,
         success: Boolean,
-        summary: String,
+        summary: String
     ): McpExecutionState {
         val loaded =
             load(
-                request = request,
+                request = request
             )
         require(file in loaded.manifest.files) { "Recorded file '$file' is not in the runner manifest." }
         val now = clock.instant().toString()
@@ -85,13 +85,13 @@ class McpRunnerExecutor(
                 existingState = loaded.existingState,
                 options =
                     request.options.copy(
-                        resume = loaded.existingState != null,
+                        resume = loaded.existingState != null
                     ),
                 executionFiles =
                     loaded.executionFiles.ifEmpty {
                         loaded.existingState?.plannedFiles ?: loaded.manifest.files
                     },
-                now = now,
+                now = now
             )
         val state =
             if (success) {
@@ -101,7 +101,7 @@ class McpRunnerExecutor(
                     file = file,
                     durationMs = 0,
                     summary = summary,
-                    now = now,
+                    now = now
                 )
             } else {
                 planner.recordFailure(
@@ -109,23 +109,23 @@ class McpRunnerExecutor(
                     file = file,
                     durationMs = 0,
                     message = summary,
-                    now = now,
+                    now = now
                 )
             }
         stateJson.writeAtomic(
             state = state,
-            path = loaded.statePath.toString(),
+            path = loaded.statePath.toString()
         )
         return state
     }
 
     /** Executes the pending runner files in manifest order and persists each checkpoint atomically. */
     fun execute(
-        request: Request,
+        request: Request
     ): Execution {
         val loaded =
             load(
-                request = request,
+                request = request
             )
         var state =
             planner.createOrResumeState(
@@ -133,40 +133,40 @@ class McpRunnerExecutor(
                 existingState = loaded.existingState,
                 options = request.options,
                 executionFiles = loaded.executionFiles,
-                now = clock.instant().toString(),
+                now = clock.instant().toString()
             )
         if (loaded.executionFiles.isEmpty()) {
             stateJson.writeAtomic(
                 state = state,
-                path = loaded.statePath.toString(),
+                path = loaded.statePath.toString()
             )
             return Execution(
                 state = state,
                 executionFiles = emptyList(),
-                toolNames = emptyList(),
+                toolNames = emptyList()
             )
         }
 
         val client =
             clientFactory(
                 request.endpoint,
-                request.clientName,
+                request.clientName
             )
         val toolNames =
             client.use { connected ->
                 runBlocking {
                     val capabilities =
                         planner.capabilities(
-                            toolNames = connected.listToolNames(),
+                            toolNames = connected.listToolNames()
                         )
                     planner.requireWriteCapabilities(
                         capabilities = capabilities,
                         manifest = loaded.manifest,
-                        executionFiles = loaded.executionFiles,
+                        executionFiles = loaded.executionFiles
                     )
                     val guidance =
                         connected.readTextResource(
-                            uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI,
+                            uri = McpExecutionPlanner.FIGMA_USE_SKILL_URI
                         )
                     require(guidance.isNotBlank()) {
                         "Write-capable Figma MCP endpoint did not provide required " +
@@ -181,26 +181,26 @@ class McpRunnerExecutor(
                                     client = connected,
                                     manifest = loaded.manifest,
                                     runnerDirectory = loaded.runnerDirectory,
-                                    fileKey = request.fileKey,
+                                    fileKey = request.fileKey
                                 )
                             }
                             val source =
                                 Files.readString(
                                     loaded.runnerDirectory.resolve(
-                                        file,
-                                    ),
+                                        file
+                                    )
                                 )
                             assertContentHash(
                                 expectedHash = loaded.manifest.fileHashes.getValue(file),
                                 content = source,
-                                label = file,
+                                label = file
                             )
                             val toolResult =
                                 connected.useFigma(
                                     fileKey = request.fileKey,
                                     code = source,
                                     description = "${request.projectDisplayName} Figma Sync: $file",
-                                    skillNames = "resource:figma-use",
+                                    skillNames = "resource:figma-use"
                                 )
                             require(!toolResult.isError) {
                                 toolResult.text.ifBlank { "Figma MCP reported an error for $file." }
@@ -212,17 +212,17 @@ class McpRunnerExecutor(
                                     file = file,
                                     durationMs =
                                         elapsedMilliseconds(
-                                            startedAt = startedAt,
+                                            startedAt = startedAt
                                         ),
                                     summary = toolResult.text,
-                                    now = clock.instant().toString(),
+                                    now = clock.instant().toString()
                                 )
                             stateJson.writeAtomic(
                                 state = state,
-                                path = loaded.statePath.toString(),
+                                path = loaded.statePath.toString()
                             )
                         } catch (
-                            failure: Exception,
+                            failure: Exception
                         ) {
                             state =
                                 planner.recordFailure(
@@ -230,14 +230,14 @@ class McpRunnerExecutor(
                                     file = file,
                                     durationMs =
                                         elapsedMilliseconds(
-                                            startedAt = startedAt,
+                                            startedAt = startedAt
                                         ),
                                     message = failure.message ?: failure::class.simpleName.orEmpty(),
-                                    now = clock.instant().toString(),
+                                    now = clock.instant().toString()
                                 )
                             stateJson.writeAtomic(
                                 state = state,
-                                path = loaded.statePath.toString(),
+                                path = loaded.statePath.toString()
                             )
                             throw failure
                         }
@@ -248,17 +248,17 @@ class McpRunnerExecutor(
         return Execution(
             state = state,
             executionFiles = loaded.executionFiles,
-            toolNames = toolNames,
+            toolNames = toolNames
         )
     }
 
     private fun load(
-        request: Request,
+        request: Request
     ): Loaded {
         val manifestPath =
             Path
                 .of(
-                    request.manifestPath,
+                    request.manifestPath
                 ).toAbsolutePath()
                 .normalize()
         val runnerDirectory = requireNotNull(manifestPath.parent) { "Manifest has no parent directory." }
@@ -269,11 +269,11 @@ class McpRunnerExecutor(
                 ?.toAbsolutePath()
                 ?.normalize()
                 ?: runnerDirectory.resolve(
-                    DEFAULT_STATE_FILE,
+                    DEFAULT_STATE_FILE
                 )
         val existingState =
             stateJson.readOptional(
-                path = statePath.toString(),
+                path = statePath.toString()
             )
         val visualState = request.visualStatePath?.let(stateJson::readOptional)
         val plan = request.planPath?.let(planJson::read)
@@ -283,7 +283,7 @@ class McpRunnerExecutor(
                 options = request.options,
                 existingState = existingState,
                 visualState = visualState,
-                syncPlan = plan,
+                syncPlan = plan
             )
         return Loaded(
             manifest = manifest,
@@ -291,7 +291,7 @@ class McpRunnerExecutor(
             statePath = statePath,
             existingState = existingState,
             plan = plan,
-            executionFiles = executionFiles,
+            executionFiles = executionFiles
         )
     }
 
@@ -299,7 +299,7 @@ class McpRunnerExecutor(
         client: McpClientPort,
         manifest: ExecutableRunnerManifest,
         runnerDirectory: Path,
-        fileKey: String,
+        fileKey: String
     ) {
         val payload =
             requireNotNull(manifest.payloadImage) {
@@ -308,7 +308,7 @@ class McpRunnerExecutor(
         val response =
             client.requestAssetUpload(
                 fileKey = fileKey,
-                count = 1,
+                count = 1
             )
         require(!response.isError) { response.text.ifBlank { "upload_assets failed." } }
         val uploadUrl =
@@ -317,30 +317,30 @@ class McpRunnerExecutor(
         val bytes =
             Files.readAllBytes(
                 runnerDirectory.resolve(
-                    payload.fileName,
-                ),
+                    payload.fileName
+                )
             )
         val actualHash =
             Sha256Hash.of(
-                value = bytes,
+                value = bytes
             )
         require(actualHash == payload.sha256) {
             "MCP content hash mismatch for '${payload.fileName}': $actualHash != ${payload.sha256}."
         }
         client.uploadAsset(
             url = uploadUrl,
-            bytes = bytes,
+            bytes = bytes
         )
     }
 
     private fun assertContentHash(
         expectedHash: String,
         content: String,
-        label: String,
+        label: String
     ) {
         val actualHash =
             Sha256Hash.of(
-                value = content.toByteArray(StandardCharsets.UTF_8),
+                value = content.toByteArray(StandardCharsets.UTF_8)
             )
         require(actualHash == expectedHash) {
             "MCP content hash mismatch for '$label': $actualHash != $expectedHash."
@@ -348,7 +348,7 @@ class McpRunnerExecutor(
     }
 
     private fun elapsedMilliseconds(
-        startedAt: Long,
+        startedAt: Long
     ): Long = (System.nanoTime() - startedAt) / 1_000_000
 
     /**
@@ -373,7 +373,7 @@ class McpRunnerExecutor(
         val statePath: String? = null,
         val visualStatePath: String? = null,
         val planPath: String? = null,
-        val options: McpExecutionOptions = McpExecutionOptions(),
+        val options: McpExecutionOptions = McpExecutionOptions()
     )
 
     /**
@@ -392,7 +392,7 @@ class McpRunnerExecutor(
         val reuseStaging: Boolean,
         val decision: String?,
         val executionScopes: List<String>?,
-        val executionFiles: List<String>,
+        val executionFiles: List<String>
     )
 
     /**
@@ -405,7 +405,7 @@ class McpRunnerExecutor(
     data class Execution(
         val state: McpExecutionState,
         val executionFiles: List<String>,
-        val toolNames: List<String>,
+        val toolNames: List<String>
     )
 
     private data class Loaded(
@@ -414,7 +414,7 @@ class McpRunnerExecutor(
         val statePath: Path,
         val existingState: McpExecutionState?,
         val plan: com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlan?,
-        val executionFiles: List<String>,
+        val executionFiles: List<String>
     )
 
     private companion object {

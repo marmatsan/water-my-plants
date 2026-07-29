@@ -6,6 +6,6 @@ internal object HostOperatingSystem {
     val isWindows: Boolean =
         System.getProperty("os.name").startsWith(
             "Windows",
-            ignoreCase = true,
+            ignoreCase = true
         )
 }

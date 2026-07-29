@@ -4,6 +4,6 @@ package com.marmatsan.waterMyPlants.projectConfig.teamcity.auth
 fun interface TeamCityAutomationCredentialsProvider {
     /** Loads the credentials required to automate the TeamCity origin at [serverUrl]. */
     fun load(
-        serverUrl: String,
+        serverUrl: String
     ): TeamCityAutomationCredentials
 }

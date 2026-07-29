@@ -12,11 +12,11 @@ import java.time.format.DateTimeFormatter
 internal class TeamCityFigmaArtifactDirectoryResolver(
     private val teamCityClient: TeamCityBuildArtifactClient,
     private val archiveExtractor: ArtifactArchiveExtractor,
-    private val clock: Clock,
+    private val clock: Clock
 ) {
     /** Selects existing artifacts or downloads and safely expands the requested TeamCity build. */
     fun resolve(
-        request: TeamCityFigmaSyncHandoffPreparer.Request,
+        request: TeamCityFigmaSyncHandoffPreparer.Request
     ): File {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
@@ -30,12 +30,12 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
                 .toFile()
         }
         return download(
-            request = request,
+            request = request
         )
     }
 
     private fun download(
-        request: TeamCityFigmaSyncHandoffPreparer.Request,
+        request: TeamCityFigmaSyncHandoffPreparer.Request
     ): File {
         val buildId = requireNotNull(request.buildId)
         val build = teamCityClient.readBuild(buildId)
@@ -57,10 +57,10 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
         require(output.mkdirs()) { "Could not create TeamCity artifact directory: ${output.path}" }
         teamCityClient.downloadArtifacts(
             buildId,
-            output,
+            output
         )
         expandSharedArchiveWhenNeeded(
-            directory = output,
+            directory = output
         )
         return output
             .toPath()
@@ -70,14 +70,14 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
     }
 
     private fun expandSharedArchiveWhenNeeded(
-        directory: File,
+        directory: File
     ) {
         val models = directory.findFiles("design-model.json")
         val archives = directory.findFiles(".shared_files.zip")
         if (models.isEmpty() && archives.size == 1) {
             archiveExtractor.extract(
                 archive = archives.single(),
-                destination = directory.resolve("shared-files"),
+                destination = directory.resolve("shared-files")
             )
         } else {
             require(archives.size <= 1) {
@@ -93,7 +93,7 @@ internal class TeamCityFigmaArtifactDirectoryResolver(
 }
 
 private fun File.findFiles(
-    fileName: String,
+    fileName: String
 ): List<File> =
     Files.walk(toPath()).use { paths ->
         paths

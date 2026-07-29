@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.impact
  */
 data class RepositoryChangeSet(
     val comparisonBase: String?,
-    val changedPaths: List<String>,
+    val changedPaths: List<String>
 )

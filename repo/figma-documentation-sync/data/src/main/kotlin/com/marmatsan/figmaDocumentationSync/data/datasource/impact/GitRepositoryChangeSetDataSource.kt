@@ -10,41 +10,41 @@ import java.io.File
 class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
     /** Resolves committed paths changed from `origin/main` under [repositoryRootPath]. */
     override fun read(
-        repositoryRootPath: String,
+        repositoryRootPath: String
     ): RepositoryChangeSet {
         val repositoryRoot = File(repositoryRootPath).canonicalFile
         git(
             repositoryRoot,
             "rev-parse",
             "--verify",
-            "origin/main",
+            "origin/main"
         )
 
         val head =
             git(
                 repositoryRoot,
                 "rev-parse",
-                "HEAD",
+                "HEAD"
             )
         val main =
             git(
                 repositoryRoot,
                 "rev-parse",
-                "origin/main",
+                "origin/main"
             )
         val base =
             if (head == main) {
                 git(
                     repositoryRoot,
                     "rev-parse",
-                    "$head^",
+                    "$head^"
                 )
             } else {
                 git(
                     repositoryRoot,
                     "merge-base",
                     "HEAD",
-                    "origin/main",
+                    "origin/main"
                 )
             }
         val paths =
@@ -53,35 +53,35 @@ class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
                 "diff",
                 "--name-only",
                 "--diff-filter=ACMR",
-                "$base..$head",
+                "$base..$head"
             ).lineSequence()
                 .map(
-                    transform = ::normalizePath,
+                    transform = ::normalizePath
                 ).filter(String::isNotBlank)
                 .toList()
 
         return RepositoryChangeSet(
             comparisonBase = base,
-            changedPaths = paths,
+            changedPaths = paths
         )
     }
 
     private fun git(
         repositoryRoot: File,
-        vararg arguments: String,
+        vararg arguments: String
     ): String {
         val safeDirectory =
             repositoryRoot.absolutePath.replace(
                 '\\',
-                '/',
+                '/'
             )
         val process =
             ProcessBuilder(
                 listOf(
                     "git",
                     "-c",
-                    "safe.directory=$safeDirectory",
-                ) + arguments,
+                    "safe.directory=$safeDirectory"
+                ) + arguments
             ).directory(repositoryRoot)
                 .redirectErrorStream(true)
                 .start()
@@ -94,10 +94,10 @@ class GitRepositoryChangeSetDataSource : RepositoryChangeSetPort {
     }
 
     private fun normalizePath(
-        path: String,
+        path: String
     ): String =
         path.trim().replace(
             '\\',
-            '/',
+            '/'
         )
 }

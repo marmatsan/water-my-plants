@@ -19,11 +19,11 @@ class GradleModuleDependenciesReader {
      * Gradle builds such as build tooling and repository tools.
      */
     fun readMain(
-        rootDir: File,
+        rootDir: File
     ): Set<ModuleDependency> {
         val modulePathsByProjectAccessor =
             rootDir.modulePathsByProjectAccessor(
-                modulePathPrefix = "",
+                modulePathPrefix = ""
             )
 
         return rootDir
@@ -31,13 +31,13 @@ class GradleModuleDependenciesReader {
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
             .filterNot { file ->
                 file.isInsideNestedGradleBuild(
-                    rootDir = rootDir,
+                    rootDir = rootDir
                 )
             }.flatMap { buildFile ->
                 buildFile.readModuleDependencies(
                     rootDir = rootDir,
                     modulePathPrefix = "",
-                    modulePathsByProjectAccessor = modulePathsByProjectAccessor,
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
                 )
             }.toSortedSet()
     }
@@ -48,11 +48,11 @@ class GradleModuleDependenciesReader {
      */
     fun readIncludedBuild(
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Set<ModuleDependency> {
         val modulePathsByProjectAccessor =
             rootDir.modulePathsByProjectAccessor(
-                modulePathPrefix = modulePathPrefix,
+                modulePathPrefix = modulePathPrefix
             )
 
         return rootDir
@@ -62,7 +62,7 @@ class GradleModuleDependenciesReader {
                 buildFile.readModuleDependencies(
                     rootDir = rootDir,
                     modulePathPrefix = modulePathPrefix,
-                    modulePathsByProjectAccessor = modulePathsByProjectAccessor,
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
                 )
             }.toSortedSet()
     }
@@ -70,12 +70,12 @@ class GradleModuleDependenciesReader {
     private fun File.readModuleDependencies(
         rootDir: File,
         modulePathPrefix: String,
-        modulePathsByProjectAccessor: Map<String, String>,
+        modulePathsByProjectAccessor: Map<String, String>
     ): Set<ModuleDependency> {
         val dependentModule =
             parentFile.toModulePath(
                 rootDir = rootDir,
-                modulePathPrefix = modulePathPrefix,
+                modulePathPrefix = modulePathPrefix
             )
 
         if (dependentModule == ROOT_MODULE || dependentModule == modulePathPrefix) {
@@ -87,12 +87,12 @@ class GradleModuleDependenciesReader {
             .flatMap { dependenciesBlock ->
                 dependenciesBlock.dependencyModulePaths(
                     modulePathPrefix = modulePathPrefix,
-                    modulePathsByProjectAccessor = modulePathsByProjectAccessor,
+                    modulePathsByProjectAccessor = modulePathsByProjectAccessor
                 )
             }.map { dependencyModule ->
                 ModuleDependency(
                     dependentModule = dependentModule,
-                    dependencyModule = dependencyModule,
+                    dependencyModule = dependencyModule
                 )
             }.toSet()
     }
@@ -104,12 +104,12 @@ class GradleModuleDependenciesReader {
                 val match =
                     DependenciesBlockStartRegex.find(
                         this@dependenciesBlocks,
-                        searchIndex,
+                        searchIndex
                     ) ?: break
                 val openBraceIndex = match.range.last
                 val closeBraceIndex =
                     findMatchingBrace(
-                        openBraceIndex = openBraceIndex,
+                        openBraceIndex = openBraceIndex
                     )
                 if (closeBraceIndex == -1) {
                     break
@@ -118,15 +118,15 @@ class GradleModuleDependenciesReader {
                 yield(
                     substring(
                         openBraceIndex + 1,
-                        closeBraceIndex,
-                    ),
+                        closeBraceIndex
+                    )
                 )
                 searchIndex = closeBraceIndex + 1
             }
         }
 
     private fun String.findMatchingBrace(
-        openBraceIndex: Int,
+        openBraceIndex: Int
     ): Int {
         var depth = 0
         for (index in openBraceIndex until length) {
@@ -149,18 +149,18 @@ class GradleModuleDependenciesReader {
 
     private fun String.dependencyModulePaths(
         modulePathPrefix: String,
-        modulePathsByProjectAccessor: Map<String, String>,
+        modulePathsByProjectAccessor: Map<String, String>
     ): Set<String> {
         val projectCallPaths =
             ProjectCallRegex
                 .findAll(
-                    input = this,
+                    input = this
                 ).map { match -> match.groupValues[1] }
 
         val projectAccessorPaths =
             ProjectAccessorRegex
                 .findAll(
-                    input = this,
+                    input = this
                 ).map { match ->
                     val projectAccessor = match.groupValues[1]
                     modulePathsByProjectAccessor[projectAccessor]
@@ -174,7 +174,7 @@ class GradleModuleDependenciesReader {
 
     private fun File.toModulePath(
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): String {
         val relativePath = rootDir.toPath().relativize(toPath()).toString()
 
@@ -186,32 +186,32 @@ class GradleModuleDependenciesReader {
             relativePath
                 .replace(
                     File.separatorChar,
-                    ':',
+                    ':'
                 ).replace(
                     '/',
-                    ':',
+                    ':'
                 ).replace(
                     '\\',
-                    ':',
+                    ':'
                 )
 
         return "$modulePathPrefix:$modulePath"
     }
 
     private fun String.toModulePath(
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): String {
         val modulePath =
             replace(
                 ".",
-                ":",
+                ":"
             )
 
         return "$modulePathPrefix:$modulePath"
     }
 
     private fun File.modulePathsByProjectAccessor(
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Map<String, String> =
         walkTopDown()
             .filter { file -> file.isFile && file.name == BUILD_FILE_NAME }
@@ -222,7 +222,7 @@ class GradleModuleDependenciesReader {
                         .split(
                             File.separatorChar,
                             '/',
-                            '\\',
+                            '\\'
                         ).filter(String::isNotBlank)
 
                 if (segments.isEmpty()) {
@@ -232,7 +232,7 @@ class GradleModuleDependenciesReader {
                         .joinToString(".") { segment -> segment.toProjectAccessorSegment() } to
                         buildFile.parentFile.toModulePath(
                             rootDir = this,
-                            modulePathPrefix = modulePathPrefix,
+                            modulePathPrefix = modulePathPrefix
                         )
                 }
             }.toMap()
@@ -240,7 +240,7 @@ class GradleModuleDependenciesReader {
     private fun String.toProjectAccessorSegment(): String =
         split(
             '-',
-            '_',
+            '_'
         ).filter(String::isNotEmpty)
             .mapIndexed { index, segment ->
                 if (index == 0) {

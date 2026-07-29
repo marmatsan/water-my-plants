@@ -15,11 +15,11 @@ import java.io.File
  */
 @Inject
 class ProjectModulesDataSource(
-    private val gradleProjectModulesReader: GradleProjectModulesReader,
+    private val gradleProjectModulesReader: GradleProjectModulesReader
 ) : ProjectModulesPort {
     /** Reads main and included-build modules selected by [source]. */
     override fun readModules(
-        source: ProjectModulesSource,
+        source: ProjectModulesSource
     ): Set<String> =
         gradleProjectModulesReader.readModules(
             rootSettingsFile = File(source.rootSettingsFilePath),
@@ -27,8 +27,8 @@ class ProjectModulesDataSource(
                 source.includedBuilds.map { includedBuild ->
                     GradleProjectModulesReader.IncludedBuild(
                         settingsFile = File(includedBuild.settingsFilePath),
-                        modulePathPrefix = includedBuild.modulePathPrefix,
+                        modulePathPrefix = includedBuild.modulePathPrefix
                     )
-                },
+                }
         )
 }

@@ -13,5 +13,5 @@ package com.marmatsan.figmaDocumentationSync.domain.port.versions
  * @property path Path to the repository version properties file.
  */
 data class VersionsFileSource(
-    val path: String,
+    val path: String
 )

@@ -15,7 +15,7 @@ import java.util.Properties
 
 /** Verifies included-build version ownership and configured cross-build alignment. */
 @DisableCachingByDefault(
-    because = "This validation produces no reusable output artifact",
+    because = "This validation produces no reusable output artifact"
 )
 abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
     /** Repository root containing the included builds. */
@@ -54,13 +54,13 @@ abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
                         val settings =
                             settingsFile.readText().replace(
                                 oldChar = '\\',
-                                newChar = '/',
+                                newChar = '/'
                             )
                         val externalVersionRegistry = EXTERNAL_VERSION_REGISTRY.find(settings)?.value
                         if (externalVersionRegistry != null) {
                             add(
                                 "$relativePath/settings.gradle.kts must not read another build's registry: " +
-                                    externalVersionRegistry,
+                                    externalVersionRegistry
                             )
                         }
                         if ("file(\"versions.properties\")" !in settings) {
@@ -94,7 +94,7 @@ abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
                         "$propertyName must align across consuming included builds: " +
                             declarations.joinToString { (relativePath, value) ->
                                 "$relativePath=$value"
-                            },
+                            }
                     )
                 } else {
                     emptyList()
@@ -105,7 +105,7 @@ abstract class CheckIncludedBuildVersionsTask : DefaultTask() {
         check(failures.isEmpty()) {
             failures.joinToString(
                 prefix = "Included-build version ownership failed:\n- ",
-                separator = "\n- ",
+                separator = "\n- "
             )
         }
     }

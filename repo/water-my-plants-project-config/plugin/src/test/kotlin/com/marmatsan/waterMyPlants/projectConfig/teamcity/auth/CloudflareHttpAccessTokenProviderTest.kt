@@ -19,8 +19,8 @@ internal class CloudflareHttpAccessTokenProviderTest :
                             statusCode = 200,
                             setCookieHeaders =
                                 listOf(
-                                    "CF_Authorization=access-jwt; Path=/; Secure; HttpOnly",
-                                ),
+                                    "CF_Authorization=access-jwt; Path=/; Secure; HttpOnly"
+                                )
                         )
                     }
 
@@ -28,7 +28,7 @@ internal class CloudflareHttpAccessTokenProviderTest :
                     serverUrl = "https://teamcity.example/",
                     teamCityToken = "teamcity-token",
                     clientId = "client-id",
-                    clientSecret = "client-secret",
+                    clientSecret = "client-secret"
                 ) shouldBe "access-jwt"
                 requestedUri shouldBe URI.create("https://teamcity.example/app/rest/server")
                 requestedHeaders shouldBe
@@ -36,7 +36,7 @@ internal class CloudflareHttpAccessTokenProviderTest :
                         "Accept" to "application/json",
                         "Authorization" to "Bearer teamcity-token",
                         "CF-Access-Client-Id" to "client-id",
-                        "CF-Access-Client-Secret" to "client-secret",
+                        "CF-Access-Client-Secret" to "client-secret"
                     )
             }
 
@@ -45,7 +45,7 @@ internal class CloudflareHttpAccessTokenProviderTest :
                     CloudflareHttpAccessTokenProvider { _, _ ->
                         CloudflareAccessResponse(
                             statusCode = 200,
-                            setCookieHeaders = emptyList(),
+                            setCookieHeaders = emptyList()
                         )
                     }
 
@@ -55,11 +55,11 @@ internal class CloudflareHttpAccessTokenProviderTest :
                             serverUrl = "https://teamcity.example",
                             teamCityToken = "teamcity-token",
                             clientId = "client-id",
-                            clientSecret = "client-secret",
+                            clientSecret = "client-secret"
                         )
                     }
 
                 exception.message shouldBe "Cloudflare Access did not return a CF_Authorization token."
             }
-        },
+        }
     )

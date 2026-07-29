@@ -9,12 +9,12 @@ internal class DocumentationTypeClassifier {
             "guide",
             "runbook",
             "reference",
-            "adr",
+            "adr"
         )
 
     /** Returns the required document type for [path], or `null` for untyped documentation. */
     fun expectedType(
-        path: String,
+        path: String
     ): String? =
         when {
             path == "docs/documentation.md" -> {

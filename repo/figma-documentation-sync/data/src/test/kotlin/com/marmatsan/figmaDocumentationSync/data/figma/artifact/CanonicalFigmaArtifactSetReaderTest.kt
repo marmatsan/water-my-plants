@@ -12,13 +12,13 @@ internal class CanonicalFigmaArtifactSetReaderTest :
                 try {
                     root
                         .resolve(
-                            relative = "design-model.json",
+                            relative = "design-model.json"
                         ).writeText(
-                            """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}""",
+                            """{"branch":"main","gitSha":"abc123","modelHash":"model-hash"}"""
                         )
                     root
                         .resolve(
-                            relative = "sync-scope.json",
+                            relative = "sync-scope.json"
                         ).writeText(
                             "\uFEFF" +
                                 """
@@ -32,11 +32,11 @@ internal class CanonicalFigmaArtifactSetReaderTest :
                                   "metadataRunnerManifestHash":"metadata-hash",
                                   "visualSyncDecision":"partial"
                                 }
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     root
                         .resolve(
-                            relative = "visual-sync-plan.json",
+                            relative = "visual-sync-plan.json"
                         ).writeText(
                             """
                             {
@@ -48,37 +48,37 @@ internal class CanonicalFigmaArtifactSetReaderTest :
                                 "transportHash":"transport-hash"
                               }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     val visualDirectory =
                         root
                             .resolve(
-                                relative = "mcp-runners/visual",
+                                relative = "mcp-runners/visual"
                             ).apply { mkdirs() }
                     val metadataDirectory =
                         root
                             .resolve(
-                                relative = "mcp-runners/metadata",
+                                relative = "mcp-runners/metadata"
                             ).apply { mkdirs() }
                     visualDirectory
                         .resolve(
-                            relative = "manifest.json",
+                            relative = "manifest.json"
                         ).writeText(
                             manifestJson(
                                 fullVisualSync = true,
                                 writeMetadata = false,
-                                manifestHash = "visual-hash",
-                            ),
+                                manifestHash = "visual-hash"
+                            )
                         )
                     metadataDirectory
                         .resolve(
-                            relative = "manifest.json",
+                            relative = "manifest.json"
                         ).writeText(
                             manifestJson(
                                 fullVisualSync = false,
                                 writeMetadata = true,
-                                manifestHash = "metadata-hash",
-                            ),
+                                manifestHash = "metadata-hash"
+                            )
                         )
 
                     val result = CanonicalFigmaArtifactSetReader().read(root.absolutePath)
@@ -88,24 +88,24 @@ internal class CanonicalFigmaArtifactSetReaderTest :
                     result.visualManifestPath shouldBe
                         visualDirectory
                             .resolve(
-                                relative = "manifest.json",
+                                relative = "manifest.json"
                             ).toPath()
                     result.metadataManifestPath shouldBe
                         metadataDirectory
                             .resolve(
-                                relative = "manifest.json",
+                                relative = "manifest.json"
                             ).toPath()
                 } finally {
                     root.deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private fun manifestJson(
     fullVisualSync: Boolean,
     writeMetadata: Boolean,
-    manifestHash: String,
+    manifestHash: String
 ) =
     """
     {

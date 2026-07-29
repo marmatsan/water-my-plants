@@ -30,7 +30,7 @@ data class PluginCatalogNode(
     val version: CatalogVersion? = null,
     val appliedToModules: List<String> = emptyList(),
     val providedByConventionPlugins: List<ConventionPluginUsage> = emptyList(),
-    val children: List<PluginCatalogNode> = emptyList(),
+    val children: List<PluginCatalogNode> = emptyList()
 ) {
     /**
      * Gradle convention plugin that applies this plugin for projects that apply
@@ -46,6 +46,6 @@ data class PluginCatalogNode(
     data class ConventionPluginUsage(
         val pluginId: String,
         val pluginModule: String,
-        val requiredByModules: List<String> = emptyList(),
+        val requiredByModules: List<String> = emptyList()
     )
 }

@@ -10,34 +10,34 @@ fun testCiPlanPolicy(): CiPlanPolicy =
             setOf(
                 "settings.gradle.kts",
                 "build.gradle.kts",
-                "gradle.properties",
+                "gradle.properties"
             ),
         portableDistributionPathPrefixes =
             listOf(
                 "build-infrastructure/public-api/",
-                "tooling/public-api/",
+                "tooling/public-api/"
             ),
         portableDistributionPaths =
             setOf(
                 "build-infrastructure/settings.gradle.kts",
-                "tooling/settings.gradle.kts",
+                "tooling/settings.gradle.kts"
             ),
         toolingCapabilities =
             listOf(
                 "java",
-                "node",
+                "node"
             ),
         buildInfrastructureCapabilities = listOf("java"),
         portableDistributionCapabilities =
             listOf(
                 "java",
-                "node",
+                "node"
             ),
         buildInfrastructureVerificationTasks =
             listOf(
                 "checkBuildInfrastructure",
-                "checkVersionOwnership",
+                "checkVersionOwnership"
             ),
         portableDistributionVerificationTasks = listOf("verifyPortableDistribution"),
-        targetedModuleSupplementalTasks = listOf("checkSharedUsage"),
+        targetedModuleSupplementalTasks = listOf("checkSharedUsage")
     )

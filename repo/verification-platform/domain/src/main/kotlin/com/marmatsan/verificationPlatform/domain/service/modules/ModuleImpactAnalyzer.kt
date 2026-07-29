@@ -18,15 +18,15 @@ class ModuleImpactAnalyzer {
      */
     fun analyze(
         changedFiles: List<String>,
-        graph: RepositoryModuleGraph,
+        graph: RepositoryModuleGraph
     ): ModuleImpact {
         validate(
-            graph = graph,
+            graph = graph
         )?.let { reason ->
             return ModuleImpact(
                 changedModules = emptyList(),
                 affectedModules = emptyList(),
-                fallbackReason = reason,
+                fallbackReason = reason
             )
         }
 
@@ -35,24 +35,24 @@ class ModuleImpactAnalyzer {
                 .mapNotNull { path ->
                     moduleFor(
                         path = path,
-                        graph = graph,
+                        graph = graph
                     )
                 }.map(
-                    transform = RepositoryModule::id,
+                    transform = RepositoryModule::id
                 ).distinct()
                 .sorted()
         val reverseDependencies =
             graph.dependencies
                 .groupBy(
                     keySelector = { dependency -> dependency.dependencyModule },
-                    valueTransform = { dependency -> dependency.dependentModule },
+                    valueTransform = { dependency -> dependency.dependentModule }
                 )
         val affectedModules =
             changedModules
                 .flatMap { module ->
                     reverseClosure(
                         module = module,
-                        reverseDependencies = reverseDependencies,
+                        reverseDependencies = reverseDependencies
                     )
                 }.distinct()
                 .sorted()
@@ -60,7 +60,7 @@ class ModuleImpactAnalyzer {
         return ModuleImpact(
             changedModules = changedModules,
             affectedModules = affectedModules,
-            fallbackReason = null,
+            fallbackReason = null
         )
     }
 
@@ -72,31 +72,31 @@ class ModuleImpactAnalyzer {
      */
     fun moduleFor(
         path: String,
-        graph: RepositoryModuleGraph,
+        graph: RepositoryModuleGraph
     ): RepositoryModule? {
         val normalizedPath =
             normalize(
-                path = path,
+                path = path
             )
         return graph.modules
             .filter { module ->
                 val directory =
                     normalize(
-                        path = module.directory,
+                        path = module.directory
                     ).trimEnd('/')
                 normalizedPath == directory ||
                     normalizedPath.startsWith(
-                        prefix = "$directory/",
+                        prefix = "$directory/"
                     )
             }.maxByOrNull { module ->
                 normalize(
-                    path = module.directory,
+                    path = module.directory
                 ).length
             }
     }
 
     private fun validate(
-        graph: RepositoryModuleGraph,
+        graph: RepositoryModuleGraph
     ): String? {
         if (graph.modules.isEmpty()) {
             return "The Gradle module graph is empty; verification fails closed."
@@ -107,12 +107,12 @@ class ModuleImpactAnalyzer {
                 !MODULE_ID.matches(module.id) ||
                     module.directory.isBlank() ||
                     normalize(
-                        path = module.directory,
+                        path = module.directory
                     ).startsWith(
-                        prefix = "../",
+                        prefix = "../"
                     ) ||
                     normalize(
-                        path = module.directory,
+                        path = module.directory
                     ).contains("/../")
             }
         if (invalidModule != null) {
@@ -133,7 +133,7 @@ class ModuleImpactAnalyzer {
             graph.modules
                 .groupingBy { module ->
                     normalize(
-                        path = module.directory,
+                        path = module.directory
                     ).trimEnd('/')
                 }.eachCount()
                 .entries
@@ -145,7 +145,7 @@ class ModuleImpactAnalyzer {
         val moduleIds =
             graph.modules
                 .map(
-                    transform = RepositoryModule::id,
+                    transform = RepositoryModule::id
                 ).toSet()
         val unresolvedDependency =
             graph.dependencies.firstOrNull { dependency ->
@@ -161,18 +161,18 @@ class ModuleImpactAnalyzer {
 
     private fun reverseClosure(
         module: String,
-        reverseDependencies: Map<String, List<String>>,
+        reverseDependencies: Map<String, List<String>>
     ): Set<String> {
         val visited = linkedSetOf<String>()
         val pending = ArrayDeque<String>()
         pending.add(
-            element = module,
+            element = module
         )
 
         while (pending.isNotEmpty()) {
             val current = pending.removeFirst()
             if (!visited.add(
-                    element = current,
+                    element = current
                 )
             ) {
                 continue
@@ -184,11 +184,11 @@ class ModuleImpactAnalyzer {
     }
 
     private fun normalize(
-        path: String,
+        path: String
     ): String =
         path.trim().replace(
             '\\',
-            '/',
+            '/'
         )
 
     private companion object {

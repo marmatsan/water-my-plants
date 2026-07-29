@@ -17,16 +17,16 @@ class CiPlanJsonTest :
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
                                 head = "head-sha",
-                                changedFiles = listOf(".teamcity/settings.kts"),
+                                changedFiles = listOf(".teamcity/settings.kts")
                             ),
-                        moduleGraph = testModuleGraph(),
+                        moduleGraph = testModuleGraph()
                     )
                 val json = CiPlanJson()
 
                 json.read(
                     kotlinx.serialization.json.Json
-                        .encodeToString(expected),
+                        .encodeToString(expected)
                 ) shouldBe expected
             }
-        },
+        }
     )

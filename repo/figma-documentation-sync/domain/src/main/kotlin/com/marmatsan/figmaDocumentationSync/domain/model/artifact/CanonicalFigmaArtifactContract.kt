@@ -12,7 +12,7 @@ data class CanonicalFigmaArtifactContract(
     val model: Model,
     val scope: Scope,
     val plan: Plan,
-    val manifests: List<Manifest>,
+    val manifests: List<Manifest>
 ) {
     /**
      * Canonical design-model identity.
@@ -24,7 +24,7 @@ data class CanonicalFigmaArtifactContract(
     data class Model(
         val branch: String,
         val gitSha: String,
-        val modelHash: String,
+        val modelHash: String
     )
 
     /**
@@ -47,7 +47,7 @@ data class CanonicalFigmaArtifactContract(
         val transportHash: String,
         val visualRunnerManifestHash: String,
         val metadataRunnerManifestHash: String,
-        val visualSyncDecision: String,
+        val visualSyncDecision: String
     )
 
     /**
@@ -60,7 +60,7 @@ data class CanonicalFigmaArtifactContract(
     data class Plan(
         val decision: String,
         val manifestHash: String,
-        val identity: Identity,
+        val identity: Identity
     )
 
     /**
@@ -73,7 +73,7 @@ data class CanonicalFigmaArtifactContract(
     data class Identity(
         val modelHash: String,
         val writerHash: String,
-        val transportHash: String,
+        val transportHash: String
     )
 
     /**
@@ -96,7 +96,7 @@ data class CanonicalFigmaArtifactContract(
         val writerHash: String,
         val transportHash: String,
         val fullVisualSync: Boolean,
-        val writeMetadata: Boolean,
+        val writeMetadata: Boolean
     )
 
     /**
@@ -105,18 +105,18 @@ data class CanonicalFigmaArtifactContract(
      * @property wireValue stable serialized decision value.
      */
     enum class Decision(
-        val wireValue: String,
+        val wireValue: String
     ) {
         NONE("none"),
         PARTIAL("partial"),
-        FULL("full"),
+        FULL("full")
         ;
 
         /** Converts serialized decision values at the artifact boundary. */
         companion object {
             /** Returns the decision represented by [value], or `null` for an unsupported value. */
             fun fromWireValue(
-                value: String,
+                value: String
             ): Decision? = entries.firstOrNull { it.wireValue == value }
         }
     }

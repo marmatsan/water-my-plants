@@ -14,7 +14,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Gradle entry point for preparing a canonical TeamCity Figma Sync handoff. */
 @DisableCachingByDefault(
-    because = "Downloads and inspects canonical TeamCity artifacts",
+    because = "Downloads and inspects canonical TeamCity artifacts"
 )
 abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
     /** Optional TeamCity build to download, mutually exclusive with [artifactDirectory]. */
@@ -56,8 +56,8 @@ abstract class PrepareTeamCityFigmaSyncHandoffTask : DefaultTask() {
                         destinationRoot = destinationRoot.get().asFile,
                         expectedGitSha = expectedGitSha.orNull,
                         mainBranchAliases = mainBranchAliases.get().toSet(),
-                        requiredBuildTypeName = requiredBuildTypeName.get(),
-                    ),
+                        requiredBuildTypeName = requiredBuildTypeName.get()
+                    )
             )
         logger.lifecycle("Figma Sync handoff prepared: ${result.summaryFile.path}")
     }

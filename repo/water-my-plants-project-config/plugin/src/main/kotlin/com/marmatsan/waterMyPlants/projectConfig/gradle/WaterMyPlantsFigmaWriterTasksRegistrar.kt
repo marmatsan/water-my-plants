@@ -16,7 +16,7 @@ import org.gradle.kotlin.dsl.register
 /** Registers and wires the product-owned tasks that materialize and test the Figma writer. */
 internal class WaterMyPlantsFigmaWriterTasksRegistrar(
     private val project: Project,
-    private val writerConfig: FigmaWriterProjectConfig,
+    private val writerConfig: FigmaWriterProjectConfig
 ) {
     /** Registers writer configuration, build, test, canonical, visual, and MCP task bindings. */
     fun register() {
@@ -27,8 +27,8 @@ internal class WaterMyPlantsFigmaWriterTasksRegistrar(
                 configurationJson.set(FigmaWriterProjectConfigJson.encode(writerConfig))
                 outputFile.set(
                     project.layout.buildDirectory.file(
-                        "generated/figma-documentation-sync/writer-project-config.json",
-                    ),
+                        "generated/figma-documentation-sync/writer-project-config.json"
+                    )
                 )
             }
 
@@ -46,7 +46,7 @@ internal class WaterMyPlantsFigmaWriterTasksRegistrar(
                     "node",
                     "bin/build.mjs",
                     "--project-config-json=${generatedWriterProjectConfigFile.get().asFile.absolutePath}",
-                    "--output-dir=.",
+                    "--output-dir=."
                 )
             }
         }
@@ -59,12 +59,12 @@ internal class WaterMyPlantsFigmaWriterTasksRegistrar(
             workingDir(toolsDirectory)
             commandLine(
                 if (HostOperatingSystem.isWindows) "npm.cmd" else "npm",
-                "test",
+                "test"
             )
             doFirst {
                 environment(
                     "FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG",
-                    generatedWriterProjectConfigFile.get().asFile.absolutePath,
+                    generatedWriterProjectConfigFile.get().asFile.absolutePath
                 )
             }
         }

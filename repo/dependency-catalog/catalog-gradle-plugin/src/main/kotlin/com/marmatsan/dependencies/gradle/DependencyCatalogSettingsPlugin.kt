@@ -11,21 +11,21 @@ class DependencyCatalogSettingsPlugin : Plugin<Settings> {
      * @param settings Consumer settings that own the generated catalogs.
      */
     override fun apply(
-        settings: Settings,
+        settings: Settings
     ) {
         val extension =
             settings.extensions.create(
                 "dependencyCatalog",
-                DependencyCatalogSettingsExtension::class.java,
+                DependencyCatalogSettingsExtension::class.java
             )
         extension.registerCatalogs = { provider, librariesCatalogName, pluginsCatalogName ->
             settings.dependencyResolutionManagement.configureVersionCatalogs(
                 catalog =
                     provider.resolved(
-                        rootDir = settings.rootDir,
+                        rootDir = settings.rootDir
                     ),
                 librariesCatalogName = librariesCatalogName,
-                pluginsCatalogName = pluginsCatalogName,
+                pluginsCatalogName = pluginsCatalogName
             )
         }
     }

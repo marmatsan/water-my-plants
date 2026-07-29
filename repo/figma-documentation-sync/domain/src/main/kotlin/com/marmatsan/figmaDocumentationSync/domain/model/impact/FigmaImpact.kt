@@ -6,12 +6,12 @@ package com.marmatsan.figmaDocumentationSync.domain.model.impact
  * @property wireValue stable value serialized in impact artifacts.
  */
 enum class FigmaImpact(
-    val wireValue: String,
+    val wireValue: String
 ) {
     DOCUMENTATION_ONLY("documentation-only"),
     TRANSPORT_ONLY("transport-only"),
     MODEL_NEUTRAL("model-neutral"),
     MODEL_CONTENT("model-content"),
     VISUAL_TARGETS("visual-targets"),
-    UNKNOWN("unknown"),
+    UNKNOWN("unknown")
 }

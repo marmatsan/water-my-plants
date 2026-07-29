@@ -14,7 +14,7 @@ internal class CanonicalFigmaArtifactContractValidatorTest :
                 val result =
                     validator.validate(
                         contract = validContract(),
-                        expectedGitSha = "abc123",
+                        expectedGitSha = "abc123"
                     )
 
                 result.gitSha shouldBe "abc123"
@@ -27,8 +27,8 @@ internal class CanonicalFigmaArtifactContractValidatorTest :
                     validContract().copy(
                         model =
                             validContract().model.copy(
-                                branch = "feature/not-main",
-                            ),
+                                branch = "feature/not-main"
+                            )
                     )
 
                 val exception =
@@ -45,8 +45,8 @@ internal class CanonicalFigmaArtifactContractValidatorTest :
                     validContract().copy(
                         scope =
                             validContract().scope.copy(
-                                writerHash = "other-writer",
-                            ),
+                                writerHash = "other-writer"
+                            )
                     )
 
                 val exception =
@@ -63,12 +63,12 @@ internal class CanonicalFigmaArtifactContractValidatorTest :
                     validContract().copy(
                         scope =
                             validContract().scope.copy(
-                                visualSyncDecision = "targeted",
+                                visualSyncDecision = "targeted"
                             ),
                         plan =
                             validContract().plan.copy(
-                                decision = "targeted",
-                            ),
+                                decision = "targeted"
+                            )
                     )
 
                 val exception =
@@ -78,7 +78,7 @@ internal class CanonicalFigmaArtifactContractValidatorTest :
 
                 exception.message shouldBe "Unsupported visual sync decision 'targeted'."
             }
-        },
+        }
     )
 
 private fun validContract() =
@@ -87,7 +87,7 @@ private fun validContract() =
             CanonicalFigmaArtifactContract.Model(
                 branch = "main",
                 gitSha = "abc123",
-                modelHash = "model-hash",
+                modelHash = "model-hash"
             ),
         scope =
             CanonicalFigmaArtifactContract.Scope(
@@ -98,7 +98,7 @@ private fun validContract() =
                 transportHash = "transport-hash",
                 visualRunnerManifestHash = "visual-hash",
                 metadataRunnerManifestHash = "metadata-hash",
-                visualSyncDecision = "partial",
+                visualSyncDecision = "partial"
             ),
         plan =
             CanonicalFigmaArtifactContract.Plan(
@@ -108,8 +108,8 @@ private fun validContract() =
                     CanonicalFigmaArtifactContract.Identity(
                         modelHash = "model-hash",
                         writerHash = "writer-hash",
-                        transportHash = "transport-hash",
-                    ),
+                        transportHash = "transport-hash"
+                    )
             ),
         manifests =
             listOf(
@@ -121,7 +121,7 @@ private fun validContract() =
                     writerHash = "writer-hash",
                     transportHash = "transport-hash",
                     fullVisualSync = true,
-                    writeMetadata = false,
+                    writeMetadata = false
                 ),
                 CanonicalFigmaArtifactContract.Manifest(
                     mode = "canonical",
@@ -131,7 +131,7 @@ private fun validContract() =
                     writerHash = "writer-hash",
                     transportHash = "transport-hash",
                     fullVisualSync = false,
-                    writeMetadata = true,
-                ),
-            ),
+                    writeMetadata = true
+                )
+            )
     )

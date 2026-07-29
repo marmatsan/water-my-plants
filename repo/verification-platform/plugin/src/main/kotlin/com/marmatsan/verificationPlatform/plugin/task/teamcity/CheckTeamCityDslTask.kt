@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 /** Exposes TeamCity Kotlin DSL generation through the Gradle verification API. */
 @DisableCachingByDefault(
-    because = "The Maven plugin writes and validates provider-generated configuration",
+    because = "The Maven plugin writes and validates provider-generated configuration"
 )
 abstract class CheckTeamCityDslTask : DefaultTask() {
     /** Repository checkout containing the Maven wrapper and TeamCity project. */
@@ -55,7 +55,7 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
         val root = repositoryRoot.get().asFile
         val wrapper =
             root.resolve(
-                relative = if (isWindows()) "mvnw.cmd" else "mvnw",
+                relative = if (isWindows()) "mvnw.cmd" else "mvnw"
             )
         check(wrapper.isFile) { "Maven wrapper was not found: $wrapper" }
 
@@ -66,18 +66,18 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
                     wrapper.absolutePath,
                     "-f",
                     teamCityPom.get().asFile.absolutePath,
-                    "teamcity-configs:generate",
+                    "teamcity-configs:generate"
                 )
             }.assertNormalExitValue()
         validateGeneratedTeamCityConfiguration(
             directory =
-                generatedConfigurationDirectory.get().asFile,
+                generatedConfigurationDirectory.get().asFile
         )
         logger.lifecycle("TeamCity Kotlin DSL validation passed.")
     }
 
     private fun validateGeneratedTeamCityConfiguration(
-        directory: java.io.File,
+        directory: java.io.File
     ) {
         val pipelineFiles =
             directory
@@ -139,7 +139,7 @@ abstract class CheckTeamCityDslTask : DefaultTask() {
             "name=\"buildConfigurationType\" value=\"COMPOSITE\"",
             VCS_TRIGGER_FRAGMENT,
             "type=\"commit-status-publisher\"",
-            "name=\"build_custom_name\" value=\"${authoritativeStatusName.get()}\"",
+            "name=\"build_custom_name\" value=\"${authoritativeStatusName.get()}\""
         )
 
     private fun isWindows(): Boolean =

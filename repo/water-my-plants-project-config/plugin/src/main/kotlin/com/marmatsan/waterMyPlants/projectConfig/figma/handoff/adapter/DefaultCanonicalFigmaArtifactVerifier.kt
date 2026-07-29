@@ -7,22 +7,22 @@ import com.marmatsan.waterMyPlants.projectConfig.figma.handoff.port.CanonicalFig
 
 /** Adapts reusable cross-artifact validation to the project-config handoff model. */
 internal class DefaultCanonicalFigmaArtifactVerifier(
-    private val validator: CanonicalFigmaArtifactContractValidator = CanonicalFigmaArtifactContractValidator(),
+    private val validator: CanonicalFigmaArtifactContractValidator = CanonicalFigmaArtifactContractValidator()
 ) : CanonicalFigmaArtifactVerifier {
     /** Validates [contract] and projects its accepted identity into the handoff model. */
     override fun verify(
         contract: CanonicalFigmaArtifactContract,
-        expectedGitSha: String?,
+        expectedGitSha: String?
     ): ValidatedCanonicalFigmaArtifact {
         val result =
             validator.validate(
                 contract,
-                expectedGitSha,
+                expectedGitSha
             )
         return ValidatedCanonicalFigmaArtifact(
             gitSha = result.gitSha,
             modelHash = result.modelHash,
-            decision = result.decision,
+            decision = result.decision
         )
     }
 }

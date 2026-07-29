@@ -20,7 +20,7 @@ internal class TeamCityRestRunStarterTest :
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example/",
                         teamCityToken = "teamcity-token",
-                        cloudflareAccessToken = "cloudflare-token",
+                        cloudflareAccessToken = "cloudflare-token"
                     ) { uri, headers, body ->
                         requestedUri = uri
                         requestedHeaders = headers
@@ -35,13 +35,13 @@ internal class TeamCityRestRunStarterTest :
                                   "branchName": "main",
                                   "webUrl": "https://teamcity.example/build/1680"
                                 }
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     }
                 }.whenever { starter ->
                     starter.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     )
                 }.then { result ->
                     result shouldBe
@@ -52,8 +52,8 @@ internal class TeamCityRestRunStarterTest :
                                 status = null,
                                 statusText = null,
                                 branchName = "main",
-                                webUrl = "https://teamcity.example/build/1680",
-                            ),
+                                webUrl = "https://teamcity.example/build/1680"
+                            )
                         )
                     requestedUri shouldBe URI.create("https://teamcity.example/app/rest/buildQueue")
                     requestedHeaders shouldBe
@@ -61,7 +61,7 @@ internal class TeamCityRestRunStarterTest :
                             "Accept" to "application/json",
                             "Authorization" to "Bearer teamcity-token",
                             "CF-Access-Token" to "cloudflare-token",
-                            "Content-Type" to "application/json",
+                            "Content-Type" to "application/json"
                         )
                     requestedHeaders.orEmpty().shouldNotContainKey("Cookie")
                     requestedBody shouldBe
@@ -75,25 +75,25 @@ internal class TeamCityRestRunStarterTest :
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example",
                         teamCityToken = "teamcity-token",
-                        cloudflareAccessToken = "cloudflare-token",
+                        cloudflareAccessToken = "cloudflare-token"
                     ) { _, _, _ ->
                         TeamCityRestRunStarter.Response(
                             statusCode = 302,
-                            body = "redirect",
+                            body = "redirect"
                         )
                     }
                 }.whenever { starter ->
                     starter.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     )
                 }.then { result ->
                     result shouldBe
                         Err(
                             TeamCityRunStartError.RequestRejected(
                                 statusCode = 302,
-                                responseBody = "redirect",
-                            ),
+                                responseBody = "redirect"
+                            )
                         )
                 }
             }
@@ -103,17 +103,17 @@ internal class TeamCityRestRunStarterTest :
                     TeamCityRestRunStarter(
                         serverUrl = "https://teamcity.example",
                         teamCityToken = "teamcity-token",
-                        cloudflareAccessToken = "cloudflare-token",
+                        cloudflareAccessToken = "cloudflare-token"
                     ) { _, _, _ ->
                         TeamCityRestRunStarter.Response(
                             statusCode = 200,
-                            body = "not-json",
+                            body = "not-json"
                         )
                     }
                 }.whenever { starter ->
                     starter.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     )
                 }.then { result ->
                     result shouldBe Err(TeamCityRunStartError.InvalidResponse)
@@ -128,12 +128,12 @@ internal class TeamCityRestRunStarterTest :
                         TeamCityRestRunStarter(
                             serverUrl = serverUrl,
                             teamCityToken = "teamcity-token",
-                            cloudflareAccessToken = "cloudflare-token",
+                            cloudflareAccessToken = "cloudflare-token"
                         )
                     }
                 }.then { exception ->
                     exception.message shouldBe "The public TeamCity automation endpoint must use HTTPS."
                 }
             }
-        },
+        }
     )

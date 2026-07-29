@@ -6,7 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
     /** Builds the high-level pull-request and post-merge journey section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val ciPipeline = context.ciPipeline
@@ -27,14 +27,14 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.branchProtectionSource,
                     row = 0,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 pipelineNode(
                     "overview-ci",
                     ciPipeline,
                     1,
                     0,
-                    config,
+                    config
                 ),
                 visualNode(
                     id = "overview-ci-check",
@@ -45,7 +45,7 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.teamCitySource,
                     row = 2,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 visualNode(
                     id = "overview-gate",
@@ -56,7 +56,7 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.branchProtectionSource,
                     row = 3,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 visualNode(
                     id = "overview-main",
@@ -67,14 +67,14 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.branchProtectionSource,
                     row = 4,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 pipelineNode(
                     "overview-figma",
                     figmaPipeline,
                     5,
                     0,
-                    config,
+                    config
                 ),
                 visualNode(
                     id = "overview-model",
@@ -85,8 +85,8 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.teamCitySource,
                     row = 6,
                     column = 0,
-                    config = config,
-                ),
+                    config = config
+                )
             )
         if (figmaCheck != null) {
             nodes +=
@@ -99,7 +99,7 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.teamCitySource,
                     row = 7,
                     column = 0,
-                    config = config,
+                    config = config
                 )
         }
         val connections =
@@ -109,43 +109,43 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     "overview-pr",
                     "overview-ci",
                     triggerLabel(ciPipeline),
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 ),
                 visualConnection(
                     "overview-ci-check",
                     "overview-ci",
                     "overview-ci-check",
                     "Publish check",
-                    CiVisualPlan.ConnectionKind.STATUS,
+                    CiVisualPlan.ConnectionKind.STATUS
                 ),
                 visualConnection(
                     "overview-check-gate",
                     "overview-ci-check",
                     "overview-gate",
                     "Required check",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 ),
                 visualConnection(
                     "overview-gate-main",
                     "overview-gate",
                     "overview-main",
                     "Merge",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 ),
                 visualConnection(
                     "overview-main-figma",
                     "overview-main",
                     "overview-figma",
                     triggerLabel(figmaPipeline),
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 ),
                 visualConnection(
                     "overview-figma-model",
                     "overview-figma",
                     "overview-model",
                     "Generate and publish",
-                    CiVisualPlan.ConnectionKind.DATA,
-                ),
+                    CiVisualPlan.ConnectionKind.DATA
+                )
             )
         if (figmaCheck != null) {
             connections +=
@@ -154,7 +154,7 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
                     "overview-model",
                     "overview-figma-check",
                     "Verify model hash",
-                    CiVisualPlan.ConnectionKind.STATUS,
+                    CiVisualPlan.ConnectionKind.STATUS
                 )
         }
         return visualSection(
@@ -165,7 +165,7 @@ internal class OverviewCiVisualSectionPlanner : CiVisualSectionPlanner {
             orientation = CiVisualPlan.Orientation.HORIZONTAL,
             nodes = nodes,
             connections = connections,
-            config = config,
+            config = config
         )
     }
 }

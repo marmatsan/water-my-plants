@@ -12,7 +12,7 @@ import org.gradle.kotlin.dsl.getByType
 @Suppress("unused")
 class ProtobufGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         // Applied plugins
         project.pluginManager.apply("com.google.protobuf")
@@ -24,7 +24,7 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
                 artifact =
                     libs.requireDependencyNotation(
                         libraryGroup = "com.google.protobuf",
-                        artifact = "protoc",
+                        artifact = "protoc"
                     )
             }
 
@@ -46,12 +46,12 @@ class ProtobufGradleConventionPlugin : Plugin<Project> {
         project.dependencies {
             val libs =
                 withVersionCatalog(
-                    libs = libs,
+                    libs = libs
                 )
 
             libs.implementation(
                 libraryGroup = "com.google.protobuf",
-                artifact = "protobuf-kotlin",
+                artifact = "protobuf-kotlin"
             )
         }
     }

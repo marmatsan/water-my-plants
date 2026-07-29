@@ -9,7 +9,7 @@ import javax.inject.Inject
 abstract class DependencyCatalogSettingsExtension
     @Inject
     constructor(
-        objects: ObjectFactory,
+        objects: ObjectFactory
     ) {
         internal lateinit var registerCatalogs: (ResolvedDependencyCatalogProvider, String, String) -> Unit
         private var catalogsRegistered = false
@@ -19,7 +19,7 @@ abstract class DependencyCatalogSettingsExtension
          * catalog names because Gradle must receive version catalogs while evaluating settings.
          */
         fun from(
-            provider: ResolvedDependencyCatalogProvider,
+            provider: ResolvedDependencyCatalogProvider
         ) {
             check(!catalogsRegistered) {
                 "dependencyCatalog.from(provider) can only be called once"
@@ -27,7 +27,7 @@ abstract class DependencyCatalogSettingsExtension
             registerCatalogs(
                 provider,
                 librariesCatalogName.get(),
-                pluginsCatalogName.get(),
+                pluginsCatalogName.get()
             )
             catalogsRegistered = true
         }

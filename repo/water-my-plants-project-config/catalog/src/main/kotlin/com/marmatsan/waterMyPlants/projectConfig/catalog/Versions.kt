@@ -15,6 +15,7 @@ import java.util.Properties
  * @property dokkaPluginVersion Dokka Gradle plugin version.
  * @property figmaCodeConnectLibraryVersion Figma Code Connect runtime version.
  * @property figmaCodeConnectPluginVersion Figma Code Connect Gradle plugin version.
+ * @property gradleConventionPluginVersion Repository-owned Gradle convention plugins version.
  * @property junit5PluginVersion JUnit Platform Gradle plugin version.
  * @property kotestLibraryVersion Kotest library version.
  * @property kotlinInjectLibraryVersion Kotlin Inject library version.
@@ -36,6 +37,7 @@ internal data class Versions(
     val dokkaPluginVersion: String,
     val figmaCodeConnectLibraryVersion: String,
     val figmaCodeConnectPluginVersion: String,
+    val gradleConventionPluginVersion: String,
     val junit5PluginVersion: String,
     val kotestLibraryVersion: String,
     val kotlinInjectLibraryVersion: String,
@@ -45,17 +47,17 @@ internal data class Versions(
     val mockkLibraryVersion: String,
     val navigationComposeLibraryVersion: String,
     val protobufLibraryVersion: String,
-    val protobufPluginVersion: String,
+    val protobufPluginVersion: String
 ) {
     /** Loads the repository-owned version source used by the production catalog. */
     companion object {
         /** Resolves and parses `versions.properties` relative to [rootDir]. */
         fun load(
-            rootDir: File,
+            rootDir: File
         ): Versions {
             val versionsFile =
                 resolveVersionsFile(
-                    rootDir = rootDir,
+                    rootDir = rootDir
                 )
             val properties =
                 Properties().apply {
@@ -63,7 +65,7 @@ internal data class Versions(
                 }
 
             fun get(
-                key: String,
+                key: String
             ): String =
                 properties.getProperty(key)
                     ?: error("Missing version property '$key' in ${versionsFile.path}")
@@ -71,94 +73,98 @@ internal data class Versions(
             return Versions(
                 activityComposeLibraryVersion =
                     get(
-                        key = "activityComposeLibraryVersion",
+                        key = "activityComposeLibraryVersion"
                     ),
                 androidCoroutinesLibraryVersion =
                     get(
-                        key = "androidCoroutinesLibraryVersion",
+                        key = "androidCoroutinesLibraryVersion"
                     ),
                 androidGradlePluginVersion =
                     get(
-                        key = "androidGradlePluginVersion",
+                        key = "androidGradlePluginVersion"
                     ),
                 composeBomLibraryVersion =
                     get(
-                        key = "composeBomLibraryVersion",
+                        key = "composeBomLibraryVersion"
                     ),
                 coreKtxLibraryVersion =
                     get(
-                        key = "coreKtxLibraryVersion",
+                        key = "coreKtxLibraryVersion"
                     ),
                 cucumberLibraryVersion =
                     get(
-                        key = "cucumberLibraryVersion",
+                        key = "cucumberLibraryVersion"
                     ),
                 dokkaPluginVersion =
                     get(
-                        key = "dokkaPluginVersion",
+                        key = "dokkaPluginVersion"
                     ),
                 figmaCodeConnectLibraryVersion =
                     get(
-                        key = "figmaCodeConnectLibraryVersion",
+                        key = "figmaCodeConnectLibraryVersion"
                     ),
                 figmaCodeConnectPluginVersion =
                     get(
-                        key = "figmaCodeConnectPluginVersion",
+                        key = "figmaCodeConnectPluginVersion"
+                    ),
+                gradleConventionPluginVersion =
+                    get(
+                        key = "gradleConventionPluginVersion"
                     ),
                 junit5PluginVersion =
                     get(
-                        key = "junit5PluginVersion",
+                        key = "junit5PluginVersion"
                     ),
                 kotestLibraryVersion =
                     get(
-                        key = "kotestLibraryVersion",
+                        key = "kotestLibraryVersion"
                     ),
                 kotlinInjectLibraryVersion =
                     get(
-                        key = "kotlinInjectLibraryVersion",
+                        key = "kotlinInjectLibraryVersion"
                     ),
                 kotlinVersion =
                     get(
-                        key = "kotlinVersion",
+                        key = "kotlinVersion"
                     ),
                 kspPluginVersion =
                     get(
-                        key = "kspPluginVersion",
+                        key = "kspPluginVersion"
                     ),
                 lifecycleLibraryVersion =
                     get(
-                        key = "lifecycleLibraryVersion",
+                        key = "lifecycleLibraryVersion"
                     ),
                 mockkLibraryVersion =
                     get(
-                        key = "mockkLibraryVersion",
+                        key = "mockkLibraryVersion"
                     ),
                 navigationComposeLibraryVersion =
                     get(
-                        key = "navigationComposeLibraryVersion",
+                        key = "navigationComposeLibraryVersion"
                     ),
                 protobufLibraryVersion =
                     get(
-                        key = "protobufLibraryVersion",
+                        key = "protobufLibraryVersion"
                     ),
                 protobufPluginVersion =
                     get(
-                        key = "protobufPluginVersion",
-                    ),
+                        key = "protobufPluginVersion"
+                    )
             )
         }
 
         private fun resolveVersionsFile(
-            rootDir: File,
+            rootDir: File
         ): File {
             val candidates =
                 listOf(
                     rootDir.resolve(
-                        relative = "repo/water-my-plants-project-config/versions.properties",
+                        relative = "repo/water-my-plants-project-config/versions.properties"
                     ),
                     rootDir.resolve(
-                        relative = "versions.properties",
-                    ),
+                        relative = "versions.properties"
+                    )
                 )
             return candidates.firstOrNull { it.isFile }
                 ?: error("versions.properties not found in repo/water-my-plants-project-config or root directory")

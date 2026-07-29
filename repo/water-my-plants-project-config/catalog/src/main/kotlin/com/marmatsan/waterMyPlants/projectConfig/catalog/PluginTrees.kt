@@ -3,82 +3,92 @@ package com.marmatsan.waterMyPlants.projectConfig.catalog
 import com.marmatsan.dependencies.tree.dsl.plugin.pluginTree
 
 internal fun pluginTrees(
-    versions: Versions,
+    versions: Versions
 ) = listOf(
     comPluginTree(
-        versions = versions,
+        versions = versions
     ),
     dePluginTree(
-        versions = versions,
+        versions = versions
     ),
     orgPluginTree(
-        versions = versions,
-    ),
+        versions = versions
+    )
 )
 
 private fun comPluginTree(
-    versions: Versions,
+    versions: Versions
 ) = pluginTree(
-    rootId = "com",
+    rootId = "com"
 ) {
     plugin("android") {
         plugin(
             id = "application",
-            version = versions.androidGradlePluginVersion,
+            version = versions.androidGradlePluginVersion
         )
         plugin(
             id = "library",
-            version = versions.androidGradlePluginVersion,
+            version = versions.androidGradlePluginVersion
         )
     }
-    plugin("figma.code") {
-        plugin(
-            id = "connect",
-            version = versions.figmaCodeConnectPluginVersion,
-        )
-    }
+    plugin(
+        id = "figma.code.connect",
+        version = versions.figmaCodeConnectPluginVersion
+    )
     plugin("google") {
-        plugin("devtools") {
-            plugin(
-                id = "ksp",
-                version = versions.kspPluginVersion,
-            )
-        }
+        plugin(
+            id = "devtools.ksp",
+            version = versions.kspPluginVersion
+        )
         plugin(
             id = "protobuf",
-            version = versions.protobufPluginVersion,
+            version = versions.protobufPluginVersion
+        )
+    }
+    plugin("marmatsan") {
+        plugin(
+            id = "android",
+            version = versions.gradleConventionPluginVersion
+        )
+        plugin(
+            id = "bddTest",
+            version = versions.gradleConventionPluginVersion
+        )
+        plugin(
+            id = "compose",
+            version = versions.gradleConventionPluginVersion
+        )
+        plugin(
+            id = "unitTest",
+            version = versions.gradleConventionPluginVersion
         )
     }
 }
 
 private fun dePluginTree(
-    versions: Versions,
+    versions: Versions
 ) = pluginTree(
-    rootId = "de",
+    rootId = "de"
 ) {
-    plugin("mannodermaus") {
-        plugin(
-            id = "android-junit5",
-            version = versions.junit5PluginVersion,
-        )
-    }
+    plugin(
+        id = "mannodermaus.android-junit5",
+        version = versions.junit5PluginVersion
+    )
 }
 
 private fun orgPluginTree(
-    versions: Versions,
+    versions: Versions
 ) = pluginTree(
-    rootId = "org",
+    rootId = "org"
 ) {
     plugin("jetbrains") {
         plugin(
             id = "dokka",
-            version = versions.dokkaPluginVersion,
+            version = versions.dokkaPluginVersion
         )
-        plugin("kotlin.plugin") {
-            plugin(
-                id = "compose",
-                version = versions.kotlinVersion,
-            )
-        }
+        plugin(
+            id = "kotlin.plugin.compose",
+            version = versions.kotlinVersion
+        )
     }
 }

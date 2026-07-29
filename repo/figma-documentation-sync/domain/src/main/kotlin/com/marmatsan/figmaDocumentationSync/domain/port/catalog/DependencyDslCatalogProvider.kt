@@ -15,12 +15,12 @@ interface DependencyDslCatalogProvider {
     /** Reads the library tree with stable version aliases and usage metadata. */
     fun readLibraryTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): LibraryCatalogTree
 
     /** Reads the plugin tree with stable version aliases and usage metadata. */
     fun readPluginTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): PluginCatalogTree
 }

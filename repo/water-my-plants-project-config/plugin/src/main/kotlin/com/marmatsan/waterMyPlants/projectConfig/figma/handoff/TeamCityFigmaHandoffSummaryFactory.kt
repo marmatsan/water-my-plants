@@ -14,14 +14,14 @@ import java.time.Clock
 
 /** Creates the deterministic JSON handoff contract from already validated inputs. */
 internal class TeamCityFigmaHandoffSummaryFactory(
-    private val clock: Clock,
+    private val clock: Clock
 ) {
     /** Creates an operator handoff from a fully [validated] artifact set and runner [inspection]. */
     fun create(
         request: TeamCityFigmaSyncHandoffPreparer.Request,
         artifacts: CanonicalFigmaArtifactSet,
         validated: ValidatedCanonicalFigmaArtifact,
-        inspection: CanonicalFigmaRunnerInspection,
+        inspection: CanonicalFigmaRunnerInspection
     ): JsonObject {
         val visualManifest = requireNotNull(artifacts.visualManifestPath)
         val metadataManifest = requireNotNull(artifacts.metadataManifestPath)
@@ -32,90 +32,90 @@ internal class TeamCityFigmaHandoffSummaryFactory(
         return buildJsonObject {
             put(
                 "schemaVersion",
-                1,
+                1
             )
             put(
                 "preparedAt",
-                clock.instant().toString(),
+                clock.instant().toString()
             )
             putNullable(
                 name = "teamCityBuildId",
-                value = request.buildId?.let(::JsonPrimitive),
+                value = request.buildId?.let(::JsonPrimitive)
             )
             put(
                 "gitSha",
-                validated.gitSha,
+                validated.gitSha
             )
             put(
                 "modelHash",
-                validated.modelHash,
+                validated.modelHash
             )
             put(
                 "decision",
-                validated.decision.wireValue,
+                validated.decision.wireValue
             )
             put(
                 "nextUnit",
-                nextUnit,
+                nextUnit
             )
             put(
                 "artifactDirectory",
-                artifacts.artifactDirectory.toString(),
+                artifacts.artifactDirectory.toString()
             )
             put(
                 "visualManifest",
-                visualManifest.toString(),
+                visualManifest.toString()
             )
             put(
                 "metadataManifest",
-                metadataManifest.toString(),
+                metadataManifest.toString()
             )
             put(
                 "plan",
-                artifacts.planPath.toString(),
+                artifacts.planPath.toString()
             )
             put(
                 "dryRun",
-                inspection.toJson(),
+                inspection.toJson()
             )
             put(
                 "commands",
                 buildJsonObject {
                     put(
                         "inspect",
-                        "$commandPrefix -PfigmaMcpDryRun=true",
+                        "$commandPrefix -PfigmaMcpDryRun=true"
                     )
                     put(
                         "next",
-                        "$commandPrefix -PfigmaMcpNext=true",
+                        "$commandPrefix -PfigmaMcpNext=true"
                     )
                     put(
                         "recordSuccess",
                         "$commandPrefix -PfigmaMcpRecordSuccess=\"RUNNER_FILE.mcp.js\" " +
-                            "-PfigmaMcpSummary=\"SHORT_RESULT\"",
+                            "-PfigmaMcpSummary=\"SHORT_RESULT\""
                     )
                     put(
                         "recordFailure",
                         "$commandPrefix -PfigmaMcpRecordFailure=\"RUNNER_FILE.mcp.js\" " +
-                            "-PfigmaMcpSummary=\"SHORT_ERROR\"",
+                            "-PfigmaMcpSummary=\"SHORT_ERROR\""
                     )
                     put(
                         "execute",
-                        commandPrefix,
+                        commandPrefix
                     )
                     put(
                         "uploadPayload",
                         uploadPayloadCommand(
                             request = request,
                             artifacts = artifacts,
-                            validated = validated,
-                        ),
+                            validated = validated
+                        )
                     )
                     put(
                         "rerun",
-                        ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true",
+                        ".\\gradlew.bat rerunTeamCityFigmaSync -PfigmaTeamCityWait=true"
                     )
-                },
+                }
             )
         }
     }
@@ -124,30 +124,30 @@ internal class TeamCityFigmaHandoffSummaryFactory(
         buildJsonObject {
             put(
                 "manifestHash",
-                manifestHash,
+                manifestHash
             )
             put(
                 "statePath",
-                statePath,
+                statePath
             )
             put(
                 "reuseStaging",
-                reuseStaging,
+                reuseStaging
             )
             putNullable(
                 name = "decision",
-                value = decision?.let(::JsonPrimitive),
+                value = decision?.let(::JsonPrimitive)
             )
             put(
                 "executionFiles",
-                JsonArray(executionFiles.map(::JsonPrimitive)),
+                JsonArray(executionFiles.map(::JsonPrimitive))
             )
         }
 
     private fun uploadPayloadCommand(
         request: TeamCityFigmaSyncHandoffPreparer.Request,
         artifacts: CanonicalFigmaArtifactSet,
-        validated: ValidatedCanonicalFigmaArtifact,
+        validated: ValidatedCanonicalFigmaArtifact
     ): String =
         request.buildId?.let { buildId ->
             ".\\gradlew.bat uploadCanonicalFigmaPayload " +
@@ -161,10 +161,10 @@ internal class TeamCityFigmaHandoffSummaryFactory(
 
 private fun JsonObjectBuilder.putNullable(
     name: String,
-    value: JsonPrimitive?,
+    value: JsonPrimitive?
 ) {
     put(
         name,
-        value ?: JsonNull,
+        value ?: JsonNull
     )
 }

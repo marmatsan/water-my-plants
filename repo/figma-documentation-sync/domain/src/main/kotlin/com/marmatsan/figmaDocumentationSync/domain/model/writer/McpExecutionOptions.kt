@@ -12,5 +12,5 @@ data class McpExecutionOptions(
     val resume: Boolean = false,
     val retryFailed: Boolean = false,
     val reuseStaging: Boolean = false,
-    val from: String? = null,
+    val from: String? = null
 )

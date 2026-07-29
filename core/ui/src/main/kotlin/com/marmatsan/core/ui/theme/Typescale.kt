@@ -27,93 +27,93 @@ val fontFamily =
         Font(
             R.font.poppins_black,
             FontWeight.Black,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_blackitalic,
             FontWeight.Black,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_extrabold,
             FontWeight.ExtraBold,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_extrabolditalic,
             FontWeight.ExtraBold,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_bold,
             FontWeight.Bold,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_bolditalic,
             FontWeight.Bold,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_semibold,
             FontWeight.SemiBold,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_semibolditalic,
             FontWeight.SemiBold,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_medium,
             FontWeight.Medium,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_mediumitalic,
             FontWeight.Medium,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_italic,
             FontWeight.Normal,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_regular,
             FontWeight.Normal,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_light,
             FontWeight.Light,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_lightitalic,
             FontWeight.Light,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_extralight,
             FontWeight.ExtraLight,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_extralightitalic,
             FontWeight.ExtraLight,
-            FontStyle.Italic,
+            FontStyle.Italic
         ),
         Font(
             R.font.poppins_thin,
             FontWeight.Thin,
-            FontStyle.Normal,
+            FontStyle.Normal
         ),
         Font(
             R.font.poppins_thinitalic,
             FontWeight.Thin,
-            FontStyle.Italic,
-        ),
+            FontStyle.Italic
+        )
     )
 
 // Set of Material typography styles to start with
@@ -125,7 +125,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = (-0.25).sp,
-                lineHeight = 64.sp,
+                lineHeight = 64.sp
             ),
         displayMedium =
             TextStyle(
@@ -133,7 +133,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 52.sp,
+                lineHeight = 52.sp
             ),
         displaySmall =
             TextStyle(
@@ -141,7 +141,7 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 44.sp,
+                lineHeight = 44.sp
             ),
         headlineLarge =
             TextStyle(
@@ -149,7 +149,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 40.sp,
+                lineHeight = 40.sp
             ),
         headlineMedium =
             TextStyle(
@@ -157,7 +157,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 40.sp,
+                lineHeight = 40.sp
             ),
         headlineSmall =
             TextStyle(
@@ -165,7 +165,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 32.sp,
+                lineHeight = 32.sp
             ),
         titleLarge =
             TextStyle(
@@ -173,7 +173,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.sp,
-                lineHeight = 28.sp,
+                lineHeight = 28.sp
             ),
         titleMedium =
             TextStyle(
@@ -181,7 +181,7 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.15.sp,
-                lineHeight = 24.sp,
+                lineHeight = 24.sp
             ),
         titleSmall =
             TextStyle(
@@ -189,7 +189,7 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.1.sp,
-                lineHeight = 20.sp,
+                lineHeight = 20.sp
             ),
         bodyLarge =
             TextStyle(
@@ -197,7 +197,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.5.sp,
-                lineHeight = 24.sp,
+                lineHeight = 24.sp
             ),
         bodyMedium =
             TextStyle(
@@ -205,7 +205,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.25.sp,
-                lineHeight = 20.sp,
+                lineHeight = 20.sp
             ),
         bodySmall =
             TextStyle(
@@ -213,7 +213,7 @@ val Typography =
                 fontWeight = FontWeight.Normal,
                 fontFamily = fontFamily,
                 letterSpacing = 0.4.sp,
-                lineHeight = 16.sp,
+                lineHeight = 16.sp
             ),
         labelLarge =
             TextStyle(
@@ -221,7 +221,7 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.1.sp,
-                lineHeight = 20.sp,
+                lineHeight = 20.sp
             ),
         labelMedium =
             TextStyle(
@@ -229,7 +229,7 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.5.sp,
-                lineHeight = 16.sp,
+                lineHeight = 16.sp
             ),
         labelSmall =
             TextStyle(
@@ -237,6 +237,6 @@ val Typography =
                 fontWeight = FontWeight.Medium,
                 fontFamily = fontFamily,
                 letterSpacing = 0.5.sp,
-                lineHeight = 16.sp,
-            ),
+                lineHeight = 16.sp
+            )
     )

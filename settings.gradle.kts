@@ -48,19 +48,19 @@ rootProject.name = "water-my-plants"
 
 val appModule =
     listOf(
-        ":app",
+        ":app"
     )
 val coreModule =
     listOf(
-        ":core:ui",
+        ":core:ui"
     )
 val onboardingModule =
     listOf(
-        ":onboarding:ui",
+        ":onboarding:ui"
     )
 
 include(
     *appModule.toTypedArray(),
     *coreModule.toTypedArray(),
-    *onboardingModule.toTypedArray(),
+    *onboardingModule.toTypedArray()
 )

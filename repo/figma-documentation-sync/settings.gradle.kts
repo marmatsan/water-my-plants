@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
@@ -35,6 +35,13 @@ plugins {
     id("com.marmatsan.dependencyCatalog.tree")
 }
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+    }
+}
+
 rootProject.name = "figma-documentation-sync"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -43,112 +50,121 @@ dependencyCatalogTree {
     versionsFile.set(file("versions.properties"))
 
     libraries {
-        library(
-            group = "com.michael-bull.kotlin-result",
-            artifact = "kotlin-result",
-            version = version("kotlinResultLibraryVersion"),
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "unit-test-dsl",
-            version = version("unitTestDslLibraryVersion"),
-        )
-        library(
-            group = "io.ktor",
-            artifact = "ktor-bom",
-            version = version("ktorLibraryVersion"),
-        )
-        library(
-            group = "io.ktor",
-            artifact = "ktor-client-core",
-        )
-        library(
-            group = "io.ktor",
-            artifact = "ktor-client-cio",
-        )
-        library(
-            group = "io.ktor",
-            artifact = "ktor-client-content-negotiation",
-        )
-        library(
-            group = "io.ktor",
-            artifact = "ktor-serialization-kotlinx-json",
-        )
-        library(
-            group = "io.modelcontextprotocol",
-            artifact = "kotlin-sdk-client",
-            version = version("mcpKotlinSdkLibraryVersion"),
-        )
-        library(
-            group = "io.cucumber",
-            artifact = "cucumber-bom",
-            version = version("cucumberLibraryVersion"),
-        )
-        library(
-            group = "io.cucumber",
-            artifact = "cucumber-java8",
-        )
-        library(
-            group = "io.cucumber",
-            artifact = "cucumber-junit-platform-engine",
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-runner-junit5",
-            version = version("kotestLibraryVersion"),
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-assertions-core",
-            version = version("kotestLibraryVersion"),
-        )
-        library(
-            group = "me.tatarka.inject",
-            artifact = "kotlin-inject-compiler-ksp",
-            version = version("kotlinInjectLibraryVersion"),
-        )
-        library(
-            group = "me.tatarka.inject",
-            artifact = "kotlin-inject-runtime",
-            version = version("kotlinInjectLibraryVersion"),
-        )
-        library(
-            group = "org.jetbrains.kotlinx",
-            artifact = "kotlinx-serialization-json",
-            version = version("serializationLibraryVersion"),
-        )
-        library(
-            group = "org.snakeyaml",
-            artifact = "snakeyaml-engine",
-            version = version("snakeYamlLibraryVersion"),
-        )
-        library(
-            group = "org.junit.platform",
-            artifact = "junit-platform-launcher",
-        )
-        library(
-            group = "org.junit.platform",
-            artifact = "junit-platform-suite",
-        )
+        root("com") {
+            library("michael-bull.kotlin-result") {
+                artifact(
+                    artifact = "kotlin-result",
+                    version = version("kotlinResultLibraryVersion")
+                )
+            }
+            library("marmatsan.repo") {
+                artifact(
+                    artifact = "unit-test-dsl",
+                    version = version("unitTestDslLibraryVersion")
+                )
+            }
+        }
+        root("io") {
+            library("ktor") {
+                artifact(
+                    artifact = "ktor-bom",
+                    version = version("ktorLibraryVersion")
+                )
+                artifactsBundle(
+                    "ktor-client-core",
+                    "ktor-client-cio",
+                    "ktor-client-content-negotiation",
+                    "ktor-serialization-kotlinx-json",
+                    alias = "ktorClient"
+                )
+            }
+            library("modelcontextprotocol") {
+                artifact(
+                    artifact = "kotlin-sdk-client",
+                    version = version("mcpKotlinSdkLibraryVersion")
+                )
+            }
+            library("cucumber") {
+                artifact(
+                    artifact = "cucumber-bom",
+                    version = version("cucumberLibraryVersion")
+                )
+                artifactsBundle(
+                    "cucumber-java8",
+                    "cucumber-junit-platform-engine",
+                    alias = "cucumber"
+                )
+            }
+            library("kotest") {
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
+                    version = version("kotestLibraryVersion")
+                )
+            }
+        }
+        root("me") {
+            library("tatarka.inject") {
+                artifact(
+                    artifact = "kotlin-inject-compiler-ksp",
+                    version = version("kotlinInjectLibraryVersion")
+                )
+                artifact(
+                    artifact = "kotlin-inject-runtime",
+                    version = version("kotlinInjectLibraryVersion")
+                )
+            }
+        }
+        root("org") {
+            library("jetbrains.kotlinx") {
+                artifact(
+                    artifact = "kotlinx-serialization-json",
+                    version = version("serializationLibraryVersion")
+                )
+            }
+            library("snakeyaml") {
+                artifact(
+                    artifact = "snakeyaml-engine",
+                    version = version("snakeYamlLibraryVersion")
+                )
+            }
+            library("junit.platform") {
+                artifact(
+                    artifact = "junit-platform-launcher"
+                )
+                artifact(
+                    artifact = "junit-platform-suite"
+                )
+            }
+        }
     }
 
     plugins {
-        plugin(
-            id = "com.google.devtools.ksp",
-            version = version("kspPluginVersion"),
-        )
-        plugin(
-            id = "org.jetbrains.kotlin.jvm",
-            version = version("kotlinVersion"),
-        )
-        plugin(
-            id = "org.jetbrains.kotlin.plugin.serialization",
-            version = version("kotlinVersion"),
-        )
-        plugin(
-            id = "org.jetbrains.dokka",
-            version = version("dokkaPluginVersion"),
-        )
+        root("com") {
+            plugin(
+                id = "google.devtools.ksp",
+                version = version("kspPluginVersion")
+            )
+        }
+        root("org") {
+            plugin("jetbrains") {
+                plugin(
+                    id = "dokka",
+                    version = version("dokkaPluginVersion")
+                )
+                plugin("kotlin") {
+                    plugin(
+                        id = "jvm",
+                        version = version("kotlinVersion")
+                    )
+                    plugin(
+                        id = "plugin.serialization",
+                        version = version("kotlinVersion")
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -156,5 +172,5 @@ include(
     ":data",
     ":domain",
     ":plugin",
-    ":teamcity-adapter",
+    ":teamcity-adapter"
 )

@@ -26,25 +26,25 @@ class ExecutableRunnerManifestJson {
     /** Calculates identity fields and writes the finalized [draft] to [outputPath]. */
     fun finalizeAndWrite(
         draft: ExecutableRunnerManifest,
-        outputPath: String,
+        outputPath: String
     ): ExecutableRunnerManifest {
         val finalized =
             draft.copy(
                 path =
                     Path
                         .of(
-                            outputPath,
+                            outputPath
                         ).toAbsolutePath()
                         .normalize()
                         .toString(),
                 manifestHash =
                     hash(
-                        manifest = draft,
-                    ),
+                        manifest = draft
+                    )
             )
         write(
             manifest = finalized,
-            outputPath = outputPath,
+            outputPath = outputPath
         )
         return finalized
     }
@@ -52,18 +52,18 @@ class ExecutableRunnerManifestJson {
     /** Writes [manifest] to [outputPath] without changing its declared identity. */
     fun write(
         manifest: ExecutableRunnerManifest,
-        outputPath: String,
+        outputPath: String
     ) {
         val expectedHash =
             hash(
-                manifest = manifest,
+                manifest = manifest
             )
         require(manifest.manifestHash == expectedHash) {
             "MCP manifest hash mismatch: ${manifest.manifestHash} != $expectedHash."
         }
         val output =
             Path.of(
-                outputPath,
+                outputPath
             )
         output.parent?.let(Files::createDirectories)
         Files.writeString(
@@ -71,27 +71,27 @@ class ExecutableRunnerManifestJson {
             prettyJson.encodeToString(
                 JsonObject.serializer(),
                 manifest.toJson(
-                    includeHash = true,
-                ),
+                    includeHash = true
+                )
             ) +
-                System.lineSeparator(),
+                System.lineSeparator()
         )
     }
 
     /** Reads an executable runner manifest from [path]. */
     fun read(
-        path: String,
+        path: String
     ): ExecutableRunnerManifest {
         val normalized =
             Path
                 .of(
-                    path,
+                    path
                 ).toAbsolutePath()
                 .normalize()
         val source = Json.parseToJsonElement(Files.readString(normalized).removePrefix(UTF8_BOM)).jsonObject
         val manifest =
             source.toManifest(
-                path = normalized.toString(),
+                path = normalized.toString()
             )
         require(manifest.schemaVersion >= MINIMUM_SCHEMA_VERSION) {
             "Unsupported MCP manifest schema ${manifest.schemaVersion}; expected $MINIMUM_SCHEMA_VERSION or newer."
@@ -104,7 +104,7 @@ class ExecutableRunnerManifestJson {
                 "targetFingerprints",
                 "writerScopeFingerprints",
                 "writerScopeFingerprintSchemaVersion",
-                "executionScopes",
+                "executionScopes"
             ).forEach { name ->
                 require(source[name] != null) {
                     "MCP manifest schema ${manifest.schemaVersion} is missing '$name'."
@@ -124,8 +124,8 @@ class ExecutableRunnerManifestJson {
             Sha256Hash.of(
                 value =
                     CanonicalJson.stringify(
-                        value = JsonObject(source.filterKeys { key -> key != "manifestHash" }),
-                    ),
+                        value = JsonObject(source.filterKeys { key -> key != "manifestHash" })
+                    )
             )
         require(manifest.manifestHash == expectedHash) {
             "MCP manifest hash mismatch: ${manifest.manifestHash} != $expectedHash."
@@ -135,251 +135,251 @@ class ExecutableRunnerManifestJson {
 
     /** Returns the canonical manifest hash with its hash field excluded. */
     fun hash(
-        manifest: ExecutableRunnerManifest,
+        manifest: ExecutableRunnerManifest
     ): String =
         Sha256Hash.of(
             value =
                 CanonicalJson.stringify(
                     value =
                         manifest.toJson(
-                            includeHash = false,
-                        ),
-                ),
+                            includeHash = false
+                        )
+                )
         )
 
     private fun ExecutableRunnerManifest.toJson(
-        includeHash: Boolean,
+        includeHash: Boolean
     ): JsonObject =
         buildJsonObject {
             put(
                 "schemaVersion",
-                schemaVersion,
+                schemaVersion
             )
             put(
                 "mode",
-                mode,
+                mode
             )
             put(
                 "entrypoint",
-                entrypoint,
+                entrypoint
             )
             put(
                 "target",
-                target,
+                target
             )
             put(
                 "targets",
-                targets.toJsonArray(),
+                targets.toJsonArray()
             )
             put(
                 "writeMetadata",
-                writeMetadata,
+                writeMetadata
             )
             put(
                 "transport",
-                transport,
+                transport
             )
             put(
                 "namespace",
-                namespace,
+                namespace
             )
             put(
                 "sectionNodeId",
-                sectionNodeId?.let(::JsonPrimitive) ?: JsonNull,
+                sectionNodeId?.let(::JsonPrimitive) ?: JsonNull
             )
             put(
                 "roots",
-                roots.toJsonArray(),
+                roots.toJsonArray()
             )
             put(
                 "allowCanonicalSections",
-                allowCanonicalSections,
+                allowCanonicalSections
             )
             put(
                 "allowPartial",
-                allowPartial,
+                allowPartial
             )
             put(
                 "fullVisualSync",
-                fullVisualSync,
+                fullVisualSync
             )
             put(
                 "metadataPageId",
-                metadataPageId,
+                metadataPageId
             )
             put(
                 "modelPath",
-                modelPath,
+                modelPath
             )
             put(
                 "scriptPath",
-                scriptPath,
+                scriptPath
             )
             put(
                 "modelHash",
-                modelHash,
+                modelHash
             )
             put(
                 "gitSha",
-                gitSha,
+                gitSha
             )
             put(
                 "designModelLength",
-                designModelLength,
+                designModelLength
             )
             put(
                 "scriptLength",
-                scriptLength,
+                scriptLength
             )
             put(
                 "writerHash",
-                writerHash,
+                writerHash
             )
             put(
                 "transportHash",
-                transportHash,
+                transportHash
             )
             put(
                 "targetFingerprints",
-                targetFingerprints.toJsonObject(),
+                targetFingerprints.toJsonObject()
             )
             put(
                 "writerScopeFingerprints",
-                writerScopeFingerprints.toJsonObject(),
+                writerScopeFingerprints.toJsonObject()
             )
             put(
                 "writerScopeFingerprintSchemaVersion",
-                writerScopeFingerprintSchemaVersion,
+                writerScopeFingerprintSchemaVersion
             )
             put(
                 "executionScopes",
-                executionScopes.toJsonObject(),
+                executionScopes.toJsonObject()
             )
             put(
                 "payloadImage",
-                payloadImage?.toJson() ?: JsonNull,
+                payloadImage?.toJson() ?: JsonNull
             )
             put(
                 "files",
-                files.toJsonArray(),
+                files.toJsonArray()
             )
             put(
                 "fileHashes",
-                fileHashes.toJsonObject(),
+                fileHashes.toJsonObject()
             )
             if (includeHash) {
                 put(
                     "manifestHash",
-                    manifestHash,
+                    manifestHash
                 )
             }
         }
 
     private fun JsonObject.toManifest(
-        path: String,
+        path: String
     ): ExecutableRunnerManifest =
         ExecutableRunnerManifest(
             path = path,
             schemaVersion =
                 requiredInt(
-                    name = "schemaVersion",
+                    name = "schemaVersion"
                 ),
             mode =
                 requiredString(
-                    name = "mode",
+                    name = "mode"
                 ),
             entrypoint =
                 requiredString(
-                    name = "entrypoint",
+                    name = "entrypoint"
                 ),
             target =
                 requiredString(
-                    name = "target",
+                    name = "target"
                 ),
             targets =
                 requiredStringList(
-                    name = "targets",
+                    name = "targets"
                 ),
             writeMetadata =
                 requiredBoolean(
-                    name = "writeMetadata",
+                    name = "writeMetadata"
                 ),
             transport =
                 requiredString(
-                    name = "transport",
+                    name = "transport"
                 ),
             namespace =
                 requiredString(
-                    name = "namespace",
+                    name = "namespace"
                 ),
             sectionNodeId = this["sectionNodeId"]?.jsonPrimitive?.contentOrNull,
             roots =
                 requiredStringList(
-                    name = "roots",
+                    name = "roots"
                 ),
             allowCanonicalSections =
                 requiredBoolean(
-                    name = "allowCanonicalSections",
+                    name = "allowCanonicalSections"
                 ),
             allowPartial =
                 requiredBoolean(
-                    name = "allowPartial",
+                    name = "allowPartial"
                 ),
             fullVisualSync =
                 requiredBoolean(
-                    name = "fullVisualSync",
+                    name = "fullVisualSync"
                 ),
             metadataPageId =
                 requiredString(
-                    name = "metadataPageId",
+                    name = "metadataPageId"
                 ),
             modelPath =
                 requiredString(
-                    name = "modelPath",
+                    name = "modelPath"
                 ),
             scriptPath =
                 requiredString(
-                    name = "scriptPath",
+                    name = "scriptPath"
                 ),
             modelHash =
                 requiredString(
-                    name = "modelHash",
+                    name = "modelHash"
                 ),
             gitSha =
                 requiredString(
-                    name = "gitSha",
+                    name = "gitSha"
                 ),
             designModelLength =
                 requiredInt(
-                    name = "designModelLength",
+                    name = "designModelLength"
                 ),
             scriptLength =
                 requiredInt(
-                    name = "scriptLength",
+                    name = "scriptLength"
                 ),
             writerHash =
                 requiredString(
-                    name = "writerHash",
+                    name = "writerHash"
                 ),
             transportHash =
                 requiredString(
-                    name = "transportHash",
+                    name = "transportHash"
                 ),
             targetFingerprints =
                 stringMapOrEmpty(
-                    name = "targetFingerprints",
+                    name = "targetFingerprints"
                 ),
             writerScopeFingerprints =
                 stringMapOrEmpty(
-                    name = "writerScopeFingerprints",
+                    name = "writerScopeFingerprints"
                 ),
             writerScopeFingerprintSchemaVersion =
                 intOrZero(
-                    name = "writerScopeFingerprintSchemaVersion",
+                    name = "writerScopeFingerprintSchemaVersion"
                 ),
             executionScopes =
                 stringMapOrEmpty(
-                    name = "executionScopes",
+                    name = "executionScopes"
                 ),
             payloadImage =
                 this["payloadImage"]
@@ -389,35 +389,35 @@ class ExecutableRunnerManifestJson {
                     ?.toPayloadImage(),
             files =
                 requiredStringList(
-                    name = "files",
+                    name = "files"
                 ),
             fileHashes =
                 requiredStringMap(
-                    name = "fileHashes",
+                    name = "fileHashes"
                 ),
             manifestHash =
                 requiredString(
-                    name = "manifestHash",
-                ),
+                    name = "manifestHash"
+                )
         )
 
     private fun RunnerPayloadImage.toJson(): JsonObject =
         buildJsonObject {
             put(
                 "fileName",
-                fileName,
+                fileName
             )
             put(
                 "byteLength",
-                byteLength,
+                byteLength
             )
             put(
                 "sha256",
-                sha256,
+                sha256
             )
             put(
                 "textKeyword",
-                textKeyword,
+                textKeyword
             )
         }
 
@@ -425,66 +425,66 @@ class ExecutableRunnerManifestJson {
         RunnerPayloadImage(
             fileName =
                 requiredString(
-                    name = "fileName",
+                    name = "fileName"
                 ),
             byteLength =
                 requiredInt(
-                    name = "byteLength",
+                    name = "byteLength"
                 ),
             sha256 =
                 requiredString(
-                    name = "sha256",
+                    name = "sha256"
                 ),
             textKeyword =
                 requiredString(
-                    name = "textKeyword",
-                ),
+                    name = "textKeyword"
+                )
         )
 
     private fun JsonObject.requiredString(
-        name: String,
+        name: String
     ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
     private fun JsonObject.requiredInt(
-        name: String,
+        name: String
     ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
     private fun JsonObject.requiredBoolean(
-        name: String,
+        name: String
     ): Boolean =
         this[name]?.jsonPrimitive?.boolean
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
     private fun JsonObject.requiredStringList(
-        name: String,
+        name: String
     ): List<String> =
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
     private fun JsonObject.requiredStringMap(
-        name: String,
+        name: String
     ): Map<String, String> =
         this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("MCP manifest is missing '$name'.")
 
     private fun JsonObject.stringMapOrEmpty(
-        name: String,
+        name: String
     ): Map<String, String> =
         this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }.orEmpty()
 
     private fun JsonObject.intOrZero(
-        name: String,
+        name: String
     ): Int = this[name]?.jsonPrimitive?.int ?: 0
 
     private fun List<String>.toJsonArray(): JsonArray =
         JsonArray(
             map(
-                transform = ::JsonPrimitive,
-            ),
+                transform = ::JsonPrimitive
+            )
         )
 
     private fun Map<String, String>.toJsonObject(): JsonObject =

@@ -23,7 +23,7 @@ sealed class Dependency {
      */
     data class Library(
         val libraryGroup: String,
-        val entries: List<LibraryEntry>? = null,
+        val entries: List<LibraryEntry>? = null
     ) : Dependency()
 
     /**
@@ -34,6 +34,6 @@ sealed class Dependency {
      */
     data class Plugin(
         val pluginId: String,
-        val version: String,
+        val version: String
     ) : Dependency()
 }

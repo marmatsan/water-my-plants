@@ -9,7 +9,7 @@ import java.io.File
 class TeamCityCiConfigurationProvider : CiConfigurationProvider {
     /** Reads the generated effective configuration rooted at [directory]. */
     override fun read(
-        directory: File,
+        directory: File
     ): CiConfiguration =
         TeamCityGeneratedConfigurationReader().read(directory)
 }

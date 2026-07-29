@@ -22,7 +22,7 @@ import org.gradle.api.tasks.UntrackedTask
 
 /** Writes the provider-neutral CI plan for the committed repository change. */
 @UntrackedTask(
-    because = "The plan depends on Git revision state outside Gradle inputs",
+    because = "The plan depends on Git revision state outside Gradle inputs"
 )
 abstract class GenerateCiPlanTask : DefaultTask() {
     /** Repository checkout whose committed Git state is classified. */
@@ -100,7 +100,7 @@ abstract class GenerateCiPlanTask : DefaultTask() {
         val changeSet =
             GitRepositoryChangeSetSource().read(
                 repositoryRoot = repositoryRoot.get().asFile,
-                comparisonBaseOverride = comparisonBaseOverride.orNull,
+                comparisonBaseOverride = comparisonBaseOverride.orNull
             )
         val moduleGraph =
             RepositoryModuleGraph(
@@ -108,7 +108,7 @@ abstract class GenerateCiPlanTask : DefaultTask() {
                     moduleDirectories.get().map { (id, directory) ->
                         RepositoryModule(
                             id = id,
-                            directory = directory,
+                            directory = directory
                         )
                     },
                 dependencies =
@@ -116,14 +116,14 @@ abstract class GenerateCiPlanTask : DefaultTask() {
                         val parts =
                             edge.split(
                                 EDGE_SEPARATOR,
-                                limit = 2,
+                                limit = 2
                             )
                         check(parts.size == 2) { "Invalid serialized module dependency: $edge" }
                         ModuleDependency(
                             dependentModule = parts.first(),
-                            dependencyModule = parts.last(),
+                            dependencyModule = parts.last()
                         )
-                    },
+                    }
             )
         val plan =
             CiPlanFactory(
@@ -139,23 +139,23 @@ abstract class GenerateCiPlanTask : DefaultTask() {
                     toolingVerificationTasks = toolingVerificationTasks.get(),
                     buildInfrastructureVerificationTasks = buildInfrastructureVerificationTasks.get(),
                     portableDistributionVerificationTasks = portableDistributionVerificationTasks.get(),
-                    targetedModuleSupplementalTasks = targetedModuleSupplementalTasks.get(),
-                ),
+                    targetedModuleSupplementalTasks = targetedModuleSupplementalTasks.get()
+                )
             ).create(
                 changeSet,
-                moduleGraph,
+                moduleGraph
             )
         val output = outputFile.get().asFile
         CiPlanJson().write(
             plan,
-            output,
+            output
         )
 
         logger.lifecycle(
             "CI plan generated: scope={}, fullVerification={}, output={}",
             plan.scope,
             plan.fullVerification,
-            output.absolutePath,
+            output.absolutePath
         )
     }
 

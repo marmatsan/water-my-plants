@@ -18,29 +18,29 @@ class WaterMyPlantsDependencyDslCatalogProvider : DependencyDslCatalogProvider {
             conventionPluginCatalogUsageSource =
                 GradleConventionPluginCatalogUsageSource(
                     reader = GradleConventionCatalogUsageReader(),
-                    mainReader = GradleMainCatalogUsageReader(),
+                    mainReader = GradleMainCatalogUsageReader()
                 ),
             libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
-            pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
+            pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher()
         )
 
     /** Builds the Water My Plants library tree and enriches it with repository usage. */
     override fun readLibraryTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): LibraryCatalogTree =
         reader.readLibraryTreeWithVersionAliases(
             rootDir = File(rootDirPath),
-            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
         )
 
     /** Builds the Water My Plants plugin tree and enriches it with repository usage. */
     override fun readPluginTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): PluginCatalogTree =
         reader.readPluginTreeWithVersionAliases(
             rootDir = File(rootDirPath),
-            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
         )
 }

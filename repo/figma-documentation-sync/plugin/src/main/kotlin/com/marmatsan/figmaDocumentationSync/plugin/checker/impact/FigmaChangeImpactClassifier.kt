@@ -13,18 +13,18 @@ internal class FigmaChangeImpactClassifier {
     /** Classifies [changeSet] with [policy] into verification scope and affected visual targets. */
     fun classify(
         changeSet: RepositoryChangeSet,
-        policy: FigmaChangeImpactPolicy,
+        policy: FigmaChangeImpactPolicy
     ): FigmaChangeImpact {
         val changedPaths =
             changeSet.changedPaths.map(
-                transform = ::normalizePath,
+                transform = ::normalizePath
             )
         val documentationOnly =
             changedPaths.isNotEmpty() &&
                 changedPaths.all { path ->
                     matchesAny(
                         path = path,
-                        patterns = policy.documentationOnlyPaths,
+                        patterns = policy.documentationOnlyPaths
                     )
                 }
         val transportOnly =
@@ -32,11 +32,11 @@ internal class FigmaChangeImpactClassifier {
                 changedPaths.all { path ->
                     matchesAny(
                         path = path,
-                        patterns = policy.documentationOnlyPaths,
+                        patterns = policy.documentationOnlyPaths
                     ) ||
                         matchesAny(
                             path = path,
-                            patterns = policy.transportOnlyPaths,
+                            patterns = policy.transportOnlyPaths
                         )
                 }
         val modelNeutralOnly =
@@ -44,35 +44,35 @@ internal class FigmaChangeImpactClassifier {
                 changedPaths.all { path ->
                     matchesAny(
                         path = path,
-                        patterns = policy.documentationOnlyPaths,
+                        patterns = policy.documentationOnlyPaths
                     ) ||
                         matchesAny(
                             path = path,
-                            patterns = policy.transportOnlyPaths,
+                            patterns = policy.transportOnlyPaths
                         ) ||
                         matchesAny(
                             path = path,
-                            patterns = policy.modelNeutralPaths,
+                            patterns = policy.modelNeutralPaths
                         )
                 }
         val modelContentChanged =
             changedPaths.any { path ->
                 matchesAny(
                     path = path,
-                    patterns = policy.modelContentPaths,
+                    patterns = policy.modelContentPaths
                 )
             }
         val visualWriterPaths =
             changedPaths.filter { path ->
                 matchesAny(
                     path = path,
-                    patterns = policy.visualWriterPaths,
+                    patterns = policy.visualWriterPaths
                 )
             }
         val affectedVisualTargets =
             affectedVisualTargets(
                 visualWriterPaths = visualWriterPaths,
-                policy = policy,
+                policy = policy
             )
 
         val impact =
@@ -97,20 +97,20 @@ internal class FigmaChangeImpactClassifier {
             impact = impact,
             affectedVisualTargets = affectedVisualTargets,
             comparisonBase = changeSet.comparisonBase,
-            changedPaths = changedPaths,
+            changedPaths = changedPaths
         )
     }
 
     private fun affectedVisualTargets(
         visualWriterPaths: List<String>,
-        policy: FigmaChangeImpactPolicy,
+        policy: FigmaChangeImpactPolicy
     ): List<String> {
         val targets = linkedSetOf<String>()
         policy.visualTargetRules.forEach { rule ->
             if (visualWriterPaths.any { path ->
                     matchesAny(
                         path = path,
-                        patterns = rule.paths,
+                        patterns = rule.paths
                     )
                 }
             ) {
@@ -122,7 +122,7 @@ internal class FigmaChangeImpactClassifier {
                 policy.visualTargetRules.none { rule ->
                     matchesAny(
                         path = path,
-                        patterns = rule.paths,
+                        patterns = rule.paths
                     )
                 }
             }
@@ -131,19 +131,19 @@ internal class FigmaChangeImpactClassifier {
 
     private fun matchesAny(
         path: String,
-        patterns: List<String>,
+        patterns: List<String>
     ): Boolean =
         patterns.any { pattern ->
             globRegex(
                 pattern =
                     normalizePath(
-                        path = pattern,
-                    ),
+                        path = pattern
+                    )
             ).matches(path)
         }
 
     private fun globRegex(
-        pattern: String,
+        pattern: String
     ): Regex =
         Regex(
             buildString {
@@ -161,23 +161,23 @@ internal class FigmaChangeImpactClassifier {
                         else -> {
                             append(
                                 Regex.escape(
-                                    literal = character.toString(),
-                                ),
+                                    literal = character.toString()
+                                )
                             )
                         }
                     }
                 }
                 append('$')
             },
-            RegexOption.IGNORE_CASE,
+            RegexOption.IGNORE_CASE
         )
 
     private fun normalizePath(
-        path: String,
+        path: String
     ): String =
         path.trim().replace(
             '\\',
-            '/',
+            '/'
         )
 
     private companion object {

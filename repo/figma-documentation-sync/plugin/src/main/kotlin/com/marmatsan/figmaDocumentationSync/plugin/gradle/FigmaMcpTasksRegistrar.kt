@@ -7,7 +7,7 @@ import java.io.File
 
 /** Registers local MCP execution and endpoint-probe tasks. */
 internal class FigmaMcpTasksRegistrar(
-    private val context: FigmaPluginContext,
+    private val context: FigmaPluginContext
 ) {
     /** Registers the local MCP runner and endpoint capability probe. */
     fun register() {
@@ -25,7 +25,7 @@ internal class FigmaMcpTasksRegistrar(
             statePath.convention(project.providers.gradleProperty("figmaMcpState"))
             visualStatePath.convention(project.providers.gradleProperty("figmaMcpVisualState"))
             endpoint.convention(
-                project.providers.gradleProperty("figmaMcpEndpoint").orElse(DEFAULT_MCP_ENDPOINT),
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse(DEFAULT_MCP_ENDPOINT)
             )
             resume.convention(context.booleanProperty("figmaMcpResume"))
             retryFailed.convention(context.booleanProperty("figmaMcpRetryFailed"))
@@ -38,8 +38,8 @@ internal class FigmaMcpTasksRegistrar(
             summary.convention(project.providers.gradleProperty("figmaMcpSummary"))
             writerProjectConfigFile.set(
                 project.layout.file(
-                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File),
-                ),
+                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File)
+                )
             )
         }
     }
@@ -50,12 +50,12 @@ internal class FigmaMcpTasksRegistrar(
             group = "verification"
             description = "Probes the local MCP endpoint with the official Kotlin SDK client."
             endpoint.convention(
-                project.providers.gradleProperty("figmaMcpEndpoint").orElse(DEFAULT_MCP_ENDPOINT),
+                project.providers.gradleProperty("figmaMcpEndpoint").orElse(DEFAULT_MCP_ENDPOINT)
             )
             writerProjectConfigFile.set(
                 project.layout.file(
-                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File),
-                ),
+                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File)
+                )
             )
         }
     }

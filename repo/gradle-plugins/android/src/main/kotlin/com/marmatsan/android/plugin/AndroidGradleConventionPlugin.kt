@@ -19,20 +19,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 @Suppress("unused")
 class AndroidGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         when {
             project.plugins.hasPlugin(AppPlugin::class) -> {
                 configureApplicationExtension(
                     project = project,
-                    extension = project.extensions.getByType<ApplicationExtension>(),
+                    extension = project.extensions.getByType<ApplicationExtension>()
                 )
             }
 
             else -> {
                 configureLibraryExtension(
                     project = project,
-                    extension = project.extensions.getByType<LibraryExtension>(),
+                    extension = project.extensions.getByType<LibraryExtension>()
                 )
             }
         }
@@ -47,40 +47,40 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
         project.dependencies {
             val libs =
                 withVersionCatalog(
-                    libs = libs,
+                    libs = libs
                 )
 
             // Android core
             libs.implementation(
                 libraryGroup = "androidx.core",
-                artifact = "core-ktx",
+                artifact = "core-ktx"
             )
             libs.implementation(
                 libraryGroup = "androidx.lifecycle",
-                artifact = "lifecycle-runtime-ktx",
+                artifact = "lifecycle-runtime-ktx"
             )
 
             // Dependency injection
             libs.ksp(
                 libraryGroup = "me.tatarka.inject",
-                artifact = "kotlin-inject-compiler-ksp",
+                artifact = "kotlin-inject-compiler-ksp"
             )
             libs.implementation(
                 libraryGroup = "me.tatarka.inject",
-                artifact = "kotlin-inject-runtime",
+                artifact = "kotlin-inject-runtime"
             )
 
             // Coroutines
             libs.implementation(
                 libraryGroup = "org.jetbrains.kotlinx",
-                artifact = "kotlinx-coroutines-android",
+                artifact = "kotlinx-coroutines-android"
             )
         }
     }
 
     private fun configureApplicationExtension(
         project: Project,
-        extension: ApplicationExtension,
+        extension: ApplicationExtension
     ) {
         extension.apply {
             namespace = "com.marmatsan.${project.name}"
@@ -103,13 +103,13 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
             }
         }
         configureKotlin(
-            project = project,
+            project = project
         )
     }
 
     private fun configureLibraryExtension(
         project: Project,
-        extension: LibraryExtension,
+        extension: LibraryExtension
     ) {
         extension.apply {
             namespace = "com.marmatsan.${project.name}"
@@ -124,12 +124,12 @@ class AndroidGradleConventionPlugin : Plugin<Project> {
             }
         }
         configureKotlin(
-            project = project,
+            project = project
         )
     }
 
     private fun configureKotlin(
-        project: Project,
+        project: Project
     ) {
         project.tasks.withType<KotlinJvmCompile>().configureEach {
             compilerOptions.apply {

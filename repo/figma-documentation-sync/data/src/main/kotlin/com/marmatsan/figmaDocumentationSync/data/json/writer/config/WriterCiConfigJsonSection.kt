@@ -7,128 +7,128 @@ import kotlinx.serialization.json.put
 internal object WriterCiConfigJsonSection : FigmaWriterProjectConfigJsonSection {
     override fun write(
         context: FigmaWriterProjectConfigJsonContext,
-        json: JsonObjectBuilder,
+        json: JsonObjectBuilder
     ) {
         val config = context.config
         json.put(
             "CI_DOCUMENTATION_PAGE_ID",
-            config.ciDocumentationPageId,
+            config.ciDocumentationPageId
         )
         json.put(
             "CI_NODE_COMPONENT_ID",
-            config.ciNodeComponentId,
+            config.ciNodeComponentId
         )
         json.put(
             "CI_ICON_COMPONENT_SET_ID",
-            config.ciIconComponentSetId,
+            config.ciIconComponentSetId
         )
         json.put(
             "CI_VARIABLE_COLLECTION_NAME",
-            config.ciVariableCollectionName,
+            config.ciVariableCollectionName
         )
         json.put(
             "CI_VARIABLE_MODE_NAMES",
-            config.ciVariableModeNames.toJsonArray(),
+            config.ciVariableModeNames.toJsonArray()
         )
         json.put(
             "CI_NODE_INSTANCE_NAME",
-            config.ciNodeInstanceName,
+            config.ciNodeInstanceName
         )
         json.put(
             "CI_ICON_INSTANCE_NAME",
-            config.ciIconInstanceName,
+            config.ciIconInstanceName
         )
         json.put(
             "CI_ICON_ENVIRONMENT_PROPERTY",
-            config.ciIconEnvironmentProperty,
+            config.ciIconEnvironmentProperty
         )
         json.put(
             "CI_ICON_ENVIRONMENTS",
-            config.ciIconEnvironments.toJsonArray(),
+            config.ciIconEnvironments.toJsonArray()
         )
         json.put(
             "CI_CONNECTOR_NAME",
-            config.ciConnectorName,
+            config.ciConnectorName
         )
         json.put(
             "CI_CONNECTOR_TEMPLATE_NAME",
-            config.ciConnectorTemplateName,
+            config.ciConnectorTemplateName
         )
         json.put(
             "CI_CONNECTOR_TEMPLATE_NODE_ID",
-            config.ciConnectorTemplateNodeId,
+            config.ciConnectorTemplateNodeId
         )
         json.put(
             "CI_NODE_PROPS",
-            config.ciNodeProps.toJsonObject(),
+            config.ciNodeProps.toJsonObject()
         )
         json.put(
             "CI_NODE_PHASE_CONTAINER_NAME",
-            config.ciNodePhaseContainerName,
+            config.ciNodePhaseContainerName
         )
         json.put(
             "CI_NODE_OUTCOME_CONTAINER_NAME",
-            config.ciNodeOutcomeContainerName,
+            config.ciNodeOutcomeContainerName
         )
         json.put(
             "CI_PHASE_COMPONENT_ID",
-            config.ciPhaseComponentId,
+            config.ciPhaseComponentId
         )
         json.put(
             "CI_PHASE_SLOT_NAME_PREFIX",
-            config.ciPhaseSlotNamePrefix,
+            config.ciPhaseSlotNamePrefix
         )
         json.put(
             "CI_PHASE_SLOT_COUNT",
-            config.ciPhaseSlotCount,
+            config.ciPhaseSlotCount
         )
         json.put(
             "CI_PHASE_PROPS",
-            config.ciPhaseProps.toJsonObject(),
+            config.ciPhaseProps.toJsonObject()
         )
         json.put(
             "CI_PHASE_STEP_CONTAINER_NAME",
-            config.ciPhaseStepContainerName,
+            config.ciPhaseStepContainerName
         )
         json.put(
             "CI_STEP_COMPONENT_SET_ID",
-            config.ciStepComponentSetId,
+            config.ciStepComponentSetId
         )
         json.put(
             "CI_STEP_SLOT_NAME_PREFIX",
-            config.ciStepSlotNamePrefix,
+            config.ciStepSlotNamePrefix
         )
         json.put(
             "CI_STEP_SLOT_COUNT",
-            config.ciStepSlotCount,
+            config.ciStepSlotCount
         )
         json.put(
             "CI_STEP_ROLES",
-            config.ciStepRoles.toJsonArray(),
+            config.ciStepRoles.toJsonArray()
         )
         json.put(
             "CI_STEP_PROPS",
-            config.ciStepProps.toJsonObject(),
+            config.ciStepProps.toJsonObject()
         )
         json.put(
             "CI_OUTCOME_COMPONENT_SET_ID",
-            config.ciOutcomeComponentSetId,
+            config.ciOutcomeComponentSetId
         )
         json.put(
             "CI_OUTCOME_SLOT_NAME_PREFIX",
-            config.ciOutcomeSlotNamePrefix,
+            config.ciOutcomeSlotNamePrefix
         )
         json.put(
             "CI_OUTCOME_SLOT_COUNT",
-            config.ciOutcomeSlotCount,
+            config.ciOutcomeSlotCount
         )
         json.put(
             "CI_OUTCOME_KINDS",
-            config.ciOutcomeKinds.toJsonArray(),
+            config.ciOutcomeKinds.toJsonArray()
         )
         json.put(
             "CI_OUTCOME_PROPS",
-            config.ciOutcomeProps.toJsonObject(),
+            config.ciOutcomeProps.toJsonObject()
         )
     }
 }

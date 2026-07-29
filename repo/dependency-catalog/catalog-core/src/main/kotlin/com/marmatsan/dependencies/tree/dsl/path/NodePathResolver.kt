@@ -15,7 +15,7 @@ import com.marmatsan.dependencies.tree.node.Node
 internal fun <T : DependencyNode> Node<T>.resolvePath(
     path: DependencyPath,
     segment: (T) -> String,
-    createValue: (String) -> T,
+    createValue: (String) -> T
 ): ResolvedPathNode<T> {
     var parent = this
     var resolvedParent = this
@@ -33,7 +33,7 @@ internal fun <T : DependencyNode> Node<T>.resolvePath(
         val child =
             matchingChildren.singleOrNull()
                 ?: Node(
-                    value = createValue(pathSegment),
+                    value = createValue(pathSegment)
                 ).also(parent::add)
 
         resolvedParent = parent
@@ -43,6 +43,6 @@ internal fun <T : DependencyNode> Node<T>.resolvePath(
 
     return ResolvedPathNode(
         parent = resolvedParent,
-        node = requireNotNull(resolvedNode),
+        node = requireNotNull(resolvedNode)
     )
 }

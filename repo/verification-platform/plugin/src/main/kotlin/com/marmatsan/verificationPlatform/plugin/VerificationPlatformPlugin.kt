@@ -18,7 +18,7 @@ class VerificationPlatformPlugin : Plugin<Project> {
      * discovery and report locations are repository-wide concerns.
      */
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         require(project == project.rootProject) {
             "com.marmatsan.verificationPlatform must be applied to the root project."
@@ -31,34 +31,34 @@ class VerificationPlatformPlugin : Plugin<Project> {
                 generateCiPlan = configurableTasks.generateCiPlan,
                 checkIncludedBuildVersions = configurableTasks.checkIncludedBuildVersions,
                 checkModuleBoundaries = configurableTasks.checkModuleBoundaries,
-                checkTypedResultUsage = configurableTasks.checkTypedResultUsage,
+                checkTypedResultUsage = configurableTasks.checkTypedResultUsage
             )
         project.extensions.add(
             "verificationPlatform",
-            extension,
+            extension
         )
 
         val checkDocumentation =
             RepositoryVerificationTasksRegistrar(
                 project = project,
-                generateCiPlan = configurableTasks.generateCiPlan,
+                generateCiPlan = configurableTasks.generateCiPlan
             ).register()
         CiVerificationTasksRegistrar(
             project = project,
-            generateCiPlan = configurableTasks.generateCiPlan,
+            generateCiPlan = configurableTasks.generateCiPlan
         ).register()
         val checkTeamCityDsl =
             TeamCityVerificationTasksRegistrar(
                 project = project,
                 extension = extension,
                 generateCiPlan = configurableTasks.generateCiPlan,
-                checkDocumentation = checkDocumentation,
+                checkDocumentation = checkDocumentation
             ).register()
         VerificationLifecycleConfigurer(
             project = project,
             configurableTasks = configurableTasks,
             checkDocumentation = checkDocumentation,
-            checkTeamCityDsl = checkTeamCityDsl,
+            checkTeamCityDsl = checkTeamCityDsl
         ).configure()
     }
 }

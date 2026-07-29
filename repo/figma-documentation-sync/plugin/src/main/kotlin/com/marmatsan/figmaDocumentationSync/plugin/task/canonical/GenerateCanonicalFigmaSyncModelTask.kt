@@ -9,7 +9,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Applies canonical change-impact gating to portable design-model generation. */
 @DisableCachingByDefault(
-    because = "Generation records Git, environment, and current-time runtime state",
+    because = "Generation records Git, environment, and current-time runtime state"
 )
 abstract class GenerateCanonicalFigmaSyncModelTask : GenerateFigmaDesignModelTask() {
     /** Classified change-impact artifact that decides whether generation is required. */

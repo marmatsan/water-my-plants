@@ -8,7 +8,7 @@ import java.io.File
 
 /** Registers tasks that materialize portable Figma and CI visual models. */
 internal class FigmaModelTasksRegistrar(
-    private val context: FigmaPluginContext,
+    private val context: FigmaPluginContext
 ) {
     /** Registers the design-model and CI visual-plan generators and returns the model task. */
     fun register(): TaskProvider<GenerateFigmaDesignModelTask> {
@@ -24,20 +24,20 @@ internal class FigmaModelTasksRegistrar(
             designModelFile.set(
                 project.layout
                     .file(
-                        project.providers.gradleProperty("figmaCiVisualDesignModel").map(::File),
-                    ).orElse(context.extension.designModelFile),
+                        project.providers.gradleProperty("figmaCiVisualDesignModel").map(::File)
+                    ).orElse(context.extension.designModelFile)
             )
             writerProjectConfigFile.set(
                 project.layout.file(
-                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File),
-                ),
+                    project.providers.gradleProperty("figmaWriterProjectConfig").map(::File)
+                )
             )
             target.convention(project.providers.gradleProperty("figmaCiVisualTarget"))
             outputFile.set(
                 project.layout
                     .file(
-                        project.providers.gradleProperty("figmaCiVisualPlanOutput").map(::File),
-                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/ci-visual-plan.json")),
+                        project.providers.gradleProperty("figmaCiVisualPlanOutput").map(::File)
+                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/ci-visual-plan.json"))
             )
         }
     }

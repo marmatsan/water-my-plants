@@ -6,5 +6,5 @@ package com.marmatsan.figmaDocumentationSync.domain.port.ci
  * @property filePath repository-relative Windows runtime source path.
  */
 data class CiWindowsRuntimeSource(
-    val filePath: String,
+    val filePath: String
 )

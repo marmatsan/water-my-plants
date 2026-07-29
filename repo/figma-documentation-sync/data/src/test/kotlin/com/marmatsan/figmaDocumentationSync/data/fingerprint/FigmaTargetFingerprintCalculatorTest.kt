@@ -28,7 +28,7 @@ internal class FigmaTargetFingerprintCalculatorTest :
                                 "ci": {"pipelines": []}
                               }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         ).jsonObject
 
                 val result =
@@ -40,9 +40,9 @@ internal class FigmaTargetFingerprintCalculatorTest :
                                 "headers",
                                 "versions",
                                 "waterMyPlants.libraries",
-                                "ci.overview",
+                                "ci.overview"
                             ),
-                        catalogTargets = listOf("waterMyPlants.libraries"),
+                        catalogTargets = listOf("waterMyPlants.libraries")
                     )
 
                 result["preflight"] shouldBe
@@ -60,5 +60,5 @@ internal class FigmaTargetFingerprintCalculatorTest :
                 result["ci.overview"] shouldBe
                     "sha256:f6cddc759e841bf1520301259892b223587f389b9d85795bcae9f02be832122d"
             }
-        },
+        }
     )

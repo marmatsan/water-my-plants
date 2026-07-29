@@ -12,7 +12,7 @@ internal class CiWindowsRuntimeYamlReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "ci-windows-runtime-yaml",
+                    prefix = "ci-windows-runtime-yaml"
                 )
 
             test("read maps the versioned Windows service runtime") {
@@ -34,7 +34,7 @@ internal class CiWindowsRuntimeYamlReaderTest :
                                     service: TeamCity
                                     startup: Automatic
                                     identity: NT SERVICE\TeamCity
-                                """.trimIndent(),
+                                """.trimIndent()
                             )
                         }
 
@@ -45,7 +45,7 @@ internal class CiWindowsRuntimeYamlReaderTest :
                     LocalDate.of(
                         2026,
                         7,
-                        16,
+                        16
                     )
                 runtime.validation.warnAfterDays shouldBe 90
                 runtime.platform shouldBe "Windows"
@@ -56,7 +56,7 @@ internal class CiWindowsRuntimeYamlReaderTest :
                         description = "Hosts TeamCity.",
                         service = "TeamCity",
                         startup = "Automatic",
-                        identity = "NT SERVICE\\TeamCity",
+                        identity = "NT SERVICE\\TeamCity"
                     )
             }
 
@@ -85,7 +85,7 @@ internal class CiWindowsRuntimeYamlReaderTest :
                                     service: TCBuildAgent
                                     startup: Automatic
                                     identity: LocalSystem
-                                """.trimIndent(),
+                                """.trimIndent()
                             )
                         }
 
@@ -93,5 +93,5 @@ internal class CiWindowsRuntimeYamlReaderTest :
                     CiWindowsRuntimeYamlReader().read(file)
                 }.message shouldBe "CI Windows runtime service ids must be unique"
             }
-        },
+        }
     )

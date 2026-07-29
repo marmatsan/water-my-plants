@@ -14,7 +14,7 @@ class McpRunnerSourceRenderer {
     /** Renders the operation that removes stale canonical staging data. */
     fun clearStaging(
         metadataPageId: String,
-        namespace: String,
+        namespace: String
     ): String =
         render(
             templateName = CLEAR_STAGING_TEMPLATE,
@@ -22,13 +22,13 @@ class McpRunnerSourceRenderer {
                 mapOf(
                     "METADATA_PAGE_ID" to
                         quote(
-                            value = metadataPageId,
+                            value = metadataPageId
                         ),
                     "NAMESPACE" to
                         quote(
-                            value = namespace,
-                        ),
-                ),
+                            value = namespace
+                        )
+                )
         )
 
     /** Renders one validated append operation for a chunked staging value. */
@@ -39,7 +39,7 @@ class McpRunnerSourceRenderer {
         chunk: String,
         chunkIndex: Int,
         chunkCount: Int,
-        previousLength: Int,
+        previousLength: Int
     ): String =
         render(
             templateName = APPEND_CHUNK_TEMPLATE,
@@ -47,25 +47,25 @@ class McpRunnerSourceRenderer {
                 mapOf(
                     "METADATA_PAGE_ID" to
                         quote(
-                            value = metadataPageId,
+                            value = metadataPageId
                         ),
                     "NAMESPACE" to
                         quote(
-                            value = namespace,
+                            value = namespace
                         ),
                     "KEY" to
                         quote(
-                            value = key,
+                            value = key
                         ),
                     "CHUNK" to
                         quote(
-                            value = chunk,
+                            value = chunk
                         ),
                     "CHUNK_LENGTH" to chunk.length.toString(),
                     "PREVIOUS_LENGTH" to previousLength.toString(),
                     "CHUNK_INDEX" to chunkIndex.toString(),
-                    "CHUNK_COUNT" to chunkCount.toString(),
-                ),
+                    "CHUNK_COUNT" to chunkCount.toString()
+                )
         )
 
     /** Renders the operation that decodes and stages a previously uploaded PNG payload. */
@@ -73,7 +73,7 @@ class McpRunnerSourceRenderer {
         metadataPageId: String,
         namespace: String,
         payloadFileName: String,
-        identity: JsonObject,
+        identity: JsonObject
     ): String =
         render(
             templateName = STAGE_PAYLOAD_TEMPLATE,
@@ -81,32 +81,32 @@ class McpRunnerSourceRenderer {
                 mapOf(
                     "METADATA_PAGE_ID" to
                         quote(
-                            value = metadataPageId,
+                            value = metadataPageId
                         ),
                     "NAMESPACE" to
                         quote(
-                            value = namespace,
+                            value = namespace
                         ),
                     "PAYLOAD_KEYWORD" to
                         quote(
-                            value = PayloadPngEncoder.TEXT_KEYWORD,
+                            value = PayloadPngEncoder.TEXT_KEYWORD
                         ),
                     "PAYLOAD_FILE_NAME" to
                         quote(
-                            value = payloadFileName,
+                            value = payloadFileName
                         ),
                     "EXPECTED_IDENTITY" to
                         CanonicalJson.stringify(
-                            value = identity,
-                        ),
-                ),
+                            value = identity
+                        )
+                )
         )
 
     /** Renders the operation that validates and commits the staged canonical identity. */
     fun finalizeStaging(
         metadataPageId: String,
         namespace: String,
-        identity: JsonObject,
+        identity: JsonObject
     ): String =
         render(
             templateName = FINALIZE_STAGING_TEMPLATE,
@@ -114,17 +114,17 @@ class McpRunnerSourceRenderer {
                 mapOf(
                     "METADATA_PAGE_ID" to
                         quote(
-                            value = metadataPageId,
+                            value = metadataPageId
                         ),
                     "NAMESPACE" to
                         quote(
-                            value = namespace,
+                            value = namespace
                         ),
                     "EXPECTED_IDENTITY" to
                         CanonicalJson.stringify(
-                            value = identity,
-                        ),
-                ),
+                            value = identity
+                        )
+                )
         )
 
     /** Renders the operation that invokes one model [modelTarget] for [executionScope]. */
@@ -133,7 +133,7 @@ class McpRunnerSourceRenderer {
         namespace: String,
         syncOptions: JsonObject,
         executionScope: String,
-        modelTarget: String,
+        modelTarget: String
     ): String =
         render(
             templateName = RUN_TARGET_TEMPLATE,
@@ -141,25 +141,25 @@ class McpRunnerSourceRenderer {
                 mapOf(
                     "METADATA_PAGE_ID" to
                         quote(
-                            value = metadataPageId,
+                            value = metadataPageId
                         ),
                     "NAMESPACE" to
                         quote(
-                            value = namespace,
+                            value = namespace
                         ),
                     "SYNC_OPTIONS" to
                         CanonicalJson.stringify(
-                            value = syncOptions,
+                            value = syncOptions
                         ),
                     "EXECUTION_SCOPE" to
                         quote(
-                            value = executionScope,
+                            value = executionScope
                         ),
                     "MODEL_TARGET" to
                         quote(
-                            value = modelTarget,
-                        ),
-                ),
+                            value = modelTarget
+                        )
+                )
         )
 
     /** Builds the canonical identity that generated staging code must verify. */
@@ -169,36 +169,36 @@ class McpRunnerSourceRenderer {
         modelLength: Int,
         scriptLength: Int,
         writerHash: String,
-        transportHash: String,
+        transportHash: String
     ): JsonObject =
         buildJsonObject {
             put(
                 "payloadSchemaVersion",
-                PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION,
+                PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION
             )
             put(
                 "designModelHash",
-                modelHash,
+                modelHash
             )
             put(
                 "designModelGitSha",
-                gitSha,
+                gitSha
             )
             put(
                 "designModelLength",
-                modelLength.toString(),
+                modelLength.toString()
             )
             put(
                 "scriptLength",
-                scriptLength.toString(),
+                scriptLength.toString()
             )
             put(
                 "writerHash",
-                writerHash,
+                writerHash
             )
             put(
                 "transportHash",
-                transportHash,
+                transportHash
             )
         }
 
@@ -208,24 +208,24 @@ class McpRunnerSourceRenderer {
             Sha256Hash.of(
                 value =
                     template(
-                        name = templateName,
-                    ).toByteArray(StandardCharsets.UTF_8),
+                        name = templateName
+                    ).toByteArray(StandardCharsets.UTF_8)
             )
         }
 
     private fun render(
         templateName: String,
-        replacements: Map<String, String>,
+        replacements: Map<String, String>
     ): String {
         val rendered =
             replacements.entries.fold(
                 template(
-                    name = templateName,
-                ),
+                    name = templateName
+                )
             ) { source, (name, value) ->
                 source.replace(
                     "@@$name@@",
-                    value,
+                    value
                 )
             }
         val unresolved = PLACEHOLDER.find(rendered)?.value
@@ -234,7 +234,7 @@ class McpRunnerSourceRenderer {
     }
 
     private fun template(
-        name: String,
+        name: String
     ): String =
         javaClass
             .getResourceAsStream("/figma-mcp/$name")
@@ -243,7 +243,7 @@ class McpRunnerSourceRenderer {
             ?: error("Missing packaged MCP runner template '$name'.")
 
     private fun quote(
-        value: String,
+        value: String
     ): String = JsonPrimitive(value).toString()
 
     private companion object {
@@ -259,7 +259,7 @@ class McpRunnerSourceRenderer {
                 APPEND_CHUNK_TEMPLATE,
                 STAGE_PAYLOAD_TEMPLATE,
                 FINALIZE_STAGING_TEMPLATE,
-                RUN_TARGET_TEMPLATE,
+                RUN_TARGET_TEMPLATE
             )
         val PLACEHOLDER = Regex("@@[A-Z_]+@@")
     }

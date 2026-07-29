@@ -9,24 +9,24 @@ import com.marmatsan.onboarding.ui.component.AssetsShape
 import com.marmatsan.onboarding.ui.component.AssetsShapeVariant
 
 @FigmaConnect(
-    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62873%3A2721",
+    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62873%3A2721"
 )
 class AssetsShapeDoc {
     @FigmaProperty(
         type = FigmaType.Enum,
-        value = "shape",
+        value = "shape"
     )
     val variant: AssetsShapeVariant =
         Figma.mapping(
             "shape1" to AssetsShapeVariant.Shape1,
             "shape2" to AssetsShapeVariant.Shape2,
-            "shape3" to AssetsShapeVariant.Shape3,
+            "shape3" to AssetsShapeVariant.Shape3
         )
 
     @Composable
     fun Example() {
         AssetsShape(
-            variant = variant,
+            variant = variant
         )
     }
 }

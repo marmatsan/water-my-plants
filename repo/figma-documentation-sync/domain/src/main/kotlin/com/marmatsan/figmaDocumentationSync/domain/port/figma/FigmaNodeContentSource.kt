@@ -11,6 +11,6 @@ fun interface FigmaNodeContentSource {
         fileKey: String,
         token: String,
         nodeId: String,
-        pluginData: String?,
+        pluginData: String?
     ): Result<FigmaNodeContent, FigmaNodeContentError>
 }

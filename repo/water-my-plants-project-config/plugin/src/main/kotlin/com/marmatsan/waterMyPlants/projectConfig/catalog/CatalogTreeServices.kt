@@ -14,12 +14,12 @@ import com.marmatsan.dependencies.catalog.api.PluginCatalogNode as SourcePluginC
 internal interface CatalogTreeMapper {
     /** Maps library [roots] without reading repository state. */
     fun libraryTree(
-        roots: List<SourceLibraryCatalogNode>,
+        roots: List<SourceLibraryCatalogNode>
     ): LibraryCatalogTree
 
     /** Maps plugin [roots] without reading repository state. */
     fun pluginTree(
-        roots: List<SourcePluginCatalogNode>,
+        roots: List<SourcePluginCatalogNode>
     ): PluginCatalogTree
 }
 
@@ -27,12 +27,12 @@ internal interface CatalogTreeMapper {
 internal interface MainCatalogUsageSource {
     /** Reads library coordinates, bundles, and aliases used below [rootDir]. */
     fun libraryUsages(
-        rootDir: File,
+        rootDir: File
     ): MainLibraryUsages
 
     /** Reads plugin ids and the product modules that apply them below [rootDir]. */
     fun pluginUsages(
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>>
 }
 
@@ -41,13 +41,13 @@ internal interface ConventionPluginCatalogUsageSource {
     /** Reads library usage supplied or configured by [includedBuilds]. */
     fun libraryUsages(
         rootDir: File,
-        includedBuilds: List<IncludedBuildSource>,
+        includedBuilds: List<IncludedBuildSource>
     ): ConventionPluginLibraryUsages
 
     /** Reads plugin usage supplied by convention plugins from [includedBuilds]. */
     fun pluginUsages(
         rootDir: File,
-        includedBuilds: List<IncludedBuildSource>,
+        includedBuilds: List<IncludedBuildSource>
     ): Map<String, List<PluginCatalogNode.ConventionPluginUsage>>
 }
 
@@ -57,7 +57,7 @@ internal interface LibraryCatalogUsageEnricher {
     fun enrich(
         tree: LibraryCatalogTree,
         mainUsages: MainLibraryUsages,
-        conventionPluginUsages: ConventionPluginLibraryUsages,
+        conventionPluginUsages: ConventionPluginLibraryUsages
     ): LibraryCatalogTree
 }
 
@@ -67,7 +67,7 @@ internal interface PluginCatalogUsageEnricher {
     fun enrich(
         tree: PluginCatalogTree,
         mainUsages: Map<String, Set<String>>,
-        conventionPluginUsages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>,
+        conventionPluginUsages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>
     ): PluginCatalogTree
 }
 
@@ -81,7 +81,7 @@ internal interface PluginCatalogUsageEnricher {
 internal data class MainLibraryUsages(
     val coordinates: Map<String, Set<String>> = emptyMap(),
     val bundles: Map<String, Set<String>> = emptyMap(),
-    val aliases: Map<String, Set<String>> = emptyMap(),
+    val aliases: Map<String, Set<String>> = emptyMap()
 )
 
 /**
@@ -94,5 +94,5 @@ internal data class MainLibraryUsages(
 internal data class ConventionPluginLibraryUsages(
     val coordinates: Map<String, List<ConventionPluginUsage>> = emptyMap(),
     val bundles: Map<String, List<ConventionPluginUsage>> = emptyMap(),
-    val configuredCoordinates: Map<String, List<ConventionPluginConfigurationUsage>> = emptyMap(),
+    val configuredCoordinates: Map<String, List<ConventionPluginConfigurationUsage>> = emptyMap()
 )

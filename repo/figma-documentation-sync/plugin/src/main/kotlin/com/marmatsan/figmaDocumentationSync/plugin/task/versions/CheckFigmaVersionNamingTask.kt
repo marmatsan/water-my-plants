@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
  * Figma dependency version naming contract.
  */
 @DisableCachingByDefault(
-    because = "The verification task has no reusable output artifact",
+    because = "The verification task has no reusable output artifact"
 )
 abstract class CheckFigmaVersionNamingTask : DefaultTask() {
     /** Version properties file whose sections and keys are validated. */
@@ -31,8 +31,8 @@ abstract class CheckFigmaVersionNamingTask : DefaultTask() {
         val result =
             FigmaDocumentationSyncComponent::class.create().versionNamingChecker.check(
                 VersionNamingCheckRequest(
-                    versionsFile = versionsFile.get().asFile,
-                ),
+                    versionsFile = versionsFile.get().asFile
+                )
             )
 
         if (!result.isSuccessful) {
@@ -41,12 +41,12 @@ abstract class CheckFigmaVersionNamingTask : DefaultTask() {
                     appendLine("Invalid dependency version naming found.")
                     appendLine(
                         "Keep main project versions in the main section, library versions ending " +
-                            "in LibraryVersion, and plugin versions ending in PluginVersion:",
+                            "in LibraryVersion, and plugin versions ending in PluginVersion:"
                     )
                     result.violations.forEach { violation ->
                         appendLine("- ${violation.message}")
                     }
-                }.trimEnd(),
+                }.trimEnd()
             )
         }
 

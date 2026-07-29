@@ -21,7 +21,7 @@ dokka {
     dokkaPublications.html {
         failOnWarning.set(true)
         includes.from(
-            "docs/dokka/README.md",
+            "docs/dokka/README.md"
         )
     }
 
@@ -29,8 +29,8 @@ dokka {
         documentedVisibilities.set(
             setOf(
                 VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
+                VisibilityModifier.Internal
+            )
         )
         reportUndocumented.set(true)
 
@@ -39,8 +39,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/water-my-plants-project-config/catalog/src/main/kotlin",
-                ),
+                        "repo/water-my-plants-project-config/catalog/src/main/kotlin"
+                )
             )
             remoteLineSuffix.set("#L")
         }

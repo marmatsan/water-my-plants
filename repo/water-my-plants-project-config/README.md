@@ -48,16 +48,25 @@ plugins {
 }
 ```
 
-The adapter then applies the reusable `com.marmatsan.figmaDocumentationSync` plugin.
+This literal is an intentional bootstrap exception. The settings plugin and
+project adapter share one implementation JAR, so applying
+`com.marmatsan.waterMyPlantsSettings` puts the project plugin on the root
+build-script classpath before the generated plugin catalog exists. Gradle
+reports that classpath entry with an unknown version and cannot accept a later
+versioned alias for it. The adapter then applies the reusable
+`com.marmatsan.figmaDocumentationSync` plugin.
 
 ## Local Build Catalogs
 
-The included build declares type-safe `libs` and `plugins` catalogs in
-`settings.gradle.kts`. Its module build scripts consume reusable repository
-tooling through generated catalog accessors rather than repeating Maven
-coordinates or external plugin ids. The portable Maven aliases share the
-`figmaDocumentationSyncVersion` Gradle property so composite source substitution
-and staged publication verification resolve the same coordinated version.
+The settings plugin declares type-safe `libs`, `plugins`, `testLibs`, and
+`toolPlugins` catalogs. Product modules consume the production catalogs,
+repository tests consume `testLibs`, and the root build consumes
+`toolPlugins.plugins.com.marmatsan.verificationPlatform`. This separation keeps
+repository verification tooling out of the production plugin tree while
+retaining generated accessors. The portable Maven aliases share the
+`figmaDocumentationSyncVersion` Gradle property so composite source
+substitution and staged publication verification resolve the same coordinated
+version.
 
 These local aliases are compile-time inputs for the composition build. They do
 not add tooling artifacts to `WaterMyPlantsCatalogProvider` and therefore do

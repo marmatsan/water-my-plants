@@ -7,44 +7,44 @@ import kotlinx.serialization.json.put
 internal object WriterVisualStructureConfigJsonSection : FigmaWriterProjectConfigJsonSection {
     override fun write(
         context: FigmaWriterProjectConfigJsonContext,
-        json: JsonObjectBuilder,
+        json: JsonObjectBuilder
     ) {
         val config = context.config
         json.put(
             "PARENT_SECTION_SIBLING_GAP",
-            config.parentSectionSiblingGap,
+            config.parentSectionSiblingGap
         )
         json.put(
             "PARENT_SECTION_NODE_IDS",
-            config.parentSectionNodeIds.toJsonArray(),
+            config.parentSectionNodeIds.toJsonArray()
         )
         json.put(
             "PARENT_SECTION_CORNER_RADIUS",
-            config.parentSectionCornerRadius,
+            config.parentSectionCornerRadius
         )
         json.put(
             "SECTION_SIBLING_GAP",
-            config.sectionSiblingGap,
+            config.sectionSiblingGap
         )
         json.put(
             "TREE_NODE_COMPONENT_IDS",
-            config.treeNodeComponentIds.toJsonObject(),
+            config.treeNodeComponentIds.toJsonObject()
         )
         json.put(
             "CONNECTOR_TEMPLATE_NAME",
-            config.connectorTemplateName,
+            config.connectorTemplateName
         )
         json.put(
             "HEADER_INSTANCE_NAME",
-            config.headerInstanceName,
+            config.headerInstanceName
         )
         json.put(
             "HEADER_LINK_PROPERTY_NAME",
-            config.headerLinkPropertyName,
+            config.headerLinkPropertyName
         )
         json.put(
             "HEADER_DEFINITION_PROPERTY_NAME",
-            config.headerDefinitionPropertyName,
+            config.headerDefinitionPropertyName
         )
     }
 }

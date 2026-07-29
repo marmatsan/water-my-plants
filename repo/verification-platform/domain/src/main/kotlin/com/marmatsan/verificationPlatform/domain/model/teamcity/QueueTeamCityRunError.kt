@@ -16,7 +16,7 @@ sealed interface QueueTeamCityRunError {
      */
     data class RequestRejected(
         val statusCode: Int,
-        val responseBody: String,
+        val responseBody: String
     ) : QueueTeamCityRunError
 
     /** TeamCity returned a successful HTTP response that did not satisfy the response contract. */
@@ -28,6 +28,6 @@ sealed interface QueueTeamCityRunError {
      * @property detail non-sensitive transport detail supplied by the adapter.
      */
     data class Unavailable(
-        val detail: String,
+        val detail: String
     ) : QueueTeamCityRunError
 }

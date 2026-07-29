@@ -16,12 +16,12 @@ import kotlin.io.path.isRegularFile
 class CanonicalFigmaArtifactSetReader {
     /** Reads required artifact paths and their typed cross-file identity from [artifactDirectory]. */
     fun read(
-        artifactDirectory: String,
+        artifactDirectory: String
     ): Artifacts {
         val root =
             Path
                 .of(
-                    artifactDirectory,
+                    artifactDirectory
                 ).toAbsolutePath()
                 .normalize()
         require(Files.isDirectory(root)) { "Artifact directory does not exist: '$root'." }
@@ -30,43 +30,43 @@ class CanonicalFigmaArtifactSetReader {
             findSingle(
                 root = root,
                 fileName = "design-model.json",
-                description = "design model",
+                description = "design model"
             )
         val scopePath =
             findSingle(
                 root = root,
                 fileName = "sync-scope.json",
-                description = "sync scope",
+                description = "sync scope"
             )
         val planPath =
             findSingle(
                 root = root,
                 fileName = "visual-sync-plan.json",
-                description = "visual sync plan",
+                description = "visual sync plan"
             )
         val manifestPaths =
             findAll(
                 root = root,
-                fileName = "manifest.json",
+                fileName = "manifest.json"
             )
 
         val modelJson =
             readJson(
-                path = modelPath,
+                path = modelPath
             )
         val scopeJson =
             readJson(
-                path = scopePath,
+                path = scopePath
             )
         val planJson =
             readJson(
-                path = planPath,
+                path = planPath
             )
         val manifests =
             manifestPaths.map { path ->
                 path to
                     readManifest(
-                        path = path,
+                        path = path
                     )
             }
         val visualManifestPaths = manifests.filter { it.second.fullVisualSync }.map { it.first }
@@ -84,8 +84,8 @@ class CanonicalFigmaArtifactSetReader {
                     model = modelJson.toModel(),
                     scope = scopeJson.toScope(),
                     plan = planJson.toPlan(),
-                    manifests = manifests.map { it.second },
-                ),
+                    manifests = manifests.map { it.second }
+                )
         )
     }
 
@@ -94,18 +94,18 @@ class CanonicalFigmaArtifactSetReader {
             branch =
                 requiredString(
                     name = "branch",
-                    context = "design-model.json",
+                    context = "design-model.json"
                 ),
             gitSha =
                 requiredString(
                     name = "gitSha",
-                    context = "design-model.json",
+                    context = "design-model.json"
                 ),
             modelHash =
                 requiredString(
                     name = "modelHash",
-                    context = "design-model.json",
-                ),
+                    context = "design-model.json"
+                )
         )
 
     private fun JsonObject.toScope() =
@@ -113,158 +113,158 @@ class CanonicalFigmaArtifactSetReader {
             scope =
                 requiredString(
                     name = "scope",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             gitSha =
                 requiredString(
                     name = "gitSha",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             modelHash =
                 requiredString(
                     name = "modelHash",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             writerHash =
                 requiredString(
                     name = "writerHash",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             transportHash =
                 requiredString(
                     name = "transportHash",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             visualRunnerManifestHash =
                 requiredString(
                     name = "visualRunnerManifestHash",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             metadataRunnerManifestHash =
                 requiredString(
                     name = "metadataRunnerManifestHash",
-                    context = "sync-scope.json",
+                    context = "sync-scope.json"
                 ),
             visualSyncDecision =
                 requiredString(
                     name = "visualSyncDecision",
-                    context = "sync-scope.json",
-                ),
+                    context = "sync-scope.json"
+                )
         )
 
     private fun JsonObject.toPlan(): CanonicalFigmaArtifactContract.Plan {
         val identity =
             requiredObject(
                 name = "identity",
-                context = "visual-sync-plan.json",
+                context = "visual-sync-plan.json"
             )
         return CanonicalFigmaArtifactContract.Plan(
             decision =
                 requiredString(
                     name = "decision",
-                    context = "visual-sync-plan.json",
+                    context = "visual-sync-plan.json"
                 ),
             manifestHash =
                 requiredString(
                     name = "manifestHash",
-                    context = "visual-sync-plan.json",
+                    context = "visual-sync-plan.json"
                 ),
             identity =
                 CanonicalFigmaArtifactContract.Identity(
                     modelHash =
                         identity.requiredString(
                             name = "modelHash",
-                            context = "visual-sync-plan.json identity",
+                            context = "visual-sync-plan.json identity"
                         ),
                     writerHash =
                         identity.requiredString(
                             name = "writerHash",
-                            context = "visual-sync-plan.json identity",
+                            context = "visual-sync-plan.json identity"
                         ),
                     transportHash =
                         identity.requiredString(
                             name = "transportHash",
-                            context = "visual-sync-plan.json identity",
-                        ),
-                ),
+                            context = "visual-sync-plan.json identity"
+                        )
+                )
         )
     }
 
     private fun readManifest(
-        path: Path,
+        path: Path
     ): CanonicalFigmaArtifactContract.Manifest {
         val json =
             readJson(
-                path = path,
+                path = path
             )
         val context = "${path.parent.fileName} manifest"
         return CanonicalFigmaArtifactContract.Manifest(
             mode =
                 json.requiredString(
                     name = "mode",
-                    context = context,
+                    context = context
                 ),
             gitSha =
                 json.requiredString(
                     name = "gitSha",
-                    context = context,
+                    context = context
                 ),
             modelHash =
                 json.requiredString(
                     name = "modelHash",
-                    context = context,
+                    context = context
                 ),
             manifestHash =
                 json.requiredString(
                     name = "manifestHash",
-                    context = context,
+                    context = context
                 ),
             writerHash =
                 json.requiredString(
                     name = "writerHash",
-                    context = context,
+                    context = context
                 ),
             transportHash =
                 json.requiredString(
                     name = "transportHash",
-                    context = context,
+                    context = context
                 ),
             fullVisualSync =
                 json.requiredBoolean(
                     name = "fullVisualSync",
-                    context = context,
+                    context = context
                 ),
             writeMetadata =
                 json.requiredBoolean(
                     name = "writeMetadata",
-                    context = context,
-                ),
+                    context = context
+                )
         )
     }
 
     private fun readJson(
-        path: Path,
+        path: Path
     ): JsonObject =
         try {
             Json.parseToJsonElement(Files.readString(path).removePrefix(UTF8_BOM)).jsonObject
         } catch (
-            exception: Exception,
+            exception: Exception
         ) {
             throw IllegalArgumentException(
                 "Artifact '$path' is not valid JSON: ${exception.message}",
-                exception,
+                exception
             )
         }
 
     private fun findSingle(
         root: Path,
         fileName: String,
-        description: String,
+        description: String
     ): Path {
         val paths =
             findAll(
                 root = root,
-                fileName = fileName,
+                fileName = fileName
             )
         require(paths.size == 1) {
             "Expected exactly one $description under '$root'; found ${paths.size}."
@@ -274,7 +274,7 @@ class CanonicalFigmaArtifactSetReader {
 
     private fun findAll(
         root: Path,
-        fileName: String,
+        fileName: String
     ): List<Path> =
         Files.walk(root).use { paths ->
             paths
@@ -285,21 +285,21 @@ class CanonicalFigmaArtifactSetReader {
 
     private fun JsonObject.requiredString(
         name: String,
-        context: String,
+        context: String
     ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("$context is missing required property '$name'.")
 
     private fun JsonObject.requiredBoolean(
         name: String,
-        context: String,
+        context: String
     ): Boolean =
         this[name]?.jsonPrimitive?.boolean
             ?: throw IllegalArgumentException("$context is missing required property '$name'.")
 
     private fun JsonObject.requiredObject(
         name: String,
-        context: String,
+        context: String
     ): JsonObject =
         this[name]?.jsonObject
             ?: throw IllegalArgumentException("$context is missing required property '$name'.")
@@ -322,7 +322,7 @@ class CanonicalFigmaArtifactSetReader {
         val planPath: Path,
         val visualManifestPath: Path?,
         val metadataManifestPath: Path?,
-        val contract: CanonicalFigmaArtifactContract,
+        val contract: CanonicalFigmaArtifactContract
     )
 
     private companion object {

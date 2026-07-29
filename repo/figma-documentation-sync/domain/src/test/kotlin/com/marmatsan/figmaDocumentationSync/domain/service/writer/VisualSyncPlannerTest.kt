@@ -16,7 +16,7 @@ internal class VisualSyncPlannerTest :
                 val plan =
                     planner.create(
                         manifest,
-                        null,
+                        null
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.FULL
@@ -28,11 +28,11 @@ internal class VisualSyncPlannerTest :
                 val plan =
                     planner.create(
                         manifest.copy(
-                            modelHash = "sha256:model-same",
+                            modelHash = "sha256:model-same"
                         ),
                         previousMetadata(
-                            modelHash = "sha256:model-same",
-                        ),
+                            modelHash = "sha256:model-same"
+                        )
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.NONE
@@ -45,15 +45,15 @@ internal class VisualSyncPlannerTest :
                     planner.create(
                         manifest,
                         previousMetadata(
-                            modelHash = "sha256:model-old",
-                        ),
+                            modelHash = "sha256:model-old"
+                        )
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.PARTIAL
                 plan.body.reason shouldBe "target-model-fingerprints-changed"
                 plan.body.executionScopes.shouldContainExactly(
                     "preflight",
-                    "waterMyPlants.libraries.androidx",
+                    "waterMyPlants.libraries.androidx"
                 )
             }
 
@@ -63,21 +63,21 @@ internal class VisualSyncPlannerTest :
                         writerHash = "sha256:writer-old",
                         writerScopeFingerprints =
                             previousMetadata().writerScopeFingerprints?.plus(
-                                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old",
-                            ),
+                                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
+                            )
                     )
 
                 val plan =
                     planner.create(
                         manifest,
-                        previous,
+                        previous
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.PARTIAL
                 plan.body.reason shouldBe "writer-scope-fingerprints-changed"
                 plan.body.executionScopes.shouldContainExactly(
                     "preflight",
-                    "waterMyPlants.libraries.androidx",
+                    "waterMyPlants.libraries.androidx"
                 )
             }
 
@@ -86,21 +86,21 @@ internal class VisualSyncPlannerTest :
                     previousMetadata().copy(
                         writerScopeFingerprints =
                             previousMetadata().writerScopeFingerprints?.plus(
-                                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old",
-                            ),
+                                pair = "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-old"
+                            )
                     )
 
                 val plan =
                     planner.create(
                         manifest,
-                        previous,
+                        previous
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.PARTIAL
                 plan.body.reason shouldBe "writer-scope-fingerprints-changed"
                 plan.body.executionScopes.shouldContainExactly(
                     "preflight",
-                    "waterMyPlants.libraries.androidx",
+                    "waterMyPlants.libraries.androidx"
                 )
             }
 
@@ -110,14 +110,14 @@ internal class VisualSyncPlannerTest :
                         writerHash = "sha256:writer-old",
                         writerScopeFingerprints =
                             previousMetadata().writerScopeFingerprints?.plus(
-                                pair = "metadata" to "sha256:metadata-writer-old",
-                            ),
+                                pair = "metadata" to "sha256:metadata-writer-old"
+                            )
                     )
 
                 val plan =
                     planner.create(
                         manifest,
-                        previous,
+                        previous
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.PARTIAL
@@ -130,14 +130,14 @@ internal class VisualSyncPlannerTest :
                     planner.create(
                         manifest,
                         previousMetadata().copy(
-                            writerScopeFingerprintSchemaVersion = 2,
-                        ),
+                            writerScopeFingerprintSchemaVersion = 2
+                        )
                     )
 
                 plan.body.decision shouldBe VisualSyncDecision.FULL
                 plan.body.reason shouldBe "writer-scope-fingerprint-schema-changed"
             }
-        },
+        }
     )
 
 private val manifest =
@@ -155,14 +155,14 @@ private val manifest =
                 "99-00-preflight.mcp.js" to "preflight",
                 "99-01-versions.mcp.js" to "versions",
                 "99-02-00-libraries-androidx.mcp.js" to "waterMyPlants.libraries.androidx",
-                "99-02-99-libraries-cleanup.mcp.js" to "waterMyPlants.libraries.cleanup",
+                "99-02-99-libraries-cleanup.mcp.js" to "waterMyPlants.libraries.cleanup"
             ),
         targetFingerprints =
             mapOf(
                 "preflight" to "sha256:preflight-new",
                 "versions" to "sha256:versions-same",
                 "waterMyPlants.libraries.androidx" to "sha256:androidx-new",
-                "waterMyPlants.libraries.cleanup" to "sha256:cleanup-same",
+                "waterMyPlants.libraries.cleanup" to "sha256:cleanup-same"
             ),
         writerScopeFingerprints =
             mapOf(
@@ -170,12 +170,12 @@ private val manifest =
                 "versions" to "sha256:versions-writer-same",
                 "waterMyPlants.libraries.androidx" to "sha256:catalog-writer-same",
                 "waterMyPlants.libraries.cleanup" to "sha256:catalog-writer-same",
-                "metadata" to "sha256:metadata-writer-same",
-            ),
+                "metadata" to "sha256:metadata-writer-same"
+            )
     )
 
 private fun previousMetadata(
-    modelHash: String = manifest.modelHash,
+    modelHash: String = manifest.modelHash
 ) = FigmaSyncMetadata(
     modelHash = modelHash,
     writerHash = manifest.writerHash,
@@ -183,5 +183,5 @@ private fun previousMetadata(
         manifest.targetFingerprints +
             ("waterMyPlants.libraries.androidx" to "sha256:androidx-old"),
     writerScopeFingerprints = manifest.writerScopeFingerprints,
-    writerScopeFingerprintSchemaVersion = manifest.writerScopeFingerprintSchemaVersion,
+    writerScopeFingerprintSchemaVersion = manifest.writerScopeFingerprintSchemaVersion
 )

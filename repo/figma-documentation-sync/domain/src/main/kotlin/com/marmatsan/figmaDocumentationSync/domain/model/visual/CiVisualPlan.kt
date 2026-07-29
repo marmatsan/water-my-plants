@@ -8,7 +8,7 @@ package com.marmatsan.figmaDocumentationSync.domain.model.visual
  */
 data class CiVisualPlan(
     val parentName: String,
-    val sections: List<Section>,
+    val sections: List<Section>
 ) {
     /**
      * One independently rendered CI documentation section.
@@ -28,7 +28,7 @@ data class CiVisualPlan(
         val orientation: Orientation,
         val headerSources: List<HeaderSource>,
         val nodes: List<Node>,
-        val connections: List<Connection>,
+        val connections: List<Connection>
     )
 
     /**
@@ -39,7 +39,7 @@ data class CiVisualPlan(
      */
     data class HeaderSource(
         val label: String,
-        val url: String,
+        val url: String
     )
 
     /**
@@ -70,7 +70,7 @@ data class CiVisualPlan(
         val source: String,
         val sourceUrl: String,
         val row: Int,
-        val column: Int,
+        val column: Int
     )
 
     /**
@@ -87,7 +87,7 @@ data class CiVisualPlan(
         val title: String,
         val technicalId: String?,
         val description: String?,
-        val steps: List<Step>,
+        val steps: List<Step>
     )
 
     /**
@@ -106,7 +106,7 @@ data class CiVisualPlan(
         val title: String,
         val technicalId: String?,
         val description: String?,
-        val condition: String?,
+        val condition: String?
     )
 
     /**
@@ -125,7 +125,7 @@ data class CiVisualPlan(
         val title: String,
         val technicalId: String?,
         val description: String?,
-        val condition: String?,
+        val condition: String?
     )
 
     /**
@@ -140,7 +140,7 @@ data class CiVisualPlan(
         val platform: String,
         val service: String,
         val startup: String,
-        val identity: String,
+        val identity: String
     )
 
     /**
@@ -157,7 +157,7 @@ data class CiVisualPlan(
         val source: String,
         val target: String,
         val label: String,
-        val kind: ConnectionKind,
+        val kind: ConnectionKind
     )
 
     /**
@@ -166,10 +166,10 @@ data class CiVisualPlan(
      * @property wireValue serialized writer value.
      */
     enum class Orientation(
-        val wireValue: String,
+        val wireValue: String
     ) {
         HORIZONTAL("horizontal"),
-        GRID("grid"),
+        GRID("grid")
     }
 
     /**
@@ -178,7 +178,7 @@ data class CiVisualPlan(
      * @property wireValue serialized writer value.
      */
     enum class Type(
-        val wireValue: String,
+        val wireValue: String
     ) {
         ACTOR("actor"),
         SYSTEM("system"),
@@ -187,7 +187,7 @@ data class CiVisualPlan(
         JOB("job"),
         ARTIFACT("artifact"),
         CHECK("check"),
-        GATE("gate"),
+        GATE("gate")
     }
 
     /**
@@ -196,7 +196,7 @@ data class CiVisualPlan(
      * @property wireValue serialized component variant.
      */
     enum class Environment(
-        val wireValue: String,
+        val wireValue: String
     ) {
         GITHUB("github"),
         TEAMCITY("teamcity"),
@@ -207,7 +207,7 @@ data class CiVisualPlan(
         TERMINAL("terminal"),
         OPERATOR("operator"),
         JSON("json"),
-        GRADLE("gradle"),
+        GRADLE("gradle")
     }
 
     /**
@@ -216,11 +216,11 @@ data class CiVisualPlan(
      * @property wireValue serialized component variant.
      */
     enum class StepRole(
-        val wireValue: String,
+        val wireValue: String
     ) {
         ACTION("action"),
         DECISION("decision"),
-        GROUP("group"),
+        GROUP("group")
     }
 
     /**
@@ -229,12 +229,12 @@ data class CiVisualPlan(
      * @property wireValue serialized component variant.
      */
     enum class OutcomeKind(
-        val wireValue: String,
+        val wireValue: String
     ) {
         ARTIFACT("artifact"),
         CHECK("check"),
         SUCCESS("success"),
-        ACTION("action"),
+        ACTION("action")
     }
 
     /**
@@ -243,12 +243,12 @@ data class CiVisualPlan(
      * @property wireValue serialized connector value.
      */
     enum class ConnectionKind(
-        val wireValue: String,
+        val wireValue: String
     ) {
         CONTROL("control"),
         DATA("data"),
         STATUS("status"),
         ATTENTION("attention"),
-        NEUTRAL("neutral"),
+        NEUTRAL("neutral")
     }
 }

@@ -6,7 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.catalog.DependencyDslCat
 object DependencyDslCatalogProviderFactory {
     /** Instantiates the no-argument catalog provider identified by [providerClassName]. */
     fun create(
-        providerClassName: String,
+        providerClassName: String
     ): DependencyDslCatalogProvider {
         require(providerClassName.isNotBlank()) {
             "figmaDocumentationSync.dependencyCatalogProviderClassName must not be blank"
@@ -19,7 +19,7 @@ object DependencyDslCatalogProviderFactory {
                 throw IllegalArgumentException(
                     "Could not load dependency catalog provider '$providerClassName'. " +
                         "Apply a project-config plugin that places the provider on the plugin classpath.",
-                    error,
+                    error
                 )
             }
 
@@ -33,7 +33,7 @@ object DependencyDslCatalogProviderFactory {
         }.getOrElse { error ->
             throw IllegalArgumentException(
                 "Dependency catalog provider '$providerClassName' must expose a public no-argument constructor.",
-                error,
+                error
             )
         }
     }

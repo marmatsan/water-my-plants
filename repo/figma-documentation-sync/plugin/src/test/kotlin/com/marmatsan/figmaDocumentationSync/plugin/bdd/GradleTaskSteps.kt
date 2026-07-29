@@ -28,7 +28,7 @@ class GradleTaskSteps : En {
             projectDir = Files.createTempDirectory("figma-documentation-sync-bdd").toFile()
             designModelFile =
                 projectDir.resolve(
-                    relative = "build/reports/figma-sync/design-model.json",
+                    relative = "build/reports/figma-sync/design-model.json"
                 )
             canonicalFigmaSyncGenerationAuthorized = false
         }
@@ -39,24 +39,24 @@ class GradleTaskSteps : En {
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin") {
             projectDir.writeBuildFile(
-                ciDocumentationEnabled = true,
+                ciDocumentationEnabled = true
             )
         }
 
         Given("the temporary Gradle project applies the figmaDocumentationSync plugin without CI documentation") {
             projectDir.writeBuildFile(
-                ciDocumentationEnabled = false,
+                ciDocumentationEnabled = false
             )
         }
 
         Given("the temporary Gradle project has no CI documentation inputs") {
             projectDir
                 .resolve(
-                    relative = "docs/ci",
+                    relative = "docs/ci"
                 ).deleteRecursively()
             projectDir
                 .resolve(
-                    relative = ".teamcity",
+                    relative = ".teamcity"
                 ).deleteRecursively()
         }
 
@@ -94,7 +94,7 @@ class GradleTaskSteps : En {
             writtenDesignModel()["gitSha"]?.jsonPrimitive?.content shouldBe
                 projectDir.git(
                     "rev-parse",
-                    "HEAD",
+                    "HEAD"
                 )
         }
 
@@ -106,7 +106,7 @@ class GradleTaskSteps : En {
                     "catalogs",
                     "modules",
                     "moduleDependencies",
-                    "ci",
+                    "ci"
                 )
         }
 
@@ -119,7 +119,7 @@ class GradleTaskSteps : En {
                     "versionSections",
                     "catalogs",
                     "modules",
-                    "moduleDependencies",
+                    "moduleDependencies"
                 )
             contentKeys.contains("ci") shouldBe false
         }
@@ -139,7 +139,7 @@ class GradleTaskSteps : En {
                     ":figma-documentation-sync:data",
                     ":figma-documentation-sync:domain",
                     ":figma-documentation-sync:plugin",
-                    ":gradle-plugins:android",
+                    ":gradle-plugins:android"
                 )
 
             val dependencies =
@@ -156,7 +156,7 @@ class GradleTaskSteps : En {
             dependencies shouldBe
                 listOf(
                     ":dependency-catalog:catalog-gradle-plugin" to
-                        ":dependency-catalog:catalog-api",
+                        ":dependency-catalog:catalog-api"
                 )
         }
 
@@ -170,7 +170,7 @@ class GradleTaskSteps : En {
                 if (::projectDir.isInitialized) {
                     projectDir.deleteRecursively()
                 }
-            },
+            }
         )
     }
 
@@ -184,7 +184,7 @@ class GradleTaskSteps : En {
             .withPluginClasspath()
             .withArguments(
                 "generateFigmaDesignModel",
-                "--stacktrace",
+                "--stacktrace"
             ).withEnvironment(gradleEnvironment())
 
     private fun gradleEnvironment(): Map<String, String> =
@@ -192,11 +192,11 @@ class GradleTaskSteps : En {
             if (canonicalFigmaSyncGenerationAuthorized) {
                 put(
                     "FIGMA_DOCUMENTATION_SYNC_CANONICAL",
-                    "true",
+                    "true"
                 )
                 put(
                     "FIGMA_DOCUMENTATION_SYNC_BRANCH",
-                    "main",
+                    "main"
                 )
             } else {
                 remove("FIGMA_DOCUMENTATION_SYNC_CANONICAL")
@@ -205,7 +205,7 @@ class GradleTaskSteps : En {
         }
 
     private fun File.writeBuildFile(
-        ciDocumentationEnabled: Boolean,
+        ciDocumentationEnabled: Boolean
     ) {
         val ciDocumentationConfiguration =
             if (ciDocumentationEnabled) {
@@ -224,7 +224,7 @@ class GradleTaskSteps : En {
             }
 
         resolve(
-            relative = "build.gradle.kts",
+            relative = "build.gradle.kts"
         ).writeText(
             """
             import com.marmatsan.figmaDocumentationSync.data.ci.configuration.EmptyCiConfigurationProvider
@@ -267,13 +267,13 @@ class GradleTaskSteps : En {
                     publishesConventionPlugins.set(true)
                 }
             }
-            """.trimIndent(),
+            """.trimIndent()
         )
     }
 
     private fun File.writeRepositoryModelFiles() {
         resolve(
-            relative = "settings.gradle.kts",
+            relative = "settings.gradle.kts"
         ).writeText(
             """
             pluginManagement {
@@ -295,31 +295,31 @@ class GradleTaskSteps : En {
             rootProject.name = "figma-documentation-sync-bdd"
             include(":app")
             include(":core:ui")
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "app",
+            relative = "app"
         ).mkdirs()
         resolve(
-            relative = "app/build.gradle.kts",
+            relative = "app/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "core/ui",
+            relative = "core/ui"
         ).mkdirs()
         resolve(
-            relative = "core/ui/build.gradle.kts",
+            relative = "core/ui/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/gradle-plugins",
+            relative = "repo/gradle-plugins"
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog",
+            relative = "repo/dependency-catalog"
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync",
+            relative = "repo/figma-documentation-sync"
         ).mkdirs()
         resolve(
-            relative = "repo/gradle-plugins/settings.gradle.kts",
+            relative = "repo/gradle-plugins/settings.gradle.kts"
         ).writeText(
             """
             dependencyResolutionManagement {
@@ -332,58 +332,58 @@ class GradleTaskSteps : En {
             }
 
             include(":android")
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "repo/gradle-plugins/android",
+            relative = "repo/gradle-plugins/android"
         ).mkdirs()
         resolve(
-            relative = "repo/gradle-plugins/android/build.gradle.kts",
+            relative = "repo/gradle-plugins/android/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/settings.gradle.kts",
+            relative = "repo/dependency-catalog/settings.gradle.kts"
         ).writeText(
             """
             rootProject.name = "dependency-catalog"
             enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
             include(":catalog-api", ":catalog-core", ":catalog-gradle-plugin")
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "repo/dependency-catalog/catalog-api",
+            relative = "repo/dependency-catalog/catalog-api"
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/catalog-api/build.gradle.kts",
+            relative = "repo/dependency-catalog/catalog-api/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/catalog-core",
+            relative = "repo/dependency-catalog/catalog-core"
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/catalog-core/build.gradle.kts",
+            relative = "repo/dependency-catalog/catalog-core/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/dependency-catalog/catalog-gradle-plugin",
+            relative = "repo/dependency-catalog/catalog-gradle-plugin"
         ).mkdirs()
         resolve(
-            relative = "repo/dependency-catalog/catalog-gradle-plugin/build.gradle.kts",
+            relative = "repo/dependency-catalog/catalog-gradle-plugin/build.gradle.kts"
         ).writeText(
             """
             dependencies {
                 implementation(projects.catalogApi)
             }
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "versions.properties",
+            relative = "versions.properties"
         ).writeText(
             """
             ## Main project dependencies
             androidGradlePluginVersion=9.2.1
             kotlinVersion=2.4.0
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "repo/figma-documentation-sync/settings.gradle.kts",
+            relative = "repo/figma-documentation-sync/settings.gradle.kts"
         ).writeText(
             """
             rootProject.name = "figma-documentation-sync"
@@ -398,31 +398,31 @@ class GradleTaskSteps : En {
             }
 
             include(":data", ":domain", ":plugin")
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "repo/figma-documentation-sync/data",
+            relative = "repo/figma-documentation-sync/data"
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/data/build.gradle.kts",
+            relative = "repo/figma-documentation-sync/data/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/figma-documentation-sync/domain",
+            relative = "repo/figma-documentation-sync/domain"
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/domain/build.gradle.kts",
+            relative = "repo/figma-documentation-sync/domain/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "repo/figma-documentation-sync/plugin",
+            relative = "repo/figma-documentation-sync/plugin"
         ).mkdirs()
         resolve(
-            relative = "repo/figma-documentation-sync/plugin/build.gradle.kts",
+            relative = "repo/figma-documentation-sync/plugin/build.gradle.kts"
         ).writeText("")
         resolve(
-            relative = "docs/ci",
+            relative = "docs/ci"
         ).mkdirs()
         resolve(
-            relative = "docs/ci/external-topology.yaml",
+            relative = "docs/ci/external-topology.yaml"
         ).writeText(
             """
             schemaVersion: 1
@@ -435,10 +435,10 @@ class GradleTaskSteps : En {
                 name: Operator
                 description: Initiates manual CI actions.
             connections: []
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = "docs/ci/windows-runtime.yaml",
+            relative = "docs/ci/windows-runtime.yaml"
         ).writeText(
             """
             schemaVersion: 1
@@ -453,29 +453,29 @@ class GradleTaskSteps : En {
                 service: TeamCity
                 startup: Automatic
                 identity: NT SERVICE\TeamCity
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci",
+            relative = ".teamcity/target/generated-configs/Root_Ci"
         ).mkdirs()
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci/project-config.xml",
+            relative = ".teamcity/target/generated-configs/Root_Ci/project-config.xml"
         ).writeText(
             """
             <project>
               <name>CI</name>
             </project>
-            """.trimIndent(),
+            """.trimIndent()
         )
         resolve(
-            relative = ".teamcity/target/generated-configs/Root_Ci/pipeline.yml",
+            relative = ".teamcity/target/generated-configs/Root_Ci/pipeline.yml"
         ).writeText(
             """
             version: 1
             jobs:
               verify:
                 name: Verify
-            """.trimIndent(),
+            """.trimIndent()
         )
     }
 
@@ -484,11 +484,11 @@ class GradleTaskSteps : En {
         git(
             "checkout",
             "-b",
-            "main",
+            "main"
         )
         git(
             "add",
-            ".",
+            "."
         )
         git(
             "-c",
@@ -497,12 +497,12 @@ class GradleTaskSteps : En {
             "user.email=bdd@example.com",
             "commit",
             "-m",
-            "Initial fixture",
+            "Initial fixture"
         )
     }
 
     private fun File.git(
-        vararg arguments: String,
+        vararg arguments: String
     ): String {
         val process =
             ProcessBuilder(listOf("git") + arguments)

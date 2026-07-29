@@ -7,18 +7,18 @@ interface TeamCityRunClient : TeamCityRunStarter {
         buildTypeId: String,
         branch: String,
         status: String,
-        limit: Int = 1,
+        limit: Int = 1
     ): List<TeamCityRun>
 
     /** Polls [buildId] until completion or the bounded timeout is reached. */
     fun watchRun(
         buildId: Long,
         pollIntervalSeconds: Int,
-        timeoutMinutes: Int,
+        timeoutMinutes: Int
     ): TeamCityRun
 
     /** Reads the current typed state of [buildId]. */
     fun readRun(
-        buildId: Long,
+        buildId: Long
     ): TeamCityRun
 }

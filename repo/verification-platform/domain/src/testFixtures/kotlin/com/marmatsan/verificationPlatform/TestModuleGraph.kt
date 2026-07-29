@@ -10,26 +10,26 @@ fun testModuleGraph(): RepositoryModuleGraph =
             listOf(
                 RepositoryModule(
                     id = ":app",
-                    directory = "app",
+                    directory = "app"
                 ),
                 RepositoryModule(
                     id = ":core:ui",
-                    directory = "core/ui",
+                    directory = "core/ui"
                 ),
                 RepositoryModule(
                     id = ":onboarding:ui",
-                    directory = "onboarding/ui",
-                ),
+                    directory = "onboarding/ui"
+                )
             ),
         dependencies =
             listOf(
                 ModuleDependency(
                     dependentModule = ":app",
-                    dependencyModule = ":core:ui",
+                    dependencyModule = ":core:ui"
                 ),
                 ModuleDependency(
                     dependentModule = ":onboarding:ui",
-                    dependencyModule = ":core:ui",
-                ),
-            ),
+                    dependencyModule = ":core:ui"
+                )
+            )
     )

@@ -10,7 +10,7 @@ internal class VersionsPropertiesReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "versions-properties-reader",
+                    prefix = "versions-properties-reader"
                 )
 
             test("readSections keeps version groups in file order") {
@@ -26,22 +26,22 @@ internal class VersionsPropertiesReaderTest :
                             kotestLibraryVersion=6.2.1
                             ## Plugins
                             figmaCodeConnectPluginVersion=1.4.0
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     }
                 }.whenever { versionsFile ->
                     VersionsPropertiesReader().readSections(
-                        file = versionsFile,
+                        file = versionsFile
                     )
                 }.then { sections ->
                     sections.map { section -> section.name } shouldBe
                         listOf(
                             "Main project dependencies",
                             "Libraries",
-                            "Plugins",
+                            "Plugins"
                         )
                     sections[1].versions shouldBe mapOf("kotestLibraryVersion" to "6.2.1")
                 }
             }
-        },
+        }
     )

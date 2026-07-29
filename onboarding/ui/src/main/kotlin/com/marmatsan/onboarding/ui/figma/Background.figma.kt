@@ -5,13 +5,13 @@ import com.figma.code.connect.FigmaConnect
 import com.marmatsan.onboarding.ui.component.Background
 
 @FigmaConnect(
-    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62803%3A264",
+    url = "https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants--New-?node-id=62803%3A264"
 )
 class BackgroundDoc {
     @Composable
     fun Example() {
         Background(
-            modifier = androidx.compose.ui.Modifier,
+            modifier = androidx.compose.ui.Modifier
         )
     }
 }

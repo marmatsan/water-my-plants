@@ -22,7 +22,7 @@ internal class TypedResultUsageValidatorTest :
                 }.whenever { source ->
                     validator().validate(
                         relativePath = "app/src/main/kotlin/example/Loader.kt",
-                        source = source,
+                        source = source
                     )
                 }.then { violations ->
                     violations shouldBe Ok(Unit)
@@ -40,14 +40,14 @@ internal class TypedResultUsageValidatorTest :
                         "*/",
                         "val raw = \"\"\"",
                         "import example.Result",
-                        "\"\"\"",
+                        "\"\"\""
                     ).joinToString(
-                        separator = "\n",
+                        separator = "\n"
                     )
                 }.whenever { source ->
                     validator().validate(
                         relativePath = "app/src/main/kotlin/example/Description.kt",
-                        source = source,
+                        source = source
                     )
                 }.then { result ->
                     result shouldBe Ok(Unit)
@@ -68,13 +68,13 @@ internal class TypedResultUsageValidatorTest :
                 }.whenever { source ->
                     validator().validate(
                         relativePath = "app/src/main/kotlin/example/ResultContracts.kt",
-                        source = source,
+                        source = source
                     )
                 }.then { violations ->
                     violations
                         .fold(
                             { error("Expected incompatible Result contracts to fail validation.") },
-                            { failure -> failure.violations },
+                            { failure -> failure.violations }
                         ).map { violation -> violation.lineNumber to violation.reason }
                         .shouldContainExactly(
                             1 to
@@ -93,14 +93,14 @@ internal class TypedResultUsageValidatorTest :
                                 "com.github.michaelbull.result.Result",
                             7 to
                                 "must use com.github.michaelbull.result.Result instead of " +
-                                "other.library.Result",
+                                "other.library.Result"
                         )
                 }
             }
-        },
+        }
     )
 
 private fun validator(): TypedResultUsageValidator =
     TypedResultUsageValidator(
-        acceptedResultQualifiedName = "com.github.michaelbull.result.Result",
+        acceptedResultQualifiedName = "com.github.michaelbull.result.Result"
     )

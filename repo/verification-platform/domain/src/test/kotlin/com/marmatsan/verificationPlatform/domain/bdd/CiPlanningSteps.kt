@@ -35,14 +35,14 @@ class CiPlanningSteps : En {
             topology =
                 CiTopologyPlanner().create(
                     plan,
-                    availableAgents,
+                    availableAgents
                 )
         }
         When("execution is planned for {int} available agents") { availableAgents: Int ->
             topology =
                 CiTopologyPlanner().create(
                     plan,
-                    availableAgents,
+                    availableAgents
                 )
         }
         Then("the plan scope is {word}") { expectedScope: String ->
@@ -89,8 +89,8 @@ class CiPlanningSteps : En {
                 RepositoryChangeSet(
                     comparisonBase = "base-sha",
                     head = "head-sha",
-                    changedFiles = changedFiles,
+                    changedFiles = changedFiles
                 ),
-            moduleGraph = testModuleGraph(),
+            moduleGraph = testModuleGraph()
         )
 }

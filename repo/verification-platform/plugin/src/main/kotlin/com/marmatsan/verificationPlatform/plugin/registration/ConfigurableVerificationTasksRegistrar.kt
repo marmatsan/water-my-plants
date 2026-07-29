@@ -17,12 +17,12 @@ internal data class ConfigurableVerificationTasks(
     /** Module dependency-boundary verification. */
     val checkModuleBoundaries: TaskProvider<CheckModuleBoundariesTask>,
     /** Typed Result usage verification. */
-    val checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>,
+    val checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>
 )
 
 /** Registers tasks whose inputs are configured through the public extension. */
 internal class ConfigurableVerificationTasksRegistrar(
-    private val project: Project,
+    private val project: Project
 ) {
     /** Registers configurable tasks and attaches the evaluated Gradle module graph. */
     fun register(): ConfigurableVerificationTasks {
@@ -30,7 +30,7 @@ internal class ConfigurableVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "generateCiPlan",
                 GenerateCiPlanTask::class.java,
-                "Generates the provider-neutral CI verification plan.",
+                "Generates the provider-neutral CI verification plan."
             ) { task ->
                 task.repositoryRoot.set(project.layout.projectDirectory)
                 project.providers
@@ -44,7 +44,7 @@ internal class ConfigurableVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "checkIncludedBuildVersions",
                 CheckIncludedBuildVersionsTask::class.java,
-                "Verifies included-build version ownership and configured cross-build alignment.",
+                "Verifies included-build version ownership and configured cross-build alignment."
             ) { task ->
                 task.repositoryRoot.set(project.layout.projectDirectory)
                 task.includedBuildPaths.convention(emptyList())
@@ -55,7 +55,7 @@ internal class ConfigurableVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "checkModuleBoundaries",
                 CheckModuleBoundariesTask::class.java,
-                "Verifies configured module and included-build dependency boundaries.",
+                "Verifies configured module and included-build dependency boundaries."
             ) { task ->
                 task.repositoryRoot.set(project.layout.projectDirectory)
                 task.reusableScopePaths.convention(emptyList())
@@ -66,7 +66,7 @@ internal class ConfigurableVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "checkTypedResultUsage",
                 CheckTypedResultUsageTask::class.java,
-                "Verifies that production sources use the configured typed Result.",
+                "Verifies that production sources use the configured typed Result."
             ) { task ->
                 task.repositoryRoot.set(project.layout.projectDirectory)
             }
@@ -75,12 +75,12 @@ internal class ConfigurableVerificationTasksRegistrar(
             val graph = GradleProjectModuleGraphSource().read(project)
             generateCiPlan.configure { task ->
                 task.moduleDirectories.set(
-                    graph.modules.associate { module -> module.id to module.directory },
+                    graph.modules.associate { module -> module.id to module.directory }
                 )
                 task.moduleDependencyEdges.set(
                     graph.dependencies.map { dependency ->
                         "${dependency.dependentModule}->${dependency.dependencyModule}"
-                    },
+                    }
                 )
             }
         }
@@ -89,7 +89,7 @@ internal class ConfigurableVerificationTasksRegistrar(
             generateCiPlan = generateCiPlan,
             checkIncludedBuildVersions = checkIncludedBuildVersions,
             checkModuleBoundaries = checkModuleBoundaries,
-            checkTypedResultUsage = checkTypedResultUsage,
+            checkTypedResultUsage = checkTypedResultUsage
         )
     }
 }

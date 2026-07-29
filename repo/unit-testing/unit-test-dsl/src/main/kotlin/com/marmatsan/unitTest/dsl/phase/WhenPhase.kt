@@ -13,7 +13,7 @@ package com.marmatsan.unitTest.dsl.phase
  */
 class WhenPhase<GivenValue, WhenValue> internal constructor(
     private val givenValue: GivenValue,
-    private val value: WhenValue,
+    private val value: WhenValue
 ) {
     /**
      * Evaluates the scenario assertions once with the action result.
@@ -24,7 +24,7 @@ class WhenPhase<GivenValue, WhenValue> internal constructor(
      * @param block Suspended assertions over the observable action result.
      */
     suspend fun then(
-        block: suspend (WhenValue) -> Unit,
+        block: suspend (WhenValue) -> Unit
     ) {
         block(value)
     }
@@ -38,11 +38,11 @@ class WhenPhase<GivenValue, WhenValue> internal constructor(
      * @param block Suspended assertions receiving the arrangement followed by the result.
      */
     suspend fun then(
-        block: suspend (GivenValue, WhenValue) -> Unit,
+        block: suspend (GivenValue, WhenValue) -> Unit
     ) {
         block(
             givenValue,
-            value,
+            value
         )
     }
 }

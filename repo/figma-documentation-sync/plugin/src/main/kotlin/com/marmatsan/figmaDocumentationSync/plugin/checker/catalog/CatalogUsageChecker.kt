@@ -21,15 +21,15 @@ import me.tatarka.inject.annotations.Inject
  */
 @Inject
 internal class CatalogUsageChecker(
-    private val projectCatalogTreesPort: ProjectCatalogTreesPort,
+    private val projectCatalogTreesPort: ProjectCatalogTreesPort
 ) {
     /** Compares catalog declarations with all supported repository usage sources in [request]. */
     fun check(
-        request: CatalogUsageCheckRequest,
+        request: CatalogUsageCheckRequest
     ): CatalogUsageCheckResult {
         val includedBuilds =
             request.includedBuilds.map(
-                transform = FigmaDesignModelIncludedBuildSource::toDomainSource,
+                transform = FigmaDesignModelIncludedBuildSource::toDomainSource
             )
         val conventionPluginIncludedBuilds = includedBuilds.filter(IncludedBuildSource::publishesConventionPlugins)
         val unusedEntries = mutableListOf<UnusedCatalogEntry>()
@@ -38,19 +38,19 @@ internal class CatalogUsageChecker(
             ProjectCatalogTreeSource.DependenciesDslVersionAliases(
                 rootDirPath = request.projectRootDirectory.absolutePath,
                 providerClassName = request.dependencyCatalogProviderClassName,
-                conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+                conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
             )
         unusedEntries +=
             projectCatalogTreesPort
                 .readLibraryTree(dependencyDslSource)
                 .unusedEntries(
-                    catalogName = "${request.primaryCatalogModelName}.libraries",
+                    catalogName = "${request.primaryCatalogModelName}.libraries"
                 )
         unusedEntries +=
             projectCatalogTreesPort
                 .readPluginTree(dependencyDslSource)
                 .unusedEntries(
-                    catalogName = "${request.primaryCatalogModelName}.plugins",
+                    catalogName = "${request.primaryCatalogModelName}.plugins"
                 )
 
         request.includedBuilds
@@ -58,19 +58,19 @@ internal class CatalogUsageChecker(
             .forEach { includedBuild ->
                 val source =
                     ProjectCatalogTreeSource.IncludedBuildSettings(
-                        includedBuild = includedBuild.toDomainSource(),
+                        includedBuild = includedBuild.toDomainSource()
                     )
                 unusedEntries +=
                     projectCatalogTreesPort
                         .readLibraryTree(source)
                         .unusedEntries(
-                            catalogName = "${includedBuild.modelName}.libraries",
+                            catalogName = "${includedBuild.modelName}.libraries"
                         )
                 unusedEntries +=
                     projectCatalogTreesPort
                         .readPluginTree(source)
                         .unusedEntries(
-                            catalogName = "${includedBuild.modelName}.plugins",
+                            catalogName = "${includedBuild.modelName}.plugins"
                         )
             }
 
@@ -79,30 +79,30 @@ internal class CatalogUsageChecker(
                 unusedEntries.sortedWith(
                     compareBy(
                         UnusedCatalogEntry::catalogName,
-                        UnusedCatalogEntry::entry,
-                    ),
-                ),
+                        UnusedCatalogEntry::entry
+                    )
+                )
         )
     }
 }
 
 private fun LibraryCatalogTree.unusedEntries(
-    catalogName: String,
+    catalogName: String
 ): List<UnusedCatalogEntry> =
     roots.flatMap { root ->
         root.unusedEntries(
-            catalogName = catalogName,
+            catalogName = catalogName
         )
     }
 
 private fun LibraryCatalogNode.unusedEntries(
     catalogName: String,
-    parentGroup: String = "",
+    parentGroup: String = ""
 ): List<UnusedCatalogEntry> {
     val groupPath =
         listOf(
             parentGroup,
-            group,
+            group
         ).filter(String::isNotBlank)
             .joinToString(".")
 
@@ -113,14 +113,14 @@ private fun LibraryCatalogNode.unusedEntries(
                 catalogName = catalogName,
                 entry =
                     entry.catalogPath(
-                        groupPath = groupPath,
-                    ),
+                        groupPath = groupPath
+                    )
             )
         } +
         children.flatMap { child ->
             child.unusedEntries(
                 catalogName = catalogName,
-                parentGroup = groupPath,
+                parentGroup = groupPath
             )
         }
 }
@@ -140,7 +140,7 @@ private fun LibraryCatalogEntry.hasUsage(): Boolean =
     }
 
 private fun LibraryCatalogEntry.catalogPath(
-    groupPath: String,
+    groupPath: String
 ): String =
     when (this) {
         is LibraryCatalogEntry.Artifact -> "$groupPath:$artifact"
@@ -148,22 +148,22 @@ private fun LibraryCatalogEntry.catalogPath(
     }
 
 private fun PluginCatalogTree.unusedEntries(
-    catalogName: String,
+    catalogName: String
 ): List<UnusedCatalogEntry> =
     roots.flatMap { root ->
         root.unusedEntries(
-            catalogName = catalogName,
+            catalogName = catalogName
         )
     }
 
 private fun PluginCatalogNode.unusedEntries(
     catalogName: String,
-    parentId: String = "",
+    parentId: String = ""
 ): List<UnusedCatalogEntry> {
     val pluginId =
         listOf(
             parentId,
-            id,
+            id
         ).filter(String::isNotBlank)
             .joinToString(".")
     val currentEntry =
@@ -171,8 +171,8 @@ private fun PluginCatalogNode.unusedEntries(
             listOf(
                 UnusedCatalogEntry(
                     catalogName = catalogName,
-                    entry = pluginId,
-                ),
+                    entry = pluginId
+                )
             )
         } else {
             emptyList()
@@ -182,7 +182,7 @@ private fun PluginCatalogNode.unusedEntries(
         children.flatMap { child ->
             child.unusedEntries(
                 catalogName = catalogName,
-                parentId = pluginId,
+                parentId = pluginId
             )
         }
 }

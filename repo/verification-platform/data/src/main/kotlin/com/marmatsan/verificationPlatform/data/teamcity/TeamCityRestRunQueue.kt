@@ -31,7 +31,7 @@ import java.time.Duration
 class TeamCityRestRunQueue(
     serverUrl: String,
     private val teamCityToken: String,
-    private val post: (URI, Map<String, String>, String) -> Response = ::post,
+    private val post: (URI, Map<String, String>, String) -> Response = ::post
 ) : TeamCityRunQueue {
     private val serverUri = URI.create(serverUrl.trimEnd('/')).also(::requireTrustedOrigin)
 
@@ -46,17 +46,17 @@ class TeamCityRestRunQueue(
      * [QueueTeamCityRunError]. Thread interruption is preserved and rethrown.
      */
     override fun queue(
-        request: TeamCityRunRequest,
+        request: TeamCityRunRequest
     ): Result<TeamCityQueuedRun, QueueTeamCityRunError> {
         val uri =
             serverUri.resolve(
-                "/app/rest/buildQueue",
+                "/app/rest/buildQueue"
             )
         val headers =
             mapOf(
                 "Accept" to "application/json",
                 "Authorization" to "Bearer $teamCityToken",
-                "Content-Type" to "application/json",
+                "Content-Type" to "application/json"
             )
         val body =
             buildJsonObject {
@@ -65,13 +65,13 @@ class TeamCityRestRunQueue(
                     buildJsonObject {
                         put(
                             "id",
-                            request.buildTypeId,
+                            request.buildTypeId
                         )
-                    },
+                    }
                 )
                 put(
                     "branchName",
-                    request.branch,
+                    request.branch
                 )
             }.toString()
         val response =
@@ -79,28 +79,28 @@ class TeamCityRestRunQueue(
                 post(
                     uri,
                     headers,
-                    body,
+                    body
                 )
             } catch (
-                exception: InterruptedException,
+                exception: InterruptedException
             ) {
                 Thread.currentThread().interrupt()
                 throw exception
             } catch (
-                exception: IOException,
+                exception: IOException
             ) {
                 return Err(
                     QueueTeamCityRunError.Unavailable(
-                        detail = exception.message.orEmpty(),
-                    ),
+                        detail = exception.message.orEmpty()
+                    )
                 )
             }
         if (response.statusCode !in 200..299) {
             return Err(
                 QueueTeamCityRunError.RequestRejected(
                     statusCode = response.statusCode,
-                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH),
-                ),
+                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH)
+                )
             )
         }
         return try {
@@ -110,11 +110,11 @@ class TeamCityRestRunQueue(
                     id = json.getValue("id").jsonPrimitive.long,
                     state = json.getValue("state").jsonPrimitive.content,
                     branch = json.getValue("branchName").jsonPrimitive.content,
-                    webUrl = json["webUrl"]?.jsonPrimitive?.content,
-                ),
+                    webUrl = json["webUrl"]?.jsonPrimitive?.content
+                )
             )
         } catch (
-            _: RuntimeException,
+            _: RuntimeException
         ) {
             Err(QueueTeamCityRunError.InvalidResponse)
         }
@@ -129,7 +129,7 @@ class TeamCityRestRunQueue(
      */
     data class Response(
         val statusCode: Int,
-        val body: String,
+        val body: String
     )
 
     private companion object {
@@ -143,17 +143,17 @@ class TeamCityRestRunQueue(
                 .build()
 
         fun requireTrustedOrigin(
-            uri: URI,
+            uri: URI
         ) {
             val trusted =
                 uri.scheme.equals(
                     "https",
-                    ignoreCase = true,
+                    ignoreCase = true
                 ) ||
                     (
                         uri.scheme.equals(
                             "http",
-                            ignoreCase = true,
+                            ignoreCase = true
                         ) && uri.host in LOOPBACK_HOSTS
                     )
             require(trusted) {
@@ -167,7 +167,7 @@ class TeamCityRestRunQueue(
         fun post(
             uri: URI,
             headers: Map<String, String>,
-            body: String,
+            body: String
         ): Response {
             val request =
                 HttpRequest
@@ -179,11 +179,11 @@ class TeamCityRestRunQueue(
             val response =
                 HTTP_CLIENT.send(
                     request,
-                    HttpResponse.BodyHandlers.ofString(),
+                    HttpResponse.BodyHandlers.ofString()
                 )
             return Response(
                 statusCode = response.statusCode(),
-                body = response.body(),
+                body = response.body()
             )
         }
 
@@ -191,7 +191,7 @@ class TeamCityRestRunQueue(
             setOf(
                 "localhost",
                 "127.0.0.1",
-                "::1",
+                "::1"
             )
     }
 }

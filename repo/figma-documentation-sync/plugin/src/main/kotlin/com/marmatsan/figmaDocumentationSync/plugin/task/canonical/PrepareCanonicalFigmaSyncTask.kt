@@ -35,7 +35,7 @@ import java.io.File
 
 /** Builds the canonical MCP runner artifacts and writes their shared sync scope. */
 @DisableCachingByDefault(
-    because = "Builds the TypeScript Figma boundary and generates canonical runner artifacts",
+    because = "Builds the TypeScript Figma boundary and generates canonical runner artifacts"
 )
 abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
     /** Classified repository impact that determines whether writer generation is required. */
@@ -103,14 +103,14 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
         val scopeJson = component.canonicalFigmaSyncScopeJson
         val impact =
             scopeJson.readChangeImpact(
-                sourcePath = changeImpactFile.get().asFile.absolutePath,
+                sourcePath = changeImpactFile.get().asFile.absolutePath
             )
         val gitSha =
             capture(
                 projectRootDirectory.get().asFile,
                 "git",
                 "rev-parse",
-                "HEAD",
+                "HEAD"
             )
 
         val scope =
@@ -127,17 +127,17 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                 run(
                     tools,
                     npmExecutable(),
-                    "ci",
+                    "ci"
                 )
                 buildWriter(
                     tools = tools,
-                    projectConfig = projectConfig,
+                    projectConfig = projectConfig
                 )
 
                 val runnerDirectory = runnerOutputDirectory.get().asFile
                 val writerScript =
                     tools.resolve(
-                        relative = "sync-trunk-design-model.mcp.js",
+                        relative = "sync-trunk-design-model.mcp.js"
                     )
                 if (!writerScript.isFile) {
                     throw GradleException("Missing compiled Figma writer: ${writerScript.path}")
@@ -152,19 +152,19 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                             writerSourceDirectory =
                                 tools
                                     .resolve(
-                                        relative = "src",
+                                        relative = "src"
                                     ).absolutePath,
                             repositoryRootDirectory = projectRootDirectory.get().asFile.absolutePath,
                             changeImpactPolicyPath = changeImpactPolicyFile.get().asFile.absolutePath,
                             config = FigmaWriterRuntimeConfigJson.read(projectConfig.absolutePath),
                             transport = runnerTransport.get(),
-                            chunkSize = runnerChunkSize.get(),
-                        ),
+                            chunkSize = runnerChunkSize.get()
+                        )
                 )
 
                 val manifests =
                     scopeJson.readRunnerManifests(
-                        rootPath = runnerDirectory.absolutePath,
+                        rootPath = runnerDirectory.absolutePath
                     )
                 val visualManifest =
                     manifests.singleOrNull { manifest -> manifest.fullVisualSync }
@@ -172,22 +172,22 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                 val metadataManifest =
                     manifests.singleOrNull { manifest -> manifest.writeMetadata }
                         ?: throw GradleException(
-                            "Canonical metadata MCP runner manifest was not generated exactly once.",
+                            "Canonical metadata MCP runner manifest was not generated exactly once."
                         )
                 val plan = visualSyncPlanFile.get().asFile
                 val planJson = VisualSyncPlanJson()
                 val visualPlan =
                     VisualSyncPlanner(
-                        planHasher = planJson,
+                        planHasher = planJson
                     ).create(
                         visualManifest,
                         readPreviousMetadata(
-                            source = component.figmaNodeContentSource,
-                        ),
+                            source = component.figmaNodeContentSource
+                        )
                     )
                 planJson.write(
                     visualPlan,
-                    plan.absolutePath,
+                    plan.absolutePath
                 )
 
                 CanonicalFigmaSyncScope(
@@ -205,7 +205,7 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                     visualRunnerManifestHash = visualManifest.manifestHash,
                     metadataRunnerManifestHash = metadataManifest.manifestHash,
                     visualSyncDecision = visualPlan.body.decision.wireValue,
-                    visualSyncPlanHash = visualPlan.planHash,
+                    visualSyncPlanHash = visualPlan.planHash
                 )
             } else {
                 CanonicalFigmaSyncScope(
@@ -223,26 +223,26 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                     visualRunnerManifestHash = null,
                     metadataRunnerManifestHash = null,
                     visualSyncDecision = null,
-                    visualSyncPlanHash = null,
+                    visualSyncPlanHash = null
                 )
             }
 
         scopeJson.write(
             scope,
-            scopeFile.get().asFile.absolutePath,
+            scopeFile.get().asFile.absolutePath
         )
         logger.lifecycle("Prepared canonical Figma Sync scope: ${scope.scope.wireValue}")
     }
 
     private fun readPreviousMetadata(
-        source: FigmaNodeContentSource,
+        source: FigmaNodeContentSource
     ): FigmaSyncMetadata? {
         val token = System.getenv(FIGMA_TOKEN_ENVIRONMENT_VARIABLE)?.takeIf(String::isNotBlank) ?: return null
         val nodeUrl = metadataNodeUrl.orNull ?: return null
         val namespace = metadataNamespace.orNull ?: return null
         val reference =
             FigmaNodeUrl.parse(
-                url = nodeUrl,
+                url = nodeUrl
             )
         val node =
             source
@@ -250,40 +250,40 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
                     fileKey = reference.fileKey,
                     token = token,
                     nodeId = reference.nodeId,
-                    pluginData = "shared",
+                    pluginData = "shared"
                 ).onErr { error ->
                     logger.warn(
-                        "Figma metadata is unavailable; selecting a full visual sync: ${error.operatorMessage()}",
+                        "Figma metadata is unavailable; selecting a full visual sync: ${error.operatorMessage()}"
                     )
                 }.getOrElse { return null }
         return FigmaSyncMetadataJson.read(
             node.sharedPluginData,
-            namespace,
+            namespace
         )
     }
 
     private fun buildWriter(
         tools: File,
-        projectConfig: File,
+        projectConfig: File
     ) {
         run(
             tools,
             "node",
             "bin/build.mjs",
             "--project-config-json=${projectConfig.absolutePath}",
-            "--output-dir=.",
+            "--output-dir=."
         )
     }
 
     private fun run(
         directory: File,
-        vararg command: String,
+        vararg command: String
     ) {
         val process =
             ProcessBuilder(
                 platformCommand(
-                    command = command.toList(),
-                ),
+                    command = command.toList()
+                )
             ).directory(directory)
                 .inheritIO()
                 .start()
@@ -295,13 +295,13 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
 
     private fun capture(
         directory: File,
-        vararg command: String,
+        vararg command: String
     ): String {
         val process =
             ProcessBuilder(
                 platformCommand(
-                    command = command.toList(),
-                ),
+                    command = command.toList()
+                )
             ).directory(directory)
                 .start()
         val output = ByteArrayOutputStream()
@@ -311,25 +311,25 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
         val exitCode = process.waitFor()
         if (exitCode != 0) {
             throw GradleException(
-                "Command '${command.joinToString(" ")}' failed with exit code $exitCode: ${error.toString().trim()}",
+                "Command '${command.joinToString(" ")}' failed with exit code $exitCode: ${error.toString().trim()}"
             )
         }
         return output.toString().trim()
     }
 
     private fun platformCommand(
-        command: List<String>,
+        command: List<String>
     ): List<String> =
         if (isWindows() &&
             command.first().endsWith(
                 ".cmd",
-                ignoreCase = true,
+                ignoreCase = true
             )
         ) {
             listOf(
                 "cmd.exe",
                 "/d",
-                "/c",
+                "/c"
             ) + command
         } else {
             command
@@ -340,7 +340,7 @@ abstract class PrepareCanonicalFigmaSyncTask : DefaultTask() {
     private fun isWindows(): Boolean =
         System.getProperty("os.name").startsWith(
             "Windows",
-            ignoreCase = true,
+            ignoreCase = true
         )
 
     private companion object {

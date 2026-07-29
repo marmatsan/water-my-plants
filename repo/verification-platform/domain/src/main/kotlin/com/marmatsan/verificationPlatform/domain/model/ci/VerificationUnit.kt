@@ -22,5 +22,5 @@ data class VerificationUnit(
     val capabilities: List<String>,
     val parallelSafe: Boolean,
     val gradleTasks: List<String>,
-    val reasons: List<String>,
+    val reasons: List<String>
 )

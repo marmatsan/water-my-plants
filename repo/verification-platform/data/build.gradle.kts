@@ -14,14 +14,12 @@ dependencies {
     implementation(projects.domain)
     implementation(gradleApi())
     implementation(libs.com.michael.bull.kotlin.result)
-    implementation(libs.com.pinterest.ktlint.rule.engine)
-    implementation(libs.com.pinterest.ktlint.ruleset.standard)
+    implementation(libs.bundles.ktlint)
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(testFixtures(projects.domain))
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
@@ -31,7 +29,7 @@ tasks.withType<Test>().configureEach {
     jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
     systemProperty(
         "waterMyPlants.repositoryRoot",
-        repositoryRootDirectory.asFile.absolutePath,
+        repositoryRootDirectory.asFile.absolutePath
     )
 }
 
@@ -39,7 +37,7 @@ val repositoryKotlinSources =
     fileTree(repositoryRootDirectory) {
         include(
             "**/*.kt",
-            "**/*.kts",
+            "**/*.kts"
         )
         exclude(
             "**/.git/**",
@@ -48,7 +46,7 @@ val repositoryKotlinSources =
             "**/.kotlin/**",
             "**/build/**",
             "**/node_modules/**",
-            "tmp/**",
+            "tmp/**"
         )
     }
 
@@ -57,11 +55,11 @@ tasks.register<JavaExec>("checkRepositoryKotlinStyle") {
     description = "Checks repository Kotlin sources with standard and repository-owned KtLint rules."
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set(
-        "com.marmatsan.verificationPlatform.data.kotlin.RepositoryKotlinStyleCli",
+        "com.marmatsan.verificationPlatform.data.kotlin.RepositoryKotlinStyleCli"
     )
     args(
         "check",
-        repositoryRootDirectory.asFile.absolutePath,
+        repositoryRootDirectory.asFile.absolutePath
     )
     inputs
         .files(repositoryKotlinSources)
@@ -73,11 +71,11 @@ tasks.register<JavaExec>("formatRepositoryKotlinStyle") {
     description = "Formats repository Kotlin sources with standard and repository-owned KtLint rules."
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set(
-        "com.marmatsan.verificationPlatform.data.kotlin.RepositoryKotlinStyleCli",
+        "com.marmatsan.verificationPlatform.data.kotlin.RepositoryKotlinStyleCli"
     )
     args(
         "format",
-        repositoryRootDirectory.asFile.absolutePath,
+        repositoryRootDirectory.asFile.absolutePath
     )
     outputs.upToDateWhen { false }
 }

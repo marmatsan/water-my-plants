@@ -30,12 +30,12 @@ internal class CiVisualPlannerTest :
                         topology(),
                         windowsRuntime(),
                         configuration(),
-                        visualConfig,
+                        visualConfig
                     )
 
                 plan.parentName shouldBe "Continuous Integration and Documentation Automation"
                 plan.sections.map(
-                    transform = CiVisualPlan.Section::target,
+                    transform = CiVisualPlan.Section::target
                 ) shouldContainExactly
                     listOf(
                         "ci.overview",
@@ -43,10 +43,10 @@ internal class CiVisualPlannerTest :
                         "ci.postMergeDesignDocumentation",
                         "ci.jobTasks",
                         "ci.infrastructureAndAccess",
-                        "ci.windowsRuntime",
+                        "ci.windowsRuntime"
                     )
                 plan.sections.map(
-                    transform = CiVisualPlan.Section::orientation,
+                    transform = CiVisualPlan.Section::orientation
                 ) shouldContainExactly
                     listOf(
                         CiVisualPlan.Orientation.HORIZONTAL,
@@ -54,7 +54,7 @@ internal class CiVisualPlannerTest :
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
                         CiVisualPlan.Orientation.GRID,
-                        CiVisualPlan.Orientation.GRID,
+                        CiVisualPlan.Orientation.GRID
                     )
             }
 
@@ -67,14 +67,14 @@ internal class CiVisualPlannerTest :
                         orientation = CiVisualPlan.Orientation.HORIZONTAL,
                         headerSources = emptyList(),
                         nodes = emptyList(),
-                        connections = emptyList(),
+                        connections = emptyList()
                     )
                 val customPlanner =
                     CiVisualPlanner(
                         sectionPlanners =
                             listOf(
-                                CiVisualSectionPlanner { expected },
-                            ),
+                                CiVisualSectionPlanner { expected }
+                            )
                     )
 
                 customPlanner
@@ -82,7 +82,7 @@ internal class CiVisualPlannerTest :
                         topology(),
                         windowsRuntime(),
                         configuration(),
-                        visualConfig,
+                        visualConfig
                     ).sections shouldContainExactly listOf(expected)
             }
 
@@ -93,7 +93,7 @@ internal class CiVisualPlannerTest :
                             topology(),
                             windowsRuntime(),
                             configuration(),
-                            visualConfig,
+                            visualConfig
                         ).sections
                         .single { it.target == "ci.postMergeDesignDocumentation" }
 
@@ -104,19 +104,19 @@ internal class CiVisualPlannerTest :
                 checkNode.outcomes.map(CiVisualPlan.Outcome::kind) shouldContainExactly
                     listOf(
                         CiVisualPlan.OutcomeKind.SUCCESS,
-                        CiVisualPlan.OutcomeKind.ACTION,
+                        CiVisualPlan.OutcomeKind.ACTION
                     )
                 checkNode.outcomes.map(CiVisualPlan.Outcome::title) shouldContainExactly
                     listOf(
                         "Metadata matches",
-                        "Visual sync required",
+                        "Visual sync required"
                     )
                 section.nodes
                     .sortedWith(
                         compareBy(
                             CiVisualPlan.Node::row,
-                            CiVisualPlan.Node::column,
-                        ),
+                            CiVisualPlan.Node::column
+                        )
                     ).map(CiVisualPlan.Node::id) shouldContainExactly
                     listOf(
                         "main",
@@ -127,7 +127,7 @@ internal class CiVisualPlannerTest :
                         "rerun-teamcity-figma-sync",
                         "figma-document",
                         "codex",
-                        "operator",
+                        "operator"
                     )
                 section.connections.map { connection ->
                     "${connection.source} -> ${connection.target}: ${connection.label}"
@@ -142,7 +142,7 @@ internal class CiVisualPlannerTest :
                         "operator -> codex: Prepare validated handoff",
                         "codex -> figma-document: Write visuals first · metadata last",
                         "figma-document -> rerun-teamcity-figma-sync: Run secure rerun",
-                        "rerun-teamcity-figma-sync -> pipeline-Root_FigmaSync: Queue complete pipeline",
+                        "rerun-teamcity-figma-sync -> pipeline-Root_FigmaSync: Queue complete pipeline"
                     )
                 section.connections.map(CiVisualPlan.Connection::kind) shouldContainExactly
                     listOf(
@@ -155,7 +155,7 @@ internal class CiVisualPlannerTest :
                         CiVisualPlan.ConnectionKind.CONTROL,
                         CiVisualPlan.ConnectionKind.DATA,
                         CiVisualPlan.ConnectionKind.CONTROL,
-                        CiVisualPlan.ConnectionKind.CONTROL,
+                        CiVisualPlan.ConnectionKind.CONTROL
                     )
             }
 
@@ -166,7 +166,7 @@ internal class CiVisualPlannerTest :
                             topology(),
                             windowsRuntime(),
                             configuration(),
-                            visualConfig,
+                            visualConfig
                         ).sections
                         .single { it.target == "ci.jobTasks" }
 
@@ -174,7 +174,7 @@ internal class CiVisualPlannerTest :
                     listOf(
                         "Verify",
                         "Generate main design model",
-                        "Check Figma trunk sync",
+                        "Check Figma trunk sync"
                     )
                 val generateNode = section.nodes.single { it.name == "Generate main design model" }
                 generateNode.phases
@@ -183,7 +183,7 @@ internal class CiVisualPlannerTest :
                         "Validate agent capabilities",
                         "Classify Figma change impact",
                         "Materialize canonical design model",
-                        "Build MCP runners and visual plan",
+                        "Build MCP runners and visual plan"
                     )
                 val generateSteps = generateNode.phases.flatMap(CiVisualPlan.Phase::steps)
                 generateSteps
@@ -194,14 +194,14 @@ internal class CiVisualPlannerTest :
                         "materializeFigmaSyncCiConfiguration",
                         "generateCanonicalFigmaSyncModel",
                         "prepareCanonicalFigmaSync",
-                        "writeFigmaWriterProjectConfig",
+                        "writeFigmaWriterProjectConfig"
                     )
                 generateSteps
                     .filter { step -> step.condition == "Full Figma verification" }
                     .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
                     listOf(
                         "materializeFigmaSyncCiConfiguration",
-                        "generateCanonicalFigmaSyncModel",
+                        "generateCanonicalFigmaSyncModel"
                     )
                 generateNode.outcomes.map(CiVisualPlan.Outcome::title) shouldContainExactly
                     listOf("Publish build artifact")
@@ -216,7 +216,7 @@ internal class CiVisualPlannerTest :
                     .mapNotNull(CiVisualPlan.Step::technicalId) shouldContainExactly
                     listOf(
                         "validateCanonicalFigmaSyncScope",
-                        "checkCanonicalFigmaTrunkSync",
+                        "checkCanonicalFigmaTrunkSync"
                     )
                 section.connections shouldBe emptyList()
             }
@@ -228,7 +228,7 @@ internal class CiVisualPlannerTest :
                             topology(),
                             windowsRuntime(),
                             configuration(),
-                            visualConfig,
+                            visualConfig
                         ).sections
                         .single { it.target == "ci.pullRequestIntegration" }
 
@@ -243,7 +243,7 @@ internal class CiVisualPlannerTest :
                             topology(),
                             windowsRuntime(),
                             configuration(),
-                            visualConfig,
+                            visualConfig
                         ).sections
                         .single { it.target == "ci.jobTasks" }
 
@@ -253,7 +253,7 @@ internal class CiVisualPlannerTest :
                     listOf(
                         "Validate agent capabilities",
                         "Generate verification plan",
-                        "Run planned Gradle checks",
+                        "Run planned Gradle checks"
                     )
                 val steps = verifyNode.phases.flatMap(CiVisualPlan.Phase::steps)
                 steps
@@ -264,7 +264,7 @@ internal class CiVisualPlannerTest :
                         "ci.plan.gradleTasks",
                         "checkGitWorkflow · checkDocumentation",
                         "checkRepositoryDiff · checkTeamCityDsl · :<affected-module>:check · checkFigmaCatalogUsage",
-                        "check",
+                        "check"
                     )
                 steps.single { step -> step.technicalId == "ci.plan.gradleTasks" }.role shouldBe
                     CiVisualPlan.StepRole.DECISION
@@ -275,7 +275,7 @@ internal class CiVisualPlannerTest :
                     listOf(
                         "Always",
                         "According to changes",
-                        "Full verification",
+                        "Full verification"
                     )
                 verifyNode.outcomes.single().kind shouldBe CiVisualPlan.OutcomeKind.CHECK
             }
@@ -287,7 +287,7 @@ internal class CiVisualPlannerTest :
                             topology(),
                             windowsRuntime(),
                             configuration(),
-                            visualConfig,
+                            visualConfig
                         ).sections
                         .single { it.target == "ci.overview" }
 
@@ -297,17 +297,17 @@ internal class CiVisualPlannerTest :
 
             test("maps explicit external and Windows environments") {
                 environments.external(
-                    id = "operator",
+                    id = "operator"
                 ) shouldBe CiVisualPlan.Environment.OPERATOR
                 environments.external(
-                    id = "codex-mcp-client",
+                    id = "codex-mcp-client"
                 ) shouldBe CiVisualPlan.Environment.CODEX
                 environments.windowsRuntime(
-                    id = "cloudflare-tunnel",
+                    id = "cloudflare-tunnel"
                 ) shouldBe CiVisualPlan.Environment.CLOUDFLARE
                 shouldThrow<IllegalArgumentException> {
                     environments.external(
-                        id = "unknown",
+                        id = "unknown"
                     )
                 }.message shouldContain "no .ci icon environment mapping"
             }
@@ -315,14 +315,14 @@ internal class CiVisualPlannerTest :
             test("normalizes TeamCity artifact publication paths") {
                 artifactPaths.contains(
                     publishedPath = "build\\reports\\figma-sync\\** => figma-sync",
-                    requiredFile = "build/reports/figma-sync/design-model.json",
+                    requiredFile = "build/reports/figma-sync/design-model.json"
                 ) shouldBe true
                 artifactPaths.contains(
                     publishedPath = "build/reports/unrelated",
-                    requiredFile = "build/reports/figma-sync/design-model.json",
+                    requiredFile = "build/reports/figma-sync/design-model.json"
                 ) shouldBe false
             }
-        },
+        }
     )
 
 private fun configuration() =
@@ -338,8 +338,8 @@ private fun configuration() =
                                 type = CiTrigger.Type.Vcs,
                                 branchFilter = "+:*",
                                 dependencyPipelineId = null,
-                                afterSuccessfulBuildOnly = null,
-                            ),
+                                afterSuccessfulBuildOnly = null
+                            )
                         ),
                     jobs =
                         listOf(
@@ -351,27 +351,27 @@ private fun configuration() =
                                         CiJob.Step(
                                             id = "RUNNER_1",
                                             name = "Validate agent capabilities",
-                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND,
+                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_2",
                                             name = "Generate verification plan",
-                                            command = ".\\gradlew.bat prepareTeamCityCiPlan --stacktrace",
+                                            command = ".\\gradlew.bat prepareTeamCityCiPlan --stacktrace"
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_3",
                                             name = "Run planned Gradle checks",
-                                            command = "call .\\gradlew.bat %ci.plan.gradleTasks% --stacktrace",
-                                        ),
+                                            command = "call .\\gradlew.bat %ci.plan.gradleTasks% --stacktrace"
+                                        )
                                     ),
                                 checks =
                                     listOf(
                                         CiJob.PublishedCheck(
-                                            name = "TeamCity CI",
-                                        ),
-                                    ),
-                            ),
-                        ),
+                                            name = "TeamCity CI"
+                                        )
+                                    )
+                            )
+                        )
                 ),
                 CiPipeline(
                     id = "Root_FigmaSync",
@@ -382,8 +382,8 @@ private fun configuration() =
                                 type = CiTrigger.Type.PipelineFinish,
                                 branchFilter = null,
                                 dependencyPipelineId = "Root_Ci",
-                                afterSuccessfulBuildOnly = true,
-                            ),
+                                afterSuccessfulBuildOnly = true
+                            )
                         ),
                     jobs =
                         listOf(
@@ -395,26 +395,26 @@ private fun configuration() =
                                         CiJob.Step(
                                             id = "RUNNER_1",
                                             name = "Validate agent capabilities",
-                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND,
+                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_2",
                                             name = "Validate canonical sync scope",
-                                            command = VALIDATE_CANONICAL_FIGMA_SYNC_SCOPE_COMMAND,
+                                            command = VALIDATE_CANONICAL_FIGMA_SYNC_SCOPE_COMMAND
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_3",
                                             name = "Verify Figma sync metadata",
-                                            command = CHECK_CANONICAL_FIGMA_TRUNK_SYNC_COMMAND,
-                                        ),
+                                            command = CHECK_CANONICAL_FIGMA_TRUNK_SYNC_COMMAND
+                                        )
                                     ),
                                 dependencies =
                                     listOf(
                                         CiJob.Dependency(
                                             jobId = "generate",
-                                            artifactPaths = listOf("build/reports/figma-sync"),
-                                        ),
-                                    ),
+                                            artifactPaths = listOf("build/reports/figma-sync")
+                                        )
+                                    )
                             ),
                             job(
                                 id = "generate",
@@ -424,43 +424,43 @@ private fun configuration() =
                                         CiJob.Step(
                                             id = "RUNNER_1",
                                             name = "Validate agent capabilities",
-                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND,
+                                            command = VALIDATE_AGENT_CAPABILITIES_COMMAND
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_2",
                                             name = "Classify Figma change impact",
                                             command =
                                                 ".\\gradlew.bat classifyCanonicalFigmaSyncChangeImpact " +
-                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true",
+                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true"
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_3",
                                             name = "Materialize canonical design model",
                                             command =
                                                 ".\\gradlew.bat materializeFigmaSyncCiConfiguration " +
-                                                    "generateCanonicalFigmaSyncModel -PfigmaCanonicalTeamCityPhasedExecution=true",
+                                                    "generateCanonicalFigmaSyncModel -PfigmaCanonicalTeamCityPhasedExecution=true"
                                         ),
                                         CiJob.Step(
                                             id = "RUNNER_4",
                                             name = "Build MCP runners and visual plan",
                                             command =
                                                 ".\\gradlew.bat prepareCanonicalFigmaSync " +
-                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true",
-                                        ),
+                                                    "-PfigmaCanonicalTeamCityPhasedExecution=true"
+                                        )
                                     ),
                                 artifacts =
                                     listOf(
                                         CiJob.Artifact(
                                             "build/reports/figma-sync",
                                             true,
-                                            true,
-                                        ),
-                                    ),
-                            ),
-                        ),
-                ),
+                                            true
+                                        )
+                                    )
+                            )
+                        )
+                )
             ),
-        vcsRoots = emptyList(),
+        vcsRoots = emptyList()
     )
 
 private fun job(
@@ -469,7 +469,7 @@ private fun job(
     steps: List<CiJob.Step>,
     artifacts: List<CiJob.Artifact> = emptyList(),
     dependencies: List<CiJob.Dependency> = emptyList(),
-    checks: List<CiJob.PublishedCheck> = emptyList(),
+    checks: List<CiJob.PublishedCheck> = emptyList()
 ) = CiJob(
     id = id,
     name = name,
@@ -477,7 +477,7 @@ private fun job(
     repositoryIds = emptyList(),
     artifacts = artifacts,
     dependencies = dependencies,
-    publishedChecks = checks,
+    publishedChecks = checks
 )
 
 private fun topology() =
@@ -487,9 +487,9 @@ private fun topology() =
             CiExternalTopology.Validation(
                 lastValidatedOn =
                     LocalDate.parse(
-                        "2026-07-18",
+                        "2026-07-18"
                     ),
-                warnAfterDays = 90,
+                warnAfterDays = 90
             ),
         nodes =
             listOf(
@@ -497,32 +497,32 @@ private fun topology() =
                     id = "operator",
                     type = CiNode.Type.Actor,
                     name = "Operator",
-                    description = "Starts manual actions.",
+                    description = "Starts manual actions."
                 ),
                 CiNode(
                     id = "cloudflare-access",
                     type = CiNode.Type.System,
                     name = "Cloudflare Access",
-                    description = "Applies access policy.",
+                    description = "Applies access policy."
                 ),
                 CiNode(
                     id = "teamcity-server",
                     type = CiNode.Type.System,
                     name = "TeamCity Server",
-                    description = "Orchestrates pipelines.",
+                    description = "Orchestrates pipelines."
                 ),
                 CiNode(
                     id = "codex-mcp-client",
                     type = CiNode.Type.System,
                     name = "Codex/MCP Client",
-                    description = "Applies visual changes.",
+                    description = "Applies visual changes."
                 ),
                 CiNode(
                     id = "figma-design-document",
                     type = CiNode.Type.System,
                     name = "Figma Design Document",
-                    description = "Stores visual documentation.",
-                ),
+                    description = "Stores visual documentation."
+                )
             ),
         connections =
             listOf(
@@ -537,9 +537,9 @@ private fun topology() =
                     policy = null,
                     path = null,
                     automation = CiConnection.Automation.Manual,
-                    annotation = null,
-                ),
-            ),
+                    annotation = null
+                )
+            )
     )
 
 private fun windowsRuntime() =
@@ -549,9 +549,9 @@ private fun windowsRuntime() =
             CiWindowsRuntime.Validation(
                 lastValidatedOn =
                     LocalDate.parse(
-                        "2026-07-18",
+                        "2026-07-18"
                     ),
-                warnAfterDays = 90,
+                warnAfterDays = 90
             ),
         platform = "Windows",
         services =
@@ -562,7 +562,7 @@ private fun windowsRuntime() =
                     description = "Hosts TeamCity.",
                     service = "TeamCity",
                     startup = "Automatic",
-                    identity = "NT SERVICE\\TeamCity",
+                    identity = "NT SERVICE\\TeamCity"
                 ),
                 CiWindowsRuntime.Service(
                     id = "build-agent",
@@ -570,7 +570,7 @@ private fun windowsRuntime() =
                     description = "Runs builds.",
                     service = "TCBuildAgent",
                     startup = "Automatic",
-                    identity = "NT SERVICE\\TCBuildAgent",
+                    identity = "NT SERVICE\\TCBuildAgent"
                 ),
                 CiWindowsRuntime.Service(
                     id = "cloudflare-tunnel",
@@ -578,9 +578,9 @@ private fun windowsRuntime() =
                     description = "Publishes TeamCity.",
                     service = "Cloudflared",
                     startup = "Automatic",
-                    identity = "LocalSystem",
-                ),
-            ),
+                    identity = "LocalSystem"
+                )
+            )
     )
 
 private val visualConfig =
@@ -596,7 +596,7 @@ private val visualConfig =
         visualContractSource = "docs/ci/visual-model-contract.md",
         branchProtectionSource = "docs/ci/main-branch-protection.md",
         canonicalSyncSource = "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
-        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
+        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json"
     )
 
 private const val VALIDATE_AGENT_CAPABILITIES_COMMAND =

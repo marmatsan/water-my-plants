@@ -26,21 +26,21 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                             .runner(
                                 "prepareCanonicalFigmaSync",
                                 "-PfigmaChangedPaths=docs/example.md",
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
                     val verification =
                         project
                             .runner(
                                 "verifyCanonicalFigmaSync",
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
                     val scope =
                         Json
                             .parseToJsonElement(
                                 project
                                     .resolve(
-                                        relative = "build/reports/figma-sync/sync-scope.json",
-                                    ).readText(),
+                                        relative = "build/reports/figma-sync/sync-scope.json"
+                                    ).readText()
                             ).jsonObject
 
                     scope["scope"]?.jsonPrimitive?.content shouldBe "documentation-only"
@@ -64,7 +64,7 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                             "classifyCanonicalFigmaSyncChangeImpact",
                             "-PfigmaChangedPaths=docs/example.md",
                             property,
-                            "--stacktrace",
+                            "--stacktrace"
                         ).build()
                     val modelPhase =
                         project
@@ -72,7 +72,7 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                                 "materializeFigmaSyncCiConfiguration",
                                 "generateCanonicalFigmaSyncModel",
                                 property,
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
                     val reusedModelPhase =
                         project
@@ -80,27 +80,27 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                                 "materializeFigmaSyncCiConfiguration",
                                 "generateCanonicalFigmaSyncModel",
                                 property,
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
                     val runnerPhase =
                         project
                             .runner(
                                 "prepareCanonicalFigmaSync",
                                 property,
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
                     project
                         .runner(
                             "validateCanonicalFigmaSyncScope",
                             property,
-                            "--stacktrace",
+                            "--stacktrace"
                         ).build()
                     val metadataPhase =
                         project
                             .runner(
                                 "checkCanonicalFigmaTrunkSync",
                                 property,
-                                "--stacktrace",
+                                "--stacktrace"
                             ).build()
 
                     modelPhase.task(":classifyCanonicalFigmaSyncChangeImpact") shouldBe null
@@ -114,11 +114,11 @@ internal class CanonicalFigmaSyncGradleTasksTest :
                     project.deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private fun File.runner(
-    vararg arguments: String,
+    vararg arguments: String
 ): GradleRunner =
     GradleRunner
         .create()
@@ -127,15 +127,15 @@ private fun File.runner(
         .withArguments(
             *arguments,
             "--configuration-cache",
-            "--configuration-cache-problems=fail",
+            "--configuration-cache-problems=fail"
         )
 
 private fun File.writeFixture() {
     resolve(
-        relative = "settings.gradle.kts",
+        relative = "settings.gradle.kts"
     ).writeText("rootProject.name = \"canonical-figma-sync-test\"")
     resolve(
-        relative = "build.gradle.kts",
+        relative = "build.gradle.kts"
     ).writeText(
         """
         plugins {
@@ -147,13 +147,13 @@ private fun File.writeFixture() {
                 layout.projectDirectory.file("project-config/change-impact-policy.json")
             )
         }
-        """.trimIndent(),
+        """.trimIndent()
     )
     resolve(
-        relative = "project-config",
+        relative = "project-config"
     ).mkdirs()
     resolve(
-        relative = "project-config/change-impact-policy.json",
+        relative = "project-config/change-impact-policy.json"
     ).writeText(
         """
         {
@@ -165,7 +165,7 @@ private fun File.writeFixture() {
           "figmaVisualWriterPaths": [],
           "figmaVisualTargetRules": []
         }
-        """.trimIndent(),
+        """.trimIndent()
     )
 }
 
@@ -174,11 +174,11 @@ private fun File.initializeGitRepository() {
     git(
         "checkout",
         "-b",
-        "main",
+        "main"
     )
     git(
         "add",
-        ".",
+        "."
     )
     git(
         "-c",
@@ -187,12 +187,12 @@ private fun File.initializeGitRepository() {
         "user.email=test@example.com",
         "commit",
         "-m",
-        "Fixture",
+        "Fixture"
     )
 }
 
 private fun File.git(
-    vararg arguments: String,
+    vararg arguments: String
 ) {
     val process =
         ProcessBuilder(listOf("git") + arguments)

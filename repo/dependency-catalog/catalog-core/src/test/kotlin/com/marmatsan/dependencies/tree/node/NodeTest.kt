@@ -19,8 +19,8 @@ internal class NodeTest :
                     val androidx =
                         Node(
                             DependencyNode.Library(
-                                libraryGroup = "androidx",
-                            ),
+                                libraryGroup = "androidx"
+                            )
                         )
                     val activity =
                         Node(
@@ -32,11 +32,11 @@ internal class NodeTest :
                                             artifact =
                                                 Artifact(
                                                     artifact = "activity-compose",
-                                                    version = "1.13.0",
-                                                ),
-                                        ),
-                                    ),
-                            ),
+                                                    version = "1.13.0"
+                                                )
+                                        )
+                                    )
+                            )
                         )
                     val compose =
                         Node(
@@ -48,11 +48,11 @@ internal class NodeTest :
                                             artifact =
                                                 Artifact(
                                                     artifact = "compose-bom",
-                                                    version = "2026.05.00",
-                                                ),
-                                        ),
-                                    ),
-                            ),
+                                                    version = "2026.05.00"
+                                                )
+                                        )
+                                    )
+                            )
                         )
                     val ui =
                         Node(
@@ -68,12 +68,12 @@ internal class NodeTest :
                                                         listOf(
                                                             Artifact("ui"),
                                                             Artifact("ui-graphics"),
-                                                            Artifact("ui-tooling"),
-                                                        ),
-                                                ),
-                                        ),
-                                    ),
-                            ),
+                                                            Artifact("ui-tooling")
+                                                        )
+                                                )
+                                        )
+                                    )
+                            )
                         )
                     val material3 =
                         Node(
@@ -82,23 +82,23 @@ internal class NodeTest :
                                 entries =
                                     listOf(
                                         LibraryEntry.Single(
-                                            artifact = Artifact("material3"),
-                                        ),
-                                    ),
-                            ),
+                                            artifact = Artifact("material3")
+                                        )
+                                    )
+                            )
                         )
 
                     androidx.add(
-                        child = activity,
+                        child = activity
                     )
                     androidx.add(
-                        child = compose,
+                        child = compose
                     )
                     compose.add(
-                        child = ui,
+                        child = ui
                     )
                     compose.add(
-                        child = material3,
+                        child = material3
                     )
                     androidx
                 }.whenever { androidx ->
@@ -107,9 +107,9 @@ internal class NodeTest :
                         shouldIncludeNode = { it.entries != null },
                         mapNode = { libraryNode, fullPath ->
                             libraryNode.toDependencyLibrary(
-                                libraryGroup = fullPath,
+                                libraryGroup = fullPath
                             )
-                        },
+                        }
                     )
                 }.then { actualLibraries ->
                     actualLibraries shouldBe
@@ -122,10 +122,10 @@ internal class NodeTest :
                                             artifact =
                                                 Artifact(
                                                     artifact = "activity-compose",
-                                                    version = "1.13.0",
-                                                ),
-                                        ),
-                                    ),
+                                                    version = "1.13.0"
+                                                )
+                                        )
+                                    )
                             ),
                             Dependency.Library(
                                 libraryGroup = "androidx.compose",
@@ -135,10 +135,10 @@ internal class NodeTest :
                                             artifact =
                                                 Artifact(
                                                     artifact = "compose-bom",
-                                                    version = "2026.05.00",
-                                                ),
-                                        ),
-                                    ),
+                                                    version = "2026.05.00"
+                                                )
+                                        )
+                                    )
                             ),
                             Dependency.Library(
                                 libraryGroup = "androidx.compose.ui",
@@ -152,21 +152,21 @@ internal class NodeTest :
                                                         listOf(
                                                             Artifact("ui"),
                                                             Artifact("ui-graphics"),
-                                                            Artifact("ui-tooling"),
-                                                        ),
-                                                ),
-                                        ),
-                                    ),
+                                                            Artifact("ui-tooling")
+                                                        )
+                                                )
+                                        )
+                                    )
                             ),
                             Dependency.Library(
                                 libraryGroup = "androidx.compose.material3",
                                 entries =
                                     listOf(
                                         LibraryEntry.Single(
-                                            artifact = Artifact("material3"),
-                                        ),
-                                    ),
-                            ),
+                                            artifact = Artifact("material3")
+                                        )
+                                    )
+                            )
                         )
                 }
             }
@@ -176,66 +176,66 @@ internal class NodeTest :
                     val com =
                         Node(
                             DependencyNode.Plugin(
-                                pluginId = "com",
-                            ),
+                                pluginId = "com"
+                            )
                         )
                     val android =
                         Node(
                             DependencyNode.Plugin(
-                                pluginId = "android",
-                            ),
+                                pluginId = "android"
+                            )
                         )
                     val application =
                         Node(
                             DependencyNode.Plugin(
                                 pluginId = "application",
-                                version = "9.2.1",
-                            ),
+                                version = "9.2.1"
+                            )
                         )
                     val library =
                         Node(
                             DependencyNode.Plugin(
                                 pluginId = "library",
-                                version = "9.2.1",
-                            ),
+                                version = "9.2.1"
+                            )
                         )
                     val google =
                         Node(
                             DependencyNode.Plugin(
-                                pluginId = "google",
-                            ),
+                                pluginId = "google"
+                            )
                         )
                     val devtools =
                         Node(
                             DependencyNode.Plugin(
-                                pluginId = "devtools",
-                            ),
+                                pluginId = "devtools"
+                            )
                         )
                     val ksp =
                         Node(
                             DependencyNode.Plugin(
                                 pluginId = "ksp",
-                                version = "2.3.9",
-                            ),
+                                version = "2.3.9"
+                            )
                         )
 
                     com.add(
-                        child = android,
+                        child = android
                     )
                     android.add(
-                        child = application,
+                        child = application
                     )
                     android.add(
-                        child = library,
+                        child = library
                     )
                     com.add(
-                        child = google,
+                        child = google
                     )
                     google.add(
-                        child = devtools,
+                        child = devtools
                     )
                     devtools.add(
-                        child = ksp,
+                        child = ksp
                     )
                     com
                 }.whenever { root ->
@@ -244,27 +244,27 @@ internal class NodeTest :
                         shouldIncludeNode = { it.version != null },
                         mapNode = { pluginNode, fullPath ->
                             pluginNode.toDependencyPlugin(
-                                pluginId = fullPath,
+                                pluginId = fullPath
                             )
-                        },
+                        }
                     )
                 }.then { actualPlugins ->
                     actualPlugins shouldBe
                         listOf(
                             Dependency.Plugin(
                                 pluginId = "com.android.application",
-                                version = "9.2.1",
+                                version = "9.2.1"
                             ),
                             Dependency.Plugin(
                                 pluginId = "com.android.library",
-                                version = "9.2.1",
+                                version = "9.2.1"
                             ),
                             Dependency.Plugin(
                                 pluginId = "com.google.devtools.ksp",
-                                version = "2.3.9",
-                            ),
+                                version = "2.3.9"
+                            )
                         )
                 }
             }
-        },
+        }
     )

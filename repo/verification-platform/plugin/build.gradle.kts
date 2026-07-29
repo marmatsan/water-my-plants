@@ -12,14 +12,11 @@ dependencies {
     implementation(libs.com.michael.bull.kotlin.result)
     implementation(projects.data) {
         exclude(
-            group = "com.pinterest.ktlint",
+            group = "com.pinterest.ktlint"
         )
     }
-    implementation(gradleApi())
-
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

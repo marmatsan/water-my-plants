@@ -22,6 +22,6 @@ interface ProjectModuleDependenciesPort {
      * Gradle files do not represent distinct documentation edges.
      */
     fun readModuleDependencies(
-        source: ProjectModuleDependenciesSource,
+        source: ProjectModuleDependenciesSource
     ): Set<ModuleDependency>
 }

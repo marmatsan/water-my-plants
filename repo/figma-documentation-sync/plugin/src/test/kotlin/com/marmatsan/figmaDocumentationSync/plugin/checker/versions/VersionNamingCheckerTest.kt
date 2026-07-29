@@ -23,33 +23,33 @@ internal class VersionNamingCheckerTest :
                                             versions =
                                                 mapOf(
                                                     "androidGradlePluginVersion" to "9.2.1",
-                                                    "kotlinVersion" to "2.4.0",
-                                                ),
+                                                    "kotlinVersion" to "2.4.0"
+                                                )
                                         ),
                                         RepositoryVersionSection(
                                             name = "Libraries",
                                             versions =
                                                 mapOf(
                                                     "activityComposeLibraryVersion" to "1.13.0",
-                                                    "protobufLibraryVersion" to "4.35.1",
-                                                ),
+                                                    "protobufLibraryVersion" to "4.35.1"
+                                                )
                                         ),
                                         RepositoryVersionSection(
                                             name = "Plugins",
                                             versions =
                                                 mapOf(
                                                     "dokkaPluginVersion" to "2.2.0",
-                                                    "kspPluginVersion" to "2.3.9",
-                                                ),
-                                        ),
-                                    ),
-                            ),
+                                                    "kspPluginVersion" to "2.3.9"
+                                                )
+                                        )
+                                    )
+                            )
                     )
                 }.whenever { checker ->
                     checker.check(
                         VersionNamingCheckRequest(
-                            versionsFile = File("versions.properties"),
-                        ),
+                            versionsFile = File("versions.properties")
+                        )
                     )
                 }.then { result ->
                     result.isSuccessful shouldBe true
@@ -66,7 +66,7 @@ internal class VersionNamingCheckerTest :
                                     listOf(
                                         RepositoryVersionSection(
                                             name = "Libraries",
-                                            versions = mapOf("activityComposeVersion" to "1.13.0"),
+                                            versions = mapOf("activityComposeVersion" to "1.13.0")
                                         ),
                                         RepositoryVersionSection(
                                             name = "Main project dependencies",
@@ -74,25 +74,25 @@ internal class VersionNamingCheckerTest :
                                                 mapOf(
                                                     "androidGradlePluginVersion" to "9.2.1",
                                                     "kotlinVersion" to "2.4.0",
-                                                    "kspPluginVersion" to "2.3.9",
-                                                ),
+                                                    "kspPluginVersion" to "2.3.9"
+                                                )
                                         ),
                                         RepositoryVersionSection(
                                             name = "Plugins",
-                                            versions = mapOf("dokkaVersion" to "2.2.0"),
-                                        ),
-                                    ),
-                            ),
+                                            versions = mapOf("dokkaVersion" to "2.2.0")
+                                        )
+                                    )
+                            )
                     )
                 }.whenever { checker ->
                     checker.check(
                         VersionNamingCheckRequest(
-                            versionsFile = File("versions.properties"),
-                        ),
+                            versionsFile = File("versions.properties")
+                        )
                     )
                 }.then { result ->
                     result.violations.map(
-                        transform = VersionNamingViolation::message,
+                        transform = VersionNamingViolation::message
                     ) shouldBe
                         listOf(
                             "Expected version sections in order: Main project dependencies, Libraries, Plugins. " +
@@ -100,25 +100,25 @@ internal class VersionNamingCheckerTest :
                             "Main project dependencies must declare only androidGradlePluginVersion, kotlinVersion. " +
                                 "Found: androidGradlePluginVersion, kotlinVersion, kspPluginVersion.",
                             "Libraries version key 'activityComposeVersion' must end with 'LibraryVersion'.",
-                            "Plugins version key 'dokkaVersion' must end with 'PluginVersion'.",
+                            "Plugins version key 'dokkaVersion' must end with 'PluginVersion'."
                         )
                 }
             }
-        },
+        }
     )
 
 private class FakeRepositoryVersionsPort(
-    private val sections: List<RepositoryVersionSection>,
+    private val sections: List<RepositoryVersionSection>
 ) : RepositoryVersionsPort {
     override fun readVersions(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): Map<String, String> =
         sections
             .flatMap { section -> section.versions.entries }
             .associate { entry -> entry.key to entry.value }
 
     override fun readVersionSections(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): List<RepositoryVersionSection> =
         sections
 }

@@ -13,13 +13,13 @@ import com.marmatsan.figmaDocumentationSync.domain.model.writer.VisualSyncPlan
 class McpExecutionPlanner {
     /** Derives write-relevant endpoint capabilities from advertised MCP [toolNames]. */
     fun capabilities(
-        toolNames: List<String>,
+        toolNames: List<String>
     ): McpCapabilities {
         val sorted = toolNames.distinct().sorted()
         return McpCapabilities(
             toolNames = sorted,
             canUseFigma = REQUIRED_WRITE_TOOL in sorted,
-            canUploadAssets = REQUIRED_UPLOAD_TOOL in sorted,
+            canUploadAssets = REQUIRED_UPLOAD_TOOL in sorted
         )
     }
 
@@ -27,22 +27,22 @@ class McpExecutionPlanner {
     fun requireWriteCapabilities(
         capabilities: McpCapabilities,
         manifest: ExecutableRunnerManifest,
-        executionFiles: List<String>,
+        executionFiles: List<String>
     ) {
         val missing =
             buildList {
                 if (!capabilities.canUseFigma) {
                     add(
-                        element = REQUIRED_WRITE_TOOL,
+                        element = REQUIRED_WRITE_TOOL
                     )
                 }
                 if (needsPayloadUpload(
                         manifest = manifest,
-                        executionFiles = executionFiles,
+                        executionFiles = executionFiles
                     ) && !capabilities.canUploadAssets
                 ) {
                     add(
-                        element = REQUIRED_UPLOAD_TOOL,
+                        element = REQUIRED_UPLOAD_TOOL
                     )
                 }
             }
@@ -58,7 +58,7 @@ class McpExecutionPlanner {
         options: McpExecutionOptions,
         existingState: McpExecutionState?,
         visualState: McpExecutionState?,
-        syncPlan: VisualSyncPlan? = null,
+        syncPlan: VisualSyncPlan? = null
     ): List<String> {
         var files = manifest.files.filter { file -> file.endsWith(".mcp.js") }
 
@@ -76,7 +76,7 @@ class McpExecutionPlanner {
                         val scopes = syncPlan.body.executionScopes.toSet()
                         files.filter { file ->
                             !file.startsWith(
-                                prefix = "99-",
+                                prefix = "99-"
                             ) || manifest.executionScopes[file] in scopes
                         }
                     }
@@ -97,12 +97,12 @@ class McpExecutionPlanner {
             }
             assertCompletedVisualState(
                 metadataManifest = manifest,
-                visualState = visualState,
+                visualState = visualState
             )
             files =
                 files.filter { file ->
                     file.startsWith(
-                        prefix = "99-",
+                        prefix = "99-"
                     )
                 }
         }
@@ -125,12 +125,12 @@ class McpExecutionPlanner {
         if (options.resume && existingState != null) {
             assertStateIdentity(
                 manifest = manifest,
-                state = existingState,
+                state = existingState
             )
             val completed =
                 existingState.completedFiles
                     .map(
-                        transform = McpCompletedFile::file,
+                        transform = McpCompletedFile::file
                     ).toSet()
             files = files.filterNot(completed::contains)
         }
@@ -143,30 +143,30 @@ class McpExecutionPlanner {
         existingState: McpExecutionState?,
         options: McpExecutionOptions,
         executionFiles: List<String>,
-        now: String,
+        now: String
     ): McpExecutionState {
         if ((options.resume || options.retryFailed) && existingState != null) {
             assertStateIdentity(
                 manifest = manifest,
-                state = existingState,
+                state = existingState
             )
             return existingState.copy(
                 failedFile = null,
                 failure = null,
-                updatedAt = now,
+                updatedAt = now
             )
         }
         return McpExecutionState(
             schemaVersion = STATE_SCHEMA_VERSION,
             identity =
                 executionIdentity(
-                    manifest = manifest,
+                    manifest = manifest
                 ),
             startedAt = now,
             updatedAt = now,
             completedFiles = emptyList(),
             plannedFiles = executionFiles,
-            failedFile = null,
+            failedFile = null
         )
     }
 
@@ -177,7 +177,7 @@ class McpExecutionPlanner {
         file: String,
         durationMs: Long,
         summary: String?,
-        now: String,
+        now: String
     ): McpExecutionState {
         val completed =
             state.completedFiles.filterNot { entry -> entry.file == file } +
@@ -186,13 +186,13 @@ class McpExecutionPlanner {
                     fileHash = manifest.fileHashes.getValue(file),
                     durationMs = durationMs,
                     completedAt = now,
-                    summary = summary?.take(MAX_SUMMARY_LENGTH),
+                    summary = summary?.take(MAX_SUMMARY_LENGTH)
                 )
         return state.copy(
             completedFiles = completed,
             failedFile = null,
             failure = null,
-            updatedAt = now,
+            updatedAt = now
         )
     }
 
@@ -202,7 +202,7 @@ class McpExecutionPlanner {
         file: String,
         durationMs: Long,
         message: String,
-        now: String,
+        now: String
     ): McpExecutionState =
         state.copy(
             failedFile = file,
@@ -210,31 +210,31 @@ class McpExecutionPlanner {
                 McpExecutionFailure(
                     message = message,
                     durationMs = durationMs,
-                    failedAt = now,
+                    failedAt = now
                 ),
-            updatedAt = now,
+            updatedAt = now
         )
 
     /** Extracts the checkpoint-compatible cryptographic identity from [manifest]. */
     fun executionIdentity(
-        manifest: ExecutableRunnerManifest,
+        manifest: ExecutableRunnerManifest
     ): McpExecutionIdentity =
         McpExecutionIdentity(
             modelHash = manifest.modelHash,
             gitSha = manifest.gitSha,
             writerHash = manifest.writerHash,
             transportHash = manifest.transportHash,
-            manifestHash = manifest.manifestHash,
+            manifestHash = manifest.manifestHash
         )
 
     /** Fails when [state] cannot safely resume the supplied [manifest]. */
     fun assertStateIdentity(
         manifest: ExecutableRunnerManifest,
-        state: McpExecutionState,
+        state: McpExecutionState
     ) {
         val expected =
             executionIdentity(
-                manifest = manifest,
+                manifest = manifest
             )
         val values =
             listOf(
@@ -242,7 +242,7 @@ class McpExecutionPlanner {
                 "gitSha" to (state.identity.gitSha to expected.gitSha),
                 "writerHash" to (state.identity.writerHash to expected.writerHash),
                 "transportHash" to (state.identity.transportHash to expected.transportHash),
-                "manifestHash" to (state.identity.manifestHash to expected.manifestHash),
+                "manifestHash" to (state.identity.manifestHash to expected.manifestHash)
             )
         values.forEach { (key, valuesForKey) ->
             require(valuesForKey.first == valuesForKey.second) {
@@ -267,7 +267,7 @@ class McpExecutionPlanner {
     /** Fails unless the visual checkpoint authorizes metadata-runner staging reuse. */
     fun assertCompletedVisualState(
         metadataManifest: ExecutableRunnerManifest,
-        visualState: McpExecutionState?,
+        visualState: McpExecutionState?
     ) {
         val state =
             requireNotNull(visualState) {
@@ -275,14 +275,14 @@ class McpExecutionPlanner {
             }
         val expected =
             executionIdentity(
-                manifest = metadataManifest,
+                manifest = metadataManifest
             )
         val compatible =
             listOf(
                 "modelHash" to (state.identity.modelHash to expected.modelHash),
                 "gitSha" to (state.identity.gitSha to expected.gitSha),
                 "writerHash" to (state.identity.writerHash to expected.writerHash),
-                "transportHash" to (state.identity.transportHash to expected.transportHash),
+                "transportHash" to (state.identity.transportHash to expected.transportHash)
             )
         compatible.forEach { (key, valuesForKey) ->
             require(valuesForKey.first == valuesForKey.second) {
@@ -292,22 +292,22 @@ class McpExecutionPlanner {
         val completedFiles =
             state.completedFiles
                 .map(
-                    transform = McpCompletedFile::file,
+                    transform = McpCompletedFile::file
                 ).filter {
                     it.startsWith(
-                        prefix = "99-",
+                        prefix = "99-"
                     )
                 }.toSet()
         val plannedFiles =
             state.plannedFiles.filter {
                 it.startsWith(
-                    prefix = "99-",
+                    prefix = "99-"
                 )
             }
         require(
             plannedFiles.isNotEmpty() &&
                 plannedFiles.all(completedFiles::contains) &&
-                state.failedFile == null,
+                state.failedFile == null
         ) {
             "Visual checkpoint is not complete enough to authorize staging reuse."
         }
@@ -315,7 +315,7 @@ class McpExecutionPlanner {
 
     private fun needsPayloadUpload(
         manifest: ExecutableRunnerManifest,
-        executionFiles: List<String>,
+        executionFiles: List<String>
     ): Boolean = manifest.transport == "png" && PAYLOAD_STAGE_FILE in executionFiles
 
     /** Stable MCP tool and runner-file identities shared by execution adapters. */

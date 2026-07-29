@@ -9,7 +9,7 @@ internal class DocumentationFrontmatterParser {
      * @return parsed frontmatter, or `null` when the document does not begin with a valid block.
      */
     fun parse(
-        content: String,
+        content: String
     ): DocumentationFrontmatter? {
         val match = FRONTMATTER_PATTERN.find(content) ?: return null
         val metadata = linkedMapOf<String, String>()
@@ -23,7 +23,7 @@ internal class DocumentationFrontmatterParser {
                 metadata[key] =
                     keyMatch.groups["value"]?.value.orEmpty().trim().trim(
                         '"',
-                        '\'',
+                        '\''
                     )
             } else if (currentKey == "sources") {
                 SOURCE_ITEM_PATTERN
@@ -35,7 +35,7 @@ internal class DocumentationFrontmatterParser {
                         sources +=
                             value.trim().trim(
                                 '"',
-                                '\'',
+                                '\''
                             )
                     }
             }
@@ -43,7 +43,7 @@ internal class DocumentationFrontmatterParser {
         return DocumentationFrontmatter(
             metadata = metadata,
             sources = sources,
-            body = content.substring(match.range.last + 1),
+            body = content.substring(match.range.last + 1)
         )
     }
 
@@ -51,7 +51,7 @@ internal class DocumentationFrontmatterParser {
         val FRONTMATTER_PATTERN =
             Regex(
                 """\A---\r?\n(?<yaml>.*?)\r?\n---(?:\r?\n|\z)""",
-                RegexOption.DOT_MATCHES_ALL,
+                RegexOption.DOT_MATCHES_ALL
             )
         val METADATA_KEY_PATTERN = Regex("""(?<key>[a-z][a-z0-9-]*):(?:\s*(?<value>.*))?""")
         val SOURCE_ITEM_PATTERN = Regex("""\s+-\s+(?<value>.+?)\s*""")

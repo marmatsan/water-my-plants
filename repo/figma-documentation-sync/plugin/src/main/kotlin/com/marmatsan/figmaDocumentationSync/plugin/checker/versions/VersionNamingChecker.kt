@@ -10,53 +10,53 @@ import me.tatarka.inject.annotations.Inject
  */
 @Inject
 internal class VersionNamingChecker(
-    private val repositoryVersionsPort: RepositoryVersionsPort,
+    private val repositoryVersionsPort: RepositoryVersionsPort
 ) {
     /** Validates the ordered version sections and suffix rules described by [request]. */
     fun check(
-        request: VersionNamingCheckRequest,
+        request: VersionNamingCheckRequest
     ): VersionNamingCheckResult {
         val sections =
             repositoryVersionsPort.readVersionSections(
                 source =
                     VersionsFileSource(
-                        path = request.versionsFile.absolutePath,
-                    ),
+                        path = request.versionsFile.absolutePath
+                    )
             )
         val violations = mutableListOf<VersionNamingViolation>()
 
         violations +=
             checkSectionOrder(
-                sections = sections,
+                sections = sections
             )
         violations +=
             checkMainProjectDependencies(
-                sections = sections,
+                sections = sections
             )
         violations +=
             checkSuffixes(
                 sections = sections,
                 sectionName = LIBRARIES_SECTION,
-                suffix = LIBRARY_VERSION_SUFFIX,
+                suffix = LIBRARY_VERSION_SUFFIX
             )
         violations +=
             checkSuffixes(
                 sections = sections,
                 sectionName = PLUGINS_SECTION,
-                suffix = PLUGIN_VERSION_SUFFIX,
+                suffix = PLUGIN_VERSION_SUFFIX
             )
 
         return VersionNamingCheckResult(
-            violations = violations,
+            violations = violations
         )
     }
 
     private fun checkSectionOrder(
-        sections: List<RepositoryVersionSection>,
+        sections: List<RepositoryVersionSection>
     ): List<VersionNamingViolation> {
         val actualSectionNames =
             sections.map(
-                transform = RepositoryVersionSection::name,
+                transform = RepositoryVersionSection::name
             )
         return if (actualSectionNames == EXPECTED_SECTION_NAMES) {
             emptyList()
@@ -65,14 +65,14 @@ internal class VersionNamingChecker(
                 VersionNamingViolation(
                     message =
                         "Expected version sections in order: ${EXPECTED_SECTION_NAMES.joinToString()}. " +
-                            "Found: ${actualSectionNames.joinToString()}.",
-                ),
+                            "Found: ${actualSectionNames.joinToString()}."
+                )
             )
         }
     }
 
     private fun checkMainProjectDependencies(
-        sections: List<RepositoryVersionSection>,
+        sections: List<RepositoryVersionSection>
     ): List<VersionNamingViolation> {
         val keys =
             sections
@@ -90,8 +90,8 @@ internal class VersionNamingChecker(
                     message =
                         "$MAIN_PROJECT_DEPENDENCIES_SECTION must declare only " +
                             "${MAIN_PROJECT_DEPENDENCIES_KEYS.joinToString()}." +
-                            " Found: ${keys.sorted().joinToString()}.",
-                ),
+                            " Found: ${keys.sorted().joinToString()}."
+                )
             )
         }
     }
@@ -99,7 +99,7 @@ internal class VersionNamingChecker(
     private fun checkSuffixes(
         sections: List<RepositoryVersionSection>,
         sectionName: String,
-        suffix: String,
+        suffix: String
     ): List<VersionNamingViolation> =
         sections
             .firstOrNull { section -> section.name == sectionName }
@@ -109,7 +109,7 @@ internal class VersionNamingChecker(
             .filterNot { key -> key.endsWith(suffix) }
             .map { key ->
                 VersionNamingViolation(
-                    message = "$sectionName version key '$key' must end with '$suffix'.",
+                    message = "$sectionName version key '$key' must end with '$suffix'."
                 )
             }
 
@@ -124,12 +124,12 @@ internal class VersionNamingChecker(
             listOf(
                 MAIN_PROJECT_DEPENDENCIES_SECTION,
                 LIBRARIES_SECTION,
-                PLUGINS_SECTION,
+                PLUGINS_SECTION
             )
         val MAIN_PROJECT_DEPENDENCIES_KEYS =
             listOf(
                 "androidGradlePluginVersion",
-                "kotlinVersion",
+                "kotlinVersion"
             )
     }
 }

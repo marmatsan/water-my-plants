@@ -7,11 +7,11 @@ import org.gradle.api.tasks.TaskProvider
 /** Configures production source scopes governed by one typed-result implementation. */
 class TypedErrorHandlingExtension internal constructor(
     private val project: Project,
-    private val checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>,
+    private val checkTypedResultUsage: TaskProvider<CheckTypedResultUsageTask>
 ) {
     /** Selects the only fully qualified `Result` type accepted in configured production sources. */
     fun standardResult(
-        qualifiedName: String,
+        qualifiedName: String
     ) {
         require(qualifiedName.isNotBlank()) {
             "The standard Result qualified name must not be blank."
@@ -23,7 +23,7 @@ class TypedErrorHandlingExtension internal constructor(
 
     /** Adds production Kotlin files below one repository-relative scope. */
     fun productionSourceScope(
-        relativePath: String,
+        relativePath: String
     ) {
         require(relativePath.isNotBlank()) {
             "The production source scope must not be blank."
@@ -35,9 +35,9 @@ class TypedErrorHandlingExtension internal constructor(
                     files.exclude(
                         "**/build/**",
                         "**/generated/**",
-                        "**/tmp/**",
+                        "**/tmp/**"
                     )
-                },
+                }
             )
         }
     }
@@ -50,11 +50,11 @@ class TypedErrorHandlingExtension internal constructor(
      */
     @Deprecated(
         message = "Use productionSourceScope(relativePath)",
-        replaceWith = ReplaceWith("productionSourceScope(relativePath)"),
+        replaceWith = ReplaceWith("productionSourceScope(relativePath)")
     )
     fun productSourceScope(
-        relativePath: String,
+        relativePath: String
     ) = productionSourceScope(
-        relativePath = relativePath,
+        relativePath = relativePath
     )
 }

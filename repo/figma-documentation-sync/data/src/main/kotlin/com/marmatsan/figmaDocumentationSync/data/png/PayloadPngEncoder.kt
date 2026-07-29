@@ -15,7 +15,7 @@ import java.util.zip.DeflaterOutputStream
 class PayloadPngEncoder {
     /** Serializes [payload] to the language-neutral ASCII JSON embedded in the PNG. */
     fun payloadJson(
-        payload: CanonicalSyncPayload,
+        payload: CanonicalSyncPayload
     ): String {
         val json =
             JsonObject(
@@ -28,19 +28,19 @@ class PayloadPngEncoder {
                     "script" to JsonPrimitive(payload.script),
                     "scriptLength" to JsonPrimitive(payload.scriptLength),
                     "writerHash" to JsonPrimitive(payload.writerHash),
-                    "transportHash" to JsonPrimitive(payload.transportHash),
-                ),
+                    "transportHash" to JsonPrimitive(payload.transportHash)
+                )
             )
         return Json
             .encodeToString(
                 JsonObject.serializer(),
-                json,
+                json
             ).toAsciiJson()
     }
 
     /** Embeds canonical [payloadJson] in a valid one-pixel PNG `tEXt` chunk. */
     fun encode(
-        payloadJson: String,
+        payloadJson: String
     ): ByteArray {
         val encodedPayload = Base64.getEncoder().encodeToString(payloadJson.toByteArray(StandardCharsets.UTF_8))
         val textPayload = "$TEXT_KEYWORD\u0000$encodedPayload".toByteArray(StandardCharsets.ISO_8859_1)
@@ -64,8 +64,8 @@ class PayloadPngEncoder {
                             -1,
                             -1,
                             -1,
-                            -1,
-                        ),
+                            -1
+                        )
                     )
                 }
                 output.toByteArray()
@@ -76,26 +76,26 @@ class PayloadPngEncoder {
             output.write(
                 chunk(
                     type = "IHDR",
-                    data = ihdr,
-                ),
+                    data = ihdr
+                )
             )
             output.write(
                 chunk(
                     type = "tEXt",
-                    data = textPayload,
-                ),
+                    data = textPayload
+                )
             )
             output.write(
                 chunk(
                     type = "IDAT",
-                    data = compressedPixel,
-                ),
+                    data = compressedPixel
+                )
             )
             output.write(
                 chunk(
                     type = "IEND",
-                    data = byteArrayOf(),
-                ),
+                    data = byteArrayOf()
+                )
             )
             output.toByteArray()
         }
@@ -103,7 +103,7 @@ class PayloadPngEncoder {
 
     private fun chunk(
         type: String,
-        data: ByteArray,
+        data: ByteArray
     ): ByteArray {
         val typeBytes = type.toByteArray(StandardCharsets.US_ASCII)
         val crc =
@@ -129,8 +129,8 @@ class PayloadPngEncoder {
                     append(
                         character.code.toString(16).padStart(
                             4,
-                            '0',
-                        ),
+                            '0'
+                        )
                     )
                 } else {
                     append(character)
@@ -159,7 +159,7 @@ class PayloadPngEncoder {
                 13,
                 10,
                 26,
-                10,
+                10
             )
     }
 }

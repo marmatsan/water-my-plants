@@ -16,5 +16,5 @@ data class TeamCityBuild(
     val status: String,
     val branchName: String,
     val buildTypeName: String,
-    val webUrl: String?,
+    val webUrl: String?
 )

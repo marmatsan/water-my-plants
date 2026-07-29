@@ -23,7 +23,7 @@ internal class TeamCityRestRunQueueTest :
                 given {
                     TeamCityRestRunQueue(
                         serverUrl = "http://127.0.0.1:8111/",
-                        teamCityToken = "teamcity-token",
+                        teamCityToken = "teamcity-token"
                     ) { uri, headers, body ->
                         requestedUri = uri
                         requestedHeaders = headers
@@ -38,7 +38,7 @@ internal class TeamCityRestRunQueueTest :
                                   "branchName": "main",
                                   "webUrl": "http://127.0.0.1:8111/build/1800"
                                 }
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     }
                 }.whenever { queue ->
@@ -46,8 +46,8 @@ internal class TeamCityRestRunQueueTest :
                         request =
                             TeamCityRunRequest(
                                 buildTypeId = "WaterMyPlants_WaterMyPlantsInfrastructureHealth",
-                                branch = "main",
-                            ),
+                                branch = "main"
+                            )
                     )
                 }.then { result ->
                     result shouldBe
@@ -56,15 +56,15 @@ internal class TeamCityRestRunQueueTest :
                                 id = 1800,
                                 state = "queued",
                                 branch = "main",
-                                webUrl = "http://127.0.0.1:8111/build/1800",
-                            ),
+                                webUrl = "http://127.0.0.1:8111/build/1800"
+                            )
                         )
                     requestedUri shouldBe URI.create("http://127.0.0.1:8111/app/rest/buildQueue")
                     requestedHeaders shouldBe
                         mapOf(
                             "Accept" to "application/json",
                             "Authorization" to "Bearer teamcity-token",
-                            "Content-Type" to "application/json",
+                            "Content-Type" to "application/json"
                         )
                     requestedHeaders.orEmpty().shouldNotContainKey("Cookie")
                     requestedBody shouldBe
@@ -80,7 +80,7 @@ internal class TeamCityRestRunQueueTest :
                     shouldThrow<IllegalArgumentException> {
                         TeamCityRestRunQueue(
                             serverUrl = serverUrl,
-                            teamCityToken = "teamcity-token",
+                            teamCityToken = "teamcity-token"
                         )
                     }
                 }.then { failure ->
@@ -93,11 +93,11 @@ internal class TeamCityRestRunQueueTest :
                 given {
                     TeamCityRestRunQueue(
                         serverUrl = "https://teamcity.example",
-                        teamCityToken = "teamcity-token",
+                        teamCityToken = "teamcity-token"
                     ) { _, _, _ ->
                         TeamCityRestRunQueue.Response(
                             statusCode = 302,
-                            body = "redirect",
+                            body = "redirect"
                         )
                     }
                 }.whenever { queue ->
@@ -105,16 +105,16 @@ internal class TeamCityRestRunQueueTest :
                         request =
                             TeamCityRunRequest(
                                 buildTypeId = "InfrastructureHealth",
-                                branch = "main",
-                            ),
+                                branch = "main"
+                            )
                     )
                 }.then { result ->
                     result shouldBe
                         Err(
                             QueueTeamCityRunError.RequestRejected(
                                 statusCode = 302,
-                                responseBody = "redirect",
-                            ),
+                                responseBody = "redirect"
+                            )
                         )
                 }
             }
@@ -123,19 +123,19 @@ internal class TeamCityRestRunQueueTest :
                 given {
                     TeamCityRestRunQueue(
                         serverUrl = "https://teamcity.example",
-                        teamCityToken = "teamcity-token",
+                        teamCityToken = "teamcity-token"
                     ) { _, _, _ ->
                         TeamCityRestRunQueue.Response(
                             statusCode = 200,
-                            body = "{}",
+                            body = "{}"
                         )
                     }
                 }.whenever { queue ->
                     queue.queue(
                         TeamCityRunRequest(
                             buildTypeId = "InfrastructureHealth",
-                            branch = "main",
-                        ),
+                            branch = "main"
+                        )
                     )
                 }.then { result ->
                     result shouldBe Err(QueueTeamCityRunError.InvalidResponse)
@@ -146,7 +146,7 @@ internal class TeamCityRestRunQueueTest :
                 given {
                     TeamCityRestRunQueue(
                         serverUrl = "https://teamcity.example",
-                        teamCityToken = "teamcity-token",
+                        teamCityToken = "teamcity-token"
                     ) { _, _, _ ->
                         throw IOException("connection refused")
                     }
@@ -154,17 +154,17 @@ internal class TeamCityRestRunQueueTest :
                     queue.queue(
                         TeamCityRunRequest(
                             buildTypeId = "InfrastructureHealth",
-                            branch = "main",
-                        ),
+                            branch = "main"
+                        )
                     )
                 }.then { result ->
                     result shouldBe
                         Err(
                             QueueTeamCityRunError.Unavailable(
-                                detail = "connection refused",
-                            ),
+                                detail = "connection refused"
+                            )
                         )
                 }
             }
-        },
+        }
     )

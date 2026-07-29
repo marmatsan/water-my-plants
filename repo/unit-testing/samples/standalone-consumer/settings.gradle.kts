@@ -19,14 +19,14 @@ dependencyResolutionManagement {
             library(
                 "com.marmatsan.repo.unit.test.dsl",
                 "com.marmatsan.repo",
-                "unit-test-dsl",
+                "unit-test-dsl"
             ).version(providers.gradleProperty("unitTestDslVersion").get())
         }
 
         create("plugins") {
             plugin(
                 "org.jetbrains.kotlin.jvm",
-                "org.jetbrains.kotlin.jvm",
+                "org.jetbrains.kotlin.jvm"
             ).version(providers.gradleProperty("kotlinVersion").get())
         }
     }

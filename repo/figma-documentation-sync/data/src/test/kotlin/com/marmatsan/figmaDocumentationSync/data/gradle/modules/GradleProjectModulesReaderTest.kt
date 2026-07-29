@@ -11,7 +11,7 @@ internal class GradleProjectModulesReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "gradle-project-modules-reader",
+                    prefix = "gradle-project-modules-reader"
                 )
 
             test("readModules returns root and included build modules") {
@@ -25,7 +25,7 @@ internal class GradleProjectModulesReaderTest :
                                     ":app",
                                     ":core:core_ui"
                                 )
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     val includedBuildSettingsFile =
                         temporaryDirectory.settingsFile(
@@ -36,11 +36,11 @@ internal class GradleProjectModulesReaderTest :
                                     ":android",
                                     ":catalog:data"
                                 )
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     includedBuildSettingsFile.parentFile
                         .resolve(
-                            relative = "catalog",
+                            relative = "catalog"
                         ).mkdirs()
                     rootSettingsFile to includedBuildSettingsFile
                 }.whenever { (rootSettingsFile, includedBuildSettingsFile) ->
@@ -50,9 +50,9 @@ internal class GradleProjectModulesReaderTest :
                             listOf(
                                 GradleProjectModulesReader.IncludedBuild(
                                     settingsFile = includedBuildSettingsFile,
-                                    modulePathPrefix = ":gradle-plugins",
-                                ),
-                            ),
+                                    modulePathPrefix = ":gradle-plugins"
+                                )
+                            )
                     )
                 }.then { modules ->
                     modules shouldBe
@@ -61,7 +61,7 @@ internal class GradleProjectModulesReaderTest :
                             ":gradle-plugins:android",
                             ":gradle-plugins:catalog",
                             ":gradle-plugins:catalog:data",
-                            ":core:core_ui",
+                            ":core:core_ui"
                         )
                 }
             }
@@ -71,16 +71,16 @@ internal class GradleProjectModulesReaderTest :
                     val rootSettingsFile =
                         temporaryDirectory.settingsFile(
                             path = "standalone/root/settings.gradle.kts",
-                            content = "",
+                            content = ""
                         )
                     val includedBuildSettingsFile =
                         temporaryDirectory.settingsFile(
                             path = "standalone/included/settings.gradle.kts",
-                            content = "",
+                            content = ""
                         )
                     includedBuildSettingsFile.parentFile
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText("")
                     rootSettingsFile to includedBuildSettingsFile
                 }.whenever { (rootSettingsFile, includedBuildSettingsFile) ->
@@ -90,9 +90,9 @@ internal class GradleProjectModulesReaderTest :
                             listOf(
                                 GradleProjectModulesReader.IncludedBuild(
                                     settingsFile = includedBuildSettingsFile,
-                                    modulePathPrefix = ":dependency-catalog",
-                                ),
-                            ),
+                                    modulePathPrefix = ":dependency-catalog"
+                                )
+                            )
                     )
                 }.then { modules ->
                     modules shouldBe setOf(":dependency-catalog")
@@ -104,7 +104,7 @@ internal class GradleProjectModulesReaderTest :
                     val rootSettingsFile =
                         temporaryDirectory.settingsFile(
                             path = "catalog/root/settings.gradle.kts",
-                            content = "",
+                            content = ""
                         )
                     val includedBuildSettingsFile =
                         temporaryDirectory.settingsFile(
@@ -115,7 +115,7 @@ internal class GradleProjectModulesReaderTest :
                                     ":catalog-core",
                                     ":catalog-gradle-plugin"
                                 )
-                                """.trimIndent(),
+                                """.trimIndent()
                         )
                     rootSettingsFile to includedBuildSettingsFile
                 }.whenever { (rootSettingsFile, includedBuildSettingsFile) ->
@@ -125,24 +125,24 @@ internal class GradleProjectModulesReaderTest :
                             listOf(
                                 GradleProjectModulesReader.IncludedBuild(
                                     settingsFile = includedBuildSettingsFile,
-                                    modulePathPrefix = ":dependency-catalog",
-                                ),
-                            ),
+                                    modulePathPrefix = ":dependency-catalog"
+                                )
+                            )
                     )
                 }.then { modules ->
                     modules shouldBe
                         setOf(
                             ":dependency-catalog:catalog-core",
-                            ":dependency-catalog:catalog-gradle-plugin",
+                            ":dependency-catalog:catalog-gradle-plugin"
                         )
                 }
             }
-        },
+        }
     )
 
 private fun File.settingsFile(
     path: String,
-    content: String,
+    content: String
 ): File =
     resolve(path)
         .apply {

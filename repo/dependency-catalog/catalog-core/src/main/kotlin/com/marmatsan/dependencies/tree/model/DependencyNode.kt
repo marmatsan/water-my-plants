@@ -24,8 +24,15 @@ sealed class DependencyNode {
      */
     data class Library(
         val libraryGroup: String,
-        val entries: List<LibraryEntry>? = null,
-    ) : DependencyNode()
+        val entries: List<LibraryEntry>? = null
+    ) : DependencyNode() {
+        init {
+            requireDependencyPathSegment(
+                name = "Library group",
+                value = libraryGroup
+            )
+        }
+    }
 
     /**
      * Represents one segment in a Gradle plugin id tree.
@@ -39,6 +46,27 @@ sealed class DependencyNode {
      */
     data class Plugin(
         val pluginId: String,
-        val version: String? = null,
-    ) : DependencyNode()
+        val version: String? = null
+    ) : DependencyNode() {
+        init {
+            requireDependencyPathSegment(
+                name = "Plugin id",
+                value = pluginId
+            )
+        }
+    }
+}
+
+/** Enforces the one-segment invariant for a dependency-tree node payload. */
+private fun requireDependencyPathSegment(
+    name: String,
+    value: String
+) {
+    require(
+        value.isNotEmpty() &&
+            '.' !in value &&
+            value.none { character -> character.isWhitespace() }
+    ) {
+        "$name '$value' must be one non-blank path segment without dots or whitespace"
+    }
 }

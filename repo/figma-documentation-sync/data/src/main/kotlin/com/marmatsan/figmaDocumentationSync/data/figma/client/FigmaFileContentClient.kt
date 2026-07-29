@@ -32,34 +32,34 @@ import java.io.IOException
  * by the Figma MCP workflow, not by this Gradle plugin.
  */
 class FigmaFileContentClient internal constructor(
-    private val fetch: suspend (String, String, String, String?) -> FigmaNode?,
+    private val fetch: suspend (String, String, String, String?) -> FigmaNode?
 ) : FigmaNodeContentSource {
     constructor(
-        httpClient: HttpClient = defaultHttpClient(),
+        httpClient: HttpClient = defaultHttpClient()
     ) : this(
         fetch = { fileKey, token, nodeId, pluginData ->
             httpClient
                 .get(
-                    urlString = "https://api.figma.com/v1/files/$fileKey/nodes",
+                    urlString = "https://api.figma.com/v1/files/$fileKey/nodes"
                 ) {
                     header(
                         "X-Figma-Token",
-                        token,
+                        token
                     )
                     parameter(
                         "ids",
-                        nodeId,
+                        nodeId
                     )
                     pluginData?.let {
                         parameter(
                             "plugin_data",
-                            it,
+                            it
                         )
                     }
                 }.body<FigmaFileNodesResponse>()
                 .nodes[nodeId]
                 ?.document
-        },
+        }
     )
 
     /**
@@ -76,7 +76,7 @@ class FigmaFileContentClient internal constructor(
         fileKey: String,
         token: String,
         nodeId: String,
-        pluginData: String?,
+        pluginData: String?
     ): Result<FigmaNodeContent, FigmaNodeContentError> =
         runBlocking {
             try {
@@ -85,40 +85,40 @@ class FigmaFileContentClient internal constructor(
                         fileKey,
                         token,
                         nodeId,
-                        pluginData,
+                        pluginData
                     ) ?: return@runBlocking Err(FigmaNodeContentError.NotFound(nodeId))
                 Ok(
                     FigmaNodeContent(
-                        sharedPluginData = node.sharedPluginData,
-                    ),
+                        sharedPluginData = node.sharedPluginData
+                    )
                 )
             } catch (
-                exception: ResponseException,
+                exception: ResponseException
             ) {
                 Err(
                     FigmaNodeContentError.RequestRejected(
                         statusCode = exception.response.status.value,
-                        responseBody = exception.response.body<String>().take(MAX_ERROR_BODY_LENGTH),
-                    ),
+                        responseBody = exception.response.body<String>().take(MAX_ERROR_BODY_LENGTH)
+                    )
                 )
             } catch (
-                exception: HttpRequestTimeoutException,
+                exception: HttpRequestTimeoutException
             ) {
                 Err(
                     FigmaNodeContentError.TimedOut(
-                        timeoutMillis = REQUEST_TIMEOUT_MILLIS,
-                    ),
+                        timeoutMillis = REQUEST_TIMEOUT_MILLIS
+                    )
                 )
             } catch (
-                exception: IOException,
+                exception: IOException
             ) {
                 Err(
                     FigmaNodeContentError.Unavailable(
-                        detail = exception.message.orEmpty(),
-                    ),
+                        detail = exception.message.orEmpty()
+                    )
                 )
             } catch (
-                _: RuntimeException,
+                _: RuntimeException
             ) {
                 Err(FigmaNodeContentError.InvalidResponse)
             }
@@ -137,7 +137,7 @@ class FigmaFileContentClient internal constructor(
                     json(
                         Json {
                             ignoreUnknownKeys = true
-                        },
+                        }
                     )
                 }
             }

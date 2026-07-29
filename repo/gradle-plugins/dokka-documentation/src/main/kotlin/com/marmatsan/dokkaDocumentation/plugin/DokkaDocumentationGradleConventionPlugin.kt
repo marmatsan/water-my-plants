@@ -16,7 +16,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 @Suppress("unused")
 class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         project.pluginManager.apply("org.jetbrains.dokka")
 
@@ -29,8 +29,8 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
             moduleName.convention(
                 project.path.removePrefix(":").replace(
                     ':',
-                    '/',
-                ),
+                    '/'
+                )
             )
 
             dokkaPublications.configureEach {
@@ -41,8 +41,8 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
                 skipEmptyPackages.set(true)
@@ -58,7 +58,7 @@ class DokkaDocumentationGradleConventionPlugin : Plugin<Project> {
                                     localSourceDirectory.asFile
                                         .relativeTo(project.rootProject.projectDir)
                                         .invariantSeparatorsPath
-                            },
+                            }
                         )
                         remoteLineSuffix.set("#L")
                     }

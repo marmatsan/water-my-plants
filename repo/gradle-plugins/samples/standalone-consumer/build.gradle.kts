@@ -19,6 +19,7 @@ tasks.register("verifyPluginConsumption") {
         val testDependencies = configurations.getByName("testImplementation").dependencies
         check(testDependencies.any { it.group == "com.marmatsan.repo" && it.name == "unit-test-dsl" })
         check(testDependencies.any { it.group == "io.kotest" && it.name == "kotest-runner-junit5" })
+        check(testDependencies.any { it.group == "io.kotest" && it.name == "kotest-assertions-core" })
         check(testDependencies.any { it.group == "io.mockk" && it.name == "mockk" })
     }
 }

@@ -8,6 +8,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.ci.CiWindowsRuntime
 interface CiWindowsRuntimePort {
     /** Reads and validates the versioned Windows runtime at [source]. */
     fun readRuntime(
-        source: CiWindowsRuntimeSource,
+        source: CiWindowsRuntimeSource
     ): CiWindowsRuntime
 }

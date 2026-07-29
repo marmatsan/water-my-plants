@@ -25,7 +25,7 @@ internal class TypedBehaviorDslTest :
                     events.shouldContainExactly(
                         "given",
                         "whenever",
-                        "then",
+                        "then"
                     )
                 }
             }
@@ -33,15 +33,15 @@ internal class TypedBehaviorDslTest :
             test("supports suspended work in every phase") {
                 given {
                     suspendedValue(
-                        value = 20,
+                        value = 20
                     )
                 }.whenever { value ->
                     suspendedValue(
-                        value = value + 22,
+                        value = value + 22
                     )
                 }.then { result ->
                     suspendedValue(
-                        value = result,
+                        value = result
                     ) shouldBe 42
                 }
             }
@@ -55,7 +55,7 @@ internal class TypedBehaviorDslTest :
                     fixture.shouldContainExactly("given")
                     result.shouldContainExactly(
                         "given",
-                        "whenever",
+                        "whenever"
                     )
                 }
             }
@@ -66,7 +66,7 @@ internal class TypedBehaviorDslTest :
                 }.whenever { events ->
                     val expected =
                         ScenarioFailure(
-                            message = "arrangement failed",
+                            message = "arrangement failed"
                         )
                     val actual =
                         shouldThrow<ScenarioFailure> {
@@ -83,7 +83,7 @@ internal class TypedBehaviorDslTest :
                     FailureOutcome(
                         events = events,
                         expected = expected,
-                        actual = actual,
+                        actual = actual
                     )
                 }.then { outcome ->
                     outcome.events.shouldContainExactly("given")
@@ -97,7 +97,7 @@ internal class TypedBehaviorDslTest :
                 }.whenever { events ->
                     val expected =
                         ScenarioFailure(
-                            message = "action failed",
+                            message = "action failed"
                         )
                     val actual =
                         shouldThrow<ScenarioFailure> {
@@ -114,12 +114,12 @@ internal class TypedBehaviorDslTest :
                     FailureOutcome(
                         events = events,
                         expected = expected,
-                        actual = actual,
+                        actual = actual
                     )
                 }.then { outcome ->
                     outcome.events.shouldContainExactly(
                         "given",
-                        "whenever",
+                        "whenever"
                     )
                     outcome.actual shouldBeSameInstanceAs outcome.expected
                 }
@@ -129,7 +129,7 @@ internal class TypedBehaviorDslTest :
                 given {
                     listOf(
                         mutableListOf<String>(),
-                        mutableListOf<String>(),
+                        mutableListOf<String>()
                     )
                 }.whenever { scenarios ->
                     scenarios.forEachIndexed { index, events ->
@@ -145,11 +145,11 @@ internal class TypedBehaviorDslTest :
                     scenarios[1].shouldContainExactly("scenario-1")
                 }
             }
-        },
+        }
     )
 
 private suspend fun <Value> suspendedValue(
-    value: Value,
+    value: Value
 ): Value =
     suspendCoroutine { continuation ->
         continuation.resume(value)
@@ -158,9 +158,9 @@ private suspend fun <Value> suspendedValue(
 private data class FailureOutcome(
     val events: List<String>,
     val expected: ScenarioFailure,
-    val actual: ScenarioFailure,
+    val actual: ScenarioFailure
 )
 
 private class ScenarioFailure(
-    message: String,
+    message: String
 ) : RuntimeException(message)

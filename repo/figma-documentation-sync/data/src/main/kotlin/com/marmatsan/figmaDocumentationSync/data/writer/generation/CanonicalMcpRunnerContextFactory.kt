@@ -26,11 +26,11 @@ internal class CanonicalMcpRunnerContextFactory(
     private val renderer: McpRunnerSourceRenderer,
     private val targetFingerprints: FigmaTargetFingerprintCalculator,
     private val writerFingerprints: WriterScopeFingerprintCalculator,
-    private val policySource: FigmaChangeImpactPolicyDataSource,
+    private val policySource: FigmaChangeImpactPolicyDataSource
 ) {
     /** Loads inputs, validates canonical identity, and calculates every generation fingerprint. */
     fun create(
-        request: CanonicalMcpRunnerGenerator.Request,
+        request: CanonicalMcpRunnerGenerator.Request
     ): CanonicalMcpRunnerGenerationContext {
         require(request.transport in CanonicalMcpRunnerGenerationContract.supportedTransports) {
             "Unsupported MCP transport '${request.transport}'. Expected png or chunks."
@@ -43,38 +43,38 @@ internal class CanonicalMcpRunnerContextFactory(
             Json.parseToJsonElement(
                 Files
                     .readString(request.modelPath.toNormalizedPath())
-                    .removePrefix(CanonicalMcpRunnerGenerationContract.UTF8_BOM),
+                    .removePrefix(CanonicalMcpRunnerGenerationContract.UTF8_BOM)
             )
         val designModel = modelElement.jsonObject
         val modelJson =
             Json.encodeToString(
                 JsonElement.serializer(),
-                modelElement,
+                modelElement
             )
         val script = Files.readString(request.scriptPath.toNormalizedPath())
         validateModel(
-            designModel = designModel,
+            designModel = designModel
         )
         validateStagingEntry(
             key = "designModelJson",
-            value = modelJson,
+            value = modelJson
         )
         validateStagingEntry(
             key = "script",
-            value = script,
+            value = script
         )
 
         val modelHash = designModel.requiredString("modelHash")
         val gitSha = designModel.requiredString("gitSha")
         val writerHash =
             Sha256Hash.of(
-                value = script.toByteArray(StandardCharsets.UTF_8),
+                value = script.toByteArray(StandardCharsets.UTF_8)
             )
         val allTargetFingerprints =
             targetFingerprints.create(
                 designModel = designModel,
                 visualTargets = request.config.visualTargetNames,
-                catalogTargets = request.config.catalogTargetNames,
+                catalogTargets = request.config.catalogTargetNames
             )
         val allWriterFingerprints =
             writerFingerprints.create(
@@ -83,7 +83,7 @@ internal class CanonicalMcpRunnerContextFactory(
                 policy = policySource.read(request.changeImpactPolicyPath),
                 writerTargets = request.config.writerTargetNames,
                 catalogTargets = request.config.catalogTargetNames,
-                scopes = allTargetFingerprints.keys.toList(),
+                scopes = allTargetFingerprints.keys.toList()
             )
 
         return CanonicalMcpRunnerGenerationContext(
@@ -97,25 +97,25 @@ internal class CanonicalMcpRunnerContextFactory(
             writerHash = writerHash,
             transportHash =
                 transportHash(
-                    request = request,
+                    request = request
                 ),
             targetFingerprints = allTargetFingerprints,
-            writerScopeFingerprints = allWriterFingerprints,
+            writerScopeFingerprints = allWriterFingerprints
         )
     }
 
     private fun transportHash(
-        request: CanonicalMcpRunnerGenerator.Request,
+        request: CanonicalMcpRunnerGenerator.Request
     ): String {
         val body =
             buildJsonObject {
                 put(
                     "contractVersion",
-                    CanonicalMcpRunnerGenerationContract.TRANSPORT_CONTRACT_VERSION,
+                    CanonicalMcpRunnerGenerationContract.TRANSPORT_CONTRACT_VERSION
                 )
                 put(
                     "transport",
-                    request.transport,
+                    request.transport
                 )
                 put(
                     "chunkSize",
@@ -123,7 +123,7 @@ internal class CanonicalMcpRunnerContextFactory(
                         JsonPrimitive(request.chunkSize)
                     } else {
                         JsonNull
-                    },
+                    }
                 )
                 put(
                     "payloadSchemaVersion",
@@ -131,20 +131,20 @@ internal class CanonicalMcpRunnerContextFactory(
                         JsonPrimitive(PayloadPngEncoder.PAYLOAD_SCHEMA_VERSION)
                     } else {
                         JsonNull
-                    },
+                    }
                 )
                 put(
                     "templates",
-                    renderer.templateHashes().toJsonObject(),
+                    renderer.templateHashes().toJsonObject()
                 )
             }
         return Sha256Hash.of(
-            value = CanonicalJson.stringify(body),
+            value = CanonicalJson.stringify(body)
         )
     }
 
     private fun validateModel(
-        designModel: JsonObject,
+        designModel: JsonObject
     ) {
         require(designModel.requiredString("branch") == "main") {
             "MCP runners require a main design model. Found '${designModel.requiredString("branch")}'."
@@ -155,7 +155,7 @@ internal class CanonicalMcpRunnerContextFactory(
 
     private fun validateStagingEntry(
         key: String,
-        value: String,
+        value: String
     ) {
         require(value.length <= CanonicalMcpRunnerGenerationContract.MAX_SHARED_PLUGIN_DATA_ENTRY_LENGTH) {
             "$key is ${value.length} characters and exceeds the " +
@@ -171,7 +171,7 @@ internal class CanonicalMcpRunnerContextFactory(
             .normalize()
 
     private fun JsonObject.requiredString(
-        name: String,
+        name: String
     ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Design model is missing '$name'.")

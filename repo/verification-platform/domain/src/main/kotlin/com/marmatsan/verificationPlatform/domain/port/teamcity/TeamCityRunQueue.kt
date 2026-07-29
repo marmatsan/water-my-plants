@@ -15,6 +15,6 @@ fun interface TeamCityRunQueue {
      * leaking infrastructure exceptions.
      */
     fun queue(
-        request: TeamCityRunRequest,
+        request: TeamCityRunRequest
     ): Result<TeamCityQueuedRun, QueueTeamCityRunError>
 }

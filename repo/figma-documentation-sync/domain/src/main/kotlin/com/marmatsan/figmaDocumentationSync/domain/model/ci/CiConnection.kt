@@ -26,7 +26,7 @@ data class CiConnection(
     val policy: String?,
     val path: String?,
     val automation: Automation,
-    val annotation: String?,
+    val annotation: String?
 ) {
     /**
      * Operational automation level of an external connection.
@@ -34,10 +34,10 @@ data class CiConnection(
      * @property serializedName stable value used by the design model.
      */
     enum class Automation(
-        val serializedName: String,
+        val serializedName: String
     ) {
         Manual("manual"),
         Automatic("automatic"),
-        OperatorAssisted("operator-assisted"),
+        OperatorAssisted("operator-assisted")
     }
 }

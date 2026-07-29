@@ -10,7 +10,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_NAME
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -31,21 +30,16 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 /** Requires named repository calls and vertical function argument layout. */
 internal class MultilineFunctionArgumentsRule(
     private val compactShortFunctionTypes: Boolean,
-    private val callableSignatures: KotlinCallableSignatureIndex,
+    private val callableSignatures: KotlinCallableSignatureIndex
 ) : Rule(
         ruleId = RuleId("repository-verification:multiline-function-arguments"),
-        about =
-            About(
-                maintainer = "Repository Verification",
-                repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-                issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
-            ),
+        about = RepositoryKotlinRuleMetadata.about
     ),
     RuleAutocorrectApproveHandler {
     /** Inspects parameter and argument lists and emits repository layout or naming violations. */
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
     ) {
         val listKind =
             when (node.elementType) {
@@ -59,7 +53,7 @@ internal class MultilineFunctionArgumentsRule(
         if (listKind == ListKind.ARGUMENT) {
             node.ensureNamedArguments(
                 items = items,
-                emit = emit,
+                emit = emit
             )
             children = node.children()
             items = children.filter { child -> child.elementType == listKind.itemType }
@@ -70,10 +64,10 @@ internal class MultilineFunctionArgumentsRule(
                 items.joinToString(
                     prefix = "(",
                     postfix = ")",
-                    separator = ", ",
+                    separator = ", "
                 ) { item -> item.text.normalizedInlineWhitespace() }
             if (node.lineLengthWith(
-                    replacement = compactText,
+                    replacement = compactText
                 ) <= MAX_LINE_LENGTH
             ) {
                 if (
@@ -85,11 +79,11 @@ internal class MultilineFunctionArgumentsRule(
                     emit(
                         node.startOffset,
                         "Function type parameters may remain inline within the repository line limit.",
-                        true,
+                        true
                     ).ifAutocorrectAllowed {
                         node.compactFunctionTypeWhitespace(
                             items = items,
-                            closingParenthesis = closingParenthesis,
+                            closingParenthesis = closingParenthesis
                         )
                     }
                 }
@@ -100,7 +94,7 @@ internal class MultilineFunctionArgumentsRule(
             !listKind.requiresMultiline(
                 itemCount = items.size,
                 hasNamedArgument = items.any { item -> item.isNamedArgument() },
-                isAlreadyMultiline = node.text.contains('\n'),
+                isAlreadyMultiline = node.text.contains('\n')
             ) ||
             children.none { child -> child.elementType == LPAR } ||
             closingParenthesis == null
@@ -114,19 +108,19 @@ internal class MultilineFunctionArgumentsRule(
             item.ensureNewlineBefore(
                 indent = itemIndent,
                 message = listKind.itemMessage,
-                emit = emit,
+                emit = emit
             )
         }
         closingParenthesis.ensureNewlineBefore(
             indent = baseIndent,
             message = "A multiline function parameter or argument list must close on a separate line.",
-            emit = emit,
+            emit = emit
         )
     }
 
     private fun ASTNode.ensureNamedArguments(
         items: List<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
     ) {
         val argumentList = psi as? KtValueArgumentList ?: return
         if (argumentList.containingFile.name.endsWith(".kts")) {
@@ -150,7 +144,7 @@ internal class MultilineFunctionArgumentsRule(
                         (item.psi as? KtValueArgument)
                             ?.getArgumentName()
                             ?.asName
-                            ?.asString(),
+                            ?.asString()
                 )
             }
         val parameterNames =
@@ -159,7 +153,7 @@ internal class MultilineFunctionArgumentsRule(
                     "${argumentList.containingKtFile.packageFqName.asString()}/" +
                         argumentList.containingKtFile.name,
                 callableName = callableName,
-                arguments = arguments,
+                arguments = arguments
             ) ?: return
         items.zip(parameterNames).forEach { (item, parameterName) ->
             if (parameterName == null || item.isNamedArgument()) {
@@ -168,10 +162,10 @@ internal class MultilineFunctionArgumentsRule(
             emit(
                 item.startOffset,
                 "Calls to repository Kotlin functions must use named arguments.",
-                true,
+                true
             ).ifAutocorrectAllowed {
                 item.replaceWithNamedArgument(
-                    parameterName = parameterName,
+                    parameterName = parameterName
                 )
             }
         }
@@ -191,24 +185,24 @@ internal class MultilineFunctionArgumentsRule(
     }
 
     private fun ASTNode.replaceWithNamedArgument(
-        parameterName: String,
+        parameterName: String
     ) {
         val argument = psi as? KtValueArgument ?: return
         val replacement =
             KtPsiFactory(
                 project = argument.project,
-                markGenerated = false,
+                markGenerated = false
             ).createArgument("$parameterName = ${argument.text}")
         treeParent?.replaceChild(
             this,
-            replacement.node.clone() as ASTNode,
+            replacement.node.clone() as ASTNode
         )
     }
 
     private fun ASTNode.ensureNewlineBefore(
         indent: String,
         message: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
     ) {
         val previousLeaf = prevLeaf
         if (previousLeaf?.isWhiteSpaceWithNewline20 == true) {
@@ -218,7 +212,7 @@ internal class MultilineFunctionArgumentsRule(
         emit(
             startOffset,
             message,
-            true,
+            true
         ).ifAutocorrectAllowed {
             val whitespace =
                 if (previousLeaf?.isWhiteSpaceWithNewline20 == true) {
@@ -231,7 +225,7 @@ internal class MultilineFunctionArgumentsRule(
             } else {
                 treeParent?.addChild(
                     PsiWhiteSpaceImpl(whitespace),
-                    this,
+                    this
                 )
             }
         }
@@ -239,25 +233,25 @@ internal class MultilineFunctionArgumentsRule(
 
     private fun ASTNode.compactFunctionTypeWhitespace(
         items: List<ASTNode>,
-        closingParenthesis: ASTNode?,
+        closingParenthesis: ASTNode?
     ) {
         items.forEachIndexed { index, item ->
             item.prevLeaf
                 ?.takeIf { leaf -> leaf.isWhiteSpace20 }
                 ?.replaceOrRemoveWhitespace(
-                    replacement = if (index == 0) "" else " ",
+                    replacement = if (index == 0) "" else " "
                 )
         }
         closingParenthesis
             ?.prevLeaf
             ?.takeIf { leaf -> leaf.isWhiteSpace20 }
             ?.replaceOrRemoveWhitespace(
-                replacement = "",
+                replacement = ""
             )
     }
 
     private fun ASTNode.replaceOrRemoveWhitespace(
-        replacement: String,
+        replacement: String
     ) {
         if (replacement.isEmpty()) {
             treeParent?.removeChild(this)
@@ -271,54 +265,54 @@ internal class MultilineFunctionArgumentsRule(
         val safeOffset =
             startOffset.coerceIn(
                 0,
-                source.length,
+                source.length
             )
         val lineStart =
             source.lastIndexOf(
                 '\n',
-                safeOffset - 1,
+                safeOffset - 1
             ) + 1
         return source
             .substring(
                 lineStart,
-                safeOffset,
+                safeOffset
             ).takeWhile { character -> character == ' ' || character == '\t' }
     }
 
     private fun ASTNode.lineLengthWith(
-        replacement: String,
+        replacement: String
     ): Int {
         val source = psi.containingFile.text
         val safeStartOffset =
             startOffset.coerceIn(
                 0,
-                source.length,
+                source.length
             )
         val safeEndOffset =
             (startOffset + textLength).coerceIn(
                 safeStartOffset,
-                source.length,
+                source.length
             )
         val lineStart =
             source.lastIndexOf(
                 '\n',
-                safeStartOffset - 1,
+                safeStartOffset - 1
             ) + 1
         val lineEnd =
             source
                 .indexOf(
                     '\n',
-                    safeEndOffset,
+                    safeEndOffset
                 ).let { index -> if (index == -1) source.length else index }
         return source
             .substring(
                 lineStart,
-                safeStartOffset,
+                safeStartOffset
             ).length + replacement.length +
             source
                 .substring(
                     safeEndOffset,
-                    lineEnd,
+                    lineEnd
                 ).length
     }
 
@@ -327,7 +321,7 @@ internal class MultilineFunctionArgumentsRule(
             var child = firstChildNode
             while (child != null) {
                 add(
-                    element = child,
+                    element = child
                 )
                 child = child.treeNext
             }
@@ -340,7 +334,7 @@ internal class MultilineFunctionArgumentsRule(
     private fun String.normalizedInlineWhitespace(): String =
         replace(
             Regex("\\s+"),
-            " ",
+            " "
         ).trim()
 
     private companion object {
@@ -352,28 +346,28 @@ internal class MultilineFunctionArgumentsRule(
             setOf(
                 "apply",
                 "run",
-                "with",
+                "with"
             )
     }
 
     private enum class ListKind(
         val itemType: org.jetbrains.kotlin.com.intellij.psi.tree.IElementType,
-        val itemMessage: String,
+        val itemMessage: String
     ) {
         PARAMETER(
             itemType = VALUE_PARAMETER,
-            itemMessage = "Every function parameter must start on a separate line.",
+            itemMessage = "Every function parameter must start on a separate line."
         ),
         ARGUMENT(
             itemType = VALUE_ARGUMENT,
-            itemMessage = "Function arguments must each start on a separate line.",
-        ),
+            itemMessage = "Function arguments must each start on a separate line."
+        )
         ;
 
         fun requiresMultiline(
             itemCount: Int,
             hasNamedArgument: Boolean,
-            isAlreadyMultiline: Boolean,
+            isAlreadyMultiline: Boolean
         ): Boolean =
             when (this) {
                 PARAMETER -> {

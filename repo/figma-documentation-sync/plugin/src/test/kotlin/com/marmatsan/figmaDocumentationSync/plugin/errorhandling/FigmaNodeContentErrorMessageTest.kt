@@ -11,7 +11,7 @@ internal class FigmaNodeContentErrorMessageTest :
             listOf(
                 FigmaNodeContentError.RequestRejected(
                     403,
-                    "forbidden",
+                    "forbidden"
                 ) to
                     "Figma node-content request failed with HTTP 403: forbidden",
                 FigmaNodeContentError.TimedOut(60_000) to
@@ -21,7 +21,7 @@ internal class FigmaNodeContentErrorMessageTest :
                 FigmaNodeContentError.InvalidResponse to
                     "Figma returned an invalid node-content response.",
                 FigmaNodeContentError.Unavailable("connection refused") to
-                    "Figma node-content transport is unavailable: connection refused",
+                    "Figma node-content transport is unavailable: connection refused"
             ).forEach { (error, expectedMessage) ->
                 test("renders ${error::class.simpleName} for a Gradle operator") {
                     given {
@@ -33,5 +33,5 @@ internal class FigmaNodeContentErrorMessageTest :
                     }
                 }
             }
-        },
+        }
     )

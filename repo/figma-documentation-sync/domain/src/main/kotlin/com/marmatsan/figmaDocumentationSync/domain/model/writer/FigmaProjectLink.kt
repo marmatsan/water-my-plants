@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  */
 data class FigmaProjectLink(
     val label: String,
-    val url: String,
+    val url: String
 )

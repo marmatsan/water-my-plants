@@ -1,5 +1,9 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
@@ -12,15 +16,15 @@ plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm) apply false
 }
 
-val versions =
+val versions: Properties =
     Properties().apply {
         file("versions.properties").inputStream().use(::load)
     }
-val publicationVersion =
+val publicationVersion: String =
     providers.gradleProperty("dependencyCatalogVersion").getOrElse(
-        versions.getProperty("dependencyCatalogVersion"),
+        versions.getProperty("dependencyCatalogVersion")
     )
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")
@@ -33,13 +37,22 @@ allprojects {
 }
 
 subprojects {
+    pluginManager.withPlugin("java") {
+        extensions.configure<JavaPluginExtension> {
+            withSourcesJar()
+        }
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
+    }
+
     pluginManager.withPlugin("org.jetbrains.dokka") {
         extensions.configure<DokkaExtension> {
             moduleName.convention(
                 path.removePrefix(":").replace(
                     ':',
-                    '/',
-                ),
+                    '/'
+                )
             )
 
             dokkaPublications.configureEach {
@@ -50,8 +63,8 @@ subprojects {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
                 skipEmptyPackages.set(true)
@@ -67,18 +80,39 @@ subprojects {
                                     "repo/dependency-catalog/" +
                                     localSourceDirectory.asFile
                                         .relativeTo(rootProject.projectDir)
-                                        .invariantSeparatorsPath,
-                            ),
+                                        .invariantSeparatorsPath
+                            )
                         )
                         remoteLineSuffix.set("#L")
                     }
                 }
             }
         }
+
+        tasks.matching { task -> task.name == "check" }.configureEach {
+            dependsOn("dokkaGenerate")
+        }
     }
 
-    tasks.matching { task -> task.name == "check" }.configureEach {
-        dependsOn("dokkaGenerate")
+    pluginManager.withPlugin("maven-publish") {
+        extensions.configure<PublishingExtension> {
+            publications.withType<MavenPublication>().configureEach {
+                pom {
+                    url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/dependency-catalog")
+                    scm {
+                        connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                        url.set("https://github.com/marmatsan/water-my-plants")
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    name = "staging"
+                    url = uri(stagingPublicationRepository)
+                }
+            }
+        }
     }
 }
 
@@ -88,7 +122,7 @@ tasks.register("dokkaGenerate") {
     dependsOn(
         subprojects.map { project ->
             "${project.path}:dokkaGenerate"
-        },
+        }
     )
 }
 
@@ -100,7 +134,7 @@ val checkDependencyCatalogArchitecture =
             ":catalog-api:check",
             ":catalog-core:check",
             ":catalog-gradle-plugin:check",
-            ":catalog-tree-gradle-plugin:check",
+            ":catalog-tree-gradle-plugin:check"
         )
     }
 
@@ -115,7 +149,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":catalog-api:publishAllPublicationsToStagingRepository",
         ":catalog-core:publishAllPublicationsToStagingRepository",
         ":catalog-gradle-plugin:publishAllPublicationsToStagingRepository",
-        ":catalog-tree-gradle-plugin:publishAllPublicationsToStagingRepository",
+        ":catalog-tree-gradle-plugin:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -130,13 +164,13 @@ val verifyProviderStagedPublication =
             layout.projectDirectory.file(
                 if (System.getProperty("os.name").startsWith(
                         "Windows",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
                 ) {
                     "../../gradlew.bat"
                 } else {
                     "../../gradlew"
-                },
+                }
             )
 
         workingDir(sampleDirectory)
@@ -146,7 +180,7 @@ val verifyProviderStagedPublication =
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
-            "--stacktrace",
+            "--stacktrace"
         )
     }
 
@@ -161,13 +195,13 @@ val verifyTreeStagedPublication =
             layout.projectDirectory.file(
                 if (System.getProperty("os.name").startsWith(
                         "Windows",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
                 ) {
                     "../../gradlew.bat"
                 } else {
                     "../../gradlew"
-                },
+                }
             )
 
         workingDir(sampleDirectory)
@@ -177,7 +211,7 @@ val verifyTreeStagedPublication =
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
-            "--stacktrace",
+            "--stacktrace"
         )
     }
 
@@ -186,6 +220,6 @@ tasks.register("verifyStagedPublication") {
     description = "Verifies both staged dependency catalog settings adapters."
     dependsOn(
         verifyProviderStagedPublication,
-        verifyTreeStagedPublication,
+        verifyTreeStagedPublication
     )
 }

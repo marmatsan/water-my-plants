@@ -4,9 +4,10 @@ type: guide
 scope: repo/dependency-catalog
 owner: dependency-catalog
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
+  - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalog.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
@@ -44,7 +45,10 @@ included build.
    operation loads concrete values from the repository-owned file. If the same
    repository also needs documentation aliases, implement
    `VersionAliasedDependencyCatalogProvider`; the aggregate
-   `DependencyCatalogProvider` combines both consumer-specific ports.
+   `DependencyCatalogProvider` combines both consumer-specific ports. Every
+   `LibraryCatalogNode.group` and `PluginCatalogNode.id` stores exactly one
+   segment; represent complete coordinates through nested root nodes rather
+   than storing dots in a node value.
 4. Register the provider during settings evaluation. Configure custom catalog
    names before the terminal `from` call when `libs` and `plugins` are not
    appropriate:
@@ -110,16 +114,20 @@ dependencyCatalogTree {
 
     plugins {
         root("org") {
-            plugin("jetbrains.kotlin") {
-                plugin(
-                    id = "jvm",
-                    version = version("kotlinVersion"),
-                )
-            }
+            plugin(
+                id = "jetbrains.kotlin.jvm",
+                version = version("kotlinVersion"),
+            )
         }
     }
 }
 ```
+
+Use explicit `root` blocks for a maintained repository catalog. They expose the
+same hierarchy that `libraryTree` and `pluginTree` model and keep related
+artifacts or plugin leaves together. The top-level scopes intentionally expose
+only `root`; compact paths remain available through relative `library` and
+`plugin` declarations inside that root.
 
 For source-composite development, the consuming settings may accept the
 optional `dependencyCatalogSourceBuild` Gradle property and pass it to
@@ -150,8 +158,9 @@ libraryTree(rootGroup = "com") {
 }
 ```
 
-Plugin groups may compact intermediate paths while keeping versioned leaves
-explicit:
+Plugin declarations collapse every linear namespace chain, including the
+versioned terminal. A block remains only where a node owns multiple plugin
+descendants:
 
 ```kotlin
 pluginTree(rootId = "com") {
@@ -166,10 +175,19 @@ pluginTree(rootId = "com") {
         )
     }
 
-    plugin("figma.code") {
+    plugin(
+        id = "figma.code.connect",
+        version = versions.figmaCodeConnectPluginVersion,
+    )
+
+    plugin("google") {
         plugin(
-            id = "connect",
-            version = versions.figmaCodeConnectPluginVersion,
+            id = "devtools.ksp",
+            version = versions.kspPluginVersion,
+        )
+        plugin(
+            id = "protobuf",
+            version = versions.protobufPluginVersion,
         )
     }
 }

@@ -14,5 +14,5 @@ internal data class CanonicalFigmaRunnerInspection(
     val statePath: String,
     val reuseStaging: Boolean,
     val decision: String?,
-    val executionFiles: List<String>,
+    val executionFiles: List<String>
 )

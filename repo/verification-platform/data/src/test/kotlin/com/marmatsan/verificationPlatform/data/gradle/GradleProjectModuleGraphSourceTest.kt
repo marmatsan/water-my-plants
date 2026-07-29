@@ -25,40 +25,40 @@ class GradleProjectModuleGraphSourceTest :
                     val coreParent =
                         childProject(
                             parent = root,
-                            name = "core",
+                            name = "core"
                         )
                     val coreUi =
                         childProject(
                             parent = coreParent,
                             name = "ui",
-                            withBuildFile = true,
+                            withBuildFile = true
                         )
                     val app =
                         childProject(
                             parent = root,
                             name = "app",
-                            withBuildFile = true,
+                            withBuildFile = true
                         )
                     val onboardingParent =
                         childProject(
                             parent = root,
-                            name = "onboarding",
+                            name = "onboarding"
                         )
                     val onboardingUi =
                         childProject(
                             parent = onboardingParent,
                             name = "ui",
-                            withBuildFile = true,
+                            withBuildFile = true
                         )
                     app.configurations.create("implementation")
                     onboardingUi.configurations.create("implementation")
                     app.dependencies.add(
                         "implementation",
-                        app.dependencies.project(mapOf("path" to coreUi.path)),
+                        app.dependencies.project(mapOf("path" to coreUi.path))
                     )
                     onboardingUi.dependencies.add(
                         "implementation",
-                        onboardingUi.dependencies.project(mapOf("path" to coreUi.path)),
+                        onboardingUi.dependencies.project(mapOf("path" to coreUi.path))
                     )
 
                     GradleProjectModuleGraphSource().read(root) shouldBe
@@ -67,50 +67,50 @@ class GradleProjectModuleGraphSourceTest :
                                 listOf(
                                     RepositoryModule(
                                         id = ":app",
-                                        directory = "app",
+                                        directory = "app"
                                     ),
                                     RepositoryModule(
                                         id = ":core:ui",
-                                        directory = "core/ui",
+                                        directory = "core/ui"
                                     ),
                                     RepositoryModule(
                                         id = ":onboarding:ui",
-                                        directory = "onboarding/ui",
-                                    ),
+                                        directory = "onboarding/ui"
+                                    )
                                 ),
                             dependencies =
                                 listOf(
                                     ModuleDependency(
                                         dependentModule = ":app",
-                                        dependencyModule = ":core:ui",
+                                        dependencyModule = ":core:ui"
                                     ),
                                     ModuleDependency(
                                         dependentModule = ":onboarding:ui",
-                                        dependencyModule = ":core:ui",
-                                    ),
-                                ),
+                                        dependencyModule = ":core:ui"
+                                    )
+                                )
                         )
                 } finally {
                     rootDirectory.deleteRecursively()
                 }
             }
-        },
+        }
     ) {
     companion object {
         private fun childProject(
             parent: org.gradle.api.Project,
             name: String,
-            withBuildFile: Boolean = false,
+            withBuildFile: Boolean = false
         ): org.gradle.api.Project {
             val directory =
                 File(
                     parent.projectDir,
-                    name,
+                    name
                 ).apply(File::mkdirs)
             if (withBuildFile) {
                 File(
                     directory,
-                    "build.gradle.kts",
+                    "build.gradle.kts"
                 ).writeText("")
             }
             return ProjectBuilder

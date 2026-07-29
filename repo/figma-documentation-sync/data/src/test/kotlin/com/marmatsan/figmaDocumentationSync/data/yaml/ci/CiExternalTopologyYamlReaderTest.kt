@@ -14,7 +14,7 @@ internal class CiExternalTopologyYamlReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "ci-external-topology-yaml",
+                    prefix = "ci-external-topology-yaml"
                 )
 
             test("read maps versioned nodes connections and validation metadata") {
@@ -49,7 +49,7 @@ internal class CiExternalTopologyYamlReaderTest :
                                     policy: Service Auth
                                     automation: manual
                                     annotation: The interface may be the UI or CLI.
-                                """.trimIndent(),
+                                """.trimIndent()
                             )
                         }
                 }.whenever { file ->
@@ -60,15 +60,15 @@ internal class CiExternalTopologyYamlReaderTest :
                         LocalDate.of(
                             2026,
                             7,
-                            14,
+                            14
                         )
                     topology.validation.warnAfterDays shouldBe 90
                     topology.nodes.map(
-                        transform = CiNode::id,
+                        transform = CiNode::id
                     ) shouldBe
                         listOf(
                             "operator",
-                            "teamcity-server",
+                            "teamcity-server"
                         )
                     topology.connections.single() shouldBe
                         CiConnection(
@@ -82,7 +82,7 @@ internal class CiExternalTopologyYamlReaderTest :
                             policy = "Service Auth",
                             path = null,
                             automation = CiConnection.Automation.Manual,
-                            annotation = "The interface may be the UI or CLI.",
+                            annotation = "The interface may be the UI or CLI."
                         )
                 }
             }
@@ -110,7 +110,7 @@ internal class CiExternalTopologyYamlReaderTest :
                                     label: Start build
                                     description: Invalid endpoint.
                                     automation: manual
-                                """.trimIndent(),
+                                """.trimIndent()
                             )
                         }
                 }.whenever { file ->
@@ -121,5 +121,5 @@ internal class CiExternalTopologyYamlReaderTest :
                     exception.message shouldBe "Unknown CI connection target 'teamcity-server'"
                 }
             }
-        },
+        }
     )

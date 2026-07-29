@@ -17,7 +17,7 @@ class GradleProjectModuleGraphSource {
      * @throws IllegalArgumentException when called with a non-root project.
      */
     fun read(
-        rootProject: Project,
+        rootProject: Project
     ): RepositoryModuleGraph {
         require(rootProject == rootProject.rootProject) {
             "The CI module graph must be read from the root project."
@@ -34,8 +34,8 @@ class GradleProjectModuleGraphSource {
                     directory =
                         rootProject.relativePath(project.projectDir).replace(
                             '\\',
-                            '/',
-                        ),
+                            '/'
+                        )
                 )
             }
         val dependencies =
@@ -47,7 +47,7 @@ class GradleProjectModuleGraphSource {
                             .map { dependency ->
                                 ModuleDependency(
                                     dependentModule = dependentProject.path,
-                                    dependencyModule = dependency.path,
+                                    dependencyModule = dependency.path
                                 )
                             }
                     }
@@ -55,13 +55,13 @@ class GradleProjectModuleGraphSource {
                 .sortedWith(
                     compareBy(
                         ModuleDependency::dependentModule,
-                        ModuleDependency::dependencyModule,
-                    ),
+                        ModuleDependency::dependencyModule
+                    )
                 )
 
         return RepositoryModuleGraph(
             modules = modules,
-            dependencies = dependencies,
+            dependencies = dependencies
         )
     }
 }

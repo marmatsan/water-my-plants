@@ -17,23 +17,23 @@ import java.io.File
  */
 @Inject
 class ProjectModuleDependenciesDataSource(
-    private val gradleModuleDependenciesReader: GradleModuleDependenciesReader,
+    private val gradleModuleDependenciesReader: GradleModuleDependenciesReader
 ) : ProjectModuleDependenciesPort {
     /** Reads module edges from the Gradle source and scope selected by [source]. */
     override fun readModuleDependencies(
-        source: ProjectModuleDependenciesSource,
+        source: ProjectModuleDependenciesSource
     ): Set<ModuleDependency> =
         when (source.scope) {
             ProjectModuleDependenciesScope.Main -> {
                 gradleModuleDependenciesReader.readMain(
-                    rootDir = File(source.rootDirPath),
+                    rootDir = File(source.rootDirPath)
                 )
             }
 
             ProjectModuleDependenciesScope.IncludedBuild -> {
                 gradleModuleDependenciesReader.readIncludedBuild(
                     rootDir = File(source.rootDirPath),
-                    modulePathPrefix = source.modulePathPrefix,
+                    modulePathPrefix = source.modulePathPrefix
                 )
             }
         }

@@ -1,17 +1,16 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
-    val dependencyCatalogSourceBuild =
+    val dependencyCatalogSourceBuild: String =
         providers.gradleProperty("dependencyCatalogSourceBuild").orNull
             ?: file("../dependency-catalog").absolutePath
     includeBuild(dependencyCatalogSourceBuild)
 
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -33,7 +32,7 @@ includeBuild("../figma-documentation-sync")
 includeBuild("../gradle-plugins")
 includeBuild("../unit-testing")
 
-val portableVersion =
+val portableVersion: String =
     providers
         .gradleProperty("figmaDocumentationSyncVersion")
         .getOrElse("0.1.0-SNAPSHOT")
@@ -47,9 +46,7 @@ dependencyResolutionManagement {
         providers.gradleProperty("figmaDocumentationSyncCatalogPublicationRepository").orNull?.let { repository ->
             maven { url = uri(repository) }
         }
-        google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -59,80 +56,87 @@ dependencyCatalogTree {
     libraries {
         // Portable composition APIs. Local included builds substitute these
         // versioned coordinates during repository development.
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "catalog-api",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "catalog-core",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "catalog-gradle-plugin",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.repo",
-            artifact = "unit-test-dsl",
-        )
-        library(
-            group = "com.marmatsan.figma-documentation-sync",
-            artifact = "domain",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.figma-documentation-sync",
-            artifact = "data",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.figma-documentation-sync",
-            artifact = "plugin",
-            version = portableVersion,
-        )
-        library(
-            group = "com.marmatsan.figma-documentation-sync",
-            artifact = "teamcity-adapter",
-            version = portableVersion,
-        )
-        library(
-            group = "com.michael-bull.kotlin-result",
-            artifact = "kotlin-result",
-            version = version("kotlinResultLibraryVersion"),
-        )
-        library(
-            group = "org.jetbrains.kotlinx",
-            artifact = "kotlinx-serialization-json",
-            version = version("serializationLibraryVersion"),
-        )
-        library(
-            group = "org.junit.platform",
-            artifact = "junit-platform-launcher",
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-runner-junit5",
-            version = version("kotestLibraryVersion"),
-        )
-        library(
-            group = "io.kotest",
-            artifact = "kotest-assertions-core",
-            version = version("kotestLibraryVersion"),
-        )
+        root("com") {
+            library("marmatsan.repo") {
+                artifact(
+                    artifact = "catalog-api",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "catalog-core",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "catalog-gradle-plugin",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "unit-test-dsl"
+                )
+            }
+            library("marmatsan.figma-documentation-sync") {
+                artifact(
+                    artifact = "domain",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "data",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "plugin",
+                    version = portableVersion
+                )
+                artifact(
+                    artifact = "teamcity-adapter",
+                    version = portableVersion
+                )
+            }
+            library("michael-bull.kotlin-result") {
+                artifact(
+                    artifact = "kotlin-result",
+                    version = version("kotlinResultLibraryVersion")
+                )
+            }
+        }
+        root("org") {
+            library("jetbrains.kotlinx") {
+                artifact(
+                    artifact = "kotlinx-serialization-json",
+                    version = version("serializationLibraryVersion")
+                )
+            }
+            library("junit.platform") {
+                artifact(
+                    artifact = "junit-platform-launcher"
+                )
+            }
+        }
+        root("io") {
+            library("kotest") {
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
+                    version = version("kotestLibraryVersion")
+                )
+            }
+        }
     }
 
     plugins {
-        plugin(
-            id = "org.jetbrains.kotlin.jvm",
-            version = version("kotlinVersion"),
-        )
-        plugin(
-            id = "org.jetbrains.dokka",
-            version = version("dokkaPluginVersion"),
-        )
+        root("org") {
+            plugin("jetbrains") {
+                plugin(
+                    id = "dokka",
+                    version = version("dokkaPluginVersion")
+                )
+                plugin(
+                    id = "kotlin.jvm",
+                    version = version("kotlinVersion")
+                )
+            }
+        }
     }
 }
 
@@ -142,5 +146,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     ":catalog",
-    ":plugin",
+    ":plugin"
 )

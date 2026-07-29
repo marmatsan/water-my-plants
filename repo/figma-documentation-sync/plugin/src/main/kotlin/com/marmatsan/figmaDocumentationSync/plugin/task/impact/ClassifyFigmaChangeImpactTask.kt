@@ -26,7 +26,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Writes the deterministic Figma impact of the current Git change set. */
 @DisableCachingByDefault(
-    because = "The default input is the current Git revision graph",
+    because = "The default input is the current Git revision graph"
 )
 abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
     /** Versioned policy mapping repository paths to Figma impact. */
@@ -60,26 +60,26 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
             changedPathsOverride.get().takeIf(List<String>::isNotEmpty)?.let { paths ->
                 RepositoryChangeSet(
                     comparisonBase = comparisonBaseOverride.orNull,
-                    changedPaths = paths,
+                    changedPaths = paths
                 )
             } ?: component.repositoryChangeSetPort.read(projectRootDirectory.get().asFile.absolutePath)
         val impact =
             component.changeImpactClassifier.classify(
                 changeSet = changeSet,
-                policy = policy,
+                policy = policy
             )
         val output = outputFile.get().asFile
         output.parentFile.mkdirs()
         output.writeText(
             prettyJson.encodeToString(
                 JsonObject.serializer(),
-                impact.toJson(),
-            ) + System.lineSeparator(),
+                impact.toJson()
+            ) + System.lineSeparator()
         )
 
         logger.lifecycle(
             "Classified Figma change impact as ${impact.impact.wireValue} " +
-                "(${impact.scope.wireValue}).",
+                "(${impact.scope.wireValue})."
         )
     }
 
@@ -91,17 +91,17 @@ abstract class ClassifyFigmaChangeImpactTask : DefaultTask() {
                 "affectedVisualTargets" to
                     JsonArray(
                         affectedVisualTargets.map(
-                            transform = ::JsonPrimitive,
-                        ),
+                            transform = ::JsonPrimitive
+                        )
                     ),
                 "comparisonBase" to (comparisonBase?.let(::JsonPrimitive) ?: JsonNull),
                 "changedPaths" to
                     JsonArray(
                         changedPaths.map(
-                            transform = ::JsonPrimitive,
-                        ),
-                    ),
-            ),
+                            transform = ::JsonPrimitive
+                        )
+                    )
+            )
         )
 
     private companion object {

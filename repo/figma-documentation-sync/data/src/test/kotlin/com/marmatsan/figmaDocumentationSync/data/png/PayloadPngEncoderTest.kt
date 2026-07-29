@@ -27,22 +27,22 @@ internal class PayloadPngEncoderTest :
                                 script = "return 1;",
                                 scriptLength = 9,
                                 writerHash = "sha256:writer",
-                                transportHash = "sha256:transport",
-                            ),
+                                transportHash = "sha256:transport"
+                            )
                     )
                 val png = encoder.encode(payloadJson)
 
                 payloadJson.shouldContain("Jard\\u00edn")
                 ImageIO.read(ByteArrayInputStream(png)).width shouldBe 1
                 decodePayloadText(
-                    png = png,
+                    png = png
                 ) shouldBe payloadJson
             }
-        },
+        }
     )
 
 private fun decodePayloadText(
-    png: ByteArray,
+    png: ByteArray
 ): String {
     var offset = PayloadPngEncoder.PNG_SIGNATURE.size
     while (offset + 12 <= png.size) {
@@ -51,14 +51,14 @@ private fun decodePayloadText(
                 .wrap(
                     png,
                     offset,
-                    4,
+                    4
                 ).int
         val type =
             String(
                 png,
                 offset + 4,
                 4,
-                StandardCharsets.US_ASCII,
+                StandardCharsets.US_ASCII
             )
         val dataStart = offset + 8
         if (type == "tEXt") {
@@ -67,14 +67,14 @@ private fun decodePayloadText(
                     png,
                     dataStart,
                     length,
-                    StandardCharsets.ISO_8859_1,
+                    StandardCharsets.ISO_8859_1
                 )
             val encoded = text.substringAfter("${PayloadPngEncoder.TEXT_KEYWORD}\u0000")
             return String(
                 Base64.getDecoder().decode(
-                    encoded,
+                    encoded
                 ),
-                StandardCharsets.UTF_8,
+                StandardCharsets.UTF_8
             )
         }
         offset = dataStart + length + 4

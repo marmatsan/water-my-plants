@@ -9,7 +9,7 @@ interface McpClientPort : AutoCloseable {
 
     /** Reads the text resource identified by [uri]. */
     suspend fun readTextResource(
-        uri: String,
+        uri: String
     ): String
 
     /** Executes generated [code] against the target Figma [fileKey]. */
@@ -17,18 +17,18 @@ interface McpClientPort : AutoCloseable {
         fileKey: String,
         code: String,
         description: String,
-        skillNames: String,
+        skillNames: String
     ): McpToolResult
 
     /** Requests [count] single-use asset upload slots for [fileKey]. */
     suspend fun requestAssetUpload(
         fileKey: String,
-        count: Int,
+        count: Int
     ): McpToolResult
 
     /** Uploads canonical [bytes] to the single-use asset [url]. */
     suspend fun uploadAsset(
         url: String,
-        bytes: ByteArray,
+        bytes: ByteArray
     )
 }

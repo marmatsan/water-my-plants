@@ -7,7 +7,7 @@ import org.gradle.api.provider.Property
 
 /** Configures the optional TeamCity adapter without embedding consuming-repository identities. */
 class TeamCityVerificationExtension internal constructor(
-    project: Project,
+    project: Project
 ) {
     /** TeamCity build type queued by the optional infrastructure-health task. */
     val infrastructureHealthBuildTypeId: Property<String> = project.objects.property(String::class.java)

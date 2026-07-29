@@ -14,7 +14,7 @@ import com.marmatsan.verificationPlatform.domain.port.teamcity.TeamCityRunQueue
  * domain allow-list.
  */
 class QueueTeamCityRun(
-    private val runQueue: TeamCityRunQueue,
+    private val runQueue: TeamCityRunQueue
 ) {
     /**
      * Validates [request] and delegates it to the configured queue adapter.
@@ -23,7 +23,7 @@ class QueueTeamCityRun(
      * the capability-owned [QueueTeamCityRunError] channel.
      */
     fun execute(
-        request: TeamCityRunRequest,
+        request: TeamCityRunRequest
     ): Result<TeamCityQueuedRun, QueueTeamCityRunError> =
         when {
             !BUILD_TYPE_ID.matches(request.buildTypeId) -> {
@@ -36,7 +36,7 @@ class QueueTeamCityRun(
 
             else -> {
                 runQueue.queue(
-                    request = request,
+                    request = request
                 )
             }
         }

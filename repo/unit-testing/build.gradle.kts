@@ -6,15 +6,15 @@ plugins {
     base
 }
 
-val versions =
+val versions: Properties =
     Properties().apply {
         file("versions.properties").inputStream().use(::load)
     }
-val publicationVersion =
+val publicationVersion: String =
     providers.gradleProperty("unitTestDslVersion").getOrElse(
-        versions.getProperty("unitTestDslLibraryVersion"),
+        versions.getProperty("unitTestDslLibraryVersion")
     )
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     providers.gradleProperty("unitTestingPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")
@@ -52,13 +52,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -69,6 +69,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "-PunitTestDslVersion=$publicationVersion",
         "-PunitTestingPublicationRepository=$stagingPublicationRepository",
         "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

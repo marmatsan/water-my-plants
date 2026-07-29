@@ -1,6 +1,7 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import java.util.Properties
 
@@ -9,23 +10,23 @@ plugins {
     `kotlin-dsl` apply false
 }
 
-val versions =
+val versions: Properties =
     Properties().apply {
         file("versions.properties").inputStream().use(::load)
     }
-val publicationVersion =
+val publicationVersion: String =
     providers.gradleProperty("gradlePluginsVersion").getOrElse(
-        versions.getProperty("gradlePluginsVersion"),
+        versions.getProperty("gradlePluginsVersion")
     )
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     providers.gradleProperty("gradlePluginsPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")
             .get()
             .asFile.absolutePath
-val dependencyCatalogSourceBuild =
+val dependencyCatalogSourceBuild: String? =
     providers.gradleProperty("dependencyCatalogSourceBuild").orNull
-val dependencyCatalogPublicationRepository =
+val dependencyCatalogPublicationRepository: String? =
     providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
         ?: dependencyCatalogSourceBuild?.let {
             layout.buildDirectory
@@ -40,6 +41,12 @@ allprojects {
 }
 
 subprojects {
+    pluginManager.withPlugin("java") {
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
+    }
+
     pluginManager.withPlugin("maven-publish") {
         extensions.configure<PublishingExtension> {
             repositories {
@@ -60,7 +67,7 @@ tasks.named("check") {
         ":dependencies:check",
         ":dokka-documentation:check",
         ":protobuf:check",
-        ":unit-test:check",
+        ":unit-test:check"
     )
 }
 
@@ -74,7 +81,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":dependencies:publishAllPublicationsToStagingRepository",
         ":dokka-documentation:publishAllPublicationsToStagingRepository",
         ":protobuf:publishAllPublicationsToStagingRepository",
-        ":unit-test:publishAllPublicationsToStagingRepository",
+        ":unit-test:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -86,7 +93,7 @@ tasks.register<Exec>("verifyStagedPublication") {
         dependsOn(
             gradle
                 .includedBuild("dependency-catalog")
-                .task(":catalog-api:publishAllPublicationsToStagingRepository"),
+                .task(":catalog-api:publishAllPublicationsToStagingRepository")
         )
     }
 
@@ -99,13 +106,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -120,6 +127,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
         "-PkotestVersion=${versions.getProperty("kotestLibraryVersion")}",
         "-PmockkVersion=${versions.getProperty("mockkLibraryVersion")}",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

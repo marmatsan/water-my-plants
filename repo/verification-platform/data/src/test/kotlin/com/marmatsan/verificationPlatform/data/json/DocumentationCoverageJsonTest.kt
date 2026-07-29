@@ -20,12 +20,12 @@ class DocumentationCoverageJsonTest :
                             }
                           ]
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
 
                 rules.single().id shouldBe "verification-platform"
                 rules.single().sourcePaths shouldBe listOf("repo/verification-platform/*")
                 rules.single().documentationPaths shouldBe listOf("repo/verification-platform/README.md")
             }
-        },
+        }
     )

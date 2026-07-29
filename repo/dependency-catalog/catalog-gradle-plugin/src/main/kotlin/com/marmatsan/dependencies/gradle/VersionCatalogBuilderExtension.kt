@@ -18,13 +18,13 @@ import com.marmatsan.dependencies.catalog.api.libraryAlias as catalogLibraryAlia
  * @param libraries Flattened library dependencies, usually produced by a dependency tree traversal.
  */
 internal fun VersionCatalogBuilder.registerLibraries(
-    libraries: List<ResolvedLibrary>,
+    libraries: List<ResolvedLibrary>
 ) {
     libraries.forEach { library ->
         library.entries.forEach { entry ->
             registerLibraryEntry(
                 libraryGroup = library.group,
-                entry = entry,
+                entry = entry
             )
         }
     }
@@ -39,14 +39,14 @@ internal fun VersionCatalogBuilder.registerLibraries(
  * @param plugins Flattened plugin dependencies, usually produced by a dependency tree traversal.
  */
 internal fun VersionCatalogBuilder.registerPlugins(
-    plugins: List<ResolvedPlugin>,
+    plugins: List<ResolvedPlugin>
 ) {
     plugins.forEach { plugin ->
         plugin(
             plugin.id,
-            plugin.id,
+            plugin.id
         ).version(
-            plugin.version,
+            plugin.version
         )
     }
 }
@@ -61,21 +61,21 @@ internal fun VersionCatalogBuilder.registerPlugins(
  */
 private fun VersionCatalogBuilder.registerLibraryEntry(
     libraryGroup: String,
-    entry: LibraryCatalogEntry,
+    entry: LibraryCatalogEntry
 ) {
     when (entry) {
         is LibraryCatalogEntry.Artifact -> {
             registerLibrary(
                 libraryGroup = libraryGroup,
                 artifact = entry.name,
-                version = entry.version,
+                version = entry.version
             )
         }
 
         is LibraryCatalogEntry.Bundle -> {
             registerLibraryBundle(
                 libraryGroup = libraryGroup,
-                bundle = entry,
+                bundle = entry
             )
         }
     }
@@ -93,20 +93,20 @@ private fun VersionCatalogBuilder.registerLibraryEntry(
  */
 private fun VersionCatalogBuilder.registerLibraryBundle(
     libraryGroup: String,
-    bundle: LibraryCatalogEntry.Bundle,
+    bundle: LibraryCatalogEntry.Bundle
 ) {
     val aliases =
         bundle.artifacts.map { artifact ->
             registerLibrary(
                 libraryGroup = libraryGroup,
                 artifact = artifact,
-                version = bundle.version,
+                version = bundle.version
             )
         }
 
     bundle(
         bundle.alias,
-        aliases,
+        aliases
     )
 }
 
@@ -127,11 +127,11 @@ private fun VersionCatalogBuilder.registerLibraryBundle(
 private fun VersionCatalogBuilder.registerLibraryAlias(
     libraryAlias: String,
     libraryGroup: String,
-    artifact: String,
+    artifact: String
 ) = library(
     libraryAlias,
     libraryGroup,
-    artifact,
+    artifact
 )
 
 /**
@@ -145,12 +145,12 @@ private fun VersionCatalogBuilder.registerLibraryAlias(
  * @param version The optional version string to assign. If `null`, the library is declared without a version
  */
 private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
-    version: String? = null,
+    version: String? = null
 ) = if (version == null) {
     withoutVersion()
 } else {
     version(
-        version,
+        version
     )
 }
 
@@ -189,21 +189,21 @@ private fun VersionCatalogBuilder.LibraryAliasBuilder.registerLibraryVersion(
 private fun VersionCatalogBuilder.registerLibrary(
     libraryGroup: String,
     artifact: String,
-    version: String?,
+    version: String?
 ): String {
     val libraryAlias =
         catalogLibraryAlias(
             libraryGroup = libraryGroup,
-            artifact = artifact,
+            artifact = artifact
         )
     val libraryAliasBuilder =
         registerLibraryAlias(
             libraryAlias = libraryAlias,
             libraryGroup = libraryGroup,
-            artifact = artifact,
+            artifact = artifact
         )
     libraryAliasBuilder.registerLibraryVersion(
-        version = version,
+        version = version
     )
     return libraryAlias
 }
@@ -216,7 +216,7 @@ private fun VersionCatalogBuilder.registerLibrary(
  */
 internal data class ResolvedLibrary(
     val group: String,
-    val entries: List<LibraryCatalogEntry>,
+    val entries: List<LibraryCatalogEntry>
 )
 
 /**
@@ -227,7 +227,7 @@ internal data class ResolvedLibrary(
  */
 internal data class ResolvedPlugin(
     val id: String,
-    val version: String,
+    val version: String
 )
 
 /**
@@ -243,14 +243,14 @@ internal data class ResolvedPlugin(
     replaceWith =
         ReplaceWith(
             expression = "libraryAlias(libraryGroup, artifact)",
-            imports = ["com.marmatsan.dependencies.catalog.api.libraryAlias"],
-        ),
+            imports = ["com.marmatsan.dependencies.catalog.api.libraryAlias"]
+        )
 )
 fun libraryAlias(
     libraryGroup: String,
-    artifact: String,
+    artifact: String
 ): String =
     catalogLibraryAlias(
         libraryGroup = libraryGroup,
-        artifact = artifact,
+        artifact = artifact
     )

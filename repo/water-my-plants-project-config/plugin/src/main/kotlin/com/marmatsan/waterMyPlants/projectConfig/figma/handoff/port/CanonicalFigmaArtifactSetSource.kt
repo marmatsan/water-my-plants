@@ -7,6 +7,6 @@ import java.io.File
 internal fun interface CanonicalFigmaArtifactSetSource {
     /** Discovers and parses the canonical set rooted at [artifactDirectory]. */
     fun read(
-        artifactDirectory: File,
+        artifactDirectory: File
     ): CanonicalFigmaArtifactSet
 }

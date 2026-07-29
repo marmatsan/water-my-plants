@@ -20,5 +20,5 @@ data class VisualSyncPlanBody(
     val requiresMetadataWrite: Boolean,
     val executionScopes: List<String>,
     val identity: VisualSyncIdentity,
-    val manifestHash: String,
+    val manifestHash: String
 )

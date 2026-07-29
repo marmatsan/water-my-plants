@@ -4,23 +4,23 @@ package com.marmatsan.waterMyPlants.projectConfig.teamcity.auth
 class EnvironmentTeamCityAutomationCredentialsProvider(
     private val environment: (String) -> String? = System::getenv,
     private val cloudflareAccessTokenProvider: CloudflareAccessTokenProvider =
-        CloudflareHttpAccessTokenProvider(),
+        CloudflareHttpAccessTokenProvider()
 ) : TeamCityAutomationCredentialsProvider {
     /** Loads TeamCity credentials and obtains a short-lived Access token for [serverUrl]. */
     override fun load(
-        serverUrl: String,
+        serverUrl: String
     ): TeamCityAutomationCredentials {
         require(
             serverUrl.startsWith(
                 "https://",
-                ignoreCase = true,
-            ),
+                ignoreCase = true
+            )
         ) {
             "The public TeamCity automation endpoint must use HTTPS."
         }
         val teamCityToken =
             required(
-                name = "TEAMCITY_TOKEN",
+                name = "TEAMCITY_TOKEN"
             )
         val cloudflareAccessToken =
             environment("TEAMCITY_HEADER_CF_ACCESS_TOKEN")
@@ -30,22 +30,22 @@ class EnvironmentTeamCityAutomationCredentialsProvider(
                     teamCityToken = teamCityToken,
                     clientId =
                         required(
-                            name = "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID",
+                            name = "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID"
                         ),
                     clientSecret =
                         required(
-                            name = "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET",
-                        ),
+                            name = "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET"
+                        )
                 )
         return TeamCityAutomationCredentials(
             serverUrl = serverUrl.trimEnd('/'),
             teamCityToken = teamCityToken,
-            cloudflareAccessToken = cloudflareAccessToken,
+            cloudflareAccessToken = cloudflareAccessToken
         )
     }
 
     private fun required(
-        name: String,
+        name: String
     ): String =
         environment(name)?.takeUnless(String::isBlank)
             ?: throw IllegalArgumentException("Required environment variable '$name' is not set.")

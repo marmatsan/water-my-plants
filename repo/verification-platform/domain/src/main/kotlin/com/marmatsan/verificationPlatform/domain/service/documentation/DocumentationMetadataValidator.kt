@@ -6,12 +6,12 @@ import java.time.format.DateTimeParseException
 
 /** Validates typed-document metadata, review windows, and canonical source references. */
 internal class DocumentationMetadataValidator(
-    private val paths: DocumentationPathResolver = DocumentationPathResolver(),
+    private val paths: DocumentationPathResolver = DocumentationPathResolver()
 ) : TypedDocumentationRule {
     /** Validates canonical metadata, review windows, and declared source existence. */
     override fun validate(
         context: TypedDocumentationContext,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     ) {
         val metadata = context.frontmatter.metadata
         REQUIRED_METADATA_FIELDS.forEach { field ->
@@ -41,19 +41,19 @@ internal class DocumentationMetadataValidator(
         validateReviewCycle(
             context = context,
             reviewDate = reviewDate,
-            findings = findings,
+            findings = findings
         )
         validateSources(
             context = context,
             status = status,
-            findings = findings,
+            findings = findings
         )
     }
 
     private fun validateReviewCycle(
         context: TypedDocumentationContext,
         reviewDate: LocalDate?,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     ) {
         val reviewCycleDays = context.frontmatter.metadata["review-cycle-days"]?.toIntOrNull()
         if (reviewCycleDays == null || reviewCycleDays <= 0) {
@@ -68,7 +68,7 @@ internal class DocumentationMetadataValidator(
     private fun validateSources(
         context: TypedDocumentationContext,
         status: String,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     ) {
         if (context.frontmatter.sources.isEmpty()) {
             findings.errors += "[${context.path}] At least one canonical source is required."
@@ -78,7 +78,7 @@ internal class DocumentationMetadataValidator(
                 if (!EXTERNAL_SOURCE_PATTERN.containsMatchIn(source) &&
                     !paths.sourceExists(
                         source,
-                        context.repositoryEntries,
+                        context.repositoryEntries
                     )
                 ) {
                     findings.errors += "[${context.path}] Canonical source does not exist: $source"
@@ -92,10 +92,10 @@ internal class DocumentationMetadataValidator(
             try {
                 LocalDate.parse(
                     value,
-                    DateTimeFormatter.ISO_LOCAL_DATE,
+                    DateTimeFormatter.ISO_LOCAL_DATE
                 )
             } catch (
-                _: DateTimeParseException,
+                _: DateTimeParseException
             ) {
                 null
             }
@@ -108,7 +108,7 @@ internal class DocumentationMetadataValidator(
                 "active",
                 "accepted",
                 "deprecated",
-                "superseded",
+                "superseded"
             )
         val REQUIRED_METADATA_FIELDS =
             listOf(
@@ -118,18 +118,18 @@ internal class DocumentationMetadataValidator(
                 "owner",
                 "status",
                 "last-reviewed",
-                "review-cycle-days",
+                "review-cycle-days"
             )
         val PLACEHOLDER_FIELDS =
             listOf(
                 "title",
                 "scope",
-                "owner",
+                "owner"
             )
         val PLACEHOLDER_PATTERN =
             Regex(
                 "replace|repository-or|stable-area|placeholder",
-                RegexOption.IGNORE_CASE,
+                RegexOption.IGNORE_CASE
             )
         val EXTERNAL_SOURCE_PATTERN = Regex("^(https?:|generated:)")
     }

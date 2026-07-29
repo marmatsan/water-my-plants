@@ -32,5 +32,5 @@ data class CiPlanPolicy(
     val toolingVerificationTasks: List<String> = emptyList(),
     val buildInfrastructureVerificationTasks: List<String> = emptyList(),
     val portableDistributionVerificationTasks: List<String> = emptyList(),
-    val targetedModuleSupplementalTasks: List<String> = emptyList(),
+    val targetedModuleSupplementalTasks: List<String> = emptyList()
 )

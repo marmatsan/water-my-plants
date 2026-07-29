@@ -15,20 +15,20 @@ import java.nio.file.Path
 object FigmaWriterRuntimeConfigJson {
     /** Reads and decodes a writer runtime configuration from [path]. */
     fun read(
-        path: String,
+        path: String
     ): FigmaWriterRuntimeConfig =
         decode(
             source =
                 Files.readString(
                     Path.of(
-                        path,
-                    ),
-                ),
+                        path
+                    )
+                )
         )
 
     /** Decodes a writer runtime configuration from [source]. */
     fun decode(
-        source: String,
+        source: String
     ): FigmaWriterRuntimeConfig {
         val json = Json.parseToJsonElement(source.removePrefix(UTF8_BOM)).jsonObject
         require(json.requiredInt("schemaVersion") == SUPPORTED_SCHEMA_VERSION) {
@@ -37,7 +37,7 @@ object FigmaWriterRuntimeConfigJson {
         }
         val ciTargets =
             json.requiredStringList(
-                name = "CI_VISUAL_TARGET_NAMES",
+                name = "CI_VISUAL_TARGET_NAMES"
             )
         return FigmaWriterRuntimeConfig(
             metadataPageId = json.requiredString("METADATA_PAGE_ID"),
@@ -50,11 +50,11 @@ object FigmaWriterRuntimeConfigJson {
                 json.requiredString("CHANGE_IMPACT_POLICY_RELATIVE_TO_REPOSITORY"),
             writerTargetNames =
                 json.requiredStringList(
-                    name = "WRITER_TARGET_NAMES",
+                    name = "WRITER_TARGET_NAMES"
                 ),
             catalogTargetNames =
                 json.requiredStringList(
-                    name = "CATALOG_TARGET_NAMES",
+                    name = "CATALOG_TARGET_NAMES"
                 ),
             ciVisualPlanConfig =
                 if (ciTargets.isEmpty()) {
@@ -72,26 +72,26 @@ object FigmaWriterRuntimeConfigJson {
                         visualContractSource = json.requiredString("VISUAL_CONTRACT_SOURCE"),
                         branchProtectionSource = json.requiredString("BRANCH_PROTECTION_SOURCE"),
                         canonicalSyncSource = json.requiredString("CANONICAL_SYNC_SOURCE"),
-                        canonicalDesignModelPath = json.requiredString("CANONICAL_DESIGN_MODEL_PATH"),
+                        canonicalDesignModelPath = json.requiredString("CANONICAL_DESIGN_MODEL_PATH")
                     )
-                },
+                }
         )
     }
 
     private fun JsonObject.requiredString(
-        name: String,
+        name: String
     ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
     private fun JsonObject.requiredInt(
-        name: String,
+        name: String
     ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")
 
     private fun JsonObject.requiredStringList(
-        name: String,
+        name: String
     ): List<String> =
         this[name]?.jsonArray?.map { value -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("Figma writer project config is missing '$name'.")

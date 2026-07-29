@@ -23,12 +23,12 @@ internal class WriterRuntimeContractTest :
             test("keeps the language-neutral writer runtime contract executable in Kotlin") {
                 val contractPath =
                     Path.of(
-                        requireNotNull(System.getProperty("figmaDocumentationSyncWriterRuntimeContract")),
+                        requireNotNull(System.getProperty("figmaDocumentationSyncWriterRuntimeContract"))
                     )
                 val contract = Json.parseToJsonElement(Files.readString(contractPath)).jsonObject
                 val runtimeConfig =
                     FigmaWriterRuntimeConfigJson.decode(
-                        source = FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value),
+                        source = FigmaWriterProjectConfigJson.encode(WaterMyPlantsFigmaWriterProjectConfig.value)
                     )
                 val visual = contract.getValue("visual").jsonObject
                 val metadata = contract.getValue("metadata").jsonObject
@@ -57,7 +57,7 @@ internal class WriterRuntimeContractTest :
                 val output =
                     Files.createTempFile(
                         "writer-runtime-contract",
-                        ".json",
+                        ".json"
                     )
                 try {
                     val hash = "sha256:" + "a".repeat(64)
@@ -96,9 +96,9 @@ internal class WriterRuntimeContractTest :
                                     payloadImage = null,
                                     files = emptyList(),
                                     fileHashes = emptyMap(),
-                                    manifestHash = "",
+                                    manifestHash = ""
                                 ),
-                            outputPath = output.toString(),
+                            outputPath = output.toString()
                         )
                     val serialized = Json.parseToJsonElement(Files.readString(output)).jsonObject
                     val requiredFields =
@@ -116,5 +116,5 @@ internal class WriterRuntimeContractTest :
                     Files.deleteIfExists(output)
                 }
             }
-        },
+        }
     )

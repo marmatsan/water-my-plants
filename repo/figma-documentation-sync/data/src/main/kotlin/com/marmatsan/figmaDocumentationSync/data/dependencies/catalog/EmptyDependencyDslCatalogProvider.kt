@@ -10,18 +10,18 @@ class EmptyDependencyDslCatalogProvider : DependencyDslCatalogProvider {
     /** Returns an empty library tree for repositories without a primary catalog. */
     override fun readLibraryTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): LibraryCatalogTree =
         LibraryCatalogTree(
-            roots = emptyList(),
+            roots = emptyList()
         )
 
     /** Returns an empty plugin tree for repositories without a primary catalog. */
     override fun readPluginTreeWithVersionAliases(
         rootDirPath: String,
-        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>
     ): PluginCatalogTree =
         PluginCatalogTree(
-            roots = emptyList(),
+            roots = emptyList()
         )
 }

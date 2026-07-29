@@ -37,31 +37,61 @@ dependencyCatalog {
         provider =
             object : ResolvedDependencyCatalogProvider {
                 override fun resolved(
-                    rootDir: File,
+                    rootDir: File
                 ): DependencyCatalog =
                     DependencyCatalog(
                         libraries =
                             listOf(
                                 LibraryCatalogNode(
-                                    group = "org.jetbrains.kotlin",
-                                    entries =
+                                    group = "org",
+                                    children =
                                         listOf(
-                                            LibraryCatalogEntry.Artifact(
-                                                name = "kotlin-stdlib",
-                                                version = "2.4.0",
-                                            ),
-                                        ),
-                                ),
+                                            LibraryCatalogNode(
+                                                group = "jetbrains",
+                                                children =
+                                                    listOf(
+                                                        LibraryCatalogNode(
+                                                            group = "kotlin",
+                                                            entries =
+                                                                listOf(
+                                                                    LibraryCatalogEntry.Artifact(
+                                                                        name = "kotlin-stdlib",
+                                                                        version = "2.4.0"
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             ),
                         plugins =
                             listOf(
                                 PluginCatalogNode(
-                                    id = "org.jetbrains.kotlin.jvm",
-                                    version = "2.4.0",
-                                ),
-                            ),
+                                    id = "org",
+                                    children =
+                                        listOf(
+                                            PluginCatalogNode(
+                                                id = "jetbrains",
+                                                children =
+                                                    listOf(
+                                                        PluginCatalogNode(
+                                                            id = "kotlin",
+                                                            children =
+                                                                listOf(
+                                                                    PluginCatalogNode(
+                                                                        id = "jvm",
+                                                                        version = "2.4.0"
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
+                            )
                     )
-            },
+            }
     )
 }
 

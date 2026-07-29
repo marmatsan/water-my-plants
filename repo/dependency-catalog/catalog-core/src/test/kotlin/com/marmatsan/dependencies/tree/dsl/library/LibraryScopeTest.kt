@@ -13,13 +13,58 @@ import io.kotest.matchers.shouldBe
 internal class LibraryScopeTest :
     FunSpec(
         {
+            test("libraryTree preserves artifacts declared directly on its root") {
+                given {
+                    libraryTree(
+                        rootGroup = "tools"
+                    ) {
+                        artifact(
+                            artifact = "core",
+                            version = "1.2.3"
+                        )
+                    }
+                }.whenever { root ->
+                    root
+                }.then { root ->
+                    root.value shouldBe
+                        DependencyNode.Library(
+                            libraryGroup = "tools",
+                            entries =
+                                listOf(
+                                    LibraryEntry.Single(
+                                        artifact =
+                                            Artifact(
+                                                artifact = "core",
+                                                version = "1.2.3"
+                                            )
+                                    )
+                                )
+                        )
+                }
+            }
+
+            test("libraryTree rejects a compact path as its root") {
+                given {
+                    "org.jetbrains"
+                }.whenever { compactRoot ->
+                    shouldThrow<IllegalArgumentException> {
+                        libraryTree(
+                            rootGroup = compactRoot
+                        ) {}
+                    }
+                }.then { failure ->
+                    failure.message shouldBe
+                        "Library group 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
+                }
+            }
+
             test("artifact adds a single entry with version to the created library") {
                 given(::libraryScopeFixture)
                     .whenever { fixture ->
                         fixture.scope.library("activity") {
                             artifact(
                                 artifact = "activity-compose",
-                                version = "1.9.1",
+                                version = "1.9.1"
                             )
                         }
                         fixture.root
@@ -35,12 +80,12 @@ internal class LibraryScopeTest :
                                                     artifact =
                                                         Artifact(
                                                             "activity-compose",
-                                                            "1.9.1",
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                            "1.9.1"
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -51,10 +96,10 @@ internal class LibraryScopeTest :
                         fixture.scope.library("activity") {
                             artifact(
                                 artifact = "activity-compose",
-                                version = "1.9.1",
+                                version = "1.9.1"
                             )
                             artifact(
-                                artifact = "activity-ktx",
+                                artifact = "activity-ktx"
                             )
                         }
                         fixture.root
@@ -70,15 +115,15 @@ internal class LibraryScopeTest :
                                                     artifact =
                                                         Artifact(
                                                             "activity-compose",
-                                                            "1.9.1",
-                                                        ),
+                                                            "1.9.1"
+                                                        )
                                                 ),
                                                 LibraryEntry.Single(
-                                                    artifact = Artifact("activity-ktx"),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                    artifact = Artifact("activity-ktx")
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -91,7 +136,7 @@ internal class LibraryScopeTest :
                                 "ui",
                                 "ui-graphics",
                                 "ui-tooling",
-                                alias = "composeBundle",
+                                alias = "composeBundle"
                             )
                         }
                         fixture.root
@@ -111,13 +156,13 @@ internal class LibraryScopeTest :
                                                                 listOf(
                                                                     Artifact("ui"),
                                                                     Artifact("ui-graphics"),
-                                                                    Artifact("ui-tooling"),
-                                                                ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                    Artifact("ui-tooling")
+                                                                )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -130,7 +175,7 @@ internal class LibraryScopeTest :
                                 "ui",
                                 "ui-graphics",
                                 alias = "composeBundle",
-                                version = "1.7.0",
+                                version = "1.7.0"
                             )
                         }
                         fixture.root
@@ -150,19 +195,19 @@ internal class LibraryScopeTest :
                                                                 listOf(
                                                                     Artifact(
                                                                         "ui",
-                                                                        "1.7.0",
+                                                                        "1.7.0"
                                                                     ),
                                                                     Artifact(
                                                                         "ui-graphics",
-                                                                        "1.7.0",
-                                                                    ),
+                                                                        "1.7.0"
+                                                                    )
                                                                 ),
-                                                            version = "1.7.0",
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                            version = "1.7.0"
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -173,12 +218,12 @@ internal class LibraryScopeTest :
                         fixture.scope.library("compose") {
                             artifact(
                                 artifact = "compose-bom",
-                                version = "2025.06.01",
+                                version = "2025.06.01"
                             )
                             artifactsBundle(
                                 "ui",
                                 "ui-graphics",
-                                alias = "composeBundle",
+                                alias = "composeBundle"
                             )
                         }
                         fixture.root
@@ -194,8 +239,8 @@ internal class LibraryScopeTest :
                                                     artifact =
                                                         Artifact(
                                                             "compose-bom",
-                                                            "2025.06.01",
-                                                        ),
+                                                            "2025.06.01"
+                                                        )
                                                 ),
                                                 LibraryEntry.Bundle(
                                                     artifactsBundle =
@@ -204,13 +249,13 @@ internal class LibraryScopeTest :
                                                             artifacts =
                                                                 listOf(
                                                                     Artifact("ui"),
-                                                                    Artifact("ui-graphics"),
-                                                                ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                    Artifact("ui-graphics")
+                                                                )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -225,9 +270,9 @@ internal class LibraryScopeTest :
                             mutableListOf(
                                 Node(
                                     DependencyNode.Library(
-                                        libraryGroup = "compose",
-                                    ),
-                                ),
+                                        libraryGroup = "compose"
+                                    )
+                                )
                             )
                     }
             }
@@ -238,11 +283,11 @@ internal class LibraryScopeTest :
                         fixture.scope.library("compose") {
                             artifact(
                                 artifact = "compose-bom",
-                                version = "2025.06.01",
+                                version = "2025.06.01"
                             )
                             library("ui") {
                                 artifact(
-                                    artifact = "ui",
+                                    artifact = "ui"
                                 )
                             }
                         }
@@ -260,10 +305,10 @@ internal class LibraryScopeTest :
                                                         artifact =
                                                             Artifact(
                                                                 "compose-bom",
-                                                                "2025.06.01",
-                                                            ),
-                                                    ),
-                                                ),
+                                                                "2025.06.01"
+                                                            )
+                                                    )
+                                                )
                                         ),
                                     children =
                                         mutableListOf(
@@ -273,13 +318,13 @@ internal class LibraryScopeTest :
                                                     entries =
                                                         listOf(
                                                             LibraryEntry.Single(
-                                                                artifact = Artifact("ui"),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                        ),
-                                ),
+                                                                artifact = Artifact("ui")
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -290,13 +335,13 @@ internal class LibraryScopeTest :
                         fixture.scope.library("activity") {
                             artifact(
                                 artifact = "activity-compose",
-                                version = "1.9.1",
+                                version = "1.9.1"
                             )
                         }
                         fixture.scope.library("compose") {
                             artifact(
                                 artifact = "compose-bom",
-                                version = "2025.06.01",
+                                version = "2025.06.01"
                             )
                         }
                         fixture.root
@@ -312,11 +357,11 @@ internal class LibraryScopeTest :
                                                     artifact =
                                                         Artifact(
                                                             "activity-compose",
-                                                            "1.9.1",
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
+                                                            "1.9.1"
+                                                        )
+                                                )
+                                            )
+                                    )
                                 ),
                                 Node(
                                     DependencyNode.Library(
@@ -327,12 +372,12 @@ internal class LibraryScopeTest :
                                                     artifact =
                                                         Artifact(
                                                             "compose-bom",
-                                                            "2025.06.01",
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                            "2025.06.01"
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                     }
             }
@@ -343,7 +388,7 @@ internal class LibraryScopeTest :
                         fixture.scope.library("figma.code.connect") {
                             artifact(
                                 artifact = "code-connect-lib",
-                                version = "1.2.3",
+                                version = "1.2.3"
                             )
                         }
                         fixture.root
@@ -366,15 +411,15 @@ internal class LibraryScopeTest :
                                                                         artifact =
                                                                             Artifact(
                                                                                 artifact = "code-connect-lib",
-                                                                                version = "1.2.3",
-                                                                            ),
-                                                                    ),
-                                                                ),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                                                version = "1.2.3"
+                                                                            )
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -384,12 +429,12 @@ internal class LibraryScopeTest :
                     .whenever { fixture ->
                         fixture.scope.library("compose.ui") {
                             artifact(
-                                artifact = "ui",
+                                artifact = "ui"
                             )
                         }
                         fixture.scope.library("compose.material3") {
                             artifact(
-                                artifact = "material3",
+                                artifact = "material3"
                             )
                         }
                         fixture.root
@@ -405,21 +450,21 @@ internal class LibraryScopeTest :
                                                 entries =
                                                     listOf(
                                                         LibraryEntry.Single(
-                                                            artifact = Artifact("ui"),
-                                                        ),
-                                                    ),
+                                                            artifact = Artifact("ui")
+                                                        )
+                                                    )
                                             ),
                                             libraryNode(
                                                 group = "material3",
                                                 entries =
                                                     listOf(
                                                         LibraryEntry.Single(
-                                                            artifact = Artifact("material3"),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                            artifact = Artifact("material3")
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
@@ -429,12 +474,12 @@ internal class LibraryScopeTest :
                     .whenever { fixture ->
                         fixture.scope.library("compose.ui") {
                             artifact(
-                                artifact = "ui",
+                                artifact = "ui"
                             )
                         }
                         fixture.scope.library("compose.ui") {
                             artifact(
-                                artifact = "ui-tooling",
+                                artifact = "ui-tooling"
                             )
                         }
                         fixture.root
@@ -450,20 +495,20 @@ internal class LibraryScopeTest :
                                                 entries =
                                                     listOf(
                                                         LibraryEntry.Single(
-                                                            artifact = Artifact("ui"),
+                                                            artifact = Artifact("ui")
                                                         ),
                                                         LibraryEntry.Single(
-                                                            artifact = Artifact("ui-tooling"),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                            artifact = Artifact("ui-tooling")
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             )
                     }
             }
 
-            test("library rejects a path with surrounding whitespace") {
+            test("library rejects a path with whitespace") {
                 given(::libraryScopeFixture)
                     .whenever { fixture ->
                         shouldThrow<IllegalArgumentException> {
@@ -471,43 +516,43 @@ internal class LibraryScopeTest :
                         }
                     }.then { failure ->
                         failure.message shouldBe
-                            "Dependency path 'figma. code' must contain non-blank segments without surrounding whitespace"
+                            "Dependency path 'figma. code' must contain non-blank segments without whitespace"
                     }
             }
-        },
+        }
     )
 
 private fun libraryNode(
     group: String,
     entries: List<LibraryEntry>? = null,
-    children: MutableList<Node<DependencyNode.Library>> = mutableListOf(),
+    children: MutableList<Node<DependencyNode.Library>> = mutableListOf()
 ): Node<DependencyNode.Library> =
     Node(
         value =
             DependencyNode.Library(
                 libraryGroup = group,
-                entries = entries,
+                entries = entries
             ),
-        children = children,
+        children = children
     )
 
 private fun libraryScopeFixture(): LibraryScopeFixture {
     val root =
         Node(
             DependencyNode.Library(
-                libraryGroup = "androidx",
-            ),
+                libraryGroup = "androidx"
+            )
         )
     return LibraryScopeFixture(
         root = root,
         scope =
             LibraryScope(
-                root = root,
-            ),
+                root = root
+            )
     )
 }
 
 private data class LibraryScopeFixture(
     val root: Node<DependencyNode.Library>,
-    val scope: LibraryScope,
+    val scope: LibraryScope
 )

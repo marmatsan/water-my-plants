@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  */
 data class VisualSyncPlan(
     val body: VisualSyncPlanBody,
-    val planHash: String,
+    val planHash: String
 )

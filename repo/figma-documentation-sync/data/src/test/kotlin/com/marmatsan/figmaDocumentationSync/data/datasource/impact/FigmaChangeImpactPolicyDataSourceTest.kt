@@ -13,7 +13,7 @@ internal class FigmaChangeImpactPolicyDataSourceTest :
                     Files
                         .createTempFile(
                             "figma-impact-policy",
-                            ".json",
+                            ".json"
                         ).toFile()
                 try {
                     policyFile.writeText(
@@ -32,7 +32,7 @@ internal class FigmaChangeImpactPolicyDataSourceTest :
                             }
                           ]
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
 
                     val policy = FigmaChangeImpactPolicyDataSource().read(policyFile.absolutePath)
@@ -53,7 +53,7 @@ internal class FigmaChangeImpactPolicyDataSourceTest :
                     Files
                         .createTempFile(
                             "figma-impact-policy",
-                            ".json",
+                            ".json"
                         ).toFile()
                 try {
                     policyFile.writeText(
@@ -67,7 +67,7 @@ internal class FigmaChangeImpactPolicyDataSourceTest :
                           "figmaVisualWriterPaths": [],
                           "figmaVisualTargetRules": []
                         }
-                        """.trimIndent(),
+                        """.trimIndent()
                     )
 
                     val error =
@@ -80,5 +80,5 @@ internal class FigmaChangeImpactPolicyDataSourceTest :
                     policyFile.delete()
                 }
             }
-        },
+        }
     )

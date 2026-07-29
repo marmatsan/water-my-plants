@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskProvider
 /** Registers Git and documentation tasks that verify the repository contract. */
 internal class RepositoryVerificationTasksRegistrar(
     private val project: Project,
-    private val generateCiPlan: TaskProvider<GenerateCiPlanTask>,
+    private val generateCiPlan: TaskProvider<GenerateCiPlanTask>
 ) {
     /** Registers repository checks and returns the shared documentation gate. */
     fun register(): TaskProvider<CheckDocumentationTask> {
@@ -18,13 +18,13 @@ internal class RepositoryVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "checkGitWorkflow",
                 CheckGitWorkflowTask::class.java,
-                "Validates the current branch against the trunk-based Git workflow.",
+                "Validates the current branch against the trunk-based Git workflow."
             ) { task ->
                 task.repositoryRoot.set(project.layout.projectDirectory)
                 task.branchOverride.convention(
                     project.providers
                         .gradleProperty("gitWorkflowBranch")
-                        .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH")),
+                        .orElse(project.providers.environmentVariable("GIT_WORKFLOW_BRANCH"))
                 )
             }
 
@@ -32,7 +32,7 @@ internal class RepositoryVerificationTasksRegistrar(
             project.tasks.registerVerificationTask(
                 "checkDocumentation",
                 CheckDocumentationTask::class.java,
-                "Validates typed documentation, links, sources, and committed change coverage.",
+                "Validates typed documentation, links, sources, and committed change coverage."
             ) { task ->
                 task.dependsOn(checkGitWorkflow)
                 task.dependsOn(generateCiPlan)
@@ -44,7 +44,7 @@ internal class RepositoryVerificationTasksRegistrar(
         project.tasks.registerVerificationTask(
             "checkRepositoryDiff",
             CheckRepositoryDiffTask::class.java,
-            "Checks committed documentation-only diffs for whitespace errors.",
+            "Checks committed documentation-only diffs for whitespace errors."
         ) { task ->
             task.dependsOn(checkDocumentation)
             task.repositoryRoot.set(project.layout.projectDirectory)

@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskProvider
 /** Configures repository-specific classification and verification selection for the CI planner. */
 class CiVerificationPolicyExtension internal constructor(
     project: Project,
-    generateCiPlan: TaskProvider<GenerateCiPlanTask>,
+    generateCiPlan: TaskProvider<GenerateCiPlanTask>
 ) {
     /** Path prefixes classified as repository tooling. */
     val toolingPathPrefixes: ListProperty<String> = project.objects.listProperty(String::class.java)
@@ -59,7 +59,7 @@ class CiVerificationPolicyExtension internal constructor(
             toolingVerificationTasks,
             buildInfrastructureVerificationTasks,
             portableDistributionVerificationTasks,
-            targetedModuleSupplementalTasks,
+            targetedModuleSupplementalTasks
         ).forEach { property -> property.convention(emptyList()) }
 
         generateCiPlan.configure { task ->

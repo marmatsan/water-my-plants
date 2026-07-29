@@ -9,13 +9,13 @@ import org.gradle.kotlin.dsl.create
 class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
     /** Creates the extension and delegates task registration to focused collaborators. */
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         project.pluginManager.apply("base")
         val context =
             FigmaPluginContext(
                 project = project,
-                extension = project.extensions.create<figmaDocumentationSyncExtension>("figmaDocumentationSync"),
+                extension = project.extensions.create<figmaDocumentationSyncExtension>("figmaDocumentationSync")
             )
 
         FigmaModelTasksRegistrar(context).register()

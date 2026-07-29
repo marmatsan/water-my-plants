@@ -21,7 +21,7 @@ class TreeDependencyCatalogSettingsPlugin : Plugin<Settings> {
      * @param settings Consumer settings that own declarations, versions, and generated catalogs.
      */
     override fun apply(
-        settings: Settings,
+        settings: Settings
     ) {
         settings.pluginManager.apply(DependencyCatalogSettingsPlugin::class.java)
         val providerExtension =
@@ -30,7 +30,7 @@ class TreeDependencyCatalogSettingsPlugin : Plugin<Settings> {
             settings.extensions.create(
                 "dependencyCatalogTree",
                 TreeDependencyCatalogSettingsExtension::class.java,
-                settings.rootDir.resolve("versions.properties"),
+                settings.rootDir.resolve("versions.properties")
             )
         treeExtension.registerCatalog = { provider, librariesCatalogName, pluginsCatalogName ->
             providerExtension.librariesCatalogName.set(librariesCatalogName)
@@ -41,13 +41,13 @@ class TreeDependencyCatalogSettingsPlugin : Plugin<Settings> {
         settings.gradle.settingsEvaluated(
             object : Action<Settings> {
                 override fun execute(
-                    evaluatedSettings: Settings,
+                    evaluatedSettings: Settings
                 ) {
                     if (evaluatedSettings == settings) {
                         treeExtension.register()
                     }
                 }
-            },
+            }
         )
     }
 }

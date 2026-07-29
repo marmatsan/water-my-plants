@@ -2,6 +2,7 @@
 
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.dokka.gradle.DokkaExtension
@@ -20,7 +21,7 @@ tasks.named("check") {
         ":data:check",
         ":domain:check",
         ":plugin:check",
-        ":teamcity-adapter:check",
+        ":teamcity-adapter:check"
     )
 }
 
@@ -31,12 +32,12 @@ tasks.register("dokkaGenerate") {
         ":data:dokkaGenerate",
         ":domain:dokkaGenerate",
         ":plugin:dokkaGenerate",
-        ":teamcity-adapter:dokkaGenerate",
+        ":teamcity-adapter:dokkaGenerate"
     )
 }
 
 @DisableCachingByDefault(
-    because = "The verification task has no reusable output artifact",
+    because = "The verification task has no reusable output artifact"
 )
 abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     @get:Input
@@ -53,7 +54,7 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
                 .find(packageJson.get().asFile.readText())
                 ?.groupValues
                 ?.get(
-                    index = 1,
+                    index = 1
                 )
                 ?: error("Missing version in tools/package.json")
         val expectedVersion = mavenVersion.get()
@@ -63,24 +64,24 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     }
 }
 
-val publicationGroup =
+val publicationGroup: String =
     providers
         .gradleProperty("figmaDocumentationSyncGroup")
         .getOrElse("com.marmatsan.figma-documentation-sync")
-val publicationVersion =
+val publicationVersion: String =
     providers
         .gradleProperty("figmaDocumentationSyncVersion")
         .getOrElse(
             Properties().run {
                 file("versions.properties").inputStream().use(::load)
                 getProperty("figmaDocumentationSyncVersion")
-            },
+            }
         )
-val configuredPublicationRepository =
+val configuredPublicationRepository: String? =
     providers
         .gradleProperty("figmaDocumentationSyncPublicationRepository")
         .orNull
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     configuredPublicationRepository
         ?: layout.buildDirectory
             .dir("publication-repository")
@@ -92,12 +93,6 @@ allprojects {
 }
 
 subprojects {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-
     pluginManager.withPlugin("java") {
         extensions.configure<JavaPluginExtension> {
             withSourcesJar()
@@ -124,8 +119,8 @@ subprojects {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
 
@@ -139,8 +134,8 @@ subprojects {
                                     "repo/figma-documentation-sync/" +
                                     localSourceDirectory.asFile
                                         .relativeTo(rootProject.projectDir)
-                                        .invariantSeparatorsPath,
-                            ),
+                                        .invariantSeparatorsPath
+                            )
                         )
                         remoteLineSuffix.set("#L")
                     }
@@ -155,6 +150,16 @@ subprojects {
 
     pluginManager.withPlugin("maven-publish") {
         extensions.configure<PublishingExtension> {
+            publications.withType<MavenPublication>().configureEach {
+                pom {
+                    url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/figma-documentation-sync")
+                    scm {
+                        connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                        url.set("https://github.com/marmatsan/water-my-plants")
+                    }
+                }
+            }
+
             repositories {
                 maven {
                     name = "staging"
@@ -167,7 +172,7 @@ subprojects {
 
 val verifyPublicationVersionAlignment =
     tasks.register<VerifyPublicationVersionAlignmentTask>(
-        "verifyPublicationVersionAlignment",
+        "verifyPublicationVersionAlignment"
     ) {
         group = "verification"
         description = "Checks that Maven and npm publication versions remain aligned."
@@ -185,7 +190,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":domain:publishAllPublicationsToStagingRepository",
         ":data:publishAllPublicationsToStagingRepository",
         ":plugin:publishAllPublicationsToStagingRepository",
-        ":teamcity-adapter:publishAllPublicationsToStagingRepository",
+        ":teamcity-adapter:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -199,13 +204,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -215,6 +220,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "verifyPluginApplication",
         "-PfigmaDocumentationSyncVersion=$publicationVersion",
         "-PfigmaDocumentationSyncPublicationRepository=$stagingPublicationRepository",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

@@ -12,7 +12,7 @@ internal class TeamCityCliClientTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "teamcity-cli-client",
+                    prefix = "teamcity-cli-client"
                 )
 
             test("reads build identity through the TeamCity CLI JSON contract") {
@@ -33,12 +33,12 @@ internal class TeamCityCliClientTest :
                                   "buildType": { "name": "Generate main design model" }
                                 }
                                 """.trimIndent(),
-                            error = "",
+                            error = ""
                         )
                     }
                 }.whenever { client ->
                     client.readBuild(
-                        buildId = 1573,
+                        buildId = 1573
                     )
                 }.then { build ->
                     build shouldBe
@@ -48,7 +48,7 @@ internal class TeamCityCliClientTest :
                             status = "SUCCESS",
                             branchName = "main",
                             buildTypeName = "Generate main design model",
-                            webUrl = "https://teamcity.example/build/1573",
+                            webUrl = "https://teamcity.example/build/1573"
                         )
                     commands.single() shouldBe
                         listOf(
@@ -58,7 +58,7 @@ internal class TeamCityCliClientTest :
                             "build",
                             "view",
                             "1573",
-                            "--json",
+                            "--json"
                         )
                 }
             }
@@ -73,13 +73,13 @@ internal class TeamCityCliClientTest :
                         TeamCityCliClient.CommandResult(
                             exitCode = 0,
                             output = "downloaded",
-                            error = "",
+                            error = ""
                         )
                     }
                 }.whenever { client ->
                     client.downloadArtifacts(
                         buildId = 1573,
-                        outputDirectory = output,
+                        outputDirectory = output
                     )
                 }.then {
                     output.isDirectory shouldBe true
@@ -92,7 +92,7 @@ internal class TeamCityCliClientTest :
                             "download",
                             "1573",
                             "--output",
-                            output.absolutePath,
+                            output.absolutePath
                         )
                 }
             }
@@ -103,13 +103,13 @@ internal class TeamCityCliClientTest :
                         TeamCityCliClient.CommandResult(
                             exitCode = 1,
                             output = "",
-                            error = "authentication response was HTML",
+                            error = "authentication response was HTML"
                         )
                     }
                 }.whenever { client ->
                     runCatching {
                         client.readBuild(
-                            buildId = 1573,
+                            buildId = 1573
                         )
                     }.exceptionOrNull()
                 }.then { failure ->
@@ -128,11 +128,11 @@ internal class TeamCityCliClientTest :
                         "TEAMCITY_TOKEN" to "teamcity-token",
                         "TEAMCITY_HEADER_CF_ACCESS_TOKEN" to "cloudflare-token",
                         "TEAMCITY_HEADER_CF_ACCESS_CLIENT_ID" to null,
-                        "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null,
+                        "TEAMCITY_HEADER_CF_ACCESS_CLIENT_SECRET" to null
                     )
                 given {
                     TeamCityCliClient(
-                        environment = expectedEnvironment,
+                        environment = expectedEnvironment
                     ) { command, environment ->
                         commands += command
                         environments += environment
@@ -150,14 +150,14 @@ internal class TeamCityCliClientTest :
                                   }]
                                 }
                                 """.trimIndent(),
-                            error = "",
+                            error = ""
                         )
                     }
                 }.whenever { client ->
                     client.listRuns(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
                         branch = "main",
-                        status = "running",
+                        status = "running"
                     )
                 }.then { runs ->
                     runs shouldBe
@@ -168,8 +168,8 @@ internal class TeamCityCliClientTest :
                                 status = null,
                                 statusText = null,
                                 branchName = "main",
-                                webUrl = "https://teamcity.example/build/1580",
-                            ),
+                                webUrl = "https://teamcity.example/build/1580"
+                            )
                         )
                     commands.single() shouldBe
                         listOf(
@@ -186,7 +186,7 @@ internal class TeamCityCliClientTest :
                             "running",
                             "--limit",
                             "1",
-                            "--json",
+                            "--json"
                         )
                     environments.single() shouldBe expectedEnvironment
                 }
@@ -210,18 +210,18 @@ internal class TeamCityCliClientTest :
                                   "webUrl": "https://teamcity.example/build/1581"
                                 }
                                 """.trimIndent(),
-                            error = "",
+                            error = ""
                         )
                     }
                 }.whenever { client ->
                     client.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     ) to
                         client.watchRun(
                             buildId = 1581,
                             pollIntervalSeconds = 10,
-                            timeoutMinutes = 60,
+                            timeoutMinutes = 60
                         )
                 }.then { (started, finished) ->
                     started shouldBe
@@ -232,8 +232,8 @@ internal class TeamCityCliClientTest :
                                 status = "UNKNOWN",
                                 statusText = null,
                                 branchName = "main",
-                                webUrl = "https://teamcity.example/build/1581",
-                            ),
+                                webUrl = "https://teamcity.example/build/1581"
+                            )
                         )
                     finished.status shouldBe "SUCCESS"
                     commands shouldBe
@@ -247,7 +247,7 @@ internal class TeamCityCliClientTest :
                                 "WaterMyPlants_WaterMyPlantsFigmaSync",
                                 "--branch",
                                 "main",
-                                "--json",
+                                "--json"
                             ),
                             listOf(
                                 "teamcity",
@@ -260,8 +260,8 @@ internal class TeamCityCliClientTest :
                                 "10",
                                 "--timeout",
                                 "60m",
-                                "--json",
-                            ),
+                                "--json"
+                            )
                         )
                 }
             }
@@ -272,23 +272,23 @@ internal class TeamCityCliClientTest :
                         TeamCityCliClient.CommandResult(
                             exitCode = 1,
                             output = "",
-                            error = "not authorized",
+                            error = "not authorized"
                         )
                     }
                 }.whenever { client ->
                     client.startRun(
                         buildTypeId = "WaterMyPlants_WaterMyPlantsFigmaSync",
-                        branch = "main",
+                        branch = "main"
                     )
                 }.then { result ->
                     result shouldBe
                         Err(
                             TeamCityRunStartError.CommandFailed(
                                 exitCode = 1,
-                                detail = "not authorized",
-                            ),
+                                detail = "not authorized"
+                            )
                         )
                 }
             }
-        },
+        }
     )

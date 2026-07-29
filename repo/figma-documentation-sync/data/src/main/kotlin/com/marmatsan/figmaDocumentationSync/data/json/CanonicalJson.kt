@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonObject
 object CanonicalJson {
     /** Serializes [value] with deterministic object-key ordering. */
     fun stringify(
-        value: JsonElement,
+        value: JsonElement
     ): String =
         when (value) {
             is JsonArray -> {
@@ -16,7 +16,7 @@ object CanonicalJson {
                     prefix = "[",
                     postfix = "]",
                     separator = ",",
-                    transform = ::stringify,
+                    transform = ::stringify
                 )
             }
 
@@ -24,10 +24,10 @@ object CanonicalJson {
                 value.keys.sorted().joinToString(
                     prefix = "{",
                     postfix = "}",
-                    separator = ",",
+                    separator = ","
                 ) { key ->
                     "${kotlinx.serialization.json.Json.encodeToString(key)}:${stringify(
-                        value = value.getValue(key),
+                        value = value.getValue(key)
                     )}"
                 }
             }

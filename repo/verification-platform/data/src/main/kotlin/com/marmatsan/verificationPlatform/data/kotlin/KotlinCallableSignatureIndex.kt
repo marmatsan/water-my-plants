@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -20,7 +19,7 @@ import java.io.File
 /** Repository Kotlin callables whose source parameter names are stable and available. */
 internal class KotlinCallableSignatureIndex private constructor(
     private val signaturesByName: Map<String, List<KotlinCallableSignature>>,
-    private val functionValues: Set<KotlinFunctionValue>,
+    private val functionValues: Set<KotlinFunctionValue>
 ) {
     /**
      * Resolves the parameter name of every positional argument when all viable
@@ -29,11 +28,11 @@ internal class KotlinCallableSignatureIndex private constructor(
     fun positionalParameterNames(
         sourceIdentifier: String,
         callableName: String,
-        arguments: List<KotlinCallArgument>,
+        arguments: List<KotlinCallArgument>
     ): List<String?>? {
         if (KotlinFunctionValue(
                 sourceIdentifier = sourceIdentifier,
-                callableName = callableName,
+                callableName = callableName
             ) in functionValues
         ) {
             return null
@@ -44,7 +43,7 @@ internal class KotlinCallableSignatureIndex private constructor(
                 .filter { signature -> signature.sourceIdentifier == sourceIdentifier }
                 .mapNotNull { signature ->
                     signature.map(
-                        arguments = arguments,
+                        arguments = arguments
                     )
                 }.distinct()
         return mappings.singleOrNull()
@@ -55,12 +54,12 @@ internal class KotlinCallableSignatureIndex private constructor(
         val EMPTY =
             KotlinCallableSignatureIndex(
                 signaturesByName = emptyMap(),
-                functionValues = emptySet(),
+                functionValues = emptySet()
             )
 
         /** Builds a deterministic callable index from the supplied Kotlin [sourceFiles]. */
         fun from(
-            sourceFiles: List<File>,
+            sourceFiles: List<File>
         ): KotlinCallableSignatureIndex {
             if (sourceFiles.isEmpty()) {
                 return EMPTY
@@ -74,10 +73,10 @@ internal class KotlinCallableSignatureIndex private constructor(
                             RuleProvider {
                                 KotlinCallableSignatureCollectorRule(
                                     signatures = signatures,
-                                    functionValues = functionValues,
+                                    functionValues = functionValues
                                 )
-                            },
-                        ),
+                            }
+                        )
                 )
             sourceFiles.forEach { sourceFile ->
                 engine.lint(Code.fromFile(sourceFile)) {
@@ -86,7 +85,7 @@ internal class KotlinCallableSignatureIndex private constructor(
             }
             return KotlinCallableSignatureIndex(
                 signaturesByName = signatures.groupBy(KotlinCallableSignature::callableName),
-                functionValues = functionValues,
+                functionValues = functionValues
             )
         }
     }
@@ -98,7 +97,7 @@ internal class KotlinCallableSignatureIndex private constructor(
  * @property argumentName explicit source name, or `null` when the argument is positional.
  */
 internal data class KotlinCallArgument(
-    val argumentName: String?,
+    val argumentName: String?
 )
 
 private data class KotlinCallableSignature(
@@ -106,10 +105,10 @@ private data class KotlinCallableSignature(
     val callableName: String,
     val parameterNames: List<String>,
     val requiredParameterNames: Set<String>,
-    val varargParameterIndex: Int?,
+    val varargParameterIndex: Int?
 ) {
     fun map(
-        arguments: List<KotlinCallArgument>,
+        arguments: List<KotlinCallArgument>
     ): List<String?>? {
         if (arguments.size > parameterNames.size && varargParameterIndex == null) {
             return null
@@ -122,7 +121,7 @@ private data class KotlinCallableSignature(
             if (existingName != null) {
                 if (existingName !in parameterNames ||
                     !assignedNames.add(
-                        element = existingName,
+                        element = existingName
                     )
                 ) {
                     return null
@@ -132,7 +131,7 @@ private data class KotlinCallableSignature(
             }
             val parameterIndex =
                 positionalIndex.coerceAtMost(
-                    parameterNames.lastIndex,
+                    parameterNames.lastIndex
                 )
             if (
                 parameterIndex < 0 ||
@@ -145,7 +144,7 @@ private data class KotlinCallableSignature(
             }
             val parameterName = parameterNames[parameterIndex]
             if (!assignedNames.add(
-                    element = parameterName,
+                    element = parameterName
                 )
             ) {
                 return null
@@ -161,25 +160,20 @@ private data class KotlinCallableSignature(
 
 private data class KotlinFunctionValue(
     val sourceIdentifier: String,
-    val callableName: String,
+    val callableName: String
 )
 
 private class KotlinCallableSignatureCollectorRule(
     private val signatures: MutableSet<KotlinCallableSignature>,
-    private val functionValues: MutableSet<KotlinFunctionValue>,
+    private val functionValues: MutableSet<KotlinFunctionValue>
 ) : Rule(
         ruleId = RuleId("repository-verification:kotlin-callable-signature-collector"),
-        about =
-            About(
-                maintainer = "Repository Verification",
-                repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-                issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
-            ),
+        about = RepositoryKotlinRuleMetadata.about
     ),
     RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision
     ) {
         when (val declaration = node.psi) {
             is KtNamedFunction -> {
@@ -187,7 +181,7 @@ private class KotlinCallableSignatureCollectorRule(
                     signatures +=
                         declaration.valueParameters.toSignature(
                             sourceIdentifier = declaration.sourceIdentifier(),
-                            callableName = callableName,
+                            callableName = callableName
                         )
                 }
             }
@@ -197,7 +191,7 @@ private class KotlinCallableSignatureCollectorRule(
                     signatures +=
                         declaration.primaryConstructorParameters.toSignature(
                             sourceIdentifier = declaration.sourceIdentifier(),
-                            callableName = callableName,
+                            callableName = callableName
                         )
                 }
             }
@@ -211,7 +205,7 @@ private class KotlinCallableSignatureCollectorRule(
                         signatures +=
                             declaration.valueParameters.toSignature(
                                 sourceIdentifier = declaration.sourceIdentifier(),
-                                callableName = callableName,
+                                callableName = callableName
                             )
                     }
             }
@@ -222,7 +216,7 @@ private class KotlinCallableSignatureCollectorRule(
                         functionValues +=
                             KotlinFunctionValue(
                                 sourceIdentifier = declaration.sourceIdentifier(),
-                                callableName = callableName,
+                                callableName = callableName
                             )
                     }
                 }
@@ -232,14 +226,14 @@ private class KotlinCallableSignatureCollectorRule(
                 if (
                     declaration.typeReference?.text.isFunctionType() ||
                     declaration.initializer?.text?.trimStart()?.startsWith(
-                        prefix = "{",
+                        prefix = "{"
                     ) == true
                 ) {
                     declaration.name?.let { callableName ->
                         functionValues +=
                             KotlinFunctionValue(
                                 sourceIdentifier = declaration.sourceIdentifier(),
-                                callableName = callableName,
+                                callableName = callableName
                             )
                     }
                 }
@@ -249,7 +243,7 @@ private class KotlinCallableSignatureCollectorRule(
 
     private fun List<KtParameter>.toSignature(
         sourceIdentifier: String,
-        callableName: String,
+        callableName: String
     ): KotlinCallableSignature =
         KotlinCallableSignature(
             sourceIdentifier = sourceIdentifier,
@@ -260,12 +254,12 @@ private class KotlinCallableSignatureCollectorRule(
                     parameter.defaultValue == null && !parameter.hasModifier(KtTokens.VARARG_KEYWORD)
                 }.mapNotNullTo(
                     mutableSetOf(),
-                    KtParameter::getName,
+                    KtParameter::getName
                 ),
             varargParameterIndex =
                 indexOfFirst { parameter ->
                     parameter.hasModifier(KtTokens.VARARG_KEYWORD)
-                }.takeIf { index -> index >= 0 },
+                }.takeIf { index -> index >= 0 }
         )
 
     private fun String?.isFunctionType(): Boolean = this?.contains("->") == true

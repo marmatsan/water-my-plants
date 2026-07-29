@@ -16,7 +16,7 @@ class TeamCityCiPlanParameters {
      * @throws IllegalArgumentException when a selected task is not allow-listed.
      */
     fun create(
-        plan: CiPlan,
+        plan: CiPlan
     ): Map<String, String> =
         linkedMapOf(
             "ci.plan.schemaVersion" to plan.schemaVersion.toString(),
@@ -30,13 +30,13 @@ class TeamCityCiPlanParameters {
             "ci.plan.affectedModules" to plan.affectedModules.joinToString(","),
             "ci.plan.gradleTasks" to
                 validatedGradleTasks(
-                    tasks = plan.requiredGradleTasks(),
-                ),
+                    tasks = plan.requiredGradleTasks()
+                )
         ).apply {
             plan.verificationUnits.forEach { unit ->
                 put(
                     "ci.unit.${unit.id.externalName()}.required",
-                    unit.required.toString(),
+                    unit.required.toString()
                 )
             }
         }
@@ -72,7 +72,7 @@ class TeamCityCiPlanParameters {
         }
 
     private fun validatedGradleTasks(
-        tasks: List<String>,
+        tasks: List<String>
     ): String {
         require(tasks.all(GRADLE_TASK::matches)) {
             "The CI plan contains a Gradle task outside the TeamCity allow-list."
@@ -83,7 +83,7 @@ class TeamCityCiPlanParameters {
     private companion object {
         val GRADLE_TASK =
             Regex(
-                "^(?:(?::[A-Za-z0-9_.-]+)+:)?[A-Za-z][A-Za-z0-9_-]*$",
+                "^(?:(?::[A-Za-z0-9_.-]+)+:)?[A-Za-z][A-Za-z0-9_-]*$"
             )
     }
 }

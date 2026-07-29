@@ -17,7 +17,7 @@ import java.time.ZoneOffset
  * Emits a non-blocking warning when Windows CI runtime validation is stale.
  */
 @DisableCachingByDefault(
-    because = "The warning depends on the current UTC date",
+    because = "The warning depends on the current UTC date"
 )
 abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
     /** Optional versioned Windows runtime contract whose validation date is checked. */
@@ -36,14 +36,14 @@ abstract class CheckCiWindowsRuntimeFreshnessTask : DefaultTask() {
                 .ciWindowsRuntimeFreshnessChecker
                 .check(
                     runtimeFile = runtimeFile,
-                    currentDate = LocalDate.now(ZoneOffset.UTC),
+                    currentDate = LocalDate.now(ZoneOffset.UTC)
                 )
 
         if (result.warningRequired) {
             logger.warn(
                 "Windows CI runtime was last validated on ${result.lastValidatedOn}. " +
                     "Validate docs/ci/windows-runtime.yaml against the installed services " +
-                    "and update validation.lastValidatedOn.",
+                    "and update validation.lastValidatedOn."
             )
         } else {
             logger.lifecycle("Windows CI runtime validation is current until ${result.warningDate}.")

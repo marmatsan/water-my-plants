@@ -22,7 +22,7 @@ class DocumentationValidator internal constructor(
     private val typedRules: List<TypedDocumentationRule>,
     private val linkValidator: DocumentationLinkValidator,
     private val coverageValidator: DocumentationCoverageValidator,
-    private val paths: DocumentationPathResolver,
+    private val paths: DocumentationPathResolver
 ) {
     constructor() : this(
         classifier = DocumentationTypeClassifier(),
@@ -30,11 +30,11 @@ class DocumentationValidator internal constructor(
         typedRules =
             listOf(
                 DocumentationMetadataValidator(),
-                DocumentationHeadingValidator(),
+                DocumentationHeadingValidator()
             ),
         linkValidator = DocumentationLinkValidator(),
         coverageValidator = DocumentationCoverageValidator(),
-        paths = DocumentationPathResolver(),
+        paths = DocumentationPathResolver()
     )
 
     /**
@@ -50,7 +50,7 @@ class DocumentationValidator internal constructor(
         snapshot: DocumentationRepositorySnapshot,
         coverageRules: List<DocumentationCoverageRule> = emptyList(),
         changedPaths: List<String>? = null,
-        currentDate: LocalDate = LocalDate.now(),
+        currentDate: LocalDate = LocalDate.now()
     ): DocumentationValidationResult {
         val findings = DocumentationFindings()
         val validatedDocuments = mutableListOf<String>()
@@ -75,12 +75,12 @@ class DocumentationValidator internal constructor(
                             expectedType = expectedType,
                             frontmatter = frontmatter,
                             repositoryEntries = repositoryEntries,
-                            currentDate = currentDate,
+                            currentDate = currentDate
                         )
                     typedRules.forEach { rule ->
                         rule.validate(
                             context,
-                            findings,
+                            findings
                         )
                     }
                 }
@@ -89,7 +89,7 @@ class DocumentationValidator internal constructor(
                 path,
                 document.content,
                 repositoryEntries,
-                findings,
+                findings
             )
         }
 
@@ -102,9 +102,9 @@ class DocumentationValidator internal constructor(
                     ?.let { paths ->
                         coverageValidator.validate(
                             paths,
-                            coverageRules,
+                            coverageRules
                         )
-                    }.orEmpty(),
+                    }.orEmpty()
         )
     }
 }

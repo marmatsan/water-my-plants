@@ -11,7 +11,7 @@ internal class FigmaDesignModelIncludedBuildSourceFactory {
         modelNames: List<String>,
         modulePathPrefixes: List<String>,
         publishesCatalogs: List<Boolean>,
-        publishesConventionPlugins: List<Boolean>,
+        publishesConventionPlugins: List<Boolean>
     ): List<FigmaDesignModelIncludedBuildSource> {
         val inputSizes =
             mapOf(
@@ -20,7 +20,7 @@ internal class FigmaDesignModelIncludedBuildSourceFactory {
                 "modelNames" to modelNames.size,
                 "modulePathPrefixes" to modulePathPrefixes.size,
                 "publishesCatalogs" to publishesCatalogs.size,
-                "publishesConventionPlugins" to publishesConventionPlugins.size,
+                "publishesConventionPlugins" to publishesConventionPlugins.size
             )
         require(inputSizes.values.distinct().size == 1) {
             "Included-build task inputs must have matching sizes: " +
@@ -34,7 +34,7 @@ internal class FigmaDesignModelIncludedBuildSourceFactory {
                 rootDirectory = File(rootDirectoryPaths[index]),
                 modulePathPrefix = modulePathPrefixes[index],
                 publishesCatalogs = publishesCatalogs[index],
-                publishesConventionPlugins = publishesConventionPlugins[index],
+                publishesConventionPlugins = publishesConventionPlugins[index]
             )
         }
     }

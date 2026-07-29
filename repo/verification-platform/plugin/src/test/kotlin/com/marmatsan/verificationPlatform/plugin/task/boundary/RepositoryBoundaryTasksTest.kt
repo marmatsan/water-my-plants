@@ -15,14 +15,14 @@ class RepositoryBoundaryTasksTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "repository-boundary-tasks",
+                    prefix = "repository-boundary-tasks"
                 )
 
             test("accepts local version ownership and independent settings") {
                 given {
                     includedBuildVersionsFixture(
                         projectDirectory = temporaryDirectory.resolve("local-versions"),
-                        versionsByBuild = mapOf("tooling" to "kotlinVersion=2.4.0"),
+                        versionsByBuild = mapOf("tooling" to "kotlinVersion=2.4.0")
                     )
                 }.whenever { task ->
                     shouldNotThrowAny(task::checkIncludedBuildVersions)
@@ -36,8 +36,8 @@ class RepositoryBoundaryTasksTest :
                         versionsByBuild = mapOf("tooling" to "kotlinVersion=2.4.0"),
                         settingsByBuild =
                             mapOf(
-                                "tooling" to "val versions = file(\"../other/versions.properties\")",
-                            ),
+                                "tooling" to "val versions = file(\"../other/versions.properties\")"
+                            )
                     )
                 }.whenever { task ->
                     shouldThrow<IllegalStateException>(task::checkIncludedBuildVersions)
@@ -52,9 +52,9 @@ class RepositoryBoundaryTasksTest :
                             mapOf(
                                 "first" to "kotlinResultLibraryVersion=2.3.1",
                                 "second" to "kotlinResultLibraryVersion=2.3.1",
-                                "non-consumer" to "kotlinVersion=2.4.0",
+                                "non-consumer" to "kotlinVersion=2.4.0"
                             ),
-                        alignedVersions = listOf("kotlinResultLibraryVersion"),
+                        alignedVersions = listOf("kotlinResultLibraryVersion")
                     )
                 }.whenever { task ->
                     shouldNotThrowAny(task::checkIncludedBuildVersions)
@@ -68,9 +68,9 @@ class RepositoryBoundaryTasksTest :
                         versionsByBuild =
                             mapOf(
                                 "first" to "kotlinResultLibraryVersion=2.3.1",
-                                "second" to "kotlinResultLibraryVersion=2.4.0",
+                                "second" to "kotlinResultLibraryVersion=2.4.0"
                             ),
-                        alignedVersions = listOf("kotlinResultLibraryVersion"),
+                        alignedVersions = listOf("kotlinResultLibraryVersion")
                     )
                 }.whenever { task ->
                     shouldThrow<IllegalStateException>(task::checkIncludedBuildVersions)
@@ -84,7 +84,7 @@ class RepositoryBoundaryTasksTest :
                 given {
                     val project =
                         temporaryProject(
-                            projectDirectory = temporaryDirectory.resolve("forbidden-references"),
+                            projectDirectory = temporaryDirectory.resolve("forbidden-references")
                         )
                     val scope = project.projectDir.resolve("tooling").apply(File::mkdirs)
                     val settings = scope.resolve("settings.gradle.kts")
@@ -97,35 +97,35 @@ class RepositoryBoundaryTasksTest :
                     project.tasks
                         .register(
                             "checkBoundaries",
-                            CheckModuleBoundariesTask::class.java,
+                            CheckModuleBoundariesTask::class.java
                         ).get()
                         .apply {
                             repositoryRoot.set(project.layout.projectDirectory)
                             reusableScopePaths.set(listOf("tooling"))
                             forbiddenReferencesByScope.set(
-                                mapOf("tooling" to "com.example.product"),
+                                mapOf("tooling" to "com.example.product")
                             )
                             inspectedFiles.from(
                                 settings,
-                                source,
+                                source
                             )
                         }
                 }.whenever { task ->
                     shouldThrow<IllegalStateException>(task::checkModuleBoundaries)
                 }.then { Unit }
             }
-        },
+        }
     )
 
 private fun includedBuildVersionsFixture(
     projectDirectory: File,
     versionsByBuild: Map<String, String>,
     settingsByBuild: Map<String, String> = emptyMap(),
-    alignedVersions: List<String> = emptyList(),
+    alignedVersions: List<String> = emptyList()
 ): CheckIncludedBuildVersionsTask {
     val project =
         temporaryProject(
-            projectDirectory = projectDirectory,
+            projectDirectory = projectDirectory
         )
     val configurationFiles =
         versionsByBuild.flatMap { (relativePath, versions) ->
@@ -135,18 +135,18 @@ private fun includedBuildVersionsFixture(
                 build.resolve("settings.gradle.kts").apply {
                     writeText(
                         settingsByBuild[relativePath]
-                            ?: "val versions = file(\"versions.properties\")",
+                            ?: "val versions = file(\"versions.properties\")"
                     )
                 }
             listOf(
                 settingsFile,
-                versionsFile,
+                versionsFile
             )
         }
     return project.tasks
         .register(
             "checkVersions",
-            CheckIncludedBuildVersionsTask::class.java,
+            CheckIncludedBuildVersionsTask::class.java
         ).get()
         .apply {
             repositoryRoot.set(project.layout.projectDirectory)
@@ -157,7 +157,7 @@ private fun includedBuildVersionsFixture(
 }
 
 private fun temporaryProject(
-    projectDirectory: File,
+    projectDirectory: File
 ): Project =
     ProjectBuilder
         .builder()

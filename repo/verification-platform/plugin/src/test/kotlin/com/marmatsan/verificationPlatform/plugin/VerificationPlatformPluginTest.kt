@@ -33,7 +33,7 @@ internal class VerificationPlatformPluginTest :
                             "checkTeamCityDsl",
                             "prepareTeamCityCiPlan",
                             "generateCiTopologyPreview",
-                            "runTeamCityInfrastructureHealth",
+                            "runTeamCityInfrastructureHealth"
                         )
                     project.tasks.names shouldContainAll verificationTaskNames
                     verificationTaskNames.forEach { taskName ->
@@ -61,5 +61,5 @@ internal class VerificationPlatformPluginTest :
                     failure.message shouldContain "must be applied to the root project"
                 }
             }
-        },
+        }
     )
