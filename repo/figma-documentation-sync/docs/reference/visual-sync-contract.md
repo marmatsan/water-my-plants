@@ -4,7 +4,7 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-27
+last-reviewed: 2026-07-29
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/tools/src
@@ -531,8 +531,16 @@ that included build belong to that included-build target, not to
 
 For each section:
 
-- Match existing tree nodes by label inside the section. Labels must be unique
-  per section until stable Figma path metadata is introduced.
+- Identify every managed `.tree node` by its complete catalog path, serialized
+  as a JSON string in the `treeNodePath` shared plugin-data key under the
+  configured metadata namespace. A visible label is presentation, not identity;
+  paths such as `com/android` and `com/marmatsan/android` may therefore coexist.
+- Migrate an untagged legacy node in place only when its visible label maps to
+  exactly one expected path. If a legacy label or stored path is ambiguous, do
+  not guess: create the required path-addressed nodes and remove the unresolved
+  legacy nodes through the normal stale-node cleanup.
+- Use the same complete paths for lookup, layout, parent-child connector
+  resolution, root-scoped mutation boundaries, and stale-node removal.
 - Update exposed component properties for library groups, plugin ids, plugin
   versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the
@@ -814,7 +822,10 @@ Figma UML documentation page:
 - `.Header` links: the visible `Link` property must list relevant repository
   files and each filename must hyperlink to its GitHub `main` branch URL.
 
-## Future Improvement
+## Catalog Identity Compatibility
 
-The next visual sync phase is to introduce stable Figma path metadata so
-duplicate labels can be reconciled safely.
+Path metadata is a forward-compatible identity boundary for catalog evolution.
+New writers must preserve `treeNodePath`; changing or removing the key requires
+an explicit migration because labels are not guaranteed to be unique. The
+conservative legacy fallback is intentionally limited to one untagged node and
+one expected path for the same label.

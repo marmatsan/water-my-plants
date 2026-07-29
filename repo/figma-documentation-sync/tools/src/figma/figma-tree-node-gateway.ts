@@ -12,34 +12,13 @@ import {
 } from "../domain/catalog/library-catalog-entries";
 import { updateNamedTextNodes } from "./figma-text-gateway";
 import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
-
-export function collectTreeNodeInstancesByLabel(section, type, traversalRoots = [section]) {
-  const instances = traversalRoots.flatMap((root) =>
-    root.findAllWithCriteria({ types: ["INSTANCE"] })
-  )
-    .filter((instance) => isTreeNodeInstance(instance, type));
-  const instancesByLabel = new Map();
-
-  for (const instance of instances) {
-    const label = type === "Library"
-      ? getComponentPropertyValue(instance, TREE_NODE_PROPS.libraryGroup)
-      : getComponentPropertyValue(instance, TREE_NODE_PROPS.pluginId);
-
-    if (!label || label === "Library group" || label === "Plugin ID") continue;
-    if (instancesByLabel.has(label)) {
-      throw new Error(`Duplicate '${label}' ${type} tree node instances were found in section '${section.name}'.`);
-    }
-    instancesByLabel.set(label, instance);
-  }
-
-  return instancesByLabel;
-}
+import { catalogNodePathKey, syncTreeNodePath } from "./figma-catalog-node-identity";
 
 export async function createMissingTreeNode(
   target,
   section,
   node: FlattenedCatalogNode,
-  instancesByLabel,
+  instancesByPath,
   componentCache,
   mutatedNodeIds
 ) {
@@ -53,7 +32,7 @@ export async function createMissingTreeNode(
   instance.visible = true;
   instance.name = ".tree node";
 
-  const position = nextTreeNodePosition(container, node, instancesByLabel);
+  const position = nextTreeNodePosition(container, node, instancesByPath);
   instance.x = position.x;
   instance.y = position.y;
 
@@ -62,6 +41,7 @@ export async function createMissingTreeNode(
   } else {
     await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
   }
+  syncTreeNodePath(instance, node.path, mutatedNodeIds);
 
   const group = syncTreeNodeGroup(instance);
   mutatedNodeIds.push(group.id);
@@ -252,13 +232,12 @@ function isTreeNodeInstance(instance, type) {
     getComponentPropertyValue(instance, TREE_NODE_PROPS.type) === type;
 }
 
-function nextTreeNodePosition(container, node, instancesByLabel) {
+function nextTreeNodePosition(container, node, instancesByPath) {
   if (node.parentPath.length > 0) {
-    const parentLabel = node.parentPath[node.parentPath.length - 1];
-    const parentInstance = instancesByLabel.get(parentLabel);
+    const parentInstance = instancesByPath.get(catalogNodePathKey(node.parentPath));
     if (parentInstance) {
       const parentLayoutNode = treeNodeLayoutNode(parentInstance);
-      const siblingNodes = [...instancesByLabel.values()]
+      const siblingNodes = [...instancesByPath.values()]
         .map((instance) => treeNodeLayoutNode(instance))
         .filter((layoutNode) => layoutNode.parent?.id === container.id && layoutNode.id !== parentLayoutNode.id)
         .sort((first, second) => first.y - second.y || first.x - second.x);
@@ -274,7 +253,7 @@ function nextTreeNodePosition(container, node, instancesByLabel) {
     }
   }
 
-  const layoutNodes = [...instancesByLabel.values()]
+  const layoutNodes = [...instancesByPath.values()]
     .map((instance) => treeNodeLayoutNode(instance))
     .filter((layoutNode) => layoutNode.parent?.id === container.id)
     .sort((first, second) => first.y - second.y || first.x - second.x);

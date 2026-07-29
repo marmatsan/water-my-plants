@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { requireUniquePaths } from "../src/domain/catalog/flatten-catalog-nodes";
 import {
   buildPartialCatalogSyncScope,
   catalogTraversalRoots,
@@ -12,10 +13,30 @@ import {
   stackChildSectionsFromPadding,
   unlockSectionTreeForMutation,
 } from "../src/figma/figma-node-gateway";
-import { collectTreeNodeInstancesByLabel } from "../src/figma/figma-tree-node-gateway";
+import {
+  catalogNodePathKey,
+  collectTreeNodeInstancesByPath,
+} from "../src/figma/figma-catalog-node-identity";
 import { collectTreeConnectors } from "../src/figma/figma-connector-gateway";
 
 const target = { name: "waterMyPlants.libraries" };
+
+test("catalog validation accepts duplicate labels when their full paths differ", () => {
+  assert.doesNotThrow(() => requireUniquePaths(target, [
+    catalogNode("android", ["com"]),
+    catalogNode("android", ["com", "marmatsan"]),
+  ]));
+});
+
+test("catalog validation rejects duplicate full paths", () => {
+  assert.throws(
+    () => requireUniquePaths(target, [
+      catalogNode("android", ["com"]),
+      catalogNode("android", ["com"]),
+    ]),
+    /duplicate catalog paths \(com\/android\)/
+  );
+});
 
 test("partial catalog traversal returns only requested root sections", () => {
   const section = parentSection([
@@ -42,11 +63,60 @@ test("partial instance collection never traverses sibling root sections", () => 
   const comRoot = searchableRoot("com", [libraryTreeNodeInstance("com")]);
   const section = parentSection([comRoot, ioRoot]);
 
-  const instances = collectTreeNodeInstancesByLabel(section, "Library", [ioRoot]);
+  const mutatedNodeIds = [];
+  const instances = collectTreeNodeInstancesByPath(
+    section,
+    "Library",
+    [catalogNode("io")],
+    [ioRoot],
+    mutatedNodeIds
+  );
 
-  assert.deepEqual([...instances.keys()], ["io"]);
+  assert.deepEqual([...instances.keys()], [catalogNodePathKey(["io"])]);
+  assert.deepEqual(mutatedNodeIds, ["io-id"]);
   assert.equal(ioRoot.searchCount, 1);
   assert.equal(comRoot.searchCount, 0);
+});
+
+test("catalog node identity distinguishes duplicate labels by their stable full paths", () => {
+  const directAndroid = libraryTreeNodeInstance("android", ["com", "android"]);
+  const marmatsanAndroid = libraryTreeNodeInstance("android", ["com", "marmatsan", "android"]);
+  const root = searchableRoot("com", [directAndroid, marmatsanAndroid]);
+
+  const instances = collectTreeNodeInstancesByPath(
+    parentSection([root]),
+    "Library",
+    [
+      catalogNode("android", ["com"]),
+      catalogNode("android", ["com", "marmatsan"]),
+    ],
+    [root]
+  );
+
+  assert.equal(instances.get(catalogNodePathKey(["com", "android"])), directAndroid);
+  assert.equal(instances.get(catalogNodePathKey(["com", "marmatsan", "android"])), marmatsanAndroid);
+});
+
+test("ambiguous legacy duplicate labels remain unresolved instead of being matched arbitrarily", () => {
+  const firstAndroid = libraryTreeNodeInstance("android");
+  const secondAndroid = libraryTreeNodeInstance("android");
+  secondAndroid.id = "android-2-id";
+  const root = searchableRoot("com", [firstAndroid, secondAndroid]);
+  const mutatedNodeIds = [];
+
+  const instances = collectTreeNodeInstancesByPath(
+    parentSection([root]),
+    "Library",
+    [
+      catalogNode("android", ["com"]),
+      catalogNode("android", ["com", "marmatsan"]),
+    ],
+    [root],
+    mutatedNodeIds
+  );
+
+  assert.deepEqual([...instances.keys()].sort(), ["unresolved:android-2-id", "unresolved:android-id"]);
+  assert.deepEqual(mutatedNodeIds, []);
 });
 
 test("partial connector collection never traverses the catalog page", () => {
@@ -74,11 +144,11 @@ test("partial connector collection never traverses the catalog page", () => {
 });
 
 test("partial catalog scope reaches stale descendants through managed connectors", () => {
-  const instancesByLabel = new Map([
-    ["androidx", instance("androidx-id")],
-    ["legacy-androidx", instance("legacy-androidx-id")],
-    ["com", instance("com-id")],
-    ["legacy-com", instance("legacy-com-id")],
+  const instancesByPath = new Map([
+    [catalogNodePathKey(["androidx"]), instance("androidx-id")],
+    [catalogNodePathKey(["androidx", "legacy-androidx"]), instance("legacy-androidx-id")],
+    [catalogNodePathKey(["com"]), instance("com-id")],
+    [catalogNodePathKey(["com", "legacy-com"]), instance("legacy-com-id")],
   ]);
   const connectors = [
     connector("androidx-legacy-edge", "androidx-id", "legacy-androidx-id"),
@@ -88,19 +158,22 @@ test("partial catalog scope reaches stale descendants through managed connectors
   const scope = buildPartialCatalogSyncScope({
     expectedNodes: [catalogNode("androidx")],
     rootLabels: ["androidx"],
-    instancesByLabel,
+    instancesByPath,
     connectors,
   });
 
-  assert.deepEqual([...scope.labels].sort(), ["androidx", "legacy-androidx"]);
+  assert.deepEqual(
+    [...scope.paths].sort(),
+    [catalogNodePathKey(["androidx"]), catalogNodePathKey(["androidx", "legacy-androidx"])].sort()
+  );
 });
 
 test("partial stale cleanup removes only scoped stale nodes and connectors", () => {
-  const instancesByLabel = new Map([
-    ["androidx", instance("androidx-id")],
-    ["legacy-androidx", instance("legacy-androidx-id")],
-    ["com", instance("com-id")],
-    ["legacy-com", instance("legacy-com-id")],
+  const instancesByPath = new Map([
+    [catalogNodePathKey(["androidx"]), instance("androidx-id")],
+    [catalogNodePathKey(["androidx", "legacy-androidx"]), instance("legacy-androidx-id")],
+    [catalogNodePathKey(["com"]), instance("com-id")],
+    [catalogNodePathKey(["com", "legacy-com"]), instance("legacy-com-id")],
   ]);
   const connectors = [
     connector("androidx-legacy-edge", "androidx-id", "legacy-androidx-id"),
@@ -109,31 +182,31 @@ test("partial stale cleanup removes only scoped stale nodes and connectors", () 
   const scope = buildPartialCatalogSyncScope({
     expectedNodes: [catalogNode("androidx")],
     rootLabels: ["androidx"],
-    instancesByLabel,
+    instancesByPath,
     connectors,
   });
 
   const result = removeStaleCatalogNodes(
     target,
     [catalogNode("androidx")],
-    instancesByLabel,
+    instancesByPath,
     connectors,
-    scope.labels
+    scope.paths
   );
 
-  assert.deepEqual(result.removedCatalogNodes, ["waterMyPlants.libraries/legacy-androidx"]);
+  assert.deepEqual(result.removedCatalogNodes, ["waterMyPlants.libraries/androidx/legacy-androidx"]);
   assert.deepEqual(result.removedCatalogConnectors, ["waterMyPlants.libraries/androidx-legacy-edge"]);
-  assert.equal(instancesByLabel.has("androidx"), true);
-  assert.equal(instancesByLabel.has("com"), true);
-  assert.equal(instancesByLabel.has("legacy-com"), true);
+  assert.equal(instancesByPath.has(catalogNodePathKey(["androidx"])), true);
+  assert.equal(instancesByPath.has(catalogNodePathKey(["com"])), true);
+  assert.equal(instancesByPath.has(catalogNodePathKey(["com", "legacy-com"])), true);
   assert.equal(connectors[0].removed, true);
   assert.equal(connectors[1].removed, false);
 });
 
 test("partial scope includes expected missing descendants even before Figma nodes exist", () => {
-  const instancesByLabel = new Map([
-    ["androidx", instance("androidx-id")],
-    ["com", instance("com-id")],
+  const instancesByPath = new Map([
+    [catalogNodePathKey(["androidx"]), instance("androidx-id")],
+    [catalogNodePathKey(["com"]), instance("com-id")],
   ]);
 
   const scope = buildPartialCatalogSyncScope({
@@ -142,13 +215,13 @@ test("partial scope includes expected missing descendants even before Figma node
       catalogNode("activity", ["androidx"]),
     ],
     rootLabels: ["androidx"],
-    instancesByLabel,
+    instancesByPath,
     connectors: [],
   });
 
-  assert.equal(scope.labels.has("androidx"), true);
-  assert.equal(scope.labels.has("activity"), true);
-  assert.equal(scope.labels.has("com"), false);
+  assert.equal(scope.paths.has(catalogNodePathKey(["androidx"])), true);
+  assert.equal(scope.paths.has(catalogNodePathKey(["androidx", "activity"])), true);
+  assert.equal(scope.paths.has(catalogNodePathKey(["com"])), false);
 });
 
 test("stale empty root section cleanup removes roots that are no longer in the model", () => {
@@ -403,12 +476,20 @@ function lockableSection(name: string, children = []) {
   return section;
 }
 
-function libraryTreeNodeInstance(label: string) {
+function libraryTreeNodeInstance(label: string, path?: string[]) {
+  let nodePath = path ? catalogNodePathKey(path) : "";
   return {
+    id: `${label}-id`,
     name: ".tree node",
     componentProperties: {
       Type: { value: "Library" },
       "Library group#1345:12": { value: label },
+    },
+    getSharedPluginData(_namespace: string, key: string) {
+      return key === "treeNodePath" ? nodePath : "";
+    },
+    setSharedPluginData(_namespace: string, key: string, value: string) {
+      if (key === "treeNodePath") nodePath = value;
     },
   };
 }

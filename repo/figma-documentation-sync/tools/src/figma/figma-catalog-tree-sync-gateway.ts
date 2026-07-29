@@ -1,5 +1,5 @@
 import { CATALOG_TREE_TARGETS, METADATA_NAMESPACE } from "@figma-documentation-sync/project-config";
-import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
+import { flattenCatalogNodes, requireUniquePaths } from "../domain/catalog/flatten-catalog-nodes";
 import type { DesignModel } from "../domain/design-model";
 import type { CatalogTreeSyncGateway, CatalogTreeSyncOptions } from "../ports/sync-gateways";
 import {
@@ -30,7 +30,11 @@ import {
   unlockSectionTreeForMutation,
 } from "./figma-node-gateway";
 import {
-  collectTreeNodeInstancesByLabel,
+  catalogNodePathKey,
+  collectTreeNodeInstancesByPath,
+  syncTreeNodePath,
+} from "./figma-catalog-node-identity";
+import {
   createMissingTreeNode,
   updateLibraryTreeNode,
   updatePluginTreeNode,
@@ -90,7 +94,7 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
     const scopedRootLabels = scopedModelNodes.map((node) => rootLabel(target, node));
     const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
-    requireUniqueLabels(target, expectedNodes);
+    requireUniquePaths(target, expectedNodes);
 
     const section = await findSection(sectionNodeId);
     if (!section) {
@@ -116,15 +120,21 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     }
 
     showCatalogTreeSection(section, mutatedNodeIds);
-    const instancesByLabel = collectTreeNodeInstancesByLabel(section, target.type, traversalRoots);
     let connectors = collectTreeConnectors(section, traversalRoots);
+    const instancesByPath = collectTreeNodeInstancesByPath(
+      section,
+      target.type,
+      expectedNodes,
+      traversalRoots,
+      mutatedNodeIds
+    );
 
     if (cleanupOnly) {
       const cleanupResult = cleanupCatalogTreeTarget({
         target,
         section,
         modelNodes,
-        instancesByLabel,
+        instancesByPath,
         connectors,
         outlineVariable,
         mutatedNodeIds,
@@ -150,28 +160,30 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       ? buildPartialCatalogSyncScope({
           expectedNodes,
           rootLabels: scopedRootLabels,
-          instancesByLabel,
+          instancesByPath,
           connectors,
         })
       : null;
 
     for (const node of expectedNodes) {
-      if (instancesByLabel.has(node.label)) continue;
+      const nodePath = catalogNodePathKey(node.path);
+      if (instancesByPath.has(nodePath)) continue;
 
       const instance = await createMissingTreeNode(
         target,
         section,
         node,
-        instancesByLabel,
+        instancesByPath,
         componentCache,
         mutatedNodeIds
       );
-      instancesByLabel.set(node.label, instance);
+      instancesByPath.set(nodePath, instance);
       createdCatalogNodes.push(`${target.name}/${node.path.join("/")}`);
     }
 
     for (const node of expectedNodes) {
-      const instance = instancesByLabel.get(node.label);
+      const instance = instancesByPath.get(catalogNodePathKey(node.path));
+      syncTreeNodePath(instance, node.path, mutatedNodeIds);
       if (node.type === "Library") {
         await updateLibraryTreeNode(instance, node, mutatedNodeIds);
       } else {
@@ -183,9 +195,9 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const staleResult = removeStaleCatalogNodes(
       target,
       expectedNodes,
-      instancesByLabel,
+      instancesByPath,
       connectors,
-      partialScope?.labels
+      partialScope?.paths
     );
     removedCatalogNodes.push(...staleResult.removedCatalogNodes);
     removedCatalogConnectors.push(...staleResult.removedCatalogConnectors);
@@ -199,23 +211,23 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       target,
       section,
       expectedNodes,
-      instancesByLabel,
+      instancesByPath,
       connectors,
       createdCatalogConnectors,
       mutatedNodeIds
     );
     traversalRoots = catalogTraversalRoots(section, isPartialRootSync ? scopedRootLabels : undefined);
 
-    layoutCatalogTreeNodes(section, expectedNodes, instancesByLabel, mutatedNodeIds, {
-      scopeLabels: partialScope?.labels,
+    layoutCatalogTreeNodes(section, expectedNodes, instancesByPath, mutatedNodeIds, {
+      scopePaths: partialScope?.paths,
       preserveRootPosition: isPartialRootSync,
     });
-    syncCatalogConnectors(section, expectedNodes, instancesByLabel, connectors, mutatedNodeIds);
+    syncCatalogConnectors(section, expectedNodes, instancesByPath, connectors, mutatedNodeIds);
     const nodesToResize = partialScope
-      ? [...partialScope.labels]
-          .map((label) => instancesByLabel.get(label))
+      ? [...partialScope.paths]
+          .map((path) => instancesByPath.get(path))
           .filter(Boolean)
-      : [...instancesByLabel.values()];
+      : [...instancesByPath.values()];
     resizeSectionsToFit(section, nodesToResize, mutatedNodeIds);
     for (const traversalRoot of traversalRoots) {
       stackDescendantSectionsWithGap(traversalRoot, mutatedNodeIds);
@@ -282,13 +294,13 @@ function cleanupCatalogTreeTarget({
   target,
   section,
   modelNodes,
-  instancesByLabel,
+  instancesByPath,
   connectors,
   outlineVariable,
   mutatedNodeIds,
 }) {
   const expectedNodes = flattenCatalogNodes(modelNodes, target.type);
-  requireUniqueLabels(target, expectedNodes);
+  requireUniquePaths(target, expectedNodes);
   const disconnectedConnectors = connectors.filter((connector) =>
     !connector.getSharedPluginData?.(METADATA_NAMESPACE, TREE_CONNECTOR_EDGE_PLUGIN_DATA_KEY) &&
       (!connector.connectorStart?.endpointNodeId || !connector.connectorEnd?.endpointNodeId)
@@ -301,7 +313,7 @@ function cleanupCatalogTreeTarget({
   const staleResult = removeStaleCatalogNodes(
     target,
     expectedNodes,
-    instancesByLabel,
+    instancesByPath,
     connectors,
     undefined
   );
@@ -312,7 +324,7 @@ function cleanupCatalogTreeTarget({
     mutatedNodeIds
   );
 
-  resizeSectionsToFit(section, [...instancesByLabel.values()], mutatedNodeIds);
+  resizeSectionsToFit(section, [...instancesByPath.values()], mutatedNodeIds);
   stackDescendantSectionsWithGap(section, mutatedNodeIds);
   stackAncestorSectionSiblingsWithGap(section, mutatedNodeIds);
   resizeAncestorSectionsToFit(section, mutatedNodeIds);
@@ -410,14 +422,18 @@ function rootLabel(target, node) {
   return target.type === "Library" ? node.group : node.id;
 }
 
-export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instancesByLabel, connectors }) {
-  const labels = new Set<string>(expectedNodes.map((node) => node.label));
-  const instanceIdByLabel = new Map();
-  const labelByInstanceId = new Map();
+export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instancesByPath, connectors }) {
+  const paths = new Set<string>(expectedNodes.map((node) => catalogNodePathKey(node.path)));
+  const requestedRoots = new Set(rootLabels);
+  const instanceIdByPath = new Map();
+  const pathByInstanceId = new Map();
 
-  for (const [label, instance] of instancesByLabel.entries()) {
-    instanceIdByLabel.set(label, instance.id);
-    labelByInstanceId.set(instance.id, label);
+  for (const [path, instance] of instancesByPath.entries()) {
+    instanceIdByPath.set(path, instance.id);
+    pathByInstanceId.set(instance.id, path);
+    if (path.startsWith("unresolved:") || catalogPathBelongsToRoots(path, requestedRoots)) {
+      paths.add(path);
+    }
   }
 
   const childrenByParentInstanceId = new Map();
@@ -426,7 +442,7 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
     if (!edgeKey) continue;
 
     const [parentInstanceId, childInstanceId] = edgeKey.split("->");
-    if (!labelByInstanceId.has(parentInstanceId) || !labelByInstanceId.has(childInstanceId)) {
+    if (!pathByInstanceId.has(parentInstanceId) || !pathByInstanceId.has(childInstanceId)) {
       continue;
     }
 
@@ -437,8 +453,9 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
   }
 
   for (const rootLabel of rootLabels) {
-    labels.add(rootLabel);
-    const rootInstanceId = instanceIdByLabel.get(rootLabel);
+    const rootPath = catalogNodePathKey([rootLabel]);
+    paths.add(rootPath);
+    const rootInstanceId = instanceIdByPath.get(rootPath);
     if (!rootInstanceId) continue;
 
     const pendingInstanceIds = [rootInstanceId];
@@ -448,8 +465,8 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
       if (!instanceId || visitedInstanceIds.has(instanceId)) continue;
 
       visitedInstanceIds.add(instanceId);
-      const label = labelByInstanceId.get(instanceId);
-      if (label) labels.add(label);
+      const path = pathByInstanceId.get(instanceId);
+      if (path) paths.add(path);
 
       for (const childInstanceId of childrenByParentInstanceId.get(instanceId) || []) {
         pendingInstanceIds.push(childInstanceId);
@@ -457,7 +474,7 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
     }
   }
 
-  return { labels };
+  return { paths };
 }
 
 function errorMessage(error) {
@@ -468,7 +485,7 @@ function createMissingCatalogConnectors(
   target,
   section,
   expectedNodes,
-  instancesByLabel,
+  instancesByPath,
   connectors,
   createdCatalogConnectors,
   mutatedNodeIds
@@ -476,9 +493,8 @@ function createMissingCatalogConnectors(
   const syncedConnectors = [...connectors];
 
   for (const node of expectedNodes.filter((candidate) => candidate.parentPath.length > 0)) {
-    const parentLabel = node.parentPath[node.parentPath.length - 1];
-    const parentInstance = instancesByLabel.get(parentLabel);
-    const childInstance = instancesByLabel.get(node.label);
+    const parentInstance = instancesByPath.get(catalogNodePathKey(node.parentPath));
+    const childInstance = instancesByPath.get(catalogNodePathKey(node.path));
 
     if (!parentInstance || !childInstance) {
       throw new Error(`Cannot create connector for ${target.name}/${node.path.join("/")}: parent or child is missing.`);
@@ -505,11 +521,11 @@ function createMissingCatalogConnectors(
   return syncedConnectors;
 }
 
-export function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel, connectors, scopeLabels) {
-  const expectedLabels = new Set(expectedNodes.map((node) => node.label));
-  const staleInstances = [...instancesByLabel.entries()]
-    .filter(([label]) => !expectedLabels.has(label))
-    .filter(([label]) => !scopeLabels || scopeLabels.has(label));
+export function removeStaleCatalogNodes(target, expectedNodes, instancesByPath, connectors, scopePaths) {
+  const expectedPaths = new Set(expectedNodes.map((node) => catalogNodePathKey(node.path)));
+  const staleInstances = [...instancesByPath.entries()]
+    .filter(([path]) => !expectedPaths.has(path))
+    .filter(([path]) => !scopePaths || scopePaths.has(path));
   const staleInstanceIds = new Set(staleInstances.map(([, instance]) => instance.id));
   const removedCatalogNodes = [];
   const removedCatalogConnectors = [];
@@ -523,10 +539,10 @@ export function removeStaleCatalogNodes(target, expectedNodes, instancesByLabel,
     }
   }
 
-  for (const [label, instance] of staleInstances) {
-    removedCatalogNodes.push(`${target.name}/${label}`);
+  for (const [path, instance] of staleInstances) {
+    removedCatalogNodes.push(`${target.name}/${catalogNodePathForReport(path, instance)}`);
     removeTreeNodeWithGroup(instance);
-    instancesByLabel.delete(label);
+    instancesByPath.delete(path);
   }
 
   return {
@@ -561,12 +577,12 @@ function isEmptySection(section) {
 function layoutCatalogTreeNodes(
   section,
   nodes,
-  instancesByLabel,
+  instancesByPath,
   mutatedNodeIds,
-  options: { scopeLabels?: Set<string>; preserveRootPosition?: boolean } = {}
+  options: { scopePaths?: Set<string>; preserveRootPosition?: boolean } = {}
 ) {
-  const instancesToGroup = [...instancesByLabel.entries()]
-    .filter(([label]) => !options.scopeLabels || options.scopeLabels.has(label))
+  const instancesToGroup = [...instancesByPath.entries()]
+    .filter(([path]) => !options.scopePaths || options.scopePaths.has(path))
     .map(([, instance]) => instance);
 
   for (const instance of instancesToGroup) {
@@ -574,22 +590,22 @@ function layoutCatalogTreeNodes(
     mutatedNodeIds.push(group.id);
   }
 
-  const nodesByPath = new Map(nodes.map((node) => [pathKey(node.path), node]));
+  const nodesByPath = new Map(nodes.map((node) => [catalogNodePathKey(node.path), node]));
   const childrenByParentPath = new Map();
 
   for (const node of nodes) {
-    const parentKey = pathKey(node.parentPath);
+    const parentKey = catalogNodePathKey(node.parentPath);
     childrenByParentPath.set(
       parentKey,
       [...(childrenByParentPath.get(parentKey) || []), node]
     );
   }
 
-  const roots = childrenByParentPath.get(pathKey([])) || [];
+  const roots = childrenByParentPath.get(catalogNodePathKey([])) || [];
   const containers = new Map();
 
   for (const root of roots) {
-    const rootInstance = instancesByLabel.get(root.label);
+    const rootInstance = instancesByPath.get(catalogNodePathKey(root.path));
     const rootLayoutNode = rootInstance ? treeNodeLayoutNode(rootInstance) : null;
     const container = rootLayoutNode?.parent?.type === "SECTION"
       ? rootLayoutNode.parent
@@ -603,7 +619,7 @@ function layoutCatalogTreeNodes(
   for (const containerRoots of containers.values()) {
     let nextX = CATALOG_TREE_LAYOUT_PADDING;
     for (const root of containerRoots) {
-      const rootInstance = instancesByLabel.get(root.label);
+      const rootInstance = instancesByPath.get(catalogNodePathKey(root.path));
       const rootLayoutNode = rootInstance ? treeNodeLayoutNode(rootInstance) : null;
       const startX = options.preserveRootPosition && rootLayoutNode
         ? rootLayoutNode.x
@@ -615,7 +631,7 @@ function layoutCatalogTreeNodes(
         root,
         nodesByPath,
         childrenByParentPath,
-        instancesByLabel,
+        instancesByPath,
         startX,
         startY
       );
@@ -636,18 +652,18 @@ function layoutCatalogSubtree(
   node,
   nodesByPath,
   childrenByParentPath,
-  instancesByLabel,
+  instancesByPath,
   x,
   y
 ) {
-  const instance = instancesByLabel.get(node.label);
+  const instance = instancesByPath.get(catalogNodePathKey(node.path));
   if (!instance) {
     throw new Error(`Cannot layout catalog node '${node.path.join("/")}' because its Figma instance is missing.`);
   }
   const layoutNode = treeNodeLayoutNode(instance);
 
-  const children = (childrenByParentPath.get(pathKey(node.path)) || [])
-    .map((child) => nodesByPath.get(pathKey(child.path)))
+  const children = (childrenByParentPath.get(catalogNodePathKey(node.path)) || [])
+    .map((child) => nodesByPath.get(catalogNodePathKey(child.path)))
     .filter(Boolean);
   const placements = new Map();
 
@@ -673,7 +689,7 @@ function layoutCatalogSubtree(
       child,
       nodesByPath,
       childrenByParentPath,
-      instancesByLabel,
+      instancesByPath,
       childX,
       childY
     );
@@ -682,7 +698,7 @@ function layoutCatalogSubtree(
     }
     minX = Math.min(minX, childLayout.minX);
     maxX = Math.max(maxX, childLayout.maxX);
-    const childInstance = instancesByLabel.get(child.label);
+    const childInstance = instancesByPath.get(catalogNodePathKey(child.path));
     const childLayoutNode = treeNodeLayoutNode(childInstance);
     const childPlacement = childLayout.placements.get(childInstance.id);
     const childCenter = childPlacement.x + childLayoutNode.width / 2;
@@ -747,11 +763,10 @@ export function constrainCatalogLayoutToPadding(layout, padding = CATALOG_TREE_L
   return offsetX;
 }
 
-function syncCatalogConnectors(section, nodes, instancesByLabel, connectors, mutatedNodeIds) {
+function syncCatalogConnectors(section, nodes, instancesByPath, connectors, mutatedNodeIds) {
   for (const node of nodes.filter((candidate) => candidate.parentPath.length > 0)) {
-    const parentLabel = node.parentPath[node.parentPath.length - 1];
-    const parentInstance = instancesByLabel.get(parentLabel);
-    const childInstance = instancesByLabel.get(node.label);
+    const parentInstance = instancesByPath.get(catalogNodePathKey(node.parentPath));
+    const childInstance = instancesByPath.get(catalogNodePathKey(node.path));
 
     if (!parentInstance || !childInstance) {
       continue;
@@ -794,8 +809,23 @@ function resizeSectionToFit(section, nodes, mutatedNodeIds) {
   resizeNodeToFit(section, nodes, mutatedNodeIds);
 }
 
-function pathKey(path) {
-  return path.join("\u0000");
+function catalogNodePathForReport(path, instance) {
+  try {
+    const segments = JSON.parse(path);
+    if (Array.isArray(segments)) return segments.join("/");
+  } catch (_) {
+    // Unresolved legacy nodes are reported by their Figma identity.
+  }
+  return `unresolved/${instance.id}`;
+}
+
+function catalogPathBelongsToRoots(path, requestedRoots) {
+  try {
+    const segments = JSON.parse(path);
+    return Array.isArray(segments) && requestedRoots.has(segments[0]);
+  } catch (_) {
+    return false;
+  }
 }
 
 const CATALOG_TREE_LAYOUT_PADDING = 100;
