@@ -118,4 +118,7 @@ Water My Plants catalog -> catalog-api + catalog-core
 
 ## Supersession
 
-None.
+Refined by
+[ADR-0012](adr-0012-coordinate-repository-gradle-plugin-releases.md), which
+restores the separate custom plugin inventories as derived documentation while
+keeping included-build dependency catalogs outside the production catalog.

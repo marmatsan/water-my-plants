@@ -173,19 +173,19 @@ internal fun waterMyPlantsCatalogTrees(
                 plugin("marmatsan") {
                     plugin(
                         id = "android",
-                        version = version("gradleConventionPluginVersion")
+                        version = version("gradlePluginsVersion")
                     )
                     plugin(
                         id = "bddTest",
-                        version = version("gradleConventionPluginVersion")
+                        version = version("gradlePluginsVersion")
                     )
                     plugin(
                         id = "compose",
-                        version = version("gradleConventionPluginVersion")
+                        version = version("gradlePluginsVersion")
                     )
                     plugin(
                         id = "unitTest",
-                        version = version("gradleConventionPluginVersion")
+                        version = version("gradlePluginsVersion")
                     )
                 }
             }

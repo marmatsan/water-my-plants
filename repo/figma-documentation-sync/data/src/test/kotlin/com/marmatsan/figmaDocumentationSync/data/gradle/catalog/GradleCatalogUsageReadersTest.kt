@@ -192,15 +192,18 @@ internal class GradleCatalogUsageReadersTest :
                 }
             }
 
-            test("readMainLiteralPluginUsages maps literal plugin ids to main modules") {
+            test("readMainAppliedPluginUsages combines type-safe aliases and literal ids") {
                 given {
-                    val rootDir = temporaryDirectory.resolve("main-literal-plugin-usages").apply { mkdirs() }
+                    val rootDir = temporaryDirectory.resolve("main-applied-plugin-usages").apply { mkdirs() }
                     rootDir.writeBuildFile(
                         path = "",
                         content =
                             """
                             plugins {
-                                id("com.marmatsan.android") apply false
+                                alias(toolPlugins.plugins.com.marmatsan.verificationPlatform)
+                                alias(plugins.plugins.com.android.application) apply false
+                                id("com.marmatsan.waterMyPlantsProjectConfig")
+                                id("com.marmatsan.figmaDocumentationSync") apply false
                             }
                             """.trimIndent()
                     )
@@ -209,93 +212,25 @@ internal class GradleCatalogUsageReadersTest :
                         content =
                             """
                             plugins {
-                                id("com.marmatsan.android")
-                                id("com.marmatsan.compose")
-                            }
-                            """.trimIndent()
-                    )
-                    rootDir.writeBuildFile(
-                        path = "core/ui",
-                        content =
-                            """
-                            plugins {
-                                id("com.marmatsan.android")
+                                alias(plugins.plugins.com.marmatsan.android)
+                                alias(plugins.plugins.com.marmatsan.compose)
+                                alias(plugins.plugins.com.marmatsan.bddTest) apply false
                             }
                             """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
-                    GradleMainCatalogUsageReader().readLiteralPluginUsages(
+                    GradleMainCatalogUsageReader().readAppliedPluginUsages(
                         rootDir = rootDir
                     )
                 }.then { usages ->
                     usages shouldBe
                         mapOf(
-                            "com.marmatsan.android" to
-                                setOf(
-                                    ":app",
-                                    ":core:ui"
-                                ),
+                            "com.marmatsan.verificationPlatform" to setOf(":"),
+                            "com.marmatsan.waterMyPlantsProjectConfig" to setOf(":"),
+                            "com.marmatsan.android" to setOf(":app"),
                             "com.marmatsan.compose" to setOf(":app")
                         )
-                }
-            }
-
-            test("readMainAppliedLiteralPluginUsages maps applied literal plugin ids to main modules") {
-                given {
-                    val rootDir = temporaryDirectory.resolve("main-applied-literal-plugin-usages").apply { mkdirs() }
-                    rootDir.writeBuildFile(
-                        path = "",
-                        content =
-                            """
-                            plugins {
-                                id("com.marmatsan.android") apply false
-                                id("com.marmatsan.figmaDocumentationSync") apply true
-                            }
-                            """.trimIndent()
-                    )
-                    rootDir.writeBuildFile(
-                        path = "app",
-                        content =
-                            """
-                            plugins {
-                                id("com.marmatsan.android")
-                            }
-                            """.trimIndent()
-                    )
-                    rootDir
-                }.whenever { rootDir ->
-                    GradleMainCatalogUsageReader().readAppliedLiteralPluginUsages(
-                        rootDir = rootDir
-                    )
-                }.then { usages ->
-                    usages shouldBe
-                        mapOf(
-                            "com.marmatsan.android" to setOf(":app")
-                        )
-                }
-            }
-
-            test("readMainAppliedLiteralPluginIds includes applied root plugin ids") {
-                given {
-                    val rootDir = temporaryDirectory.resolve("main-applied-literal-plugin-ids").apply { mkdirs() }
-                    rootDir.writeBuildFile(
-                        path = "",
-                        content =
-                            """
-                            plugins {
-                                id("com.marmatsan.android") apply false
-                                id("com.marmatsan.figmaDocumentationSync") apply true
-                            }
-                            """.trimIndent()
-                    )
-                    rootDir
-                }.whenever { rootDir ->
-                    GradleMainCatalogUsageReader().readAppliedLiteralPluginIds(
-                        rootDir = rootDir
-                    )
-                }.then { pluginIds ->
-                    pluginIds shouldBe setOf("com.marmatsan.figmaDocumentationSync")
                 }
             }
         }

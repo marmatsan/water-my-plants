@@ -33,6 +33,7 @@ for (const testName of [
   "library-catalog-entries",
   "usage-chip-visibility",
   "catalog-tree-targets",
+  "plugin-version-presentation",
   "ci-visual-plan",
 ]) {
   const output = join(outputDirectory, `${testName}.test.mjs`);

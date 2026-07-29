@@ -45,6 +45,7 @@ import {
   canRepresentLibraryCatalogEntries,
   configureLibraryCatalogItemSlots,
 } from "./figma-library-tree-node-capacity";
+import { presentPluginVersions } from "../domain/catalog/plugin-version-presentation";
 
 export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
   async syncCatalogTrees(designModel: DesignModel, options: CatalogTreeSyncOptions = {}) {
@@ -99,7 +100,11 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
     const modelRootLabels = modelNodes.map((node) => rootLabel(target, node));
     const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
     const scopedRootLabels = scopedModelNodes.map((node) => rootLabel(target, node));
-    const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
+    const expectedNodes = presentPluginVersions(
+      flattenCatalogNodes(scopedModelNodes, target.type),
+      target,
+      designModel
+    );
     requireUniquePaths(target, expectedNodes);
 
     const section = await findSection(sectionNodeId);

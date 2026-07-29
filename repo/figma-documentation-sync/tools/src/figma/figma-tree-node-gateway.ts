@@ -97,7 +97,7 @@ export async function updateLibraryTreeNode(instance, node, mutatedNodeIds) {
 export async function updatePluginTreeNode(instance, node, mutatedNodeIds, target?) {
   const horizontalCenter = treeNodeHorizontalCenter(instance);
   const versionValue = node.version?.visible && node.version?.value
-    ? node.version.value
+    ? node.version.displayValue || node.version.value
     : "Plugin version";
   const appliedToModules = sortedUnique(node.appliedToModules || []);
   const providedByConventionPlugins = node.providedByConventionPlugins || [];

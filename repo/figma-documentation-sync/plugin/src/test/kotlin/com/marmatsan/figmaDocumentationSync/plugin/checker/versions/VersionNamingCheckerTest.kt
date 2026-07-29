@@ -39,7 +39,8 @@ internal class VersionNamingCheckerTest :
                                             versions =
                                                 mapOf(
                                                     "dokkaPluginVersion" to "2.2.0",
-                                                    "kspPluginVersion" to "2.3.9"
+                                                    "kspPluginVersion" to "2.3.9",
+                                                    "gradlePluginsVersion" to "0.1.0-SNAPSHOT"
                                                 )
                                         )
                                     )

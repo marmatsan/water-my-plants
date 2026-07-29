@@ -10,6 +10,10 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property nodesPath path to catalog nodes inside the design model.
  * @property gradlePluginNodes whether entries represent Gradle convention plugins.
  * @property warnWhenUnused whether unused catalog declarations should produce warnings.
+ * @property versionValuesPath optional path to resolved version values used to
+ * explain version references in plugin nodes.
+ * @property sharedVersionKeys version references governed by one coordinated
+ * release train.
  */
 data class FigmaCatalogTreeTargetConfig(
     val name: String,
@@ -18,5 +22,7 @@ data class FigmaCatalogTreeTargetConfig(
     val lifecycle: FigmaCatalogTreeTargetLifecycle,
     val nodesPath: List<String>,
     val gradlePluginNodes: Boolean = false,
-    val warnWhenUnused: Boolean = false
+    val warnWhenUnused: Boolean = false,
+    val versionValuesPath: List<String> = emptyList(),
+    val sharedVersionKeys: List<String> = emptyList()
 )

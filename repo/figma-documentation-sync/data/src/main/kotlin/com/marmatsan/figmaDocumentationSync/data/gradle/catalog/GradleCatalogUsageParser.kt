@@ -149,43 +149,27 @@ internal class GradleCatalogUsageParser(
             regex = mainPluginAliasRegex
         )
 
-    /** Parses literal plugin ids declared by one main-build module. */
-    fun mainLiteralPluginUsages(
+    /** Parses type-safe plugin catalog aliases that one main-build module actually applies. */
+    fun mainAppliedPluginAliases(
         buildFile: File,
         rootDir: File
     ): Map<String, Set<String>> =
-        mainModuleUsages(
+        mainAppliedModuleUsages(
             buildFile = buildFile,
             rootDir = rootDir,
-            regex = literalPluginIdRegex
+            regex = mainAppliedPluginAliasRegex
         )
 
     /** Parses literal plugin ids applied by one main-build module. */
     fun mainAppliedLiteralPluginUsages(
         buildFile: File,
         rootDir: File
-    ): Map<String, Set<String>> {
-        val modulePath =
-            scanner.mainModulePath(
-                buildFile.parentFile,
-                rootDir
-            )
-        if (modulePath == GradleCatalogSourceScanner.ROOT_MODULE) return emptyMap()
-        val content = buildFile.readText()
-        return appliedLiteralPluginMatches(
-            content = content
-        ).associateToUsageMap(modulePath) { match ->
-            match.groupValues[1]
-        }
-    }
-
-    /** Returns literal plugin ids applied by [buildFile]. */
-    fun appliedLiteralPluginIds(
-        buildFile: File
-    ): Sequence<String> =
-        appliedLiteralPluginMatches(
-            content = buildFile.readText()
-        ).map { match -> match.groupValues[1] }
+    ): Map<String, Set<String>> =
+        mainAppliedModuleUsages(
+            buildFile = buildFile,
+            rootDir = rootDir,
+            regex = literalPluginIdRegex
+        )
 
     /** Returns whether [buildFile] declares a Gradle convention-plugin implementation. */
     fun isConventionPluginBuildFile(
@@ -221,10 +205,29 @@ internal class GradleCatalogUsageParser(
             .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
     }
 
-    private fun appliedLiteralPluginMatches(
-        content: String
+    private fun mainAppliedModuleUsages(
+        buildFile: File,
+        rootDir: File,
+        regex: Regex
+    ): Map<String, Set<String>> {
+        val modulePath =
+            scanner.mainModulePath(
+                buildFile.parentFile,
+                rootDir
+            )
+        return appliedPluginMatches(
+            content = buildFile.readText(),
+            regex = regex
+        ).associateToUsageMap(modulePath) { match ->
+            match.groupValues[1]
+        }
+    }
+
+    private fun appliedPluginMatches(
+        content: String,
+        regex: Regex
     ): Sequence<MatchResult> =
-        literalPluginIdRegex
+        regex
             .findAll(content)
             .filterNot { match -> content.lineSuffixAfter(match).contains(applyFalseRegex) }
 
@@ -328,6 +331,8 @@ internal class GradleCatalogUsageParser(
         val includedBuildLibraryAliasRegex = Regex("""\blibs\.([A-Za-z0-9_.]+)\b""")
         val includedBuildPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
         val mainPluginAliasRegex = Regex("""alias\s*\(\s*plugins\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
+        val mainAppliedPluginAliasRegex =
+            Regex("""alias\s*\(\s*[A-Za-z_][A-Za-z0-9_]*\.plugins\.([A-Za-z0-9_.]+)\s*\)""")
         val literalPluginIdRegex = Regex("""\bid\s*\(\s*"([^"]+)"\s*\)""")
         val applyFalseRegex = Regex("""\bapply\s+false\b""")
         val pluginNameRegex = Regex("val\\s+pluginName\\s*=\\s*\"([^\"]+)\"")

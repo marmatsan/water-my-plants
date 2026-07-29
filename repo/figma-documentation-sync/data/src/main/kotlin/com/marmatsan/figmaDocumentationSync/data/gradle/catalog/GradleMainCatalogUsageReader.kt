@@ -34,38 +34,25 @@ class GradleMainCatalogUsageReader {
             )
         }
 
-    /** Reads literal plugin ids declared by main-build modules. */
-    fun readLiteralPluginUsages(
+    /**
+     * Reads every plugin actually applied by main-build modules, combining
+     * type-safe catalog aliases and literal plugin ids.
+     */
+    fun readAppliedPluginUsages(
         rootDir: File
     ): Map<String, Set<String>> =
         scanner.mainBuildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
-            usages.mergeUsageSets(
-                parser.mainLiteralPluginUsages(
-                    buildFile,
-                    rootDir
+            usages
+                .mergeUsageSets(
+                    parser.mainAppliedPluginAliases(
+                        buildFile,
+                        rootDir
+                    )
+                ).mergeUsageSets(
+                    parser.mainAppliedLiteralPluginUsages(
+                        buildFile,
+                        rootDir
+                    )
                 )
-            )
         }
-
-    /** Reads literal plugin ids applied by main-build modules. */
-    fun readAppliedLiteralPluginUsages(
-        rootDir: File
-    ): Map<String, Set<String>> =
-        scanner.mainBuildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
-            usages.mergeUsageSets(
-                parser.mainAppliedLiteralPluginUsages(
-                    buildFile,
-                    rootDir
-                )
-            )
-        }
-
-    /** Returns all literal plugin ids applied in the main build. */
-    fun readAppliedLiteralPluginIds(
-        rootDir: File
-    ): Set<String> =
-        scanner
-            .mainBuildFiles(rootDir)
-            .flatMap(parser::appliedLiteralPluginIds)
-            .toSet()
 }

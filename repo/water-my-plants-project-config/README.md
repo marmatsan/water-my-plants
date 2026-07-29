@@ -76,6 +76,16 @@ retaining generated accessors. The portable Maven aliases share the
 substitution and staged publication verification resolve the same coordinated
 version.
 
+The product plugin catalog consumes every convention plugin published by
+`repo/gradle-plugins` through the shared `gradlePluginsVersion` release train.
+This build owns its consumer value locally, while the root
+`checkIncludedBuildVersions` contract verifies that it matches the producer.
+The Figma plugin catalog keeps the version reference as its source value and
+renders the resolved value plus the shared-release policy; the convention and
+repository plugin inventories derive their module usage from applied type-safe
+aliases and literal ids, including the root project and excluding
+`apply false` declarations.
+
 These local aliases are compile-time inputs for the composition build. They do
 not add tooling artifacts to `WaterMyPlantsCatalogProvider` and therefore do
 not expand the `waterMyPlants.libraries` or `waterMyPlants.plugins` trees
