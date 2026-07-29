@@ -8,6 +8,7 @@ import {
 } from "../domain/catalog/library-catalog-entries";
 import type { FlattenedCatalogNode } from "../domain/design-model";
 import { directCatalogItemInstances } from "./figma-consumer-modules-gateway";
+import { withInvisibleInstanceChildren } from "./figma-instance-traversal";
 
 /**
  * Reports whether an existing Figma library tree node has enough structural
@@ -166,26 +167,6 @@ function configureBundleArtifactSlotVisibility(bundleInstance, requiredSlots, mu
   }
 
   return true;
-}
-
-function withInvisibleInstanceChildren(operation) {
-  if (typeof figma === "undefined") return operation();
-
-  const previousValue = figma.skipInvisibleInstanceChildren;
-  figma.skipInvisibleInstanceChildren = false;
-  try {
-    const result = operation();
-    if (result && typeof result.then === "function") {
-      return result.finally(() => {
-        figma.skipInvisibleInstanceChildren = previousValue;
-      });
-    }
-    figma.skipInvisibleInstanceChildren = previousValue;
-    return result;
-  } catch (error) {
-    figma.skipInvisibleInstanceChildren = previousValue;
-    throw error;
-  }
 }
 
 function childrenOf(node) {
