@@ -167,6 +167,24 @@ internal class FigmaWriterProjectConfigJsonTest :
                             "waterMyPlants",
                             "libraries"
                         )
+                    val pluginCatalogTarget =
+                        root
+                            .getValue("CATALOG_TREE_TARGETS")
+                            .jsonArray[1]
+                            .jsonObject
+                    pluginCatalogTarget
+                        .getValue("versionValuesPath")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly(
+                            "content",
+                            "versions"
+                        )
+                    pluginCatalogTarget
+                        .getValue("sharedVersionKeys")
+                        .jsonArray
+                        .map { it.jsonPrimitive.content }
+                        .shouldContainExactly("gradlePluginsVersion")
                     root
                         .getValue("HEADER_SECTION_TARGETS")
                         .jsonArray[1]

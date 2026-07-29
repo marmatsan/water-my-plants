@@ -234,7 +234,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             pluginId = "com.marmatsan.android"
                         ).version shouldBe
                         CatalogVersion(
-                            value = "gradleConventionPluginVersion"
+                            value = "gradlePluginsVersion"
                         )
                 }
             }

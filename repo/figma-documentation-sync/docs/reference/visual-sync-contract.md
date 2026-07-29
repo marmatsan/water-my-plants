@@ -543,6 +543,11 @@ For each section:
   resolution, root-scoped mutation boundaries, and stale-node removal.
 - Update exposed component properties for library groups, plugin ids, plugin
   versions, and artifact visibility.
+- When a plugin target configures `versionValuesPath`, keep the catalog version
+  key as the source reference and render it separately from the value resolved
+  at that path. Keys listed in `sharedVersionKeys` also render `policy shared`;
+  this presentation explains a coordinated release train without replacing the
+  source alias in `design-model.json`.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
 - Treat direct `.artifact` and `.artifacts bundle` children as interchangeable
@@ -629,6 +634,10 @@ For each section:
 - Update `Applied by module` instances for plugin tree nodes from
   `appliedToModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
+- Derive custom-plugin `appliedToModules` from both literal `id("...")`
+  declarations and type-safe `alias(<catalog>.plugins....)` declarations.
+  Include the root project as `:` when it applies a plugin and exclude every
+  declaration followed by `apply false`.
 - For plugin tree nodes, hide `Applied by module` and
   `Used by convention plugin` when their source lists are empty. Plugin catalog
   entries with no `appliedToModules` and no `providedByConventionPlugins` are

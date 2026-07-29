@@ -327,7 +327,13 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         type = FigmaCatalogTreeTargetType.PLUGIN,
                         lifecycle = FigmaCatalogTreeTargetLifecycle.STABLE_DOCUMENTATION_TARGET,
                         catalog = "waterMyPlants",
-                        collection = "plugins"
+                        collection = "plugins",
+                        versionValuesPath =
+                            listOf(
+                                "content",
+                                "versions"
+                            ),
+                        sharedVersionKeys = listOf("gradlePluginsVersion")
                     ),
                     catalogTarget(
                         name = "waterMyPlants.customGradleConventionPlugins",
@@ -384,7 +390,9 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
         catalog: String,
         collection: String,
         gradlePluginNodes: Boolean = false,
-        warnWhenUnused: Boolean = false
+        warnWhenUnused: Boolean = false,
+        versionValuesPath: List<String> = emptyList(),
+        sharedVersionKeys: List<String> = emptyList()
     ) = FigmaCatalogTreeTargetConfig(
         name = name,
         sectionNodeId = sectionNodeId,
@@ -398,6 +406,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                 collection
             ),
         gradlePluginNodes = gradlePluginNodes,
-        warnWhenUnused = warnWhenUnused
+        warnWhenUnused = warnWhenUnused,
+        versionValuesPath = versionValuesPath,
+        sharedVersionKeys = sharedVersionKeys
     )
 }

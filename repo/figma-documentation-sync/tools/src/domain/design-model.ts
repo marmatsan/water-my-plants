@@ -12,6 +12,8 @@ export type CatalogTreeTarget = {
   nodes: (designModel: DesignModel) => any[] | undefined;
   gradlePluginNodes?: boolean;
   warnWhenUnused?: boolean;
+  versionValuesPath?: string[];
+  sharedVersionKeys?: string[];
 };
 
 export type FlattenedCatalogNode = Record<string, any> & {

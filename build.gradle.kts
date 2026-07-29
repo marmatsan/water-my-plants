@@ -128,6 +128,7 @@ extensions.configure<VerificationPlatformExtension> {
 
         alignedVersion("kotlinResultLibraryVersion")
         alignedVersion("dependencyCatalogVersion")
+        alignedVersion("gradlePluginsVersion")
 
         reusableScope(
             "repo/dependency-catalog/catalog-api",

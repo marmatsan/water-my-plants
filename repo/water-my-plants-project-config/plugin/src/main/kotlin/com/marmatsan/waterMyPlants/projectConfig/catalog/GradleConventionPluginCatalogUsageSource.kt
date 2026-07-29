@@ -21,7 +21,7 @@ internal class GradleConventionPluginCatalogUsageSource(
         includedBuilds: List<IncludedBuildSource>
     ): ConventionPluginLibraryUsages {
         val modulesByPluginId =
-            mainReader.readAppliedLiteralPluginUsages(
+            mainReader.readAppliedPluginUsages(
                 rootDir = rootDir
             )
 
@@ -63,7 +63,7 @@ internal class GradleConventionPluginCatalogUsageSource(
         includedBuilds: List<IncludedBuildSource>
     ): Map<String, List<PluginCatalogNode.ConventionPluginUsage>> {
         val modulesByPluginId =
-            mainReader.readAppliedLiteralPluginUsages(
+            mainReader.readAppliedPluginUsages(
                 rootDir = rootDir
             )
 

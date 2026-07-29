@@ -106,7 +106,7 @@ class ProjectCatalogTreesDataSource(
                         gradleConventionPluginTreeReader.readPluginTree(
                             rootDir = File(includedBuild.rootDirPath),
                             usageByPluginId =
-                                mainCatalogUsageReader.readLiteralPluginUsages(
+                                mainCatalogUsageReader.readAppliedPluginUsages(
                                     rootDir = File(source.rootDirPath)
                                 )
                         )
@@ -114,16 +114,14 @@ class ProjectCatalogTreesDataSource(
             }
 
             is ProjectCatalogTreeSource.CustomGradlePlugins -> {
+                val usageByPluginId =
+                    mainCatalogUsageReader.readAppliedPluginUsages(
+                        rootDir = File(source.rootDirPath)
+                    )
                 gradlePluginTreeReader.readPluginTree(
                     rootDir = File(source.rootDirPath),
-                    includedPluginIds =
-                        mainCatalogUsageReader.readAppliedLiteralPluginIds(
-                            rootDir = File(source.rootDirPath)
-                        ),
-                    usageByPluginId =
-                        mainCatalogUsageReader.readAppliedLiteralPluginUsages(
-                            rootDir = File(source.rootDirPath)
-                        )
+                    includedPluginIds = usageByPluginId.keys,
+                    usageByPluginId = usageByPluginId
                 )
             }
         }

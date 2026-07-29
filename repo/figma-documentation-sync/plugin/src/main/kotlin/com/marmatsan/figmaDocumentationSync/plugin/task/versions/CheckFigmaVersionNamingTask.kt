@@ -41,7 +41,8 @@ abstract class CheckFigmaVersionNamingTask : DefaultTask() {
                     appendLine("Invalid dependency version naming found.")
                     appendLine(
                         "Keep main project versions in the main section, library versions ending " +
-                            "in LibraryVersion, and plugin versions ending in PluginVersion:"
+                            "in LibraryVersion, plugin versions ending in PluginVersion, and coordinated " +
+                            "plugin release trains ending in PluginsVersion:"
                     )
                     result.violations.forEach { violation ->
                         appendLine("- ${violation.message}")

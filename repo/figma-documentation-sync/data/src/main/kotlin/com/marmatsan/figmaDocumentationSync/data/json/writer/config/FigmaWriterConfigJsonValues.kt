@@ -94,6 +94,18 @@ internal fun List<FigmaCatalogTreeTargetConfig>.toCatalogTargetsJson(): JsonArra
                     true
                 )
             }
+            if (target.versionValuesPath.isNotEmpty()) {
+                put(
+                    "versionValuesPath",
+                    target.versionValuesPath.toJsonArray()
+                )
+            }
+            if (target.sharedVersionKeys.isNotEmpty()) {
+                put(
+                    "sharedVersionKeys",
+                    target.sharedVersionKeys.toJsonArray()
+                )
+            }
         }
     }.let(::JsonArray)
 

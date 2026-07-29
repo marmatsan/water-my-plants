@@ -43,7 +43,8 @@ internal class VersionNamingChecker(
             checkSuffixes(
                 sections = sections,
                 sectionName = PLUGINS_SECTION,
-                suffix = PLUGIN_VERSION_SUFFIX
+                suffix = PLUGIN_VERSION_SUFFIX,
+                alternativeSuffixes = setOf(PLUGIN_RELEASE_TRAIN_VERSION_SUFFIX)
             )
 
         return VersionNamingCheckResult(
@@ -99,15 +100,17 @@ internal class VersionNamingChecker(
     private fun checkSuffixes(
         sections: List<RepositoryVersionSection>,
         sectionName: String,
-        suffix: String
+        suffix: String,
+        alternativeSuffixes: Set<String> = emptySet()
     ): List<VersionNamingViolation> =
         sections
             .firstOrNull { section -> section.name == sectionName }
             ?.versions
             ?.keys
             .orEmpty()
-            .filterNot { key -> key.endsWith(suffix) }
-            .map { key ->
+            .filterNot { key ->
+                key.endsWith(suffix) || alternativeSuffixes.any(key::endsWith)
+            }.map { key ->
                 VersionNamingViolation(
                     message = "$sectionName version key '$key' must end with '$suffix'."
                 )
@@ -119,6 +122,7 @@ internal class VersionNamingChecker(
         const val PLUGINS_SECTION = "Plugins"
         const val LIBRARY_VERSION_SUFFIX = "LibraryVersion"
         const val PLUGIN_VERSION_SUFFIX = "PluginVersion"
+        const val PLUGIN_RELEASE_TRAIN_VERSION_SUFFIX = "PluginsVersion"
 
         val EXPECTED_SECTION_NAMES =
             listOf(

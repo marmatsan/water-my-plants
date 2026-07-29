@@ -43,6 +43,9 @@ Rules:
   `activityComposeLibraryVersion`.
 - Plugin version keys must end with `PluginVersion`, for example
   `kspPluginVersion`.
+- A coordinated repository plugin release train must end with
+  `PluginsVersion`, for example `gradlePluginsVersion`. Use the singular suffix
+  for a plugin that can be versioned independently.
 - Do not add new generic `*Version` keys to `Libraries` or `Plugins`.
 - If a plugin catalog node uses `androidGradlePluginVersion` or `kotlinVersion`, keep
   the version key in `Main project dependencies`; do not duplicate it as a
@@ -74,6 +77,9 @@ kotestLibraryVersion=...
 # Plugin id: org.jetbrains.dokka
 # Artifact: org.jetbrains.dokka:dokka-gradle-plugin
 dokkaPluginVersion=...
+
+# Plugin ids: com.example.android, com.example.compose
+gradlePluginsVersion=...
 ```
 
 ## Adding A Dependency
