@@ -81,10 +81,10 @@ The product plugin catalog consumes every convention plugin published by
 This build owns its consumer value locally, while the root
 `checkIncludedBuildVersions` contract verifies that it matches the producer.
 The Figma plugin catalog keeps the version reference as its source value and
-renders the resolved value plus the shared-release policy; the convention and
-repository plugin inventories derive their module usage from applied type-safe
-aliases and literal ids, including the root project and excluding
-`apply false` declarations.
+renders only that property name. The resolved value and shared-release policy
+remain sync metadata; the convention and repository plugin inventories derive
+their module usage from applied type-safe aliases and literal ids, including
+the root project and excluding `apply false` declarations.
 
 These local aliases are compile-time inputs for the composition build. They do
 not add tooling artifacts to `WaterMyPlantsCatalogProvider` and therefore do

@@ -1,6 +1,6 @@
 import type { CatalogTreeTarget, DesignModel, FlattenedCatalogNode } from "../design-model";
 
-/** Adds an explanatory display value without changing the source version reference. */
+/** Adds a compact display value without changing the source version reference. */
 export function presentPluginVersions(
   nodes: FlattenedCatalogNode[],
   target: CatalogTreeTarget,
@@ -9,18 +9,16 @@ export function presentPluginVersions(
   if (target.type !== "Plugin" || !target.versionValuesPath?.length) return nodes;
 
   const resolvedVersions = valueAtPath(designModel, target.versionValuesPath) || {};
-  const sharedVersionKeys = new Set(target.sharedVersionKeys || []);
   return nodes.map((node) => ({
     ...node,
-    version: presentedVersion(node.version, resolvedVersions, sharedVersionKeys),
+    version: presentedVersion(node.version, resolvedVersions),
   }));
 }
 
-/** Formats one version reference, its resolved value, and optional release policy. */
+/** Formats one resolved version reference as its source property name. */
 export function presentedVersion(
   version,
-  resolvedVersions: Record<string, unknown>,
-  sharedVersionKeys: Set<string>
+  resolvedVersions: Record<string, unknown>
 ) {
   if (version?.visible !== true || !version.value) return version;
 
@@ -28,10 +26,9 @@ export function presentedVersion(
   const resolvedValue = resolvedVersions[reference];
   if (resolvedValue == null || String(resolvedValue).length === 0) return version;
 
-  const policy = sharedVersionKeys.has(reference) ? "\npolicy shared" : "";
   return {
     ...version,
-    displayValue: `ref ${reference}\nresolved ${String(resolvedValue)}${policy}`,
+    displayValue: reference,
   };
 }
 
