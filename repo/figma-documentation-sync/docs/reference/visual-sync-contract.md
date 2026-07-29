@@ -549,6 +549,11 @@ For each section:
   catalog-item slots. Before updating a path-addressed library node, select the
   component required by each generated entry in those slots. A bundle component
   is eligible only when it has enough nested `.artifact` rows for that entry.
+  Figma omits invisible descendants of component instances by default, so the
+  adapter must temporarily include them while measuring bundle capacity and
+  reveal exactly the rows required by the generated bundle before normal
+  catalog writing resumes. It must restore the previous Figma traversal option
+  even when component selection fails.
   If the node has too few total slots, clear the legacy instance's path
   assignment, clone a template with enough configurable slots for the expected
   path, and remove the legacy instance through normal stale-node cleanup only

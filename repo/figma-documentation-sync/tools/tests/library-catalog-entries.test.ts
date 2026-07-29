@@ -243,8 +243,36 @@ test("library catalog-item slots can mix artifacts and bundles without a precomp
   assert.equal(instance.children[0].children[0].name, ".artifact");
   assert.equal(instance.children[0].children[1].name, ".artifacts bundle");
   assert.equal(instance.children[0].children[1].children.length, 4);
+  assert.deepEqual(
+    instance.children[0].children[1].children.map((artifact) => artifact.visible),
+    [true, true, false, false]
+  );
   assert.equal(canRepresentLibraryCatalogEntries(instance, lifecycleCatalogNode()), true);
-  assert.deepEqual(mutatedNodeIds, ["slot-1"]);
+  assert.deepEqual(mutatedNodeIds, ["slot-1", "slot-1-artifact-1"]);
+});
+
+test("library slot configuration restores Figma invisible-child traversal after failure", async () => {
+  const previousFigma = (globalThis as { figma?: unknown }).figma;
+  const figmaApi = { skipInvisibleInstanceChildren: true };
+  (globalThis as { figma?: unknown }).figma = figmaApi;
+  const instance = configurableLibraryTreeNode(
+    3,
+    catalogItemComponent("artifact-component", ".artifact", 0)
+  );
+
+  try {
+    const configured = await configureLibraryCatalogItemSlots(
+      searchableContainer(instance.children[0].children),
+      instance,
+      lifecycleCatalogNode(),
+      []
+    );
+
+    assert.equal(configured, false);
+    assert.equal(figmaApi.skipInvisibleInstanceChildren, true);
+  } finally {
+    (globalThis as { figma?: unknown }).figma = previousFigma;
+  }
 });
 
 function lifecycleCatalogNode() {
@@ -363,5 +391,6 @@ function nestedArtifacts(parentId: string, count: number) {
     id: `${parentId}-artifact-${index}`,
     type: "INSTANCE",
     name: ".artifact",
+    visible: index === 0,
   }));
 }
