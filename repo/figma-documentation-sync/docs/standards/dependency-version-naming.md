@@ -4,11 +4,11 @@ type: standard
 scope: repository-dependencies
 owner: dependency-catalog
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
   - repo/water-my-plants-project-config/versions.properties
-  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/Versions.kt
+  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt
 ---
 
 # Dependency Version Naming
@@ -80,13 +80,13 @@ dokkaPluginVersion=...
 
 1. Add the version key under the correct section in
    `repo/water-my-plants-project-config/versions.properties`.
-2. Add the matching property in
-   `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/Versions.kt`.
-3. Wire the key into `LibraryTrees.kt` or `PluginTrees.kt`.
-4. Use the generated alias from the product module that consumes the
+2. Resolve the exact key with `version("<key>")` in the matching library or
+   plugin declaration in
+   `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt`.
+3. Use the generated alias from the product module that consumes the
    dependency. Do not copy the product key into a reusable included build's
    local toolchain registry.
-5. Run:
+4. Run:
 
 ```powershell
 .\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage

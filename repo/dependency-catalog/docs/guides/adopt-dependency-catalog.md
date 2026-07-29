@@ -11,6 +11,9 @@ sources:
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/ResolvedDependencyCatalogProvider.kt
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/VersionAliasedDependencyCatalogProvider.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/DependencyVersionResolver.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/PropertiesDependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginScope.kt
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsExtension.kt
@@ -76,6 +79,58 @@ included build.
    consumer tasks to the repository's existing authoritative CI gate. Do not
    create an additional required GitHub status only for this subsystem.
 
+## Provider-Owned Shared Tree Declaration
+
+A product provider that needs concrete Gradle versions and stable documentation
+aliases should declare its trees once in `catalog-core` and inject only the
+version strategy:
+
+```kotlin
+private fun exampleCatalog(
+    versionResolver: DependencyVersionResolver
+): DependencyCatalogTrees =
+    dependencyCatalogTrees(
+        versionResolver = versionResolver
+    ) {
+        libraries {
+            root("io") {
+                library("ktor") {
+                    artifact(
+                        artifact = "ktor-client-core",
+                        version = version("ktorLibraryVersion")
+                    )
+                }
+            }
+        }
+
+        plugins {
+            root("org") {
+                plugin(
+                    id = "jetbrains.kotlin.jvm",
+                    version = version("kotlinVersion")
+                )
+            }
+        }
+    }
+
+fun resolvedCatalog(
+    versionsFile: File
+): DependencyCatalogTrees =
+    exampleCatalog(
+        versionResolver = PropertiesDependencyVersionResolver(versionsFile)
+    )
+
+fun documentationCatalog(): DependencyCatalogTrees =
+    exampleCatalog(
+        versionResolver = DependencyVersionAliasResolver
+    )
+```
+
+Map the resulting `DependencyCatalogTrees` to the public provider API at the
+consumer boundary. This keeps product ownership in the consumer, prevents the
+reusable settings plugin from importing a product, and prevents separate
+library/plugin declarations from drifting between Gradle and documentation.
+
 ## Settings-Owned Tree Adapter
 
 An included build that only needs a local compile/test catalog does not need to
@@ -105,7 +160,7 @@ dependencyCatalogTree {
             library("ktor") {
                 artifact(
                     artifact = "ktor-bom",
-                    version = version("ktorLibraryVersion"),
+                    version = version("ktorLibraryVersion")
                 )
                 artifact(artifact = "ktor-client-core")
             }
@@ -116,7 +171,7 @@ dependencyCatalogTree {
         root("org") {
             plugin(
                 id = "jetbrains.kotlin.jvm",
-                version = version("kotlinVersion"),
+                version = version("kotlinVersion")
             )
         }
     }
@@ -152,7 +207,7 @@ libraryTree(rootGroup = "com") {
     library("figma.code.connect") {
         artifact(
             artifact = "code-connect-lib",
-            version = versions.figmaCodeConnectLibraryVersion,
+            version = versions.figmaCodeConnectLibraryVersion
         )
     }
 }
@@ -167,27 +222,27 @@ pluginTree(rootId = "com") {
     plugin("android") {
         plugin(
             id = "application",
-            version = versions.androidGradlePluginVersion,
+            version = versions.androidGradlePluginVersion
         )
         plugin(
             id = "library",
-            version = versions.androidGradlePluginVersion,
+            version = versions.androidGradlePluginVersion
         )
     }
 
     plugin(
         id = "figma.code.connect",
-        version = versions.figmaCodeConnectPluginVersion,
+        version = versions.figmaCodeConnectPluginVersion
     )
 
     plugin("google") {
         plugin(
             id = "devtools.ksp",
-            version = versions.kspPluginVersion,
+            version = versions.kspPluginVersion
         )
         plugin(
             id = "protobuf",
-            version = versions.protobufPluginVersion,
+            version = versions.protobufPluginVersion
         )
     }
 }
