@@ -16,15 +16,15 @@ import com.marmatsan.dependencies.tree.model.DependencyNode
  */
 data class Node<T : DependencyNode>(
     val value: T,
-    var children: MutableList<Node<T>> = mutableListOf(),
+    var children: MutableList<Node<T>> = mutableListOf()
 ) {
     /**
      * Appends [child] to this node's children preserving declaration order.
      */
     fun add(
-        child: Node<T>,
+        child: Node<T>
     ) = children.add(
-        element = child,
+        element = child
     )
 
     /**
@@ -87,13 +87,13 @@ data class Node<T : DependencyNode>(
     fun <R> depthFirstPreOrderTraverse(
         pathSegment: (T) -> String,
         shouldIncludeNode: (T) -> Boolean,
-        mapNode: (value: T, fullPath: String) -> R,
+        mapNode: (value: T, fullPath: String) -> R
     ): List<R> {
         val results = mutableListOf<R>()
 
         fun visit(
             node: Node<T>,
-            path: List<String>,
+            path: List<String>
         ) {
             val currentPath = path + pathSegment(node.value)
 
@@ -103,22 +103,22 @@ data class Node<T : DependencyNode>(
                     element =
                         mapNode(
                             node.value,
-                            fullPath,
-                        ),
+                            fullPath
+                        )
                 )
             }
 
             node.children.forEach { child ->
                 visit(
                     node = child,
-                    path = currentPath,
+                    path = currentPath
                 )
             }
         }
 
         visit(
             node = this,
-            path = emptyList(),
+            path = emptyList()
         )
 
         return results

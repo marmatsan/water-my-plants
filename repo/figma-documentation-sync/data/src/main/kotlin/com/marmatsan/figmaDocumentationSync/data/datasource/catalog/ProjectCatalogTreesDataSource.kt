@@ -33,13 +33,13 @@ class ProjectCatalogTreesDataSource(
     private val includedBuildCatalogUsageReader: GradleIncludedBuildCatalogUsageReader,
     private val mainCatalogUsageReader: GradleMainCatalogUsageReader,
     private val gradleConventionPluginTreeReader: GradleConventionPluginTreeReader,
-    private val gradlePluginTreeReader: GradlePluginTreeReader,
+    private val gradlePluginTreeReader: GradlePluginTreeReader
 ) : ProjectCatalogTreesPort {
     /**
      * Reads library trees only from source variants that define libraries.
      */
     override fun readLibraryTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
@@ -47,7 +47,7 @@ class ProjectCatalogTreesDataSource(
                     .create(source.providerClassName)
                     .readLibraryTreeWithVersionAliases(
                         rootDirPath = source.rootDirPath,
-                        conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds,
+                        conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                     )
             }
 
@@ -57,8 +57,8 @@ class ProjectCatalogTreesDataSource(
                     usageByAlias =
                         includedBuildCatalogUsageReader.readLibraryUsages(
                             rootDir = File(source.includedBuild.rootDirPath),
-                            modulePathPrefix = source.includedBuild.modulePathPrefix,
-                        ),
+                            modulePathPrefix = source.includedBuild.modulePathPrefix
+                        )
                 )
             }
 
@@ -76,7 +76,7 @@ class ProjectCatalogTreesDataSource(
      * repository-owned Gradle plugin declarations.
      */
     override fun readPluginTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
@@ -84,7 +84,7 @@ class ProjectCatalogTreesDataSource(
                     .create(source.providerClassName)
                     .readPluginTreeWithVersionAliases(
                         rootDirPath = source.rootDirPath,
-                        conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds,
+                        conventionPluginIncludedBuilds = source.conventionPluginIncludedBuilds
                     )
             }
 
@@ -94,8 +94,8 @@ class ProjectCatalogTreesDataSource(
                     usageByAlias =
                         includedBuildCatalogUsageReader.readPluginUsages(
                             rootDir = File(source.includedBuild.rootDirPath),
-                            modulePathPrefix = source.includedBuild.modulePathPrefix,
-                        ),
+                            modulePathPrefix = source.includedBuild.modulePathPrefix
+                        )
                 )
             }
 
@@ -107,8 +107,8 @@ class ProjectCatalogTreesDataSource(
                             rootDir = File(includedBuild.rootDirPath),
                             usageByPluginId =
                                 mainCatalogUsageReader.readLiteralPluginUsages(
-                                    rootDir = File(source.rootDirPath),
-                                ),
+                                    rootDir = File(source.rootDirPath)
+                                )
                         )
                     }.mergePluginTrees()
             }
@@ -118,12 +118,12 @@ class ProjectCatalogTreesDataSource(
                     rootDir = File(source.rootDirPath),
                     includedPluginIds =
                         mainCatalogUsageReader.readAppliedLiteralPluginIds(
-                            rootDir = File(source.rootDirPath),
+                            rootDir = File(source.rootDirPath)
                         ),
                     usageByPluginId =
                         mainCatalogUsageReader.readAppliedLiteralPluginUsages(
-                            rootDir = File(source.rootDirPath),
-                        ),
+                            rootDir = File(source.rootDirPath)
+                        )
                 )
             }
         }
@@ -132,26 +132,26 @@ class ProjectCatalogTreesDataSource(
 private fun List<PluginCatalogTree>.mergePluginTrees(): PluginCatalogTree =
     fold(
         PluginCatalogTree(
-            roots = emptyList(),
-        ),
+            roots = emptyList()
+        )
     ) { mergedTree, tree ->
         mergedTree.merge(
-            other = tree,
+            other = tree
         )
     }
 
 private fun PluginCatalogTree.merge(
-    other: PluginCatalogTree,
+    other: PluginCatalogTree
 ): PluginCatalogTree =
     copy(
         roots =
             roots.mergePluginNodes(
-                other = other.roots,
-            ),
+                other = other.roots
+            )
     )
 
 private fun List<PluginCatalogNode>.mergePluginNodes(
-    other: List<PluginCatalogNode>,
+    other: List<PluginCatalogNode>
 ): List<PluginCatalogNode> =
     (this + other)
         .groupBy(PluginCatalogNode::id)
@@ -159,7 +159,7 @@ private fun List<PluginCatalogNode>.mergePluginNodes(
         .sortedBy(PluginCatalogNode::id)
 
 private fun PluginCatalogNode.merge(
-    other: PluginCatalogNode,
+    other: PluginCatalogNode
 ): PluginCatalogNode =
     copy(
         version = version ?: other.version,
@@ -170,11 +170,11 @@ private fun PluginCatalogNode.merge(
                 .sortedWith(
                     compareBy(
                         PluginCatalogNode.ConventionPluginUsage::pluginId,
-                        PluginCatalogNode.ConventionPluginUsage::pluginModule,
-                    ),
+                        PluginCatalogNode.ConventionPluginUsage::pluginModule
+                    )
                 ),
         children =
             children.mergePluginNodes(
-                other = other.children,
-            ),
+                other = other.children
+            )
     )

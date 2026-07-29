@@ -22,8 +22,8 @@ internal class McpExecutionPlannerTest :
                         toolNames =
                             listOf(
                                 "get_metadata",
-                                "get_screenshot",
-                            ),
+                                "get_screenshot"
+                            )
                     ).writeCapable shouldBe false
                 val writable =
                     planner.capabilities(
@@ -31,24 +31,24 @@ internal class McpExecutionPlannerTest :
                             listOf(
                                 "upload_assets",
                                 "use_figma",
-                                "get_metadata",
-                            ),
+                                "get_metadata"
+                            )
                     )
                 writable.writeCapable shouldBe true
                 planner.requireWriteCapabilities(
                     capabilities = writable,
                     manifest = manifest,
-                    executionFiles = manifest.files,
+                    executionFiles = manifest.files
                 )
 
                 shouldThrow<IllegalArgumentException> {
                     planner.requireWriteCapabilities(
                         capabilities =
                             planner.capabilities(
-                                toolNames = listOf("get_metadata"),
+                                toolNames = listOf("get_metadata")
                             ),
                         manifest = manifest,
-                        executionFiles = manifest.files,
+                        executionFiles = manifest.files
                     )
                 }.message shouldBe
                     "MCP endpoint is read-only for this runner; missing tool(s): use_figma, upload_assets. " +
@@ -62,7 +62,7 @@ internal class McpExecutionPlannerTest :
                         existingState = null,
                         options = McpExecutionOptions(),
                         executionFiles = manifest.files,
-                        now = "2026-07-18T18:00:00Z",
+                        now = "2026-07-18T18:00:00Z"
                     )
                 state =
                     planner.recordSuccess(
@@ -71,17 +71,17 @@ internal class McpExecutionPlannerTest :
                         file = "00-clear-staging.mcp.js",
                         durationMs = 10,
                         summary = "ok",
-                        now = "2026-07-18T18:00:01Z",
+                        now = "2026-07-18T18:00:01Z"
                     )
 
                 planner.selectExecutionFiles(
                     manifest = manifest,
                     options =
                         McpExecutionOptions(
-                            resume = true,
+                            resume = true
                         ),
                     existingState = state,
-                    visualState = null,
+                    visualState = null
                 ) shouldContainExactly manifest.files.drop(1)
             }
 
@@ -92,7 +92,7 @@ internal class McpExecutionPlannerTest :
                         existingState = null,
                         options = McpExecutionOptions(),
                         executionFiles = manifest.files,
-                        now = "2026-07-18T18:00:00Z",
+                        now = "2026-07-18T18:00:00Z"
                     )
                 val failed =
                     planner.recordFailure(
@@ -100,7 +100,7 @@ internal class McpExecutionPlannerTest :
                         file = "99-00-preflight.mcp.js",
                         durationMs = 25,
                         message = "timeout",
-                        now = "2026-07-18T18:00:01Z",
+                        now = "2026-07-18T18:00:01Z"
                     )
 
                 planner.selectExecutionFiles(
@@ -108,10 +108,10 @@ internal class McpExecutionPlannerTest :
                     options =
                         McpExecutionOptions(
                             resume = true,
-                            retryFailed = true,
+                            retryFailed = true
                         ),
                     existingState = failed,
-                    visualState = null,
+                    visualState = null
                 ) shouldContainExactly listOf("99-00-preflight.mcp.js")
             }
 
@@ -131,11 +131,11 @@ internal class McpExecutionPlannerTest :
                                         modelHash = manifest.modelHash,
                                         writerHash = manifest.writerHash,
                                         transportHash = manifest.transportHash,
-                                        writerScopeFingerprintSchemaVersion = 1,
+                                        writerScopeFingerprintSchemaVersion = 1
                                     ),
-                                manifestHash = manifest.manifestHash,
+                                manifestHash = manifest.manifestHash
                             ),
-                        planHash = "sha256:plan",
+                        planHash = "sha256:plan"
                     )
 
                 planner.selectExecutionFiles(
@@ -143,7 +143,7 @@ internal class McpExecutionPlannerTest :
                     options = McpExecutionOptions(),
                     existingState = null,
                     visualState = null,
-                    syncPlan = plan,
+                    syncPlan = plan
                 ) shouldContainExactly manifest.files.dropLast(1)
             }
 
@@ -154,15 +154,15 @@ internal class McpExecutionPlannerTest :
                         existingState = null,
                         options = McpExecutionOptions(),
                         executionFiles = manifest.files,
-                        now = "2026-07-18T18:00:00Z",
+                        now = "2026-07-18T18:00:00Z"
                     )
                 shouldThrow<IllegalArgumentException> {
                     planner.assertStateIdentity(
                         manifest =
                             manifest.copy(
-                                writerHash = "sha256:new-writer",
+                                writerHash = "sha256:new-writer"
                             ),
-                        state = state,
+                        state = state
                     )
                 }.message shouldBe "Checkpoint writerHash mismatch: sha256:writer != sha256:new-writer."
             }
@@ -174,7 +174,7 @@ internal class McpExecutionPlannerTest :
                         existingState = null,
                         options = McpExecutionOptions(),
                         executionFiles = manifest.files,
-                        now = "2026-07-18T18:00:00Z",
+                        now = "2026-07-18T18:00:00Z"
                     )
                 val completed =
                     planner.recordSuccess(
@@ -183,28 +183,28 @@ internal class McpExecutionPlannerTest :
                         file = "00-clear-staging.mcp.js",
                         durationMs = 10,
                         summary = "ok",
-                        now = "2026-07-18T18:00:01Z",
+                        now = "2026-07-18T18:00:01Z"
                     )
                 val altered =
                     completed.copy(
                         completedFiles =
                             listOf(
                                 completed.completedFiles.single().copy(
-                                    fileHash = "sha256:altered",
-                                ),
-                            ),
+                                    fileHash = "sha256:altered"
+                                )
+                            )
                     )
 
                 shouldThrow<IllegalArgumentException> {
                     planner.assertStateIdentity(
                         manifest = manifest,
-                        state = altered,
+                        state = altered
                     )
                 }.message shouldBe
                     "Checkpoint file hash mismatch for '00-clear-staging.mcp.js': " +
                     "sha256:altered != sha256:00."
             }
-        },
+        }
     )
 
 private val manifest =
@@ -217,7 +217,7 @@ private val manifest =
         targets =
             listOf(
                 "preflight",
-                "versions",
+                "versions"
             ),
         writeMetadata = false,
         transport = "png",
@@ -239,26 +239,26 @@ private val manifest =
         targetFingerprints =
             mapOf(
                 "preflight" to "sha256:model-preflight",
-                "versions" to "sha256:model-versions",
+                "versions" to "sha256:model-versions"
             ),
         writerScopeFingerprints =
             mapOf(
                 "preflight" to "sha256:writer-preflight",
                 "versions" to "sha256:writer-versions",
-                "metadata" to "sha256:writer-metadata",
+                "metadata" to "sha256:writer-metadata"
             ),
         writerScopeFingerprintSchemaVersion = 1,
         executionScopes =
             mapOf(
                 "99-00-preflight.mcp.js" to "preflight",
-                "99-01-versions.mcp.js" to "versions",
+                "99-01-versions.mcp.js" to "versions"
             ),
         payloadImage =
             com.marmatsan.figmaDocumentationSync.domain.model.writer.RunnerPayloadImage(
                 fileName = "payload.png",
                 byteLength = 1,
                 sha256 = "sha256:payload",
-                textKeyword = "figmaSyncPayload",
+                textKeyword = "figmaSyncPayload"
             ),
         files =
             listOf(
@@ -266,7 +266,7 @@ private val manifest =
                 "10-stage-payload-from-png.mcp.js",
                 "90-finalize-staging.mcp.js",
                 "99-00-preflight.mcp.js",
-                "99-01-versions.mcp.js",
+                "99-01-versions.mcp.js"
             ),
         fileHashes =
             mapOf(
@@ -274,7 +274,7 @@ private val manifest =
                 "10-stage-payload-from-png.mcp.js" to "sha256:10",
                 "90-finalize-staging.mcp.js" to "sha256:90",
                 "99-00-preflight.mcp.js" to "sha256:99-00",
-                "99-01-versions.mcp.js" to "sha256:99-01",
+                "99-01-versions.mcp.js" to "sha256:99-01"
             ),
-        manifestHash = "sha256:manifest",
+        manifestHash = "sha256:manifest"
     )

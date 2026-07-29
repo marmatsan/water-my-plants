@@ -17,22 +17,22 @@ import kotlin.io.path.isRegularFile
 class RunnerManifestJson {
     /** Returns the canonical hash of [body]. */
     fun hash(
-        body: JsonObject,
+        body: JsonObject
     ): String =
         Sha256Hash.of(
             value =
                 CanonicalJson.stringify(
-                    value = body,
-                ),
+                    value = body
+                )
         )
 
     /** Reads every runner manifest beneath [rootPath]. */
     fun readAll(
-        rootPath: String,
+        rootPath: String
     ): List<RunnerManifest> {
         val root =
             Path.of(
-                rootPath,
+                rootPath
             )
         if (!Files.isDirectory(root)) return emptyList()
         return Files.walk(root).use { paths ->
@@ -40,18 +40,18 @@ class RunnerManifestJson {
                 .filter { path -> path.isRegularFile() && path.fileName.toString() == MANIFEST_FILE_NAME }
                 .sorted()
                 .map(
-                    ::read,
+                    ::read
                 ).toList()
         }
     }
 
     /** Reads one runner manifest from [path]. */
     fun read(
-        path: Path,
+        path: Path
     ): RunnerManifest {
         val source =
             readObject(
-                path = path,
+                path = path
             )
         return RunnerManifest(
             path = path.toAbsolutePath().normalize().toString(),
@@ -62,56 +62,56 @@ class RunnerManifestJson {
             transportHash = source.requiredString("transportHash"),
             targetFingerprints =
                 source.requiredStringMap(
-                    name = "targetFingerprints",
+                    name = "targetFingerprints"
                 ),
             writerScopeFingerprints =
                 source.requiredStringMap(
-                    name = "writerScopeFingerprints",
+                    name = "writerScopeFingerprints"
                 ),
             writerScopeFingerprintSchemaVersion = source.requiredInt("writerScopeFingerprintSchemaVersion"),
             executionScopes =
                 source.requiredStringMap(
-                    name = "executionScopes",
+                    name = "executionScopes"
                 ),
-            manifestHash = source.requiredString("manifestHash"),
+            manifestHash = source.requiredString("manifestHash")
         )
     }
 
     private fun readObject(
-        path: Path,
+        path: Path
     ): JsonObject =
         try {
             require(path.isRegularFile()) { "MCP runner manifest was not found: '$path'." }
             Json.parseToJsonElement(Files.readString(path).removePrefix(UTF8_BOM)).jsonObject
         } catch (
-            exception: Exception,
+            exception: Exception
         ) {
             throw IllegalArgumentException(
                 "MCP runner manifest '$path' is not valid JSON: ${exception.message}",
-                exception,
+                exception
             )
         }
 
     private fun JsonObject.requiredString(
-        name: String,
+        name: String
     ): String =
         this[name]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
     private fun JsonObject.requiredBoolean(
-        name: String,
+        name: String
     ): Boolean =
         this[name]?.jsonPrimitive?.boolean
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
     private fun JsonObject.requiredInt(
-        name: String,
+        name: String
     ): Int =
         this[name]?.jsonPrimitive?.int
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")
 
     private fun JsonObject.requiredStringMap(
-        name: String,
+        name: String
     ): Map<String, String> =
         this[name]?.jsonObject?.mapValues { (_, value) -> value.jsonPrimitive.content }
             ?: throw IllegalArgumentException("JSON is missing required property '$name'.")

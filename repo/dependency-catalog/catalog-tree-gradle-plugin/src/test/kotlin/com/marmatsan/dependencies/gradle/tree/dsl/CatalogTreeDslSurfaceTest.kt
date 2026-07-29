@@ -12,7 +12,7 @@ internal class CatalogTreeDslSurfaceTest :
                 given {
                     listOf(
                         LibraryCatalogTreesScope::class.java,
-                        PluginCatalogTreesScope::class.java,
+                        PluginCatalogTreesScope::class.java
                     )
                 }.whenever { scopeTypes ->
                     scopeTypes.associate { scopeType ->
@@ -22,11 +22,11 @@ internal class CatalogTreeDslSurfaceTest :
                     operationsByScope shouldBe
                         mapOf(
                             "LibraryCatalogTreesScope" to setOf("root"),
-                            "PluginCatalogTreesScope" to setOf("root"),
+                            "PluginCatalogTreesScope" to setOf("root")
                         )
                 }
             }
-        },
+        }
     )
 
 /** Returns the non-synthetic public operations declared directly by this DSL scope. */

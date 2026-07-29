@@ -170,5 +170,5 @@ data class FigmaWriterProjectConfig(
     val usageChipKinds: Map<String, String>,
     val catalogTreeTargets: List<FigmaCatalogTreeTargetConfig>,
     val ciVisualTargetNames: List<String>,
-    val defaultFixtureTargets: Map<String, String>,
+    val defaultFixtureTargets: Map<String, String>
 )

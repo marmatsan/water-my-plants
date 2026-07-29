@@ -22,7 +22,7 @@ val versions: Properties =
     }
 val publicationVersion: String =
     providers.gradleProperty("verificationPlatformVersion").getOrElse(
-        versions.getProperty("verificationPlatformVersion"),
+        versions.getProperty("verificationPlatformVersion")
     )
 val stagingPublicationRepository: String =
     providers.gradleProperty("verificationPlatformPublicationRepository").orNull
@@ -63,8 +63,8 @@ subprojects {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
 
@@ -78,8 +78,8 @@ subprojects {
                                     "repo/verification-platform/" +
                                     localSourceDirectory.asFile
                                         .relativeTo(rootProject.projectDir)
-                                        .invariantSeparatorsPath,
-                            ),
+                                        .invariantSeparatorsPath
+                            )
                         )
                         remoteLineSuffix.set("#L")
                     }
@@ -108,7 +108,7 @@ tasks.named("check") {
     dependsOn(
         ":domain:check",
         ":data:check",
-        ":plugin:check",
+        ":plugin:check"
     )
 }
 
@@ -118,7 +118,7 @@ tasks.register("dokkaGenerate") {
     dependsOn(
         ":domain:dokkaGenerate",
         ":data:dokkaGenerate",
-        ":plugin:dokkaGenerate",
+        ":plugin:dokkaGenerate"
     )
 }
 
@@ -128,7 +128,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
     dependsOn(
         ":domain:publishAllPublicationsToStagingRepository",
         ":data:publishAllPublicationsToStagingRepository",
-        ":plugin:publishAllPublicationsToStagingRepository",
+        ":plugin:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -142,13 +142,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -158,6 +158,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "verifyPluginApplication",
         "-PverificationPlatformVersion=$publicationVersion",
         "-PverificationPlatformPublicationRepository=$stagingPublicationRepository",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

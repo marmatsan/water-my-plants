@@ -6,11 +6,11 @@ import me.tatarka.inject.annotations.Inject
 class GreetingUseCase
     @Inject
     constructor(
-        private val repository: GreetingRepository,
+        private val repository: GreetingRepository
     ) {
         operator fun invoke(
-            name: String,
+            name: String
         ) = repository.greeting(
-            name = name,
+            name = name
         )
     }

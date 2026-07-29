@@ -17,14 +17,14 @@ import com.marmatsan.onboarding.ui.R
 enum class AssetsShapeVariant {
     Shape1,
     Shape2,
-    Shape3,
+    Shape3
 }
 
 @Composable
 fun AssetsShape(
     variant: AssetsShapeVariant,
     modifier: Modifier = Modifier,
-    tintColor: Color? = null,
+    tintColor: Color? = null
 ) {
     val colorFilter = tintColor?.let { ColorFilter.tint(it) }
     val (resId, width, height) =
@@ -33,7 +33,7 @@ fun AssetsShape(
                 Triple(
                     R.drawable.assets_shape_shape1,
                     95.154.dp,
-                    69.31.dp,
+                    69.31.dp
                 )
             }
 
@@ -41,7 +41,7 @@ fun AssetsShape(
                 Triple(
                     R.drawable.assets_shape_shape2,
                     89.dp,
-                    42.dp,
+                    42.dp
                 )
             }
 
@@ -49,7 +49,7 @@ fun AssetsShape(
                 Triple(
                     R.drawable.assets_shape_shape3,
                     177.dp,
-                    107.dp,
+                    107.dp
                 )
             }
         }
@@ -57,29 +57,29 @@ fun AssetsShape(
     Image(
         painter =
             painterResource(
-                id = resId,
+                id = resId
             ),
         contentDescription = null,
         modifier =
             modifier.size(
                 width = width,
-                height = height,
+                height = height
             ),
         contentScale = ContentScale.Fit,
-        colorFilter = colorFilter,
+        colorFilter = colorFilter
     )
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
 )
 @Composable
 private fun AssetsShapePreview(
     @PreviewParameter(AssetsShapePreviewParameterProvider::class)
-    variant: AssetsShapeVariant,
+    variant: AssetsShapeVariant
 ) {
     AssetsShape(
-        variant = variant,
+        variant = variant
     )
 }
 

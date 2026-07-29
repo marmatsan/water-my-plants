@@ -23,7 +23,7 @@ internal data class FigmaDesignModelIncludedBuildSource(
     val rootDirectory: File,
     val modulePathPrefix: String,
     val publishesCatalogs: Boolean,
-    val publishesConventionPlugins: Boolean,
+    val publishesConventionPlugins: Boolean
 ) {
     /** Projects this plugin-layer input onto the domain-owned included-build contract. */
     fun toDomainSource(): IncludedBuildSource =
@@ -32,6 +32,6 @@ internal data class FigmaDesignModelIncludedBuildSource(
             rootDirPath = rootDirectory.absolutePath,
             modulePathPrefix = modulePathPrefix,
             publishesCatalogs = publishesCatalogs,
-            publishesConventionPlugins = publishesConventionPlugins,
+            publishesConventionPlugins = publishesConventionPlugins
         )
 }

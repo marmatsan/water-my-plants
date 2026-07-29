@@ -20,11 +20,11 @@ class WriterScopeFingerprintCalculator {
         policy: FigmaChangeImpactPolicy,
         writerTargets: List<String>,
         catalogTargets: List<String>,
-        scopes: List<String>,
+        scopes: List<String>
     ): Map<String, String> {
         validateRuleTargets(
             policy = policy,
-            writerTargets = writerTargets,
+            writerTargets = writerTargets
         )
         require(Files.isDirectory(sourceRoot)) { "Figma writer source root does not exist: $sourceRoot" }
         val sourceFiles =
@@ -36,15 +36,15 @@ class WriterScopeFingerprintCalculator {
                         val path =
                             repositoryPath(
                                 repositoryRoot = repositoryRoot,
-                                source = source,
+                                source = source
                             )
                         matchesAny(
                             path = path,
-                            patterns = policy.visualWriterPaths,
+                            patterns = policy.visualWriterPaths
                         ) &&
                             !matchesAny(
                                 path = path,
-                                patterns = policy.transportOnlyPaths,
+                                patterns = policy.transportOnlyPaths
                             )
                     }.toList()
             }
@@ -57,14 +57,14 @@ class WriterScopeFingerprintCalculator {
             val path =
                 repositoryPath(
                     repositoryRoot = repositoryRoot,
-                    source = source,
+                    source = source
                 )
             val matchedTargets =
                 policy.visualTargetRules
                     .filter { rule ->
                         matchesAny(
                             path = path,
-                            patterns = rule.paths,
+                            patterns = rule.paths
                         )
                     }.flatMap { rule -> rule.targets }
                     .distinct()
@@ -75,8 +75,8 @@ class WriterScopeFingerprintCalculator {
                         path = path,
                         sourceHash =
                             Sha256Hash.of(
-                                value = Files.readAllBytes(source),
-                            ),
+                                value = Files.readAllBytes(source)
+                            )
                     )
             }
         }
@@ -91,11 +91,11 @@ class WriterScopeFingerprintCalculator {
                             buildJsonObject {
                                 put(
                                     "path",
-                                    source.path,
+                                    source.path
                                 )
                                 put(
                                     "sourceHash",
-                                    source.sourceHash,
+                                    source.sourceHash
                                 )
                             }
                         }
@@ -103,22 +103,22 @@ class WriterScopeFingerprintCalculator {
                     buildJsonObject {
                         put(
                             "schemaVersion",
-                            SCHEMA_VERSION,
+                            SCHEMA_VERSION
                         )
                         put(
                             "target",
-                            target,
+                            target
                         )
                         put(
                             "sources",
-                            JsonArray(sourceJson),
+                            JsonArray(sourceJson)
                         )
                     }
                 Sha256Hash.of(
                     value =
                         CanonicalJson.stringify(
-                            value = body,
-                        ),
+                            value = body
+                        )
                 )
             }
 
@@ -127,15 +127,15 @@ class WriterScopeFingerprintCalculator {
                 targetForScope(
                     scope = scope,
                     writerTargets = writerTargets,
-                    catalogTargets = catalogTargets,
-                ),
+                    catalogTargets = catalogTargets
+                )
             )
         }
     }
 
     private fun validateRuleTargets(
         policy: FigmaChangeImpactPolicy,
-        writerTargets: List<String>,
+        writerTargets: List<String>
     ) {
         val unknownTargets =
             policy.visualTargetRules
@@ -150,14 +150,14 @@ class WriterScopeFingerprintCalculator {
     private fun targetForScope(
         scope: String,
         writerTargets: List<String>,
-        catalogTargets: List<String>,
+        catalogTargets: List<String>
     ): String {
         if (scope in writerTargets) return scope
         return catalogTargets
             .sortedByDescending(String::length)
             .firstOrNull { target ->
                 scope.startsWith(
-                    prefix = "$target.",
+                    prefix = "$target."
                 )
             }
             ?: throw IllegalArgumentException("Unknown Figma writer execution scope '$scope'.")
@@ -165,25 +165,25 @@ class WriterScopeFingerprintCalculator {
 
     private fun repositoryPath(
         repositoryRoot: Path,
-        source: Path,
+        source: Path
     ): String =
         repositoryRoot.relativize(source).toString().replace(
             '\\',
-            '/',
+            '/'
         )
 
     private fun matchesAny(
         path: String,
-        patterns: List<String>,
+        patterns: List<String>
     ): Boolean =
         patterns.any { pattern ->
             globRegex(
-                pattern = pattern,
+                pattern = pattern
             ).matches(path)
         }
 
     private fun globRegex(
-        pattern: String,
+        pattern: String
     ): Regex =
         Regex(
             buildString {
@@ -191,7 +191,7 @@ class WriterScopeFingerprintCalculator {
                 pattern
                     .replace(
                         '\\',
-                        '/',
+                        '/'
                     ).forEach { character ->
                         when (character) {
                             '*' -> {
@@ -205,20 +205,20 @@ class WriterScopeFingerprintCalculator {
                             else -> {
                                 append(
                                     Regex.escape(
-                                        literal = character.toString(),
-                                    ),
+                                        literal = character.toString()
+                                    )
                                 )
                             }
                         }
                     }
                 append('$')
             },
-            RegexOption.IGNORE_CASE,
+            RegexOption.IGNORE_CASE
         )
 
     private data class SourceFingerprint(
         val path: String,
-        val sourceHash: String,
+        val sourceHash: String
     )
 
     /** Fingerprint contract version shared with canonical metadata. */

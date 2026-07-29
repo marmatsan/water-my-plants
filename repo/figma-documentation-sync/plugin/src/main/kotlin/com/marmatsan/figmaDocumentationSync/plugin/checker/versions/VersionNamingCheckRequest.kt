@@ -8,5 +8,5 @@ import java.io.File
  * @property versionsFile source versions file selected by the consuming project.
  */
 internal data class VersionNamingCheckRequest(
-    val versionsFile: File,
+    val versionsFile: File
 )

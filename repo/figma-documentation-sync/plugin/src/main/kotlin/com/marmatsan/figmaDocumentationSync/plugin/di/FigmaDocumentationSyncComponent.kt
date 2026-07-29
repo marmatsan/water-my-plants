@@ -107,53 +107,53 @@ internal abstract class FigmaDocumentationSyncComponent {
 
     @Provides
     protected fun repositoryVersionsPort(
-        dataSource: RepositoryVersionsDataSource,
+        dataSource: RepositoryVersionsDataSource
     ): RepositoryVersionsPort =
         dataSource
 
     @Provides
     protected fun projectCatalogTreesPort(
-        dataSource: ProjectCatalogTreesDataSource,
+        dataSource: ProjectCatalogTreesDataSource
     ): ProjectCatalogTreesPort =
         dataSource
 
     @Provides
     protected fun ciExternalTopologyPort(
-        dataSource: CiExternalTopologyDataSource,
+        dataSource: CiExternalTopologyDataSource
     ): CiExternalTopologyPort =
         dataSource
 
     @Provides
     protected fun ciWindowsRuntimePort(
-        dataSource: CiWindowsRuntimeDataSource,
+        dataSource: CiWindowsRuntimeDataSource
     ): CiWindowsRuntimePort =
         dataSource
 
     @Provides
     protected fun ciConfigurationPort(
-        dataSource: CiConfigurationDataSource,
+        dataSource: CiConfigurationDataSource
     ): CiConfigurationPort =
         dataSource
 
     @Provides
     protected fun projectModulesPort(
-        dataSource: ProjectModulesDataSource,
+        dataSource: ProjectModulesDataSource
     ): ProjectModulesPort =
         dataSource
 
     @Provides
     protected fun projectModuleDependenciesPort(
-        dataSource: ProjectModuleDependenciesDataSource,
+        dataSource: ProjectModuleDependenciesDataSource
     ): ProjectModuleDependenciesPort =
         dataSource
 
     @Provides
     protected fun changeImpactPolicyPort(
-        dataSource: FigmaChangeImpactPolicyDataSource,
+        dataSource: FigmaChangeImpactPolicyDataSource
     ): FigmaChangeImpactPolicyPort = dataSource
 
     @Provides
     protected fun repositoryChangeSetPort(
-        dataSource: GitRepositoryChangeSetDataSource,
+        dataSource: GitRepositoryChangeSetDataSource
     ): RepositoryChangeSetPort = dataSource
 }

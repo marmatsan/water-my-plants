@@ -6,10 +6,10 @@ package com.marmatsan.figmaDocumentationSync.domain.model.impact
  * @property wireValue stable value serialized in scope artifacts.
  */
 enum class FigmaVerificationScope(
-    val wireValue: String,
+    val wireValue: String
 ) {
     DOCUMENTATION_ONLY("documentation-only"),
     TRANSPORT_ONLY("transport-only"),
     MODEL_NEUTRAL("model-neutral"),
-    FULL_VERIFICATION("full-verification"),
+    FULL_VERIFICATION("full-verification")
 }

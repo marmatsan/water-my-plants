@@ -6,7 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
     /** Builds the pull-request merge-gate flow section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val pipeline = context.ciPipeline
@@ -21,15 +21,15 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.branchProtectionSource,
                     row = 0,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 pipelineNode(
                     "pipeline-${pipeline.id}",
                     pipeline,
                     1,
                     0,
-                    config,
-                ),
+                    config
+                )
             )
         pipeline.jobs.forEachIndexed { index, job ->
             nodes +=
@@ -38,7 +38,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     job,
                     2 + index,
                     0,
-                    config,
+                    config
                 )
         }
         val checks = publishedChecks(pipeline)
@@ -53,7 +53,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = config.teamCitySource,
                     row = 2 + pipeline.jobs.size,
                     column = index,
-                    config = config,
+                    config = config
                 )
         }
         nodes +=
@@ -66,7 +66,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                 source = config.branchProtectionSource,
                 row = 3 + pipeline.jobs.size,
                 column = 0,
-                config = config,
+                config = config
             )
         nodes +=
             visualNode(
@@ -78,7 +78,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                 source = config.branchProtectionSource,
                 row = 4 + pipeline.jobs.size,
                 column = 0,
-                config = config,
+                config = config
             )
         val connections =
             mutableListOf(
@@ -87,8 +87,8 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     "pr",
                     "pipeline-${pipeline.id}",
                     triggerLabel(pipeline),
-                    CiVisualPlan.ConnectionKind.CONTROL,
-                ),
+                    CiVisualPlan.ConnectionKind.CONTROL
+                )
             )
         pipeline.jobs.forEachIndexed { index, job ->
             connections +=
@@ -97,7 +97,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     source = if (index == 0) "pipeline-${pipeline.id}" else "job-${pipeline.jobs[index - 1].id}",
                     target = "job-${job.id}",
                     label = if (index == 0) "Run pipeline" else "Continue",
-                    kind = CiVisualPlan.ConnectionKind.CONTROL,
+                    kind = CiVisualPlan.ConnectionKind.CONTROL
                 )
         }
         checks.forEachIndexed { index, _ ->
@@ -107,7 +107,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     pipeline.jobs.lastOrNull()?.let { "job-${it.id}" } ?: "pipeline-${pipeline.id}",
                     "check-$index",
                     "Publish check",
-                    CiVisualPlan.ConnectionKind.STATUS,
+                    CiVisualPlan.ConnectionKind.STATUS
                 )
             connections +=
                 visualConnection(
@@ -115,7 +115,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                     "check-$index",
                     "merge-gate",
                     "Required check",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 )
         }
         connections +=
@@ -124,7 +124,7 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
                 "merge-gate",
                 "main",
                 "Merge",
-                CiVisualPlan.ConnectionKind.CONTROL,
+                CiVisualPlan.ConnectionKind.CONTROL
             )
         return visualSection(
             target = "ci.pullRequestIntegration",
@@ -133,12 +133,12 @@ internal class PullRequestCiVisualSectionPlanner : CiVisualSectionPlanner {
             sources =
                 listOf(
                     config.teamCitySource,
-                    config.branchProtectionSource,
+                    config.branchProtectionSource
                 ),
             orientation = CiVisualPlan.Orientation.HORIZONTAL,
             nodes = nodes,
             connections = connections,
-            config = config,
+            config = config
         )
     }
 }

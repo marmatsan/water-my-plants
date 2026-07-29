@@ -16,9 +16,9 @@ dependencyResolutionManagement {
         create("plugins") {
             plugin(
                 "com.marmatsan.figmaDocumentationSync",
-                "com.marmatsan.figmaDocumentationSync",
+                "com.marmatsan.figmaDocumentationSync"
             ).version(
-                providers.gradleProperty("figmaDocumentationSyncVersion").get(),
+                providers.gradleProperty("figmaDocumentationSyncVersion").get()
             )
         }
     }

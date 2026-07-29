@@ -17,25 +17,25 @@ import com.marmatsan.dependencies.tree.node.Node
  */
 fun libraryTree(
     rootGroup: String,
-    content: LibraryScope.() -> Unit,
+    content: LibraryScope.() -> Unit
 ): Node<DependencyNode.Library> {
     val root =
         Node(
             DependencyNode.Library(
-                libraryGroup = rootGroup,
-            ),
+                libraryGroup = rootGroup
+            )
         )
     val scope =
         LibraryScope(
-            root = root,
+            root = root
         )
     content.invoke(
-        scope,
+        scope
     )
     return root.copy(
         value =
             root.value.copy(
-                entries = scope.configuredEntries(),
-            ),
+                entries = scope.configuredEntries()
+            )
     )
 }

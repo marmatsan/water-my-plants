@@ -23,15 +23,15 @@ class TeamCityRestRunStarter(
     serverUrl: String,
     private val teamCityToken: String,
     private val cloudflareAccessToken: String,
-    private val send: (URI, Map<String, String>, String) -> Response = ::sendRequest,
+    private val send: (URI, Map<String, String>, String) -> Response = ::sendRequest
 ) : TeamCityRunStarter {
     private val endpoint =
         URI.create("${serverUrl.trimEnd('/')}/app/rest/buildQueue").also { uri ->
             require(
                 uri.scheme.equals(
                     "https",
-                    ignoreCase = true,
-                ),
+                    ignoreCase = true
+                )
             ) {
                 "The public TeamCity automation endpoint must use HTTPS."
             }
@@ -50,7 +50,7 @@ class TeamCityRestRunStarter(
     /** Queues [buildTypeId] on [branch] through the authenticated public REST endpoint. */
     override fun startRun(
         buildTypeId: String,
-        branch: String,
+        branch: String
     ): Result<TeamCityRun, TeamCityRunStartError> {
         require(buildTypeId.isNotBlank()) { "The TeamCity build type id must not be blank." }
         require(branch.isNotBlank()) { "The TeamCity branch must not be blank." }
@@ -61,13 +61,13 @@ class TeamCityRestRunStarter(
                     buildJsonObject {
                         put(
                             "id",
-                            buildTypeId,
+                            buildTypeId
                         )
-                    },
+                    }
                 )
                 put(
                     "branchName",
-                    branch,
+                    branch
                 )
             }.toString()
         val response =
@@ -78,30 +78,30 @@ class TeamCityRestRunStarter(
                         "Accept" to "application/json",
                         "Authorization" to "Bearer $teamCityToken",
                         "CF-Access-Token" to cloudflareAccessToken,
-                        "Content-Type" to "application/json",
+                        "Content-Type" to "application/json"
                     ),
-                    body,
+                    body
                 )
             } catch (
-                exception: InterruptedException,
+                exception: InterruptedException
             ) {
                 Thread.currentThread().interrupt()
                 throw exception
             } catch (
-                exception: IOException,
+                exception: IOException
             ) {
                 return Err(
                     TeamCityRunStartError.Unavailable(
-                        detail = exception.message.orEmpty(),
-                    ),
+                        detail = exception.message.orEmpty()
+                    )
                 )
             }
         if (response.statusCode !in 200..299) {
             return Err(
                 TeamCityRunStartError.RequestRejected(
                     statusCode = response.statusCode,
-                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH),
-                ),
+                    responseBody = response.body.take(MAX_ERROR_BODY_LENGTH)
+                )
             )
         }
         return try {
@@ -110,11 +110,11 @@ class TeamCityRestRunStarter(
                     .parseToJsonElement(response.body)
                     .jsonObject
                     .toTeamCityRun(
-                        defaultBranch = branch,
-                    ),
+                        defaultBranch = branch
+                    )
             )
         } catch (
-            _: RuntimeException,
+            _: RuntimeException
         ) {
             Err(TeamCityRunStartError.InvalidResponse)
         }
@@ -128,7 +128,7 @@ class TeamCityRestRunStarter(
      */
     data class Response(
         val statusCode: Int,
-        val body: String,
+        val body: String
     )
 
     private companion object {
@@ -138,7 +138,7 @@ class TeamCityRestRunStarter(
         fun sendRequest(
             uri: URI,
             headers: Map<String, String>,
-            body: String,
+            body: String
         ): Response {
             val requestBuilder =
                 HttpRequest
@@ -147,8 +147,8 @@ class TeamCityRestRunStarter(
                     .POST(
                         HttpRequest.BodyPublishers.ofString(
                             body,
-                            StandardCharsets.UTF_8,
-                        ),
+                            StandardCharsets.UTF_8
+                        )
                     )
             headers.forEach(requestBuilder::header)
             val response =
@@ -159,55 +159,55 @@ class TeamCityRestRunStarter(
                     .build()
                     .send(
                         requestBuilder.build(),
-                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8),
+                        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
                     )
             return Response(
                 statusCode = response.statusCode(),
-                body = response.body(),
+                body = response.body()
             )
         }
     }
 }
 
 private fun JsonObject.toTeamCityRun(
-    defaultBranch: String,
+    defaultBranch: String
 ): TeamCityRun =
     TeamCityRun(
         id =
             requiredString(
-                name = "id",
+                name = "id"
             ).toLong(),
         state =
             requiredString(
-                name = "state",
+                name = "state"
             ),
         status =
             optionalString(
-                name = "status",
+                name = "status"
             ),
         statusText =
             optionalString(
-                name = "statusText",
+                name = "statusText"
             ),
         branchName =
             optionalString(
-                name = "branchName",
+                name = "branchName"
             ) ?: defaultBranch,
         webUrl =
             optionalString(
-                name = "webUrl",
-            ),
+                name = "webUrl"
+            )
     )
 
 private fun JsonObject.requiredString(
-    name: String,
+    name: String
 ): String =
     optionalString(
-        name = name,
+        name = name
     )
         ?: throw IllegalArgumentException("TeamCity REST response is missing '$name'.")
 
 private fun JsonObject.optionalString(
-    name: String,
+    name: String
 ): String? =
     this[name]?.jsonPrimitive?.contentOrNull

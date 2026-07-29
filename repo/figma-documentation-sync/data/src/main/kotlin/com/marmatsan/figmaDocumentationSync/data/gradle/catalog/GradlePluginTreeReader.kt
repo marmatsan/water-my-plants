@@ -18,7 +18,7 @@ class GradlePluginTreeReader {
     fun readPluginTree(
         rootDir: File,
         includedPluginIds: Set<String> = emptySet(),
-        usageByPluginId: Map<String, Set<String>> = emptyMap(),
+        usageByPluginId: Map<String, Set<String>> = emptyMap()
     ): PluginCatalogTree {
         val pluginIds =
             rootDir
@@ -36,8 +36,8 @@ class GradlePluginTreeReader {
             roots =
                 PluginCatalogTreeBuilder.build(
                     pluginIds = pluginIds,
-                    usageByPluginId = usageByPluginId,
-                ),
+                    usageByPluginId = usageByPluginId
+                )
         )
     }
 

@@ -6,5 +6,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.figma
  * @property sharedPluginData shared plugin values keyed by namespace and key.
  */
 data class FigmaNodeContent(
-    val sharedPluginData: Map<String, Map<String, String>>,
+    val sharedPluginData: Map<String, Map<String, String>>
 )

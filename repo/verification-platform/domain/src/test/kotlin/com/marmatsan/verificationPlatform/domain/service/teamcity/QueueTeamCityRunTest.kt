@@ -18,7 +18,7 @@ internal class QueueTeamCityRunTest :
                         id = 1800,
                         state = "queued",
                         branch = "main",
-                        webUrl = null,
+                        webUrl = null
                     )
                 given {
                     QueueTeamCityRun { Ok(expected) }
@@ -26,8 +26,8 @@ internal class QueueTeamCityRunTest :
                     service.execute(
                         TeamCityRunRequest(
                             buildTypeId = "WaterMyPlants_InfrastructureHealth",
-                            branch = "main",
-                        ),
+                            branch = "main"
+                        )
                     )
                 }.then { result ->
                     result shouldBe Ok(expected)
@@ -43,8 +43,8 @@ internal class QueueTeamCityRunTest :
                     service.execute(
                         TeamCityRunRequest(
                             buildTypeId = "Health && publish",
-                            branch = "main",
-                        ),
+                            branch = "main"
+                        )
                     )
                 }.then { result ->
                     result shouldBe Err(QueueTeamCityRunError.UnsupportedBuildType)
@@ -60,12 +60,12 @@ internal class QueueTeamCityRunTest :
                     service.execute(
                         TeamCityRunRequest(
                             buildTypeId = "InfrastructureHealth",
-                            branch = "main && publish",
-                        ),
+                            branch = "main && publish"
+                        )
                     )
                 }.then { result ->
                     result shouldBe Err(QueueTeamCityRunError.UnsupportedBranch)
                 }
             }
-        },
+        }
     )

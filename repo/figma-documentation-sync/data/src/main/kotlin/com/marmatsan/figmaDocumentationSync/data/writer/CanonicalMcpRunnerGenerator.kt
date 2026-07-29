@@ -20,29 +20,29 @@ class CanonicalMcpRunnerGenerator(
     writerFingerprints: WriterScopeFingerprintCalculator = WriterScopeFingerprintCalculator(),
     manifestJson: ExecutableRunnerManifestJson = ExecutableRunnerManifestJson(),
     payloadEncoder: PayloadPngEncoder = PayloadPngEncoder(),
-    policySource: FigmaChangeImpactPolicyDataSource = FigmaChangeImpactPolicyDataSource(),
+    policySource: FigmaChangeImpactPolicyDataSource = FigmaChangeImpactPolicyDataSource()
 ) {
     private val contextFactory =
         CanonicalMcpRunnerContextFactory(
             renderer = renderer,
             targetFingerprints = targetFingerprints,
             writerFingerprints = writerFingerprints,
-            policySource = policySource,
+            policySource = policySource
         )
     private val directoryGenerator =
         CanonicalMcpRunnerDirectoryGenerator(
             stagingPlanner =
                 CanonicalMcpRunnerStagingPlanner(
                     renderer = renderer,
-                    payloadEncoder = payloadEncoder,
+                    payloadEncoder = payloadEncoder
                 ),
             targetPlanner = CanonicalMcpRunnerTargetPlanner(renderer),
-            manifestJson = manifestJson,
+            manifestJson = manifestJson
         )
 
     /** Generates deterministic visual and metadata runner artifacts for [request]. */
     fun generate(
-        request: Request,
+        request: Request
     ): Manifests {
         val context = contextFactory.create(request)
         val visual =
@@ -50,26 +50,26 @@ class CanonicalMcpRunnerGenerator(
                 context = context,
                 outputDirectory =
                     context.outputRoot.resolve(
-                        CanonicalMcpRunnerGenerationContract.VISUAL_DIRECTORY,
+                        CanonicalMcpRunnerGenerationContract.VISUAL_DIRECTORY
                     ),
                 targets = request.config.visualTargetNames,
                 writeMetadata = false,
-                fullVisualSync = true,
+                fullVisualSync = true
             )
         val metadata =
             directoryGenerator.generate(
                 context = context,
                 outputDirectory =
                     context.outputRoot.resolve(
-                        CanonicalMcpRunnerGenerationContract.METADATA_DIRECTORY,
+                        CanonicalMcpRunnerGenerationContract.METADATA_DIRECTORY
                     ),
                 targets = listOf("metadata"),
                 writeMetadata = true,
-                fullVisualSync = false,
+                fullVisualSync = false
             )
         return Manifests(
             visualManifest = visual,
-            metadataManifest = metadata,
+            metadataManifest = metadata
         )
     }
 
@@ -97,7 +97,7 @@ class CanonicalMcpRunnerGenerator(
         val changeImpactPolicyPath: String,
         val config: FigmaWriterRuntimeConfig,
         val transport: String = TRANSPORT_PNG,
-        val chunkSize: Int = CanonicalMcpRunnerGenerationContract.DEFAULT_CHUNK_SIZE,
+        val chunkSize: Int = CanonicalMcpRunnerGenerationContract.DEFAULT_CHUNK_SIZE
     )
 
     /**
@@ -108,7 +108,7 @@ class CanonicalMcpRunnerGenerator(
      */
     data class Manifests(
         val visualManifest: ExecutableRunnerManifest,
-        val metadataManifest: ExecutableRunnerManifest,
+        val metadataManifest: ExecutableRunnerManifest
     )
 
     /** Stable wire values shared by Gradle tasks and generated runner manifests. */

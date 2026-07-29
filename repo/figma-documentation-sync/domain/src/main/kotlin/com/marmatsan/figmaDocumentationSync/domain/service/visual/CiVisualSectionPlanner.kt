@@ -6,6 +6,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal fun interface CiVisualSectionPlanner {
     /** Creates this planner's deterministic section from validated [context]. */
     fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section
 }

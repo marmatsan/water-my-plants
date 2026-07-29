@@ -12,11 +12,11 @@ import java.io.File
  */
 @Inject
 class CiWindowsRuntimeDataSource(
-    private val reader: CiWindowsRuntimeYamlReader,
+    private val reader: CiWindowsRuntimeYamlReader
 ) : CiWindowsRuntimePort {
     /** Reads the repository-owned Windows runtime YAML selected by [source]. */
     override fun readRuntime(
-        source: CiWindowsRuntimeSource,
+        source: CiWindowsRuntimeSource
     ): CiWindowsRuntime =
         reader.read(File(source.filePath))
 }

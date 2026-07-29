@@ -5,28 +5,28 @@ import java.io.File
 
 /** Reads direct product-module catalog usage through the reusable Gradle source reader. */
 internal class GradleMainCatalogUsageSource(
-    private val reader: GradleMainCatalogUsageReader,
+    private val reader: GradleMainCatalogUsageReader
 ) : MainCatalogUsageSource {
     /** Reads direct library usages from product Gradle sources below [rootDir]. */
     override fun libraryUsages(
-        rootDir: File,
+        rootDir: File
     ): MainLibraryUsages {
         val usages =
             reader.readLibraryUsages(
-                rootDir = rootDir,
+                rootDir = rootDir
             )
         return MainLibraryUsages(
             coordinates = usages.coordinates,
             bundles = usages.bundles,
-            aliases = usages.aliases,
+            aliases = usages.aliases
         )
     }
 
     /** Reads directly applied plugin ids from product Gradle sources below [rootDir]. */
     override fun pluginUsages(
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         reader.readPluginUsages(
-            rootDir = rootDir,
+            rootDir = rootDir
         )
 }

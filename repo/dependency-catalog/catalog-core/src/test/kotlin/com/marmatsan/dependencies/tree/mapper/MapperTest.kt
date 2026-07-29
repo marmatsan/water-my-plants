@@ -21,14 +21,14 @@ internal class MapperTest :
                                     artifact =
                                         Artifact(
                                             artifact = "activity-compose",
-                                            version = "1.9.1",
-                                        ),
-                                ),
-                            ),
+                                            version = "1.9.1"
+                                        )
+                                )
+                            )
                     )
                 }.whenever { node ->
                     node.toDependencyLibrary(
-                        libraryGroup = "androidx.activity",
+                        libraryGroup = "androidx.activity"
                     )
                 }.then { dependency ->
                     dependency shouldBe
@@ -40,10 +40,10 @@ internal class MapperTest :
                                         artifact =
                                             Artifact(
                                                 artifact = "activity-compose",
-                                                version = "1.9.1",
-                                            ),
-                                    ),
-                                ),
+                                                version = "1.9.1"
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -52,19 +52,19 @@ internal class MapperTest :
                 given {
                     DependencyNode.Plugin(
                         pluginId = "application",
-                        version = "8.10.1",
+                        version = "8.10.1"
                     )
                 }.whenever { node ->
                     node.toDependencyPlugin(
-                        pluginId = "com.android.application",
+                        pluginId = "com.android.application"
                     )
                 }.then { dependency ->
                     dependency shouldBe
                         Dependency.Plugin(
                             pluginId = "com.android.application",
-                            version = "8.10.1",
+                            version = "8.10.1"
                         )
                 }
             }
-        },
+        }
     )

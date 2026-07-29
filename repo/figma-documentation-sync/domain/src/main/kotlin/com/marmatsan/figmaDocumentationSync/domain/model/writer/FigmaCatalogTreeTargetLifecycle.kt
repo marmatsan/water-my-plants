@@ -6,8 +6,8 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property wireValue serialized lifecycle value consumed by the writer.
  */
 enum class FigmaCatalogTreeTargetLifecycle(
-    val wireValue: String,
+    val wireValue: String
 ) {
     STABLE_DOCUMENTATION_TARGET("stableDocumentationTarget"),
-    DECLARED_CATALOG_TARGET("declaredCatalogTarget"),
+    DECLARED_CATALOG_TARGET("declaredCatalogTarget")
 }

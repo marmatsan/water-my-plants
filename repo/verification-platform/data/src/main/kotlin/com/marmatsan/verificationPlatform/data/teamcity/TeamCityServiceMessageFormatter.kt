@@ -9,37 +9,37 @@ class TeamCityServiceMessageFormatter {
      * control characters are escaped according to the service-message format.
      */
     fun setParameters(
-        parameters: Map<String, String>,
+        parameters: Map<String, String>
     ): List<String> =
         parameters.toSortedMap().map { (name, value) ->
             "##teamcity[setParameter name='${escape(
-                value = name,
+                value = name
             )}' value='${escape(
-                value = value,
+                value = value
             )}']"
         }
 
     private fun escape(
-        value: String,
+        value: String
     ): String =
         value
             .replace(
                 "|",
-                "||",
+                "||"
             ).replace(
                 "'",
-                "|'",
+                "|'"
             ).replace(
                 "\n",
-                "|n",
+                "|n"
             ).replace(
                 "\r",
-                "|r",
+                "|r"
             ).replace(
                 "[",
-                "|[",
+                "|["
             ).replace(
                 "]",
-                "|]",
+                "|]"
             )
 }

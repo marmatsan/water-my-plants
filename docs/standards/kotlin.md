@@ -24,10 +24,12 @@ sources:
   Kotlin style. Its standard rules and the repository-owned argument-layout
   rule MUST use the root `.editorconfig`; modules MUST NOT introduce their own
   formatting policy.
-- The repository uses KtLint's official code style. Multiline lists MUST keep
-  trailing commas, and source files MUST use the configured line endings and
-  final newline. `.gitattributes` pins `.kt` and `.kts` files to LF so Windows
-  Git configuration cannot create formatter-only line-ending churn.
+- The repository uses KtLint's official code style with trailing commas
+  disabled at declaration and call sites. The final parameter, argument, or
+  element before a closing delimiter MUST NOT end in a comma. Source files
+  MUST use the configured line endings and final newline. `.gitattributes`
+  pins `.kt` and `.kts` files to LF so Windows Git configuration cannot create
+  formatter-only line-ending churn.
 - Every parameter in a function declaration MUST appear on its own line with
   its type, including declarations with a single parameter. The closing
   parenthesis MUST also be on its own line. Empty declarations MAY remain

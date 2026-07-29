@@ -11,7 +11,7 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
 data class McpCapabilities(
     val toolNames: List<String>,
     val canUseFigma: Boolean,
-    val canUploadAssets: Boolean,
+    val canUploadAssets: Boolean
 ) {
     val writeCapable: Boolean = canUseFigma && canUploadAssets
 }

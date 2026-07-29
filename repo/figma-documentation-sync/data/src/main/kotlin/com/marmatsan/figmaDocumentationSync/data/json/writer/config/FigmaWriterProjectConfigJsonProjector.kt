@@ -11,7 +11,7 @@ internal data class FigmaWriterProjectConfigJsonContext(
     /** Typed writer configuration being projected. */
     val config: FigmaWriterProjectConfig,
     /** Catalog target names reused by catalog and aggregate target fields. */
-    val catalogTargetNames: List<String>,
+    val catalogTargetNames: List<String>
 )
 
 /** One cohesive ordered section of the portable writer-config JSON schema. */
@@ -19,7 +19,7 @@ internal fun interface FigmaWriterProjectConfigJsonSection {
     /** Appends this section's fields to [json] using values from [context]. */
     fun write(
         context: FigmaWriterProjectConfigJsonContext,
-        json: JsonObjectBuilder,
+        json: JsonObjectBuilder
     )
 }
 
@@ -32,26 +32,26 @@ internal class FigmaWriterProjectConfigJsonProjector(
             WriterVersionsConfigJsonSection,
             WriterVisualStructureConfigJsonSection,
             WriterRepositoryConfigJsonSection,
-            WriterCatalogConfigJsonSection,
-        ),
+            WriterCatalogConfigJsonSection
+        )
 ) {
     /** Builds the canonical language-neutral JSON object for [config]. */
     fun project(
-        config: FigmaWriterProjectConfig,
+        config: FigmaWriterProjectConfig
     ): JsonObject {
         val context =
             FigmaWriterProjectConfigJsonContext(
                 config = config,
                 catalogTargetNames =
                     config.catalogTreeTargets.map(
-                        transform = FigmaCatalogTreeTargetConfig::name,
-                    ),
+                        transform = FigmaCatalogTreeTargetConfig::name
+                    )
             )
         return buildJsonObject {
             sections.forEach { section ->
                 section.write(
                     context = context,
-                    json = this,
+                    json = this
                 )
             }
         }

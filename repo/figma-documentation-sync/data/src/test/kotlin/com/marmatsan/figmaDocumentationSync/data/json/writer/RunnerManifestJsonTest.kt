@@ -19,11 +19,11 @@ internal class RunnerManifestJsonTest :
                               "files": ["a.mcp.js"],
                               "fileHashes": {"a.mcp.js": "sha256:file"}
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         ).jsonObject
 
                 RunnerManifestJson().hash(body) shouldBe
                     "sha256:978f117b2d11ed29454dc0c23b419c430d59a33ef933f084f86ac17161315393"
             }
-        },
+        }
     )

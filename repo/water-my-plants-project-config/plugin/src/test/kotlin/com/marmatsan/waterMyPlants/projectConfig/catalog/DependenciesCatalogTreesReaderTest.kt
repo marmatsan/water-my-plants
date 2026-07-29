@@ -25,7 +25,7 @@ internal class DependenciesCatalogTreesReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "dependencies-catalog-trees-reader",
+                    prefix = "dependencies-catalog-trees-reader"
                 )
 
             test("readLibraryTree maps dependency library trees to catalog library trees") {
@@ -40,8 +40,8 @@ internal class DependenciesCatalogTreesReaderTest :
                                         listOf(
                                             SourceLibraryCatalogEntry.Artifact(
                                                 name = "compose-bom",
-                                                version = "2026.05.01",
-                                            ),
+                                                version = "2026.05.01"
+                                            )
                                         ),
                                     children =
                                         listOf(
@@ -54,15 +54,15 @@ internal class DependenciesCatalogTreesReaderTest :
                                                             artifacts =
                                                                 listOf(
                                                                     "ui",
-                                                                    "ui-tooling",
+                                                                    "ui-tooling"
                                                                 ),
-                                                            version = null,
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                            version = null
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { dependencyTree ->
                     dependenciesCatalogTreesReader().readLibraryTree(listOf(dependencyTree))
@@ -83,9 +83,9 @@ internal class DependenciesCatalogTreesReaderTest :
                                                                 artifact = "compose-bom",
                                                                 version =
                                                                     CatalogVersion(
-                                                                        value = "2026.05.01",
-                                                                    ),
-                                                            ),
+                                                                        value = "2026.05.01"
+                                                                    )
+                                                            )
                                                         ),
                                                     children =
                                                         listOf(
@@ -98,20 +98,20 @@ internal class DependenciesCatalogTreesReaderTest :
                                                                             artifacts =
                                                                                 listOf(
                                                                                     "ui",
-                                                                                    "ui-tooling",
+                                                                                    "ui-tooling"
                                                                                 ),
                                                                             version =
                                                                                 CatalogVersion(
-                                                                                    value = null,
-                                                                                ),
-                                                                        ),
-                                                                    ),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                                    value = null
+                                                                                )
+                                                                        )
+                                                                    )
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -132,13 +132,13 @@ internal class DependenciesCatalogTreesReaderTest :
                                                     listOf(
                                                         SourcePluginCatalogNode(
                                                             id = "android",
-                                                            version = "2.4.0",
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                            version = "2.4.0"
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { dependencyTree ->
                     dependenciesCatalogTreesReader().readPluginTree(listOf(dependencyTree))
@@ -163,16 +163,16 @@ internal class DependenciesCatalogTreesReaderTest :
                                                                             id = "android",
                                                                             version =
                                                                                 CatalogVersion(
-                                                                                    value = "2.4.0",
-                                                                                ),
-                                                                        ),
-                                                                    ),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                                    value = "2.4.0"
+                                                                                )
+                                                                        )
+                                                                    )
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
@@ -182,7 +182,7 @@ internal class DependenciesCatalogTreesReaderTest :
                     File(".")
                 }.whenever { rootDir ->
                     dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { actualTree ->
                     val activity =
@@ -195,7 +195,7 @@ internal class DependenciesCatalogTreesReaderTest :
 
                     activity.version shouldBe
                         CatalogVersion(
-                            value = "activityComposeLibraryVersion",
+                            value = "activityComposeLibraryVersion"
                         )
                 }
             }
@@ -205,36 +205,36 @@ internal class DependenciesCatalogTreesReaderTest :
                     File(".")
                 }.whenever { rootDir ->
                     dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { actualTree ->
                     actualTree
                         .findPlugin(
-                            pluginId = "com.google.devtools.ksp",
+                            pluginId = "com.google.devtools.ksp"
                         ).version shouldBe
                         CatalogVersion(
-                            value = "kspPluginVersion",
+                            value = "kspPluginVersion"
                         )
                     actualTree
                         .findPlugin(
-                            pluginId = "org.jetbrains.dokka",
+                            pluginId = "org.jetbrains.dokka"
                         ).version shouldBe
                         CatalogVersion(
-                            value = "dokkaPluginVersion",
+                            value = "dokkaPluginVersion"
                         )
                     actualTree
                         .findPlugin(
-                            pluginId = "org.jetbrains.kotlin.plugin.compose",
+                            pluginId = "org.jetbrains.kotlin.plugin.compose"
                         ).version shouldBe
                         CatalogVersion(
-                            value = "kotlinVersion",
+                            value = "kotlinVersion"
                         )
                     actualTree
                         .findPlugin(
-                            pluginId = "com.marmatsan.android",
+                            pluginId = "com.marmatsan.android"
                         ).version shouldBe
                         CatalogVersion(
-                            value = "gradleConventionPluginVersion",
+                            value = "gradleConventionPluginVersion"
                         )
                 }
             }
@@ -251,7 +251,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                 implementation(platform(libs.androidx.compose.bom))
                                 implementation(libs.bundles.composeBundle)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeSettingsFile(
                         path = "repo/gradle-plugins",
@@ -259,7 +259,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             """
                             rootProject.name = "gradle-plugins"
                             include(":unit-test")
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "repo/gradle-plugins/unit-test",
@@ -268,33 +268,33 @@ internal class DependenciesCatalogTreesReaderTest :
                             dependencies {
                                 testImplementation(libs.io.mockk)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
                     dependenciesCatalogTreesReader().readLibraryTreeWithVersionAliases(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { actualTree ->
                     actualTree
                         .findArtifact(
                             groupPath = "androidx.core",
-                            artifact = "core-ktx",
+                            artifact = "core-ktx"
                         ).requiredByModules shouldBe listOf(":app")
                     actualTree
                         .findArtifact(
                             groupPath = "androidx.compose",
-                            artifact = "compose-bom",
+                            artifact = "compose-bom"
                         ).requiredByModules shouldBe listOf(":app")
                     actualTree
                         .findBundle(
                             groupPath = "androidx.compose.ui",
-                            alias = "composeBundle",
+                            alias = "composeBundle"
                         ).requiredByModules shouldBe listOf(":app")
                     actualTree
                         .findArtifact(
                             groupPath = "io.mockk",
-                            artifact = "mockk",
+                            artifact = "mockk"
                         ).requiredByModules shouldBe emptyList()
                 }
             }
@@ -309,7 +309,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "core/ui",
@@ -318,7 +318,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "onboarding/ui",
@@ -327,11 +327,11 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.android")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "compose",
@@ -344,7 +344,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "compose/src/main/kotlin/com/marmatsan/compose/plugin",
@@ -362,7 +362,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     bundle = "composeBundle"
                                 )
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "unit-test",
@@ -375,7 +375,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     implementationClass = "com.marmatsan.unitTest.plugin.UnitTestGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "unit-test/src/main/kotlin/com/marmatsan/unitTest/plugin",
@@ -390,7 +390,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     artifact = "mockk"
                                 )
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir to includedBuildRootDir
                 }.whenever { (rootDir, includedBuildRootDir) ->
@@ -402,13 +402,13 @@ internal class DependenciesCatalogTreesReaderTest :
                                     settingsFilePath =
                                         includedBuildRootDir
                                             .resolve(
-                                                relative = "settings.gradle.kts",
+                                                relative = "settings.gradle.kts"
                                             ).absolutePath,
                                     rootDirPath = includedBuildRootDir.absolutePath,
                                     modulePathPrefix = ":gradle-plugins",
-                                    publishesConventionPlugins = true,
-                                ),
-                            ),
+                                    publishesConventionPlugins = true
+                                )
+                            )
                     )
                 }.then { actualTree ->
                     val expectedComposeUsage =
@@ -419,32 +419,32 @@ internal class DependenciesCatalogTreesReaderTest :
                                 requiredByModules =
                                     listOf(
                                         ":app",
-                                        ":core:ui",
-                                    ),
-                            ),
+                                        ":core:ui"
+                                    )
+                            )
                         )
                     val expectedUnusedUnitTestUsage =
                         listOf(
                             ConventionPluginUsage(
                                 pluginId = "com.marmatsan.unitTest",
                                 pluginModule = ":gradle-plugins:unit-test",
-                                requiredByModules = emptyList(),
-                            ),
+                                requiredByModules = emptyList()
+                            )
                         )
                     actualTree
                         .findArtifact(
                             groupPath = "androidx.activity",
-                            artifact = "activity-compose",
+                            artifact = "activity-compose"
                         ).providedByConventionPlugins shouldBe expectedComposeUsage
                     actualTree
                         .findBundle(
                             groupPath = "androidx.compose.ui",
-                            alias = "composeBundle",
+                            alias = "composeBundle"
                         ).providedByConventionPlugins shouldBe expectedComposeUsage
                     actualTree
                         .findArtifact(
                             groupPath = "io.mockk",
-                            artifact = "mockk",
+                            artifact = "mockk"
                         ).providedByConventionPlugins shouldBe expectedUnusedUnitTestUsage
                 }
             }
@@ -454,7 +454,7 @@ internal class DependenciesCatalogTreesReaderTest :
                     val rootDir = temporaryDirectory.resolve("convention-library-configuration").apply { mkdirs() }
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "protobuf",
@@ -467,7 +467,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     implementationClass = "com.marmatsan.protobuf.plugin.ProtobufGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "protobuf/src/main/kotlin/com/marmatsan/protobuf/plugin",
@@ -490,7 +490,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     }
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir to includedBuildRootDir
                 }.whenever { (rootDir, includedBuildRootDir) ->
@@ -502,19 +502,19 @@ internal class DependenciesCatalogTreesReaderTest :
                                     settingsFilePath =
                                         includedBuildRootDir
                                             .resolve(
-                                                relative = "settings.gradle.kts",
+                                                relative = "settings.gradle.kts"
                                             ).absolutePath,
                                     rootDirPath = includedBuildRootDir.absolutePath,
                                     modulePathPrefix = ":gradle-plugins",
-                                    publishesConventionPlugins = true,
-                                ),
-                            ),
+                                    publishesConventionPlugins = true
+                                )
+                            )
                     )
                 }.then { actualTree ->
                     val protobufKotlin =
                         actualTree.findArtifact(
                             groupPath = "com.google.protobuf",
-                            artifact = "protobuf-kotlin",
+                            artifact = "protobuf-kotlin"
                         )
                     protobufKotlin.requiredByModules shouldBe emptyList()
                     protobufKotlin.providedByConventionPlugins shouldBe
@@ -522,15 +522,15 @@ internal class DependenciesCatalogTreesReaderTest :
                             ConventionPluginUsage(
                                 pluginId = "com.marmatsan.protobuf",
                                 pluginModule = ":gradle-plugins:protobuf",
-                                requiredByModules = emptyList(),
-                            ),
+                                requiredByModules = emptyList()
+                            )
                         )
                     protobufKotlin.configuredByConventionPlugins shouldBe emptyList()
 
                     val protoc =
                         actualTree.findArtifact(
                             groupPath = "com.google.protobuf",
-                            artifact = "protoc",
+                            artifact = "protoc"
                         )
                     protoc.requiredByModules shouldBe emptyList()
                     protoc.providedByConventionPlugins shouldBe emptyList()
@@ -539,8 +539,8 @@ internal class DependenciesCatalogTreesReaderTest :
                             ConventionPluginConfigurationUsage(
                                 pluginId = "com.marmatsan.protobuf",
                                 pluginModule = ":gradle-plugins:protobuf",
-                                target = "protobuf.protoc.artifact",
-                            ),
+                                target = "protobuf.protoc.artifact"
+                            )
                         )
                 }
             }
@@ -555,7 +555,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 alias(plugins.plugins.com.android.application)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "core/ui",
@@ -564,7 +564,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 alias(plugins.plugins.com.android.library)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeSettingsFile(
                         path = "repo/gradle-plugins",
@@ -572,7 +572,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             """
                             rootProject.name = "gradle-plugins"
                             include(":dokka-documentation")
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "repo/gradle-plugins/dokka-documentation",
@@ -581,25 +581,25 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 alias(plugins.plugins.org.jetbrains.dokka)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir
                 }.whenever { rootDir ->
                     dependenciesCatalogTreesReader().readPluginTreeWithVersionAliases(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { actualTree ->
                     actualTree
                         .findPlugin(
-                            pluginId = "com.android.application",
+                            pluginId = "com.android.application"
                         ).appliedToModules shouldBe listOf(":app")
                     actualTree
                         .findPlugin(
-                            pluginId = "com.android.library",
+                            pluginId = "com.android.library"
                         ).appliedToModules shouldBe listOf(":core:ui")
                     actualTree
                         .findPlugin(
-                            pluginId = "org.jetbrains.dokka",
+                            pluginId = "org.jetbrains.dokka"
                         ).appliedToModules shouldBe emptyList()
                 }
             }
@@ -614,7 +614,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "core/ui",
@@ -623,7 +623,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir.writeBuildFile(
                         path = "onboarding/ui",
@@ -632,11 +632,11 @@ internal class DependenciesCatalogTreesReaderTest :
                             plugins {
                                 id("com.marmatsan.android")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "compose",
@@ -649,7 +649,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     implementationClass = "com.marmatsan.compose.plugin.ComposeGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "compose/src/main/kotlin/com/marmatsan/compose/plugin",
@@ -661,7 +661,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             fun configure(project: Project) {
                                 project.pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "android",
@@ -674,7 +674,7 @@ internal class DependenciesCatalogTreesReaderTest :
                                     implementationClass = "com.marmatsan.android.plugin.AndroidGradleConventionPlugin"
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     includedBuildRootDir.writeKotlinFile(
                         path = "android/src/main/kotlin/com/marmatsan/android/plugin",
@@ -686,7 +686,7 @@ internal class DependenciesCatalogTreesReaderTest :
                             fun configure(project: Project) {
                                 project.pluginManager.apply("com.google.devtools.ksp")
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                     rootDir to includedBuildRootDir
                 }.whenever { (rootDir, includedBuildRootDir) ->
@@ -698,18 +698,18 @@ internal class DependenciesCatalogTreesReaderTest :
                                     settingsFilePath =
                                         includedBuildRootDir
                                             .resolve(
-                                                relative = "settings.gradle.kts",
+                                                relative = "settings.gradle.kts"
                                             ).absolutePath,
                                     rootDirPath = includedBuildRootDir.absolutePath,
                                     modulePathPrefix = ":gradle-plugins",
-                                    publishesConventionPlugins = true,
-                                ),
-                            ),
+                                    publishesConventionPlugins = true
+                                )
+                            )
                     )
                 }.then { actualTree ->
                     actualTree
                         .findPlugin(
-                            pluginId = "org.jetbrains.kotlin.plugin.compose",
+                            pluginId = "org.jetbrains.kotlin.plugin.compose"
                         ).providedByConventionPlugins shouldBe
                         listOf(
                             PluginCatalogNode.ConventionPluginUsage(
@@ -718,28 +718,28 @@ internal class DependenciesCatalogTreesReaderTest :
                                 requiredByModules =
                                     listOf(
                                         ":app",
-                                        ":core:ui",
-                                    ),
-                            ),
+                                        ":core:ui"
+                                    )
+                            )
                         )
                     actualTree
                         .findPlugin(
-                            pluginId = "com.google.devtools.ksp",
+                            pluginId = "com.google.devtools.ksp"
                         ).providedByConventionPlugins shouldBe
                         listOf(
                             PluginCatalogNode.ConventionPluginUsage(
                                 pluginId = "com.marmatsan.android",
                                 pluginModule = ":gradle-plugins:android",
-                                requiredByModules = listOf(":onboarding:ui"),
-                            ),
+                                requiredByModules = listOf(":onboarding:ui")
+                            )
                         )
                     actualTree
                         .findPlugin(
-                            pluginId = "org.jetbrains.dokka",
+                            pluginId = "org.jetbrains.dokka"
                         ).providedByConventionPlugins shouldBe emptyList()
                 }
             }
-        },
+        }
     )
 
 private fun dependenciesCatalogTreesReader(): DependenciesCatalogTreesReader =
@@ -750,34 +750,34 @@ private fun dependenciesCatalogTreesReader(): DependenciesCatalogTreesReader =
         conventionPluginCatalogUsageSource =
             GradleConventionPluginCatalogUsageSource(
                 reader = GradleConventionCatalogUsageReader(),
-                mainReader = GradleMainCatalogUsageReader(),
+                mainReader = GradleMainCatalogUsageReader()
             ),
         libraryCatalogUsageEnricher = DefaultLibraryCatalogUsageEnricher(),
-        pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher(),
+        pluginCatalogUsageEnricher = DefaultPluginCatalogUsageEnricher()
     )
 
 private fun LibraryCatalogTree.findArtifact(
     groupPath: String,
-    artifact: String,
+    artifact: String
 ): LibraryCatalogEntry.Artifact =
     findLibraryNode(
-        groupPath = groupPath,
+        groupPath = groupPath
     ).entries
         .filterIsInstance<LibraryCatalogEntry.Artifact>()
         .first { entry -> entry.artifact == artifact }
 
 private fun LibraryCatalogTree.findBundle(
     groupPath: String,
-    alias: String,
+    alias: String
 ): LibraryCatalogEntry.ArtifactsBundle =
     findLibraryNode(
-        groupPath = groupPath,
+        groupPath = groupPath
     ).entries
         .filterIsInstance<LibraryCatalogEntry.ArtifactsBundle>()
         .first { entry -> entry.alias == alias }
 
 private fun LibraryCatalogTree.findLibraryNode(
-    groupPath: String,
+    groupPath: String
 ): LibraryCatalogNode {
     val segments = groupPath.split(".")
 
@@ -788,7 +788,7 @@ private fun LibraryCatalogTree.findLibraryNode(
 }
 
 private fun PluginCatalogTree.findPlugin(
-    pluginId: String,
+    pluginId: String
 ): PluginCatalogNode {
     val segments = pluginId.split(".")
 
@@ -800,46 +800,46 @@ private fun PluginCatalogTree.findPlugin(
 
 private fun File.writeSettingsFile(
     path: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "settings.gradle.kts",
+            relative = "settings.gradle.kts"
         ).writeText(content)
 }
 
 private fun File.writeBuildFile(
     path: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "build.gradle.kts",
+            relative = "build.gradle.kts"
         ).writeText(content)
 }
 
 private fun File.writeKotlinFile(
     path: String,
     fileName: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = fileName,
+            relative = fileName
         ).writeText(content)
 }

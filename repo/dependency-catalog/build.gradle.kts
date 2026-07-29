@@ -22,7 +22,7 @@ val versions: Properties =
     }
 val publicationVersion: String =
     providers.gradleProperty("dependencyCatalogVersion").getOrElse(
-        versions.getProperty("dependencyCatalogVersion"),
+        versions.getProperty("dependencyCatalogVersion")
     )
 val stagingPublicationRepository: String =
     providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
@@ -51,8 +51,8 @@ subprojects {
             moduleName.convention(
                 path.removePrefix(":").replace(
                     ':',
-                    '/',
-                ),
+                    '/'
+                )
             )
 
             dokkaPublications.configureEach {
@@ -63,8 +63,8 @@ subprojects {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
                 skipEmptyPackages.set(true)
@@ -80,8 +80,8 @@ subprojects {
                                     "repo/dependency-catalog/" +
                                     localSourceDirectory.asFile
                                         .relativeTo(rootProject.projectDir)
-                                        .invariantSeparatorsPath,
-                            ),
+                                        .invariantSeparatorsPath
+                            )
                         )
                         remoteLineSuffix.set("#L")
                     }
@@ -122,7 +122,7 @@ tasks.register("dokkaGenerate") {
     dependsOn(
         subprojects.map { project ->
             "${project.path}:dokkaGenerate"
-        },
+        }
     )
 }
 
@@ -134,7 +134,7 @@ val checkDependencyCatalogArchitecture =
             ":catalog-api:check",
             ":catalog-core:check",
             ":catalog-gradle-plugin:check",
-            ":catalog-tree-gradle-plugin:check",
+            ":catalog-tree-gradle-plugin:check"
         )
     }
 
@@ -149,7 +149,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":catalog-api:publishAllPublicationsToStagingRepository",
         ":catalog-core:publishAllPublicationsToStagingRepository",
         ":catalog-gradle-plugin:publishAllPublicationsToStagingRepository",
-        ":catalog-tree-gradle-plugin:publishAllPublicationsToStagingRepository",
+        ":catalog-tree-gradle-plugin:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -164,13 +164,13 @@ val verifyProviderStagedPublication =
             layout.projectDirectory.file(
                 if (System.getProperty("os.name").startsWith(
                         "Windows",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
                 ) {
                     "../../gradlew.bat"
                 } else {
                     "../../gradlew"
-                },
+                }
             )
 
         workingDir(sampleDirectory)
@@ -180,7 +180,7 @@ val verifyProviderStagedPublication =
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
-            "--stacktrace",
+            "--stacktrace"
         )
     }
 
@@ -195,13 +195,13 @@ val verifyTreeStagedPublication =
             layout.projectDirectory.file(
                 if (System.getProperty("os.name").startsWith(
                         "Windows",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
                 ) {
                     "../../gradlew.bat"
                 } else {
                     "../../gradlew"
-                },
+                }
             )
 
         workingDir(sampleDirectory)
@@ -211,7 +211,7 @@ val verifyTreeStagedPublication =
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
-            "--stacktrace",
+            "--stacktrace"
         )
     }
 
@@ -220,6 +220,6 @@ tasks.register("verifyStagedPublication") {
     description = "Verifies both staged dependency catalog settings adapters."
     dependsOn(
         verifyProviderStagedPublication,
-        verifyTreeStagedPublication,
+        verifyTreeStagedPublication
     )
 }

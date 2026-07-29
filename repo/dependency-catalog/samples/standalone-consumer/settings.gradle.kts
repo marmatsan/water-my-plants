@@ -37,7 +37,7 @@ dependencyCatalog {
         provider =
             object : ResolvedDependencyCatalogProvider {
                 override fun resolved(
-                    rootDir: File,
+                    rootDir: File
                 ): DependencyCatalog =
                     DependencyCatalog(
                         libraries =
@@ -56,14 +56,14 @@ dependencyCatalog {
                                                                 listOf(
                                                                     LibraryCatalogEntry.Artifact(
                                                                         name = "kotlin-stdlib",
-                                                                        version = "2.4.0",
-                                                                    ),
-                                                                ),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
+                                                                        version = "2.4.0"
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
                             ),
                         plugins =
                             listOf(
@@ -81,17 +81,17 @@ dependencyCatalog {
                                                                 listOf(
                                                                     PluginCatalogNode(
                                                                         id = "jvm",
-                                                                        version = "2.4.0",
-                                                                    ),
-                                                                ),
-                                                        ),
-                                                    ),
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                                        version = "2.4.0"
+                                                                    )
+                                                                )
+                                                        )
+                                                    )
+                                            )
+                                        )
+                                )
+                            )
                     )
-            },
+            }
     )
 }
 

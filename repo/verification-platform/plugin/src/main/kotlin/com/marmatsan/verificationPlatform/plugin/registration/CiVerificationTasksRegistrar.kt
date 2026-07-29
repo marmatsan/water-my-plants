@@ -8,14 +8,14 @@ import org.gradle.api.tasks.TaskProvider
 /** Registers provider-neutral CI projections derived from the verification plan. */
 internal class CiVerificationTasksRegistrar(
     private val project: Project,
-    private val generateCiPlan: TaskProvider<GenerateCiPlanTask>,
+    private val generateCiPlan: TaskProvider<GenerateCiPlanTask>
 ) {
     /** Registers the non-authoritative CI topology preview. */
     fun register() {
         project.tasks.registerVerificationTask(
             "generateCiTopologyPreview",
             GenerateCiTopologyPreviewTask::class.java,
-            "Previews provider-neutral CI lanes without changing active TeamCity jobs.",
+            "Previews provider-neutral CI lanes without changing active TeamCity jobs."
         ) { task ->
             task.dependsOn(generateCiPlan)
             task.planFile.set(generateCiPlan.flatMap(GenerateCiPlanTask::outputFile))
@@ -23,10 +23,10 @@ internal class CiVerificationTasksRegistrar(
                 project.providers
                     .gradleProperty("ciAvailableAgents")
                     .map(String::toInt)
-                    .orElse(1),
+                    .orElse(1)
             )
             task.outputFile.convention(
-                project.layout.buildDirectory.file("reports/ci/ci-topology-preview.json"),
+                project.layout.buildDirectory.file("reports/ci/ci-topology-preview.json")
             )
         }
     }

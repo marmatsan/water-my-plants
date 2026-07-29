@@ -44,6 +44,6 @@ internal object CanonicalMcpRunnerGenerationContract {
     val supportedTransports =
         setOf(
             CanonicalMcpRunnerGenerator.TRANSPORT_PNG,
-            CanonicalMcpRunnerGenerator.TRANSPORT_CHUNKS,
+            CanonicalMcpRunnerGenerator.TRANSPORT_CHUNKS
         )
 }

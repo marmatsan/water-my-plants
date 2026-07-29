@@ -19,8 +19,8 @@ extensions.configure<VerificationPlatformExtension> {
     ciPolicy {
         toolingPathPrefixes.set(
             listOf(
-                "repo/figma-documentation-sync/",
-            ),
+                "repo/figma-documentation-sync/"
+            )
         )
         buildInfrastructurePathPrefixes.set(
             listOf(
@@ -28,15 +28,15 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/gradle-plugins/",
                 "repo/unit-testing/",
                 "repo/verification-platform/",
-                "repo/water-my-plants-project-config/",
-            ),
+                "repo/water-my-plants-project-config/"
+            )
         )
         buildInfrastructurePaths.set(
             listOf(
                 "settings.gradle.kts",
                 "build.gradle.kts",
-                "gradle.properties",
-            ),
+                "gradle.properties"
+            )
         )
         portableDistributionPathPrefixes.set(
             listOf(
@@ -54,8 +54,8 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/figma-documentation-sync/samples/standalone-consumer/",
                 "repo/gradle-plugins/",
                 "repo/unit-testing/",
-                "repo/verification-platform/",
-            ),
+                "repo/verification-platform/"
+            )
         )
         portableDistributionPaths.set(
             listOf(
@@ -74,45 +74,45 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/unit-testing/versions.properties",
                 "repo/verification-platform/build.gradle.kts",
                 "repo/verification-platform/settings.gradle.kts",
-                "repo/verification-platform/versions.properties",
-            ),
+                "repo/verification-platform/versions.properties"
+            )
         )
         toolingCapabilities.set(
             listOf(
                 "java",
                 "android-sdk",
-                "node",
-            ),
+                "node"
+            )
         )
         buildInfrastructureCapabilities.set(
             listOf(
                 "java",
-                "android-sdk",
-            ),
+                "android-sdk"
+            )
         )
         portableDistributionCapabilities.set(
             listOf(
                 "java",
                 "android-sdk",
-                "node",
-            ),
+                "node"
+            )
         )
         buildInfrastructureVerificationTasks.set(
             listOf(
                 "checkDependencyCatalogArchitecture",
                 "checkIncludedBuildVersions",
-                "checkModuleBoundaries",
-            ),
+                "checkModuleBoundaries"
+            )
         )
         portableDistributionVerificationTasks.set(
             listOf(
-                "verifyPortableDistribution",
-            ),
+                "verifyPortableDistribution"
+            )
         )
         targetedModuleSupplementalTasks.set(
             listOf(
-                "checkFigmaCatalogUsage",
-            ),
+                "checkFigmaCatalogUsage"
+            )
         )
     }
 
@@ -123,7 +123,7 @@ extensions.configure<VerificationPlatformExtension> {
             "repo/figma-documentation-sync",
             "repo/verification-platform",
             "repo/unit-testing",
-            "repo/water-my-plants-project-config",
+            "repo/water-my-plants-project-config"
         ).forEach(::versionedBuild)
 
         alignedVersion("kotlinResultLibraryVersion")
@@ -134,62 +134,62 @@ extensions.configure<VerificationPlatformExtension> {
             "com.marmatsan.dependencies.catalog.DependencyCatalogTrees",
             "com.marmatsan.dependencies.gradle",
             "com.marmatsan.figmaDocumentationSync",
-            "com.marmatsan.verificationPlatform",
+            "com.marmatsan.verificationPlatform"
         )
         reusableScope(
             "repo/dependency-catalog/catalog-core",
             "com.marmatsan.dependencies.gradle",
             "com.marmatsan.figmaDocumentationSync",
-            "com.marmatsan.verificationPlatform",
+            "com.marmatsan.verificationPlatform"
         )
         reusableScope(
             "repo/dependency-catalog/catalog-gradle-plugin",
             "com.marmatsan.dependencies.catalog.DependencyCatalogTrees",
             "com.marmatsan.dependencies.tree",
             "com.marmatsan.figmaDocumentationSync",
-            "com.marmatsan.verificationPlatform",
+            "com.marmatsan.verificationPlatform"
         )
         reusableScope(
             "repo/dependency-catalog/catalog-tree-gradle-plugin",
             "com.marmatsan.figmaDocumentationSync",
             "com.marmatsan.verificationPlatform",
-            "com.marmatsan.waterMyPlants",
+            "com.marmatsan.waterMyPlants"
         )
         reusableScope(
             "repo/figma-documentation-sync",
             "com.marmatsan.dependencies",
-            "com.marmatsan.waterMyPlants",
+            "com.marmatsan.waterMyPlants"
         )
         reusableScope(
             "repo/gradle-plugins",
             "WaterMyPlantsCatalog",
             "com.marmatsan.figmaDocumentationSync",
             "com.marmatsan.verificationPlatform",
-            "com.marmatsan.waterMyPlants",
+            "com.marmatsan.waterMyPlants"
         )
         reusableScope(
             "repo/unit-testing",
             "com.marmatsan.figmaDocumentationSync",
-            "com.marmatsan.verificationPlatform",
+            "com.marmatsan.verificationPlatform"
         )
         reusableScope(
             "repo/verification-platform",
             "repo/dependency-catalog",
             "repo/figma-documentation-sync",
             "repo/gradle-plugins",
-            "repo/water-my-plants-project-config",
+            "repo/water-my-plants-project-config"
         )
     }
 
     typedErrorHandling {
         standardResult(
-            qualifiedName = "com.github.michaelbull.result.Result",
+            qualifiedName = "com.github.michaelbull.result.Result"
         )
         listOf(
             "app",
             "core",
             "onboarding",
-            "repo",
+            "repo"
         ).forEach(::productionSourceScope)
     }
 
@@ -199,19 +199,19 @@ extensions.configure<VerificationPlatformExtension> {
             buildName = "dependency-catalog",
             taskPath = ":checkDependencyCatalogArchitecture",
             description = "Verifies the portable dependency catalog architecture.",
-            requiredByCheck = true,
+            requiredByCheck = true
         )
         includedBuildTask(
             name = "verifyDependencyCatalogDistribution",
             buildName = "dependency-catalog",
             taskPath = ":verifyStagedPublication",
-            description = "Verifies the staged dependency catalog through a standalone consumer.",
+            description = "Verifies the staged dependency catalog through a standalone consumer."
         )
         includedBuildTask(
             name = "verifyFigmaDocumentationSyncDistribution",
             buildName = "figma-documentation-sync",
             taskPath = ":verifyStagedPublication",
-            description = "Verifies the staged Figma plugin through a standalone consumer.",
+            description = "Verifies the staged Figma plugin through a standalone consumer."
         )
         isolatedGradleBuildTask(
             name = "verifyGradlePluginsDistribution",
@@ -220,35 +220,35 @@ extensions.configure<VerificationPlatformExtension> {
             projectProperties =
                 mapOf(
                     "dependencyCatalogSourceBuild" to
-                        file("repo/dependency-catalog").absolutePath,
+                        file("repo/dependency-catalog").absolutePath
                 ),
-            description = "Verifies staged convention plugins through a standalone consumer.",
+            description = "Verifies staged convention plugins through a standalone consumer."
         )
         includedBuildTask(
             name = "verifyUnitTestingDistribution",
             buildName = "unit-testing",
             taskPath = ":verifyStagedPublication",
-            description = "Verifies the staged unit-test DSL through a standalone consumer.",
+            description = "Verifies the staged unit-test DSL through a standalone consumer."
         )
         includedBuildTask(
             name = "verifyVerificationPlatformDistribution",
             buildName = "verification-platform",
             taskPath = ":verifyStagedPublication",
-            description = "Verifies the staged verification plugin through a standalone consumer.",
+            description = "Verifies the staged verification plugin through a standalone consumer."
         )
         includedBuildTask(
             name = "checkKotlinStyle",
             buildName = "verification-platform",
             taskPath = ":data:checkRepositoryKotlinStyle",
             description = "Checks repository Kotlin sources with the canonical KtLint rules.",
-            requiredByCheck = true,
+            requiredByCheck = true
         )
         includedBuildTask(
             name = "formatKotlinStyle",
             buildName = "verification-platform",
             taskPath = ":data:formatRepositoryKotlinStyle",
             description = "Formats repository Kotlin sources with the canonical KtLint rules.",
-            group = "formatting",
+            group = "formatting"
         )
     }
 
@@ -256,7 +256,7 @@ extensions.configure<VerificationPlatformExtension> {
         infrastructureHealthBuildTypeId.set("WaterMyPlants_WaterMyPlantsInfrastructureHealth")
         pom.set(layout.projectDirectory.file(".teamcity/pom.xml"))
         generatedConfigurationDirectory.set(
-            layout.projectDirectory.dir(".teamcity/target/generated-configs"),
+            layout.projectDirectory.dir(".teamcity/target/generated-configs")
         )
         pipelineBuildTypeId.set("WaterMyPlantsCi")
         gateBuildTypeId.set("WaterMyPlantsCiGate")
@@ -272,7 +272,7 @@ tasks.register("verifyPortableDistribution") {
         "verifyFigmaDocumentationSyncDistribution",
         "verifyGradlePluginsDistribution",
         "verifyUnitTestingDistribution",
-        "verifyVerificationPlatformDistribution",
+        "verifyVerificationPlatformDistribution"
     )
 }
 
@@ -282,7 +282,7 @@ val cleanTemporaryArtifacts =
         description = "Deletes repository-owned temporary and generated tooling artifacts."
         delete(
             layout.projectDirectory.dir("tmp"),
-            layout.projectDirectory.dir("repo/figma-documentation-sync/tools/dist"),
+            layout.projectDirectory.dir("repo/figma-documentation-sync/tools/dist")
         )
     }
 
@@ -296,7 +296,7 @@ val reusableBuildChecks =
         "gradle-plugins",
         "unit-testing",
         "verification-platform",
-        "water-my-plants-project-config",
+        "water-my-plants-project-config"
     ).map { buildName ->
         gradle.includedBuild(buildName).task(":check")
     }

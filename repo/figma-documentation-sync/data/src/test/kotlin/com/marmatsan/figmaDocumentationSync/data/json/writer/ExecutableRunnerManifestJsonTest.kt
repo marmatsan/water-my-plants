@@ -17,7 +17,7 @@ internal class ExecutableRunnerManifestJsonTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "executable-runner-manifest-json",
+                    prefix = "executable-runner-manifest-json"
                 )
 
             test("rejects legacy schema 2 manifests even when their hash is valid") {
@@ -25,124 +25,124 @@ internal class ExecutableRunnerManifestJsonTest :
                     buildJsonObject {
                         put(
                             "schemaVersion",
-                            2,
+                            2
                         )
                         put(
                             "mode",
-                            "canonical",
+                            "canonical"
                         )
                         put(
                             "entrypoint",
-                            "trunk-sync",
+                            "trunk-sync"
                         )
                         put(
                             "target",
-                            "preflight",
+                            "preflight"
                         )
                         put(
                             "targets",
                             buildJsonArray {
                                 add(
-                                    element = JsonPrimitive("preflight"),
+                                    element = JsonPrimitive("preflight")
                                 )
-                            },
+                            }
                         )
                         put(
                             "writeMetadata",
-                            false,
+                            false
                         )
                         put(
                             "transport",
-                            "chunks",
+                            "chunks"
                         )
                         put(
                             "namespace",
-                            "legacy_staging",
+                            "legacy_staging"
                         )
                         put(
                             "sectionNodeId",
-                            kotlinx.serialization.json.JsonNull,
+                            kotlinx.serialization.json.JsonNull
                         )
                         put(
                             "roots",
-                            buildJsonArray { },
+                            buildJsonArray { }
                         )
                         put(
                             "allowCanonicalSections",
-                            false,
+                            false
                         )
                         put(
                             "allowPartial",
-                            false,
+                            false
                         )
                         put(
                             "fullVisualSync",
-                            true,
+                            true
                         )
                         put(
                             "metadataPageId",
-                            "1:2",
+                            "1:2"
                         )
                         put(
                             "modelPath",
-                            "design-model.json",
+                            "design-model.json"
                         )
                         put(
                             "scriptPath",
-                            "writer.mcp.js",
+                            "writer.mcp.js"
                         )
                         put(
                             "modelHash",
-                            "model-hash",
+                            "model-hash"
                         )
                         put(
                             "gitSha",
-                            "git-sha",
+                            "git-sha"
                         )
                         put(
                             "designModelLength",
-                            10,
+                            10
                         )
                         put(
                             "scriptLength",
-                            20,
+                            20
                         )
                         put(
                             "writerHash",
-                            "writer-hash",
+                            "writer-hash"
                         )
                         put(
                             "transportHash",
-                            "transport-hash",
+                            "transport-hash"
                         )
                         put(
                             "payloadImage",
-                            kotlinx.serialization.json.JsonNull,
+                            kotlinx.serialization.json.JsonNull
                         )
                         put(
                             "files",
                             buildJsonArray {
                                 add(
-                                    element = JsonPrimitive("99-run-target.mcp.js"),
+                                    element = JsonPrimitive("99-run-target.mcp.js")
                                 )
-                            },
+                            }
                         )
                         put(
                             "fileHashes",
                             buildJsonObject {
                                 put(
                                     "99-run-target.mcp.js",
-                                    "file-hash",
+                                    "file-hash"
                                 )
-                            },
+                            }
                         )
                     }
                 val manifestHash =
                     Sha256Hash.of(
                         value =
                             CanonicalJson.stringify(
-                                value = body,
-                            ),
+                                value = body
+                            )
                     )
                 val source = JsonObject(body + ("manifestHash" to JsonPrimitive(manifestHash)))
                 val file = temporaryDirectory.resolve("legacy-mcp-manifest.json")
@@ -151,11 +151,11 @@ internal class ExecutableRunnerManifestJsonTest :
                 val error =
                     shouldThrow<IllegalArgumentException> {
                         ExecutableRunnerManifestJson().read(
-                            path = file.path,
+                            path = file.path
                         )
                     }
 
                 error.message shouldBe "Unsupported MCP manifest schema 2; expected 4 or newer."
             }
-        },
+        }
     )

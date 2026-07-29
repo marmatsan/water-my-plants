@@ -8,20 +8,20 @@ import org.gradle.api.initialization.Settings
  * @property versions Product version properties used by the auxiliary catalog.
  */
 internal class WaterMyPlantsToolingPluginCatalogConfigurator(
-    private val versions: WaterMyPlantsVersionProperties,
+    private val versions: WaterMyPlantsVersionProperties
 ) {
     /** Creates the consumer-owned `toolPlugins` catalog used by root verification tooling. */
     fun configure(
-        settings: Settings,
+        settings: Settings
     ) {
         settings.dependencyResolutionManagement.versionCatalogs.create("toolPlugins") {
             plugin(
                 "com.marmatsan.verificationPlatform",
-                "com.marmatsan.verificationPlatform",
+                "com.marmatsan.verificationPlatform"
             ).version(
                 versions.required(
-                    key = "verificationPlatformPluginVersion",
-                ),
+                    key = "verificationPlatformPluginVersion"
+                )
             )
         }
     }

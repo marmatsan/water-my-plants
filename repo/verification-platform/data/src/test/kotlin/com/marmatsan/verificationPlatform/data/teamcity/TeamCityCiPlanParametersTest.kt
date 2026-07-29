@@ -19,9 +19,9 @@ class TeamCityCiPlanParametersTest :
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
                                 head = "head-sha",
-                                changedFiles = listOf(".teamcity/settings.kts"),
+                                changedFiles = listOf(".teamcity/settings.kts")
                             ),
-                        moduleGraph = testModuleGraph(),
+                        moduleGraph = testModuleGraph()
                     )
 
                 TeamCityCiPlanParameters().create(plan) shouldBe
@@ -44,7 +44,7 @@ class TeamCityCiPlanParametersTest :
                         "ci.unit.build-infrastructure.required" to "false",
                         "ci.unit.portable-distribution.required" to "false",
                         "ci.unit.gradle-verification.required" to "true",
-                        "ci.unit.publish-reports.required" to "true",
+                        "ci.unit.publish-reports.required" to "true"
                     )
             }
 
@@ -55,9 +55,9 @@ class TeamCityCiPlanParametersTest :
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
                                 head = "head-sha",
-                                changedFiles = listOf("core/ui/src/main/kotlin/Theme.kt"),
+                                changedFiles = listOf("core/ui/src/main/kotlin/Theme.kt")
                             ),
-                        moduleGraph = testModuleGraph(),
+                        moduleGraph = testModuleGraph()
                     )
 
                 val parameters = TeamCityCiPlanParameters().create(plan)
@@ -76,9 +76,9 @@ class TeamCityCiPlanParametersTest :
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
                                 head = "head-sha",
-                                changedFiles = listOf("app/src/main/kotlin/MainActivity.kt"),
+                                changedFiles = listOf("app/src/main/kotlin/MainActivity.kt")
                             ),
-                        moduleGraph = testModuleGraph(),
+                        moduleGraph = testModuleGraph()
                     )
                 val unsafePlan =
                     plan.copy(
@@ -86,17 +86,17 @@ class TeamCityCiPlanParametersTest :
                             plan.verificationUnits.map { unit ->
                                 if (unit.id == VerificationUnitId.GRADLE_VERIFICATION) {
                                     unit.copy(
-                                        gradleTasks = listOf("check && publish"),
+                                        gradleTasks = listOf("check && publish")
                                     )
                                 } else {
                                     unit
                                 }
-                            },
+                            }
                     )
 
                 shouldThrow<IllegalArgumentException> {
                     TeamCityCiPlanParameters().create(unsafePlan)
                 }
             }
-        },
+        }
     )

@@ -22,7 +22,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(
-                components["java"],
+                components["java"]
             )
             artifactId = "figma-documentation-sync-domain"
 
@@ -37,7 +37,7 @@ publishing {
 dokka {
     dokkaSourceSets.main {
         samples.from(
-            file("src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/samples/DomainKDocSamples.kt"),
+            file("src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/samples/DomainKDocSamples.kt")
         )
     }
 }

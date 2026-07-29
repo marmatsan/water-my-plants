@@ -23,7 +23,7 @@ internal class VisualSyncPlanJsonTest :
                 val output =
                     Files.createTempFile(
                         "visual-sync-plan",
-                        ".json",
+                        ".json"
                     )
                 try {
                     val adapter = VisualSyncPlanJson()
@@ -31,9 +31,9 @@ internal class VisualSyncPlanJsonTest :
                     adapter.write(
                         VisualSyncPlan(
                             body = body,
-                            planHash = hash,
+                            planHash = hash
                         ),
-                        output.toString(),
+                        output.toString()
                     )
 
                     val json = Json.parseToJsonElement(Files.readString(output)).jsonObject
@@ -55,17 +55,17 @@ internal class VisualSyncPlanJsonTest :
                                         "writerHash" to "sha256:writer",
                                         "targetFingerprints" to "{\"versions\":\"sha256:target\"}",
                                         "writerScopeFingerprints" to "{\"versions\":\"sha256:scope\"}",
-                                        "writerScopeFingerprintSchemaVersion" to "1",
-                                    ),
+                                        "writerScopeFingerprintSchemaVersion" to "1"
+                                    )
                             ),
-                        namespace = "sync",
+                        namespace = "sync"
                     )
 
                 metadata?.targetFingerprints shouldBe mapOf("versions" to "sha256:target")
                 metadata?.writerScopeFingerprints shouldBe mapOf("versions" to "sha256:scope")
                 metadata?.writerScopeFingerprintSchemaVersion shouldBe 1
             }
-        },
+        }
     )
 
 private val body =
@@ -78,14 +78,14 @@ private val body =
         executionScopes =
             listOf(
                 "preflight",
-                "waterMyPlants.libraries.androidx",
+                "waterMyPlants.libraries.androidx"
             ),
         identity =
             VisualSyncIdentity(
                 modelHash = "sha256:model-new",
                 writerHash = "sha256:writer-new",
                 transportHash = "sha256:transport-new",
-                writerScopeFingerprintSchemaVersion = 1,
+                writerScopeFingerprintSchemaVersion = 1
             ),
-        manifestHash = "sha256:manifest",
+        manifestHash = "sha256:manifest"
     )

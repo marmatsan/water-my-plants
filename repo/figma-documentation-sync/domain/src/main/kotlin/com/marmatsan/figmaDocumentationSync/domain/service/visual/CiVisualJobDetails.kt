@@ -6,7 +6,7 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlanConfig
 
 internal fun jobsInDependencyOrder(
-    pipeline: CiPipeline,
+    pipeline: CiPipeline
 ): List<CiJob> {
     val remaining = pipeline.jobs.toMutableList()
     val ordered = mutableListOf<CiJob>()
@@ -32,7 +32,7 @@ internal fun jobTaskNode(
     job: CiJob,
     row: Int,
     column: Int,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ): CiVisualPlan.Node =
     visualNode(
         id = id,
@@ -43,29 +43,29 @@ internal fun jobTaskNode(
         source = config.teamCitySource,
         row = row,
         column = column,
-        config = config,
+        config = config
     ).copy(
         phases =
             visualPhases(
-                job = job,
+                job = job
             ),
         outcomes =
             visualOutcomes(
-                job = job,
-            ),
+                job = job
+            )
     )
 
 internal fun visualPhases(
-    job: CiJob,
+    job: CiJob
 ): List<CiVisualPlan.Phase> =
     job.steps.mapIndexed { phaseIndex, step ->
         val order =
             formattedOrder(
-                value = phaseIndex + 1,
+                value = phaseIndex + 1
             )
         val gradleTasks =
             gradleTaskNames(
-                command = step.command,
+                command = step.command
             )
         CiVisualPlan.Phase(
             order = order,
@@ -74,17 +74,17 @@ internal fun visualPhases(
             description =
                 phaseDescription(
                     command = step.command,
-                    hasGradleTasks = gradleTasks.isNotEmpty(),
+                    hasGradleTasks = gradleTasks.isNotEmpty()
                 ),
             steps =
                 gradleTasks
                     .flatMap(::gradleTaskSpecs)
-                    .mapIndexed { stepIndex, spec -> spec.toVisualStep("$order.${stepIndex + 1}") },
+                    .mapIndexed { stepIndex, spec -> spec.toVisualStep("$order.${stepIndex + 1}") }
         )
     }
 
 internal fun visualOutcomes(
-    job: CiJob,
+    job: CiJob
 ): List<CiVisualPlan.Outcome> {
     var nextOrder = job.steps.size + 1
     val artifacts =
@@ -94,13 +94,13 @@ internal fun visualOutcomes(
                 CiVisualPlan.Outcome(
                     order =
                         formattedOrder(
-                            value = nextOrder++,
+                            value = nextOrder++
                         ),
                     kind = CiVisualPlan.OutcomeKind.ARTIFACT,
                     title = "Publish build artifact",
                     technicalId = artifact.path,
                     description = "Makes the job output available to later CI jobs.",
-                    condition = "After successful job execution",
+                    condition = "After successful job execution"
                 )
             }
     val checks =
@@ -108,13 +108,13 @@ internal fun visualOutcomes(
             CiVisualPlan.Outcome(
                 order =
                     formattedOrder(
-                        value = nextOrder++,
+                        value = nextOrder++
                     ),
                 kind = CiVisualPlan.OutcomeKind.CHECK,
                 title = "Publish GitHub check",
                 technicalId = check.name,
                 description = "Reports the verified job result to the pull request.",
-                condition = "After successful job execution",
+                condition = "After successful job execution"
             )
         }
     return artifacts + checks
@@ -128,7 +128,7 @@ internal fun postMergeCheckOutcomes(): List<CiVisualPlan.Outcome> =
             title = "Metadata matches",
             technicalId = "modelHash · writerHash · fingerprints",
             description = "Confirms that the canonical model and visual writer state are current.",
-            condition = "Canonical metadata matches",
+            condition = "Canonical metadata matches"
         ),
         CiVisualPlan.Outcome(
             order = "02",
@@ -136,21 +136,21 @@ internal fun postMergeCheckOutcomes(): List<CiVisualPlan.Outcome> =
             title = "Visual sync required",
             technicalId = "modelHash · writerHash · fingerprints",
             description = "Hands control to the supervised visual synchronization loop.",
-            condition = "Canonical metadata differs",
-        ),
+            condition = "Canonical metadata differs"
+        )
     )
 
 private fun formattedOrder(
-    value: Int,
+    value: Int
 ): String =
     value.toString().padStart(
         length = 2,
-        padChar = '0',
+        padChar = '0'
     )
 
 private fun phaseDescription(
     command: String,
-    hasGradleTasks: Boolean,
+    hasGradleTasks: Boolean
 ): String =
     when {
         hasGradleTasks -> "Runs the Gradle entry points owned by this TeamCity phase."
@@ -160,20 +160,20 @@ private fun phaseDescription(
     }
 
 private fun gradleTaskSpecs(
-    task: String,
+    task: String
 ): List<StepSpec> =
     when (task) {
         "prepareTeamCityCiPlan" -> {
             listOf(
                 actionSpec(
                     task = task,
-                    description = "Prepares the reviewed verification plan consumed by TeamCity.",
+                    description = "Prepares the reviewed verification plan consumed by TeamCity."
                 ),
                 actionSpec(
                     task = "generateCiPlan",
                     description = "Calculates the affected verification scope.",
-                    condition = "Gradle dependency of prepareTeamCityCiPlan",
-                ),
+                    condition = "Gradle dependency of prepareTeamCityCiPlan"
+                )
             )
         }
 
@@ -187,8 +187,8 @@ private fun gradleTaskSpecs(
                     task = task,
                     description =
                         "Runs the repository verification lifecycle, including Kotlin style, catalogs, " +
-                            "versions, CI freshness, and verification-platform checks.",
-                ),
+                            "versions, CI freshness, and verification-platform checks."
+                )
             )
         }
 
@@ -196,26 +196,26 @@ private fun gradleTaskSpecs(
             listOf(
                 actionSpec(
                     task = task,
-                    description = "Classifies whether the canonical Figma sync needs full verification.",
+                    description = "Classifies whether the canonical Figma sync needs full verification."
                 ),
                 actionSpec(
                     task = "cleanCanonicalFigmaSyncReports",
                     description = "Removes stale canonical Figma sync reports.",
-                    condition = "Gradle dependency of classifyCanonicalFigmaSyncChangeImpact",
-                ),
+                    condition = "Gradle dependency of classifyCanonicalFigmaSyncChangeImpact"
+                )
             )
         }
 
         "materializeFigmaSyncCiConfiguration",
         "generateCanonicalFigmaSyncModel",
-        "checkCanonicalFigmaTrunkSync",
+        "checkCanonicalFigmaTrunkSync"
         -> {
             listOf(
                 actionSpec(
                     task = task,
                     description = "Runs only for a validated full Figma verification scope.",
-                    condition = "Full Figma verification",
-                ),
+                    condition = "Full Figma verification"
+                )
             )
         }
 
@@ -223,13 +223,13 @@ private fun gradleTaskSpecs(
             listOf(
                 actionSpec(
                     task = task,
-                    description = "Builds the MCP runners and target-scoped visual plan.",
+                    description = "Builds the MCP runners and target-scoped visual plan."
                 ),
                 actionSpec(
                     task = "writeFigmaWriterProjectConfig",
                     description = "Projects the repository-specific Figma writer contract.",
-                    condition = "Gradle dependency of prepareCanonicalFigmaSync",
-                ),
+                    condition = "Gradle dependency of prepareCanonicalFigmaSync"
+                )
             )
         }
 
@@ -237,25 +237,25 @@ private fun gradleTaskSpecs(
             listOf(
                 actionSpec(
                     task = task,
-                    description = "Runs this repository-owned Gradle entry point.",
-                ),
+                    description = "Runs this repository-owned Gradle entry point."
+                )
             )
         }
     }
 
 private fun StepSpec.toVisualStep(
-    order: String,
+    order: String
 ) = CiVisualPlan.Step(
     order = order,
     role = role,
     title = title,
     technicalId = technicalId,
     description = description,
-    condition = condition,
+    condition = condition
 )
 
 private fun gradleTaskNames(
-    command: String,
+    command: String
 ): List<String> =
     command
         .lineSequence()
@@ -271,33 +271,33 @@ private fun gradleTaskNames(
 private fun actionSpec(
     task: String,
     description: String,
-    condition: String? = null,
+    condition: String? = null
 ) = StepSpec(
     role = CiVisualPlan.StepRole.ACTION,
     title =
         gradleTaskTitle(
-            task = task,
+            task = task
         ),
     technicalId = task,
     description = description,
-    condition = condition,
+    condition = condition
 )
 
 private fun groupSpec(
     title: String,
     technicalId: String,
     description: String,
-    condition: String,
+    condition: String
 ) = StepSpec(
     role = CiVisualPlan.StepRole.GROUP,
     title = title,
     technicalId = technicalId,
     description = description,
-    condition = condition,
+    condition = condition
 )
 
 private fun gradleTaskTitle(
-    task: String,
+    task: String
 ): String =
     when (task) {
         ":<affected-module>:check" -> {
@@ -313,7 +313,7 @@ private fun gradleTaskTitle(
                 .substringAfterLast(':')
                 .replace(
                     Regex("([a-z0-9])([A-Z])"),
-                    "${'$'}1 ${'$'}2",
+                    "${'$'}1 ${'$'}2"
                 ).replaceFirstChar(Char::uppercaseChar)
         }
     }
@@ -323,13 +323,13 @@ private data class StepSpec(
     val title: String,
     val technicalId: String?,
     val description: String?,
-    val condition: String?,
+    val condition: String?
 )
 
 private val gradleInvocation =
     Regex(
         """(?:^|\s)(?:call\s+)?(?:\.\\|\./)?gradlew(?:\.bat)?\s+(.+)$""",
-        RegexOption.IGNORE_CASE,
+        RegexOption.IGNORE_CASE
     )
 
 private val dynamicCiPlanStepSpecs =
@@ -339,13 +339,13 @@ private val dynamicCiPlanStepSpecs =
             title = "Select verification tasks",
             technicalId = "ci.plan.gradleTasks",
             description = "Expands the reviewed CI plan into the tasks for this change.",
-            condition = "Repository change scope",
+            condition = "Repository change scope"
         ),
         groupSpec(
             title = "Always",
             technicalId = "checkGitWorkflow · checkDocumentation",
             description = "Validates the Git workflow and repository documentation contracts.",
-            condition = "Always",
+            condition = "Always"
         ),
         groupSpec(
             title = "According to changes",
@@ -353,7 +353,7 @@ private val dynamicCiPlanStepSpecs =
                 "checkRepositoryDiff · checkTeamCityDsl · :<affected-module>:check · " +
                     "checkFigmaCatalogUsage",
             description = "Runs only the repository, TeamCity, module, and catalog checks selected by impact.",
-            condition = "Repository change scope",
+            condition = "Repository change scope"
         ),
         groupSpec(
             title = "Full verification",
@@ -361,6 +361,6 @@ private val dynamicCiPlanStepSpecs =
             description =
                 "Includes Kotlin style, catalog usage and naming, CI freshness, and " +
                     "verification-platform checks.",
-            condition = "TeamCity changes or fail-closed fallback",
-        ),
+            condition = "TeamCity changes or fail-closed fallback"
+        )
     )

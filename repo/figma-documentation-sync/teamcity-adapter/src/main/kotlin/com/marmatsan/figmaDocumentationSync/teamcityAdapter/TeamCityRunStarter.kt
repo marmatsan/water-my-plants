@@ -7,6 +7,6 @@ fun interface TeamCityRunStarter {
     /** Queues [buildTypeId] on [branch] or returns an expected provider failure. */
     fun startRun(
         buildTypeId: String,
-        branch: String,
+        branch: String
     ): Result<TeamCityRun, TeamCityRunStartError>
 }

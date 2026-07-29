@@ -16,7 +16,7 @@ import org.gradle.api.provider.Provider
  * @throws NoSuchElementException When [alias] is not present in this version catalog.
  */
 fun VersionCatalog.requireDependencyNotation(
-    alias: String,
+    alias: String
 ): String =
     findLibrary(alias)
         .orElseThrow {
@@ -34,10 +34,10 @@ fun VersionCatalog.requireDependencyNotation(
  * @throws NoSuchElementException When [alias] is not present in this version catalog.
  */
 fun VersionCatalog.requireBundle(
-    alias: String,
+    alias: String
 ): Provider<ExternalModuleDependencyBundle> =
     findBundle(
-        alias,
+        alias
     ).orElseThrow {
         NoSuchElementException("Bundle alias '$alias' not found in version catalog named ${this.name}")
     }
@@ -67,12 +67,12 @@ fun VersionCatalog.requireBundle(
  */
 fun VersionCatalog.requireDependencyNotation(
     libraryGroup: String,
-    artifact: String,
+    artifact: String
 ): String =
     requireDependencyNotation(
         alias =
             libraryAlias(
                 libraryGroup = libraryGroup,
-                artifact = artifact,
-            ),
+                artifact = artifact
+            )
     )

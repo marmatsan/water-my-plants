@@ -47,14 +47,14 @@ dependencyCatalogTree {
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
                     alias = "kotest",
-                    version = version("kotestLibraryVersion"),
+                    version = version("kotestLibraryVersion")
                 )
             }
         }
         root("org") {
             library("junit.platform") {
                 artifact(
-                    artifact = "junit-platform-launcher",
+                    artifact = "junit-platform-launcher"
                 )
             }
         }
@@ -65,11 +65,11 @@ dependencyCatalogTree {
             plugin("jetbrains") {
                 plugin(
                     id = "dokka",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
                 plugin(
                     id = "kotlin.jvm",
-                    version = version("kotlinVersion"),
+                    version = version("kotlinVersion")
                 )
             }
         }

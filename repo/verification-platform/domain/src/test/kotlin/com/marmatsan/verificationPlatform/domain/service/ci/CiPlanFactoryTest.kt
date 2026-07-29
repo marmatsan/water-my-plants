@@ -25,7 +25,7 @@ class CiPlanFactoryTest :
                         "checkGitWorkflow",
                         "checkDocumentation",
                         "checkTeamCityDsl",
-                        "check",
+                        "check"
                     )
             }
 
@@ -33,7 +33,7 @@ class CiPlanFactoryTest :
                 val plan =
                     plan(
                         "tooling/sync/package.json",
-                        "app/build.gradle.kts",
+                        "app/build.gradle.kts"
                     )
 
                 plan.scope shouldBe CiScope.MIXED
@@ -44,7 +44,7 @@ class CiPlanFactoryTest :
             test("public build-infrastructure changes verify architecture and the staged consumer") {
                 val plan =
                     plan(
-                        "build-infrastructure/public-api/src/main/kotlin/example/SettingsPlugin.kt",
+                        "build-infrastructure/public-api/src/main/kotlin/example/SettingsPlugin.kt"
                     )
 
                 plan.schemaVersion shouldBe 5
@@ -84,7 +84,7 @@ class CiPlanFactoryTest :
                         "checkGitWorkflow",
                         "checkDocumentation",
                         ":app:check",
-                        "checkSharedUsage",
+                        "checkSharedUsage"
                     )
             }
 
@@ -95,13 +95,13 @@ class CiPlanFactoryTest :
                             testModuleGraph().dependencies +
                                 ModuleDependency(
                                     dependentModule = ":app",
-                                    dependencyModule = ":missing",
-                                ),
+                                    dependencyModule = ":missing"
+                                )
                     )
                 val plan =
                     plan(
                         "app/src/main/kotlin/com/marmatsan/MainActivity.kt",
-                        moduleGraph = invalidGraph,
+                        moduleGraph = invalidGraph
                     )
 
                 plan.scope shouldBe CiScope.UNKNOWN
@@ -112,25 +112,25 @@ class CiPlanFactoryTest :
                     listOf(
                         "checkGitWorkflow",
                         "checkDocumentation",
-                        "check",
+                        "check"
                     )
                 plan.fallbackReason shouldBe
                     "The Gradle module graph contains an unresolved dependency: :app -> :missing."
             }
-        },
+        }
     ) {
     companion object {
         private fun plan(
             vararg paths: String,
-            moduleGraph: RepositoryModuleGraph = testModuleGraph(),
+            moduleGraph: RepositoryModuleGraph = testModuleGraph()
         ) = CiPlanFactory(testCiPlanPolicy()).create(
             changeSet =
                 RepositoryChangeSet(
                     comparisonBase = "base-sha",
                     head = "head-sha",
-                    changedFiles = paths.toList(),
+                    changedFiles = paths.toList()
                 ),
-            moduleGraph = moduleGraph,
+            moduleGraph = moduleGraph
         )
 
         private fun com.marmatsan.verificationPlatform.domain.model.ci.CiPlan.requiredUnitIds() =

@@ -8,6 +8,6 @@ internal fun interface CanonicalFigmaArtifactVerifier {
     /** Validates [contract] and optionally requires [expectedGitSha]. */
     fun verify(
         contract: CanonicalFigmaArtifactContract,
-        expectedGitSha: String?,
+        expectedGitSha: String?
     ): ValidatedCanonicalFigmaArtifact
 }

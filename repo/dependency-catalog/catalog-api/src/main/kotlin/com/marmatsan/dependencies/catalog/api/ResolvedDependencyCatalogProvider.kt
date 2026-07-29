@@ -6,6 +6,6 @@ import java.io.File
 interface ResolvedDependencyCatalogProvider {
     /** Returns the catalog with versions resolved from files below [rootDir]. */
     fun resolved(
-        rootDir: File,
+        rootDir: File
     ): DependencyCatalog
 }

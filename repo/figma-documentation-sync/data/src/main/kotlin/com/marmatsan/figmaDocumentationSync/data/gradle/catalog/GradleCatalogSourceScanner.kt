@@ -7,17 +7,17 @@ import java.io.File
 internal class GradleCatalogSourceScanner {
     /** Returns main-build Gradle module files while excluding nested builds. */
     fun mainBuildFiles(
-        rootDir: File,
+        rootDir: File
     ): Sequence<File> =
         buildFiles(
-            rootDir = rootDir,
+            rootDir = rootDir
         ).filterNot { file ->
             file.isInsideNestedGradleBuild(rootDir)
         }
 
     /** Returns every Gradle module build file beneath [rootDir]. */
     fun buildFiles(
-        rootDir: File,
+        rootDir: File
     ): Sequence<File> =
         rootDir.walkTopDown().filter { file ->
             file.isFile && file.name == BUILD_FILE_NAME
@@ -25,7 +25,7 @@ internal class GradleCatalogSourceScanner {
 
     /** Returns every Kotlin source file beneath [rootDir]. */
     fun kotlinFiles(
-        rootDir: File,
+        rootDir: File
     ): Sequence<File> =
         rootDir.walkTopDown().filter { file ->
             file.isFile && file.extension == KOTLIN_FILE_EXTENSION
@@ -35,7 +35,7 @@ internal class GradleCatalogSourceScanner {
     fun includedBuildModulePath(
         source: File,
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): String {
         val moduleDir = if (source.isDirectory) source else source.parentFile
         val relativePath = rootDir.toPath().relativize(moduleDir.toPath()).toString()
@@ -49,7 +49,7 @@ internal class GradleCatalogSourceScanner {
     /** Maps [source] to its logical module identity in the main build. */
     fun mainModulePath(
         source: File,
-        rootDir: File,
+        rootDir: File
     ): String {
         val relativePath = rootDir.toPath().relativize(source.toPath()).toString()
         return if (relativePath.isEmpty()) ROOT_MODULE else ":${relativePath.toModuleSegments()}"
@@ -58,13 +58,13 @@ internal class GradleCatalogSourceScanner {
     private fun String.toModuleSegments(): String =
         replace(
             File.separatorChar,
-            ':',
+            ':'
         ).replace(
             '/',
-            ':',
+            ':'
         ).replace(
             '\\',
-            ':',
+            ':'
         )
 
     /** Shared logical module identities used by catalog readers. */

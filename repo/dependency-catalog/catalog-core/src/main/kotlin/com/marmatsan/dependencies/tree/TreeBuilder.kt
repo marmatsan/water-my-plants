@@ -13,7 +13,7 @@ import com.marmatsan.dependencies.tree.node.Node
  * @param root Initial parent for declarations made by the concrete scope.
  */
 open class TreeBuilder<T : DependencyNode>(
-    root: Node<T>,
+    root: Node<T>
 ) {
     /** Node that receives the next relative declaration from a concrete DSL scope. */
     protected var currentParent: Node<T> = root

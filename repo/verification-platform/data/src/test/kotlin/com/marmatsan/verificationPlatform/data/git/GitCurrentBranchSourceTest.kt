@@ -13,13 +13,13 @@ class GitCurrentBranchSourceTest :
                 try {
                     git(
                         root,
-                        "init",
+                        "init"
                     )
                     git(
                         root,
                         "switch",
                         "-c",
-                        "feature/plant-reminders",
+                        "feature/plant-reminders"
                     )
 
                     GitCurrentBranchSource().read(root) shouldBe "feature/plant-reminders"
@@ -33,19 +33,19 @@ class GitCurrentBranchSourceTest :
                 try {
                     GitCurrentBranchSource().read(
                         root,
-                        "refs/pull/96/head",
+                        "refs/pull/96/head"
                     ) shouldBe
                         "refs/pull/96/head"
                 } finally {
                     root.deleteRecursively()
                 }
             }
-        },
+        }
     ) {
     companion object {
         private fun git(
             root: File,
-            vararg arguments: String,
+            vararg arguments: String
         ) {
             val process =
                 ProcessBuilder(listOf("git") + arguments)

@@ -15,7 +15,7 @@ class CiExecutionTopologyJson {
      */
     fun write(
         topology: CiExecutionTopology,
-        output: File,
+        output: File
     ) {
         output.parentFile.mkdirs()
         output.writeText(format.encodeToString(topology) + System.lineSeparator())
@@ -28,7 +28,7 @@ class CiExecutionTopologyJson {
      * not satisfy the serialized contract.
      */
     fun read(
-        source: String,
+        source: String
     ): CiExecutionTopology = format.decodeFromString(source)
 
     private companion object {

@@ -11,7 +11,7 @@ internal class GradleModuleDependenciesReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "gradle-module-dependencies-reader",
+                    prefix = "gradle-module-dependencies-reader"
                 )
 
             test("readMain maps type-safe project accessors to module dependencies") {
@@ -19,46 +19,46 @@ internal class GradleModuleDependenciesReaderTest :
                     val rootDir = temporaryDirectory.resolve("main").apply { mkdirs() }
                     rootDir
                         .resolve(
-                            relative = "app",
+                            relative = "app"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             dependencies {
                                 implementation(projects.core.ui)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                         .resolve(
-                            relative = "onboarding/ui",
+                            relative = "onboarding/ui"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             dependencies {
                                 implementation(project(":core:ui"))
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                 }.whenever { rootDir ->
                     GradleModuleDependenciesReader().readMain(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { dependencies ->
                     dependencies shouldBe
                         setOf(
                             ModuleDependency(
                                 dependentModule = ":app",
-                                dependencyModule = ":core:ui",
+                                dependencyModule = ":core:ui"
                             ),
                             ModuleDependency(
                                 dependentModule = ":onboarding:ui",
-                                dependencyModule = ":core:ui",
-                            ),
+                                dependencyModule = ":core:ui"
+                            )
                         )
                 }
             }
@@ -68,10 +68,10 @@ internal class GradleModuleDependenciesReaderTest :
                     val rootDir = temporaryDirectory.resolve("outside-dependencies-block").apply { mkdirs() }
                     rootDir
                         .resolve(
-                            relative = "app",
+                            relative = "app"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             val ignored = projects.feature.debug
@@ -79,20 +79,20 @@ internal class GradleModuleDependenciesReaderTest :
                             dependencies {
                                 implementation(projects.core.ui)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                 }.whenever { rootDir ->
                     GradleModuleDependenciesReader().readMain(
-                        rootDir = rootDir,
+                        rootDir = rootDir
                     )
                 }.then { dependencies ->
                     dependencies shouldBe
                         setOf(
                             ModuleDependency(
                                 dependentModule = ":app",
-                                dependencyModule = ":core:ui",
-                            ),
+                                dependencyModule = ":core:ui"
+                            )
                         )
                 }
             }
@@ -102,52 +102,52 @@ internal class GradleModuleDependenciesReaderTest :
                     val rootDir = temporaryDirectory.resolve("included-build").apply { mkdirs() }
                     rootDir
                         .resolve(
-                            relative = "android",
+                            relative = "android"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             dependencies {
                                 implementation(projects.dependencies)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                         .resolve(
-                            relative = "analytics/plugin",
+                            relative = "analytics/plugin"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             dependencies {
                                 implementation(projects.analytics.domain)
                                 implementation(projects.analytics.data)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                 }.whenever { rootDir ->
                     GradleModuleDependenciesReader().readIncludedBuild(
                         rootDir = rootDir,
-                        modulePathPrefix = ":gradle-plugins",
+                        modulePathPrefix = ":gradle-plugins"
                     )
                 }.then { dependencies ->
                     dependencies shouldBe
                         setOf(
                             ModuleDependency(
                                 dependentModule = ":gradle-plugins:android",
-                                dependencyModule = ":gradle-plugins:dependencies",
+                                dependencyModule = ":gradle-plugins:dependencies"
                             ),
                             ModuleDependency(
                                 dependentModule = ":gradle-plugins:analytics:plugin",
-                                dependencyModule = ":gradle-plugins:analytics:data",
+                                dependencyModule = ":gradle-plugins:analytics:data"
                             ),
                             ModuleDependency(
                                 dependentModule = ":gradle-plugins:analytics:plugin",
-                                dependencyModule = ":gradle-plugins:analytics:domain",
-                            ),
+                                dependencyModule = ":gradle-plugins:analytics:domain"
+                            )
                         )
                 }
             }
@@ -157,39 +157,39 @@ internal class GradleModuleDependenciesReaderTest :
                     val rootDir = temporaryDirectory.resolve("kebab-case").apply { mkdirs() }
                     rootDir
                         .resolve(
-                            relative = "catalog-core",
+                            relative = "catalog-core"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText("")
                     rootDir
                         .resolve(
-                            relative = "catalog-gradle-plugin",
+                            relative = "catalog-gradle-plugin"
                         ).also { directory -> directory.mkdirs() }
                         .resolve(
-                            relative = "build.gradle.kts",
+                            relative = "build.gradle.kts"
                         ).writeText(
                             """
                             dependencies {
                                 implementation(projects.catalogCore)
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     rootDir
                 }.whenever { rootDir ->
                     GradleModuleDependenciesReader().readIncludedBuild(
                         rootDir = rootDir,
-                        modulePathPrefix = ":dependency-catalog",
+                        modulePathPrefix = ":dependency-catalog"
                     )
                 }.then { dependencies ->
                     dependencies shouldBe
                         setOf(
                             ModuleDependency(
                                 dependentModule = ":dependency-catalog:catalog-gradle-plugin",
-                                dependencyModule = ":dependency-catalog:catalog-core",
-                            ),
+                                dependencyModule = ":dependency-catalog:catalog-core"
+                            )
                         )
                 }
             }
-        },
+        }
     )

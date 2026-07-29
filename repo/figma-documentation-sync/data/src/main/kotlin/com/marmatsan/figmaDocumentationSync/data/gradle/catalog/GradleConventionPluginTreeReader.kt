@@ -16,7 +16,7 @@ class GradleConventionPluginTreeReader {
     /** Builds the convention-plugin tree and attaches applying module identities. */
     fun readPluginTree(
         rootDir: File,
-        usageByPluginId: Map<String, Set<String>> = emptyMap(),
+        usageByPluginId: Map<String, Set<String>> = emptyMap()
     ): PluginCatalogTree {
         val pluginIds =
             rootDir
@@ -32,8 +32,8 @@ class GradleConventionPluginTreeReader {
             roots =
                 PluginCatalogTreeBuilder.build(
                     pluginIds = pluginIds,
-                    usageByPluginId = usageByPluginId,
-                ),
+                    usageByPluginId = usageByPluginId
+                )
         )
     }
 

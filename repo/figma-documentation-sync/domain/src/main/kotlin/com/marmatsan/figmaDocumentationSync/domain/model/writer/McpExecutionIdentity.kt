@@ -14,5 +14,5 @@ data class McpExecutionIdentity(
     val gitSha: String,
     val writerHash: String,
     val transportHash: String,
-    val manifestHash: String,
+    val manifestHash: String
 )

@@ -12,7 +12,7 @@ dependencies {
     implementation(libs.com.michael.bull.kotlin.result)
     implementation(projects.data) {
         exclude(
-            group = "com.pinterest.ktlint",
+            group = "com.pinterest.ktlint"
         )
     }
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)

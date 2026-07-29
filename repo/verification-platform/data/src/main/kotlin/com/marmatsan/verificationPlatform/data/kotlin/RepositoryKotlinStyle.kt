@@ -17,7 +17,7 @@ import java.io.File
  */
 class RepositoryKotlinStyle(
     sourceFiles: List<File> = emptyList(),
-    editorConfigFile: File,
+    editorConfigFile: File
 ) {
     private val editorConfigFile =
         editorConfigFile.canonicalFile.also { file ->
@@ -27,20 +27,20 @@ class RepositoryKotlinStyle(
         }
     private val callableSignatures =
         KotlinCallableSignatureIndex.from(
-            sourceFiles = sourceFiles,
+            sourceFiles = sourceFiles
         )
     private val checkRuleEngine =
         createRuleEngine(
-            compactShortFunctionTypes = false,
+            compactShortFunctionTypes = false
         )
     private val formatRuleEngine =
         createRuleEngine(
-            compactShortFunctionTypes = true,
+            compactShortFunctionTypes = true
         )
 
     /** Returns every standard or repository-owned KtLint violation in [file]. */
     fun inspect(
-        file: File,
+        file: File
     ): List<Violation> =
         buildList {
             checkRuleEngine.lint(Code.fromFile(file)) { error ->
@@ -50,24 +50,24 @@ class RepositoryKotlinStyle(
                             line = error.line,
                             column = error.col,
                             ruleId = error.ruleId.value,
-                            detail = error.detail,
-                        ),
+                            detail = error.detail
+                        )
                 )
             }
         }
 
     /** Returns [file] formatted without changing it on disk. */
     fun format(
-        file: File,
+        file: File
     ): String =
         formatRuleEngine.format(
-            code = Code.fromFile(file),
+            code = Code.fromFile(file)
         ) {
             AutocorrectDecision.ALLOW_AUTOCORRECT
         }
 
     private fun createRuleEngine(
-        compactShortFunctionTypes: Boolean,
+        compactShortFunctionTypes: Boolean
     ): KtLintRuleEngine {
         val ruleProviders =
             StandardRuleSetProvider().getRuleProviders() +
@@ -75,18 +75,18 @@ class RepositoryKotlinStyle(
                     RuleProvider {
                         MultilineFunctionArgumentsRule(
                             compactShortFunctionTypes = compactShortFunctionTypes,
-                            callableSignatures = callableSignatures,
+                            callableSignatures = callableSignatures
                         )
                     },
-                    RuleProvider(::TypedBehaviorSectionsRule),
+                    RuleProvider(::TypedBehaviorSectionsRule)
                 )
         return KtLintRuleEngine(
             ruleProviders = ruleProviders,
             editorConfigDefaults =
                 EditorConfigDefaults.load(
                     path = editorConfigFile.toPath(),
-                    propertyTypes = ruleProviders.propertyTypes(),
-                ),
+                    propertyTypes = ruleProviders.propertyTypes()
+                )
         )
     }
 
@@ -102,6 +102,6 @@ class RepositoryKotlinStyle(
         val line: Int,
         val column: Int,
         val ruleId: String,
-        val detail: String,
+        val detail: String
     )
 }

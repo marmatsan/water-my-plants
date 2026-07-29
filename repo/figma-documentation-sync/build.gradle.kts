@@ -21,7 +21,7 @@ tasks.named("check") {
         ":data:check",
         ":domain:check",
         ":plugin:check",
-        ":teamcity-adapter:check",
+        ":teamcity-adapter:check"
     )
 }
 
@@ -32,12 +32,12 @@ tasks.register("dokkaGenerate") {
         ":data:dokkaGenerate",
         ":domain:dokkaGenerate",
         ":plugin:dokkaGenerate",
-        ":teamcity-adapter:dokkaGenerate",
+        ":teamcity-adapter:dokkaGenerate"
     )
 }
 
 @DisableCachingByDefault(
-    because = "The verification task has no reusable output artifact",
+    because = "The verification task has no reusable output artifact"
 )
 abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     @get:Input
@@ -54,7 +54,7 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
                 .find(packageJson.get().asFile.readText())
                 ?.groupValues
                 ?.get(
-                    index = 1,
+                    index = 1
                 )
                 ?: error("Missing version in tools/package.json")
         val expectedVersion = mavenVersion.get()
@@ -75,7 +75,7 @@ val publicationVersion: String =
             Properties().run {
                 file("versions.properties").inputStream().use(::load)
                 getProperty("figmaDocumentationSyncVersion")
-            },
+            }
         )
 val configuredPublicationRepository: String? =
     providers
@@ -119,8 +119,8 @@ subprojects {
                 documentedVisibilities.set(
                     setOf(
                         VisibilityModifier.Public,
-                        VisibilityModifier.Internal,
-                    ),
+                        VisibilityModifier.Internal
+                    )
                 )
                 reportUndocumented.set(true)
 
@@ -134,8 +134,8 @@ subprojects {
                                     "repo/figma-documentation-sync/" +
                                     localSourceDirectory.asFile
                                         .relativeTo(rootProject.projectDir)
-                                        .invariantSeparatorsPath,
-                            ),
+                                        .invariantSeparatorsPath
+                            )
                         )
                         remoteLineSuffix.set("#L")
                     }
@@ -172,7 +172,7 @@ subprojects {
 
 val verifyPublicationVersionAlignment =
     tasks.register<VerifyPublicationVersionAlignmentTask>(
-        "verifyPublicationVersionAlignment",
+        "verifyPublicationVersionAlignment"
     ) {
         group = "verification"
         description = "Checks that Maven and npm publication versions remain aligned."
@@ -190,7 +190,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":domain:publishAllPublicationsToStagingRepository",
         ":data:publishAllPublicationsToStagingRepository",
         ":plugin:publishAllPublicationsToStagingRepository",
-        ":teamcity-adapter:publishAllPublicationsToStagingRepository",
+        ":teamcity-adapter:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -204,13 +204,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -220,6 +220,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "verifyPluginApplication",
         "-PfigmaDocumentationSyncVersion=$publicationVersion",
         "-PfigmaDocumentationSyncPublicationRepository=$stagingPublicationRepository",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

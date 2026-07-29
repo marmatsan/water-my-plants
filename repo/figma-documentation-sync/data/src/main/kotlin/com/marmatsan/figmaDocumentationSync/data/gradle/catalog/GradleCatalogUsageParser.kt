@@ -4,20 +4,20 @@ import java.io.File
 
 /** Parses catalog and plugin usage declarations from individual Gradle or Kotlin source files. */
 internal class GradleCatalogUsageParser(
-    private val scanner: GradleCatalogSourceScanner,
+    private val scanner: GradleCatalogSourceScanner
 ) {
     /** Parses direct library coordinates and bundles used by one convention-plugin source. */
     fun conventionLibraryUsages(
         kotlinFile: File,
         rootDir: File,
         modulePathPrefix: String,
-        moduleDir: File,
+        moduleDir: File
     ): LibraryUsages {
         val modulePath =
             scanner.includedBuildModulePath(
                 moduleDir,
                 rootDir,
-                modulePathPrefix,
+                modulePathPrefix
             )
         val content = kotlinFile.readText()
         return LibraryUsages(
@@ -30,7 +30,7 @@ internal class GradleCatalogUsageParser(
             bundles =
                 libraryBundleUsageRegex
                     .findAll(content)
-                    .associateToUsageMap(modulePath) { match -> match.groupValues[1] },
+                    .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
         )
     }
 
@@ -39,13 +39,13 @@ internal class GradleCatalogUsageParser(
         kotlinFile: File,
         rootDir: File,
         modulePathPrefix: String,
-        moduleDir: File,
+        moduleDir: File
     ): LibraryConfigurationUsages {
         val modulePath =
             scanner.includedBuildModulePath(
                 moduleDir,
                 rootDir,
-                modulePathPrefix,
+                modulePathPrefix
             )
         val content = kotlinFile.readText()
         val coordinateUsages =
@@ -56,12 +56,12 @@ internal class GradleCatalogUsageParser(
                     val usage =
                         LibraryConfigurationUsage(
                             pluginModule = modulePath,
-                            target = content.configurationTarget(match),
+                            target = content.configurationTarget(match)
                         )
                     usages + (coordinate to (usages[coordinate].orEmpty() + usage))
                 }
         return LibraryConfigurationUsages(
-            coordinates = coordinateUsages,
+            coordinates = coordinateUsages
         )
     }
 
@@ -70,7 +70,7 @@ internal class GradleCatalogUsageParser(
         kotlinFile: File,
         rootDir: File,
         modulePathPrefix: String,
-        moduleDir: File,
+        moduleDir: File
     ): Map<String, Set<String>> =
         appliedPluginRegex
             .findAll(kotlinFile.readText())
@@ -78,15 +78,15 @@ internal class GradleCatalogUsageParser(
                 scanner.includedBuildModulePath(
                     moduleDir,
                     rootDir,
-                    modulePathPrefix,
-                ),
+                    modulePathPrefix
+                )
             ) { match -> match.groupValues[1] }
 
     /** Parses library aliases consumed by one included-build module. */
     fun includedBuildLibraryAliases(
         buildFile: File,
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Map<String, Set<String>> =
         includedBuildLibraryAliasRegex
             .findAll(buildFile.readText())
@@ -94,15 +94,15 @@ internal class GradleCatalogUsageParser(
                 scanner.includedBuildModulePath(
                     buildFile,
                     rootDir,
-                    modulePathPrefix,
-                ),
+                    modulePathPrefix
+                )
             ) { match -> match.groupValues[1] }
 
     /** Parses plugin aliases consumed by one included-build module. */
     fun includedBuildPluginAliases(
         buildFile: File,
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Map<String, Set<String>> =
         includedBuildPluginAliasRegex
             .findAll(buildFile.readText())
@@ -110,19 +110,19 @@ internal class GradleCatalogUsageParser(
                 scanner.includedBuildModulePath(
                     buildFile,
                     rootDir,
-                    modulePathPrefix,
-                ),
+                    modulePathPrefix
+                )
             ) { match -> match.groupValues[1] }
 
     /** Parses library and bundle aliases consumed by one main-build module. */
     fun mainLibraryAliases(
         buildFile: File,
-        rootDir: File,
+        rootDir: File
     ): LibraryUsages {
         val modulePath =
             scanner.mainModulePath(
                 buildFile.parentFile,
-                rootDir,
+                rootDir
             )
         if (modulePath == GradleCatalogSourceScanner.ROOT_MODULE) return LibraryUsages()
         val content = buildFile.readText()
@@ -134,46 +134,46 @@ internal class GradleCatalogUsageParser(
             bundles =
                 mainLibraryBundleAliasRegex
                     .findAll(content)
-                    .associateToUsageMap(modulePath) { match -> match.groupValues[1] },
+                    .associateToUsageMap(modulePath) { match -> match.groupValues[1] }
         )
     }
 
     /** Parses plugin catalog aliases consumed by one main-build module. */
     fun mainPluginAliases(
         buildFile: File,
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         mainModuleUsages(
             buildFile = buildFile,
             rootDir = rootDir,
-            regex = mainPluginAliasRegex,
+            regex = mainPluginAliasRegex
         )
 
     /** Parses literal plugin ids declared by one main-build module. */
     fun mainLiteralPluginUsages(
         buildFile: File,
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         mainModuleUsages(
             buildFile = buildFile,
             rootDir = rootDir,
-            regex = literalPluginIdRegex,
+            regex = literalPluginIdRegex
         )
 
     /** Parses literal plugin ids applied by one main-build module. */
     fun mainAppliedLiteralPluginUsages(
         buildFile: File,
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> {
         val modulePath =
             scanner.mainModulePath(
                 buildFile.parentFile,
-                rootDir,
+                rootDir
             )
         if (modulePath == GradleCatalogSourceScanner.ROOT_MODULE) return emptyMap()
         val content = buildFile.readText()
         return appliedLiteralPluginMatches(
-            content = content,
+            content = content
         ).associateToUsageMap(modulePath) { match ->
             match.groupValues[1]
         }
@@ -181,25 +181,25 @@ internal class GradleCatalogUsageParser(
 
     /** Returns literal plugin ids applied by [buildFile]. */
     fun appliedLiteralPluginIds(
-        buildFile: File,
+        buildFile: File
     ): Sequence<String> =
         appliedLiteralPluginMatches(
-            content = buildFile.readText(),
+            content = buildFile.readText()
         ).map { match -> match.groupValues[1] }
 
     /** Returns whether [buildFile] declares a Gradle convention-plugin implementation. */
     fun isConventionPluginBuildFile(
-        buildFile: File,
+        buildFile: File
     ): Boolean = gradleConventionPluginImplementationRegex.containsMatchIn(buildFile.readText())
 
     /** Returns plugin ids published by the convention-plugin [buildFile]. */
     fun conventionPluginIds(
-        buildFile: File,
+        buildFile: File
     ): Set<String> {
         val content = buildFile.readText()
         return sequenceOf(
             pluginNameRegex,
-            pluginIdRegex,
+            pluginIdRegex
         ).flatMap { regex -> regex.findAll(content) }
             .map { match -> match.groupValues[1] }
             .toSet()
@@ -208,12 +208,12 @@ internal class GradleCatalogUsageParser(
     private fun mainModuleUsages(
         buildFile: File,
         rootDir: File,
-        regex: Regex,
+        regex: Regex
     ): Map<String, Set<String>> {
         val modulePath =
             scanner.mainModulePath(
                 buildFile.parentFile,
-                rootDir,
+                rootDir
             )
         if (modulePath == GradleCatalogSourceScanner.ROOT_MODULE) return emptyMap()
         return regex
@@ -222,37 +222,37 @@ internal class GradleCatalogUsageParser(
     }
 
     private fun appliedLiteralPluginMatches(
-        content: String,
+        content: String
     ): Sequence<MatchResult> =
         literalPluginIdRegex
             .findAll(content)
             .filterNot { match -> content.lineSuffixAfter(match).contains(applyFalseRegex) }
 
     private fun String.lineSuffixAfter(
-        match: MatchResult,
+        match: MatchResult
     ): String {
         val lineEnd =
             indexOf(
                 '\n',
-                startIndex = match.range.last + 1,
+                startIndex = match.range.last + 1
             ).takeIf { index -> index >= 0 }
                 ?: length
         return substring(
             match.range.last + 1,
-            lineEnd,
+            lineEnd
         )
     }
 
     private fun Sequence<MatchResult>.associateToUsageMap(
         modulePath: String,
-        key: (MatchResult) -> String,
+        key: (MatchResult) -> String
     ): Map<String, Set<String>> =
         map(key).fold(emptyMap()) { usages, usageKey ->
             usages + (usageKey to (usages[usageKey].orEmpty() + modulePath))
         }
 
     private fun String.configurationTarget(
-        match: MatchResult,
+        match: MatchResult
     ): String {
         val assignmentName = match.groupValues[1]
         val blockNames =
@@ -260,8 +260,8 @@ internal class GradleCatalogUsageParser(
                 contentBeforeMatch =
                     substring(
                         0,
-                        match.range.first,
-                    ),
+                        match.range.first
+                    )
             ).filterNot { name -> name in IGNORED_CONFIGURATION_TARGET_SEGMENTS }
         return (blockNames + assignmentName)
             .filter(String::isNotBlank)
@@ -269,7 +269,7 @@ internal class GradleCatalogUsageParser(
     }
 
     private fun activeBlockNames(
-        contentBeforeMatch: String,
+        contentBeforeMatch: String
     ): List<String> {
         var depth = 0
         val stack = mutableListOf<BlockName>()
@@ -289,7 +289,7 @@ internal class GradleCatalogUsageParser(
                     stack +=
                         BlockName(
                             depth = depth,
-                            name = blockName,
+                            name = blockName
                         )
                     depth += 1
                 }
@@ -300,25 +300,25 @@ internal class GradleCatalogUsageParser(
 
     private data class BlockName(
         val depth: Int,
-        val name: String,
+        val name: String
     )
 
     private companion object {
         val libraryCoordinateUsageRegex =
             Regex(
                 """(?:\blibs\.)?(?:implementation|implementationPlatform|testImplementation|testImplementationPlatform|testRuntimeOnly|ksp)\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?libraryGroup\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"""",
-                RegexOption.DOT_MATCHES_ALL,
+                RegexOption.DOT_MATCHES_ALL
             )
         val libraryBundleUsageRegex =
             Regex(
                 """(?:\blibs\.)?(?:implementation|testImplementation)Bundle\s*\(\s*""" +
                     """(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
-                RegexOption.DOT_MATCHES_ALL,
+                RegexOption.DOT_MATCHES_ALL
             )
         val libraryConfigurationUsageRegex =
             Regex(
                 """([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?requireDependencyNotation\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?libraryGroup\s*=\s*"([^"]+)"\s*,\s*artifact\s*=\s*"([^"]+)"""",
-                RegexOption.DOT_MATCHES_ALL,
+                RegexOption.DOT_MATCHES_ALL
             )
         val configurationBlockTokenRegex =
             Regex("""configure<[^>]+>\s*\(\s*"([^"]+)"\s*\)\s*\{|([A-Za-z_][A-Za-z0-9_]*)\s*\{|[{}]""")
@@ -339,7 +339,7 @@ internal class GradleCatalogUsageParser(
                 "apply",
                 "dependencies",
                 "project",
-                "tasks",
+                "tasks"
             )
     }
 }

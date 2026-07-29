@@ -12,7 +12,7 @@ import java.io.File
 class CiConfigurationDataSource : CiConfigurationPort {
     /** Selects the configured provider and reads its generated CI directory. */
     override fun readConfiguration(
-        source: CiGeneratedConfigurationSource,
+        source: CiGeneratedConfigurationSource
     ): CiConfiguration =
         CiConfigurationProviderFactory
             .create(source.providerClassName)

@@ -28,7 +28,7 @@ class LibraryCatalogTreesScope internal constructor() {
      */
     fun root(
         group: String,
-        content: LibraryScope.() -> Unit,
+        content: LibraryScope.() -> Unit
     ) {
         require(roots.none { root -> root.value.libraryGroup == group }) {
             "Library catalog root '$group' is already declared"
@@ -36,7 +36,7 @@ class LibraryCatalogTreesScope internal constructor() {
         roots +=
             libraryTree(
                 rootGroup = group,
-                content = content,
+                content = content
             )
     }
 

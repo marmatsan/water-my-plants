@@ -9,7 +9,7 @@ internal class FigmaPluginContext(
     /** Project that owns the applied documentation-sync plugin. */
     val project: Project,
     /** Consumer-configured extension whose providers feed all task registrars. */
-    val extension: figmaDocumentationSyncExtension,
+    val extension: figmaDocumentationSyncExtension
 ) {
     /** Lazily normalized included-build sources shared by generation and verification tasks. */
     val includedBuildSources: Provider<List<FigmaDesignModelIncludedBuildSource>> =
@@ -24,14 +24,14 @@ internal class FigmaPluginContext(
                         rootDirectory = includedBuild.rootDirectory.get().asFile,
                         modulePathPrefix = includedBuild.modulePathPrefix.get(),
                         publishesCatalogs = includedBuild.publishesCatalogs.get(),
-                        publishesConventionPlugins = includedBuild.publishesConventionPlugins.get(),
+                        publishesConventionPlugins = includedBuild.publishesConventionPlugins.get()
                     )
                 }
         }
 
     /** Reads Gradle property [name] as a lazy Boolean provider defaulting to `false`. */
     fun booleanProperty(
-        name: String,
+        name: String
     ): Provider<Boolean> =
         project.providers
             .gradleProperty(name)

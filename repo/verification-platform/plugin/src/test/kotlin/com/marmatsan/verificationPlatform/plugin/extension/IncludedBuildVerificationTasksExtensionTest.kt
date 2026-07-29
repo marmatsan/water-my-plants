@@ -16,7 +16,7 @@ internal class IncludedBuildVerificationTasksExtensionTest :
                 given {
                     val projectDirectory =
                         tempdir(
-                            prefix = "isolated-gradle-build-task",
+                            prefix = "isolated-gradle-build-task"
                         )
                     val project =
                         ProjectBuilder
@@ -36,9 +36,9 @@ internal class IncludedBuildVerificationTasksExtensionTest :
                                 taskPath = ":verifyStagedPublication",
                                 projectProperties =
                                     mapOf(
-                                        "dependencySourceBuild" to "C:/source/dependency",
+                                        "dependencySourceBuild" to "C:/source/dependency"
                                     ),
-                                description = "Verifies the tooling distribution.",
+                                description = "Verifies the tooling distribution."
                             ).get()
                 }.whenever { (project, task) ->
                     IsolatedTaskFixture(
@@ -47,15 +47,15 @@ internal class IncludedBuildVerificationTasksExtensionTest :
                                 if (
                                     System.getProperty("os.name").startsWith(
                                         "Windows",
-                                        ignoreCase = true,
+                                        ignoreCase = true
                                     )
                                 ) {
                                     "gradlew.bat"
                                 } else {
                                     "gradlew"
-                                },
+                                }
                             ),
-                        task = task,
+                        task = task
                     )
                 }.then { fixture ->
                     fixture.task.workingDir shouldBe
@@ -67,14 +67,14 @@ internal class IncludedBuildVerificationTasksExtensionTest :
                             "--no-daemon",
                             ":verifyStagedPublication",
                             "-PdependencySourceBuild=C:/source/dependency",
-                            "--stacktrace",
+                            "--stacktrace"
                         )
                 }
             }
-        },
+        }
     )
 
 private data class IsolatedTaskFixture(
     val expectedWrapper: File,
-    val task: Exec,
+    val task: Exec
 )

@@ -17,7 +17,7 @@ import java.time.ZoneOffset
  * Emits a non-blocking warning when external CI topology validation is stale.
  */
 @DisableCachingByDefault(
-    because = "The warning depends on the current UTC date",
+    because = "The warning depends on the current UTC date"
 )
 abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
     /** Optional versioned topology contract whose validation date is checked. */
@@ -36,14 +36,14 @@ abstract class CheckCiExternalTopologyFreshnessTask : DefaultTask() {
                 .ciExternalTopologyFreshnessChecker
                 .check(
                     topologyFile = topologyFile,
-                    currentDate = LocalDate.now(ZoneOffset.UTC),
+                    currentDate = LocalDate.now(ZoneOffset.UTC)
                 )
 
         if (result.warningRequired) {
             logger.warn(
                 "External CI topology was last validated on ${result.lastValidatedOn}. " +
                     "Validate docs/ci/external-topology.yaml against the active services " +
-                    "and update validation.lastValidatedOn.",
+                    "and update validation.lastValidatedOn."
             )
         } else {
             logger.lifecycle("External CI topology validation is current until ${result.warningDate}.")

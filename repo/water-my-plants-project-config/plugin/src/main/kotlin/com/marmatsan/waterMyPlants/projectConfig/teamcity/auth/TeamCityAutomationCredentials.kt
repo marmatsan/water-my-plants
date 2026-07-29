@@ -10,5 +10,5 @@ package com.marmatsan.waterMyPlants.projectConfig.teamcity.auth
 data class TeamCityAutomationCredentials(
     val serverUrl: String,
     val teamCityToken: String,
-    val cloudflareAccessToken: String,
+    val cloudflareAccessToken: String
 )

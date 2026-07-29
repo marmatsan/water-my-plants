@@ -12,7 +12,7 @@ data class CiNode(
     val id: String,
     val type: Type,
     val name: String,
-    val description: String,
+    val description: String
 ) {
     /**
      * Semantic family used to render an external topology node.
@@ -20,7 +20,7 @@ data class CiNode(
      * @property serializedName stable value used by the design model.
      */
     enum class Type(
-        val serializedName: String,
+        val serializedName: String
     ) {
         Actor("actor"),
         System("system"),
@@ -29,6 +29,6 @@ data class CiNode(
         Job("job"),
         Artifact("artifact"),
         Check("check"),
-        Gate("gate"),
+        Gate("gate")
     }
 }

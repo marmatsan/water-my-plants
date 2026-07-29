@@ -12,5 +12,5 @@ data class CiPipeline(
     val id: String,
     val name: String,
     val triggers: List<CiTrigger>,
-    val jobs: List<CiJob>,
+    val jobs: List<CiJob>
 )

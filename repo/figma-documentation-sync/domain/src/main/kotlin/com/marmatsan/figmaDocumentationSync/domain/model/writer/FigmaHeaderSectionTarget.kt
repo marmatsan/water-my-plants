@@ -10,5 +10,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
 data class FigmaHeaderSectionTarget(
     val sectionNodeId: String,
     val links: List<FigmaProjectLink>,
-    val definition: String? = null,
+    val definition: String? = null
 )

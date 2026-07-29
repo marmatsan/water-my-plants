@@ -25,21 +25,21 @@ internal object FigmaDesignModelHash {
      * Returns a `sha256:<hex>` digest for the canonicalized [model].
      */
     fun compute(
-        model: JsonElement,
+        model: JsonElement
     ): String {
         val bytes =
             canonicalJson
                 .encodeToString(
                     JsonElement.serializer(),
-                    model.canonicalized(),
+                    model.canonicalized()
                 ).toByteArray(Charsets.UTF_8)
         val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
         return "sha256:" +
             digest.joinToString(
-                separator = "",
+                separator = ""
             ) { byte ->
                 "%02x".format(
-                    byte,
+                    byte
                 )
             }
     }
@@ -54,7 +54,7 @@ internal object FigmaDesignModelHash {
                 JsonObject(
                     entries
                         .sortedBy(Map.Entry<String, JsonElement>::key)
-                        .associate { (key, value) -> key to value.canonicalized() },
+                        .associate { (key, value) -> key to value.canonicalized() }
                 )
             }
 

@@ -9,5 +9,5 @@ class ExampleUnitTest :
             test("addition is correct") {
                 4 shouldBe 2 + 2
             }
-        },
+        }
     )

@@ -13,75 +13,75 @@ internal class GitRepositoryChangeSetDataSourceTest :
                 try {
                     git(
                         repository,
-                        "init",
+                        "init"
                     )
                     git(
                         repository,
                         "config",
                         "user.name",
-                        "Figma impact test",
+                        "Figma impact test"
                     )
                     git(
                         repository,
                         "config",
                         "user.email",
-                        "figma-impact@example.invalid",
+                        "figma-impact@example.invalid"
                     )
                     File(
                         repository,
-                        "base.txt",
+                        "base.txt"
                     ).writeText("base")
                     git(
                         repository,
                         "add",
-                        ".",
+                        "."
                     )
                     git(
                         repository,
                         "commit",
                         "-m",
-                        "test: base",
+                        "test: base"
                     )
                     git(
                         repository,
                         "branch",
                         "-M",
-                        "main",
+                        "main"
                     )
                     git(
                         repository,
                         "remote",
                         "add",
                         "origin",
-                        repository.absolutePath,
+                        repository.absolutePath
                     )
                     git(
                         repository,
                         "fetch",
                         "origin",
-                        "main:refs/remotes/origin/main",
+                        "main:refs/remotes/origin/main"
                     )
                     val baseSha =
                         git(
                             repository,
                             "rev-parse",
-                            "HEAD",
+                            "HEAD"
                         )
 
                     File(
                         repository,
-                        "changed.txt",
+                        "changed.txt"
                     ).writeText("changed")
                     git(
                         repository,
                         "add",
-                        ".",
+                        "."
                     )
                     git(
                         repository,
                         "commit",
                         "-m",
-                        "test: change",
+                        "test: change"
                     )
 
                     val result = GitRepositoryChangeSetDataSource().read(repository.absolutePath)
@@ -92,12 +92,12 @@ internal class GitRepositoryChangeSetDataSourceTest :
                     repository.deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private fun git(
     repository: File,
-    vararg arguments: String,
+    vararg arguments: String
 ): String {
     val process =
         ProcessBuilder(listOf("git") + arguments)

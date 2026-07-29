@@ -15,7 +15,7 @@ internal fun visualSection(
     orientation: CiVisualPlan.Orientation,
     nodes: List<CiVisualPlan.Node>,
     connections: List<CiVisualPlan.Connection>,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ) = CiVisualPlan.Section(
     target = target,
     name = name,
@@ -28,12 +28,12 @@ internal fun visualSection(
                 url =
                     sourceUrl(
                         source = source,
-                        config = config,
-                    ),
+                        config = config
+                    )
             )
         },
     nodes = nodes,
-    connections = connections,
+    connections = connections
 )
 
 internal fun pipelineNode(
@@ -41,7 +41,7 @@ internal fun pipelineNode(
     pipeline: CiPipeline,
     row: Int,
     column: Int,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ) = visualNode(
     id = id,
     type = CiVisualPlan.Type.PIPELINE,
@@ -50,12 +50,12 @@ internal fun pipelineNode(
     description =
         pipelineDescription(
             name = pipeline.name,
-            config = config,
+            config = config
         ),
     source = config.teamCitySource,
     row = row,
     column = column,
-    config = config,
+    config = config
 )
 
 internal fun jobNode(
@@ -63,7 +63,7 @@ internal fun jobNode(
     job: CiJob,
     row: Int,
     column: Int,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ) = visualNode(
     id = id,
     type = CiVisualPlan.Type.JOB,
@@ -71,12 +71,12 @@ internal fun jobNode(
     name = job.name,
     description =
         jobDescription(
-            name = job.name,
+            name = job.name
         ),
     source = config.teamCitySource,
     row = row,
     column = column,
-    config = config,
+    config = config
 )
 
 internal fun externalNode(
@@ -85,7 +85,7 @@ internal fun externalNode(
     row: Int,
     column: Int,
     config: CiVisualPlanConfig,
-    environments: CiVisualEnvironmentResolver,
+    environments: CiVisualEnvironmentResolver
 ) = visualNode(
     id = id,
     type = node.type.toVisualType(),
@@ -95,7 +95,7 @@ internal fun externalNode(
     source = config.topologySource,
     row = row,
     column = column,
-    config = config,
+    config = config
 )
 
 internal fun visualNode(
@@ -107,7 +107,7 @@ internal fun visualNode(
     source: String,
     row: Int,
     column: Int,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ) = CiVisualPlan.Node(
     id = id,
     type = type,
@@ -121,10 +121,10 @@ internal fun visualNode(
     sourceUrl =
         sourceUrl(
             source = source,
-            config = config,
+            config = config
         ),
     row = row,
-    column = column,
+    column = column
 )
 
 internal fun visualConnection(
@@ -132,7 +132,7 @@ internal fun visualConnection(
     source: String?,
     target: String?,
     label: String,
-    kind: CiVisualPlan.ConnectionKind,
+    kind: CiVisualPlan.ConnectionKind
 ): CiVisualPlan.Connection {
     require(source != null && target != null) { "CI visual connection '$id' has an unknown endpoint." }
     return CiVisualPlan.Connection(
@@ -140,22 +140,22 @@ internal fun visualConnection(
         source = source,
         target = target,
         label = label,
-        kind = kind,
+        kind = kind
     )
 }
 
 internal fun externalConnectionKind(
-    connectionId: String,
+    connectionId: String
 ): CiVisualPlan.ConnectionKind =
     when (connectionId) {
         "github-source-checkout",
         "figma-metadata-read",
         "mcp-figma-write",
-        "figma-document-update",
+        "figma-document-update"
         -> CiVisualPlan.ConnectionKind.DATA
 
         "github-check-publication",
-        "teamcity-build-results",
+        "teamcity-build-results"
         -> CiVisualPlan.ConnectionKind.STATUS
 
         "browser-teamcity-access",
@@ -164,21 +164,21 @@ internal fun externalConnectionKind(
         "cloudflare-origin-routing",
         "teamcity-origin-delivery",
         "teamcity-job-dispatch",
-        "operator-visual-sync",
+        "operator-visual-sync"
         -> CiVisualPlan.ConnectionKind.CONTROL
 
         else -> CiVisualPlan.ConnectionKind.NEUTRAL
     }
 
 internal fun publishedChecks(
-    pipeline: CiPipeline,
+    pipeline: CiPipeline
 ): List<String> =
     pipeline.jobs
         .flatMap(CiJob::publishedChecks)
         .map(CiJob.PublishedCheck::name)
 
 internal fun triggerLabel(
-    pipeline: CiPipeline,
+    pipeline: CiPipeline
 ): String {
     val trigger = pipeline.triggers.firstOrNull() ?: return "Run manually"
     return when (trigger.type) {
@@ -189,7 +189,7 @@ internal fun triggerLabel(
 }
 
 internal fun jobDescription(
-    name: String,
+    name: String
 ): String =
     when (name) {
         "Verify" -> "Runs repository verification and publishes the required CI check."
@@ -200,7 +200,7 @@ internal fun jobDescription(
 
 private fun pipelineDescription(
     name: String,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ): String =
     if (name == config.ciPipelineName) {
         "Validates pull requests and branch revisions before merge."
@@ -210,7 +210,7 @@ private fun pipelineDescription(
 
 private fun sourceUrl(
     source: String,
-    config: CiVisualPlanConfig,
+    config: CiVisualPlanConfig
 ) = "${config.githubMainBlobUrl}/$source"
 
 private fun CiNode.Type.toVisualType(): CiVisualPlan.Type =

@@ -6,9 +6,9 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  * @property wireValue serialized decision persisted in canonical artifacts.
  */
 enum class VisualSyncDecision(
-    val wireValue: String,
+    val wireValue: String
 ) {
     FULL("full"),
     PARTIAL("partial"),
-    NONE("none"),
+    NONE("none")
 }

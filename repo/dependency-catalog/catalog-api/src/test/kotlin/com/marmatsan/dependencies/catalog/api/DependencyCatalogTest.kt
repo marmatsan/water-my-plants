@@ -14,7 +14,7 @@ internal class DependencyCatalogTest :
                 }.whenever { compactPath ->
                     shouldThrow<IllegalArgumentException> {
                         LibraryCatalogNode(
-                            group = compactPath,
+                            group = compactPath
                         )
                     }
                 }.then { failure ->
@@ -29,7 +29,7 @@ internal class DependencyCatalogTest :
                 }.whenever { compactPath ->
                     shouldThrow<IllegalArgumentException> {
                         PluginCatalogNode(
-                            id = compactPath,
+                            id = compactPath
                         )
                     }
                 }.then { failure ->
@@ -37,5 +37,5 @@ internal class DependencyCatalogTest :
                         "Plugin id 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
                 }
             }
-        },
+        }
     )

@@ -11,6 +11,6 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features")
 @ConfigurationParameter(
     key = GLUE_PROPERTY_NAME,
-    value = "com.marmatsan.water_my_plants.bdd",
+    value = "com.marmatsan.water_my_plants.bdd"
 )
 class RunCucumberTest

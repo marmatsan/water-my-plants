@@ -9,7 +9,7 @@ internal class DefaultPluginCatalogUsageEnricher : PluginCatalogUsageEnricher {
     override fun enrich(
         tree: PluginCatalogTree,
         mainUsages: Map<String, Set<String>>,
-        conventionPluginUsages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>,
+        conventionPluginUsages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>
     ): PluginCatalogTree =
         tree.copy(
             roots =
@@ -17,21 +17,21 @@ internal class DefaultPluginCatalogUsageEnricher : PluginCatalogUsageEnricher {
                     enrichNode(
                         node = node,
                         mainUsages = mainUsages,
-                        conventionPluginUsages = conventionPluginUsages,
+                        conventionPluginUsages = conventionPluginUsages
                     )
-                },
+                }
         )
 
     private fun enrichNode(
         node: PluginCatalogNode,
         mainUsages: Map<String, Set<String>>,
         conventionPluginUsages: Map<String, List<PluginCatalogNode.ConventionPluginUsage>>,
-        parentId: String = "",
+        parentId: String = ""
     ): PluginCatalogNode {
         val pluginId =
             listOf(
                 parentId,
-                node.id,
+                node.id
             ).filter(String::isNotBlank)
                 .joinToString(".")
 
@@ -44,9 +44,9 @@ internal class DefaultPluginCatalogUsageEnricher : PluginCatalogUsageEnricher {
                         node = child,
                         mainUsages = mainUsages,
                         conventionPluginUsages = conventionPluginUsages,
-                        parentId = pluginId,
+                        parentId = pluginId
                     )
-                },
+                }
         )
     }
 }

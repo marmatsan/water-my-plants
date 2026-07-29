@@ -23,7 +23,7 @@ interface ProjectCatalogTreesPort {
      * request.
      */
     fun readLibraryTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): LibraryCatalogTree
 
     /**
@@ -34,6 +34,6 @@ interface ProjectCatalogTreesPort {
      * source variant.
      */
     fun readPluginTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): PluginCatalogTree
 }

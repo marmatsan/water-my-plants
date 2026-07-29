@@ -12,5 +12,5 @@ data class VisualSyncIdentity(
     val modelHash: String,
     val writerHash: String,
     val transportHash: String,
-    val writerScopeFingerprintSchemaVersion: Int,
+    val writerScopeFingerprintSchemaVersion: Int
 )

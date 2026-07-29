@@ -12,26 +12,26 @@ internal class LibraryAliasTest :
                     listOf(
                         AliasFixture(
                             group = "androidx.compose",
-                            artifact = "compose-bom",
+                            artifact = "compose-bom"
                         ) to "androidx.compose.bom",
                         AliasFixture(
                             group = "androidx.activity",
-                            artifact = "activity-compose",
+                            artifact = "activity-compose"
                         ) to "androidx.activity.compose",
                         AliasFixture(
                             group = "org.junit.jupiter",
-                            artifact = "junit-jupiter-api",
+                            artifact = "junit-jupiter-api"
                         ) to "org.junit.jupiter.api",
                         AliasFixture(
                             group = "com.google.protobuf",
-                            artifact = "protoc",
-                        ) to "com.google.protobuf.protoc",
+                            artifact = "protoc"
+                        ) to "com.google.protobuf.protoc"
                     )
                 }.whenever { fixtures ->
                     fixtures.map { (coordinate, expectedAlias) ->
                         libraryAlias(
                             libraryGroup = coordinate.group,
-                            artifact = coordinate.artifact,
+                            artifact = coordinate.artifact
                         ) to expectedAlias
                     }
                 }.then { aliases ->
@@ -40,10 +40,10 @@ internal class LibraryAliasTest :
                     }
                 }
             }
-        },
+        }
     )
 
 private data class AliasFixture(
     val group: String,
-    val artifact: String,
+    val artifact: String
 )

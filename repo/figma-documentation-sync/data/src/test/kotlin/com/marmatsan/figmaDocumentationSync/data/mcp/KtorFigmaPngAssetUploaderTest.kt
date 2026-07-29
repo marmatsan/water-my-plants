@@ -24,7 +24,7 @@ internal class KtorFigmaPngAssetUploaderTest :
 
                 uploader.uploadBlocking(
                     url = uploadUrl,
-                    bytes = png,
+                    bytes = png
                 )
 
                 capturedUrl shouldBe uploadUrl
@@ -36,32 +36,32 @@ internal class KtorFigmaPngAssetUploaderTest :
                     listOf(
                         uploadUrl.replace(
                             "https://",
-                            "http://",
+                            "http://"
                         ),
                         uploadUrl.replace(
                             "mcp.figma.com",
-                            "example.com",
+                            "example.com"
                         ),
                         uploadUrl.replace(
                             "mcp.figma.com",
-                            "mcp.figma.com.example.com",
+                            "mcp.figma.com.example.com"
                         ),
                         uploadUrl.replace(
                             "mcp.figma.com",
-                            "mcp.figma.com:8443",
+                            "mcp.figma.com:8443"
                         ),
                         uploadUrl.replace(
                             "/mcp/upload/",
-                            "/other/upload/",
+                            "/other/upload/"
                         ),
                         uploadUrl.replace(
                             "?scaleMode=FILL",
-                            "?scaleMode=FIT",
+                            "?scaleMode=FIT"
                         ),
                         uploadUrl.replace(
                             "https://",
-                            "https://user@mcp.figma.com/",
-                        ),
+                            "https://user@mcp.figma.com/"
+                        )
                     )
                 var sends = 0
                 val uploader =
@@ -74,7 +74,7 @@ internal class KtorFigmaPngAssetUploaderTest :
                     shouldThrow<IllegalArgumentException> {
                         uploader.uploadBlocking(
                             url = url,
-                            bytes = png,
+                            bytes = png
                         )
                     }
                 }
@@ -93,13 +93,13 @@ internal class KtorFigmaPngAssetUploaderTest :
                 shouldThrow<IllegalArgumentException> {
                     uploader.uploadBlocking(
                         url = uploadUrl,
-                        bytes = "not-a-png".encodeToByteArray(),
+                        bytes = "not-a-png".encodeToByteArray()
                     )
                 }
                 shouldThrow<IllegalArgumentException> {
                     uploader.uploadBlocking(
                         url = uploadUrl,
-                        bytes = ByteArray(10 * 1024 * 1024 + 1),
+                        bytes = ByteArray(10 * 1024 * 1024 + 1)
                     )
                 }
 
@@ -113,11 +113,11 @@ internal class KtorFigmaPngAssetUploaderTest :
                     shouldThrow<IllegalArgumentException> {
                         uploader.uploadBlocking(
                             url = uploadUrl,
-                            bytes = png,
+                            bytes = png
                         )
                     }
 
                 failure.message shouldBe "Payload upload failed with HTTP 500."
             }
-        },
+        }
     )

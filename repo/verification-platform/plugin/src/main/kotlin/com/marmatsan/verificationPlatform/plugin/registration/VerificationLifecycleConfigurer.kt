@@ -10,7 +10,7 @@ internal class VerificationLifecycleConfigurer(
     private val project: Project,
     private val configurableTasks: ConfigurableVerificationTasks,
     private val checkDocumentation: TaskProvider<CheckDocumentationTask>,
-    private val checkTeamCityDsl: TaskProvider<CheckTeamCityDslTask>,
+    private val checkTeamCityDsl: TaskProvider<CheckTeamCityDslTask>
 ) {
     /** Defers lifecycle wiring until all projects and their `check` tasks exist. */
     fun configure() {

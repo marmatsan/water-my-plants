@@ -14,5 +14,5 @@ data class FigmaSyncMetadata(
     val writerHash: String?,
     val targetFingerprints: Map<String, String>?,
     val writerScopeFingerprints: Map<String, String>?,
-    val writerScopeFingerprintSchemaVersion: Int?,
+    val writerScopeFingerprintSchemaVersion: Int?
 )

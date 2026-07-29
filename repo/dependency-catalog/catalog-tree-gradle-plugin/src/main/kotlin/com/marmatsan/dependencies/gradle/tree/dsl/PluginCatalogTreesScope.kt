@@ -31,7 +31,7 @@ class PluginCatalogTreesScope internal constructor() {
     fun root(
         id: String,
         version: String? = null,
-        content: PluginScope.() -> Unit = {},
+        content: PluginScope.() -> Unit = {}
     ) {
         require(roots.none { root -> root.value.pluginId == id }) {
             "Plugin catalog root '$id' is already declared"
@@ -40,7 +40,7 @@ class PluginCatalogTreesScope internal constructor() {
             pluginTree(
                 rootId = id,
                 version = version,
-                content = content,
+                content = content
             )
     }
 

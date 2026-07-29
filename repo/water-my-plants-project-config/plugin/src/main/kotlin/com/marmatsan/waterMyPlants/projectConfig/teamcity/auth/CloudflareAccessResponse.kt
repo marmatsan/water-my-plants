@@ -8,5 +8,5 @@ package com.marmatsan.waterMyPlants.projectConfig.teamcity.auth
  */
 data class CloudflareAccessResponse(
     val statusCode: Int,
-    val setCookieHeaders: List<String>,
+    val setCookieHeaders: List<String>
 )

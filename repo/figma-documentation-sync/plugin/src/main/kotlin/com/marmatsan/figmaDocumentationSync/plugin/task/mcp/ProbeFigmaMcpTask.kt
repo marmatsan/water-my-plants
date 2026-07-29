@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 /** Probes the local MCP endpoint through the official Kotlin SDK transport. */
 @DisableCachingByDefault(
-    because = "Connects to a local MCP endpoint",
+    because = "Connects to a local MCP endpoint"
 )
 abstract class ProbeFigmaMcpTask
     @Inject
@@ -42,7 +42,7 @@ abstract class ProbeFigmaMcpTask
             val capabilities =
                 McpRunnerExecutor().probe(
                     endpoint = endpoint.get(),
-                    clientName = config.mcpClientName,
+                    clientName = config.mcpClientName
                 )
             val output =
                 buildJsonObject {
@@ -50,28 +50,28 @@ abstract class ProbeFigmaMcpTask
                         "toolNames",
                         JsonArray(
                             capabilities.toolNames.map(
-                                transform = ::JsonPrimitive,
-                            ),
-                        ),
+                                transform = ::JsonPrimitive
+                            )
+                        )
                     )
                     put(
                         "canUseFigma",
-                        capabilities.canUseFigma,
+                        capabilities.canUseFigma
                     )
                     put(
                         "canUploadAssets",
-                        capabilities.canUploadAssets,
+                        capabilities.canUploadAssets
                     )
                     put(
                         "writeCapable",
-                        capabilities.writeCapable,
+                        capabilities.writeCapable
                     )
                 }
             logger.lifecycle(
                 prettyJson.encodeToString(
                     JsonObject.serializer(),
-                    output,
-                ),
+                    output
+                )
             )
         }
 

@@ -15,7 +15,7 @@ internal class VersionCatalogBuilderExtensionTest :
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
@@ -25,15 +25,15 @@ internal class VersionCatalogBuilderExtensionTest :
                                         listOf(
                                             LibraryCatalogEntry.Artifact(
                                                 name = "activity-compose",
-                                                version = "1.9.2",
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                version = "1.9.2"
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerLibraries(
-                        libraries = fixture.values,
+                        libraries = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
@@ -41,9 +41,9 @@ internal class VersionCatalogBuilderExtensionTest :
                             .library(
                                 "androidx.activity.compose",
                                 "androidx.activity",
-                                "activity-compose",
+                                "activity-compose"
                             ).version(
-                                "1.9.2",
+                                "1.9.2"
                             )
                     }
                 }
@@ -54,7 +54,7 @@ internal class VersionCatalogBuilderExtensionTest :
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
@@ -64,15 +64,15 @@ internal class VersionCatalogBuilderExtensionTest :
                                         listOf(
                                             LibraryCatalogEntry.Artifact(
                                                 name = "compose-bom",
-                                                version = "2025.06.01",
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                version = "2025.06.01"
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerLibraries(
-                        libraries = fixture.values,
+                        libraries = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
@@ -80,22 +80,22 @@ internal class VersionCatalogBuilderExtensionTest :
                             .library(
                                 "androidx.compose.bom",
                                 "androidx.compose",
-                                "compose-bom",
+                                "compose-bom"
                             ).version(
-                                "2025.06.01",
+                                "2025.06.01"
                             )
                     }
                 }
             }
 
             test(
-                "registerLibraries registers an artifact alias preserving group when artifact does not share group prefix",
+                "registerLibraries registers an artifact alias preserving group when artifact does not share group prefix"
             ) {
                 given {
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
@@ -105,15 +105,15 @@ internal class VersionCatalogBuilderExtensionTest :
                                         listOf(
                                             LibraryCatalogEntry.Artifact(
                                                 name = "ui-tooling-preview",
-                                                version = null,
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                version = null
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerLibraries(
-                        libraries = fixture.values,
+                        libraries = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
@@ -121,20 +121,20 @@ internal class VersionCatalogBuilderExtensionTest :
                             .library(
                                 "androidx.compose.ui.tooling.preview",
                                 "androidx.compose.ui",
-                                "ui-tooling-preview",
+                                "ui-tooling-preview"
                             ).withoutVersion()
                     }
                 }
             }
 
             test(
-                "registerLibraries registers a library alias without duplicating multi segment artifact prefix shared with group",
+                "registerLibraries registers a library alias without duplicating multi segment artifact prefix shared with group"
             ) {
                 given {
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
@@ -144,15 +144,15 @@ internal class VersionCatalogBuilderExtensionTest :
                                         listOf(
                                             LibraryCatalogEntry.Artifact(
                                                 name = "junit-jupiter-api",
-                                                version = null,
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                version = null
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerLibraries(
-                        libraries = fixture.values,
+                        libraries = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
@@ -160,7 +160,7 @@ internal class VersionCatalogBuilderExtensionTest :
                             .library(
                                 "org.junit.jupiter.api",
                                 "org.junit.jupiter",
-                                "junit-jupiter-api",
+                                "junit-jupiter-api"
                             ).withoutVersion()
                     }
                 }
@@ -171,7 +171,7 @@ internal class VersionCatalogBuilderExtensionTest :
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
@@ -185,17 +185,17 @@ internal class VersionCatalogBuilderExtensionTest :
                                                     listOf(
                                                         "ui",
                                                         "ui-graphics",
-                                                        "ui-tooling",
+                                                        "ui-tooling"
                                                     ),
-                                                version = null,
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                version = null
+                                            )
+                                        )
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerLibraries(
-                        libraries = fixture.values,
+                        libraries = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
@@ -204,8 +204,8 @@ internal class VersionCatalogBuilderExtensionTest :
                             listOf(
                                 "androidx.compose.ui",
                                 "androidx.compose.ui.graphics",
-                                "androidx.compose.ui.tooling",
-                            ),
+                                "androidx.compose.ui.tooling"
+                            )
                         )
                     }
                 }
@@ -216,36 +216,36 @@ internal class VersionCatalogBuilderExtensionTest :
                     RegistrationFixture(
                         builder =
                             mockk(
-                                relaxed = true,
+                                relaxed = true
                             ),
                         values =
                             listOf(
                                 ResolvedPlugin(
                                     id = "com.android.application",
-                                    version = "8.13.2",
-                                ),
-                            ),
+                                    version = "8.13.2"
+                                )
+                            )
                     )
                 }.whenever { fixture ->
                     fixture.builder.registerPlugins(
-                        plugins = fixture.values,
+                        plugins = fixture.values
                     )
                 }.then { fixture, _ ->
                     verify {
                         fixture.builder
                             .plugin(
                                 "com.android.application",
-                                "com.android.application",
+                                "com.android.application"
                             ).version(
-                                "8.13.2",
+                                "8.13.2"
                             )
                     }
                 }
             }
-        },
+        }
     )
 
 private data class RegistrationFixture<Value>(
     val builder: VersionCatalogBuilder,
-    val values: List<Value>,
+    val values: List<Value>
 )

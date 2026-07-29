@@ -14,7 +14,7 @@ import java.io.File
 
 /** Registers independent verification tasks and attaches stable checks to the Gradle lifecycle. */
 internal class FigmaVerificationTasksRegistrar(
-    private val context: FigmaPluginContext,
+    private val context: FigmaPluginContext
 ) {
     /** Registers independent verification tasks and their stable lifecycle dependencies. */
     fun register() {
@@ -39,15 +39,15 @@ internal class FigmaVerificationTasksRegistrar(
             description = "Validates a canonical main Figma artifact set and writes its handoff identity."
             artifactDirectory.set(
                 project.layout.dir(
-                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File),
-                ),
+                    project.providers.gradleProperty("figmaArtifactDirectory").map(::File)
+                )
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
             outputFile.set(
                 project.layout
                     .file(
-                        project.providers.gradleProperty("figmaArtifactValidationOutput").map(::File),
-                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json")),
+                        project.providers.gradleProperty("figmaArtifactValidationOutput").map(::File)
+                    ).orElse(project.layout.buildDirectory.file("reports/figma-sync/validated-artifact-set.json"))
             )
         }
     }
@@ -91,7 +91,7 @@ internal class FigmaVerificationTasksRegistrar(
                 catalogUsage,
                 versionNaming,
                 externalTopology,
-                windowsRuntime,
+                windowsRuntime
             )
         }
     }

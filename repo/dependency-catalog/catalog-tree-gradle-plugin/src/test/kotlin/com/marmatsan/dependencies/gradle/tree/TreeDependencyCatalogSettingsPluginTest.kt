@@ -13,13 +13,13 @@ internal class TreeDependencyCatalogSettingsPluginTest :
             test("registers explicit library and plugin trees with versions owned by the consuming settings") {
                 given {
                     tempdir(
-                        prefix = "tree-dependency-catalog-settings",
+                        prefix = "tree-dependency-catalog-settings"
                     ).apply {
                         resolve("versions.properties").writeText(
                             """
                             exampleLibraryVersion=1.2.3
                             examplePluginVersion=2.0.0
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                         resolve("settings.gradle.kts").writeText(
                             """
@@ -34,13 +34,13 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                                             library("tools") {
                                                 artifact(
                                                     artifact = "tools-core",
-                                                    version = version("exampleLibraryVersion"),
+                                                    version = version("exampleLibraryVersion")
                                                 )
                                             }
                                             library("format") {
                                                 artifact(
                                                     artifact = "format-core",
-                                                    version = version("exampleLibraryVersion"),
+                                                    version = version("exampleLibraryVersion")
                                                 )
                                             }
                                         }
@@ -48,7 +48,7 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                                     root("tools") {
                                         artifact(
                                             artifact = "core",
-                                            version = version("exampleLibraryVersion"),
+                                            version = version("exampleLibraryVersion")
                                         )
                                     }
                                 }
@@ -58,23 +58,23 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                                         plugin("example") {
                                             plugin(
                                                 id = "quality",
-                                                version = version("examplePluginVersion"),
+                                                version = version("examplePluginVersion")
                                             )
                                             plugin(
                                                 id = "format",
-                                                version = version("examplePluginVersion"),
+                                                version = version("examplePluginVersion")
                                             )
                                         }
                                     }
                                     root(
                                         id = "quality",
-                                        version = version("examplePluginVersion"),
+                                        version = version("examplePluginVersion")
                                     )
                                 }
                             }
 
                             rootProject.name = "tree-consumer"
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                         resolve("build.gradle.kts").writeText(
                             """
@@ -91,7 +91,7 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                                     check(catalogs.named("plugins").findPlugin("quality").isPresent)
                                 }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     }
                 }.whenever { projectDirectory ->
@@ -100,12 +100,12 @@ internal class TreeDependencyCatalogSettingsPluginTest :
                         .withProjectDir(projectDirectory)
                         .withArguments(
                             "verifyCatalogs",
-                            "--stacktrace",
+                            "--stacktrace"
                         ).withPluginClasspath()
                         .build()
                 }.then { result ->
                     result.task(":verifyCatalogs")?.outcome shouldBe TaskOutcome.SUCCESS
                 }
             }
-        },
+        }
     )

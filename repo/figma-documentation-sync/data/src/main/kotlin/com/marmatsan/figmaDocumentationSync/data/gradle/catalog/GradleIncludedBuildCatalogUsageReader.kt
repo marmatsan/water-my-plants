@@ -12,30 +12,30 @@ class GradleIncludedBuildCatalogUsageReader {
     /** Reads library catalog aliases consumed by included-build modules. */
     fun readLibraryUsages(
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Map<String, Set<String>> =
         scanner.buildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
             usages.mergeUsageSets(
                 parser.includedBuildLibraryAliases(
                     buildFile,
                     rootDir,
-                    modulePathPrefix,
-                ),
+                    modulePathPrefix
+                )
             )
         }
 
     /** Reads plugin catalog aliases consumed by included-build modules. */
     fun readPluginUsages(
         rootDir: File,
-        modulePathPrefix: String,
+        modulePathPrefix: String
     ): Map<String, Set<String>> =
         scanner.buildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
             usages.mergeUsageSets(
                 parser.includedBuildPluginAliases(
                     buildFile,
                     rootDir,
-                    modulePathPrefix,
-                ),
+                    modulePathPrefix
+                )
             )
         }
 }

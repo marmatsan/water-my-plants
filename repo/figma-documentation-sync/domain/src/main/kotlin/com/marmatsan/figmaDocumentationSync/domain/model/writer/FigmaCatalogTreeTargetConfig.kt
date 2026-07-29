@@ -18,5 +18,5 @@ data class FigmaCatalogTreeTargetConfig(
     val lifecycle: FigmaCatalogTreeTargetLifecycle,
     val nodesPath: List<String>,
     val gradlePluginNodes: Boolean = false,
-    val warnWhenUnused: Boolean = false,
+    val warnWhenUnused: Boolean = false
 )

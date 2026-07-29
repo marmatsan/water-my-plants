@@ -2,7 +2,7 @@ package com.marmatsan.verificationPlatform.domain.service.documentation
 
 /** Validates repository-local Markdown links without applying provider-specific exceptions. */
 internal class DocumentationLinkValidator(
-    private val paths: DocumentationPathResolver = DocumentationPathResolver(),
+    private val paths: DocumentationPathResolver = DocumentationPathResolver()
 ) {
     /**
      * Adds errors for local Markdown links that cannot resolve to a repository entry.
@@ -16,13 +16,13 @@ internal class DocumentationLinkValidator(
         documentPath: String,
         content: String,
         repositoryEntries: Set<String>,
-        findings: DocumentationFindings,
+        findings: DocumentationFindings
     ) {
         MARKDOWN_LINK_PATTERN.findAll(content).forEach { match ->
             val target =
                 match.groups["target"]!!.value.trim(
                     '<',
-                    '>',
+                    '>'
                 )
             if (EXTERNAL_LINK_PATTERN.containsMatchIn(target)) return@forEach
             val targetPath =
@@ -30,13 +30,13 @@ internal class DocumentationLinkValidator(
                     .split(
                         '#',
                         '?',
-                        limit = 2,
+                        limit = 2
                     ).first()
             if (targetPath.isBlank()) return@forEach
             val resolved =
                 paths.resolve(
                     documentPath,
-                    targetPath,
+                    targetPath
                 )
             if (resolved == null || paths.normalize(resolved) !in repositoryEntries) {
                 findings.errors += "[$documentPath] Broken local Markdown link: $target"

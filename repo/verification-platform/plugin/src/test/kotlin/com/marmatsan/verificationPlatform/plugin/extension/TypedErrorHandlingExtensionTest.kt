@@ -14,7 +14,7 @@ internal class TypedErrorHandlingExtensionTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "typed-error-handling-extension",
+                    prefix = "typed-error-handling-extension"
                 )
 
             test("selects only production Kotlin below a repository scope") {
@@ -38,12 +38,12 @@ internal class TypedErrorHandlingExtensionTest :
                     val task =
                         project.tasks.register(
                             "checkTypedResultUsage",
-                            CheckTypedResultUsageTask::class.java,
+                            CheckTypedResultUsageTask::class.java
                         )
 
                     TypedErrorHandlingExtension(
                         project = project,
-                        checkTypedResultUsage = task,
+                        checkTypedResultUsage = task
                     ).productionSourceScope("repo")
 
                     task.get()
@@ -52,7 +52,7 @@ internal class TypedErrorHandlingExtensionTest :
                         .map { file ->
                             file.relativeTo(projectDirectory).path.replace(
                                 oldChar = '\\',
-                                newChar = '/',
+                                newChar = '/'
                             )
                         }.sorted()
                 }.then { relativePaths ->
@@ -69,17 +69,17 @@ internal class TypedErrorHandlingExtensionTest :
                             .withProjectDir(
                                 temporaryDirectory
                                     .resolve("blank-scope")
-                                    .apply(File::mkdirs),
+                                    .apply(File::mkdirs)
                             ).build()
                     val task =
                         project.tasks.register(
                             "checkTypedResultUsage",
-                            CheckTypedResultUsageTask::class.java,
+                            CheckTypedResultUsageTask::class.java
                         )
 
                     TypedErrorHandlingExtension(
                         project = project,
-                        checkTypedResultUsage = task,
+                        checkTypedResultUsage = task
                     )
                 }.whenever { extension ->
                     shouldThrow<IllegalArgumentException> {
@@ -87,11 +87,11 @@ internal class TypedErrorHandlingExtensionTest :
                     }
                 }.then { Unit }
             }
-        },
+        }
     )
 
 private fun File.writeSource(
-    source: String,
+    source: String
 ) {
     parentFile.mkdirs()
     writeText(source)

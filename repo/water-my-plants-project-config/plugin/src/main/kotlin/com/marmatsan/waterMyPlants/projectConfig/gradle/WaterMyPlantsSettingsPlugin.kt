@@ -14,7 +14,7 @@ import org.gradle.kotlin.dsl.configure
 class WaterMyPlantsSettingsPlugin : Plugin<Settings> {
     /** Applies the reusable settings plugin and supplies the Water My Plants catalog provider. */
     override fun apply(
-        settings: Settings,
+        settings: Settings
     ) {
         settings.pluginManager.apply(DependencyCatalogSettingsPlugin::class.java)
         settings.extensions.configure<DependencyCatalogSettingsExtension> {
@@ -22,14 +22,14 @@ class WaterMyPlantsSettingsPlugin : Plugin<Settings> {
         }
         val versions = WaterMyPlantsVersionProperties.load(settings.rootDir)
         WaterMyPlantsTestCatalogConfigurator(
-            versions = versions,
+            versions = versions
         ).configure(
-            settings = settings,
+            settings = settings
         )
         WaterMyPlantsToolingPluginCatalogConfigurator(
-            versions = versions,
+            versions = versions
         ).configure(
-            settings = settings,
+            settings = settings
         )
     }
 }

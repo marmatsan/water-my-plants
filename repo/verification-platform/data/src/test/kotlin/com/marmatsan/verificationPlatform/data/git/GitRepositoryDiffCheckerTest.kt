@@ -14,108 +14,108 @@ class GitRepositoryDiffCheckerTest :
                 try {
                     git(
                         root,
-                        "init",
+                        "init"
                     )
                     git(
                         root,
                         "config",
                         "user.email",
-                        "ci@example.invalid",
+                        "ci@example.invalid"
                     )
                     git(
                         root,
                         "config",
                         "user.name",
-                        "CI Test",
+                        "CI Test"
                     )
 
                     root
                         .resolve(
-                            relative = "example.txt",
+                            relative = "example.txt"
                         ).writeText("baseline\n")
                     commit(
                         root = root,
-                        message = "baseline",
+                        message = "baseline"
                     )
                     val baseline =
                         git(
                             root,
                             "rev-parse",
-                            "HEAD",
+                            "HEAD"
                         )
 
                     root
                         .resolve(
-                            relative = "example.txt",
+                            relative = "example.txt"
                         ).writeText("clean\n")
                     commit(
                         root = root,
-                        message = "clean",
+                        message = "clean"
                     )
                     val cleanHead =
                         git(
                             root,
                             "rev-parse",
-                            "HEAD",
+                            "HEAD"
                         )
 
                     shouldNotThrowAny {
                         GitRepositoryDiffChecker().check(
                             repositoryRoot = root,
                             comparisonBase = baseline,
-                            head = cleanHead,
+                            head = cleanHead
                         )
                     }
 
                     root
                         .resolve(
-                            relative = "example.txt",
+                            relative = "example.txt"
                         ).writeText("trailing whitespace   \n")
                     commit(
                         root = root,
-                        message = "invalid",
+                        message = "invalid"
                     )
                     val invalidHead =
                         git(
                             root,
                             "rev-parse",
-                            "HEAD",
+                            "HEAD"
                         )
 
                     shouldThrow<IllegalStateException> {
                         GitRepositoryDiffChecker().check(
                             repositoryRoot = root,
                             comparisonBase = cleanHead,
-                            head = invalidHead,
+                            head = invalidHead
                         )
                     }
                 } finally {
                     root.deleteRecursively()
                 }
             }
-        },
+        }
     ) {
     companion object {
         private fun commit(
             root: File,
-            message: String,
+            message: String
         ) {
             git(
                 root,
                 "add",
-                ".",
+                "."
             )
             git(
                 root,
                 "commit",
                 "-m",
-                message,
+                message
             )
         }
 
         private fun git(
             root: File,
-            vararg arguments: String,
+            vararg arguments: String
         ): String {
             val process =
                 ProcessBuilder(listOf("git") + arguments)

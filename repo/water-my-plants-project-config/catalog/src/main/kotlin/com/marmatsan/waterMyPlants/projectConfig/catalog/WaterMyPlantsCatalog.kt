@@ -7,30 +7,30 @@ import java.io.File
 object WaterMyPlantsCatalog {
     /** Resolves version values from the repository rooted at [rootDir]. */
     fun resolved(
-        rootDir: File,
+        rootDir: File
     ): DependencyCatalogTrees =
         catalogTrees(
-            versions = Versions.load(rootDir),
+            versions = Versions.load(rootDir)
         )
 
     /** Builds the same catalog with property names as version aliases for documentation scanning. */
     fun withVersionAliases(): DependencyCatalogTrees =
         catalogTrees(
-            versions = versionAliases,
+            versions = versionAliases
         )
 
     private fun catalogTrees(
-        versions: Versions,
+        versions: Versions
     ): DependencyCatalogTrees =
         DependencyCatalogTrees(
             libraries =
                 libraryTrees(
-                    versions = versions,
+                    versions = versions
                 ),
             plugins =
                 pluginTrees(
-                    versions = versions,
-                ),
+                    versions = versions
+                )
         )
 }
 
@@ -55,5 +55,5 @@ private val versionAliases =
         mockkLibraryVersion = Versions::mockkLibraryVersion.name,
         navigationComposeLibraryVersion = Versions::navigationComposeLibraryVersion.name,
         protobufLibraryVersion = Versions::protobufLibraryVersion.name,
-        protobufPluginVersion = Versions::protobufPluginVersion.name,
+        protobufPluginVersion = Versions::protobufPluginVersion.name
     )

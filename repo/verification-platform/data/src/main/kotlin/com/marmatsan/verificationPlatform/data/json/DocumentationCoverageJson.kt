@@ -13,27 +13,27 @@ class DocumentationCoverageJson {
      * malformed or does not satisfy the versioned JSON shape.
      */
     fun read(
-        source: String,
+        source: String
     ): List<DocumentationCoverageRule> =
         format.decodeFromString<Manifest>(source).rules.map { rule ->
             DocumentationCoverageRule(
                 id = rule.id,
                 sourcePaths = rule.sourcePaths,
-                documentationPaths = rule.documentationPaths,
+                documentationPaths = rule.documentationPaths
             )
         }
 
     @Serializable
     private data class Manifest(
         val schemaVersion: Int,
-        val rules: List<Rule>,
+        val rules: List<Rule>
     )
 
     @Serializable
     private data class Rule(
         val id: String,
         val sourcePaths: List<String>,
-        val documentationPaths: List<String>,
+        val documentationPaths: List<String>
     )
 
     private companion object {

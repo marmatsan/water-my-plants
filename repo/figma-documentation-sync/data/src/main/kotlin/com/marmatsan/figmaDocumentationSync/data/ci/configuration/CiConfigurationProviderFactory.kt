@@ -4,7 +4,7 @@ package com.marmatsan.figmaDocumentationSync.data.ci.configuration
 object CiConfigurationProviderFactory {
     /** Instantiates the no-argument provider identified by [providerClassName]. */
     fun create(
-        providerClassName: String,
+        providerClassName: String
     ): CiConfigurationProvider {
         require(providerClassName.isNotBlank()) {
             "figmaDocumentationSync.ciConfigurationProviderClassName must not be blank"
@@ -17,7 +17,7 @@ object CiConfigurationProviderFactory {
                 throw IllegalArgumentException(
                     "Could not load CI configuration provider '$providerClassName'. " +
                         "Apply a project-config plugin that places the provider on the plugin classpath.",
-                    error,
+                    error
                 )
             }
 
@@ -31,7 +31,7 @@ object CiConfigurationProviderFactory {
         }.getOrElse { error ->
             throw IllegalArgumentException(
                 "CI configuration provider '$providerClassName' must expose a public no-argument constructor.",
-                error,
+                error
             )
         }
     }

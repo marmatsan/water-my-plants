@@ -9,7 +9,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Applies validated canonical-scope gating to the portable Figma trunk check. */
 @DisableCachingByDefault(
-    because = "The check reads Figma, Git, a secret token, and current-time runtime state",
+    because = "The check reads Figma, Git, a secret token, and current-time runtime state"
 )
 abstract class CheckCanonicalFigmaTrunkSyncTask : CheckFigmaTrunkSyncTask() {
     /** Validated scope wire value that decides whether Figma metadata must be checked. */

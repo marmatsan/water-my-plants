@@ -9,11 +9,11 @@ internal fun <TaskType : Task> TaskContainer.registerVerificationTask(
     name: String,
     type: Class<TaskType>,
     description: String,
-    configure: (TaskType) -> Unit,
+    configure: (TaskType) -> Unit
 ): TaskProvider<TaskType> =
     register(
         name,
-        type,
+        type
     ) { task ->
         task.group = "verification"
         task.description = description

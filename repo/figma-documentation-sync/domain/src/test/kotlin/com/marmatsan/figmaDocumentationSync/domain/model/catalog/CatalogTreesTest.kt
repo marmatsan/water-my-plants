@@ -13,7 +13,7 @@ internal class CatalogTreesTest :
                     "2.4.0"
                 }.whenever { value ->
                     CatalogVersion(
-                        value = value,
+                        value = value
                     )
                 }.then { version ->
                     version.visible shouldBe true
@@ -25,7 +25,7 @@ internal class CatalogTreesTest :
                     null
                 }.whenever { value ->
                     CatalogVersion(
-                        value = value,
+                        value = value
                     )
                 }.then { version ->
                     version.visible shouldBe false
@@ -39,7 +39,7 @@ internal class CatalogTreesTest :
                     shouldThrow<IllegalArgumentException> {
                         CatalogVersion(
                             value = value,
-                            visible = true,
+                            visible = true
                         )
                     }
                 }.then { exception ->
@@ -54,18 +54,18 @@ internal class CatalogTreesTest :
                             artifact = "activity-compose",
                             version =
                                 CatalogVersion(
-                                    value = "1.12.0",
-                                ),
-                        ),
+                                    value = "1.12.0"
+                                )
+                        )
                     )
                 }.whenever { entries ->
                     LibraryCatalogNode(
                         group = "activity",
-                        entries = entries,
+                        entries = entries
                     )
                 }.then { node ->
                     node.artifactsVisible shouldBe true
                 }
             }
-        },
+        }
     )

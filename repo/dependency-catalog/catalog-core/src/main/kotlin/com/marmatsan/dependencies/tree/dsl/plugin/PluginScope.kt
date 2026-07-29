@@ -12,7 +12,7 @@ import com.marmatsan.dependencies.tree.node.Node
  * @param root Node whose subtree is configured by this scope.
  */
 class PluginScope(
-    root: Node<DependencyNode.Plugin>,
+    root: Node<DependencyNode.Plugin>
 ) : TreeBuilder<DependencyNode.Plugin>(root) {
     /**
      * Defines a plugin path relative to the current node.
@@ -33,7 +33,7 @@ class PluginScope(
     fun plugin(
         id: String,
         version: String? = null,
-        content: PluginScope.() -> Unit = {},
+        content: PluginScope.() -> Unit = {}
     ) {
         val resolvedNode =
             currentParent.resolvePath(
@@ -41,9 +41,9 @@ class PluginScope(
                 segment = DependencyNode.Plugin::pluginId,
                 createValue = { pathSegment ->
                     DependencyNode.Plugin(
-                        pluginId = pathSegment,
+                        pluginId = pathSegment
                     )
-                },
+                }
             )
         val existingVersion = resolvedNode.value().version
         require(version == null || existingVersion == null || version == existingVersion) {
@@ -55,8 +55,8 @@ class PluginScope(
             resolvedNode.replaceValue(
                 value =
                     resolvedNode.value().copy(
-                        version = version ?: existingVersion,
-                    ),
+                        version = version ?: existingVersion
+                    )
             )
         try {
             content()

@@ -13,19 +13,19 @@ import java.nio.file.Path
 /** Plans and materializes the selected canonical payload staging transport. */
 internal class CanonicalMcpRunnerStagingPlanner(
     private val renderer: McpRunnerSourceRenderer,
-    private val payloadEncoder: PayloadPngEncoder,
+    private val payloadEncoder: PayloadPngEncoder
 ) {
     /** Adds ordered staging sources and returns PNG identity when PNG transport is selected. */
     fun stage(
         context: CanonicalMcpRunnerGenerationContext,
         outputDirectory: Path,
-        sources: MutableMap<String, String>,
+        sources: MutableMap<String, String>
     ): RunnerPayloadImage? {
         val namespace = context.request.config.canonicalStagingNamespace
         sources[CanonicalMcpRunnerGenerationContract.CLEAR_STAGING_FILE] =
             renderer.clearStaging(
                 metadataPageId = context.request.config.metadataPageId,
-                namespace = namespace,
+                namespace = namespace
             )
 
         val payloadImage =
@@ -34,13 +34,13 @@ internal class CanonicalMcpRunnerStagingPlanner(
                     context = context,
                     outputDirectory = outputDirectory,
                     sources = sources,
-                    namespace = namespace,
+                    namespace = namespace
                 )
             } else {
                 addChunkSources(
                     sources = sources,
                     context = context,
-                    namespace = namespace,
+                    namespace = namespace
                 )
                 null
             }
@@ -51,8 +51,8 @@ internal class CanonicalMcpRunnerStagingPlanner(
                 namespace = namespace,
                 identity =
                     expectedIdentity(
-                        context = context,
-                    ),
+                        context = context
+                    )
             )
         return payloadImage
     }
@@ -61,7 +61,7 @@ internal class CanonicalMcpRunnerStagingPlanner(
         context: CanonicalMcpRunnerGenerationContext,
         outputDirectory: Path,
         sources: MutableMap<String, String>,
-        namespace: String,
+        namespace: String
     ): RunnerPayloadImage {
         val payload =
             CanonicalSyncPayload(
@@ -73,7 +73,7 @@ internal class CanonicalMcpRunnerStagingPlanner(
                 script = context.script,
                 scriptLength = context.script.length,
                 writerHash = context.writerHash,
-                transportHash = context.transportHash,
+                transportHash = context.transportHash
             )
         val bytes = payloadEncoder.encode(payloadEncoder.payloadJson(payload))
         require(bytes.size <= PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
@@ -82,14 +82,14 @@ internal class CanonicalMcpRunnerStagingPlanner(
         }
         Files.write(
             outputDirectory.resolve(CanonicalMcpRunnerGenerationContract.PAYLOAD_PNG_FILE),
-            bytes,
+            bytes
         )
         val image =
             RunnerPayloadImage(
                 fileName = CanonicalMcpRunnerGenerationContract.PAYLOAD_PNG_FILE,
                 byteLength = bytes.size,
                 sha256 = Sha256Hash.of(bytes),
-                textKeyword = PayloadPngEncoder.TEXT_KEYWORD,
+                textKeyword = PayloadPngEncoder.TEXT_KEYWORD
             )
         sources[CanonicalMcpRunnerGenerationContract.STAGE_PAYLOAD_FILE] =
             renderer.stagePayloadFromPng(
@@ -98,8 +98,8 @@ internal class CanonicalMcpRunnerStagingPlanner(
                 payloadFileName = CanonicalMcpRunnerGenerationContract.PAYLOAD_PNG_FILE,
                 identity =
                     expectedIdentity(
-                        context = context,
-                    ),
+                        context = context
+                    )
             )
         return image
     }
@@ -107,11 +107,11 @@ internal class CanonicalMcpRunnerStagingPlanner(
     private fun addChunkSources(
         sources: MutableMap<String, String>,
         context: CanonicalMcpRunnerGenerationContext,
-        namespace: String,
+        namespace: String
     ) {
         listOf(
             "designModelJson" to context.modelJson,
-            "script" to context.script,
+            "script" to context.script
         ).forEach { (key, value) ->
             val chunks = value.chunked(context.request.chunkSize).ifEmpty { listOf("") }
             var previousLength = 0
@@ -120,7 +120,7 @@ internal class CanonicalMcpRunnerStagingPlanner(
                 val fileName =
                     "$prefix-$key-${(index + 1).toString().padStart(
                         3,
-                        '0',
+                        '0'
                     )}.mcp.js"
                 sources[fileName] =
                     renderer.appendChunk(
@@ -130,7 +130,7 @@ internal class CanonicalMcpRunnerStagingPlanner(
                         chunk = chunk,
                         chunkIndex = index + 1,
                         chunkCount = chunks.size,
-                        previousLength = previousLength,
+                        previousLength = previousLength
                     )
                 previousLength += chunk.length
             }
@@ -138,7 +138,7 @@ internal class CanonicalMcpRunnerStagingPlanner(
     }
 
     private fun expectedIdentity(
-        context: CanonicalMcpRunnerGenerationContext,
+        context: CanonicalMcpRunnerGenerationContext
     ): JsonObject =
         renderer.expectedIdentity(
             modelHash = context.modelHash,
@@ -146,6 +146,6 @@ internal class CanonicalMcpRunnerStagingPlanner(
             modelLength = context.modelJson.length,
             scriptLength = context.script.length,
             writerHash = context.writerHash,
-            transportHash = context.transportHash,
+            transportHash = context.transportHash
         )
 }

@@ -6,12 +6,12 @@ package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
  * @property coordinates configuration usages keyed by Maven coordinate.
  */
 data class LibraryConfigurationUsages(
-    val coordinates: Map<String, Set<LibraryConfigurationUsage>> = emptyMap(),
+    val coordinates: Map<String, Set<LibraryConfigurationUsage>> = emptyMap()
 )
 
 internal operator fun LibraryConfigurationUsages.plus(
-    other: LibraryConfigurationUsages,
+    other: LibraryConfigurationUsages
 ): LibraryConfigurationUsages =
     LibraryConfigurationUsages(
-        coordinates = coordinates.mergeUsageSets(other.coordinates),
+        coordinates = coordinates.mergeUsageSets(other.coordinates)
     )

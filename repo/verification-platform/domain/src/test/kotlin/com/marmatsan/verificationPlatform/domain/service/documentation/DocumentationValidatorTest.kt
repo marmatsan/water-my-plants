@@ -20,18 +20,18 @@ class DocumentationValidatorTest :
                             listOf(
                                 DocumentationFile(
                                     path = "docs/standards/example.md",
-                                    content = validStandard,
+                                    content = validStandard
                                 ),
                                 DocumentationFile(
                                     path = "docs/runbooks/example.md",
-                                    content = validRunbook,
+                                    content = validRunbook
                                 ),
                                 DocumentationFile(
                                     path = "docs/decisions/adr-0001-historical-decision.md",
-                                    content = supersededAdr,
-                                ),
+                                    content = supersededAdr
+                                )
                             ),
-                        entries = setOf("source.txt"),
+                        entries = setOf("source.txt")
                     )
 
                 result.errors shouldBe emptyList()
@@ -40,7 +40,7 @@ class DocumentationValidatorTest :
                     listOf(
                         "docs/decisions/adr-0001-historical-decision.md",
                         "docs/runbooks/example.md",
-                        "docs/standards/example.md",
+                        "docs/standards/example.md"
                     )
             }
 
@@ -48,7 +48,7 @@ class DocumentationValidatorTest :
                 val misplacedGuide =
                     validStandard.replace(
                         "type: standard",
-                        "type: guide",
+                        "type: guide"
                     )
 
                 val result =
@@ -57,10 +57,10 @@ class DocumentationValidatorTest :
                             listOf(
                                 DocumentationFile(
                                     path = "docs/misplaced.md",
-                                    content = misplacedGuide,
-                                ),
+                                    content = misplacedGuide
+                                )
                             ),
-                        entries = setOf("source.txt"),
+                        entries = setOf("source.txt")
                     )
 
                 result.errors shouldContain "[docs/misplaced.md] Typed document is outside its canonical directory."
@@ -76,11 +76,11 @@ class DocumentationValidatorTest :
                             listOf(
                                 TypedDocumentationRule { _, findings ->
                                     findings.warnings += customWarning
-                                },
+                                }
                             ),
                         linkValidator = DocumentationLinkValidator(),
                         coverageValidator = DocumentationCoverageValidator(DocumentationPathResolver()),
-                        paths = DocumentationPathResolver(),
+                        paths = DocumentationPathResolver()
                     )
 
                 val result =
@@ -91,16 +91,16 @@ class DocumentationValidatorTest :
                                     listOf(
                                         DocumentationFile(
                                             path = "docs/standards/example.md",
-                                            content = validStandard,
-                                        ),
+                                            content = validStandard
+                                        )
                                     ),
                                 repositoryEntries =
                                     setOf(
                                         "source.txt",
-                                        "docs/standards/example.md",
-                                    ),
+                                        "docs/standards/example.md"
+                                    )
                             ),
-                        currentDate = today,
+                        currentDate = today
                     )
 
                 result.warnings shouldContainExactly listOf(customWarning)
@@ -110,7 +110,7 @@ class DocumentationValidatorTest :
                 val incomplete =
                     validRunbook.replace(
                         "## Recovery\nExample.\n",
-                        "",
+                        ""
                     )
 
                 val result =
@@ -119,10 +119,10 @@ class DocumentationValidatorTest :
                             listOf(
                                 DocumentationFile(
                                     path = "docs/runbooks/incomplete.md",
-                                    content = incomplete,
-                                ),
+                                    content = incomplete
+                                )
                             ),
-                        entries = setOf("source.txt"),
+                        entries = setOf("source.txt")
                     )
 
                 result.errors shouldContain "[docs/runbooks/incomplete.md] Runbook section 'Recovery' is required."
@@ -135,10 +135,10 @@ class DocumentationValidatorTest :
                             listOf(
                                 DocumentationFile(
                                     path = "docs/standards/broken-link.md",
-                                    content = "$validStandard\n[Missing](missing.md)\n",
-                                ),
+                                    content = "$validStandard\n[Missing](missing.md)\n"
+                                )
                             ),
-                        entries = setOf("source.txt"),
+                        entries = setOf("source.txt")
                     )
 
                 result.errors shouldContain
@@ -151,8 +151,8 @@ class DocumentationValidatorTest :
                         DocumentationCoverageRule(
                             id = "example-rule",
                             sourcePaths = listOf("src/*"),
-                            documentationPaths = listOf("docs/standards/example.md"),
-                        ),
+                            documentationPaths = listOf("docs/standards/example.md")
+                        )
                     )
                 val snapshot =
                     DocumentationRepositorySnapshot(
@@ -160,16 +160,16 @@ class DocumentationValidatorTest :
                             listOf(
                                 DocumentationFile(
                                     path = "docs/standards/example.md",
-                                    content = validStandard,
-                                ),
+                                    content = validStandard
+                                )
                             ),
                         repositoryEntries =
                             setOf(
                                 "source.txt",
                                 "docs",
                                 "docs/standards",
-                                "docs/standards/example.md",
-                            ),
+                                "docs/standards/example.md"
+                            )
                     )
 
                 val missing =
@@ -177,7 +177,7 @@ class DocumentationValidatorTest :
                         snapshot = snapshot,
                         coverageRules = rules,
                         changedPaths = listOf("src/feature.kt"),
-                        currentDate = today,
+                        currentDate = today
                     )
                 val satisfied =
                     DocumentationValidator().validate(
@@ -186,34 +186,34 @@ class DocumentationValidatorTest :
                         changedPaths =
                             listOf(
                                 "src/feature.kt",
-                                "docs/standards/example.md",
+                                "docs/standards/example.md"
                             ),
-                        currentDate = today,
+                        currentDate = today
                     )
 
                 missing.coverageViolations.map { violation -> violation.rule } shouldBe listOf("example-rule")
                 satisfied.coverageViolations shouldBe emptyList()
             }
-        },
+        }
     ) {
     companion object {
         private val today =
             LocalDate.of(
                 2026,
                 7,
-                20,
+                20
             )
 
         private fun validate(
             documents: List<DocumentationFile>,
-            entries: Set<String>,
+            entries: Set<String>
         ) = DocumentationValidator().validate(
             snapshot =
                 DocumentationRepositorySnapshot(
                     documents = documents,
-                    repositoryEntries = entries + documents.map { document -> document.path },
+                    repositoryEntries = entries + documents.map { document -> document.path }
                 ),
-            currentDate = today,
+            currentDate = today
         )
 
         private val validStandard =

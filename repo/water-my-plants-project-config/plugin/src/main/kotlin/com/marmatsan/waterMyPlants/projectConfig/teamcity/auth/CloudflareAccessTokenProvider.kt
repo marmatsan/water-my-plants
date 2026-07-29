@@ -7,6 +7,6 @@ fun interface CloudflareAccessTokenProvider {
         serverUrl: String,
         teamCityToken: String,
         clientId: String,
-        clientSecret: String,
+        clientSecret: String
     ): String
 }

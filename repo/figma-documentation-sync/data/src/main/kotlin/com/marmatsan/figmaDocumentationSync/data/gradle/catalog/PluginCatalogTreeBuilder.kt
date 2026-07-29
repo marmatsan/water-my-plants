@@ -7,21 +7,21 @@ internal object PluginCatalogTreeBuilder {
     /** Builds sorted roots for [pluginIds] and attaches their consuming module identities. */
     fun build(
         pluginIds: Set<String>,
-        usageByPluginId: Map<String, Set<String>>,
+        usageByPluginId: Map<String, Set<String>>
     ): List<PluginCatalogNode> =
         pluginIds
             .map { pluginId -> pluginId.split(".") }
             .fold(emptyList<PluginCatalogNode>()) { nodes, segments ->
                 nodes.withPath(
                     segments = segments,
-                    usageByPluginId = usageByPluginId,
+                    usageByPluginId = usageByPluginId
                 )
             }.sortedBy(PluginCatalogNode::id)
 
     private fun List<PluginCatalogNode>.withPath(
         segments: List<String>,
         usageByPluginId: Map<String, Set<String>>,
-        parentId: String = "",
+        parentId: String = ""
     ): List<PluginCatalogNode> {
         if (segments.isEmpty()) {
             return this
@@ -32,7 +32,7 @@ internal object PluginCatalogTreeBuilder {
         val pluginId =
             listOf(
                 parentId,
-                head,
+                head
             ).filter(String::isNotBlank)
                 .joinToString(".")
         val existingNode = firstOrNull { node -> node.id == head }
@@ -44,8 +44,8 @@ internal object PluginCatalogTreeBuilder {
                         existingNode.children.withPath(
                             segments = tail,
                             usageByPluginId = usageByPluginId,
-                            parentId = pluginId,
-                        ),
+                            parentId = pluginId
+                        )
                 )
                 ?: PluginCatalogNode(
                     id = head,
@@ -54,13 +54,13 @@ internal object PluginCatalogTreeBuilder {
                         emptyList<PluginCatalogNode>().withPath(
                             segments = tail,
                             usageByPluginId = usageByPluginId,
-                            parentId = pluginId,
-                        ),
+                            parentId = pluginId
+                        )
                 )
 
         return filterNot { node -> node.id == head }
             .plus(
-                element = updatedNode,
+                element = updatedNode
             ).sortedBy(PluginCatalogNode::id)
     }
 }

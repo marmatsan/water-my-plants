@@ -8,7 +8,7 @@ import java.io.File
 
 /** Binds reusable-build verification tasks to stable root entry points. */
 class IncludedBuildVerificationTasksExtension internal constructor(
-    private val project: Project,
+    private val project: Project
 ) {
     /**
      * Exposes an included-build task through the root build without coupling the platform to its name.
@@ -21,7 +21,7 @@ class IncludedBuildVerificationTasksExtension internal constructor(
         taskPath: String,
         description: String,
         requiredByCheck: Boolean = false,
-        group: String = "verification",
+        group: String = "verification"
     ): TaskProvider<Task> {
         val binding =
             project.tasks.register(name) { task ->
@@ -31,7 +31,7 @@ class IncludedBuildVerificationTasksExtension internal constructor(
             }
         bindToCheckWhenRequired(
             binding = binding,
-            requiredByCheck = requiredByCheck,
+            requiredByCheck = requiredByCheck
         )
         return binding
     }
@@ -60,25 +60,25 @@ class IncludedBuildVerificationTasksExtension internal constructor(
         projectProperties: Map<String, String>,
         description: String,
         requiredByCheck: Boolean = false,
-        group: String = "verification",
+        group: String = "verification"
     ): TaskProvider<Exec> {
         val wrapper =
             project.rootProject.file(
                 if (
                     System.getProperty("os.name").startsWith(
                         "Windows",
-                        ignoreCase = true,
+                        ignoreCase = true
                     )
                 ) {
                     "gradlew.bat"
                 } else {
                     "gradlew"
-                },
+                }
             )
         val binding =
             project.tasks.register(
                 name,
-                Exec::class.java,
+                Exec::class.java
             ) { task ->
                 task.group = group
                 task.description = description
@@ -92,19 +92,19 @@ class IncludedBuildVerificationTasksExtension internal constructor(
                             add("-P$key=$value")
                         }
                         add("--stacktrace")
-                    },
+                    }
                 )
             }
         bindToCheckWhenRequired(
             binding = binding,
-            requiredByCheck = requiredByCheck,
+            requiredByCheck = requiredByCheck
         )
         return binding
     }
 
     private fun bindToCheckWhenRequired(
         binding: TaskProvider<out Task>,
-        requiredByCheck: Boolean,
+        requiredByCheck: Boolean
     ) {
         if (requiredByCheck) {
             project.tasks.matching { task -> task.name == "check" }.configureEach { task ->

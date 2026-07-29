@@ -11,58 +11,58 @@ class GradleMainCatalogUsageReader {
 
     /** Reads library and bundle aliases consumed by main-build modules. */
     fun readLibraryUsages(
-        rootDir: File,
+        rootDir: File
     ): LibraryUsages =
         scanner.mainBuildFiles(rootDir).fold(LibraryUsages()) { usages, buildFile ->
             usages +
                 parser.mainLibraryAliases(
                     buildFile,
-                    rootDir,
+                    rootDir
                 )
         }
 
     /** Reads plugin catalog aliases consumed by main-build modules. */
     fun readPluginUsages(
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         scanner.mainBuildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
             usages.mergeUsageSets(
                 parser.mainPluginAliases(
                     buildFile,
-                    rootDir,
-                ),
+                    rootDir
+                )
             )
         }
 
     /** Reads literal plugin ids declared by main-build modules. */
     fun readLiteralPluginUsages(
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         scanner.mainBuildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
             usages.mergeUsageSets(
                 parser.mainLiteralPluginUsages(
                     buildFile,
-                    rootDir,
-                ),
+                    rootDir
+                )
             )
         }
 
     /** Reads literal plugin ids applied by main-build modules. */
     fun readAppliedLiteralPluginUsages(
-        rootDir: File,
+        rootDir: File
     ): Map<String, Set<String>> =
         scanner.mainBuildFiles(rootDir).fold(emptyMap()) { usages, buildFile ->
             usages.mergeUsageSets(
                 parser.mainAppliedLiteralPluginUsages(
                     buildFile,
-                    rootDir,
-                ),
+                    rootDir
+                )
             )
         }
 
     /** Returns all literal plugin ids applied in the main build. */
     fun readAppliedLiteralPluginIds(
-        rootDir: File,
+        rootDir: File
     ): Set<String> =
         scanner
             .mainBuildFiles(rootDir)

@@ -22,35 +22,35 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
     private val artifactVerifier: CanonicalFigmaArtifactVerifier,
     private val runnerInspector: CanonicalFigmaRunnerInspector,
     private val summaryFactory: TeamCityFigmaHandoffSummaryFactory,
-    private val summaryWriter: TeamCityFigmaHandoffSummaryWriter,
+    private val summaryWriter: TeamCityFigmaHandoffSummaryWriter
 ) {
     constructor(
         teamCityClient: TeamCityBuildArtifactClient = TeamCityCliClient(),
-        clock: Clock = Clock.systemUTC(),
+        clock: Clock = Clock.systemUTC()
     ) : this(
         artifactDirectoryResolver =
             TeamCityFigmaArtifactDirectoryResolver(
                 teamCityClient = teamCityClient,
                 archiveExtractor = SafeZipArchiveExtractor(),
-                clock = clock,
+                clock = clock
             ),
         artifactSetSource = DefaultCanonicalFigmaArtifactSetSource(),
         artifactVerifier = DefaultCanonicalFigmaArtifactVerifier(),
         runnerInspector = DefaultCanonicalFigmaRunnerInspector(),
         summaryFactory = TeamCityFigmaHandoffSummaryFactory(clock),
-        summaryWriter = JsonTeamCityFigmaHandoffSummaryWriter(),
+        summaryWriter = JsonTeamCityFigmaHandoffSummaryWriter()
     )
 
     /** Resolves, validates, inspects, and summarizes one canonical handoff [request]. */
     fun prepare(
-        request: Request,
+        request: Request
     ): PreparedHandoff {
         val artifactDirectory = artifactDirectoryResolver.resolve(request)
         val artifacts = artifactSetSource.read(artifactDirectory)
         val validated =
             artifactVerifier.verify(
                 artifacts.contract,
-                request.expectedGitSha,
+                request.expectedGitSha
             )
         val visualManifest =
             requireNotNull(artifacts.visualManifestPath) {
@@ -62,24 +62,24 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
         val inspection =
             runnerInspector.inspect(
                 visualManifest,
-                artifacts.planPath,
+                artifacts.planPath
             )
         val summary =
             summaryFactory.create(
                 request = request,
                 artifacts = artifacts,
                 validated = validated,
-                inspection = inspection,
+                inspection = inspection
             )
         val summaryFile =
             summaryWriter.write(
                 artifacts.artifactDirectory.toFile(),
-                summary,
+                summary
             )
         return PreparedHandoff(
             artifactDirectory = artifactDirectory,
             summaryFile = summaryFile,
-            summary = summary,
+            summary = summary
         )
     }
 
@@ -102,9 +102,9 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
             setOf(
                 "main",
                 "<default>",
-                "refs/heads/main",
+                "refs/heads/main"
             ),
-        val requiredBuildTypeName: String = "Generate main design model",
+        val requiredBuildTypeName: String = "Generate main design model"
     )
 
     /**
@@ -117,6 +117,6 @@ class TeamCityFigmaSyncHandoffPreparer internal constructor(
     data class PreparedHandoff(
         val artifactDirectory: File,
         val summaryFile: File,
-        val summary: JsonObject,
+        val summary: JsonObject
     )
 }

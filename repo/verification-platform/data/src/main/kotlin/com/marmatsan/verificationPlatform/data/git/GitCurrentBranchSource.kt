@@ -16,7 +16,7 @@ class GitCurrentBranchSource {
      */
     fun read(
         repositoryRoot: File,
-        branchOverride: String? = null,
+        branchOverride: String? = null
     ): String {
         branchOverride?.trim()?.takeIf(String::isNotEmpty)?.let { branch ->
             return branch
@@ -28,30 +28,30 @@ class GitCurrentBranchSource {
             "symbolic-ref",
             "--quiet",
             "--short",
-            "HEAD",
+            "HEAD"
         )?.takeIf(String::isNotBlank)
             ?: error(
                 "Cannot resolve the Git branch from detached HEAD. " +
-                    "Provide gitWorkflowBranch or GIT_WORKFLOW_BRANCH.",
+                    "Provide gitWorkflowBranch or GIT_WORKFLOW_BRANCH."
             )
     }
 
     private fun gitOrNull(
         root: File,
-        vararg arguments: String,
+        vararg arguments: String
     ): String? {
         val safeDirectory =
             root.absolutePath.replace(
                 '\\',
-                '/',
+                '/'
             )
         val process =
             ProcessBuilder(
                 listOf(
                     "git",
                     "-c",
-                    "safe.directory=$safeDirectory",
-                ) + arguments,
+                    "safe.directory=$safeDirectory"
+                ) + arguments
             ).directory(root)
                 .redirectErrorStream(true)
                 .start()

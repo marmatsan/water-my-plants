@@ -13,28 +13,28 @@ class FileSystemDocumentationSourceTest :
                 try {
                     root
                         .resolve(
-                            relative = "docs/standards/example.md",
+                            relative = "docs/standards/example.md"
                         ).apply {
                             parentFile.mkdirs()
                             writeText("# Standard")
                         }
                     root
                         .resolve(
-                            relative = "docs/templates/standard.md",
+                            relative = "docs/templates/standard.md"
                         ).apply {
                             parentFile.mkdirs()
                             writeText("# Template")
                         }
                     root
                         .resolve(
-                            relative = "module/build/generated.md",
+                            relative = "module/build/generated.md"
                         ).apply {
                             parentFile.mkdirs()
                             writeText("# Generated")
                         }
                     root
                         .resolve(
-                            relative = "source.txt",
+                            relative = "source.txt"
                         ).writeText("source")
 
                     val snapshot = FileSystemDocumentationSource().read(root)
@@ -47,5 +47,5 @@ class FileSystemDocumentationSourceTest :
                     root.deleteRecursively()
                 }
             }
-        },
+        }
     )

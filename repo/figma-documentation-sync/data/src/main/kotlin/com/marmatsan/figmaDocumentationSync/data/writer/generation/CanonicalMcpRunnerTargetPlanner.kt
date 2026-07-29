@@ -15,7 +15,7 @@ import kotlinx.serialization.json.put
 
 /** Plans deterministic target runner sources and their execution-scope identities. */
 internal class CanonicalMcpRunnerTargetPlanner(
-    private val renderer: McpRunnerSourceRenderer,
+    private val renderer: McpRunnerSourceRenderer
 ) {
     /** Adds one source per required target scope and returns file-to-scope mappings. */
     fun addTargetSources(
@@ -23,7 +23,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
         context: CanonicalMcpRunnerGenerationContext,
         targets: List<String>,
         writeMetadata: Boolean,
-        fullVisualSync: Boolean,
+        fullVisualSync: Boolean
     ): Map<String, String> {
         val executionScopes = linkedMapOf<String, String>()
         val namespace = context.request.config.canonicalStagingNamespace
@@ -36,7 +36,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                     namespace = namespace,
                     target = target,
                     writeMetadata = writeMetadata,
-                    executionScope = target,
+                    executionScope = target
                 )
             executionScopes[fileName] = target
             return executionScopes
@@ -47,7 +47,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                 catalogRoots(
                     designModel = context.designModel,
                     target = target,
-                    catalogTargets = context.request.config.catalogTargetNames,
+                    catalogTargets = context.request.config.catalogTargetNames
                 )
             if (roots.isEmpty()) {
                 addUnscopedTarget(
@@ -56,7 +56,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                     context = context,
                     namespace = namespace,
                     target = target,
-                    targetIndex = index,
+                    targetIndex = index
                 )
             } else {
                 addCatalogTargets(
@@ -66,7 +66,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                     namespace = namespace,
                     target = target,
                     targetIndex = index,
-                    roots = roots,
+                    roots = roots
                 )
             }
         }
@@ -79,7 +79,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
         context: CanonicalMcpRunnerGenerationContext,
         namespace: String,
         target: String,
-        targetIndex: Int,
+        targetIndex: Int
     ) {
         val fileName = "99-${targetIndex.twoDigits()}-${target.safeName()}.mcp.js"
         sources[fileName] =
@@ -88,7 +88,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                 namespace = namespace,
                 target = target,
                 writeMetadata = false,
-                executionScope = target,
+                executionScope = target
             )
         executionScopes[fileName] = target
     }
@@ -100,7 +100,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
         namespace: String,
         target: String,
         targetIndex: Int,
-        roots: List<String>,
+        roots: List<String>
     ) {
         roots.forEachIndexed { rootIndex, root ->
             val scope = "$target.$root"
@@ -114,7 +114,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                     target = target,
                     writeMetadata = false,
                     executionScope = scope,
-                    roots = listOf(root),
+                    roots = listOf(root)
                 )
             executionScopes[fileName] = scope
         }
@@ -127,7 +127,7 @@ internal class CanonicalMcpRunnerTargetPlanner(
                 target = target,
                 writeMetadata = false,
                 executionScope = cleanupScope,
-                cleanupOnly = true,
+                cleanupOnly = true
             )
         executionScopes[cleanupFile] = cleanupScope
     }
@@ -139,40 +139,40 @@ internal class CanonicalMcpRunnerTargetPlanner(
         writeMetadata: Boolean,
         executionScope: String,
         roots: List<String> = emptyList(),
-        cleanupOnly: Boolean = false,
+        cleanupOnly: Boolean = false
     ): String {
         val executionMetadata =
             buildJsonObject {
                 put(
                     "writerHash",
-                    context.writerHash,
+                    context.writerHash
                 )
                 put(
                     "transportHash",
-                    context.transportHash,
+                    context.transportHash
                 )
                 put(
                     "targetFingerprints",
-                    context.targetFingerprints.toJsonObject(),
+                    context.targetFingerprints.toJsonObject()
                 )
                 put(
                     "writerScopeFingerprints",
-                    context.writerScopeFingerprints.toJsonObject(),
+                    context.writerScopeFingerprints.toJsonObject()
                 )
                 put(
                     "writerScopeFingerprintSchemaVersion",
-                    WriterScopeFingerprintCalculator.SCHEMA_VERSION,
+                    WriterScopeFingerprintCalculator.SCHEMA_VERSION
                 )
             }
         val syncOptions =
             buildJsonObject {
                 put(
                     "targets",
-                    JsonArray(listOf(JsonPrimitive(target))),
+                    JsonArray(listOf(JsonPrimitive(target)))
                 )
                 put(
                     "writeMetadata",
-                    writeMetadata,
+                    writeMetadata
                 )
                 if (roots.isNotEmpty()) {
                     put(
@@ -182,40 +182,40 @@ internal class CanonicalMcpRunnerTargetPlanner(
                                 target,
                                 JsonArray(
                                     roots.map(
-                                        transform = ::JsonPrimitive,
-                                    ),
-                                ),
+                                        transform = ::JsonPrimitive
+                                    )
+                                )
                             )
-                        },
+                        }
                     )
                 }
                 if (cleanupOnly) {
                     put(
                         "catalogCleanupOnlyTargets",
-                        JsonArray(listOf(JsonPrimitive(target))),
+                        JsonArray(listOf(JsonPrimitive(target)))
                     )
                 }
                 if (target.startsWith(
-                        prefix = "ci.",
+                        prefix = "ci."
                     )
                 ) {
                     val ciConfig =
                         context.request.config.ciVisualPlanConfig
                             ?: throw IllegalArgumentException(
-                                "CI visual target '$target' requires CI visual plan project configuration.",
+                                "CI visual target '$target' requires CI visual plan project configuration."
                             )
                     put(
                         "ciVisualPlan",
                         CiVisualPlanJson.create(
                             context.designModel,
                             ciConfig,
-                            target,
-                        ),
+                            target
+                        )
                     )
                 }
                 put(
                     "executionMetadata",
-                    executionMetadata,
+                    executionMetadata
                 )
             }
         return renderer.runTarget(
@@ -223,14 +223,14 @@ internal class CanonicalMcpRunnerTargetPlanner(
             namespace = namespace,
             syncOptions = syncOptions,
             executionScope = executionScope,
-            modelTarget = target,
+            modelTarget = target
         )
     }
 
     private fun catalogRoots(
         designModel: JsonObject,
         target: String,
-        catalogTargets: List<String>,
+        catalogTargets: List<String>
     ): List<String> {
         if (target !in catalogTargets) return emptyList()
         val catalogName = target.substringBefore('.')
@@ -252,13 +252,13 @@ internal class CanonicalMcpRunnerTargetPlanner(
     private fun Int.twoDigits(): String =
         toString().padStart(
             2,
-            '0',
+            '0'
         )
 
     private fun String.safeName(): String =
         replace(
             Regex("[^A-Za-z0-9_-]+"),
-            "-",
+            "-"
         )
 
     private fun Map<String, String>.toJsonObject(): JsonObject =

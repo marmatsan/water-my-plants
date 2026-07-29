@@ -15,7 +15,7 @@ import com.marmatsan.dependencies.tree.node.Node
  * @param root Node whose subtree is configured by this scope.
  */
 class LibraryScope(
-    root: Node<DependencyNode.Library>,
+    root: Node<DependencyNode.Library>
 ) : TreeBuilder<DependencyNode.Library>(root) {
     private var entries: MutableList<LibraryEntry>? = root.value.entries?.toMutableList()
 
@@ -39,20 +39,20 @@ class LibraryScope(
      */
     fun artifact(
         artifact: String,
-        version: String? = null,
+        version: String? = null
     ) {
         val newEntry =
             LibraryEntry.Single(
                 artifact =
                     Artifact(
                         artifact,
-                        version,
-                    ),
+                        version
+                    )
             )
         entries =
             (entries ?: mutableListOf()).apply {
                 add(
-                    element = newEntry,
+                    element = newEntry
                 )
             }
     }
@@ -76,7 +76,7 @@ class LibraryScope(
     fun artifactsBundle(
         vararg artifacts: String,
         alias: String,
-        version: String? = null,
+        version: String? = null
     ) {
         val newEntry =
             LibraryEntry.Bundle(
@@ -87,16 +87,16 @@ class LibraryScope(
                             artifacts.map {
                                 Artifact(
                                     it,
-                                    version,
+                                    version
                                 )
                             },
-                        version = version,
-                    ),
+                        version = version
+                    )
             )
         entries =
             (entries ?: mutableListOf()).apply {
                 add(
-                    element = newEntry,
+                    element = newEntry
                 )
             }
     }
@@ -129,7 +129,7 @@ class LibraryScope(
      */
     fun library(
         group: String,
-        content: (LibraryScope.() -> Unit)? = null,
+        content: (LibraryScope.() -> Unit)? = null
     ) {
         val resolvedNode =
             currentParent.resolvePath(
@@ -137,24 +137,24 @@ class LibraryScope(
                 segment = DependencyNode.Library::libraryGroup,
                 createValue = { pathSegment ->
                     DependencyNode.Library(
-                        libraryGroup = pathSegment,
+                        libraryGroup = pathSegment
                     )
-                },
+                }
             )
 
         val childScope =
             LibraryScope(
-                root = resolvedNode.terminalNode(),
+                root = resolvedNode.terminalNode()
             )
         content?.invoke(
-            childScope,
+            childScope
         )
 
         resolvedNode.replaceValue(
             value =
                 resolvedNode.value().copy(
-                    entries = childScope.entries?.toList(),
-                ),
+                    entries = childScope.entries?.toList()
+                )
         )
     }
 }

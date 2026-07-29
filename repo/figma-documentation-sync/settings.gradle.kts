@@ -54,13 +54,13 @@ dependencyCatalogTree {
             library("michael-bull.kotlin-result") {
                 artifact(
                     artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion"),
+                    version = version("kotlinResultLibraryVersion")
                 )
             }
             library("marmatsan.repo") {
                 artifact(
                     artifact = "unit-test-dsl",
-                    version = version("unitTestDslLibraryVersion"),
+                    version = version("unitTestDslLibraryVersion")
                 )
             }
         }
@@ -68,31 +68,31 @@ dependencyCatalogTree {
             library("ktor") {
                 artifact(
                     artifact = "ktor-bom",
-                    version = version("ktorLibraryVersion"),
+                    version = version("ktorLibraryVersion")
                 )
                 artifactsBundle(
                     "ktor-client-core",
                     "ktor-client-cio",
                     "ktor-client-content-negotiation",
                     "ktor-serialization-kotlinx-json",
-                    alias = "ktorClient",
+                    alias = "ktorClient"
                 )
             }
             library("modelcontextprotocol") {
                 artifact(
                     artifact = "kotlin-sdk-client",
-                    version = version("mcpKotlinSdkLibraryVersion"),
+                    version = version("mcpKotlinSdkLibraryVersion")
                 )
             }
             library("cucumber") {
                 artifact(
                     artifact = "cucumber-bom",
-                    version = version("cucumberLibraryVersion"),
+                    version = version("cucumberLibraryVersion")
                 )
                 artifactsBundle(
                     "cucumber-java8",
                     "cucumber-junit-platform-engine",
-                    alias = "cucumber",
+                    alias = "cucumber"
                 )
             }
             library("kotest") {
@@ -100,7 +100,7 @@ dependencyCatalogTree {
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
                     alias = "kotest",
-                    version = version("kotestLibraryVersion"),
+                    version = version("kotestLibraryVersion")
                 )
             }
         }
@@ -108,11 +108,11 @@ dependencyCatalogTree {
             library("tatarka.inject") {
                 artifact(
                     artifact = "kotlin-inject-compiler-ksp",
-                    version = version("kotlinInjectLibraryVersion"),
+                    version = version("kotlinInjectLibraryVersion")
                 )
                 artifact(
                     artifact = "kotlin-inject-runtime",
-                    version = version("kotlinInjectLibraryVersion"),
+                    version = version("kotlinInjectLibraryVersion")
                 )
             }
         }
@@ -120,21 +120,21 @@ dependencyCatalogTree {
             library("jetbrains.kotlinx") {
                 artifact(
                     artifact = "kotlinx-serialization-json",
-                    version = version("serializationLibraryVersion"),
+                    version = version("serializationLibraryVersion")
                 )
             }
             library("snakeyaml") {
                 artifact(
                     artifact = "snakeyaml-engine",
-                    version = version("snakeYamlLibraryVersion"),
+                    version = version("snakeYamlLibraryVersion")
                 )
             }
             library("junit.platform") {
                 artifact(
-                    artifact = "junit-platform-launcher",
+                    artifact = "junit-platform-launcher"
                 )
                 artifact(
-                    artifact = "junit-platform-suite",
+                    artifact = "junit-platform-suite"
                 )
             }
         }
@@ -144,23 +144,23 @@ dependencyCatalogTree {
         root("com") {
             plugin(
                 id = "google.devtools.ksp",
-                version = version("kspPluginVersion"),
+                version = version("kspPluginVersion")
             )
         }
         root("org") {
             plugin("jetbrains") {
                 plugin(
                     id = "dokka",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
                 plugin("kotlin") {
                     plugin(
                         id = "jvm",
-                        version = version("kotlinVersion"),
+                        version = version("kotlinVersion")
                     )
                     plugin(
                         id = "plugin.serialization",
-                        version = version("kotlinVersion"),
+                        version = version("kotlinVersion")
                     )
                 }
             }
@@ -172,5 +172,5 @@ include(
     ":data",
     ":domain",
     ":plugin",
-    ":teamcity-adapter",
+    ":teamcity-adapter"
 )

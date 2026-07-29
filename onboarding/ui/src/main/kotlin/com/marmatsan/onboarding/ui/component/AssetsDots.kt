@@ -16,14 +16,14 @@ import com.marmatsan.onboarding.ui.R
 
 enum class AssetsDotsVariant {
     Dots1,
-    Dots2,
+    Dots2
 }
 
 @Composable
 fun AssetsDots(
     variant: AssetsDotsVariant,
     modifier: Modifier = Modifier,
-    tintColor: Color? = null,
+    tintColor: Color? = null
 ) {
     val colorFilter = tintColor?.let { ColorFilter.tint(it) }
     val (resId, width, height) =
@@ -32,7 +32,7 @@ fun AssetsDots(
                 Triple(
                     R.drawable.assets_dots_dots1,
                     63.844.dp,
-                    43.622.dp,
+                    43.622.dp
                 )
             }
 
@@ -40,7 +40,7 @@ fun AssetsDots(
                 Triple(
                     R.drawable.assets_dots_dots2,
                     69.dp,
-                    74.dp,
+                    74.dp
                 )
             }
         }
@@ -48,29 +48,29 @@ fun AssetsDots(
     Image(
         painter =
             painterResource(
-                id = resId,
+                id = resId
             ),
         contentDescription = null,
         modifier =
             modifier.size(
                 width = width,
-                height = height,
+                height = height
             ),
         contentScale = ContentScale.Fit,
-        colorFilter = colorFilter,
+        colorFilter = colorFilter
     )
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
 )
 @Composable
 private fun AssetsDotsPreview(
     @PreviewParameter(AssetsDotsPreviewParameterProvider::class)
-    variant: AssetsDotsVariant,
+    variant: AssetsDotsVariant
 ) {
     AssetsDots(
-        variant = variant,
+        variant = variant
     )
 }
 

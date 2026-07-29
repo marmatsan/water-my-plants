@@ -19,7 +19,7 @@ package com.marmatsan.figmaDocumentationSync.domain.model.catalog
  */
 data class CatalogVersion(
     val value: String?,
-    val visible: Boolean = value != null,
+    val visible: Boolean = value != null
 ) {
     init {
         require(value != null || !visible) {

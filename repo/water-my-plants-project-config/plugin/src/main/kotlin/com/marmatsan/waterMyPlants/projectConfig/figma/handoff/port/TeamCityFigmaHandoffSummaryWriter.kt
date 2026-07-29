@@ -8,6 +8,6 @@ internal fun interface TeamCityFigmaHandoffSummaryWriter {
     /** Writes [summary] beside the canonical set in [artifactDirectory]. */
     fun write(
         artifactDirectory: File,
-        summary: JsonObject,
+        summary: JsonObject
     ): File
 }

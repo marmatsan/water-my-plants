@@ -12,7 +12,7 @@ data class CiTrigger(
     val type: Type,
     val branchFilter: String?,
     val dependencyPipelineId: String?,
-    val afterSuccessfulBuildOnly: Boolean?,
+    val afterSuccessfulBuildOnly: Boolean?
 ) {
     /**
      * Adapter-independent trigger family.
@@ -20,10 +20,10 @@ data class CiTrigger(
      * @property serializedName stable value used by the design model.
      */
     enum class Type(
-        val serializedName: String,
+        val serializedName: String
     ) {
         Vcs("vcs"),
         PipelineFinish("pipeline finish"),
-        Schedule("schedule"),
+        Schedule("schedule")
     }
 }

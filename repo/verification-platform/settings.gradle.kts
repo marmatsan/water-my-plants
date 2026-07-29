@@ -43,15 +43,15 @@ dependencyCatalogTree {
             library("jetbrains.kotlinx") {
                 artifact(
                     artifact = "kotlinx-serialization-json",
-                    version = version("serializationLibraryVersion"),
+                    version = version("serializationLibraryVersion")
                 )
             }
             library("junit.platform") {
                 artifact(
-                    artifact = "junit-platform-launcher",
+                    artifact = "junit-platform-launcher"
                 )
                 artifact(
-                    artifact = "junit-platform-suite",
+                    artifact = "junit-platform-suite"
                 )
             }
         }
@@ -61,18 +61,18 @@ dependencyCatalogTree {
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
                     alias = "kotest",
-                    version = version("kotestLibraryVersion"),
+                    version = version("kotestLibraryVersion")
                 )
             }
             library("cucumber") {
                 artifact(
                     artifact = "cucumber-bom",
-                    version = version("cucumberLibraryVersion"),
+                    version = version("cucumberLibraryVersion")
                 )
                 artifactsBundle(
                     "cucumber-java8",
                     "cucumber-junit-platform-engine",
-                    alias = "cucumber",
+                    alias = "cucumber"
                 )
             }
         }
@@ -80,13 +80,13 @@ dependencyCatalogTree {
             library("marmatsan.repo") {
                 artifact(
                     artifact = "unit-test-dsl",
-                    version = version("unitTestDslLibraryVersion"),
+                    version = version("unitTestDslLibraryVersion")
                 )
             }
             library("michael-bull.kotlin-result") {
                 artifact(
                     artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion"),
+                    version = version("kotlinResultLibraryVersion")
                 )
             }
             library("pinterest.ktlint") {
@@ -94,7 +94,7 @@ dependencyCatalogTree {
                     "ktlint-rule-engine",
                     "ktlint-ruleset-standard",
                     alias = "ktlint",
-                    version = version("ktlintLibraryVersion"),
+                    version = version("ktlintLibraryVersion")
                 )
             }
         }
@@ -105,16 +105,16 @@ dependencyCatalogTree {
             plugin("jetbrains") {
                 plugin(
                     id = "dokka",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
                 plugin("kotlin") {
                     plugin(
                         id = "jvm",
-                        version = version("kotlinVersion"),
+                        version = version("kotlinVersion")
                     )
                     plugin(
                         id = "plugin.serialization",
-                        version = version("kotlinVersion"),
+                        version = version("kotlinVersion")
                     )
                 }
             }
@@ -129,5 +129,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     ":domain",
     ":data",
-    ":plugin",
+    ":plugin"
 )

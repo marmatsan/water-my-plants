@@ -14,7 +14,7 @@ internal class CiWindowsRuntimeFreshnessCheckerTest :
             test("check requests a warning only after the configured validation window") {
                 val checker =
                     CiWindowsRuntimeFreshnessChecker(
-                        ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
+                        ciWindowsRuntimePort = FakeCiWindowsRuntimePort
                     )
 
                 checker
@@ -22,8 +22,8 @@ internal class CiWindowsRuntimeFreshnessCheckerTest :
                         runtimeFile = java.io.File("windows-runtime.yaml"),
                         currentDate =
                             LocalDate.parse(
-                                "2026-10-14",
-                            ),
+                                "2026-10-14"
+                            )
                     ).warningRequired shouldBe false
 
                 checker
@@ -31,16 +31,16 @@ internal class CiWindowsRuntimeFreshnessCheckerTest :
                         runtimeFile = java.io.File("windows-runtime.yaml"),
                         currentDate =
                             LocalDate.parse(
-                                "2026-10-15",
-                            ),
+                                "2026-10-15"
+                            )
                     ).warningRequired shouldBe true
             }
-        },
+        }
     )
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
     override fun readRuntime(
-        source: CiWindowsRuntimeSource,
+        source: CiWindowsRuntimeSource
     ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
@@ -48,9 +48,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
                 CiWindowsRuntime.Validation(
                     lastValidatedOn =
                         LocalDate.parse(
-                            "2026-07-16",
+                            "2026-07-16"
                         ),
-                    warnAfterDays = 90,
+                    warnAfterDays = 90
                 ),
             platform = "Windows",
             services =
@@ -61,8 +61,8 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
                         description = "Hosts TeamCity.",
                         service = "TeamCity",
                         startup = "Automatic",
-                        identity = "LocalSystem",
-                    ),
-                ),
+                        identity = "LocalSystem"
+                    )
+                )
         )
 }

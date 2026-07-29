@@ -60,42 +60,42 @@ dependencyCatalogTree {
             library("marmatsan.repo") {
                 artifact(
                     artifact = "catalog-api",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
                     artifact = "catalog-core",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
                     artifact = "catalog-gradle-plugin",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
-                    artifact = "unit-test-dsl",
+                    artifact = "unit-test-dsl"
                 )
             }
             library("marmatsan.figma-documentation-sync") {
                 artifact(
                     artifact = "domain",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
                     artifact = "data",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
                     artifact = "plugin",
-                    version = portableVersion,
+                    version = portableVersion
                 )
                 artifact(
                     artifact = "teamcity-adapter",
-                    version = portableVersion,
+                    version = portableVersion
                 )
             }
             library("michael-bull.kotlin-result") {
                 artifact(
                     artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion"),
+                    version = version("kotlinResultLibraryVersion")
                 )
             }
         }
@@ -103,12 +103,12 @@ dependencyCatalogTree {
             library("jetbrains.kotlinx") {
                 artifact(
                     artifact = "kotlinx-serialization-json",
-                    version = version("serializationLibraryVersion"),
+                    version = version("serializationLibraryVersion")
                 )
             }
             library("junit.platform") {
                 artifact(
-                    artifact = "junit-platform-launcher",
+                    artifact = "junit-platform-launcher"
                 )
             }
         }
@@ -118,7 +118,7 @@ dependencyCatalogTree {
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
                     alias = "kotest",
-                    version = version("kotestLibraryVersion"),
+                    version = version("kotestLibraryVersion")
                 )
             }
         }
@@ -129,11 +129,11 @@ dependencyCatalogTree {
             plugin("jetbrains") {
                 plugin(
                     id = "dokka",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
                 plugin(
                     id = "kotlin.jvm",
-                    version = version("kotlinVersion"),
+                    version = version("kotlinVersion")
                 )
             }
         }
@@ -146,5 +146,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     ":catalog",
-    ":plugin",
+    ":plugin"
 )

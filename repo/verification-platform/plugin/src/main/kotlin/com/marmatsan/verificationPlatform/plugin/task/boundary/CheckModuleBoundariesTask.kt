@@ -15,7 +15,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Enforces repository-configured source and included-build dependency boundaries. */
 @DisableCachingByDefault(
-    because = "This validation produces no reusable output artifact",
+    because = "This validation produces no reusable output artifact"
 )
 abstract class CheckModuleBoundariesTask : DefaultTask() {
     /** Repository root containing the inspected scopes. */
@@ -55,7 +55,7 @@ abstract class CheckModuleBoundariesTask : DefaultTask() {
                         val normalizedContent =
                             file.readText().replace(
                                 '\\',
-                                '/',
+                                '/'
                             )
                         buildList {
                             if (
@@ -65,8 +65,8 @@ abstract class CheckModuleBoundariesTask : DefaultTask() {
                                 add(
                                     "${relativePath(
                                         root = root,
-                                        file = file,
-                                    )} must not include a sibling build by relative path",
+                                        file = file
+                                    )} must not include a sibling build by relative path"
                                 )
                             }
                             forbiddenReferences
@@ -75,8 +75,8 @@ abstract class CheckModuleBoundariesTask : DefaultTask() {
                                     add(
                                         "${relativePath(
                                             root = root,
-                                            file = file,
-                                        )} must not reference $reference",
+                                            file = file
+                                        )} must not reference $reference"
                                     )
                                 }
                         }
@@ -86,18 +86,18 @@ abstract class CheckModuleBoundariesTask : DefaultTask() {
         check(failures.isEmpty()) {
             failures.distinct().sorted().joinToString(
                 prefix = "Module boundary verification failed:\n- ",
-                separator = "\n- ",
+                separator = "\n- "
             )
         }
     }
 
     private fun relativePath(
         root: java.io.File,
-        file: java.io.File,
+        file: java.io.File
     ): String =
         file.relativeTo(root).path.replace(
             oldChar = '\\',
-            newChar = '/',
+            newChar = '/'
         )
 
     internal companion object {

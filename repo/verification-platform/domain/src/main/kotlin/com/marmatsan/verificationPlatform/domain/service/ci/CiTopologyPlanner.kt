@@ -27,7 +27,7 @@ class CiTopologyPlanner {
      */
     fun create(
         plan: CiPlan,
-        availableAgents: Int,
+        availableAgents: Int
     ): CiExecutionTopology {
         require(availableAgents >= 1) { "CI topology requires at least one available agent." }
 
@@ -46,22 +46,22 @@ class CiTopologyPlanner {
             when (mode) {
                 CiTopologyMode.SINGLE_AGENT_SEQUENTIAL -> {
                     singleAgentLanes(
-                        requiredUnits = requiredUnits,
+                        requiredUnits = requiredUnits
                     )
                 }
 
                 CiTopologyMode.MULTI_AGENT_PARALLEL -> {
                     multiAgentLanes(
                         requiredUnits = requiredUnits,
-                        availableAgents = availableAgents,
+                        availableAgents = availableAgents
                     )
                 }
             }
         check(
             lanes.flatMap(CiExecutionLane::verificationUnits) ==
                 requiredUnits.map(
-                    transform = VerificationUnit::id,
-                ),
+                    transform = VerificationUnit::id
+                )
         ) {
             "CI topology must schedule every required verification unit exactly once and in plan order."
         }
@@ -75,31 +75,31 @@ class CiTopologyPlanner {
             availableAgents = availableAgents,
             mode = mode,
             lanes = lanes,
-            authoritativeStatusPublisherLaneId = statusPublisher.id,
+            authoritativeStatusPublisherLaneId = statusPublisher.id
         )
     }
 
     private fun singleAgentLanes(
-        requiredUnits: List<VerificationUnit>,
+        requiredUnits: List<VerificationUnit>
     ): List<CiExecutionLane> =
         listOf(
             lane(
                 id = VERIFY_LANE,
                 units = requiredUnits,
-                publishesAuthoritativeStatus = true,
-            ),
+                publishesAuthoritativeStatus = true
+            )
         )
 
     private fun multiAgentLanes(
         requiredUnits: List<VerificationUnit>,
-        availableAgents: Int,
+        availableAgents: Int
     ): List<CiExecutionLane> {
         val laneIdByUnit =
             requiredUnits.associate { unit ->
                 unit.id to
                     multiAgentLaneId(
                         id = unit.id,
-                        availableAgents = availableAgents,
+                        availableAgents = availableAgents
                     )
             }
         val orderedLaneIds = if (availableAgents == 2) TWO_AGENT_LANE_ORDER else MANY_AGENT_LANE_ORDER
@@ -120,19 +120,19 @@ class CiTopologyPlanner {
                 id = laneId,
                 units = units,
                 needs = dependencies,
-                publishesAuthoritativeStatus = laneId == GATE_LANE,
+                publishesAuthoritativeStatus = laneId == GATE_LANE
             )
         }
     }
 
     private fun multiAgentLaneId(
         id: VerificationUnitId,
-        availableAgents: Int,
+        availableAgents: Int
     ): String =
         if (availableAgents == 2) {
             when (id) {
                 VerificationUnitId.GIT_WORKFLOW,
-                VerificationUnitId.DOCUMENTATION,
+                VerificationUnitId.DOCUMENTATION
                 -> DOCUMENTATION_LANE
 
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE
@@ -143,22 +143,22 @@ class CiTopologyPlanner {
                 VerificationUnitId.TEAMCITY_DSL,
                 VerificationUnitId.TOOLING,
                 VerificationUnitId.BUILD_INFRASTRUCTURE,
-                VerificationUnitId.PORTABLE_DISTRIBUTION,
+                VerificationUnitId.PORTABLE_DISTRIBUTION
                 -> SUPPLEMENTAL_LANE
             }
         } else {
             when (id) {
                 VerificationUnitId.GIT_WORKFLOW,
-                VerificationUnitId.DOCUMENTATION,
+                VerificationUnitId.DOCUMENTATION
                 -> DOCUMENTATION_LANE
 
                 VerificationUnitId.REPOSITORY_DIFF,
-                VerificationUnitId.TEAMCITY_DSL,
+                VerificationUnitId.TEAMCITY_DSL
                 -> REPOSITORY_LANE
 
                 VerificationUnitId.TOOLING,
                 VerificationUnitId.BUILD_INFRASTRUCTURE,
-                VerificationUnitId.PORTABLE_DISTRIBUTION,
+                VerificationUnitId.PORTABLE_DISTRIBUTION
                 -> TOOLING_LANE
 
                 VerificationUnitId.GRADLE_VERIFICATION -> GRADLE_LANE
@@ -171,17 +171,17 @@ class CiTopologyPlanner {
         id: String,
         units: List<VerificationUnit>,
         needs: List<String> = emptyList(),
-        publishesAuthoritativeStatus: Boolean,
+        publishesAuthoritativeStatus: Boolean
     ) = CiExecutionLane(
         id = id,
         verificationUnits =
             units.map(
-                transform = VerificationUnit::id,
+                transform = VerificationUnit::id
             ),
         needs = needs,
         capabilities = units.flatMap(VerificationUnit::capabilities).distinct(),
         parallelSafe = units.all(VerificationUnit::parallelSafe),
-        publishesAuthoritativeStatus = publishesAuthoritativeStatus,
+        publishesAuthoritativeStatus = publishesAuthoritativeStatus
     )
 
     private companion object {
@@ -198,7 +198,7 @@ class CiTopologyPlanner {
                 DOCUMENTATION_LANE,
                 SUPPLEMENTAL_LANE,
                 GRADLE_LANE,
-                GATE_LANE,
+                GATE_LANE
             )
         val MANY_AGENT_LANE_ORDER =
             listOf(
@@ -206,7 +206,7 @@ class CiTopologyPlanner {
                 REPOSITORY_LANE,
                 TOOLING_LANE,
                 GRADLE_LANE,
-                GATE_LANE,
+                GATE_LANE
             )
     }
 }

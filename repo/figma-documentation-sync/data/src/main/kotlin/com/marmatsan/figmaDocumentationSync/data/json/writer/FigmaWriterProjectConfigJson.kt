@@ -12,10 +12,10 @@ object FigmaWriterProjectConfigJson {
 
     /** Encodes [config] as the portable writer's canonical JSON projection. */
     fun encode(
-        config: FigmaWriterProjectConfig,
+        config: FigmaWriterProjectConfig
     ): String =
         prettyJson.encodeToString(
             JsonObject.serializer(),
-            projector.project(config),
+            projector.project(config)
         ) + System.lineSeparator()
 }

@@ -15,7 +15,7 @@ internal fun List<FigmaHeaderSectionTarget>.toHeaderTargetsJson(): JsonArray =
         buildJsonObject {
             put(
                 "sectionNodeId",
-                target.sectionNodeId,
+                target.sectionNodeId
             )
             put(
                 "links",
@@ -24,20 +24,20 @@ internal fun List<FigmaHeaderSectionTarget>.toHeaderTargetsJson(): JsonArray =
                         buildJsonObject {
                             put(
                                 "label",
-                                link.label,
+                                link.label
                             )
                             put(
                                 "url",
-                                link.url,
+                                link.url
                             )
                         }
-                    },
-                ),
+                    }
+                )
             )
             target.definition?.let { definition ->
                 put(
                     "definition",
-                    definition,
+                    definition
                 )
             }
         }
@@ -49,11 +49,11 @@ internal fun Map<String, FigmaVersionSectionTarget>.toVersionTargetsJson(): Json
         buildJsonObject {
             put(
                 "parentNodeId",
-                target.parentNodeId,
+                target.parentNodeId
             )
             put(
                 "variableFolder",
-                target.variableFolder,
+                target.variableFolder
             )
         }
     }.let(::JsonObject)
@@ -64,34 +64,34 @@ internal fun List<FigmaCatalogTreeTargetConfig>.toCatalogTargetsJson(): JsonArra
         buildJsonObject {
             put(
                 "name",
-                target.name,
+                target.name
             )
             put(
                 "sectionNodeId",
-                target.sectionNodeId,
+                target.sectionNodeId
             )
             put(
                 "type",
-                target.type.wireValue,
+                target.type.wireValue
             )
             put(
                 "lifecycle",
-                target.lifecycle.wireValue,
+                target.lifecycle.wireValue
             )
             put(
                 "nodesPath",
-                target.nodesPath.toJsonArray(),
+                target.nodesPath.toJsonArray()
             )
             if (target.gradlePluginNodes) {
                 put(
                     "gradlePluginNodes",
-                    true,
+                    true
                 )
             }
             if (target.warnWhenUnused) {
                 put(
                     "warnWhenUnused",
-                    true,
+                    true
                 )
             }
         }
@@ -104,5 +104,5 @@ internal fun Map<String, String>.toJsonObject(): JsonObject =
 /** Projects ordered string values to JSON primitives. */
 internal fun List<String>.toJsonArray(): JsonArray =
     map(
-        transform = ::JsonPrimitive,
+        transform = ::JsonPrimitive
     ).let(::JsonArray)

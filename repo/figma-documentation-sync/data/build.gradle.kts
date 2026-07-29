@@ -30,7 +30,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(
-                components["java"],
+                components["java"]
             )
             artifactId = "figma-documentation-sync-data"
 

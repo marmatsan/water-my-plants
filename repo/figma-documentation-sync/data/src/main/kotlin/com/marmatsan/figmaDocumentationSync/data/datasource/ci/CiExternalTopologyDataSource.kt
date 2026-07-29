@@ -12,11 +12,11 @@ import java.io.File
  */
 @Inject
 class CiExternalTopologyDataSource(
-    private val reader: CiExternalTopologyYamlReader,
+    private val reader: CiExternalTopologyYamlReader
 ) : CiExternalTopologyPort {
     /** Reads the repository-owned external topology YAML selected by [source]. */
     override fun readTopology(
-        source: CiExternalTopologySource,
+        source: CiExternalTopologySource
     ): CiExternalTopology =
         reader.read(File(source.path))
 }

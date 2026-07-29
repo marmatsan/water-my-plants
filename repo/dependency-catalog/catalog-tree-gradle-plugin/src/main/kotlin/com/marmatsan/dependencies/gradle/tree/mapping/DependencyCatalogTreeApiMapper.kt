@@ -13,15 +13,15 @@ import com.marmatsan.dependencies.tree.node.Node
 internal class DependencyCatalogTreeApiMapper {
     /** Returns the immutable API catalog represented by [trees]. */
     fun map(
-        trees: DependencyCatalogTrees,
+        trees: DependencyCatalogTrees
     ): DependencyCatalog =
         DependencyCatalog(
             libraries = trees.libraries.map(::libraryNode),
-            plugins = trees.plugins.map(::pluginNode),
+            plugins = trees.plugins.map(::pluginNode)
         )
 
     private fun libraryNode(
-        node: Node<DependencyNode.Library>,
+        node: Node<DependencyNode.Library>
     ): LibraryCatalogNode =
         LibraryCatalogNode(
             group = node.value.libraryGroup,
@@ -29,17 +29,17 @@ internal class DependencyCatalogTreeApiMapper {
                 node.value.entries
                     .orEmpty()
                     .map(::libraryEntry),
-            children = node.children.map(::libraryNode),
+            children = node.children.map(::libraryNode)
         )
 
     private fun libraryEntry(
-        entry: LibraryEntry,
+        entry: LibraryEntry
     ): LibraryCatalogEntry =
         when (entry) {
             is LibraryEntry.Single -> {
                 LibraryCatalogEntry.Artifact(
                     name = entry.artifact.artifact,
-                    version = entry.artifact.version,
+                    version = entry.artifact.version
                 )
             }
 
@@ -47,17 +47,17 @@ internal class DependencyCatalogTreeApiMapper {
                 LibraryCatalogEntry.Bundle(
                     alias = entry.artifactsBundle.alias,
                     artifacts = entry.artifactsBundle.artifacts.map { artifact -> artifact.artifact },
-                    version = entry.artifactsBundle.version,
+                    version = entry.artifactsBundle.version
                 )
             }
         }
 
     private fun pluginNode(
-        node: Node<DependencyNode.Plugin>,
+        node: Node<DependencyNode.Plugin>
     ): PluginCatalogNode =
         PluginCatalogNode(
             id = node.value.pluginId,
             version = node.value.version,
-            children = node.children.map(::pluginNode),
+            children = node.children.map(::pluginNode)
         )
 }

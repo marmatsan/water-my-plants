@@ -7,11 +7,11 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 /** Plans canonical model generation, supervised visual synchronization, and post-merge verification. */
 internal class PostMergeCiVisualSectionPlanner(
     private val environments: CiVisualEnvironmentResolver,
-    private val artifactPaths: CiArtifactPathMatcher,
+    private val artifactPaths: CiArtifactPathMatcher
 ) : CiVisualSectionPlanner {
     /** Builds the canonical post-merge Figma synchronization section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val pipeline = context.figmaPipeline
@@ -24,7 +24,7 @@ internal class PostMergeCiVisualSectionPlanner(
                 job.artifacts.any { artifact ->
                     artifactPaths.contains(
                         artifact.path,
-                        config.canonicalDesignModelPath,
+                        config.canonicalDesignModelPath
                     )
                 }
             }
@@ -36,7 +36,7 @@ internal class PostMergeCiVisualSectionPlanner(
                             dependency.artifactPaths.any { path ->
                                 artifactPaths.contains(
                                     path,
-                                    config.canonicalDesignModelPath,
+                                    config.canonicalDesignModelPath
                                 )
                             }
                     }
@@ -45,7 +45,7 @@ internal class PostMergeCiVisualSectionPlanner(
         val orderedJobs =
             listOfNotNull(
                 artifactJob,
-                checkJob,
+                checkJob
             ) +
                 pipeline.jobs.filter { job -> job.id != artifactJob?.id && job.id != checkJob?.id }
         val jobColumns = orderedJobs.mapIndexed { index, job -> job.id to 2 + index * 2 }.toMap()
@@ -61,15 +61,15 @@ internal class PostMergeCiVisualSectionPlanner(
                     source = config.teamCitySource,
                     row = 0,
                     column = 0,
-                    config = config,
+                    config = config
                 ),
                 pipelineNode(
                     "pipeline-${pipeline.id}",
                     pipeline,
                     0,
                     1,
-                    config,
-                ),
+                    config
+                )
             )
         orderedJobs.forEach { job ->
             val node =
@@ -78,12 +78,12 @@ internal class PostMergeCiVisualSectionPlanner(
                     job,
                     0,
                     jobColumns.getValue(job.id),
-                    config,
+                    config
                 )
             nodes +=
                 if (job.id == checkJob?.id) {
                     node.copy(
-                        outcomes = postMergeCheckOutcomes(),
+                        outcomes = postMergeCheckOutcomes()
                     )
                 } else {
                     node
@@ -100,7 +100,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     source = config.teamCitySource,
                     row = 0,
                     column = jobColumns.getValue(job.id) + 1,
-                    config = config,
+                    config = config
                 )
         }
         nodes +=
@@ -114,7 +114,7 @@ internal class PostMergeCiVisualSectionPlanner(
                 source = config.canonicalSyncSource,
                 row = 1,
                 column = 1,
-                config = config,
+                config = config
             )
         figmaDocument?.let { node ->
             nodes +=
@@ -124,7 +124,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     1,
                     checkColumn - 2,
                     config,
-                    environments,
+                    environments
                 )
         }
         codex?.let { node ->
@@ -135,7 +135,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     1,
                     checkColumn - 1,
                     config,
-                    environments,
+                    environments
                 )
         }
         operator?.let { node ->
@@ -146,7 +146,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     1,
                     checkColumn,
                     config,
-                    environments,
+                    environments
                 )
         }
 
@@ -157,8 +157,8 @@ internal class PostMergeCiVisualSectionPlanner(
                     "main",
                     "pipeline-${pipeline.id}",
                     triggerLabel(pipeline),
-                    CiVisualPlan.ConnectionKind.CONTROL,
-                ),
+                    CiVisualPlan.ConnectionKind.CONTROL
+                )
             )
         artifactJob?.let { job ->
             connections +=
@@ -167,7 +167,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "pipeline-${pipeline.id}",
                     "job-${job.id}",
                     "Run pipeline",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 )
             connections +=
                 visualConnection(
@@ -175,7 +175,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "job-${job.id}",
                     "design-model",
                     "Publish artifact",
-                    CiVisualPlan.ConnectionKind.DATA,
+                    CiVisualPlan.ConnectionKind.DATA
                 )
         }
         checkJob?.let { job ->
@@ -185,7 +185,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "design-model",
                     "job-${job.id}",
                     "Compare canonical model",
-                    CiVisualPlan.ConnectionKind.DATA,
+                    CiVisualPlan.ConnectionKind.DATA
                 )
         }
         addSupervisedSyncConnections(
@@ -194,7 +194,7 @@ internal class PostMergeCiVisualSectionPlanner(
             codex = codex,
             figmaDocument = figmaDocument,
             checkJob = checkJob,
-            pipelineId = pipeline.id,
+            pipelineId = pipeline.id
         )
         return visualSection(
             target = "ci.postMergeDesignDocumentation",
@@ -203,12 +203,12 @@ internal class PostMergeCiVisualSectionPlanner(
             sources =
                 listOf(
                     config.teamCitySource,
-                    config.canonicalSyncSource,
+                    config.canonicalSyncSource
                 ),
             orientation = CiVisualPlan.Orientation.GRID,
             nodes = nodes,
             connections = connections,
-            config = config,
+            config = config
         )
     }
 
@@ -218,7 +218,7 @@ internal class PostMergeCiVisualSectionPlanner(
         codex: CiNode?,
         figmaDocument: CiNode?,
         checkJob: CiJob?,
-        pipelineId: String,
+        pipelineId: String
     ) {
         if (figmaDocument != null && checkJob != null) {
             connections +=
@@ -227,7 +227,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "figma-document",
                     "job-${checkJob.id}",
                     "Read current metadata",
-                    CiVisualPlan.ConnectionKind.DATA,
+                    CiVisualPlan.ConnectionKind.DATA
                 )
         }
         if (operator != null && checkJob != null) {
@@ -237,7 +237,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "job-${checkJob.id}",
                     "operator",
                     "Mismatch requires action",
-                    CiVisualPlan.ConnectionKind.ATTENTION,
+                    CiVisualPlan.ConnectionKind.ATTENTION
                 )
         }
         if (operator != null && codex != null) {
@@ -247,7 +247,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "operator",
                     "codex",
                     "Prepare validated handoff",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 )
         }
         if (codex != null && figmaDocument != null) {
@@ -257,7 +257,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "codex",
                     "figma-document",
                     "Write visuals first · metadata last",
-                    CiVisualPlan.ConnectionKind.DATA,
+                    CiVisualPlan.ConnectionKind.DATA
                 )
         }
         if (figmaDocument != null) {
@@ -267,7 +267,7 @@ internal class PostMergeCiVisualSectionPlanner(
                     "figma-document",
                     "rerun-teamcity-figma-sync",
                     "Run secure rerun",
-                    CiVisualPlan.ConnectionKind.CONTROL,
+                    CiVisualPlan.ConnectionKind.CONTROL
                 )
         }
         connections +=
@@ -276,7 +276,7 @@ internal class PostMergeCiVisualSectionPlanner(
                 "rerun-teamcity-figma-sync",
                 "pipeline-$pipelineId",
                 "Queue complete pipeline",
-                CiVisualPlan.ConnectionKind.CONTROL,
+                CiVisualPlan.ConnectionKind.CONTROL
             )
     }
 }

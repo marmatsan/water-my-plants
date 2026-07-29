@@ -8,7 +8,7 @@ import com.marmatsan.verificationPlatform.domain.model.errorhandling.TypedResult
 
 /** Validates that production Kotlin sources use one configured typed-result implementation. */
 class TypedResultUsageValidator(
-    private val acceptedResultQualifiedName: String,
+    private val acceptedResultQualifiedName: String
 ) {
     private val codeMasker = KotlinSourceCodeMasker()
 
@@ -26,18 +26,18 @@ class TypedResultUsageValidator(
      */
     fun validate(
         relativePath: String,
-        source: String,
+        source: String
     ): Result<Unit, TypedResultUsageError> {
         val violations =
             codeMasker
                 .mask(
-                    source = source,
+                    source = source
                 ).lineSequence()
                 .flatMapIndexed { index, line ->
                     validateLine(
                         relativePath = relativePath,
                         lineNumber = index + 1,
-                        line = line,
+                        line = line
                     )
                 }.toList()
 
@@ -46,8 +46,8 @@ class TypedResultUsageValidator(
         } else {
             Err(
                 TypedResultUsageError(
-                    violations = violations,
-                ),
+                    violations = violations
+                )
             )
         }
     }
@@ -55,7 +55,7 @@ class TypedResultUsageValidator(
     private fun validateLine(
         relativePath: String,
         lineNumber: Int,
-        line: String,
+        line: String
     ): Sequence<TypedResultUsageViolation> {
         val trimmedLine = line.trim()
         if (
@@ -78,8 +78,8 @@ class TypedResultUsageValidator(
                             lineNumber = lineNumber,
                             reason =
                                 "must import $acceptedResultQualifiedName instead of " +
-                                    importedResult,
-                        ),
+                                    importedResult
+                        )
                     )
                 } else if (alias.isNotEmpty()) {
                     add(
@@ -87,8 +87,8 @@ class TypedResultUsageValidator(
                             relativePath = relativePath,
                             lineNumber = lineNumber,
                             reason =
-                                "must import $acceptedResultQualifiedName without an alias",
-                        ),
+                                "must import $acceptedResultQualifiedName without an alias"
+                        )
                     )
                 }
             }
@@ -100,8 +100,8 @@ class TypedResultUsageValidator(
                         lineNumber = lineNumber,
                         reason =
                             "must not declare a custom Result; use " +
-                                acceptedResultQualifiedName,
-                    ),
+                                acceptedResultQualifiedName
+                    )
                 )
             }
 
@@ -117,8 +117,8 @@ class TypedResultUsageValidator(
                                 lineNumber = lineNumber,
                                 reason =
                                     "must use $acceptedResultQualifiedName instead of " +
-                                        qualifiedName,
-                            ),
+                                        qualifiedName
+                            )
                         )
                     }
             }
@@ -128,12 +128,12 @@ class TypedResultUsageValidator(
     private fun violation(
         relativePath: String,
         lineNumber: Int,
-        reason: String,
+        reason: String
     ): TypedResultUsageViolation =
         TypedResultUsageViolation(
             relativePath = relativePath,
             lineNumber = lineNumber,
-            reason = reason,
+            reason = reason
         )
 
     private companion object {
@@ -141,18 +141,18 @@ class TypedResultUsageValidator(
             Regex(
                 pattern =
                     """^\s*import\s+([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*\.Result)""" +
-                        """(?:\s+as\s+([A-Za-z_]\w*))?\s*$""",
+                        """(?:\s+as\s+([A-Za-z_]\w*))?\s*$"""
             )
         val CUSTOM_RESULT_DECLARATION =
             Regex(
                 pattern =
                     """\b(?:class|interface)\s+Result\b|""" +
-                        """\btypealias\s+Result\b""",
+                        """\btypealias\s+Result\b"""
             )
         val QUALIFIED_RESULT_REFERENCE =
             Regex(
                 pattern =
-                    """\b([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+\.Result)\b""",
+                    """\b([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+\.Result)\b"""
             )
     }
 }

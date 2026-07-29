@@ -19,7 +19,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                 }.whenever { source ->
                     Json
                         .parseToJsonElement(
-                            source,
+                            source
                         ).jsonObject
                 }.then { root ->
                     root.keys shouldBe expectedKeys
@@ -58,7 +58,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                                     "showOutcome",
                                     "showSource",
                                     "showRuntime",
-                                    "showOptionalDetails",
+                                    "showOptionalDetails"
                                 )
                             properties
                                 .getValue("executionPlanHeading")
@@ -82,7 +82,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                                     "description",
                                     "showTechnicalId",
                                     "showDescription",
-                                    "showSteps",
+                                    "showSteps"
                                 )
                             properties
                                 .getValue("showSteps")
@@ -103,7 +103,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                                     "showTechnicalId",
                                     "showDescription",
                                     "showCondition",
-                                    "role",
+                                    "role"
                                 )
                             properties
                                 .getValue("tasks")
@@ -127,7 +127,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                             "terminal",
                             "operator",
                             "json",
-                            "gradle",
+                            "gradle"
                         )
                     root
                         .getValue("CATALOG_TARGET_NAMES")
@@ -137,7 +137,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                             "waterMyPlants.libraries",
                             "waterMyPlants.plugins",
                             "waterMyPlants.customGradleConventionPlugins",
-                            "waterMyPlants.customGradlePlugins",
+                            "waterMyPlants.customGradlePlugins"
                         )
                     root
                         .getValue("PARENT_SECTION_NODE_IDS")
@@ -148,7 +148,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                             "62936:183",
                             "63099:949",
                             "64886:247",
-                            "64886:248",
+                            "64886:248"
                         )
 
                     val firstCatalogTarget =
@@ -165,7 +165,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                             "content",
                             "catalogs",
                             "waterMyPlants",
-                            "libraries",
+                            "libraries"
                         )
                     root
                         .getValue("HEADER_SECTION_TARGETS")
@@ -177,7 +177,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                         "the repository-owned source for dependency and plugin versions consumed by the Gradle builds."
                 }
             }
-        },
+        }
     ) {
     companion object {
         private val expectedKeys =
@@ -271,7 +271,7 @@ internal class FigmaWriterProjectConfigJsonTest :
                 "CI_VISUAL_TARGET_NAMES",
                 "CATALOG_TARGET_NAMES",
                 "WRITER_TARGET_NAMES",
-                "DEFAULT_FIXTURE_TARGETS",
+                "DEFAULT_FIXTURE_TARGETS"
             )
     }
 }

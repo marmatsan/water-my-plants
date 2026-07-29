@@ -23,7 +23,7 @@ package com.marmatsan.dependencies.catalog.api
  */
 fun libraryAlias(
     libraryGroup: String,
-    artifact: String,
+    artifact: String
 ): String {
     val groupSegments = libraryGroup.split(".")
     var groupSuffix = ""
@@ -52,7 +52,7 @@ fun libraryAlias(
     val normalizedArtifactAliasSegment =
         (artifactAliasSegment ?: artifact).replace(
             "-",
-            ".",
+            "."
         )
 
     return if (artifactAliasSegment?.isEmpty() == true) {

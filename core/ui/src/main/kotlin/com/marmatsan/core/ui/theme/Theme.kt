@@ -54,7 +54,7 @@ private val DarkColorScheme =
         surfaceContainerHighest = neutral90,
         surfaceContainerLow = neutral96,
         surfaceContainerLowest = neutral100,
-        surfaceDim = neutral87,
+        surfaceDim = neutral87
     )
 
 private val LightColorScheme =
@@ -94,7 +94,7 @@ private val LightColorScheme =
         surfaceContainerHighest = neutral22,
         surfaceContainerLow = neutral10,
         surfaceContainerLowest = neutral4,
-        surfaceDim = neutral6,
+        surfaceDim = neutral6
     )
 
 // Extended MaterialTheme colors
@@ -105,7 +105,7 @@ val ColorScheme.onBackgroundVariant: Color
 @Composable
 fun AndroidTemplateTheme(
     isSystemInDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     // Dynamic color is available on Android 12+
     val supportsDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -127,7 +127,7 @@ fun AndroidTemplateTheme(
             WindowCompat
                 .getInsetsController(
                     window,
-                    view,
+                    view
                 ).isAppearanceLightStatusBars =
                 !isSystemInDarkTheme
         }
@@ -137,6 +137,6 @@ fun AndroidTemplateTheme(
         colorScheme = colorScheme,
         shapes = Shapes,
         typography = Typography,
-        content = content,
+        content = content
     )
 }

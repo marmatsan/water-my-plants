@@ -27,7 +27,7 @@ internal class DokkaDocumentationGradleConventionPluginTest :
                     sourceSet.documentedVisibilities.get() shouldBe
                         setOf(
                             VisibilityModifier.Public,
-                            VisibilityModifier.Internal,
+                            VisibilityModifier.Internal
                         )
                     sourceSet.reportUndocumented.get() shouldBe true
                     val check = project.tasks.named("check").get()
@@ -37,5 +37,5 @@ internal class DokkaDocumentationGradleConventionPluginTest :
                         .shouldContain("dokkaGenerate")
                 }
             }
-        },
+        }
     )

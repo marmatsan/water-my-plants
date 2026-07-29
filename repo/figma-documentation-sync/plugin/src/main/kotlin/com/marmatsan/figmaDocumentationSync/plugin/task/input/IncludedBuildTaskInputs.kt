@@ -54,5 +54,5 @@ internal fun IncludedBuildTaskInputs.resolveIncludedBuildSources(): List<FigmaDe
         modelNames = includedBuildModelNames.get(),
         modulePathPrefixes = includedBuildModulePathPrefixes.get(),
         publishesCatalogs = includedBuildPublishesCatalogs.get(),
-        publishesConventionPlugins = includedBuildPublishesConventionPlugins.get(),
+        publishesConventionPlugins = includedBuildPublishesConventionPlugins.get()
     )

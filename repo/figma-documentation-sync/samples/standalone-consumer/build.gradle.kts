@@ -17,8 +17,8 @@ tasks.register("verifyPluginApplication") {
                 "generateFigmaDesignModel",
                 "prepareCanonicalFigmaSync",
                 "verifyCanonicalFigmaSync",
-                "checkFigmaTrunkSync",
-            ).all(tasks.names::contains),
+                "checkFigmaTrunkSync"
+            ).all(tasks.names::contains)
         ) {
             "The published plugin did not register its public Gradle tasks."
         }

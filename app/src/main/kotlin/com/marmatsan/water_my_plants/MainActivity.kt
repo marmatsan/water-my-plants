@@ -18,20 +18,20 @@ class MainActivity : ComponentActivity() {
     private val greetingUseCase by lazy { component.greetingUseCase }
 
     override fun onCreate(
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ) {
         super.onCreate(
-            savedInstanceState = savedInstanceState,
+            savedInstanceState = savedInstanceState
         )
         enableEdgeToEdge()
         setContent {
             AndroidTemplateTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     Greeting(
                         name = greetingUseCase("Android"),
-                        modifier = Modifier.padding(innerPadding),
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
@@ -42,23 +42,23 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(
     name: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Text(
         text = name,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
 @Preview(
-    showBackground = true,
+    showBackground = true
 )
 @Composable
 fun GreetingPreview() {
     AndroidTemplateTheme {
         Greeting(
             name = "Hello Android!",
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

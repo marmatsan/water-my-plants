@@ -25,11 +25,11 @@ import java.nio.file.StandardCopyOption
 class McpExecutionStateJson {
     /** Reads a checkpoint from [path], returning `null` when it does not exist. */
     fun readOptional(
-        path: String,
+        path: String
     ): McpExecutionState? {
         val source =
             Path.of(
-                path,
+                path
             )
         if (!Files.isRegularFile(source)) return null
         val state = Json.parseToJsonElement(Files.readString(source).removePrefix(UTF8_BOM)).jsonObject.toState()
@@ -42,11 +42,11 @@ class McpExecutionStateJson {
     /** Atomically replaces [path] with the canonical serialization of [state]. */
     fun writeAtomic(
         state: McpExecutionState,
-        path: String,
+        path: String
     ) {
         val output =
             Path.of(
-                path,
+                path
             )
         output.parent?.let(Files::createDirectories)
         val temporary = output.resolveSibling("${output.fileName}.${ProcessHandle.current().pid()}.tmp")
@@ -54,8 +54,8 @@ class McpExecutionStateJson {
             temporary,
             prettyJson.encodeToString(
                 JsonObject.serializer(),
-                state.toJson(),
-            ) + System.lineSeparator(),
+                state.toJson()
+            ) + System.lineSeparator()
         )
         try {
             try {
@@ -63,15 +63,15 @@ class McpExecutionStateJson {
                     temporary,
                     output,
                     StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.REPLACE_EXISTING
                 )
             } catch (
-                _: AtomicMoveNotSupportedException,
+                _: AtomicMoveNotSupportedException
             ) {
                 Files.move(
                     temporary,
                     output,
-                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.REPLACE_EXISTING
                 )
             }
         } finally {
@@ -83,60 +83,60 @@ class McpExecutionStateJson {
         buildJsonObject {
             put(
                 "schemaVersion",
-                schemaVersion,
+                schemaVersion
             )
             put(
                 "identity",
                 buildJsonObject {
                     put(
                         "modelHash",
-                        identity.modelHash,
+                        identity.modelHash
                     )
                     put(
                         "gitSha",
-                        identity.gitSha,
+                        identity.gitSha
                     )
                     put(
                         "writerHash",
-                        identity.writerHash,
+                        identity.writerHash
                     )
                     put(
                         "transportHash",
-                        identity.transportHash,
+                        identity.transportHash
                     )
                     put(
                         "manifestHash",
-                        identity.manifestHash,
+                        identity.manifestHash
                     )
-                },
+                }
             )
             put(
                 "startedAt",
-                startedAt,
+                startedAt
             )
             put(
                 "updatedAt",
-                updatedAt,
+                updatedAt
             )
             put(
                 "completedFiles",
-                JsonArray(completedFiles.map { entry -> entry.toJson() }),
+                JsonArray(completedFiles.map { entry -> entry.toJson() })
             )
             put(
                 "plannedFiles",
                 JsonArray(
                     plannedFiles.map(
-                        transform = ::JsonPrimitive,
-                    ),
-                ),
+                        transform = ::JsonPrimitive
+                    )
+                )
             )
             put(
                 "failedFile",
-                failedFile?.let(::JsonPrimitive) ?: JsonNull,
+                failedFile?.let(::JsonPrimitive) ?: JsonNull
             )
             put(
                 "failure",
-                failure?.toJson() ?: JsonNull,
+                failure?.toJson() ?: JsonNull
             )
         }
 
@@ -144,23 +144,23 @@ class McpExecutionStateJson {
         buildJsonObject {
             put(
                 "file",
-                file,
+                file
             )
             put(
                 "fileHash",
-                fileHash,
+                fileHash
             )
             put(
                 "durationMs",
-                durationMs,
+                durationMs
             )
             put(
                 "completedAt",
-                completedAt,
+                completedAt
             )
             put(
                 "summary",
-                summary?.let(::JsonPrimitive) ?: JsonNull,
+                summary?.let(::JsonPrimitive) ?: JsonNull
             )
         }
 
@@ -168,15 +168,15 @@ class McpExecutionStateJson {
         buildJsonObject {
             put(
                 "message",
-                message,
+                message
             )
             put(
                 "durationMs",
-                durationMs,
+                durationMs
             )
             put(
                 "failedAt",
-                failedAt,
+                failedAt
             )
         }
 
@@ -190,14 +190,14 @@ class McpExecutionStateJson {
                     gitSha = identity.getValue("gitSha").jsonPrimitive.content,
                     writerHash = identity.getValue("writerHash").jsonPrimitive.content,
                     transportHash = identity.getValue("transportHash").jsonPrimitive.content,
-                    manifestHash = identity.getValue("manifestHash").jsonPrimitive.content,
+                    manifestHash = identity.getValue("manifestHash").jsonPrimitive.content
                 ),
             startedAt = getValue("startedAt").jsonPrimitive.content,
             updatedAt = getValue("updatedAt").jsonPrimitive.content,
             completedFiles = getValue("completedFiles").jsonArray.map { value -> value.jsonObject.toCompleted() },
             plannedFiles = getValue("plannedFiles").jsonArray.map { value -> value.jsonPrimitive.content },
             failedFile = getValue("failedFile").jsonPrimitive.contentOrNull,
-            failure = getValue("failure").takeUnless { value -> value === JsonNull }?.jsonObject?.toFailure(),
+            failure = getValue("failure").takeUnless { value -> value === JsonNull }?.jsonObject?.toFailure()
         )
     }
 
@@ -207,14 +207,14 @@ class McpExecutionStateJson {
             fileHash = getValue("fileHash").jsonPrimitive.content,
             durationMs = getValue("durationMs").jsonPrimitive.long,
             completedAt = getValue("completedAt").jsonPrimitive.content,
-            summary = getValue("summary").jsonPrimitive.contentOrNull,
+            summary = getValue("summary").jsonPrimitive.contentOrNull
         )
 
     private fun JsonObject.toFailure(): McpExecutionFailure =
         McpExecutionFailure(
             message = getValue("message").jsonPrimitive.content,
             durationMs = getValue("durationMs").jsonPrimitive.long,
-            failedAt = getValue("failedAt").jsonPrimitive.content,
+            failedAt = getValue("failedAt").jsonPrimitive.content
         )
 
     private companion object {

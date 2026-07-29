@@ -8,16 +8,16 @@ package com.marmatsan.figmaDocumentationSync.data.gradle.catalog
  */
 data class LibraryConfigurationUsage(
     val pluginModule: String,
-    val target: String,
+    val target: String
 ) : Comparable<LibraryConfigurationUsage> {
     /** Orders usages deterministically by module and configuration target. */
     override fun compareTo(
-        other: LibraryConfigurationUsage,
+        other: LibraryConfigurationUsage
     ): Int =
         compareValuesBy(
             this,
             other,
             LibraryConfigurationUsage::pluginModule,
-            LibraryConfigurationUsage::target,
+            LibraryConfigurationUsage::target
         )
 }

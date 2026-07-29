@@ -20,26 +20,26 @@ internal class GenerateCiVisualPlanGradleTaskTest :
                     given {
                         project
                             .resolve(
-                                relative = "settings.gradle.kts",
+                                relative = "settings.gradle.kts"
                             ).writeText("rootProject.name = \"ci-visual-plan-test\"")
                         project
                             .resolve(
-                                relative = "build.gradle.kts",
+                                relative = "build.gradle.kts"
                             ).writeText(
-                                "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }",
+                                "plugins { id(\"com.marmatsan.figmaDocumentationSync\") }"
                             )
                         Triple(
                             project
                                 .resolve(
-                                    relative = "design-model.json",
+                                    relative = "design-model.json"
                                 ).apply { writeText(designModelFixture) },
                             project
                                 .resolve(
-                                    relative = "writer-project-config.json",
+                                    relative = "writer-project-config.json"
                                 ).apply { writeText(writerConfigFixture) },
                             project.resolve(
-                                relative = "build/ci-visual-plan.json",
-                            ),
+                                relative = "build/ci-visual-plan.json"
+                            )
                         )
                     }.whenever { (model, config, output) ->
                         GradleRunner
@@ -51,7 +51,7 @@ internal class GenerateCiVisualPlanGradleTaskTest :
                                 "-PfigmaCiVisualDesignModel=${model.absolutePath}",
                                 "-PfigmaWriterProjectConfig=${config.absolutePath}",
                                 "-PfigmaCiVisualTarget=ci.windowsRuntime",
-                                "-PfigmaCiVisualPlanOutput=${output.absolutePath}",
+                                "-PfigmaCiVisualPlanOutput=${output.absolutePath}"
                             ).build() to output
                     }.then { (result, output) ->
                         result.task(":generateFigmaCiVisualPlan")?.outcome shouldBe TaskOutcome.SUCCESS
@@ -69,7 +69,7 @@ internal class GenerateCiVisualPlanGradleTaskTest :
                     project.deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private val designModelFixture =

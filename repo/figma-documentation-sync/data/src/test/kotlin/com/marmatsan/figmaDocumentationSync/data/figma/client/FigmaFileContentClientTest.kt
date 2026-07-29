@@ -22,8 +22,8 @@ internal class FigmaFileContentClientTest :
                             type = "FRAME",
                             sharedPluginData =
                                 mapOf(
-                                    "sync" to mapOf("modelHash" to "abc123"),
-                                ),
+                                    "sync" to mapOf("modelHash" to "abc123")
+                                )
                         )
                     }
                 }.whenever { client ->
@@ -31,7 +31,7 @@ internal class FigmaFileContentClientTest :
                         fileKey = "file-key",
                         token = "token",
                         nodeId = "metadata-node",
-                        pluginData = "shared",
+                        pluginData = "shared"
                     )
                 }.then { result ->
                     result shouldBe
@@ -39,9 +39,9 @@ internal class FigmaFileContentClientTest :
                             FigmaNodeContent(
                                 sharedPluginData =
                                     mapOf(
-                                        "sync" to mapOf("modelHash" to "abc123"),
-                                    ),
-                            ),
+                                        "sync" to mapOf("modelHash" to "abc123")
+                                    )
+                            )
                         )
                 }
             }
@@ -54,7 +54,7 @@ internal class FigmaFileContentClientTest :
                         fileKey = "file-key",
                         token = "token",
                         nodeId = "missing-node",
-                        pluginData = null,
+                        pluginData = null
                     )
                 }.then { result ->
                     result shouldBe Err(FigmaNodeContentError.NotFound("missing-node"))
@@ -71,7 +71,7 @@ internal class FigmaFileContentClientTest :
                         fileKey = "file-key",
                         token = "token",
                         nodeId = "metadata-node",
-                        pluginData = null,
+                        pluginData = null
                     )
                 }.then { result ->
                     result shouldBe Err(FigmaNodeContentError.Unavailable("connection refused"))
@@ -88,11 +88,11 @@ internal class FigmaFileContentClientTest :
                         fileKey = "file-key",
                         token = "token",
                         nodeId = "metadata-node",
-                        pluginData = null,
+                        pluginData = null
                     )
                 }.then { result ->
                     result shouldBe Err(FigmaNodeContentError.InvalidResponse)
                 }
             }
-        },
+        }
     )

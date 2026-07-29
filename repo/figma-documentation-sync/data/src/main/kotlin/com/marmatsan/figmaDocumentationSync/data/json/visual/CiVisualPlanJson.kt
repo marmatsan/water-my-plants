@@ -38,13 +38,13 @@ object CiVisualPlanJson {
     fun create(
         designModel: JsonObject,
         config: CiVisualPlanConfig,
-        target: String? = null,
+        target: String? = null
     ): JsonObject {
         val ci =
             designModel["content"]
                 ?.jsonObject
                 ?.get(
-                    key = "ci",
+                    key = "ci"
                 )?.jsonObject
                 ?: throw IllegalArgumentException("designModel.content.ci is required for CI visual sync.")
         val plan =
@@ -52,28 +52,28 @@ object CiVisualPlanJson {
                 externalTopology =
                     ci
                         .requiredObject(
-                            name = "externalTopology",
+                            name = "externalTopology"
                         ).toExternalTopology(),
                 windowsRuntime =
                     ci
                         .requiredObject(
-                            name = "windowsRuntime",
+                            name = "windowsRuntime"
                         ).toWindowsRuntime(),
                 configuration =
                     ci
                         .requiredObject(
-                            name = config.configurationModelName,
+                            name = config.configurationModelName
                         ).toCiConfiguration(),
-                config = config,
+                config = config
             )
         val selected =
             target?.let { requested ->
                 plan
                     .copy(
-                        sections = plan.sections.filter { section -> section.target == requested },
+                        sections = plan.sections.filter { section -> section.target == requested }
                     ).also { filtered ->
                         require(
-                            filtered.sections.size == 1,
+                            filtered.sections.size == 1
                         ) { "CI visual plan has no section for target '$requested'." }
                     }
             } ?: plan
@@ -85,7 +85,7 @@ object CiVisualPlanJson {
         designModelPath: String,
         config: CiVisualPlanConfig,
         target: String? = null,
-        outputPath: String,
+        outputPath: String
     ) {
         val designModel =
             Json
@@ -93,13 +93,13 @@ object CiVisualPlanJson {
                     Files
                         .readString(
                             Path.of(
-                                designModelPath,
-                            ),
-                        ).removePrefix(UTF8_BOM),
+                                designModelPath
+                            )
+                        ).removePrefix(UTF8_BOM)
                 ).jsonObject
         val destination =
             Path.of(
-                outputPath,
+                outputPath
             )
         destination.parent?.let(Files::createDirectories)
         Files.writeString(
@@ -109,10 +109,10 @@ object CiVisualPlanJson {
                 create(
                     designModel = designModel,
                     config = config,
-                    target = target,
-                ),
+                    target = target
+                )
             ) +
-                System.lineSeparator(),
+                System.lineSeparator()
         )
     }
 
@@ -120,23 +120,23 @@ object CiVisualPlanJson {
         CiExternalTopology(
             schemaVersion =
                 requiredInt(
-                    name = "schemaVersion",
+                    name = "schemaVersion"
                 ),
             validation =
                 requiredObject(
-                    name = "validation",
+                    name = "validation"
                 ).let { validation ->
                     CiExternalTopology.Validation(
                         lastValidatedOn =
                             LocalDate.parse(
-                                validation.requiredString("lastValidatedOn"),
+                                validation.requiredString("lastValidatedOn")
                             ),
-                        warnAfterDays = validation.requiredInt("warnAfterDays"),
+                        warnAfterDays = validation.requiredInt("warnAfterDays")
                     )
                 },
             nodes =
                 requiredArray(
-                    name = "nodes",
+                    name = "nodes"
                 ).map { element ->
                     val node = element.jsonObject
                     CiNode(
@@ -146,12 +146,12 @@ object CiVisualPlanJson {
                                 type.serializedName == node.requiredString("type")
                             },
                         name = node.requiredString("name"),
-                        description = node.requiredString("description"),
+                        description = node.requiredString("description")
                     )
                 },
             connections =
                 requiredArray(
-                    name = "connections",
+                    name = "connections"
                 ).map { element ->
                     val connection = element.jsonObject
                     CiConnection(
@@ -164,7 +164,7 @@ object CiVisualPlanJson {
                         authentication =
                             connection
                                 .requiredArray(
-                                    name = "authentication",
+                                    name = "authentication"
                                 ).map { it.jsonPrimitive.content },
                         policy = connection.optionalString("policy"),
                         path = connection.optionalString("path"),
@@ -172,36 +172,36 @@ object CiVisualPlanJson {
                             CiConnection.Automation.entries.single { automation ->
                                 automation.serializedName == connection.requiredString("automation")
                             },
-                        annotation = connection.optionalString("annotation"),
+                        annotation = connection.optionalString("annotation")
                     )
-                },
+                }
         )
 
     private fun JsonObject.toWindowsRuntime(): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion =
                 requiredInt(
-                    name = "schemaVersion",
+                    name = "schemaVersion"
                 ),
             validation =
                 requiredObject(
-                    name = "validation",
+                    name = "validation"
                 ).let { validation ->
                     CiWindowsRuntime.Validation(
                         lastValidatedOn =
                             LocalDate.parse(
-                                validation.requiredString("lastValidatedOn"),
+                                validation.requiredString("lastValidatedOn")
                             ),
-                        warnAfterDays = validation.requiredInt("warnAfterDays"),
+                        warnAfterDays = validation.requiredInt("warnAfterDays")
                     )
                 },
             platform =
                 requiredString(
-                    name = "platform",
+                    name = "platform"
                 ),
             services =
                 requiredArray(
-                    name = "services",
+                    name = "services"
                 ).map { element ->
                     val service = element.jsonObject
                     CiWindowsRuntime.Service(
@@ -210,20 +210,20 @@ object CiVisualPlanJson {
                         description = service.requiredString("description"),
                         service = service.requiredString("service"),
                         startup = service.requiredString("startup"),
-                        identity = service.requiredString("identity"),
+                        identity = service.requiredString("identity")
                     )
-                },
+                }
         )
 
     private fun JsonObject.toCiConfiguration(): CiConfiguration =
         CiConfiguration(
             pipelines =
                 requiredArray(
-                    name = "pipelines",
+                    name = "pipelines"
                 ).map { element -> element.jsonObject.toCiPipeline() },
             vcsRoots =
                 requiredArray(
-                    name = "vcsRoots",
+                    name = "vcsRoots"
                 ).map { element ->
                     val root = element.jsonObject
                     CiVcsRoot(
@@ -234,25 +234,25 @@ object CiVisualPlanJson {
                         branchSpec =
                             root
                                 .requiredArray(
-                                    name = "branchSpec",
-                                ).map { it.jsonPrimitive.content },
+                                    name = "branchSpec"
+                                ).map { it.jsonPrimitive.content }
                     )
-                },
+                }
         )
 
     private fun JsonObject.toCiPipeline(): CiPipeline =
         CiPipeline(
             id =
                 requiredString(
-                    name = "id",
+                    name = "id"
                 ),
             name =
                 requiredString(
-                    name = "name",
+                    name = "name"
                 ),
             triggers =
                 requiredArray(
-                    name = "triggers",
+                    name = "triggers"
                 ).map { element ->
                     val trigger = element.jsonObject
                     CiTrigger(
@@ -263,54 +263,54 @@ object CiVisualPlanJson {
                             },
                         branchFilter = trigger.optionalString("branchFilter"),
                         dependencyPipelineId = trigger.optionalString("dependencyPipelineId"),
-                        afterSuccessfulBuildOnly = trigger["afterSuccessfulBuildOnly"]?.jsonPrimitive?.booleanOrNull,
+                        afterSuccessfulBuildOnly = trigger["afterSuccessfulBuildOnly"]?.jsonPrimitive?.booleanOrNull
                     )
                 },
             jobs =
                 requiredArray(
-                    name = "jobs",
-                ).map { element -> element.jsonObject.toCiJob() },
+                    name = "jobs"
+                ).map { element -> element.jsonObject.toCiJob() }
         )
 
     private fun JsonObject.toCiJob(): CiJob =
         CiJob(
             id =
                 requiredString(
-                    name = "id",
+                    name = "id"
                 ),
             name =
                 requiredString(
-                    name = "name",
+                    name = "name"
                 ),
             steps =
                 requiredArray(
-                    name = "steps",
+                    name = "steps"
                 ).map { element ->
                     val step = element.jsonObject
                     CiJob.Step(
                         id = step.requiredString("id"),
                         name = step.requiredString("name"),
-                        command = step.requiredString("command"),
+                        command = step.requiredString("command")
                     )
                 },
             repositoryIds =
                 requiredArray(
-                    name = "repositoryIds",
+                    name = "repositoryIds"
                 ).map { it.jsonPrimitive.content },
             artifacts =
                 requiredArray(
-                    name = "artifacts",
+                    name = "artifacts"
                 ).map { element ->
                     val artifact = element.jsonObject
                     CiJob.Artifact(
                         artifact.requiredString("path"),
                         artifact.requiredBoolean("publish"),
-                        artifact.requiredBoolean("shareWithJobs"),
+                        artifact.requiredBoolean("shareWithJobs")
                     )
                 },
             dependencies =
                 requiredArray(
-                    name = "dependencies",
+                    name = "dependencies"
                 ).map { element ->
                     val dependency = element.jsonObject
                     CiJob.Dependency(
@@ -318,33 +318,33 @@ object CiVisualPlanJson {
                         artifactPaths =
                             dependency
                                 .requiredArray(
-                                    name = "artifactPaths",
-                                ).map { it.jsonPrimitive.content },
+                                    name = "artifactPaths"
+                                ).map { it.jsonPrimitive.content }
                     )
                 },
             publishedChecks =
                 requiredArray(
-                    name = "publishedChecks",
+                    name = "publishedChecks"
                 ).map { element ->
                     CiJob.PublishedCheck(
-                        name = element.jsonObject.requiredString("name"),
+                        name = element.jsonObject.requiredString("name")
                     )
-                },
+                }
         )
 
     private fun CiVisualPlan.toJson(): JsonObject =
         buildJsonObject {
             put(
                 "schemaVersion",
-                4,
+                4
             )
             put(
                 "parentName",
-                parentName,
+                parentName
             )
             put(
                 "sections",
-                JsonArray(sections.map { section -> section.toJson() }),
+                JsonArray(sections.map { section -> section.toJson() })
             )
         }
 
@@ -352,19 +352,19 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "target",
-                target,
+                target
             )
             put(
                 "name",
-                name,
+                name
             )
             put(
                 "description",
-                description,
+                description
             )
             put(
                 "orientation",
-                orientation.wireValue,
+                orientation.wireValue
             )
             put(
                 "headerSources",
@@ -373,19 +373,19 @@ object CiVisualPlanJson {
                         buildJsonObject {
                             put(
                                 "label",
-                                source.label,
+                                source.label
                             )
                             put(
                                 "url",
-                                source.url,
+                                source.url
                             )
                         }
-                    },
-                ),
+                    }
+                )
             )
             put(
                 "nodes",
-                JsonArray(nodes.map { node -> node.toJson() }),
+                JsonArray(nodes.map { node -> node.toJson() })
             )
             put(
                 "connections",
@@ -394,27 +394,27 @@ object CiVisualPlanJson {
                         buildJsonObject {
                             put(
                                 "id",
-                                connection.id,
+                                connection.id
                             )
                             put(
                                 "source",
-                                connection.source,
+                                connection.source
                             )
                             put(
                                 "target",
-                                connection.target,
+                                connection.target
                             )
                             put(
                                 "label",
-                                connection.label,
+                                connection.label
                             )
                             put(
                                 "kind",
-                                connection.kind.wireValue,
+                                connection.kind.wireValue
                             )
                         }
-                    },
-                ),
+                    }
+                )
             )
         }
 
@@ -422,31 +422,31 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "id",
-                id,
+                id
             )
             put(
                 "type",
-                type.wireValue,
+                type.wireValue
             )
             put(
                 "environment",
-                environment.wireValue,
+                environment.wireValue
             )
             put(
                 "name",
-                name,
+                name
             )
             put(
                 "description",
-                description,
+                description
             )
             put(
                 "phases",
-                JsonArray(phases.map { phase -> phase.toJson() }),
+                JsonArray(phases.map { phase -> phase.toJson() })
             )
             put(
                 "outcomes",
-                JsonArray(outcomes.map { outcome -> outcome.toJson() }),
+                JsonArray(outcomes.map { outcome -> outcome.toJson() })
             )
             runtime?.let { value ->
                 put(
@@ -454,38 +454,38 @@ object CiVisualPlanJson {
                     buildJsonObject {
                         put(
                             "platform",
-                            value.platform,
+                            value.platform
                         )
                         put(
                             "service",
-                            value.service,
+                            value.service
                         )
                         put(
                             "startup",
-                            value.startup,
+                            value.startup
                         )
                         put(
                             "identity",
-                            value.identity,
+                            value.identity
                         )
-                    },
+                    }
                 )
             }
             put(
                 "source",
-                source,
+                source
             )
             put(
                 "sourceUrl",
-                sourceUrl,
+                sourceUrl
             )
             put(
                 "row",
-                row,
+                row
             )
             put(
                 "column",
-                column,
+                column
             )
         }
 
@@ -493,27 +493,27 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "order",
-                order,
+                order
             )
             put(
                 "title",
-                title,
+                title
             )
             technicalId?.let { value ->
                 put(
                     "technicalId",
-                    value,
+                    value
                 )
             }
             description?.let { value ->
                 put(
                     "description",
-                    value,
+                    value
                 )
             }
             put(
                 "steps",
-                JsonArray(steps.map { step -> step.toJson() }),
+                JsonArray(steps.map { step -> step.toJson() })
             )
         }
 
@@ -521,32 +521,32 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "order",
-                order,
+                order
             )
             put(
                 "role",
-                role.wireValue,
+                role.wireValue
             )
             put(
                 "title",
-                title,
+                title
             )
             technicalId?.let { value ->
                 put(
                     "technicalId",
-                    value,
+                    value
                 )
             }
             description?.let { value ->
                 put(
                     "description",
-                    value,
+                    value
                 )
             }
             condition?.let { value ->
                 put(
                     "condition",
-                    value,
+                    value
                 )
             }
         }
@@ -555,64 +555,64 @@ object CiVisualPlanJson {
         buildJsonObject {
             put(
                 "order",
-                order,
+                order
             )
             put(
                 "kind",
-                kind.wireValue,
+                kind.wireValue
             )
             put(
                 "title",
-                title,
+                title
             )
             technicalId?.let { value ->
                 put(
                     "technicalId",
-                    value,
+                    value
                 )
             }
             description?.let { value ->
                 put(
                     "description",
-                    value,
+                    value
                 )
             }
             condition?.let { value ->
                 put(
                     "condition",
-                    value,
+                    value
                 )
             }
         }
 
     private fun JsonObject.requiredObject(
-        name: String,
+        name: String
     ): JsonObject =
         this[name]?.jsonObject ?: throw IllegalArgumentException("CI visual model is missing '$name'.")
 
     private fun JsonObject.requiredArray(
-        name: String,
+        name: String
     ): JsonArray =
         this[name]?.jsonArray ?: throw IllegalArgumentException("CI visual model is missing '$name'.")
 
     private fun JsonObject.requiredString(
-        name: String,
+        name: String
     ): String =
         this[name]?.jsonPrimitive?.contentOrNull
             ?: throw IllegalArgumentException("CI visual model is missing '$name'.")
 
     private fun JsonObject.optionalString(
-        name: String,
+        name: String
     ): String? =
         this[name]?.takeUnless { it is JsonNull }?.jsonPrimitive?.contentOrNull
 
     private fun JsonObject.requiredInt(
-        name: String,
+        name: String
     ): Int =
         this[name]?.jsonPrimitive?.int ?: throw IllegalArgumentException("CI visual model is missing '$name'.")
 
     private fun JsonObject.requiredBoolean(
-        name: String,
+        name: String
     ): Boolean =
         this[name]?.jsonPrimitive?.booleanOrNull
             ?: throw IllegalArgumentException("CI visual model is missing '$name'.")

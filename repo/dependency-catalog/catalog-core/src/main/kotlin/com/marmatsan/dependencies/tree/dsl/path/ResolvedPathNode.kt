@@ -15,7 +15,7 @@ import com.marmatsan.dependencies.tree.node.Node
  */
 internal class ResolvedPathNode<T : DependencyNode>(
     private val parent: Node<T>,
-    private val node: Node<T>,
+    private val node: Node<T>
 ) {
     /**
      * Replaces the terminal payload with [value] while preserving its children and sibling order.
@@ -23,7 +23,7 @@ internal class ResolvedPathNode<T : DependencyNode>(
      * @return The replacement node now attached to the tree.
      */
     fun replaceValue(
-        value: T,
+        value: T
     ): Node<T> {
         val nodeIndex =
             parent.children.indexOfFirst { child ->
@@ -35,7 +35,7 @@ internal class ResolvedPathNode<T : DependencyNode>(
 
         return Node(
             value = value,
-            children = node.children,
+            children = node.children
         ).also { replacement ->
             parent.children[nodeIndex] = replacement
         }

@@ -9,19 +9,19 @@ import org.gradle.api.Project
 class WaterMyPlantsProjectConfigPlugin : Plugin<Project> {
     /** Applies the reusable plugin and delegates repository configuration to focused registrars. */
     override fun apply(
-        project: Project,
+        project: Project
     ) {
         project.pluginManager.apply("com.marmatsan.figmaDocumentationSync")
         WaterMyPlantsFigmaExtensionConfigurator(
             project = project,
-            writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value,
+            writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
         ).configure()
         WaterMyPlantsFigmaWriterTasksRegistrar(
             project = project,
-            writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value,
+            writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
         ).register()
         WaterMyPlantsTeamCityFigmaTasksRegistrar(
-            project = project,
+            project = project
         ).register()
     }
 }

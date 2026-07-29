@@ -32,5 +32,5 @@ class GitBranchNameValidatorTest :
                     "feature/<kebab-case>, fix/<kebab-case>, chore/<kebab-case>, " +
                     "release/<x.y.z>, or hotfix/<kebab-case>."
             }
-        },
+        }
     )

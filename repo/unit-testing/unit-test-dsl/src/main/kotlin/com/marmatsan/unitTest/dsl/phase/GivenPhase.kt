@@ -10,7 +10,7 @@ package com.marmatsan.unitTest.dsl.phase
  * @property value Arrangement value supplied to the action.
  */
 class GivenPhase<GivenValue> internal constructor(
-    private val value: GivenValue,
+    private val value: GivenValue
 ) {
     /**
      * Evaluates the action once with the arrangement value.
@@ -22,10 +22,10 @@ class GivenPhase<GivenValue> internal constructor(
      * @return A phase that exposes only assertions over the action result.
      */
     suspend fun <WhenValue> whenever(
-        block: suspend (GivenValue) -> WhenValue,
+        block: suspend (GivenValue) -> WhenValue
     ): WhenPhase<GivenValue, WhenValue> =
         WhenPhase(
             givenValue = value,
-            value = block(value),
+            value = block(value)
         )
 }

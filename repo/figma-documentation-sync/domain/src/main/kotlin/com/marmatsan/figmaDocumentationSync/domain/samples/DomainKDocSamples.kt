@@ -32,12 +32,12 @@ internal object DomainKDocSamples {
     fun catalogVersionSample() {
         val visibleVersion =
             CatalogVersion(
-                value = "2.2.0",
+                value = "2.2.0"
             )
         val hiddenVersion =
             CatalogVersion(
                 value = null,
-                visible = false,
+                visible = false
             )
 
         check(visibleVersion.visible)
@@ -51,7 +51,7 @@ internal object DomainKDocSamples {
                 artifact = "kotlin-stdlib",
                 version =
                     CatalogVersion(
-                        value = "2.4.0",
+                        value = "2.4.0"
                     ),
                 requiredByModules = listOf(":app"),
                 providedByConventionPlugins =
@@ -59,9 +59,9 @@ internal object DomainKDocSamples {
                         ConventionPluginUsage(
                             pluginId = "com.marmatsan.compose",
                             pluginModule = ":gradle-plugins:compose",
-                            requiredByModules = listOf(":app"),
-                        ),
-                    ),
+                            requiredByModules = listOf(":app")
+                        )
+                    )
             )
 
         val bundle =
@@ -71,13 +71,13 @@ internal object DomainKDocSamples {
                     listOf(
                         "ui",
                         "ui-graphics",
-                        "ui-tooling",
+                        "ui-tooling"
                     ),
                 version =
                     CatalogVersion(
-                        value = "2026.05.01",
+                        value = "2026.05.01"
                     ),
-                requiredByModules = listOf(":core:ui"),
+                requiredByModules = listOf(":core:ui")
             )
 
         check(artifact.requiredByModules == listOf(":app"))
@@ -90,7 +90,7 @@ internal object DomainKDocSamples {
         val dependency =
             ModuleDependency(
                 dependentModule = ":app",
-                dependencyModule = ":core:ui",
+                dependencyModule = ":core:ui"
             )
 
         check(dependency.render() == ":app -> :core:ui")
@@ -101,7 +101,7 @@ internal object DomainKDocSamples {
         val section =
             RepositoryVersionSection(
                 name = "Main project dependencies",
-                versions = mapOf("kotlinVersion" to "2.4.0"),
+                versions = mapOf("kotlinVersion" to "2.4.0")
             )
 
         check(section.versions["kotlinVersion"] == "2.4.0")
@@ -112,35 +112,35 @@ internal object DomainKDocSamples {
         val port =
             object : RepositoryVersionsPort {
                 override fun readVersions(
-                    source: VersionsFileSource,
+                    source: VersionsFileSource
                 ): Map<String, String> =
                     mapOf("kotlinVersion" to "2.4.0")
 
                 override fun readVersionSections(
-                    source: VersionsFileSource,
+                    source: VersionsFileSource
                 ): List<RepositoryVersionSection> =
                     listOf(
                         RepositoryVersionSection(
                             name = "Main project dependencies",
                             versions =
                                 readVersions(
-                                    source = source,
-                                ),
-                        ),
+                                    source = source
+                                )
+                        )
                     )
             }
 
         val source =
             VersionsFileSource(
-                path = "versions.properties",
+                path = "versions.properties"
             )
         val versions =
             port.readVersions(
-                source = source,
+                source = source
             )
         val sections =
             port.readVersionSections(
-                source = source,
+                source = source
             )
 
         check(versions["kotlinVersion"] == "2.4.0")
@@ -152,7 +152,7 @@ internal object DomainKDocSamples {
         val port =
             object : ProjectCatalogTreesPort {
                 override fun readLibraryTree(
-                    source: ProjectCatalogTreeSource,
+                    source: ProjectCatalogTreeSource
                 ): LibraryCatalogTree =
                     LibraryCatalogTree(
                         roots =
@@ -162,15 +162,15 @@ internal object DomainKDocSamples {
                                     children =
                                         listOf(
                                             LibraryCatalogNode(
-                                                group = "jetbrains",
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                group = "jetbrains"
+                                            )
+                                        )
+                                )
+                            )
                     )
 
                 override fun readPluginTree(
-                    source: ProjectCatalogTreeSource,
+                    source: ProjectCatalogTreeSource
                 ): PluginCatalogTree =
                     PluginCatalogTree(
                         roots =
@@ -180,11 +180,11 @@ internal object DomainKDocSamples {
                                     children =
                                         listOf(
                                             PluginCatalogNode(
-                                                id = "jetbrains",
-                                            ),
-                                        ),
-                                ),
-                            ),
+                                                id = "jetbrains"
+                                            )
+                                        )
+                                )
+                            )
                     )
             }
 
@@ -192,11 +192,11 @@ internal object DomainKDocSamples {
             IncludedBuildSource(
                 settingsFilePath = "repo/gradle-plugins/settings.gradle.kts",
                 rootDirPath = "repo/gradle-plugins",
-                modulePathPrefix = ":gradle-plugins",
+                modulePathPrefix = ":gradle-plugins"
             )
         val source =
             ProjectCatalogTreeSource.IncludedBuildSettings(
-                includedBuild = includedBuild,
+                includedBuild = includedBuild
             )
         val libraryTree = port.readLibraryTree(source)
         val pluginTree = port.readPluginTree(source)
@@ -210,12 +210,12 @@ internal object DomainKDocSamples {
         val port =
             object : ProjectModulesPort {
                 override fun readModules(
-                    source: ProjectModulesSource,
+                    source: ProjectModulesSource
                 ): Set<String> =
                     setOf(
                         ":app",
                         ":core:ui",
-                        ":gradle-plugins:dependencies",
+                        ":gradle-plugins:dependencies"
                     )
             }
 
@@ -227,9 +227,9 @@ internal object DomainKDocSamples {
                         IncludedBuildSource(
                             settingsFilePath = "repo/gradle-plugins/settings.gradle.kts",
                             rootDirPath = "repo/gradle-plugins",
-                            modulePathPrefix = ":gradle-plugins",
-                        ),
-                    ),
+                            modulePathPrefix = ":gradle-plugins"
+                        )
+                    )
             )
         val modules = port.readModules(source)
 
@@ -241,13 +241,13 @@ internal object DomainKDocSamples {
         val port =
             object : ProjectModuleDependenciesPort {
                 override fun readModuleDependencies(
-                    source: ProjectModuleDependenciesSource,
+                    source: ProjectModuleDependenciesSource
                 ): Set<ModuleDependency> =
                     setOf(
                         ModuleDependency(
                             dependentModule = ":app",
-                            dependencyModule = ":core:ui",
-                        ),
+                            dependencyModule = ":core:ui"
+                        )
                     )
             }
 
@@ -255,15 +255,15 @@ internal object DomainKDocSamples {
             ProjectModuleDependenciesSource(
                 rootDirPath = "repo/gradle-plugins",
                 scope = ProjectModuleDependenciesScope.IncludedBuild,
-                modulePathPrefix = ":gradle-plugins",
+                modulePathPrefix = ":gradle-plugins"
             )
         val dependencies = port.readModuleDependencies(source)
 
         check(
             ModuleDependency(
                 dependentModule = ":app",
-                dependencyModule = ":core:ui",
-            ) in dependencies,
+                dependencyModule = ":core:ui"
+            ) in dependencies
         )
     }
 }

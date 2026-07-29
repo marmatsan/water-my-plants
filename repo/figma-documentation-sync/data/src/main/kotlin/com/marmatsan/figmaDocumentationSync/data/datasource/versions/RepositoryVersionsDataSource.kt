@@ -16,19 +16,19 @@ import java.io.File
  */
 @Inject
 class RepositoryVersionsDataSource(
-    private val versionsPropertiesReader: VersionsPropertiesReader,
+    private val versionsPropertiesReader: VersionsPropertiesReader
 ) : RepositoryVersionsPort {
     /** Reads the flattened version values from [source]. */
     override fun readVersions(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): Map<String, String> =
         versionsPropertiesReader.read(File(source.path))
 
     /** Reads version values grouped by their documented properties sections. */
     override fun readVersionSections(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): List<RepositoryVersionSection> =
         versionsPropertiesReader.readSections(
-            file = File(source.path),
+            file = File(source.path)
         )
 }

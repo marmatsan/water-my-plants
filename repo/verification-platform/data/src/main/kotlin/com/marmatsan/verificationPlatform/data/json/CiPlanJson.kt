@@ -15,7 +15,7 @@ class CiPlanJson {
      */
     fun write(
         plan: CiPlan,
-        output: File,
+        output: File
     ) {
         output.parentFile.mkdirs()
         output.writeText(format.encodeToString(plan) + System.lineSeparator())
@@ -28,7 +28,7 @@ class CiPlanJson {
      * not satisfy the serialized contract.
      */
     fun read(
-        source: String,
+        source: String
     ): CiPlan = format.decodeFromString(source)
 
     private companion object {

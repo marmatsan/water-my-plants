@@ -14,7 +14,7 @@ class CiExecutionTopologyJsonTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "ci-execution-topology-json",
+                    prefix = "ci-execution-topology-json"
                 )
 
             test("round trips the preview topology contract") {
@@ -24,24 +24,24 @@ class CiExecutionTopologyJsonTest :
                             RepositoryChangeSet(
                                 comparisonBase = "base-sha",
                                 head = "head-sha",
-                                changedFiles = listOf(".teamcity/settings.kts"),
+                                changedFiles = listOf(".teamcity/settings.kts")
                             ),
-                        moduleGraph = testModuleGraph(),
+                        moduleGraph = testModuleGraph()
                     )
                 val expected =
                     CiTopologyPlanner().create(
                         plan = plan,
-                        availableAgents = 3,
+                        availableAgents = 3
                     )
                 val json = CiExecutionTopologyJson()
                 val output = temporaryDirectory.resolve("execution-topology.json")
 
                 json.write(
                     expected,
-                    output,
+                    output
                 )
 
                 json.read(output.readText()) shouldBe expected
             }
-        },
+        }
     )

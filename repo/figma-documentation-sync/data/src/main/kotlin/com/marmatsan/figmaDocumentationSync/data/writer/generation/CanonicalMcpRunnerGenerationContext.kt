@@ -27,5 +27,5 @@ internal data class CanonicalMcpRunnerGenerationContext(
     /** Fingerprints for every configured Figma target. */
     val targetFingerprints: Map<String, String>,
     /** Fingerprints for writer source scopes. */
-    val writerScopeFingerprints: Map<String, String>,
+    val writerScopeFingerprints: Map<String, String>
 )

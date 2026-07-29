@@ -13,7 +13,7 @@ internal class GradleConventionPluginTreeReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "gradle-convention-plugin-tree-reader",
+                    prefix = "gradle-convention-plugin-tree-reader"
                 )
 
             test("readPluginTree detects any Gradle convention plugin build file under included build root") {
@@ -21,38 +21,38 @@ internal class GradleConventionPluginTreeReaderTest :
                     val rootDir = temporaryDirectory.resolve("project").apply { mkdirs() }
                     val includedBuildRootDir =
                         rootDir.resolve(
-                            relative = "repo/gradle-plugins",
+                            relative = "repo/gradle-plugins"
                         )
                     includedBuildRootDir.writeBuildFile(
                         path = "analytics",
                         content =
                             conventionPluginBuildFile(
                                 pluginName = "com.marmatsan.analytics",
-                                implementationClass = "\${pluginName}.plugin.AnalyticsGradleConventionPlugin",
-                            ),
+                                implementationClass = "\${pluginName}.plugin.AnalyticsGradleConventionPlugin"
+                            )
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "sync/plugin",
                         content =
                             conventionPluginBuildFile(
                                 pluginName = "com.marmatsan.figmaDocumentationSync",
-                                implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin",
-                            ),
+                                implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin"
+                            )
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "reporting",
                         content =
                             literalIdConventionPluginBuildFile(
-                                pluginId = "com.marmatsan.reporting",
-                            ),
+                                pluginId = "com.marmatsan.reporting"
+                            )
                     )
                     includedBuildRootDir.writeBuildFile(
                         path = "dependencies",
                         content =
                             conventionPluginBuildFile(
                                 pluginName = "com.marmatsan.dependencies",
-                                implementationClass = "\${pluginName}.plugin.DependenciesPlugin",
-                            ),
+                                implementationClass = "\${pluginName}.plugin.DependenciesPlugin"
+                            )
                     )
                     includedBuildRootDir
                 }.whenever { includedBuildRootDir ->
@@ -63,10 +63,10 @@ internal class GradleConventionPluginTreeReaderTest :
                                 "com.marmatsan.analytics" to
                                     setOf(
                                         ":app",
-                                        ":core:ui",
+                                        ":core:ui"
                                     ),
-                                "com.marmatsan.reporting" to setOf(":app"),
-                            ),
+                                "com.marmatsan.reporting" to setOf(":app")
+                            )
                     )
                 }.then { actualTree ->
                     actualTree shouldBe
@@ -86,42 +86,42 @@ internal class GradleConventionPluginTreeReaderTest :
                                                                 appliedToModules =
                                                                     listOf(
                                                                         ":app",
-                                                                        ":core:ui",
-                                                                    ),
+                                                                        ":core:ui"
+                                                                    )
                                                             ),
                                                             PluginCatalogNode(
                                                                 id = "reporting",
-                                                                appliedToModules = listOf(":app"),
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                appliedToModules = listOf(":app")
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
-        },
+        }
     )
 
 private fun File.writeBuildFile(
     path: String,
-    content: String,
+    content: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "build.gradle.kts",
+            relative = "build.gradle.kts"
         ).writeText(content)
 }
 
 private fun conventionPluginBuildFile(
     pluginName: String,
-    implementationClass: String,
+    implementationClass: String
 ): String =
     """
     plugins {
@@ -139,7 +139,7 @@ private fun conventionPluginBuildFile(
     """.trimIndent()
 
 private fun literalIdConventionPluginBuildFile(
-    pluginId: String,
+    pluginId: String
 ): String =
     """
     plugins {

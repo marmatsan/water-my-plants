@@ -18,7 +18,7 @@ data class CiJob(
     val repositoryIds: List<String>,
     val artifacts: List<Artifact>,
     val dependencies: List<Dependency>,
-    val publishedChecks: List<PublishedCheck>,
+    val publishedChecks: List<PublishedCheck>
 ) {
     /**
      * One executable step in an effective CI job.
@@ -30,7 +30,7 @@ data class CiJob(
     data class Step(
         val id: String,
         val name: String,
-        val command: String,
+        val command: String
     )
 
     /**
@@ -43,7 +43,7 @@ data class CiJob(
     data class Artifact(
         val path: String,
         val publish: Boolean,
-        val shareWithJobs: Boolean,
+        val shareWithJobs: Boolean
     )
 
     /**
@@ -54,7 +54,7 @@ data class CiJob(
      */
     data class Dependency(
         val jobId: String,
-        val artifactPaths: List<String>,
+        val artifactPaths: List<String>
     )
 
     /**
@@ -63,6 +63,6 @@ data class CiJob(
      * @property name externally visible check name.
      */
     data class PublishedCheck(
-        val name: String,
+        val name: String
     )
 }

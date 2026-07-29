@@ -13,18 +13,18 @@ import java.net.URI
 
 /** Uploads one validated canonical PNG only to a single-use Figma MCP asset URL. */
 class KtorFigmaPngAssetUploader internal constructor(
-    private val send: suspend (URI, ByteArray) -> Int,
+    private val send: suspend (URI, ByteArray) -> Int
 ) {
     constructor() : this(::sendWithKtor)
 
     /** Validates and uploads [bytes] to the approved single-use Figma MCP [url]. */
     suspend fun upload(
         url: String,
-        bytes: ByteArray,
+        bytes: ByteArray
     ) {
         val target =
             requireAllowedTarget(
-                url = url,
+                url = url
             )
         require(bytes.size in 1..PayloadPngEncoder.MAX_FIGMA_UPLOAD_ASSET_BYTES) {
             "Canonical Figma payload must contain between 1 and " +
@@ -32,8 +32,8 @@ class KtorFigmaPngAssetUploader internal constructor(
         }
         require(
             bytes.startsWith(
-                prefix = PayloadPngEncoder.PNG_SIGNATURE,
-            ),
+                prefix = PayloadPngEncoder.PNG_SIGNATURE
+            )
         ) {
             "Canonical Figma payload is not a PNG file."
         }
@@ -41,7 +41,7 @@ class KtorFigmaPngAssetUploader internal constructor(
         val status =
             send(
                 target,
-                bytes,
+                bytes
             )
         require(status in 200..299) { "Payload upload failed with HTTP $status." }
     }
@@ -49,38 +49,38 @@ class KtorFigmaPngAssetUploader internal constructor(
     /** Bridges [upload] to callers that cannot enter a coroutine. */
     fun uploadBlocking(
         url: String,
-        bytes: ByteArray,
+        bytes: ByteArray
     ) = runBlocking {
         upload(
             url = url,
-            bytes = bytes,
+            bytes = bytes
         )
     }
 
     private fun requireAllowedTarget(
-        url: String,
+        url: String
     ): URI {
         val target =
             runCatching { URI(url) }.getOrElse { failure ->
                 throw IllegalArgumentException(
                     "Figma upload URL is invalid.",
-                    failure,
+                    failure
                 )
             }
         require(
             !target.isOpaque &&
                 target.scheme.equals(
                     "https",
-                    ignoreCase = true,
-                ),
+                    ignoreCase = true
+                )
         ) {
             "Figma upload URL must use HTTPS."
         }
         require(
             target.host.equals(
                 ALLOWED_HOST,
-                ignoreCase = true,
-            ),
+                ignoreCase = true
+            )
         ) {
             "Figma upload URL host must be $ALLOWED_HOST."
         }
@@ -100,7 +100,7 @@ class KtorFigmaPngAssetUploader internal constructor(
     }
 
     private fun ByteArray.startsWith(
-        prefix: ByteArray,
+        prefix: ByteArray
     ): Boolean =
         size >= prefix.size && prefix.indices.all { index -> this[index] == prefix[index] }
 
@@ -111,19 +111,19 @@ class KtorFigmaPngAssetUploader internal constructor(
         val UPLOAD_PATH =
             Regex(
                 "^/mcp/upload/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-" +
-                    "[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/submit$",
+                    "[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/submit$"
             )
 
         suspend fun sendWithKtor(
             target: URI,
-            bytes: ByteArray,
+            bytes: ByteArray
         ): Int =
             HttpClient(CIO) { followRedirects = false }.use { client ->
                 client
                     .post(target.toString()) {
                         header(
                             HttpHeaders.ContentType,
-                            ContentType.Image.PNG.toString(),
+                            ContentType.Image.PNG.toString()
                         )
                         setBody(bytes)
                     }.status.value

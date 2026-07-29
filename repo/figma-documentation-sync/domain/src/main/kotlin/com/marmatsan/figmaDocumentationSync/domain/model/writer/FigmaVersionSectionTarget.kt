@@ -8,5 +8,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
  */
 data class FigmaVersionSectionTarget(
     val parentNodeId: String,
-    val variableFolder: String,
+    val variableFolder: String
 )

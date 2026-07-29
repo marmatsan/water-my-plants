@@ -11,19 +11,19 @@ import java.time.LocalDate
  */
 @Inject
 internal class CiExternalTopologyFreshnessChecker(
-    private val ciExternalTopologyPort: CiExternalTopologyPort,
+    private val ciExternalTopologyPort: CiExternalTopologyPort
 ) {
     /** Evaluates [topologyFile] against its declared warning interval at [currentDate]. */
     fun check(
         topologyFile: File,
-        currentDate: LocalDate,
+        currentDate: LocalDate
     ): Freshness {
         val topology =
             ciExternalTopologyPort.readTopology(
                 source =
                     CiExternalTopologySource(
-                        path = topologyFile.absolutePath,
-                    ),
+                        path = topologyFile.absolutePath
+                    )
             )
         val warningDate =
             topology.validation.lastValidatedOn
@@ -32,7 +32,7 @@ internal class CiExternalTopologyFreshnessChecker(
         return Freshness(
             lastValidatedOn = topology.validation.lastValidatedOn,
             warningDate = warningDate,
-            warningRequired = currentDate.isAfter(warningDate),
+            warningRequired = currentDate.isAfter(warningDate)
         )
     }
 
@@ -46,6 +46,6 @@ internal class CiExternalTopologyFreshnessChecker(
     data class Freshness(
         val lastValidatedOn: LocalDate,
         val warningDate: LocalDate,
-        val warningRequired: Boolean,
+        val warningRequired: Boolean
     )
 }

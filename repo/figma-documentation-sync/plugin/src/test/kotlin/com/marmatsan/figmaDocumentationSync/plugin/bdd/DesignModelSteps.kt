@@ -98,52 +98,52 @@ class DesignModelSteps : En {
             "the design model is generated at {instant}",
             object : A1<Instant> {
                 override fun accept(
-                    generatedAt: Instant,
+                    generatedAt: Instant
                 ) {
                     generateFirstModel(
-                        generatedAt = generatedAt,
+                        generatedAt = generatedAt
                     )
                 }
-            },
+            }
         )
 
         When(
             "the design model is generated again at {instant}",
             object : A1<Instant> {
                 override fun accept(
-                    generatedAt: Instant,
+                    generatedAt: Instant
                 ) {
                     generateSecondModel(
-                        generatedAt = generatedAt,
+                        generatedAt = generatedAt
                     )
                 }
-            },
+            }
         )
 
         When(
             "the design model is generated for git sha {word}",
             object : A1<String> {
                 override fun accept(
-                    gitSha: String,
+                    gitSha: String
                 ) {
                     generateFirstModel(
-                        gitSha = gitSha,
+                        gitSha = gitSha
                     )
                 }
-            },
+            }
         )
 
         When(
             "the design model is generated again for git sha {word}",
             object : A1<String> {
                 override fun accept(
-                    gitSha: String,
+                    gitSha: String
                 ) {
                     generateSecondModel(
-                        gitSha = gitSha,
+                        gitSha = gitSha
                     )
                 }
-            },
+            }
         )
 
         Then("the generated model contains repository metadata") {
@@ -154,7 +154,7 @@ class DesignModelSteps : En {
                     "gitSha",
                     "generatedAt",
                     "content",
-                    "modelHash",
+                    "modelHash"
                 )
         }
 
@@ -162,11 +162,11 @@ class DesignModelSteps : En {
             "the generated model content contains:",
             object : A1<DataTable> {
                 override fun accept(
-                    contentKeys: DataTable,
+                    contentKeys: DataTable
                 ) {
                     firstResult.content.keys shouldContainAll contentKeys.asList()
                 }
-            },
+            }
         )
 
         Then("the version keys are sorted") {
@@ -178,7 +178,7 @@ class DesignModelSteps : En {
                     "activityComposeLibraryVersion",
                     "androidGradlePluginVersion",
                     "kotlinVersion",
-                    "kspPluginVersion",
+                    "kspPluginVersion"
                 )
         }
 
@@ -191,7 +191,7 @@ class DesignModelSteps : En {
                 listOf(
                     "Main project dependencies",
                     "Libraries",
-                    "Plugins",
+                    "Plugins"
                 )
         }
 
@@ -202,7 +202,7 @@ class DesignModelSteps : En {
                 listOf(
                     "externalTopology",
                     "windowsRuntime",
-                    "teamCity",
+                    "teamCity"
                 )
         }
 
@@ -224,37 +224,37 @@ class DesignModelSteps : En {
 
     private fun generateFirstModel(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT,
+        generatedAt: Instant = DEFAULT_GENERATED_AT
     ) {
         firstResult =
             generateModel(
                 gitSha = gitSha,
-                generatedAt = generatedAt,
+                generatedAt = generatedAt
             )
     }
 
     private fun generateSecondModel(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT,
+        generatedAt: Instant = DEFAULT_GENERATED_AT
     ) {
         secondResult =
             generateModel(
                 gitSha = gitSha,
-                generatedAt = generatedAt,
+                generatedAt = generatedAt
             )
     }
 
     private fun generateModel(
         gitSha: String,
-        generatedAt: Instant,
+        generatedAt: Instant
     ): FigmaDesignModelGenerationResult {
         requireRepositorySources()
         return generator.generate(
             request =
                 request(
                     gitSha = gitSha,
-                    generatedAt = generatedAt,
-                ),
+                    generatedAt = generatedAt
+                )
         )
     }
 
@@ -267,7 +267,7 @@ class DesignModelSteps : En {
                 projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
                 ciExternalTopologyPort = FakeCiExternalTopologyPort,
                 ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
-                ciConfigurationPort = FakeCiConfigurationPort,
+                ciConfigurationPort = FakeCiConfigurationPort
             )
     }
 
@@ -283,7 +283,7 @@ class DesignModelSteps : En {
 
     private fun request(
         gitSha: String = "abc123",
-        generatedAt: Instant = DEFAULT_GENERATED_AT,
+        generatedAt: Instant = DEFAULT_GENERATED_AT
     ): FigmaDesignModelGenerationRequest =
         FigmaDesignModelGenerationRequest(
             branch = "main",
@@ -308,32 +308,32 @@ class DesignModelSteps : En {
                         rootDirectory = File("repo/gradle-plugins"),
                         modulePathPrefix = ":gradle-plugins",
                         publishesCatalogs = true,
-                        publishesConventionPlugins = true,
-                    ),
-                ),
+                        publishesConventionPlugins = true
+                    )
+                )
         )
 
     private companion object {
         val DEFAULT_GENERATED_AT: Instant =
             Instant.parse(
-                "2026-06-19T10:15:30Z",
+                "2026-06-19T10:15:30Z"
             )
     }
 }
 
 private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
     override fun readVersions(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): Map<String, String> =
         mapOf(
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
             "androidGradlePluginVersion" to "9.2.1",
-            "kspPluginVersion" to "2.3.9",
+            "kspPluginVersion" to "2.3.9"
         )
 
     override fun readVersionSections(
-        source: VersionsFileSource,
+        source: VersionsFileSource
     ): List<RepositoryVersionSection> =
         listOf(
             RepositoryVersionSection(
@@ -341,23 +341,23 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
                 versions =
                     mapOf(
                         "androidGradlePluginVersion" to "9.2.1",
-                        "kotlinVersion" to "2.4.0",
-                    ),
+                        "kotlinVersion" to "2.4.0"
+                    )
             ),
             RepositoryVersionSection(
                 name = "Libraries",
-                versions = mapOf("activityComposeLibraryVersion" to "1.13.0"),
+                versions = mapOf("activityComposeLibraryVersion" to "1.13.0")
             ),
             RepositoryVersionSection(
                 name = "Plugins",
-                versions = mapOf("kspPluginVersion" to "2.3.9"),
-            ),
+                versions = mapOf("kspPluginVersion" to "2.3.9")
+            )
         )
 }
 
 private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
     override fun readLibraryTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): LibraryCatalogTree =
         LibraryCatalogTree(
             roots =
@@ -370,17 +370,17 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                     artifact = "kotlin-stdlib",
                                     version =
                                         CatalogVersion(
-                                            value = "2.4.0",
+                                            value = "2.4.0"
                                         ),
-                                    requiredByModules = listOf(":app"),
-                                ),
-                            ),
-                    ),
-                ),
+                                    requiredByModules = listOf(":app")
+                                )
+                            )
+                    )
+                )
         )
 
     override fun readPluginTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): PluginCatalogTree =
         PluginCatalogTree(
             roots =
@@ -389,40 +389,40 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                         id = "org.jetbrains.kotlin.android",
                         version =
                             CatalogVersion(
-                                value = "2.4.0",
+                                value = "2.4.0"
                             ),
-                        appliedToModules = listOf(":app"),
-                    ),
-                ),
+                        appliedToModules = listOf(":app")
+                    )
+                )
         )
 }
 
 private object FakeProjectModulesPort : ProjectModulesPort {
     override fun readModules(
-        source: ProjectModulesSource,
+        source: ProjectModulesSource
     ): Set<String> =
         setOf(
             ":onboarding:ui",
             ":app",
-            ":core:ui",
+            ":core:ui"
         )
 }
 
 private object FakeProjectModuleDependenciesPort : ProjectModuleDependenciesPort {
     override fun readModuleDependencies(
-        source: ProjectModuleDependenciesSource,
+        source: ProjectModuleDependenciesSource
     ): Set<ModuleDependency> =
         setOf(
             ModuleDependency(
                 dependentModule = ":app",
-                dependencyModule = ":core:ui",
-            ),
+                dependencyModule = ":core:ui"
+            )
         )
 }
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
     override fun readTopology(
-        source: CiExternalTopologySource,
+        source: CiExternalTopologySource
     ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
@@ -430,9 +430,9 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
                 CiExternalTopology.Validation(
                     lastValidatedOn =
                         LocalDate.parse(
-                            "2026-07-14",
+                            "2026-07-14"
                         ),
-                    warnAfterDays = 90,
+                    warnAfterDays = 90
                 ),
             nodes =
                 listOf(
@@ -440,16 +440,16 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
                         id = "operator",
                         type = CiNode.Type.Actor,
                         name = "Operator",
-                        description = "Initiates manual CI actions.",
-                    ),
+                        description = "Initiates manual CI actions."
+                    )
                 ),
-            connections = emptyList(),
+            connections = emptyList()
         )
 }
 
 private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
     override fun readRuntime(
-        source: CiWindowsRuntimeSource,
+        source: CiWindowsRuntimeSource
     ): CiWindowsRuntime =
         CiWindowsRuntime(
             schemaVersion = 1,
@@ -457,9 +457,9 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
                 CiWindowsRuntime.Validation(
                     lastValidatedOn =
                         LocalDate.parse(
-                            "2026-07-16",
+                            "2026-07-16"
                         ),
-                    warnAfterDays = 90,
+                    warnAfterDays = 90
                 ),
             platform = "Windows",
             services =
@@ -470,15 +470,15 @@ private object FakeCiWindowsRuntimePort : CiWindowsRuntimePort {
                         description = "Hosts TeamCity.",
                         service = "TeamCity",
                         startup = "Automatic",
-                        identity = "NT SERVICE\\TeamCity",
-                    ),
-                ),
+                        identity = "NT SERVICE\\TeamCity"
+                    )
+                )
         )
 }
 
 private object FakeCiConfigurationPort : CiConfigurationPort {
     override fun readConfiguration(
-        source: CiGeneratedConfigurationSource,
+        source: CiGeneratedConfigurationSource
     ): CiConfiguration =
         CiConfiguration(
             pipelines =
@@ -496,11 +496,11 @@ private object FakeCiConfigurationPort : CiConfigurationPort {
                                     repositoryIds = emptyList(),
                                     artifacts = emptyList(),
                                     dependencies = emptyList(),
-                                    publishedChecks = emptyList(),
-                                ),
-                            ),
-                    ),
+                                    publishedChecks = emptyList()
+                                )
+                            )
+                    )
                 ),
-            vcsRoots = emptyList(),
+            vcsRoots = emptyList()
         )
 }

@@ -6,6 +6,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.impact.RepositoryChange
 fun interface RepositoryChangeSetPort {
     /** Resolves the authoritative comparison base and changed paths for [repositoryRootPath]. */
     fun read(
-        repositoryRootPath: String,
+        repositoryRootPath: String
     ): RepositoryChangeSet
 }

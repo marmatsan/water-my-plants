@@ -10,5 +10,5 @@ package com.marmatsan.figmaDocumentationSync.domain.model.writer
 data class McpExecutionFailure(
     val message: String,
     val durationMs: Long,
-    val failedAt: String,
+    val failedAt: String
 )

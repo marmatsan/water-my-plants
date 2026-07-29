@@ -65,14 +65,14 @@ internal class CiVisualPlanJsonTest :
                                 }
                               }
                             }
-                            """.trimIndent(),
+                            """.trimIndent()
                         ).jsonObject
 
                 val plan =
                     CiVisualPlanJson.create(
                         designModel,
                         config,
-                        "ci.windowsRuntime",
+                        "ci.windowsRuntime"
                     )
 
                 plan["schemaVersion"]?.jsonPrimitive?.content shouldBe "4"
@@ -94,7 +94,7 @@ internal class CiVisualPlanJsonTest :
                         .jsonObject
                 node["environment"]?.jsonPrimitive?.content shouldBe "teamcity"
             }
-        },
+        }
     )
 
 private val config =
@@ -110,5 +110,5 @@ private val config =
         visualContractSource = "docs/ci/visual-model-contract.md",
         branchProtectionSource = "docs/ci/main-branch-protection.md",
         canonicalSyncSource = "docs/runbooks/canonical-sync.md",
-        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json",
+        canonicalDesignModelPath = "build/reports/figma-sync/design-model.json"
     )

@@ -8,7 +8,7 @@ import java.util.Comparator
 internal class CanonicalMcpRunnerDirectoryStore {
     /** Replaces [directory] with an empty directory. */
     fun recreate(
-        directory: Path,
+        directory: Path
     ) {
         if (Files.exists(directory)) {
             Files.walk(directory).use { paths ->
@@ -21,12 +21,12 @@ internal class CanonicalMcpRunnerDirectoryStore {
     /** Writes every ordered source entry below [directory]. */
     fun writeSources(
         directory: Path,
-        sources: Map<String, String>,
+        sources: Map<String, String>
     ) {
         sources.forEach { (fileName, source) ->
             Files.writeString(
                 directory.resolve(fileName),
-                source,
+                source
             )
         }
     }
@@ -34,7 +34,7 @@ internal class CanonicalMcpRunnerDirectoryStore {
     /** Resolves [path] relative to [toolsDirectory] when both paths share a filesystem root. */
     fun portablePath(
         toolsDirectory: String,
-        path: String,
+        path: String
     ): String {
         val tools = toolsDirectory.toNormalizedPath()
         val target = path.toNormalizedPath()
@@ -42,7 +42,7 @@ internal class CanonicalMcpRunnerDirectoryStore {
             .getOrDefault(target.toString())
             .replace(
                 '\\',
-                '/',
+                '/'
             )
     }
 

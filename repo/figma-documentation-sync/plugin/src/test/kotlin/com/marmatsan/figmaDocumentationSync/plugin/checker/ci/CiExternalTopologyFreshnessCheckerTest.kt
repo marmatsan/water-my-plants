@@ -14,7 +14,7 @@ internal class CiExternalTopologyFreshnessCheckerTest :
             test("check requests a warning only after the configured validation window") {
                 val checker =
                     CiExternalTopologyFreshnessChecker(
-                        ciExternalTopologyPort = FakeCiExternalTopologyPort,
+                        ciExternalTopologyPort = FakeCiExternalTopologyPort
                     )
 
                 checker
@@ -22,8 +22,8 @@ internal class CiExternalTopologyFreshnessCheckerTest :
                         topologyFile = java.io.File("external-topology.yaml"),
                         currentDate =
                             LocalDate.parse(
-                                "2026-10-12",
-                            ),
+                                "2026-10-12"
+                            )
                     ).warningRequired shouldBe false
 
                 checker
@@ -31,16 +31,16 @@ internal class CiExternalTopologyFreshnessCheckerTest :
                         topologyFile = java.io.File("external-topology.yaml"),
                         currentDate =
                             LocalDate.parse(
-                                "2026-10-13",
-                            ),
+                                "2026-10-13"
+                            )
                     ).warningRequired shouldBe true
             }
-        },
+        }
     )
 
 private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
     override fun readTopology(
-        source: CiExternalTopologySource,
+        source: CiExternalTopologySource
     ): CiExternalTopology =
         CiExternalTopology(
             schemaVersion = 1,
@@ -48,11 +48,11 @@ private object FakeCiExternalTopologyPort : CiExternalTopologyPort {
                 CiExternalTopology.Validation(
                     lastValidatedOn =
                         LocalDate.parse(
-                            "2026-07-14",
+                            "2026-07-14"
                         ),
-                    warnAfterDays = 90,
+                    warnAfterDays = 90
                 ),
             nodes = emptyList(),
-            connections = emptyList(),
+            connections = emptyList()
         )
 }

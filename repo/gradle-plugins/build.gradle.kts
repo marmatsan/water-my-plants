@@ -16,7 +16,7 @@ val versions: Properties =
     }
 val publicationVersion: String =
     providers.gradleProperty("gradlePluginsVersion").getOrElse(
-        versions.getProperty("gradlePluginsVersion"),
+        versions.getProperty("gradlePluginsVersion")
     )
 val stagingPublicationRepository: String =
     providers.gradleProperty("gradlePluginsPublicationRepository").orNull
@@ -67,7 +67,7 @@ tasks.named("check") {
         ":dependencies:check",
         ":dokka-documentation:check",
         ":protobuf:check",
-        ":unit-test:check",
+        ":unit-test:check"
     )
 }
 
@@ -81,7 +81,7 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":dependencies:publishAllPublicationsToStagingRepository",
         ":dokka-documentation:publishAllPublicationsToStagingRepository",
         ":protobuf:publishAllPublicationsToStagingRepository",
-        ":unit-test:publishAllPublicationsToStagingRepository",
+        ":unit-test:publishAllPublicationsToStagingRepository"
     )
 }
 
@@ -93,7 +93,7 @@ tasks.register<Exec>("verifyStagedPublication") {
         dependsOn(
             gradle
                 .includedBuild("dependency-catalog")
-                .task(":catalog-api:publishAllPublicationsToStagingRepository"),
+                .task(":catalog-api:publishAllPublicationsToStagingRepository")
         )
     }
 
@@ -106,13 +106,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -127,6 +127,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
         "-PkotestVersion=${versions.getProperty("kotestLibraryVersion")}",
         "-PmockkVersion=${versions.getProperty("mockkLibraryVersion")}",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

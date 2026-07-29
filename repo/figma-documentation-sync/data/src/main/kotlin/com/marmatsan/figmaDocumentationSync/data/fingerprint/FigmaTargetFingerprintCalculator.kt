@@ -20,7 +20,7 @@ class FigmaTargetFingerprintCalculator {
     fun create(
         designModel: JsonObject,
         visualTargets: List<String>,
-        catalogTargets: List<String>,
+        catalogTargets: List<String>
     ): Map<String, String> =
         buildMap {
             visualTargets.forEach { target ->
@@ -31,16 +31,16 @@ class FigmaTargetFingerprintCalculator {
                             modelSlice(
                                 designModel = designModel,
                                 target = target,
-                                catalogTargets = catalogTargets,
-                            ),
-                    ),
+                                catalogTargets = catalogTargets
+                            )
+                    )
                 )
                 if (target !in catalogTargets) return@forEach
 
                 val nodes =
                     catalogNodes(
                         designModel = designModel,
-                        target = target,
+                        target = target
                     )
                 val rootKey = if (target.substringAfter('.') == "libraries") "group" else "id"
                 val roots =
@@ -57,9 +57,9 @@ class FigmaTargetFingerprintCalculator {
                                     nodes.filter { node ->
                                         node.jsonObject[rootKey]?.jsonPrimitive?.content ==
                                             root
-                                    },
-                                ),
-                        ),
+                                    }
+                                )
+                        )
                     )
                 }
                 put(
@@ -71,12 +71,12 @@ class FigmaTargetFingerprintCalculator {
                                     "roots",
                                     JsonArray(
                                         roots.map(
-                                            transform = ::JsonPrimitive,
-                                        ),
-                                    ),
+                                            transform = ::JsonPrimitive
+                                        )
+                                    )
                                 )
-                            },
-                    ),
+                            }
+                    )
                 )
             }
         }
@@ -84,7 +84,7 @@ class FigmaTargetFingerprintCalculator {
     private fun modelSlice(
         designModel: JsonObject,
         target: String,
-        catalogTargets: List<String>,
+        catalogTargets: List<String>
     ): JsonElement {
         val content = designModel["content"]?.jsonObject
         return when {
@@ -96,7 +96,7 @@ class FigmaTargetFingerprintCalculator {
                 buildJsonObject {
                     put(
                         "target",
-                        target,
+                        target
                     )
                 }
             }
@@ -105,37 +105,37 @@ class FigmaTargetFingerprintCalculator {
                 buildJsonObject {
                     content
                         ?.get(
-                            key = "versions",
+                            key = "versions"
                         )?.let {
                             put(
                                 "versions",
-                                it,
+                                it
                             )
                         }
                     content
                         ?.get(
-                            key = "versionSections",
+                            key = "versionSections"
                         )?.let {
                             put(
                                 "versionSections",
-                                it,
+                                it
                             )
                         }
                 }
             }
 
             target.startsWith(
-                prefix = "ci.",
+                prefix = "ci."
             ) -> {
                 content?.get(
-                    key = "ci",
+                    key = "ci"
                 ) ?: JsonNull
             }
 
             target in catalogTargets -> {
                 catalogNodes(
                     designModel = designModel,
-                    target = target,
+                    target = target
                 )
             }
 
@@ -147,31 +147,31 @@ class FigmaTargetFingerprintCalculator {
 
     private fun catalogNodes(
         designModel: JsonObject,
-        target: String,
+        target: String
     ): JsonArray {
         val catalogName = target.substringBefore('.')
         val treeName = target.substringAfter('.')
         return designModel["content"]
             ?.jsonObject
             ?.get(
-                key = "catalogs",
+                key = "catalogs"
             )?.jsonObject
             ?.get(
-                key = catalogName,
+                key = catalogName
             )?.jsonObject
             ?.get(
-                key = treeName,
+                key = treeName
             )?.jsonArray
             ?: JsonArray(emptyList())
     }
 
     private fun hash(
-        value: JsonElement,
+        value: JsonElement
     ): String =
         Sha256Hash.of(
             value =
                 CanonicalJson.stringify(
-                    value = value,
-                ),
+                    value = value
+                )
         )
 }

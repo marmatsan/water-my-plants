@@ -12,6 +12,6 @@ import java.io.File
 interface CiConfigurationProvider {
     /** Reads the provider-specific generated files under [directory]. */
     fun read(
-        directory: File,
+        directory: File
     ): CiConfiguration
 }

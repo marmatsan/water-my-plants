@@ -6,11 +6,11 @@ import java.util.Properties
 /** Repository-owned version properties shared by auxiliary catalog configurators. */
 internal class WaterMyPlantsVersionProperties private constructor(
     private val source: File,
-    private val properties: Properties,
+    private val properties: Properties
 ) {
     /** Returns the required value for [key]. */
     fun required(
-        key: String,
+        key: String
     ): String =
         properties.getProperty(key)
             ?: error("Missing $key in ${source.path}")
@@ -19,12 +19,12 @@ internal class WaterMyPlantsVersionProperties private constructor(
     companion object {
         /** Resolves and parses the product `versions.properties` from [rootDirectory]. */
         fun load(
-            rootDirectory: File,
+            rootDirectory: File
         ): WaterMyPlantsVersionProperties {
             val source =
                 listOf(
                     rootDirectory.resolve("repo/water-my-plants-project-config/versions.properties"),
-                    rootDirectory.resolve("versions.properties"),
+                    rootDirectory.resolve("versions.properties")
                 ).firstOrNull(File::isFile)
                     ?: error("Water My Plants versions.properties not found from ${rootDirectory.path}")
             val properties =
@@ -33,7 +33,7 @@ internal class WaterMyPlantsVersionProperties private constructor(
                 }
             return WaterMyPlantsVersionProperties(
                 source = source,
-                properties = properties,
+                properties = properties
             )
         }
     }

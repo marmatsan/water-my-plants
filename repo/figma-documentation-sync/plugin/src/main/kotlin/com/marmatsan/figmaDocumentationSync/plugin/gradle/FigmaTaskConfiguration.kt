@@ -8,7 +8,7 @@ import com.marmatsan.figmaDocumentationSync.plugin.task.sync.CheckFigmaTrunkSync
 
 /** Maps the shared plugin extension onto one design-model generation task. */
 internal fun GenerateFigmaDesignModelTask.configureDesignModelInputs(
-    context: FigmaPluginContext,
+    context: FigmaPluginContext
 ) {
     val extension = context.extension
     primaryCatalogModelName.set(extension.primaryCatalogModelName)
@@ -23,14 +23,14 @@ internal fun GenerateFigmaDesignModelTask.configureDesignModelInputs(
     ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
     ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
     configureIncludedBuildInputs(
-        context = context,
+        context = context
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
 }
 
 /** Maps the shared plugin extension onto one Figma trunk verification task. */
 internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
-    context: FigmaPluginContext,
+    context: FigmaPluginContext
 ) {
     val extension = context.extension
     metadataNodeUrl.set(extension.designModelMetadataNodeUrl)
@@ -46,7 +46,7 @@ internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
     ciWindowsRuntimeFile.set(extension.ciWindowsRuntimeFile)
     ciGeneratedConfigurationDirectory.set(extension.ciGeneratedConfigurationDirectory)
     configureIncludedBuildInputs(
-        context = context,
+        context = context
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
     figmaToken.set(context.project.providers.environmentVariable("FIGMA_FILE_CONTENT_ACCESS_TOKEN"))
@@ -54,48 +54,48 @@ internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
 
 /** Maps product catalog inputs onto the unused-catalog verification task. */
 internal fun CheckFigmaCatalogUsageTask.configureCatalogInputs(
-    context: FigmaPluginContext,
+    context: FigmaPluginContext
 ) {
     val extension = context.extension
     primaryCatalogModelName.set(extension.primaryCatalogModelName)
     dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
     rootSettingsFile.set(extension.rootSettingsFile)
     configureIncludedBuildInputs(
-        context = context,
+        context = context
     )
     projectRootDirectory.set(context.project.layout.projectDirectory)
 }
 
 /** Maps the lazily normalized included-build model onto one task input contract. */
 private fun IncludedBuildTaskInputs.configureIncludedBuildInputs(
-    context: FigmaPluginContext,
+    context: FigmaPluginContext
 ) {
     includedBuildSettingsFiles.from(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile } }
     )
     includedBuildSettingsFilePaths.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile.absolutePath } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.settingsFile.absolutePath } }
     )
     includedBuildRootDirectoryPaths.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.rootDirectory.absolutePath } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.rootDirectory.absolutePath } }
     )
     includedBuildModelNames.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.modelName } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.modelName } }
     )
     includedBuildModulePathPrefixes.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.modulePathPrefix } }
     )
     includedBuildPublishesCatalogs.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.publishesCatalogs } }
     )
     includedBuildPublishesConventionPlugins.set(
-        context.includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } },
+        context.includedBuildSources.map { sources -> sources.map { source -> source.publishesConventionPlugins } }
     )
 }
 
 /** Maps repository change-impact inputs onto one classifier task. */
 internal fun ClassifyFigmaChangeImpactTask.configureChangeImpactInputs(
-    context: FigmaPluginContext,
+    context: FigmaPluginContext
 ) {
     val project = context.project
     policyFile.set(context.extension.changeImpactPolicyFile)
@@ -109,7 +109,7 @@ internal fun ClassifyFigmaChangeImpactTask.configureChangeImpactInputs(
                     .split(',')
                     .map(String::trim)
                     .filter(String::isNotEmpty)
-            }.orElse(emptyList()),
+            }.orElse(emptyList())
     )
     project.providers
         .gradleProperty("figmaComparisonBase")

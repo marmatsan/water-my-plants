@@ -22,7 +22,7 @@ dependencyCatalogTree {
             library("example.tools") {
                 artifact(
                     artifact = "tools-core",
-                    version = version("exampleLibraryVersion"),
+                    version = version("exampleLibraryVersion")
                 )
             }
         }
@@ -32,7 +32,7 @@ dependencyCatalogTree {
         root("com") {
             plugin(
                 id = "example.quality",
-                version = version("examplePluginVersion"),
+                version = version("examplePluginVersion")
             )
         }
     }

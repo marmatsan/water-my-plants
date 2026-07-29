@@ -42,7 +42,7 @@ abstract class GenerateCiVisualPlanTask : DefaultTask() {
     fun generate() {
         val runtimeConfig =
             FigmaWriterRuntimeConfigJson.read(
-                writerProjectConfigFile.get().asFile.absolutePath,
+                writerProjectConfigFile.get().asFile.absolutePath
             )
         val visualConfig =
             runtimeConfig.ciVisualPlanConfig
@@ -52,7 +52,7 @@ abstract class GenerateCiVisualPlanTask : DefaultTask() {
             designModelPath = designModelFile.get().asFile.absolutePath,
             config = visualConfig,
             target = target.orNull,
-            outputPath = destination.absolutePath,
+            outputPath = destination.absolutePath
         )
         logger.lifecycle("Wrote Kotlin CI visual plan to ${destination.path}")
     }

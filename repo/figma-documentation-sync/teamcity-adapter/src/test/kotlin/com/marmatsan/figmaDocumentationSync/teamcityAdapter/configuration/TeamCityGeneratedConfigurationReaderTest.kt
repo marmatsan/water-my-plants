@@ -13,7 +13,7 @@ internal class TeamCityGeneratedConfigurationReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "teamcity-generated-configuration",
+                    prefix = "teamcity-generated-configuration"
                 )
 
             test("read translates TeamCity pipelines jobs triggers artifacts and VCS roots") {
@@ -22,21 +22,21 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                     val pipeline =
                         root
                             .resolve(
-                                relative = "Root_Ci",
+                                relative = "Root_Ci"
                             ).apply { mkdirs() }
                     pipeline
                         .resolve(
-                            relative = "project-config.xml",
+                            relative = "project-config.xml"
                         ).writeText(
                             """
                             <project>
                               <name>CI</name>
                             </project>
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     pipeline
                         .resolve(
-                            relative = "pipeline.yml",
+                            relative = "pipeline.yml"
                         ).writeText(
                             """
                             version: 1
@@ -60,15 +60,15 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                                   - prepare:
                                       files:
                                         - build/input.json
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     pipeline
                         .resolve(
-                            relative = "buildTypes",
+                            relative = "buildTypes"
                         ).mkdirs()
                     pipeline
                         .resolve(
-                            relative = "buildTypes/Root_Ci.xml",
+                            relative = "buildTypes/Root_Ci.xml"
                         ).writeText(
                             """
                             <build-type>
@@ -85,13 +85,13 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                                 </build-triggers>
                               </settings>
                             </build-type>
-                            """.trimIndent(),
+                            """.trimIndent()
                         )
                     writeStatusGate(
-                        root = root,
+                        root = root
                     )
                     writeVcsRoot(
-                        root = root,
+                        root = root
                     )
                     root
                 }.whenever { root ->
@@ -105,14 +105,14 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                             type = CiTrigger.Type.Vcs,
                             branchFilter = "+:*",
                             dependencyPipelineId = null,
-                            afterSuccessfulBuildOnly = null,
+                            afterSuccessfulBuildOnly = null
                         )
                     actualPipeline.triggers[1] shouldBe
                         CiTrigger(
                             type = CiTrigger.Type.Schedule,
                             branchFilter = "+:<default>",
                             dependencyPipelineId = null,
-                            afterSuccessfulBuildOnly = null,
+                            afterSuccessfulBuildOnly = null
                         )
 
                     val job = actualPipeline.jobs.single()
@@ -125,8 +125,8 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                     job.publishedChecks shouldBe
                         listOf(
                             CiJob.PublishedCheck(
-                                name = "TeamCity CI",
-                            ),
+                                name = "TeamCity CI"
+                            )
                         )
 
                     val vcsRoot = configuration.vcsRoots.single()
@@ -136,24 +136,24 @@ internal class TeamCityGeneratedConfigurationReaderTest :
                     vcsRoot.branchSpec shouldBe
                         listOf(
                             "#! fallbackToDefault: false",
-                            "+:refs/heads/(*)",
+                            "+:refs/heads/(*)"
                         )
                 }
             }
-        },
+        }
     )
 
 private fun writeStatusGate(
-    root: File,
+    root: File
 ) {
     val buildTypes =
         root
             .resolve(
-                relative = "Root/buildTypes",
+                relative = "Root/buildTypes"
             ).apply { mkdirs() }
     buildTypes
         .resolve(
-            relative = "Root_CiGate.xml",
+            relative = "Root_CiGate.xml"
         ).writeText(
             """
             <build-type>
@@ -180,21 +180,21 @@ private fun writeStatusGate(
                 </dependencies>
               </settings>
             </build-type>
-            """.trimIndent(),
+            """.trimIndent()
         )
 }
 
 private fun writeVcsRoot(
-    root: File,
+    root: File
 ) {
     val vcsRoots =
         root
             .resolve(
-                relative = "Root/vcsRoots",
+                relative = "Root/vcsRoots"
             ).apply { mkdirs() }
     vcsRoots
         .resolve(
-            relative = "Root_GitHub.xml",
+            relative = "Root_GitHub.xml"
         ).writeText(
             """
             <vcs-root type="jetbrains.git">
@@ -204,6 +204,6 @@ private fun writeVcsRoot(
             +:refs/heads/(*)]]></param>
               <param name="url" value="https://github.com/marmatsan/water-my-plants.git" />
             </vcs-root>
-            """.trimIndent(),
+            """.trimIndent()
         )
 }

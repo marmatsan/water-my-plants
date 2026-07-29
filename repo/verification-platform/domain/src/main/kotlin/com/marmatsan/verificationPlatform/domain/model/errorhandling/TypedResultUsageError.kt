@@ -6,7 +6,7 @@ package com.marmatsan.verificationPlatform.domain.model.errorhandling
  * @property violations non-empty violations discovered in the inspected source.
  */
 data class TypedResultUsageError(
-    val violations: List<TypedResultUsageViolation>,
+    val violations: List<TypedResultUsageViolation>
 ) {
     init {
         require(violations.isNotEmpty()) {

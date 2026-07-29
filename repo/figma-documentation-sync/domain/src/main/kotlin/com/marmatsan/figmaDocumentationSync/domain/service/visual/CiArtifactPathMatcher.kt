@@ -5,31 +5,31 @@ internal class CiArtifactPathMatcher {
     /** Returns whether a published artifact rule contains [requiredFile]. */
     fun contains(
         publishedPath: String,
-        requiredFile: String,
+        requiredFile: String
     ): Boolean {
         val normalizedPublishedPath =
             normalize(
-                path = publishedPath,
+                path = publishedPath
             )
         val normalizedRequiredFile =
             normalize(
-                path = requiredFile,
+                path = requiredFile
             )
         return normalizedPublishedPath == normalizedRequiredFile ||
             normalizedRequiredFile.startsWith("$normalizedPublishedPath/")
     }
 
     private fun normalize(
-        path: String,
+        path: String
     ): String =
         path
             .substringBefore("=>")
             .trim()
             .replace(
                 '\\',
-                '/',
+                '/'
             ).replace(
                 Regex("/(?:\\*\\*?|\\*\\.\\*)$"),
-                "",
+                ""
             ).removeSuffix("/")
 }

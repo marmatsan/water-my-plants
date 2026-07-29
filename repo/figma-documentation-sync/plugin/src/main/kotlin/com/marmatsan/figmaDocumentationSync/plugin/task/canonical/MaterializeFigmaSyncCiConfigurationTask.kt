@@ -18,12 +18,12 @@ import javax.inject.Inject
 
 /** Runs a consumer-owned CI configuration command without retaining a Gradle project reference. */
 @DisableCachingByDefault(
-    because = "The external command owns incremental behavior for its generated configuration",
+    because = "The external command owns incremental behavior for its generated configuration"
 )
 abstract class MaterializeFigmaSyncCiConfigurationTask
     @Inject
     constructor(
-        private val execOperations: ExecOperations,
+        private val execOperations: ExecOperations
     ) : DefaultTask() {
         /** Whether the consumer enabled CI documentation in its Figma model. */
         @get:Input

@@ -8,21 +8,21 @@ import org.gradle.api.initialization.Settings
  * @property versions Product version properties used by the auxiliary catalog.
  */
 internal class WaterMyPlantsTestCatalogConfigurator(
-    private val versions: WaterMyPlantsVersionProperties,
+    private val versions: WaterMyPlantsVersionProperties
 ) {
     /** Creates the consumer-owned `testLibs` catalog used by repository test conventions. */
     fun configure(
-        settings: Settings,
+        settings: Settings
     ) {
         settings.dependencyResolutionManagement.versionCatalogs.create("testLibs") {
             library(
                 "com.marmatsan.repo.unit.test.dsl",
                 "com.marmatsan.repo",
-                "unit-test-dsl",
+                "unit-test-dsl"
             ).version(
                 versions.required(
-                    key = "unitTestDslLibraryVersion",
-                ),
+                    key = "unitTestDslLibraryVersion"
+                )
             )
         }
     }

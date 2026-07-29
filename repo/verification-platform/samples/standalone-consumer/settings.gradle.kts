@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         create("plugins") {
             plugin(
                 "com.marmatsan.verificationPlatform",
-                "com.marmatsan.verificationPlatform",
+                "com.marmatsan.verificationPlatform"
             ).version(providers.gradleProperty("verificationPlatformVersion").get())
         }
     }

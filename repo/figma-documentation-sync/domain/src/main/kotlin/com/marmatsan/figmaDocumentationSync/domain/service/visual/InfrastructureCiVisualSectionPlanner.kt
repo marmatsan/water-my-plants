@@ -4,11 +4,11 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 
 /** Plans external CI systems, trust boundaries, and automation paths. */
 internal class InfrastructureCiVisualSectionPlanner(
-    private val environments: CiVisualEnvironmentResolver,
+    private val environments: CiVisualEnvironmentResolver
 ) : CiVisualSectionPlanner {
     /** Builds the external infrastructure and trust-boundary section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val topology = context.externalTopology
@@ -18,7 +18,7 @@ internal class InfrastructureCiVisualSectionPlanner(
                 val position =
                     placement[node.id] ?: Position(
                         row = index,
-                        column = 0,
+                        column = 0
                     )
                 externalNode(
                     id = "external-${node.id}",
@@ -26,7 +26,7 @@ internal class InfrastructureCiVisualSectionPlanner(
                     row = position.row,
                     column = position.column,
                     config = config,
-                    environments = environments,
+                    environments = environments
                 )
             }
         val nodeIds = topology.nodes.associate { node -> node.id to "external-${node.id}" }
@@ -37,7 +37,7 @@ internal class InfrastructureCiVisualSectionPlanner(
                     source = nodeIds[edge.sourceNodeId],
                     target = nodeIds[edge.targetNodeId],
                     label = edge.label,
-                    kind = externalConnectionKind(edge.id),
+                    kind = externalConnectionKind(edge.id)
                 )
             }
         return visualSection(
@@ -47,12 +47,12 @@ internal class InfrastructureCiVisualSectionPlanner(
             sources =
                 listOf(
                     config.topologySource,
-                    "docs/ci/external-topology-validation.md",
+                    "docs/ci/external-topology-validation.md"
                 ),
             orientation = CiVisualPlan.Orientation.GRID,
             nodes = nodes,
             connections = connections,
-            config = config,
+            config = config
         )
     }
 
@@ -61,67 +61,67 @@ internal class InfrastructureCiVisualSectionPlanner(
             "browser" to
                 Position(
                     row = 0,
-                    column = 0,
+                    column = 0
                 ),
             "teamcity-cli" to
                 Position(
                     row = 0,
-                    column = 1,
+                    column = 1
                 ),
             "github-app" to
                 Position(
                     row = 0,
-                    column = 2,
+                    column = 2
                 ),
             "operator" to
                 Position(
                     row = 0,
-                    column = 3,
+                    column = 3
                 ),
             "cloudflare-access" to
                 Position(
                     row = 1,
-                    column = 1,
+                    column = 1
                 ),
             "cloudflare-tunnel" to
                 Position(
                     row = 2,
-                    column = 1,
+                    column = 1
                 ),
             "teamcity-server" to
                 Position(
                     row = 3,
-                    column = 1,
+                    column = 1
                 ),
             "github-repository" to
                 Position(
                     row = 3,
-                    column = 2,
+                    column = 2
                 ),
             "build-agent" to
                 Position(
                     row = 4,
-                    column = 1,
+                    column = 1
                 ),
             "codex-mcp-client" to
                 Position(
                     row = 4,
-                    column = 3,
+                    column = 3
                 ),
             "figma-api" to
                 Position(
                     row = 5,
-                    column = 2,
+                    column = 2
                 ),
             "figma-design-document" to
                 Position(
                     row = 6,
-                    column = 2,
-                ),
+                    column = 2
+                )
         )
 
     private data class Position(
         val row: Int,
-        val column: Int,
+        val column: Int
     )
 }

@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 enum class CiTopologyActivation {
     /** The topology is diagnostic and must not be executed by an adapter. */
     @SerialName("preview-only")
-    PREVIEW_ONLY,
+    PREVIEW_ONLY
 }

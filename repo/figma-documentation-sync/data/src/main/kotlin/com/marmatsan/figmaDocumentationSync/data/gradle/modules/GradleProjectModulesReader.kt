@@ -14,7 +14,7 @@ class GradleProjectModulesReader {
     /** Reads logical module identities from the main build and [includedBuilds]. */
     fun readModules(
         rootSettingsFile: File,
-        includedBuilds: List<IncludedBuild>,
+        includedBuilds: List<IncludedBuild>
     ): Set<String> {
         val rootModules = rootSettingsFile.readIncludedModules()
         val includedBuildModules =
@@ -33,7 +33,7 @@ class GradleProjectModulesReader {
      */
     data class IncludedBuild(
         val settingsFile: File,
-        val modulePathPrefix: String,
+        val modulePathPrefix: String
     )
 
     private fun IncludedBuild.readIncludedBuildModules(): Set<String> {
@@ -42,7 +42,7 @@ class GradleProjectModulesReader {
             if (includedModules.isEmpty() &&
                 settingsFile.parentFile
                     .resolve(
-                        relative = BUILD_FILE_NAME,
+                        relative = BUILD_FILE_NAME
                     ).isFile
             ) {
                 setOf(STANDALONE_ROOT_MODULE)
@@ -53,7 +53,7 @@ class GradleProjectModulesReader {
         return (
             standaloneRootModule + includedModules +
                 includedModules.existingAggregateModules(
-                    rootDir = settingsFile.parentFile,
+                    rootDir = settingsFile.parentFile
                 )
         ).map { module -> "$modulePathPrefix$module" }
             .toSet()
@@ -62,22 +62,22 @@ class GradleProjectModulesReader {
     private fun File.readIncludedModules(): Set<String> =
         stringLiteralRegex
             .findAll(
-                input = readText(),
+                input = readText()
             ).map { match -> match.groupValues[1] }
             .filter { value ->
                 value.startsWith(
-                    prefix = ":",
+                    prefix = ":"
                 )
             }.toSet()
 
     private fun Set<String>.existingAggregateModules(
-        rootDir: File,
+        rootDir: File
     ): Set<String> =
         flatMap { module -> module.parentModules() }
             .filter { module ->
                 rootDir
                     .resolve(
-                        relative = module.toRelativePath(),
+                        relative = module.toRelativePath()
                     ).isDirectory
             }.toSet()
 
@@ -92,7 +92,7 @@ class GradleProjectModulesReader {
     private fun String.toRelativePath(): String =
         removePrefix(":").replace(
             ":",
-            File.separator,
+            File.separator
         )
 
     private companion object {

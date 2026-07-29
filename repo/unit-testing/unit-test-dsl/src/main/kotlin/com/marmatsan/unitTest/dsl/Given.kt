@@ -12,8 +12,8 @@ import com.marmatsan.unitTest.dsl.phase.GivenPhase
  * @return A phase that exposes only the transition to the action.
  */
 suspend fun <GivenValue> given(
-    block: suspend () -> GivenValue,
+    block: suspend () -> GivenValue
 ): GivenPhase<GivenValue> =
     GivenPhase(
-        value = block(),
+        value = block()
     )

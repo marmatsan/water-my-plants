@@ -14,31 +14,31 @@ import com.marmatsan.dependencies.catalog.api.PluginCatalogNode as SourcePluginC
 internal class DependencyCatalogTreeMapper : CatalogTreeMapper {
     /** Maps dependency-catalog library [roots] to a Figma domain tree. */
     override fun libraryTree(
-        roots: List<SourceLibraryCatalogNode>,
+        roots: List<SourceLibraryCatalogNode>
     ): LibraryCatalogTree =
         LibraryCatalogTree(
-            roots = roots.map(::libraryNode),
+            roots = roots.map(::libraryNode)
         )
 
     /** Maps dependency-catalog plugin [roots] to a Figma domain tree. */
     override fun pluginTree(
-        roots: List<SourcePluginCatalogNode>,
+        roots: List<SourcePluginCatalogNode>
     ): PluginCatalogTree =
         PluginCatalogTree(
-            roots = roots.map(::pluginNode),
+            roots = roots.map(::pluginNode)
         )
 
     private fun libraryNode(
-        source: SourceLibraryCatalogNode,
+        source: SourceLibraryCatalogNode
     ): LibraryCatalogNode =
         LibraryCatalogNode(
             group = source.group,
             entries = source.entries.map(::libraryEntry),
-            children = source.children.map(::libraryNode),
+            children = source.children.map(::libraryNode)
         )
 
     private fun libraryEntry(
-        source: SourceLibraryCatalogEntry,
+        source: SourceLibraryCatalogEntry
     ): LibraryCatalogEntry =
         when (source) {
             is SourceLibraryCatalogEntry.Artifact -> {
@@ -46,8 +46,8 @@ internal class DependencyCatalogTreeMapper : CatalogTreeMapper {
                     artifact = source.name,
                     version =
                         CatalogVersion(
-                            value = source.version,
-                        ),
+                            value = source.version
+                        )
                 )
             }
 
@@ -57,18 +57,18 @@ internal class DependencyCatalogTreeMapper : CatalogTreeMapper {
                     artifacts = source.artifacts,
                     version =
                         CatalogVersion(
-                            value = source.version,
-                        ),
+                            value = source.version
+                        )
                 )
             }
         }
 
     private fun pluginNode(
-        source: SourcePluginCatalogNode,
+        source: SourcePluginCatalogNode
     ): PluginCatalogNode =
         PluginCatalogNode(
             id = source.id,
             version = source.version?.let(::CatalogVersion),
-            children = source.children.map(::pluginNode),
+            children = source.children.map(::pluginNode)
         )
 }

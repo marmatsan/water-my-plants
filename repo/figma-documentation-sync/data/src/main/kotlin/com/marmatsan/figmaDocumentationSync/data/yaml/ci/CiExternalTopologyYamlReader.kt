@@ -16,7 +16,7 @@ import java.time.LocalDate
 class CiExternalTopologyYamlReader {
     /** Reads and validates the external topology YAML [file]. */
     fun read(
-        file: File,
+        file: File
     ): CiExternalTopology {
         val settings =
             LoadSettings
@@ -29,12 +29,12 @@ class CiExternalTopologyYamlReader {
                 .use { input ->
                     Load(settings).loadFromInputStream(input)
                 }.asStringMap(
-                    context = "root",
+                    context = "root"
                 )
 
         val validation =
             root.requiredMap(
-                key = "validation",
+                key = "validation"
             )
 
         return CiExternalTopology(
@@ -43,33 +43,33 @@ class CiExternalTopologyYamlReader {
                 CiExternalTopology.Validation(
                     lastValidatedOn =
                         LocalDate.parse(
-                            validation.requiredString("lastValidatedOn"),
+                            validation.requiredString("lastValidatedOn")
                         ),
-                    warnAfterDays = validation.requiredInt("warnAfterDays"),
+                    warnAfterDays = validation.requiredInt("warnAfterDays")
                 ),
             nodes =
                 root
                     .requiredList(
-                        key = "nodes",
+                        key = "nodes"
                     ).map(
-                        transform = ::readNode,
+                        transform = ::readNode
                     ),
             connections =
                 root
                     .requiredList(
-                        key = "connections",
+                        key = "connections"
                     ).map(
-                        transform = ::readConnection,
-                    ),
+                        transform = ::readConnection
+                    )
         )
     }
 
     private fun readNode(
-        value: Any?,
+        value: Any?
     ): CiNode {
         val node =
             value.asStringMap(
-                context = "node",
+                context = "node"
             )
         val serializedType = node.requiredString("type")
         val type =
@@ -81,16 +81,16 @@ class CiExternalTopologyYamlReader {
             id = node.requiredString("id"),
             type = type,
             name = node.requiredString("name"),
-            description = node.requiredString("description"),
+            description = node.requiredString("description")
         )
     }
 
     private fun readConnection(
-        value: Any?,
+        value: Any?
     ): CiConnection {
         val connection =
             value.asStringMap(
-                context = "connection",
+                context = "connection"
             )
         val serializedAutomation = connection.requiredString("automation")
         val automation =
@@ -107,12 +107,12 @@ class CiExternalTopologyYamlReader {
             protocol = connection.optionalString("protocol"),
             authentication =
                 connection.optionalStringList(
-                    key = "authentication",
+                    key = "authentication"
                 ),
             policy = connection.optionalString("policy"),
             path = connection.optionalString("path"),
             automation = automation,
-            annotation = connection.optionalString("annotation"),
+            annotation = connection.optionalString("annotation")
         )
     }
 }

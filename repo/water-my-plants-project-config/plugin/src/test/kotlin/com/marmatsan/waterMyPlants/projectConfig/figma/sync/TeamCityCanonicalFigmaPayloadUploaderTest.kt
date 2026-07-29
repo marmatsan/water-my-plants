@@ -23,7 +23,7 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 "https://mcp.figma.com/mcp/upload/0d188fd2-0c70-46f5-b30a-6dd4f3904998/submit?scaleMode=FILL"
             val temporaryDirectory =
                 tempdir(
-                    prefix = "teamcity-figma-payload-uploader",
+                    prefix = "teamcity-figma-payload-uploader"
                 )
 
             test("uploads the hash-verified PNG from a successful main TeamCity build") {
@@ -31,7 +31,7 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
-                        payload = payload,
+                        payload = payload
                     )
                 val handoffPreparer =
                     TeamCityFigmaSyncHandoffPreparer(
@@ -39,10 +39,10 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                         clock =
                             Clock.fixed(
                                 Instant.parse(
-                                    "2026-07-19T08:00:00Z",
+                                    "2026-07-19T08:00:00Z"
                                 ),
-                                ZoneOffset.UTC,
-                            ),
+                                ZoneOffset.UTC
+                            )
                     )
                 var uploadedUrl = ""
                 var uploadedBytes = byteArrayOf()
@@ -52,7 +52,7 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                         uploadPng = { url, bytes ->
                             uploadedUrl = url
                             uploadedBytes = bytes
-                        },
+                        }
                     )
 
                 val result =
@@ -62,8 +62,8 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                             artifactDirectory = null,
                             uploadUrl = uploadUrl,
                             destinationRoot = root,
-                            expectedGitSha = "abc123",
-                        ),
+                            expectedGitSha = "abc123"
+                        )
                     )
 
                 uploadedUrl shouldBe uploadUrl
@@ -74,11 +74,11 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 result.payloadByteLength shouldBe payload.size
                 result.payloadSha256 shouldBe
                     Sha256Hash.of(
-                        value = payload,
+                        value = payload
                     )
                 result.artifactDirectory
                     .resolve(
-                        relative = "figma-sync-handoff.json",
+                        relative = "figma-sync-handoff.json"
                     ).shouldExist()
             }
 
@@ -87,11 +87,11 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 val payload = PayloadPngEncoder().encode("{\"canonical\":true}")
                 val client =
                     fixtureClient(
-                        payload = payload,
+                        payload = payload
                     ) { outputDirectory ->
                         val path =
                             outputDirectory.resolve(
-                                relative = "mcp-runners/visual/10-canonical-sync-payload.png",
+                                relative = "mcp-runners/visual/10-canonical-sync-payload.png"
                             )
                         val tampered = path.readBytes()
                         tampered[tampered.lastIndex] = (tampered.last() + 1).toByte()
@@ -102,9 +102,9 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                     TeamCityCanonicalFigmaPayloadUploader(
                         handoffPreparer =
                             TeamCityFigmaSyncHandoffPreparer(
-                                teamCityClient = client,
+                                teamCityClient = client
                             ),
-                        uploadPng = { _, _ -> uploads += 1 },
+                        uploadPng = { _, _ -> uploads += 1 }
                     )
 
                 val failure =
@@ -114,13 +114,13 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                                 buildId = 1672,
                                 artifactDirectory = null,
                                 uploadUrl = uploadUrl,
-                                destinationRoot = root,
-                            ),
+                                destinationRoot = root
+                            )
                         )
                     }
 
                 failure.message?.startsWith(
-                    prefix = "Canonical PNG payload hash mismatch:",
+                    prefix = "Canonical PNG payload hash mismatch:"
                 ) shouldBe true
                 uploads shouldBe 0
             }
@@ -130,23 +130,23 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                 val artifacts =
                     root
                         .resolve(
-                            relative = "artifacts",
+                            relative = "artifacts"
                         ).apply {
                             mkdirs()
                             writeArtifactFixture(
-                                payloadBytes = PayloadPngEncoder().encode("{\"canonical\":true}"),
+                                payloadBytes = PayloadPngEncoder().encode("{\"canonical\":true}")
                             )
                         }
                 val client =
                     object : TeamCityBuildArtifactClient {
                         override fun readBuild(
-                            buildId: Long,
+                            buildId: Long
                         ): TeamCityBuild =
                             error("TeamCity must not be called")
 
                         override fun downloadArtifacts(
                             buildId: Long,
-                            outputDirectory: File,
+                            outputDirectory: File
                         ) =
                             error("TeamCity must not be called")
                     }
@@ -155,9 +155,9 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                     TeamCityCanonicalFigmaPayloadUploader(
                         handoffPreparer =
                             TeamCityFigmaSyncHandoffPreparer(
-                                teamCityClient = client,
+                                teamCityClient = client
                             ),
-                        uploadPng = { _, _ -> uploads += 1 },
+                        uploadPng = { _, _ -> uploads += 1 }
                     )
 
                 val missingRevision =
@@ -167,8 +167,8 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                                 buildId = null,
                                 artifactDirectory = artifacts,
                                 uploadUrl = uploadUrl,
-                                destinationRoot = root,
-                            ),
+                                destinationRoot = root
+                            )
                         )
                     }
                 missingRevision.message shouldBe
@@ -180,22 +180,22 @@ internal class TeamCityCanonicalFigmaPayloadUploaderTest :
                         artifactDirectory = artifacts,
                         uploadUrl = uploadUrl,
                         destinationRoot = root,
-                        expectedGitSha = "abc123",
-                    ),
+                        expectedGitSha = "abc123"
+                    )
                 )
 
                 uploads shouldBe 1
             }
-        },
+        }
     )
 
 private fun fixtureClient(
     payload: ByteArray,
-    afterWrite: (File) -> Unit = {},
+    afterWrite: (File) -> Unit = {}
 ): TeamCityBuildArtifactClient =
     object : TeamCityBuildArtifactClient {
         override fun readBuild(
-            buildId: Long,
+            buildId: Long
         ): TeamCityBuild =
             TeamCityBuild(
                 id = buildId,
@@ -203,15 +203,15 @@ private fun fixtureClient(
                 status = "SUCCESS",
                 branchName = "main",
                 buildTypeName = "Generate main design model",
-                webUrl = null,
+                webUrl = null
             )
 
         override fun downloadArtifacts(
             buildId: Long,
-            outputDirectory: File,
+            outputDirectory: File
         ) {
             outputDirectory.writeArtifactFixture(
-                payloadBytes = payload,
+                payloadBytes = payload
             )
             afterWrite(outputDirectory)
         }

@@ -15,7 +15,7 @@ internal class CanonicalFigmaSyncScopeJsonTest :
                 try {
                     val path =
                         directory.resolve(
-                            relative = "sync-scope.json",
+                            relative = "sync-scope.json"
                         )
                     val expected =
                         CanonicalFigmaSyncScope(
@@ -33,13 +33,13 @@ internal class CanonicalFigmaSyncScopeJsonTest :
                             visualRunnerManifestHash = null,
                             metadataRunnerManifestHash = null,
                             visualSyncDecision = null,
-                            visualSyncPlanHash = null,
+                            visualSyncPlanHash = null
                         )
 
                     val adapter = CanonicalFigmaSyncScopeJson()
                     adapter.write(
                         expected,
-                        path.absolutePath,
+                        path.absolutePath
                     )
 
                     adapter.read(path.absolutePath) shouldBe expected
@@ -54,34 +54,34 @@ internal class CanonicalFigmaSyncScopeJsonTest :
                     val visual =
                         directory
                             .resolve(
-                                relative = "visual/manifest.json",
+                                relative = "visual/manifest.json"
                             ).apply {
                                 parentFile.mkdirs()
                                 writeText(
                                     manifest(
                                         fullVisualSync = true,
                                         writeMetadata = false,
-                                        hash = "visual-hash",
-                                    ),
+                                        hash = "visual-hash"
+                                    )
                                 )
                             }
                     directory
                         .resolve(
-                            relative = "metadata/manifest.json",
+                            relative = "metadata/manifest.json"
                         ).apply {
                             parentFile.mkdirs()
                             writeText(
                                 manifest(
                                     fullVisualSync = false,
                                     writeMetadata = true,
-                                    hash = "metadata-hash",
-                                ),
+                                    hash = "metadata-hash"
+                                )
                             )
                         }
 
                     val manifests =
                         CanonicalFigmaSyncScopeJson().readRunnerManifests(
-                            rootPath = directory.absolutePath,
+                            rootPath = directory.absolutePath
                         )
 
                     manifests.single { it.fullVisualSync }.path shouldBe
@@ -95,13 +95,13 @@ internal class CanonicalFigmaSyncScopeJsonTest :
                     directory.deleteRecursively()
                 }
             }
-        },
+        }
     )
 
 private fun manifest(
     fullVisualSync: Boolean,
     writeMetadata: Boolean,
-    hash: String,
+    hash: String
 ) =
     """
     {

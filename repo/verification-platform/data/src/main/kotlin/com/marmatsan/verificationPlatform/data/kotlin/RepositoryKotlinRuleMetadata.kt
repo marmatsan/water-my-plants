@@ -9,6 +9,6 @@ internal object RepositoryKotlinRuleMetadata {
         About(
             maintainer = "Repository Verification",
             repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-            issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
+            issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues"
         )
 }

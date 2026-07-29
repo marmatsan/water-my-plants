@@ -19,18 +19,18 @@ import com.marmatsan.dependencies.tree.node.Node
 fun pluginTree(
     rootId: String,
     version: String? = null,
-    content: PluginScope.() -> Unit = {},
+    content: PluginScope.() -> Unit = {}
 ): Node<DependencyNode.Plugin> {
     val root =
         Node(
             DependencyNode.Plugin(
                 pluginId = rootId,
-                version = version,
-            ),
+                version = version
+            )
         )
     val scope =
         PluginScope(
-            root = root,
+            root = root
         )
     scope.content()
     return root

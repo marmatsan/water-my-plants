@@ -28,7 +28,7 @@ internal class VersionCatalogExtensionTest :
                     every { provider.get() } returns dependency
                     every { versionCatalog.findLibrary("androidx.compose.bom") } returns
                         Optional.of(
-                            provider,
+                            provider
                         )
 
                     dependencyNotation to versionCatalog
@@ -46,17 +46,17 @@ internal class VersionCatalogExtensionTest :
 
                     every {
                         versionCatalog.findBundle(
-                            "composeBundle",
+                            "composeBundle"
                         )
                     } returns
                         Optional.of(
-                            provider,
+                            provider
                         )
 
                     provider to versionCatalog
                 }.whenever { (expectedProvider, versionCatalog) ->
                     versionCatalog.requireBundle(
-                        alias = "composeBundle",
+                        alias = "composeBundle"
                     ) to expectedProvider
                 }.then { (actualProvider, expectedProvider) ->
                     actualProvider shouldBeSameInstanceAs expectedProvider
@@ -74,14 +74,14 @@ internal class VersionCatalogExtensionTest :
                     every { provider.get() } returns dependency
                     every { versionCatalog.findLibrary("androidx.compose.bom") } returns
                         Optional.of(
-                            provider,
+                            provider
                         )
 
                     dependencyNotation to versionCatalog
                 }.whenever { (expectedNotation, versionCatalog) ->
                     versionCatalog.requireDependencyNotation(
                         libraryGroup = "androidx.compose",
-                        artifact = "compose-bom",
+                        artifact = "compose-bom"
                     ) to expectedNotation
                 }.then { (actualNotation, expectedNotation) ->
                     actualNotation shouldBe expectedNotation
@@ -99,14 +99,14 @@ internal class VersionCatalogExtensionTest :
                     every { provider.get() } returns dependency
                     every { versionCatalog.findLibrary("org.junit.jupiter.api") } returns
                         Optional.of(
-                            provider,
+                            provider
                         )
 
                     dependencyNotation to versionCatalog
                 }.whenever { (expectedNotation, versionCatalog) ->
                     versionCatalog.requireDependencyNotation(
                         libraryGroup = "org.junit.jupiter",
-                        artifact = "junit-jupiter-api",
+                        artifact = "junit-jupiter-api"
                     ) to expectedNotation
                 }.then { (actualNotation, expectedNotation) ->
                     actualNotation shouldBe expectedNotation
@@ -135,14 +135,14 @@ internal class VersionCatalogExtensionTest :
                     every { versionCatalog.name } returns "libs"
                     every {
                         versionCatalog.findBundle(
-                            "missingBundle",
+                            "missingBundle"
                         )
                     } returns Optional.empty()
                     versionCatalog
                 }.whenever { versionCatalog ->
                     shouldThrow<NoSuchElementException> {
                         versionCatalog.requireBundle(
-                            alias = "missingBundle",
+                            alias = "missingBundle"
                         )
                     }
                 }.then { exception ->
@@ -150,5 +150,5 @@ internal class VersionCatalogExtensionTest :
                         "Bundle alias 'missingBundle' not found in version catalog named libs"
                 }
             }
-        },
+        }
     )

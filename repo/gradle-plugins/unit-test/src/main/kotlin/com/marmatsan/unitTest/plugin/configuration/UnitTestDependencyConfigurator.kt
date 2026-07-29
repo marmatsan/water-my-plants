@@ -18,7 +18,7 @@ internal class UnitTestDependencyConfigurator {
      * @param project Gradle project receiving the shared test dependencies.
      */
     fun configure(
-        project: Project,
+        project: Project
     ) {
         val versionCatalogs = project.extensions.getByType<VersionCatalogsExtension>()
         val productLibraries = versionCatalogs.named("libs")
@@ -27,25 +27,25 @@ internal class UnitTestDependencyConfigurator {
         project.dependencies {
             val catalogDependencies =
                 withVersionCatalog(
-                    libs = productLibraries,
+                    libs = productLibraries
                 )
 
             catalogDependencies.testImplementationBundle(
-                bundle = "kotest",
+                bundle = "kotest"
             )
             catalogDependencies.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",
-                artifact = "junit-platform-launcher",
+                artifact = "junit-platform-launcher"
             )
             catalogDependencies.testImplementation(
                 libraryGroup = "io.mockk",
-                artifact = "mockk",
+                artifact = "mockk"
             )
             withVersionCatalog(
-                libs = testLibraries,
+                libs = testLibraries
             ).testImplementation(
                 libraryGroup = "com.marmatsan.repo",
-                artifact = "unit-test-dsl",
+                artifact = "unit-test-dsl"
             )
         }
     }

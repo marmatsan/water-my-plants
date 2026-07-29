@@ -6,12 +6,12 @@ import java.io.File
 interface TeamCityBuildArtifactClient {
     /** Reads the build identity that must be validated before artifact use. */
     fun readBuild(
-        buildId: Long,
+        buildId: Long
     ): TeamCityBuild
 
     /** Downloads the complete published artifact set for [buildId] into [outputDirectory]. */
     fun downloadArtifacts(
         buildId: Long,
-        outputDirectory: File,
+        outputDirectory: File
     )
 }

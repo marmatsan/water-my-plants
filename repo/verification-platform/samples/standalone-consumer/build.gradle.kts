@@ -16,8 +16,8 @@ tasks.register("verifyPluginApplication") {
                 "generateCiPlan",
                 "checkIncludedBuildVersions",
                 "checkModuleBoundaries",
-                "checkDocumentation",
-            ).all(tasks.names::contains),
+                "checkDocumentation"
+            ).all(tasks.names::contains)
         )
     }
 }

@@ -6,13 +6,13 @@ import com.marmatsan.figmaDocumentationSync.domain.model.visual.CiVisualPlan
 internal class JobTasksCiVisualSectionPlanner : CiVisualSectionPlanner {
     /** Builds the effective CI job tasks and outcomes section. */
     override fun create(
-        context: CiVisualPlanningContext,
+        context: CiVisualPlanningContext
     ): CiVisualPlan.Section {
         val config = context.config
         val nodes =
             listOf(
                 context.ciPipeline,
-                context.figmaPipeline,
+                context.figmaPipeline
             ).flatMap { pipeline -> jobsInDependencyOrder(pipeline).map { job -> pipeline to job } }
                 .filter { (_, job) -> visualPhases(job).isNotEmpty() || visualOutcomes(job).isNotEmpty() }
                 .mapIndexed { index, (pipeline, job) ->
@@ -22,7 +22,7 @@ internal class JobTasksCiVisualSectionPlanner : CiVisualSectionPlanner {
                         job = job,
                         row = 0,
                         column = index,
-                        config = config,
+                        config = config
                     )
                 }
         return visualSection(
@@ -32,12 +32,12 @@ internal class JobTasksCiVisualSectionPlanner : CiVisualSectionPlanner {
             sources =
                 listOf(
                     config.teamCitySource,
-                    config.visualContractSource,
+                    config.visualContractSource
                 ),
             orientation = CiVisualPlan.Orientation.GRID,
             nodes = nodes,
             connections = emptyList(),
-            config = config,
+            config = config
         )
     }
 }

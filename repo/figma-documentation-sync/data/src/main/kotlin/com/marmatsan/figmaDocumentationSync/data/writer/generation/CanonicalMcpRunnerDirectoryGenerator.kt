@@ -13,7 +13,7 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
     private val stagingPlanner: CanonicalMcpRunnerStagingPlanner,
     private val targetPlanner: CanonicalMcpRunnerTargetPlanner,
     private val manifestJson: ExecutableRunnerManifestJson,
-    private val directoryStore: CanonicalMcpRunnerDirectoryStore = CanonicalMcpRunnerDirectoryStore(),
+    private val directoryStore: CanonicalMcpRunnerDirectoryStore = CanonicalMcpRunnerDirectoryStore()
 ) {
     /** Recreates and generates one runner for [targets]. */
     fun generate(
@@ -21,7 +21,7 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
         outputDirectory: Path,
         targets: List<String>,
         writeMetadata: Boolean,
-        fullVisualSync: Boolean,
+        fullVisualSync: Boolean
     ): ExecutableRunnerManifest {
         directoryStore.recreate(outputDirectory)
         val sources = linkedMapOf<String, String>()
@@ -29,7 +29,7 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
             stagingPlanner.stage(
                 context = context,
                 outputDirectory = outputDirectory,
-                sources = sources,
+                sources = sources
             )
         val executionScopes =
             targetPlanner.addTargetSources(
@@ -37,11 +37,11 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
                 context = context,
                 targets = targets,
                 writeMetadata = writeMetadata,
-                fullVisualSync = fullVisualSync,
+                fullVisualSync = fullVisualSync
             )
         directoryStore.writeSources(
             directory = outputDirectory,
-            sources = sources,
+            sources = sources
         )
         val fileHashes =
             sources.mapValues { (_, source) ->
@@ -67,12 +67,12 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
                 modelPath =
                     directoryStore.portablePath(
                         toolsDirectory = context.request.toolsDirectory,
-                        path = context.request.modelPath,
+                        path = context.request.modelPath
                     ),
                 scriptPath =
                     directoryStore.portablePath(
                         toolsDirectory = context.request.toolsDirectory,
-                        path = context.request.scriptPath,
+                        path = context.request.scriptPath
                     ),
                 modelHash = context.modelHash,
                 gitSha = context.gitSha,
@@ -87,11 +87,11 @@ internal class CanonicalMcpRunnerDirectoryGenerator(
                 payloadImage = payloadImage,
                 files = sources.keys.toList(),
                 fileHashes = fileHashes,
-                manifestHash = "",
+                manifestHash = ""
             )
         return manifestJson.finalizeAndWrite(
             draft = manifestDraft,
-            outputPath = outputDirectory.resolve(CanonicalMcpRunnerGenerationContract.MANIFEST_FILE).toString(),
+            outputPath = outputDirectory.resolve(CanonicalMcpRunnerGenerationContract.MANIFEST_FILE).toString()
         )
     }
 }

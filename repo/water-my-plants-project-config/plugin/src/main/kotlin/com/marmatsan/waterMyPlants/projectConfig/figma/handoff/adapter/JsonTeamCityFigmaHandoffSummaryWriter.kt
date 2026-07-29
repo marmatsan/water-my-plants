@@ -10,14 +10,14 @@ internal class JsonTeamCityFigmaHandoffSummaryWriter : TeamCityFigmaHandoffSumma
     /** Writes pretty, deterministic [summary] JSON into [artifactDirectory]. */
     override fun write(
         artifactDirectory: File,
-        summary: JsonObject,
+        summary: JsonObject
     ): File {
         val summaryFile = artifactDirectory.resolve("figma-sync-handoff.json")
         summaryFile.writeText(
             prettyJson.encodeToString(
                 JsonObject.serializer(),
-                summary,
-            ) + System.lineSeparator(),
+                summary
+            ) + System.lineSeparator()
         )
         return summaryFile
     }

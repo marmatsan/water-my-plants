@@ -4,32 +4,32 @@ package com.marmatsan.verificationPlatform.domain.service.documentation
 internal class DocumentationPathResolver {
     /** Returns a slash-separated repository path without leading relative markers. */
     fun normalize(
-        path: String,
+        path: String
     ): String =
         path
             .trim()
             .replace(
                 '\\',
-                '/',
+                '/'
             ).trimStart(
                 '.',
-                '/',
+                '/'
             )
 
     /** Returns whether a literal or wildcard source declaration matches a repository entry. */
     fun sourceExists(
         source: String,
-        repositoryEntries: Set<String>,
+        repositoryEntries: Set<String>
     ): Boolean {
         val normalized =
             normalize(
-                path = source,
+                path = source
             )
         return if (normalized.any { character -> character == '*' || character == '?' }) {
             repositoryEntries.any { entry ->
                 wildcardMatches(
                     path = entry,
-                    pattern = normalized,
+                    pattern = normalized
                 )
             }
         } else {
@@ -40,15 +40,15 @@ internal class DocumentationPathResolver {
     /** Returns whether [path] matches at least one normalized wildcard pattern. */
     fun matchesAny(
         path: String,
-        patterns: List<String>,
+        patterns: List<String>
     ): Boolean =
         patterns.any { pattern ->
             wildcardMatches(
                 path = path,
                 pattern =
                     normalize(
-                        path = pattern,
-                    ),
+                        path = pattern
+                    )
             )
         }
 
@@ -59,7 +59,7 @@ internal class DocumentationPathResolver {
      */
     fun resolve(
         documentPath: String,
-        targetPath: String,
+        targetPath: String
     ): String? {
         val parts =
             if (targetPath.startsWith('/')) {
@@ -68,7 +68,7 @@ internal class DocumentationPathResolver {
                 documentPath
                     .substringBeforeLast(
                         '/',
-                        "",
+                        ""
                     ).split('/')
                     .filter(String::isNotEmpty) +
                     targetPath.split('/')
@@ -86,7 +86,7 @@ internal class DocumentationPathResolver {
 
     private fun wildcardMatches(
         path: String,
-        pattern: String,
+        pattern: String
     ): Boolean {
         val regex =
             buildString {
@@ -102,11 +102,11 @@ internal class DocumentationPathResolver {
             }
         return Regex(
             regex,
-            RegexOption.IGNORE_CASE,
+            RegexOption.IGNORE_CASE
         ).matches(
             normalize(
-                path = path,
-            ),
+                path = path
+            )
         )
     }
 }

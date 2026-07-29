@@ -6,172 +6,172 @@ import org.gradle.kotlin.dsl.DependencyHandlerScope
 
 class VersionCatalogDependencyHandler internal constructor(
     private val dependencies: DependencyHandlerScope,
-    private val libs: VersionCatalog,
+    private val libs: VersionCatalog
 ) {
     fun implementation(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.implementation(
             dependencyNotation =
                 libs.requireDependencyNotation(
                     libraryGroup = libraryGroup,
-                    artifact = artifact,
-                ),
+                    artifact = artifact
+                )
         )
 
     fun implementationBundle(
-        bundle: String,
+        bundle: String
     ) {
         addBundle(
             configuration = "implementation",
-            bundle = bundle,
+            bundle = bundle
         )
     }
 
     /** Adds every dependency in [bundle] to the `testImplementation` configuration. */
     fun testImplementationBundle(
-        bundle: String,
+        bundle: String
     ) {
         addBundle(
             configuration = "testImplementation",
-            bundle = bundle,
+            bundle = bundle
         )
     }
 
     fun implementationPlatform(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.implementation(
             dependency =
                 dependencies.platform(
                     libs.requireDependencyNotation(
                         libraryGroup = libraryGroup,
-                        artifact = artifact,
-                    ),
-                ),
+                        artifact = artifact
+                    )
+                )
         )
 
     fun testImplementation(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.testImplementation(
             dependencyNotation =
                 libs.requireDependencyNotation(
                     libraryGroup = libraryGroup,
-                    artifact = artifact,
-                ),
+                    artifact = artifact
+                )
         )
 
     fun testImplementationPlatform(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.testImplementation(
             dependency =
                 dependencies.platform(
                     libs.requireDependencyNotation(
                         libraryGroup = libraryGroup,
-                        artifact = artifact,
-                    ),
-                ),
+                        artifact = artifact
+                    )
+                )
         )
 
     fun testRuntimeOnly(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.testRuntimeOnly(
             dependencyNotation =
                 libs.requireDependencyNotation(
                     libraryGroup = libraryGroup,
-                    artifact = artifact,
-                ),
+                    artifact = artifact
+                )
         )
 
     fun ksp(
         libraryGroup: String,
-        artifact: String,
+        artifact: String
     ): Dependency? =
         dependencies.ksp(
             dependencyNotation =
                 libs.requireDependencyNotation(
                     libraryGroup = libraryGroup,
-                    artifact = artifact,
-                ),
+                    artifact = artifact
+                )
         )
 
     private fun addBundle(
         configuration: String,
-        bundle: String,
+        bundle: String
     ) {
         libs
             .requireBundle(
-                alias = bundle,
+                alias = bundle
             ).get()
             .forEach { dependency ->
                 dependencies.add(
                     configuration,
-                    dependency,
+                    dependency
                 )
             }
     }
 }
 
 fun DependencyHandlerScope.withVersionCatalog(
-    libs: VersionCatalog,
+    libs: VersionCatalog
 ): VersionCatalogDependencyHandler =
     VersionCatalogDependencyHandler(
         dependencies = this,
-        libs = libs,
+        libs = libs
     )
 
 fun DependencyHandlerScope.implementation(
-    dependencyNotation: String,
+    dependencyNotation: String
 ): Dependency? =
     add(
         "implementation",
-        dependencyNotation,
+        dependencyNotation
     )
 
 fun DependencyHandlerScope.implementation(
-    dependency: Dependency,
+    dependency: Dependency
 ): Dependency? =
     add(
         "implementation",
-        dependency,
+        dependency
     )
 
 fun DependencyHandlerScope.testImplementation(
-    dependencyNotation: String,
+    dependencyNotation: String
 ): Dependency? =
     add(
         "testImplementation",
-        dependencyNotation,
+        dependencyNotation
     )
 
 fun DependencyHandlerScope.testImplementation(
-    dependency: Dependency,
+    dependency: Dependency
 ): Dependency? =
     add(
         "testImplementation",
-        dependency,
+        dependency
     )
 
 fun DependencyHandlerScope.testRuntimeOnly(
-    dependencyNotation: String,
+    dependencyNotation: String
 ): Dependency? =
     add(
         "testRuntimeOnly",
-        dependencyNotation,
+        dependencyNotation
     )
 
 fun DependencyHandlerScope.ksp(
-    dependencyNotation: String,
+    dependencyNotation: String
 ): Dependency? =
     add(
         "ksp",
-        dependencyNotation,
+        dependencyNotation
     )

@@ -14,5 +14,5 @@ data class FigmaChangeImpact(
     val impact: FigmaImpact,
     val affectedVisualTargets: List<String>,
     val comparisonBase: String?,
-    val changedPaths: List<String>,
+    val changedPaths: List<String>
 )

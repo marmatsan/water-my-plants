@@ -32,7 +32,7 @@ sealed interface ProjectCatalogTreeSource {
     data class DependenciesDslVersionAliases(
         val rootDirPath: String,
         val providerClassName: String,
-        val conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList(),
+        val conventionPluginIncludedBuilds: List<IncludedBuildSource> = emptyList()
     ) : ProjectCatalogTreeSource
 
     /**
@@ -41,7 +41,7 @@ sealed interface ProjectCatalogTreeSource {
      * @property includedBuild Included build containing the settings catalogs.
      */
     data class IncludedBuildSettings(
-        val includedBuild: IncludedBuildSource,
+        val includedBuild: IncludedBuildSource
     ) : ProjectCatalogTreeSource
 
     /**
@@ -56,7 +56,7 @@ sealed interface ProjectCatalogTreeSource {
      */
     data class CustomGradleConventionPlugins(
         val rootDirPath: String,
-        val includedBuilds: List<IncludedBuildSource>,
+        val includedBuilds: List<IncludedBuildSource>
     ) : ProjectCatalogTreeSource
 
     /**
@@ -68,6 +68,6 @@ sealed interface ProjectCatalogTreeSource {
      * @property rootDirPath Repository root containing project modules.
      */
     data class CustomGradlePlugins(
-        val rootDirPath: String,
+        val rootDirPath: String
     ) : ProjectCatalogTreeSource
 }

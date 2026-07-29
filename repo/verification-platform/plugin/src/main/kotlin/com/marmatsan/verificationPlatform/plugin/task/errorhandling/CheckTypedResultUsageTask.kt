@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
 
 /** Enforces the configured typed-result implementation across production Kotlin sources. */
 @DisableCachingByDefault(
-    because = "This validation produces no reusable output artifact",
+    because = "This validation produces no reusable output artifact"
 )
 abstract class CheckTypedResultUsageTask : DefaultTask() {
     /** Repository root used to report stable relative source paths. */
@@ -41,7 +41,7 @@ abstract class CheckTypedResultUsageTask : DefaultTask() {
         val root = repositoryRoot.get().asFile
         val validator =
             TypedResultUsageValidator(
-                acceptedResultQualifiedName = acceptedResult,
+                acceptedResultQualifiedName = acceptedResult
             )
         val violations =
             inspectedFiles.files
@@ -52,25 +52,25 @@ abstract class CheckTypedResultUsageTask : DefaultTask() {
                             relativePath =
                                 file.relativeTo(root).path.replace(
                                     oldChar = '\\',
-                                    newChar = '/',
+                                    newChar = '/'
                                 ),
-                            source = file.readText(),
+                            source = file.readText()
                         ).fold(
                             { emptyList() },
-                            { error -> error.violations },
+                            { error -> error.violations }
                         )
                 }.sortedWith(
                     compareBy(
                         { violation -> violation.relativePath },
                         { violation -> violation.lineNumber },
-                        { violation -> violation.reason },
-                    ),
+                        { violation -> violation.reason }
+                    )
                 )
 
         check(violations.isEmpty()) {
             violations.joinToString(
                 prefix = "Typed Result verification failed:\n- ",
-                separator = "\n- ",
+                separator = "\n- "
             ) { violation ->
                 "${violation.relativePath}:${violation.lineNumber} ${violation.reason}"
             }

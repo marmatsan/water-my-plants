@@ -14,7 +14,7 @@ internal class CheckTypedResultUsageTaskTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "typed-result-usage-task",
+                    prefix = "typed-result-usage-task"
                 )
 
             test("remains inactive until a consumer configures a standard Result") {
@@ -22,7 +22,7 @@ internal class CheckTypedResultUsageTaskTest :
                     typedResultFixture(
                         projectDirectory = temporaryDirectory.resolve("unconfigured"),
                         source = "import kotlin.Result",
-                        acceptedResultQualifiedName = null,
+                        acceptedResultQualifiedName = null
                     )
                 }.whenever { task ->
                     shouldNotThrowAny(task::checkTypedResultUsage)
@@ -40,7 +40,7 @@ internal class CheckTypedResultUsageTaskTest :
                             import com.github.michaelbull.result.Result
 
                             fun load(): Result<String, LoadError> = TODO()
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { task ->
                     shouldNotThrowAny(task::checkTypedResultUsage)
@@ -56,23 +56,23 @@ internal class CheckTypedResultUsageTaskTest :
                             package example
 
                             import kotlin.Result
-                            """.trimIndent(),
+                            """.trimIndent()
                     )
                 }.whenever { task ->
                     shouldThrow<IllegalStateException>(task::checkTypedResultUsage)
                 }.then { Unit }
             }
-        },
+        }
     )
 
 private fun typedResultFixture(
     projectDirectory: File,
     source: String,
-    acceptedResultQualifiedName: String? = "com.github.michaelbull.result.Result",
+    acceptedResultQualifiedName: String? = "com.github.michaelbull.result.Result"
 ): CheckTypedResultUsageTask {
     val project =
         temporaryProject(
-            projectDirectory = projectDirectory,
+            projectDirectory = projectDirectory
         )
     val sourceFile =
         project.projectDir
@@ -84,7 +84,7 @@ private fun typedResultFixture(
     return project.tasks
         .register(
             "checkTypedResultUsage",
-            CheckTypedResultUsageTask::class.java,
+            CheckTypedResultUsageTask::class.java
         ).get()
         .apply {
             repositoryRoot.set(project.layout.projectDirectory)
@@ -94,7 +94,7 @@ private fun typedResultFixture(
 }
 
 private fun temporaryProject(
-    projectDirectory: File,
+    projectDirectory: File
 ): Project =
     ProjectBuilder
         .builder()

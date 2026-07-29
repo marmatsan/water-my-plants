@@ -42,5 +42,5 @@ internal data class FigmaDesignModelGenerationRequest(
     val ciWindowsRuntimeFile: File?,
     val ciGeneratedConfigurationDirectory: File?,
     val projectRootDirectory: File,
-    val includedBuilds: List<FigmaDesignModelIncludedBuildSource>,
+    val includedBuilds: List<FigmaDesignModelIncludedBuildSource>
 )

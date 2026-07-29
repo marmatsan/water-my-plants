@@ -13,39 +13,39 @@ internal class GradlePluginTreeReaderTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "gradle-plugin-tree-reader",
+                    prefix = "gradle-plugin-tree-reader"
                 )
 
             test("readPluginTree detects regular Gradle plugins and ignores convention plugins") {
                 given {
                     val rootDir = temporaryDirectory.resolve("project").apply { mkdirs() }
                     rootDir.writeSettingsFile(
-                        path = "repo/gradle-plugins",
+                        path = "repo/gradle-plugins"
                     )
                     rootDir.writeSettingsFile(
-                        path = "repo/figma-documentation-sync",
+                        path = "repo/figma-documentation-sync"
                     )
                     rootDir.writeGradlePluginBuildFile(
                         path = "repo/figma-documentation-sync/plugin",
                         pluginName = "com.marmatsan.figmaDocumentationSync",
-                        implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin",
+                        implementationClass = "\${pluginName}.plugin.gradle.FigmaDocumentationSyncGradlePlugin"
                     )
                     rootDir.writeGradlePluginBuildFile(
                         path = "repo/gradle-plugins/analytics",
                         pluginName = "com.marmatsan.analytics",
-                        implementationClass = "\${pluginName}.plugin.AnalyticsGradlePlugin",
+                        implementationClass = "\${pluginName}.plugin.AnalyticsGradlePlugin"
                     )
                     rootDir.writeGradlePluginBuildFile(
                         path = "repo/gradle-plugins/android",
                         pluginName = "com.marmatsan.android",
-                        implementationClass = "\${pluginName}.plugin.AndroidGradleConventionPlugin",
+                        implementationClass = "\${pluginName}.plugin.AndroidGradleConventionPlugin"
                     )
                     rootDir
                 }.whenever { rootDir ->
                     GradlePluginTreeReader().readPluginTree(
                         rootDir = rootDir,
                         includedPluginIds = setOf("com.marmatsan.figmaDocumentationSync"),
-                        usageByPluginId = emptyMap(),
+                        usageByPluginId = emptyMap()
                     )
                 }.then { actualTree ->
                     actualTree shouldBe
@@ -61,46 +61,46 @@ internal class GradlePluginTreeReaderTest :
                                                     children =
                                                         listOf(
                                                             PluginCatalogNode(
-                                                                id = "figmaDocumentationSync",
-                                                            ),
-                                                        ),
-                                                ),
-                                            ),
-                                    ),
-                                ),
+                                                                id = "figmaDocumentationSync"
+                                                            )
+                                                        )
+                                                )
+                                            )
+                                    )
+                                )
                         )
                 }
             }
-        },
+        }
     )
 
 private fun File.writeSettingsFile(
-    path: String,
+    path: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "settings.gradle.kts",
+            relative = "settings.gradle.kts"
         ).writeText("rootProject.name = \"${directory.name}\"")
 }
 
 private fun File.writeGradlePluginBuildFile(
     path: String,
     pluginName: String,
-    implementationClass: String,
+    implementationClass: String
 ) {
     val directory =
         resolve(
-            relative = path,
+            relative = path
         )
     directory.mkdirs()
     directory
         .resolve(
-            relative = "build.gradle.kts",
+            relative = "build.gradle.kts"
         ).writeText(
             """
             plugins {
@@ -115,6 +115,6 @@ private fun File.writeGradlePluginBuildFile(
                     implementationClass = "$implementationClass"
                 }
             }
-            """.trimIndent(),
+            """.trimIndent()
         )
 }

@@ -16,5 +16,5 @@ internal data class TypedDocumentationContext(
     val expectedType: String,
     val frontmatter: DocumentationFrontmatter,
     val repositoryEntries: Set<String>,
-    val currentDate: LocalDate,
+    val currentDate: LocalDate
 )

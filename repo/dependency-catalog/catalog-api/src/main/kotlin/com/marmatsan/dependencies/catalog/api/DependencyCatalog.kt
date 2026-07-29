@@ -8,7 +8,7 @@ package com.marmatsan.dependencies.catalog.api
  */
 data class DependencyCatalog(
     val libraries: List<LibraryCatalogNode>,
-    val plugins: List<PluginCatalogNode>,
+    val plugins: List<PluginCatalogNode>
 )
 
 /**
@@ -22,12 +22,12 @@ data class DependencyCatalog(
 data class LibraryCatalogNode(
     val group: String,
     val entries: List<LibraryCatalogEntry> = emptyList(),
-    val children: List<LibraryCatalogNode> = emptyList(),
+    val children: List<LibraryCatalogNode> = emptyList()
 ) {
     init {
         requireCatalogPathSegment(
             name = "Library group",
-            value = group,
+            value = group
         )
     }
 }
@@ -42,7 +42,7 @@ sealed interface LibraryCatalogEntry {
      */
     data class Artifact(
         val name: String,
-        val version: String?,
+        val version: String?
     ) : LibraryCatalogEntry
 
     /**
@@ -55,7 +55,7 @@ sealed interface LibraryCatalogEntry {
     data class Bundle(
         val alias: String,
         val artifacts: List<String>,
-        val version: String?,
+        val version: String?
     ) : LibraryCatalogEntry
 }
 
@@ -70,12 +70,12 @@ sealed interface LibraryCatalogEntry {
 data class PluginCatalogNode(
     val id: String,
     val version: String? = null,
-    val children: List<PluginCatalogNode> = emptyList(),
+    val children: List<PluginCatalogNode> = emptyList()
 ) {
     init {
         requireCatalogPathSegment(
             name = "Plugin id",
-            value = id,
+            value = id
         )
     }
 }
@@ -83,12 +83,12 @@ data class PluginCatalogNode(
 /** Enforces the one-segment invariant for a public dependency-catalog node. */
 private fun requireCatalogPathSegment(
     name: String,
-    value: String,
+    value: String
 ) {
     require(
         value.isNotEmpty() &&
             '.' !in value &&
-            value.none { character -> character.isWhitespace() },
+            value.none { character -> character.isWhitespace() }
     ) {
         "$name '$value' must be one non-blank path segment without dots or whitespace"
     }

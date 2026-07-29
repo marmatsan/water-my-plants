@@ -34,8 +34,8 @@ dokka {
         documentedVisibilities.set(
             setOf(
                 VisibilityModifier.Public,
-                VisibilityModifier.Internal,
-            ),
+                VisibilityModifier.Internal
+            )
         )
         reportUndocumented.set(true)
 
@@ -44,8 +44,8 @@ dokka {
             remoteUrl.set(
                 URI(
                     "https://github.com/marmatsan/water-my-plants/tree/main/" +
-                        "repo/unit-testing/unit-test-dsl/src/main/kotlin",
-                ),
+                        "repo/unit-testing/unit-test-dsl/src/main/kotlin"
+                )
             )
             remoteLineSuffix.set("#L")
         }
@@ -83,7 +83,7 @@ publishing {
                         ?: rootProject.layout.buildDirectory
                             .dir("publication-repository")
                             .get()
-                            .asFile,
+                            .asFile
                 )
         }
     }

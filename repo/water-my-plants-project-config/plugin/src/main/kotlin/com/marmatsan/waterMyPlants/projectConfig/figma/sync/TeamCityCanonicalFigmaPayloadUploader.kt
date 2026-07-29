@@ -15,11 +15,11 @@ class TeamCityCanonicalFigmaPayloadUploader(
     private val artifactReader: CanonicalFigmaArtifactSetReader = CanonicalFigmaArtifactSetReader(),
     private val manifestJson: ExecutableRunnerManifestJson = ExecutableRunnerManifestJson(),
     private val uploadPng: (String, ByteArray) -> Unit =
-        KtorFigmaPngAssetUploader()::uploadBlocking,
+        KtorFigmaPngAssetUploader()::uploadBlocking
 ) {
     /** Prepares and verifies one canonical artifact set before uploading its exact PNG payload. */
     fun upload(
-        request: Request,
+        request: Request
     ): UploadedPayload {
         require((request.buildId == null) xor (request.artifactDirectory == null)) {
             "Configure exactly one of figmaTeamCityBuildId or figmaArtifactDirectory."
@@ -38,8 +38,8 @@ class TeamCityCanonicalFigmaPayloadUploader(
                         destinationRoot = request.destinationRoot,
                         expectedGitSha = request.expectedGitSha,
                         mainBranchAliases = request.mainBranchAliases,
-                        requiredBuildTypeName = request.requiredBuildTypeName,
-                    ),
+                        requiredBuildTypeName = request.requiredBuildTypeName
+                    )
             )
         val artifacts = artifactReader.read(handoff.artifactDirectory.absolutePath)
         val manifestPath =
@@ -64,7 +64,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
         val payloadPath =
             runnerDirectory
                 .resolve(
-                    payload.fileName,
+                    payload.fileName
                 ).normalize()
         require(payloadPath.parent == runnerDirectory && Files.isRegularFile(payloadPath)) {
             "Canonical PNG payload does not exist beside its visual manifest."
@@ -75,7 +75,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
         }
         val actualHash =
             Sha256Hash.of(
-                value = bytes,
+                value = bytes
             )
         require(actualHash == payload.sha256) {
             "Canonical PNG payload hash mismatch: $actualHash != ${payload.sha256}."
@@ -83,7 +83,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
 
         uploadPng(
             request.uploadUrl,
-            bytes,
+            bytes
         )
         return UploadedPayload(
             buildId = request.buildId,
@@ -92,7 +92,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
             payloadFileName = payload.fileName,
             payloadByteLength = payload.byteLength,
             payloadSha256 = payload.sha256,
-            artifactDirectory = handoff.artifactDirectory,
+            artifactDirectory = handoff.artifactDirectory
         )
     }
 
@@ -117,9 +117,9 @@ class TeamCityCanonicalFigmaPayloadUploader(
             setOf(
                 "main",
                 "<default>",
-                "refs/heads/main",
+                "refs/heads/main"
             ),
-        val requiredBuildTypeName: String = "Generate main design model",
+        val requiredBuildTypeName: String = "Generate main design model"
     )
 
     /**
@@ -140,7 +140,7 @@ class TeamCityCanonicalFigmaPayloadUploader(
         val payloadFileName: String,
         val payloadByteLength: Int,
         val payloadSha256: String,
-        val artifactDirectory: File,
+        val artifactDirectory: File
     )
 
     private companion object {

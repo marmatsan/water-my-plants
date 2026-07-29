@@ -18,7 +18,7 @@ abstract class FigmaDocumentationSyncIncludedBuild
     @Inject
     constructor(
         private val buildName: String,
-        objects: ObjectFactory,
+        objects: ObjectFactory
     ) : Named {
         /**
          * JSON object name used inside `content.catalogs` and
@@ -75,7 +75,7 @@ abstract class figmaDocumentationSyncExtension
     @Inject
     constructor(
         objects: ObjectFactory,
-        layout: ProjectLayout,
+        layout: ProjectLayout
     ) {
         /**
          * Figma design URL pointing to the metadata node that stores sync plugin
@@ -146,7 +146,7 @@ abstract class figmaDocumentationSyncExtension
             objects.domainObjectContainer(FigmaDocumentationSyncIncludedBuild::class.java) { buildName ->
                 objects.newInstance(
                     FigmaDocumentationSyncIncludedBuild::class.java,
-                    buildName,
+                    buildName
                 )
             }
 

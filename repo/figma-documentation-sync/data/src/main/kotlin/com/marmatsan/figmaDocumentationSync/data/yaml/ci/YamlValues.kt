@@ -2,7 +2,7 @@ package com.marmatsan.figmaDocumentationSync.data.yaml.ci
 
 /** Returns this YAML value as a string-keyed map or fails with [context]. */
 internal fun Any?.asStringMap(
-    context: String,
+    context: String
 ): Map<String, Any?> {
     val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
     return source.entries.associate { (key, value) ->
@@ -13,56 +13,56 @@ internal fun Any?.asStringMap(
 
 /** Returns the required YAML map stored under [key]. */
 internal fun Map<String, Any?>.requiredMap(
-    key: String,
+    key: String
 ): Map<String, Any?> =
     get(
-        key = key,
+        key = key
     ).asStringMap(
-        context = key,
+        context = key
     )
 
 /** Returns the required YAML list stored under [key]. */
 internal fun Map<String, Any?>.requiredList(
-    key: String,
+    key: String
 ): List<Any?> =
     get(
-        key = key,
+        key = key
     ) as? List<*> ?: error("Expected YAML list '$key'")
 
 /** Returns the required YAML string stored under [key]. */
 internal fun Map<String, Any?>.requiredString(
-    key: String,
+    key: String
 ): String =
     get(
-        key = key,
+        key = key
     ) as? String ?: error("Expected YAML string '$key'")
 
 /** Returns the optional YAML string stored under [key]. */
 internal fun Map<String, Any?>.optionalString(
-    key: String,
+    key: String
 ): String? =
     get(
-        key = key,
+        key = key
     )?.let { value -> value as? String ?: error("Expected YAML string '$key'") }
 
 /** Returns the required YAML integer stored under [key]. */
 internal fun Map<String, Any?>.requiredInt(
-    key: String,
+    key: String
 ): Int =
     (
         get(
-            key = key,
+            key = key
         ) as? Number
     )?.toInt() ?: error("Expected YAML integer '$key'")
 
 /** Returns the optional YAML string list stored under [key], or an empty list when absent. */
 internal fun Map<String, Any?>.optionalStringList(
-    key: String,
+    key: String
 ): List<String> =
     when (
         val value =
             get(
-                key = key,
+                key = key
             )
     ) {
         null -> {

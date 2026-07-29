@@ -12,7 +12,7 @@ val versions: Properties =
     }
 val publicationVersion: String =
     providers.gradleProperty("unitTestDslVersion").getOrElse(
-        versions.getProperty("unitTestDslLibraryVersion"),
+        versions.getProperty("unitTestDslLibraryVersion")
     )
 val stagingPublicationRepository: String =
     providers.gradleProperty("unitTestingPublicationRepository").orNull
@@ -52,13 +52,13 @@ tasks.register<Exec>("verifyStagedPublication") {
         layout.projectDirectory.file(
             if (System.getProperty("os.name").startsWith(
                     "Windows",
-                    ignoreCase = true,
+                    ignoreCase = true
                 )
             ) {
                 "../../gradlew.bat"
             } else {
                 "../../gradlew"
-            },
+            }
         )
 
     workingDir(sampleDirectory)
@@ -69,6 +69,6 @@ tasks.register<Exec>("verifyStagedPublication") {
         "-PunitTestDslVersion=$publicationVersion",
         "-PunitTestingPublicationRepository=$stagingPublicationRepository",
         "-PkotlinVersion=${versions.getProperty("kotlinVersion")}",
-        "--stacktrace",
+        "--stacktrace"
     )
 }

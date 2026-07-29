@@ -10,24 +10,24 @@ project {
     params {
         param(
             "teamcity.activeBuildBranch.age.hours",
-            "0",
+            "0"
         )
         password(
             "figma.file.content.access.token",
-            "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a",
+            "credentialsJSON:56b32d27-92ba-4f95-8a34-f4e24067105a"
         )
     }
 
     cleanup {
         baseRule {
             artifacts(
-                days = 7,
+                days = 7
             )
             history(
-                days = 14,
+                days = 14
             )
             all(
-                days = 30,
+                days = 30
             )
             preventDependencyCleanup = false
         }
@@ -40,7 +40,7 @@ project {
             dataToKeep =
                 artifacts(
                     "+:build/reports/figma-sync/**",
-                    "+:.teamcity/target/generated-configs/**",
+                    "+:.teamcity/target/generated-configs/**"
                 )
             applyToBuilds {
                 inPersonalBuilds = nonPersonal()
@@ -80,7 +80,7 @@ object WaterMyPlantsCi : Pipeline(
         repositories {
             repository(
                 GitHub,
-                enabledByDefault = true,
+                enabledByDefault = true
             )
         }
 
@@ -96,15 +96,15 @@ object WaterMyPlantsCi : Pipeline(
             params {
                 param(
                     "env.GIT_WORKFLOW_BRANCH",
-                    "%teamcity.build.branch%",
+                    "%teamcity.build.branch%"
                 )
                 param(
                     "ci.plan.comparisonBase",
-                    "",
+                    ""
                 )
                 param(
                     "ci.plan.gradleTasks",
-                    "check",
+                    "check"
                 )
             }
 
@@ -114,13 +114,13 @@ object WaterMyPlantsCi : Pipeline(
                         name = "Validate agent capabilities"
                         scriptContent =
                             """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Generate verification plan"
                         scriptContent = """.\gradlew.bat prepareTeamCityCiPlan --stacktrace"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
@@ -131,14 +131,14 @@ object WaterMyPlantsCi : Pipeline(
                             call .\gradlew.bat %ci.plan.gradleTasks% --stacktrace
                             if errorlevel 1 exit /b 1
                             """.trimIndent()
-                    },
+                    }
                 )
             }
 
             requirements {
                 contains(
                     "teamcity.agent.jvm.os.name",
-                    "Windows",
+                    "Windows"
                 )
             }
 
@@ -146,7 +146,7 @@ object WaterMyPlantsCi : Pipeline(
                 pipelineArtifacts("build/reports/ci")
             }
         }
-    },
+    }
 )
 
 /**
@@ -174,7 +174,7 @@ object WaterMyPlantsCiGate : BuildType(
             trigger(
                 PipelineVcsTrigger {
                     branchFilter = "+:*"
-                },
+                }
             )
         }
 
@@ -187,11 +187,11 @@ object WaterMyPlantsCiGate : BuildType(
         features {
             feature(
                 GitHubCommitStatusPublisher(
-                    statusCheckName = "TeamCity CI",
-                ),
+                    statusCheckName = "TeamCity CI"
+                )
             )
         }
-    },
+    }
 )
 
 /**
@@ -215,7 +215,7 @@ object WaterMyPlantsFigmaSync : Pipeline(
         repositories {
             repository(
                 GitHub,
-                enabledByDefault = true,
+                enabledByDefault = true
             )
         }
 
@@ -225,22 +225,22 @@ object WaterMyPlantsFigmaSync : Pipeline(
                     buildType = "${WaterMyPlantsCiGate.id}"
                     successfulOnly = true
                     branchFilter = "+:<default>"
-                },
+                }
             )
         }
 
         params {
             param(
                 "env.FIGMA_FILE_CONTENT_ACCESS_TOKEN",
-                "%figma.file.content.access.token%",
+                "%figma.file.content.access.token%"
             )
             param(
                 "env.FIGMA_DOCUMENTATION_SYNC_CANONICAL",
-                "true",
+                "true"
             )
             param(
                 "env.FIGMA_DOCUMENTATION_SYNC_BRANCH",
-                "%teamcity.build.branch%",
+                "%teamcity.build.branch%"
             )
         }
 
@@ -259,35 +259,35 @@ object WaterMyPlantsFigmaSync : Pipeline(
                         name = "Validate agent capabilities"
                         scriptContent =
                             """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -RequireNode -ExportTeamCityParameters"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Classify Figma change impact"
                         scriptContent =
                             """.\gradlew.bat classifyCanonicalFigmaSyncChangeImpact -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Materialize canonical design model"
                         scriptContent =
                             """.\gradlew.bat materializeFigmaSyncCiConfiguration generateCanonicalFigmaSyncModel -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Build MCP runners and visual plan"
                         scriptContent =
                             """.\gradlew.bat prepareCanonicalFigmaSync -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
-                    },
+                    }
                 )
             }
 
             requirements {
                 contains(
                     "teamcity.agent.jvm.os.name",
-                    "Windows",
+                    "Windows"
                 )
             }
 
@@ -314,28 +314,28 @@ object WaterMyPlantsFigmaSync : Pipeline(
                         name = "Validate agent capabilities"
                         scriptContent =
                             """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -ExportTeamCityParameters"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Validate canonical sync scope"
                         scriptContent =
                             """.\gradlew.bat validateCanonicalFigmaSyncScope -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Verify Figma sync metadata"
                         scriptContent =
                             """.\gradlew.bat checkCanonicalFigmaTrunkSync -PfigmaCanonicalTeamCityPhasedExecution=true --stacktrace"""
-                    },
+                    }
                 )
             }
 
             requirements {
                 contains(
                     "teamcity.agent.jvm.os.name",
-                    "Windows",
+                    "Windows"
                 )
             }
 
@@ -343,11 +343,11 @@ object WaterMyPlantsFigmaSync : Pipeline(
                 "figma_sync_generate_design_model",
                 listOf(
                     "build/reports/figma-sync",
-                    ".teamcity/target/generated-configs",
-                ),
+                    ".teamcity/target/generated-configs"
+                )
             )
         }
-    },
+    }
 )
 
 /**
@@ -366,7 +366,7 @@ object WaterMyPlantsInfrastructureHealth : Pipeline(
         repositories {
             repository(
                 GitHub,
-                enabledByDefault = true,
+                enabledByDefault = true
             )
         }
 
@@ -376,14 +376,14 @@ object WaterMyPlantsInfrastructureHealth : Pipeline(
                     hour = 6
                     minute = 0
                     branchFilter = "+:<default>"
-                },
+                }
             )
         }
 
         params {
             param(
                 "env.TEAMCITY_SERVER_URL",
-                "%teamcity.serverUrl%",
+                "%teamcity.serverUrl%"
             )
         }
 
@@ -402,21 +402,21 @@ object WaterMyPlantsInfrastructureHealth : Pipeline(
                         name = "Validate agent capabilities"
                         scriptContent =
                             """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-agent-capabilities.ps1 -RequireNode -ExportTeamCityParameters"""
-                    },
+                    }
                 )
                 step(
                     PipelineScriptStep {
                         name = "Probe TeamCity boundaries"
                         scriptContent =
                             """powershell.exe -NoProfile -ExecutionPolicy Bypass -File .teamcity\scripts\test-ci-infrastructure-health.ps1"""
-                    },
+                    }
                 )
             }
 
             requirements {
                 contains(
                     "teamcity.agent.jvm.os.name",
-                    "Windows",
+                    "Windows"
                 )
             }
 
@@ -424,7 +424,7 @@ object WaterMyPlantsInfrastructureHealth : Pipeline(
                 pipelineArtifacts("build/reports/ci-health")
             }
         }
-    },
+    }
 )
 
 /**
@@ -435,25 +435,25 @@ object WaterMyPlantsInfrastructureHealth : Pipeline(
  * YAML job-feature enum.
  */
 class GitHubCommitStatusPublisher(
-    statusCheckName: String,
+    statusCheckName: String
 ) : BuildFeature() {
     init {
         type = "commit-status-publisher"
         param(
             "publisherId",
-            "githubStatusPublisher",
+            "githubStatusPublisher"
         )
         param(
             "github_host",
-            "https://api.github.com",
+            "https://api.github.com"
         )
         param(
             "github_authentication_type",
-            "vcsRoot",
+            "vcsRoot"
         )
         param(
             "build_custom_name",
-            statusCheckName,
+            statusCheckName
         )
     }
 }
@@ -473,11 +473,11 @@ object GitHub : VcsRoot(
 
         param(
             "url",
-            "https://github.com/marmatsan/water-my-plants.git",
+            "https://github.com/marmatsan/water-my-plants.git"
         )
         param(
             "branch",
-            "refs/heads/main",
+            "refs/heads/main"
         )
         param(
             "branchSpec",
@@ -485,9 +485,9 @@ object GitHub : VcsRoot(
             #! fallbackToDefault: false
             +:refs/heads/(*)
             +:refs/pull/(*/head)
-            """.trimIndent(),
+            """.trimIndent()
         )
-    },
+    }
 )
 
 /**
@@ -498,7 +498,7 @@ object GitHub : VcsRoot(
  * untyped build step declarations at call sites.
  */
 open class PipelineScriptStep(
-    init: PipelineScriptStep.() -> Unit = {},
+    init: PipelineScriptStep.() -> Unit = {}
 ) : BuildStep(),
     PipelineCompatible {
     /**
@@ -507,11 +507,11 @@ open class PipelineScriptStep(
     var scriptContent: String
         get() = params.find { it.name == SCRIPT_CONTENT_PARAM }?.value.orEmpty()
         set(
-            value,
+            value
         ) {
             param(
                 SCRIPT_CONTENT_PARAM,
-                value,
+                value
             )
         }
 
@@ -534,7 +534,7 @@ open class PipelineScriptStep(
  * the branch filter parameter expected by TeamCity Pipelines.
  */
 open class PipelineVcsTrigger(
-    init: PipelineVcsTrigger.() -> Unit = {},
+    init: PipelineVcsTrigger.() -> Unit = {}
 ) : Trigger(),
     PipelineCompatible {
     /**
@@ -543,11 +543,11 @@ open class PipelineVcsTrigger(
     var branchFilter: String
         get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
         set(
-            value,
+            value
         ) {
             param(
                 BRANCH_FILTER_PARAM,
-                value,
+                value
             )
         }
 
@@ -569,7 +569,7 @@ open class PipelineVcsTrigger(
  * successfully on the default branch.
  */
 open class PipelineFinishBuildTrigger(
-    init: PipelineFinishBuildTrigger.() -> Unit = {},
+    init: PipelineFinishBuildTrigger.() -> Unit = {}
 ) : Trigger(),
     PipelineCompatible {
     /**
@@ -578,11 +578,11 @@ open class PipelineFinishBuildTrigger(
     var buildType: String
         get() = params.find { it.name == BUILD_TYPE_PARAM }?.value.orEmpty()
         set(
-            value,
+            value
         ) {
             param(
                 BUILD_TYPE_PARAM,
-                value,
+                value
             )
         }
 
@@ -592,11 +592,11 @@ open class PipelineFinishBuildTrigger(
     var successfulOnly: Boolean
         get() = params.find { it.name == SUCCESSFUL_ONLY_PARAM }?.value == "true"
         set(
-            value,
+            value
         ) {
             param(
                 SUCCESSFUL_ONLY_PARAM,
-                if (value) "true" else "",
+                if (value) "true" else ""
             )
         }
 
@@ -606,11 +606,11 @@ open class PipelineFinishBuildTrigger(
     var branchFilter: String
         get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
         set(
-            value,
+            value
         ) {
             param(
                 BRANCH_FILTER_PARAM,
-                value,
+                value
             )
         }
 
@@ -634,41 +634,41 @@ open class PipelineFinishBuildTrigger(
  * daily run in the server time zone.
  */
 open class PipelineDailyScheduleTrigger(
-    init: PipelineDailyScheduleTrigger.() -> Unit = {},
+    init: PipelineDailyScheduleTrigger.() -> Unit = {}
 ) : Trigger(),
     PipelineCompatible {
     var hour: Int = 0
         set(
-            value,
+            value
         ) {
             require(value in 0..23) { "Schedule hour must be between 0 and 23." }
             field = value
             param(
                 "hour",
-                value.toString(),
+                value.toString()
             )
         }
 
     var minute: Int = 0
         set(
-            value,
+            value
         ) {
             require(value in 0..59) { "Schedule minute must be between 0 and 59." }
             field = value
             param(
                 "minute",
-                value.toString(),
+                value.toString()
             )
         }
 
     var branchFilter: String
         get() = params.find { it.name == BRANCH_FILTER_PARAM }?.value.orEmpty()
         set(
-            value,
+            value
         ) {
             param(
                 BRANCH_FILTER_PARAM,
-                value,
+                value
             )
         }
 
@@ -676,15 +676,15 @@ open class PipelineDailyScheduleTrigger(
         type = "schedulingTrigger"
         param(
             "schedulingPolicy",
-            "daily",
+            "daily"
         )
         param(
             "timezone",
-            "SERVER",
+            "SERVER"
         )
         param(
             "triggerBuildWithPendingChangesOnly",
-            "false",
+            "false"
         )
         init()
     }

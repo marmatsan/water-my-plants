@@ -22,7 +22,7 @@ abstract class TreeDependencyCatalogSettingsExtension
     @Inject
     constructor(
         objects: ObjectFactory,
-        defaultVersionsFile: File,
+        defaultVersionsFile: File
     ) {
         private val libraryTrees = LibraryCatalogTreesScope()
         private val pluginTrees = PluginCatalogTreesScope()
@@ -66,7 +66,7 @@ abstract class TreeDependencyCatalogSettingsExtension
          * @param content Library roots and their relative group paths.
          */
         fun libraries(
-            content: LibraryCatalogTreesScope.() -> Unit,
+            content: LibraryCatalogTreesScope.() -> Unit
         ) {
             libraryTrees.content()
         }
@@ -79,7 +79,7 @@ abstract class TreeDependencyCatalogSettingsExtension
          * @param content Plugin roots and their relative id paths.
          */
         fun plugins(
-            content: PluginCatalogTreesScope.() -> Unit,
+            content: PluginCatalogTreesScope.() -> Unit
         ) {
             pluginTrees.content()
         }
@@ -97,28 +97,28 @@ abstract class TreeDependencyCatalogSettingsExtension
          * @throws IllegalStateException when [key] is absent.
          */
         fun version(
-            key: String,
+            key: String
         ): String =
             versionResolver.resolve(
                 file = versionsFile.get().asFile,
-                key = key,
+                key = key
             )
 
         internal fun register() {
             val trees =
                 DependencyCatalogTrees(
                     libraries = libraryTrees.values(),
-                    plugins = pluginTrees.values(),
+                    plugins = pluginTrees.values()
                 )
             require(trees.libraries.isNotEmpty() || trees.plugins.isNotEmpty()) {
                 "Tree dependency catalog must declare at least one library or plugin root"
             }
             registerCatalog(
                 TreeResolvedDependencyCatalogProvider(
-                    catalog = DependencyCatalogTreeApiMapper().map(trees),
+                    catalog = DependencyCatalogTreeApiMapper().map(trees)
                 ),
                 librariesCatalogName.get(),
-                pluginsCatalogName.get(),
+                pluginsCatalogName.get()
             )
         }
     }

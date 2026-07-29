@@ -66,23 +66,23 @@ dependencyCatalogTree {
             library("android.tools.build") {
                 artifact(
                     artifact = "gradle",
-                    version = version("androidGradlePluginVersion"),
+                    version = version("androidGradlePluginVersion")
                 )
             }
             library("google.protobuf") {
                 artifact(
                     artifact = "protobuf-gradle-plugin",
-                    version = version("protobufPluginVersion"),
+                    version = version("protobufPluginVersion")
                 )
             }
             library("marmatsan.repo") {
                 artifact(
                     artifact = "catalog-api",
-                    version = version("dependencyCatalogVersion"),
+                    version = version("dependencyCatalogVersion")
                 )
                 artifact(
                     artifact = "unit-test-dsl",
-                    version = version("unitTestDslLibraryVersion"),
+                    version = version("unitTestDslLibraryVersion")
                 )
             }
         }
@@ -90,18 +90,18 @@ dependencyCatalogTree {
             library("jetbrains.kotlin") {
                 artifact(
                     artifact = "kotlin-gradle-plugin",
-                    version = version("kotlinVersion"),
+                    version = version("kotlinVersion")
                 )
             }
             library("jetbrains.dokka") {
                 artifact(
                     artifact = "dokka-gradle-plugin",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
             }
             library("junit.platform") {
                 artifact(
-                    artifact = "junit-platform-launcher",
+                    artifact = "junit-platform-launcher"
                 )
             }
         }
@@ -111,13 +111,13 @@ dependencyCatalogTree {
                     "kotest-runner-junit5",
                     "kotest-assertions-core",
                     alias = "kotest",
-                    version = version("kotestLibraryVersion"),
+                    version = version("kotestLibraryVersion")
                 )
             }
             library("mockk") {
                 artifact(
                     artifact = "mockk",
-                    version = version("mockkLibraryVersion"),
+                    version = version("mockkLibraryVersion")
                 )
             }
         }
@@ -128,11 +128,11 @@ dependencyCatalogTree {
             plugin("jetbrains") {
                 plugin(
                     id = "dokka",
-                    version = version("dokkaPluginVersion"),
+                    version = version("dokkaPluginVersion")
                 )
                 plugin(
                     id = "kotlin.jvm",
-                    version = version("kotlinVersion"),
+                    version = version("kotlinVersion")
                 )
             }
         }
@@ -146,5 +146,5 @@ include(
     ":dependencies",
     ":dokka-documentation",
     ":protobuf",
-    ":unit-test",
+    ":unit-test"
 )

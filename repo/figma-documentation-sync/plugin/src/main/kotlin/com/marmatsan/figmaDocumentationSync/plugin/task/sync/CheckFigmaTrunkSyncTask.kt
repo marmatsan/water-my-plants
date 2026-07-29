@@ -30,7 +30,7 @@ import java.time.Instant
  * not model it as a cacheable input because the token is secret runtime state.
  */
 @DisableCachingByDefault(
-    because = "The check reads Figma, Git, a secret token, and current-time runtime state",
+    because = "The check reads Figma, Git, a secret token, and current-time runtime state"
 )
 abstract class CheckFigmaTrunkSyncTask :
     DefaultTask(),
@@ -120,12 +120,12 @@ abstract class CheckFigmaTrunkSyncTask :
                         git(
                             "rev-parse",
                             "--abbrev-ref",
-                            "HEAD",
+                            "HEAD"
                         ),
                     gitSha =
                         git(
                             "rev-parse",
-                            "HEAD",
+                            "HEAD"
                         ),
                     generatedAt = Instant.now(),
                     primaryCatalogModelName = primaryCatalogModelName.get(),
@@ -139,29 +139,29 @@ abstract class CheckFigmaTrunkSyncTask :
                     ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
                     ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                     projectRootDirectory = projectRootDirectory.get().asFile,
-                    includedBuilds = resolveIncludedBuildSources(),
-                ),
+                    includedBuilds = resolveIncludedBuildSources()
+                )
             )
 
         logger.lifecycle("Figma is synced at ${result.gitSha} (${result.modelHash}).")
     }
 
     private fun git(
-        vararg arguments: String,
+        vararg arguments: String
     ): String {
         val rootDirectory = projectRootDirectory.get().asFile
         val safeDirectory =
             rootDirectory.absolutePath.replace(
                 '\\',
-                '/',
+                '/'
             )
         val process =
             ProcessBuilder(
                 listOf(
                     "git",
                     "-c",
-                    "safe.directory=$safeDirectory",
-                ) + arguments,
+                    "safe.directory=$safeDirectory"
+                ) + arguments
             ).directory(rootDirectory)
                 .start()
         val output = ByteArrayOutputStream()
@@ -172,7 +172,7 @@ abstract class CheckFigmaTrunkSyncTask :
 
         if (exitValue != 0) {
             throw GradleException(
-                "Failed to run git ${arguments.joinToString(" ")}: ${error.toString().trim()}",
+                "Failed to run git ${arguments.joinToString(" ")}: ${error.toString().trim()}"
             )
         }
 

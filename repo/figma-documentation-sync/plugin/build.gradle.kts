@@ -13,23 +13,23 @@ plugins {
 tasks.withType<Test> {
     systemProperty(
         "cucumber.junit-platform.naming-strategy",
-        "long",
+        "long"
     )
     systemProperty(
         "cucumber.plugin",
-        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json",
+        "pretty,html:build/reports/cucumber/cucumber.html,json:build/reports/cucumber/cucumber.json"
     )
 
     System.getProperty("cucumber.filter.tags")?.let { tags ->
         systemProperty(
             "cucumber.filter.tags",
-            tags,
+            tags
         )
     }
     System.getProperty("cucumber.features")?.let { features ->
         systemProperty(
             "cucumber.features",
-            features,
+            features
         )
     }
 }

@@ -19,5 +19,5 @@ internal data class CiVisualPlanningContext(
     val windowsRuntime: CiWindowsRuntime,
     val config: CiVisualPlanConfig,
     val ciPipeline: CiPipeline,
-    val figmaPipeline: CiPipeline,
+    val figmaPipeline: CiPipeline
 )

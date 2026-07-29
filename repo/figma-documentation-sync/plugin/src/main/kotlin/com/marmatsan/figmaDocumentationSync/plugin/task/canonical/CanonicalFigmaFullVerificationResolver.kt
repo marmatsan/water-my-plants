@@ -9,7 +9,7 @@ import java.io.File
 internal object CanonicalFigmaFullVerificationResolver {
     /** Reads the classified change-impact artifact produced before model generation. */
     fun fromChangeImpact(
-        changeImpactFile: File,
+        changeImpactFile: File
     ): Boolean =
         FigmaDocumentationSyncComponent::class
             .create()
@@ -19,7 +19,7 @@ internal object CanonicalFigmaFullVerificationResolver {
 
     /** Reads the validated wire value produced before the Figma trunk check. */
     fun fromVerifiedScope(
-        verifiedScopeFile: File,
+        verifiedScopeFile: File
     ): Boolean =
         verifiedScopeFile.readText().trim() == FigmaVerificationScope.FULL_VERIFICATION.wireValue
 }

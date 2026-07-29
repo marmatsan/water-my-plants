@@ -9,7 +9,7 @@ import java.io.File
 
 /** Registers Water My Plants operational tasks for supervised TeamCity/Figma coordination. */
 internal class WaterMyPlantsTeamCityFigmaTasksRegistrar(
-    private val project: Project,
+    private val project: Project
 ) {
     /** Registers handoff preparation, canonical upload, and rerun tasks. */
     fun register() {
@@ -18,23 +18,23 @@ internal class WaterMyPlantsTeamCityFigmaTasksRegistrar(
             description = "Downloads or opens canonical TeamCity artifacts and prepares the Figma MCP handoff."
             buildId.convention(
                 project.providers.gradleProperty("figmaTeamCityBuildId").map(
-                    String::toLong,
-                ),
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
                     project.providers.gradleProperty("figmaArtifactDirectory").map(
-                        ::File,
-                    ),
-                ),
+                        ::File
+                    )
+                )
             )
             destinationRoot.convention(
                 project.layout
                     .dir(
                         project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
-                            ::File,
-                        ),
-                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity")),
+                            ::File
+                        )
+                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
             mainBranchAliases.set(MAIN_BRANCH_ALIASES)
@@ -46,24 +46,24 @@ internal class WaterMyPlantsTeamCityFigmaTasksRegistrar(
             description = "Uploads the verified PNG from one successful main TeamCity Figma artifact set."
             buildId.convention(
                 project.providers.gradleProperty("figmaTeamCityBuildId").map(
-                    String::toLong,
-                ),
+                    String::toLong
+                )
             )
             artifactDirectory.set(
                 project.layout.dir(
                     project.providers.gradleProperty("figmaArtifactDirectory").map(
-                        ::File,
-                    ),
-                ),
+                        ::File
+                    )
+                )
             )
             uploadUrl.convention(project.providers.gradleProperty("figmaMcpUploadUrl"))
             destinationRoot.convention(
                 project.layout
                     .dir(
                         project.providers.gradleProperty("figmaHandoffDestinationRoot").map(
-                            ::File,
-                        ),
-                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity")),
+                            ::File
+                        )
+                    ).orElse(project.layout.projectDirectory.dir("tmp/teamcity"))
             )
             projectDirectory.set(project.layout.projectDirectory)
             expectedGitSha.convention(project.providers.gradleProperty("figmaExpectedGitSha"))
@@ -77,35 +77,35 @@ internal class WaterMyPlantsTeamCityFigmaTasksRegistrar(
             serverUrl.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityServerUrl")
-                    .orElse("https://teamcity.marmatsan.dev"),
+                    .orElse("https://teamcity.marmatsan.dev")
             )
             validateOnly.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityValidateOnly")
                     .map(
-                        String::toBoolean,
-                    ).orElse(false),
+                        String::toBoolean
+                    ).orElse(false)
             )
             waitForCompletion.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityWait")
                     .map(
-                        String::toBoolean,
-                    ).orElse(false),
+                        String::toBoolean
+                    ).orElse(false)
             )
             pollIntervalSeconds.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityPollIntervalSeconds")
                     .map(
-                        String::toInt,
-                    ).orElse(10),
+                        String::toInt
+                    ).orElse(10)
             )
             timeoutMinutes.convention(
                 project.providers
                     .gradleProperty("figmaTeamCityTimeoutMinutes")
                     .map(
-                        String::toInt,
-                    ).orElse(60),
+                        String::toInt
+                    ).orElse(60)
             )
             buildTypeId.set("WaterMyPlants_WaterMyPlantsFigmaSync")
             branch.set("main")
@@ -117,7 +117,7 @@ internal class WaterMyPlantsTeamCityFigmaTasksRegistrar(
             listOf(
                 "main",
                 "<default>",
-                "refs/heads/main",
+                "refs/heads/main"
             )
     }
 }

@@ -21,7 +21,7 @@ internal class CatalogUsageCheckerTest :
         {
             val temporaryDirectory =
                 tempdir(
-                    prefix = "catalog-usage-checker",
+                    prefix = "catalog-usage-checker"
                 )
 
             test("check reports unused entries from dependency DSL and included-build catalogs") {
@@ -29,7 +29,7 @@ internal class CatalogUsageCheckerTest :
                     temporaryDirectory.resolve("project").apply { mkdirs() }
                 }.whenever { rootDir ->
                     CatalogUsageChecker(
-                        projectCatalogTreesPort = FakeProjectCatalogTreesPort(),
+                        projectCatalogTreesPort = FakeProjectCatalogTreesPort()
                     ).check(
                         CatalogUsageCheckRequest(
                             projectRootDirectory = rootDir,
@@ -41,47 +41,47 @@ internal class CatalogUsageCheckerTest :
                                         modelName = "gradlePlugins",
                                         settingsFile =
                                             rootDir.resolve(
-                                                relative = "repo/gradle-plugins/settings.gradle.kts",
+                                                relative = "repo/gradle-plugins/settings.gradle.kts"
                                             ),
                                         rootDirectory =
                                             rootDir.resolve(
-                                                relative = "repo/gradle-plugins",
+                                                relative = "repo/gradle-plugins"
                                             ),
                                         modulePathPrefix = ":gradle-plugins",
                                         publishesCatalogs = true,
-                                        publishesConventionPlugins = true,
-                                    ),
-                                ),
-                        ),
+                                        publishesConventionPlugins = true
+                                    )
+                                )
+                        )
                     )
                 }.then { result ->
                     result.unusedEntries shouldBe
                         listOf(
                             UnusedCatalogEntry(
                                 catalogName = "gradlePlugins.libraries",
-                                entry = "io.ktor:ktor-client-core",
+                                entry = "io.ktor:ktor-client-core"
                             ),
                             UnusedCatalogEntry(
                                 catalogName = "gradlePlugins.plugins",
-                                entry = "org.jetbrains.dokka",
+                                entry = "org.jetbrains.dokka"
                             ),
                             UnusedCatalogEntry(
                                 catalogName = "waterMyPlants.libraries",
-                                entry = "androidx.datastore:datastore",
+                                entry = "androidx.datastore:datastore"
                             ),
                             UnusedCatalogEntry(
                                 catalogName = "waterMyPlants.plugins",
-                                entry = "com.google.protobuf",
-                            ),
+                                entry = "com.google.protobuf"
+                            )
                         )
                 }
             }
-        },
+        }
     )
 
 private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
     override fun readLibraryTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): LibraryCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
@@ -100,12 +100,12 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                         artifact = "datastore",
                                                         version =
                                                             CatalogVersion(
-                                                                value = "datastoreVersion",
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
+                                                                value = "datastoreVersion"
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
                             ),
                             LibraryCatalogNode(
                                 group = "com",
@@ -123,22 +123,22 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                                     artifact = "protobuf-kotlin",
                                                                     version =
                                                                         CatalogVersion(
-                                                                            value = "protobufLibraryVersion",
+                                                                            value = "protobufLibraryVersion"
                                                                         ),
                                                                     providedByConventionPlugins =
                                                                         listOf(
                                                                             ConventionPluginUsage(
                                                                                 pluginId = "com.marmatsan.protobuf",
                                                                                 pluginModule =
-                                                                                    ":gradle-plugins:protobuf",
-                                                                            ),
-                                                                        ),
+                                                                                    ":gradle-plugins:protobuf"
+                                                                            )
+                                                                        )
                                                                 ),
                                                                 LibraryCatalogEntry.Artifact(
                                                                     artifact = "protoc",
                                                                     version =
                                                                         CatalogVersion(
-                                                                            value = "protobufLibraryVersion",
+                                                                            value = "protobufLibraryVersion"
                                                                         ),
                                                                     configuredByConventionPlugins =
                                                                         listOf(
@@ -146,17 +146,17 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                                                 pluginId = "com.marmatsan.protobuf",
                                                                                 pluginModule =
                                                                                     ":gradle-plugins:protobuf",
-                                                                                target = "protobuf.protoc.artifact",
-                                                                            ),
-                                                                        ),
-                                                                ),
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
-                            ),
-                        ),
+                                                                                target = "protobuf.protoc.artifact"
+                                                                            )
+                                                                        )
+                                                                )
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
+                            )
+                        )
                 )
             }
 
@@ -176,26 +176,26 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                         artifact = "ktor-client-core",
                                                         version =
                                                             CatalogVersion(
-                                                                value = null,
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
-                            ),
-                        ),
+                                                                value = null
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
+                            )
+                        )
                 )
             }
 
             is ProjectCatalogTreeSource.CustomGradleConventionPlugins,
-            is ProjectCatalogTreeSource.CustomGradlePlugins,
+            is ProjectCatalogTreeSource.CustomGradlePlugins
             -> {
                 error("Custom Gradle plugin inventories are not dependency catalogs")
             }
         }
 
     override fun readPluginTree(
-        source: ProjectCatalogTreeSource,
+        source: ProjectCatalogTreeSource
     ): PluginCatalogTree =
         when (source) {
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
@@ -214,12 +214,12 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                         id = "protobuf",
                                                         version =
                                                             CatalogVersion(
-                                                                value = "protobufPluginVersion",
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
+                                                                value = "protobufPluginVersion"
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
                             ),
                             PluginCatalogNode(
                                 id = "org",
@@ -241,7 +241,7 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                                                 id = "compose",
                                                                                 version =
                                                                                     CatalogVersion(
-                                                                                        value = "kotlinVersion",
+                                                                                        value = "kotlinVersion"
                                                                                     ),
                                                                                 providedByConventionPlugins =
                                                                                     listOf(
@@ -250,19 +250,19 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                                                                 pluginId =
                                                                                                     "com.marmatsan.compose",
                                                                                                 pluginModule =
-                                                                                                    ":gradle-plugins:compose",
-                                                                                            ),
-                                                                                    ),
-                                                                            ),
-                                                                        ),
-                                                                ),
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
-                            ),
-                        ),
+                                                                                                    ":gradle-plugins:compose"
+                                                                                            )
+                                                                                    )
+                                                                            )
+                                                                        )
+                                                                )
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
+                            )
+                        )
                 )
             }
 
@@ -282,19 +282,19 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                                         id = "dokka",
                                                         version =
                                                             CatalogVersion(
-                                                                value = "dokkaPluginVersion",
-                                                            ),
-                                                    ),
-                                                ),
-                                        ),
-                                    ),
-                            ),
-                        ),
+                                                                value = "dokkaPluginVersion"
+                                                            )
+                                                    )
+                                                )
+                                        )
+                                    )
+                            )
+                        )
                 )
             }
 
             is ProjectCatalogTreeSource.CustomGradleConventionPlugins,
-            is ProjectCatalogTreeSource.CustomGradlePlugins,
+            is ProjectCatalogTreeSource.CustomGradlePlugins
             -> {
                 error("Custom Gradle plugin inventories are not dependency catalogs")
             }

@@ -5,7 +5,7 @@ import com.marmatsan.verificationPlatform.domain.model.documentation.Documentati
 
 /** Validates that changed implementation paths include their required documentation surfaces. */
 internal class DocumentationCoverageValidator(
-    private val paths: DocumentationPathResolver = DocumentationPathResolver(),
+    private val paths: DocumentationPathResolver = DocumentationPathResolver()
 ) {
     /**
      * Finds changed source groups whose configured documentation surface was not changed.
@@ -16,7 +16,7 @@ internal class DocumentationCoverageValidator(
      */
     fun validate(
         changedPaths: List<String>,
-        rules: List<DocumentationCoverageRule>,
+        rules: List<DocumentationCoverageRule>
     ): List<DocumentationCoverageViolation> {
         val normalizedPaths =
             changedPaths
@@ -28,7 +28,7 @@ internal class DocumentationCoverageValidator(
                 normalizedPaths.filter { path ->
                     paths.matchesAny(
                         path,
-                        rule.sourcePaths,
+                        rule.sourcePaths
                     )
                 }
             if (changedSources.isEmpty()) return@mapNotNull null
@@ -36,14 +36,14 @@ internal class DocumentationCoverageValidator(
                 normalizedPaths.any { path ->
                     paths.matchesAny(
                         path,
-                        rule.documentationPaths,
+                        rule.documentationPaths
                     )
                 }
             if (documentationChanged) return@mapNotNull null
             DocumentationCoverageViolation(
                 rule = rule.id,
                 changedSources = changedSources,
-                requiredDocumentation = rule.documentationPaths,
+                requiredDocumentation = rule.documentationPaths
             )
         }
     }
