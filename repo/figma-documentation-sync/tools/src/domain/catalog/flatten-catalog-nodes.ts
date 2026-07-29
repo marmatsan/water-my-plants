@@ -36,20 +36,22 @@ export function flattenCatalogNodes(
   });
 }
 
-export function requireUniqueLabels(target: CatalogTreeTarget, nodes: FlattenedCatalogNode[]) {
-  const labels = new Map();
+export function requireUniquePaths(
+  target: Pick<CatalogTreeTarget, "name">,
+  nodes: Pick<FlattenedCatalogNode, "path">[]
+) {
+  const paths = new Set();
+  const duplicatePaths = new Set();
+
   for (const node of nodes) {
-    labels.set(node.label, (labels.get(node.label) || 0) + 1);
+    const path = JSON.stringify(node.path);
+    if (paths.has(path)) duplicatePaths.add(node.path.join("/"));
+    paths.add(path);
   }
 
-  const duplicateLabels = [...labels.entries()]
-    .filter(([, count]) => count > 1)
-    .map(([label]) => label);
-
-  if (duplicateLabels.length > 0) {
+  if (duplicatePaths.size > 0) {
     throw new Error(
-      `${target.name} contains duplicate labels (${duplicateLabels.join(", ")}). ` +
-        "Catalog tree update-only sync needs stable Figma node path metadata before it can continue."
+      `${target.name} contains duplicate catalog paths (${[...duplicatePaths].join(", ")}).`
     );
   }
 }

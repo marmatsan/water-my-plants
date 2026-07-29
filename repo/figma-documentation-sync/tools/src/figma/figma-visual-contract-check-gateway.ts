@@ -46,7 +46,7 @@ import {
   VERSION_SECTION_TARGETS,
   VERSIONS_COLLECTION_NAMES,
 } from "@figma-documentation-sync/project-config";
-import { flattenCatalogNodes, requireUniqueLabels } from "../domain/catalog/flatten-catalog-nodes";
+import { flattenCatalogNodes, requireUniquePaths } from "../domain/catalog/flatten-catalog-nodes";
 import {
   libraryArtifacts,
   libraryBundles,
@@ -633,7 +633,7 @@ async function checkCatalogTreeContract(
     const rootFilter = options.rootFilters?.[target.name];
     const scopedModelNodes = filterModelRoots(target, modelNodes, rootFilter);
     const expectedNodes = flattenCatalogNodes(scopedModelNodes, target.type);
-    requireUniqueLabels(target, expectedNodes);
+    requireUniquePaths(target, expectedNodes);
 
     if (target.lifecycle === "declaredCatalogTarget" && expectedNodes.length === 0) {
       checkedTargets.push(target.name);
