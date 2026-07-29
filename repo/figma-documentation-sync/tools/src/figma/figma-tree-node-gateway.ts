@@ -13,7 +13,10 @@ import {
 import { updateNamedTextNodes } from "./figma-text-gateway";
 import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
 import { catalogNodePathKey, syncTreeNodePath } from "./figma-catalog-node-identity";
-import { canRepresentLibraryCatalogEntries } from "./figma-library-tree-node-capacity";
+import {
+  configureLibraryCatalogItemSlots,
+  hasLibraryCatalogItemSlotCapacity,
+} from "./figma-library-tree-node-capacity";
 
 export async function createMissingTreeNode(
   target,
@@ -38,6 +41,17 @@ export async function createMissingTreeNode(
   instance.y = position.y;
 
   if (node.type === "Library") {
+    const structureReady = await configureLibraryCatalogItemSlots(
+      section,
+      instance,
+      node,
+      mutatedNodeIds
+    );
+    if (!structureReady) {
+      throw new Error(
+        `Cannot create ${node.path.join("/")}: no library tree-node template has enough configurable catalog-item slots.`
+      );
+    }
     await updateLibraryTreeNode(instance, node, mutatedNodeIds);
   } else {
     await updatePluginTreeNode(instance, node, mutatedNodeIds, target);
@@ -228,7 +242,7 @@ export function findTreeNodeTemplate(section, container, node) {
   }
 
   const compatibleCandidates = candidates.filter((instance) =>
-    canRepresentLibraryCatalogEntries(instance, node)
+    hasLibraryCatalogItemSlotCapacity(instance, node)
   );
   const hasVisibleCatalogItems = libraryArtifacts(node.entries).length > 0 ||
     libraryBundles(node.entries).length > 0;
