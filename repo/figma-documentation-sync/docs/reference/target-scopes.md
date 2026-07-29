@@ -47,8 +47,8 @@ Catalog tree visual targets:
 
 | Model target | Source | Figma section |
 |--------------|--------|---------------|
-| `waterMyPlants.libraries` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt` | `63069:629` |
-| `waterMyPlants.plugins` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt` | `63069:594` |
+| `waterMyPlants.libraries` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | `63069:629` |
+| `waterMyPlants.plugins` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | `63069:594` |
 | `waterMyPlants.customGradleConventionPlugins` | Convention-plugin declarations under `repo/gradle-plugins` | `64886:247` |
 | `waterMyPlants.customGradlePlugins` | Regular repository Gradle plugin declarations | `64886:248` |
 

@@ -1,4 +1,4 @@
-package com.marmatsan.dependencies.gradle.tree.dsl
+package com.marmatsan.dependencies.catalog.dsl
 
 import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec

@@ -27,8 +27,13 @@ The active adapter consists of:
   task bindings and supervised TeamCity operations;
 - `../figma-documentation-sync/teamcity-adapter/src/main/kotlin/.../TeamCityCiConfigurationProvider.kt`,
   which translates TeamCity's generated YAML/XML into the portable CI model;
-- `catalog/src/main/kotlin/.../WaterMyPlantsCatalogProvider.kt`, which adapts
-  the concrete product trees to Dependency Catalog's public API;
+- `catalog/src/main/kotlin/.../WaterMyPlantsCatalogDefinition.kt`, which owns
+  the single product library-and-plugin tree declaration shared by Gradle and
+  Figma;
+- `catalog/src/main/kotlin/.../WaterMyPlantsCatalogProvider.kt`, which resolves
+  that declaration with concrete property values for Gradle or symbolic
+  property aliases for documentation, then adapts it to Dependency Catalog's
+  public API;
 - `plugin/src/main/kotlin/.../WaterMyPlantsDependencyDslCatalogProvider.kt`,
   which composes consumer-specific mapping, usage-source, and enrichment ports
   before exposing Figma's catalog input port;

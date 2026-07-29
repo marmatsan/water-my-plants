@@ -213,9 +213,8 @@ internal object WaterMyPlantsFigmaWriterProjectConfig {
                         links =
                             links(
                                 "repo/water-my-plants-project-config/catalog/src/main/kotlin/" +
-                                    "com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
-                                "repo/water-my-plants-project-config/catalog/src/main/kotlin/" +
-                                    "com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt"
+                                    "com/marmatsan/waterMyPlants/projectConfig/catalog/" +
+                                    "WaterMyPlantsCatalogDefinition.kt"
                             )
                     ),
                     FigmaHeaderSectionTarget(

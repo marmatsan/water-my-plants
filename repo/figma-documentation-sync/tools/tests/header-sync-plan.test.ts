@@ -81,8 +81,7 @@ test("header source map covers every managed parent documentation section", () =
   assert.deepEqual(
     HEADER_SECTION_TARGETS[2].links.map((link) => link.label),
     [
-      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt",
-      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt",
+      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt",
     ]
   );
   assert.equal(

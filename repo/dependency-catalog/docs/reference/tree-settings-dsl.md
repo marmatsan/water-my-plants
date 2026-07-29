@@ -10,9 +10,13 @@ sources:
   - repo/dependency-catalog/build.gradle.kts
   - repo/dependency-catalog/settings.gradle.kts
   - repo/dependency-catalog/catalog-api/src/main/kotlin/com/marmatsan/dependencies/catalog/api/DependencyCatalog.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesBuilder.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/LibraryCatalogTreesScope.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/PluginCatalogTreesScope.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/DependencyVersionResolver.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/PropertiesDependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt
-  - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/dsl/LibraryCatalogTreesScope.kt
-  - repo/dependency-catalog/catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/dsl/PluginCatalogTreesScope.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginScope.kt
   - repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/VersionCatalogBuilderExtension.kt
@@ -23,10 +27,10 @@ sources:
 
 ## Purpose
 
-This reference defines the exact public settings DSL exposed by the
-`com.marmatsan.dependencyCatalog.tree` plugin, including defaults, declaration
-parameters, generated coordinates and aliases, registration timing, and
-validation failures.
+This reference defines the shared catalog-tree builder and the exact public
+settings DSL exposed by the `com.marmatsan.dependencyCatalog.tree` plugin,
+including version strategies, defaults, declaration parameters, generated
+coordinates and aliases, registration timing, and validation failures.
 
 ## Contract
 
@@ -127,6 +131,58 @@ plugins {
 }
 ```
 
+### Shared core builder
+
+Provider-owned product catalogs use the same declaration hierarchy without
+depending on Gradle Settings:
+
+```kotlin
+private fun productCatalog(
+    versionResolver: DependencyVersionResolver
+): DependencyCatalogTrees =
+    dependencyCatalogTrees(
+        versionResolver = versionResolver
+    ) {
+        libraries {
+            root("io") {
+                library("ktor") {
+                    artifact(
+                        artifact = "ktor-client-core",
+                        version = version("ktorLibraryVersion")
+                    )
+                }
+            }
+        }
+
+        plugins {
+            root("org") {
+                plugin(
+                    id = "jetbrains.kotlin.jvm",
+                    version = version("kotlinVersion")
+                )
+            }
+        }
+    }
+```
+
+`dependencyCatalogTrees` creates a single-use
+`DependencyCatalogTreesBuilder`. Its `libraries`, `plugins`, `root`, `library`,
+`artifact`, `artifactsBundle`, and `plugin` operations have the same contracts
+as the settings extension. `version(key)` delegates to the injected
+`DependencyVersionResolver`:
+
+- `PropertiesDependencyVersionResolver` returns concrete values from one
+  consumer-owned properties file and fixes its canonical path at first use;
+- `DependencyVersionAliasResolver` returns the key unchanged so documentation
+  adapters can retain stable version ownership;
+- a consumer may supply another focused resolver without changing the tree
+  declaration.
+
+The builder fails when no root was declared and cannot be changed or built a
+second time after `build()` returns. The settings adapter delegates collection
+and those invariants to this builder; it owns only Gradle properties and
+registration timing.
+
 ### Registration lifecycle
 
 The plugin collects declarations while `settings.gradle.kts` is evaluated and
@@ -174,6 +230,7 @@ the source. JetBrains tracks improvements to this association in
 ## Invariants
 
 - At least one library or plugin root must be declared.
+- A `DependencyCatalogTreesBuilder` is single-use after `build()`.
 - The only library and plugin declarations available at catalog top level are
   `root`; leaves cannot exist outside a root.
 - A library `root(group)` value is unique within one settings extension.
@@ -203,6 +260,8 @@ the source. JetBrains tracks improvements to this association in
 ## Sources
 
 - Settings extension: `catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt`.
+- Shared catalog builder: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt`.
+- Version strategies: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/`.
 - Library tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt`.
 - Plugin tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginScope.kt`.
 - Alias generation: `catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/VersionCatalogBuilderExtension.kt`.

@@ -9,7 +9,7 @@ declarations and can be built or published without any sibling source build.
 | Module | Responsibility |
 |--------|----------------|
 | `:catalog-api` | Immutable catalog model plus segregated resolved and version-aliased provider boundaries. |
-| `:catalog-core` | Optional tree DSL, traversal, and mappers used to implement providers. |
+| `:catalog-core` | Shared catalog-tree builder, version-resolution strategies, traversal, and mappers used by providers and settings adapters. |
 | `:catalog-gradle-plugin` | Settings plugin that maps a provider's API model to Gradle version catalogs. Depends only on `:catalog-api`. |
 | `:catalog-tree-gradle-plugin` | Settings-facing tree DSL plugin that reads a consumer-owned version registry and delegates registration to `:catalog-gradle-plugin`. |
 
@@ -48,9 +48,12 @@ dependencyCatalog {
 }
 ```
 
-The provider owns concrete version resolution. It may use `catalog-core`, its
-own implementation, or a different adapter; the Gradle plugin never imports a
-product implementation.
+The provider owns concrete version resolution. It may use the shared
+`dependencyCatalogTrees(versionResolver) { ... }` builder from `catalog-core`,
+its own implementation, or a different adapter; the Gradle plugin never
+imports a product implementation. The shared builder lets one declaration
+produce concrete Gradle versions through `PropertiesDependencyVersionResolver`
+and symbolic documentation aliases through `DependencyVersionAliasResolver`.
 
 Water My Plants keeps its implementation in
 `repo/water-my-plants-project-config/catalog` and its product versions in
@@ -73,12 +76,13 @@ See [the adoption guide](docs/guides/adopt-dependency-catalog.md) for the full
 integration contract and the [tree settings DSL API reference](docs/reference/tree-settings-dsl.md)
 for every public property and declaration operation.
 
-`figma-documentation-sync`, `gradle-plugins`, `unit-testing`,
-`verification-platform`, and `water-my-plants-project-config` construct their
-local build catalogs with the tree settings plugin and their own
-`versions.properties`. The repository composition root injects the source-build
-location for local substitution; an independent checkout resolves the same
-plugin id and version from its configured Maven repository. The
+`figma-documentation-sync`, `gradle-plugins`, `unit-testing`, and
+`verification-platform` construct their local build catalogs with the tree
+settings plugin and their own `versions.properties`. Water My Plants uses the
+same core declaration syntax in its product provider because it also needs a
+symbolic view for Figma. The repository composition root injects the
+source-build location for local substitution; an independent checkout resolves
+the same plugin id and version from its configured Maven repository. The
 `dependency-catalog` producer keeps its own catalog manual to avoid a
 self-hosting plugin-resolution cycle.
 
@@ -98,7 +102,7 @@ marker to a temporary Maven repository, then applies them from
 ## Sources Of Truth
 
 - Public provider/model API: `catalog-api/src/main/kotlin/`.
-- Optional tree DSL: `catalog-core/src/main/kotlin/`.
+- Shared catalog-tree builder and optional tree DSL: `catalog-core/src/main/kotlin/`.
 - Gradle settings adapter: `catalog-gradle-plugin/src/main/kotlin/`.
 - Independent consumer proofs: `samples/standalone-consumer/` and
   `samples/standalone-tree-consumer/`.

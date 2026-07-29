@@ -796,7 +796,7 @@ Layout rules:
     `LibraryScope.kt`, and `PluginTreeDsl.kt` under
     `repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
   - `Project versions`: `repo/water-my-plants-project-config/versions.properties`.
-  - `Water My Plants version catalogs`: `LibraryTrees.kt` and `PluginTrees.kt`
+  - `Water My Plants version catalogs`: `WaterMyPlantsCatalogDefinition.kt`
     under `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/`.
   - `Gradle convention plugins`: the `repo/gradle-plugins` directory.
   - `Gradle plugins`: the regular plugin implementations under

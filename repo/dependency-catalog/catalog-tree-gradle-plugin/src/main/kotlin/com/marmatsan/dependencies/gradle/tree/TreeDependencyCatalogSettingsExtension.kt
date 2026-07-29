@@ -1,11 +1,11 @@
 package com.marmatsan.dependencies.gradle.tree
 
-import com.marmatsan.dependencies.catalog.DependencyCatalogTrees
-import com.marmatsan.dependencies.gradle.tree.dsl.LibraryCatalogTreesScope
-import com.marmatsan.dependencies.gradle.tree.dsl.PluginCatalogTreesScope
+import com.marmatsan.dependencies.catalog.dsl.DependencyCatalogTreesBuilder
+import com.marmatsan.dependencies.catalog.dsl.LibraryCatalogTreesScope
+import com.marmatsan.dependencies.catalog.dsl.PluginCatalogTreesScope
+import com.marmatsan.dependencies.catalog.version.PropertiesDependencyVersionResolver
 import com.marmatsan.dependencies.gradle.tree.mapping.DependencyCatalogTreeApiMapper
 import com.marmatsan.dependencies.gradle.tree.provider.TreeResolvedDependencyCatalogProvider
-import com.marmatsan.dependencies.gradle.tree.version.PropertiesDependencyVersionResolver
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -24,12 +24,6 @@ abstract class TreeDependencyCatalogSettingsExtension
         objects: ObjectFactory,
         defaultVersionsFile: File
     ) {
-        private val libraryTrees = LibraryCatalogTreesScope()
-        private val pluginTrees = PluginCatalogTreesScope()
-        private val versionResolver = PropertiesDependencyVersionResolver()
-
-        internal lateinit var registerCatalog: (TreeResolvedDependencyCatalogProvider, String, String) -> Unit
-
         /**
          * Version registry owned by the consuming build.
          *
@@ -39,6 +33,16 @@ abstract class TreeDependencyCatalogSettingsExtension
          */
         val versionsFile: RegularFileProperty =
             objects.fileProperty().fileValue(defaultVersionsFile)
+
+        private val catalogBuilder =
+            DependencyCatalogTreesBuilder(
+                versionResolver =
+                    PropertiesDependencyVersionResolver(
+                        source = { versionsFile.get().asFile }
+                    )
+            )
+
+        internal lateinit var registerCatalog: (TreeResolvedDependencyCatalogProvider, String, String) -> Unit
 
         /**
          * Name of the generated Gradle library version catalog.
@@ -68,7 +72,9 @@ abstract class TreeDependencyCatalogSettingsExtension
         fun libraries(
             content: LibraryCatalogTreesScope.() -> Unit
         ) {
-            libraryTrees.content()
+            catalogBuilder.libraries(
+                content = content
+            )
         }
 
         /**
@@ -81,7 +87,9 @@ abstract class TreeDependencyCatalogSettingsExtension
         fun plugins(
             content: PluginCatalogTreesScope.() -> Unit
         ) {
-            pluginTrees.content()
+            catalogBuilder.plugins(
+                content = content
+            )
         }
 
         /**
@@ -99,20 +107,12 @@ abstract class TreeDependencyCatalogSettingsExtension
         fun version(
             key: String
         ): String =
-            versionResolver.resolve(
-                file = versionsFile.get().asFile,
+            catalogBuilder.version(
                 key = key
             )
 
         internal fun register() {
-            val trees =
-                DependencyCatalogTrees(
-                    libraries = libraryTrees.values(),
-                    plugins = pluginTrees.values()
-                )
-            require(trees.libraries.isNotEmpty() || trees.plugins.isNotEmpty()) {
-                "Tree dependency catalog must declare at least one library or plugin root"
-            }
+            val trees = catalogBuilder.build()
             registerCatalog(
                 TreeResolvedDependencyCatalogProvider(
                     catalog = DependencyCatalogTreeApiMapper().map(trees)

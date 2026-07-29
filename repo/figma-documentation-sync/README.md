@@ -135,8 +135,7 @@ The model is generated from repository source files, not from Figma:
 | Input | Purpose |
 |-------|---------|
 | `repo/water-my-plants-project-config/versions.properties` | Ordered product version sections rendered in Figma and validated by CI. |
-| `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/LibraryTrees.kt` | Source of truth for the production library catalog tree. |
-| `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/PluginTrees.kt` | Source of truth for the production plugin catalog tree. |
+| `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | Source of truth for both production catalog trees. Concrete and symbolic version strategies evaluate this same declaration. |
 | Root `settings.gradle.kts` | Main project module discovery. |
 | Included-build `settings.gradle.kts` files | Included-build module discovery and optional usage metadata. Their local tool catalogs are not Water My Plants visual targets. |
 | Gradle build files | Module dependency edges and applied plugin usage. |
