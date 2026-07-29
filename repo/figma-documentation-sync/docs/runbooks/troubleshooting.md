@@ -277,6 +277,16 @@ writer runs. Direct artifact selection must exclude every candidate with an
 responsible for those nested rows. Do not add component properties or retry the
 same canonical runner to mask this failure.
 
+After `swapComponent`, Figma can expose only the bundle component's first
+`.artifact` row even when its master reserves more hidden rows. A mixed node can
+then fail with `no library tree-node template has enough configurable
+catalog-item slots`. Inspect the bundle master with invisible instance children
+included. The writer must temporarily set
+`skipInvisibleInstanceChildren=false`, reveal exactly the nested rows required
+by the model, and restore the previous option in both success and failure paths.
+Do not duplicate visible rows manually in the document to bypass this adapter
+responsibility.
+
 When deriving a new component set from existing variants, cloning a variant
 preserves its layers but does not recreate the shared component-set property
 contract reliably. Create the shared properties on the new set, wire every

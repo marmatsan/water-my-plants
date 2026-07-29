@@ -40,8 +40,10 @@ export function hasLibraryCatalogItemSlotCapacity(
   instance,
   node: FlattenedCatalogNode
 ) {
-  const requiredSlots = libraryArtifacts(node.entries).length + libraryBundles(node.entries).length;
-  return directLibraryCatalogItemSlots(instance).length >= requiredSlots;
+  return withInvisibleInstanceChildren(() => {
+    const requiredSlots = libraryArtifacts(node.entries).length + libraryBundles(node.entries).length;
+    return directLibraryCatalogItemSlots(instance).length >= requiredSlots;
+  });
 }
 
 /**
@@ -54,49 +56,64 @@ export async function configureLibraryCatalogItemSlots(
   node: FlattenedCatalogNode,
   mutatedNodeIds
 ) {
-  if (!hasLibraryCatalogItemSlotCapacity(instance, node)) return false;
+  return withInvisibleInstanceChildren(async () => {
+    if (!hasLibraryCatalogItemSlotCapacity(instance, node)) return false;
 
-  const artifacts = libraryArtifacts(node.entries);
-  const bundles = libraryBundles(node.entries);
-  const slots = directLibraryCatalogItemSlots(instance);
-  const artifactComponent = artifacts.length > 0
-    ? await findCatalogItemComponent(section, ARTIFACT_INSTANCE_NAME)
-    : null;
-  const requiredNestedArtifactSlots = Math.max(0, ...bundles.map((bundle) => bundle.artifacts.length));
-  const bundleComponent = bundles.length > 0
-    ? await findCatalogItemComponent(
-        section,
-        ARTIFACTS_BUNDLE_INSTANCE_NAME,
-        requiredNestedArtifactSlots
-      )
-    : null;
+    const artifacts = libraryArtifacts(node.entries);
+    const bundles = libraryBundles(node.entries);
+    const slots = directLibraryCatalogItemSlots(instance);
+    const artifactComponent = artifacts.length > 0
+      ? await findCatalogItemComponent(section, ARTIFACT_INSTANCE_NAME)
+      : null;
+    const requiredNestedArtifactSlots = Math.max(0, ...bundles.map((bundle) => bundle.artifacts.length));
+    const bundleComponent = bundles.length > 0
+      ? await findCatalogItemComponent(
+          section,
+          ARTIFACTS_BUNDLE_INSTANCE_NAME,
+          requiredNestedArtifactSlots
+        )
+      : null;
 
-  if ((artifacts.length > 0 && !artifactComponent) || (bundles.length > 0 && !bundleComponent)) {
-    return false;
-  }
-
-  const desiredSlots = [
-    ...artifacts.map(() => ({ name: ARTIFACT_INSTANCE_NAME, component: artifactComponent })),
-    ...bundles.map(() => ({ name: ARTIFACTS_BUNDLE_INSTANCE_NAME, component: bundleComponent })),
-  ];
-
-  for (let index = 0; index < desiredSlots.length; index += 1) {
-    const slot = slots[index];
-    const desired = desiredSlots[index];
-    const currentComponent = await slot.getMainComponentAsync();
-    let mutated = false;
-    if (currentComponent?.id !== desired.component.id) {
-      slot.swapComponent(desired.component);
-      mutated = true;
+    if ((artifacts.length > 0 && !artifactComponent) || (bundles.length > 0 && !bundleComponent)) {
+      return false;
     }
-    if (slot.name !== desired.name) {
-      slot.name = desired.name;
-      mutated = true;
-    }
-    if (mutated) mutatedNodeIds.push(slot.id);
-  }
 
-  return canRepresentLibraryCatalogEntries(instance, node);
+    const desiredSlots = [
+      ...artifacts.map(() => ({ name: ARTIFACT_INSTANCE_NAME, component: artifactComponent })),
+      ...bundles.map((bundle) => ({
+        name: ARTIFACTS_BUNDLE_INSTANCE_NAME,
+        component: bundleComponent,
+        nestedArtifactCount: bundle.artifacts.length,
+      })),
+    ];
+
+    for (let index = 0; index < desiredSlots.length; index += 1) {
+      const slot = slots[index];
+      const desired = desiredSlots[index];
+      const currentComponent = await slot.getMainComponentAsync();
+      let mutated = false;
+      if (currentComponent?.id !== desired.component.id) {
+        slot.swapComponent(desired.component);
+        mutated = true;
+      }
+      if (slot.name !== desired.name) {
+        slot.name = desired.name;
+        mutated = true;
+      }
+      if (mutated) mutatedNodeIds.push(slot.id);
+
+      if (desired.name === ARTIFACTS_BUNDLE_INSTANCE_NAME) {
+        const nestedSlotsReady = configureBundleArtifactSlotVisibility(
+          slot,
+          desired.nestedArtifactCount,
+          mutatedNodeIds
+        );
+        if (!nestedSlotsReady) return false;
+      }
+    }
+
+    return canRepresentLibraryCatalogEntries(instance, node);
+  });
 }
 
 export function directLibraryCatalogItemSlots(root) {
@@ -134,6 +151,41 @@ async function findCatalogItemComponent(section, instanceName, requiredNestedArt
   }
 
   return null;
+}
+
+function configureBundleArtifactSlotVisibility(bundleInstance, requiredSlots, mutatedNodeIds) {
+  const slots = directCatalogItemInstances(bundleInstance, ARTIFACT_INSTANCE_NAME);
+  if (slots.length < requiredSlots) return false;
+
+  for (let index = 0; index < slots.length; index += 1) {
+    const visible = index < requiredSlots;
+    if (slots[index].visible === visible) continue;
+
+    slots[index].visible = visible;
+    mutatedNodeIds.push(slots[index].id);
+  }
+
+  return true;
+}
+
+function withInvisibleInstanceChildren(operation) {
+  if (typeof figma === "undefined") return operation();
+
+  const previousValue = figma.skipInvisibleInstanceChildren;
+  figma.skipInvisibleInstanceChildren = false;
+  try {
+    const result = operation();
+    if (result && typeof result.then === "function") {
+      return result.finally(() => {
+        figma.skipInvisibleInstanceChildren = previousValue;
+      });
+    }
+    figma.skipInvisibleInstanceChildren = previousValue;
+    return result;
+  } catch (error) {
+    figma.skipInvisibleInstanceChildren = previousValue;
+    throw error;
+  }
 }
 
 function childrenOf(node) {
