@@ -5,7 +5,7 @@ import com.marmatsan.dependencies.gradle.DependencyCatalogSettingsPlugin
 import com.marmatsan.waterMyPlants.projectConfig.catalog.WaterMyPlantsCatalogProvider
 import com.marmatsan.waterMyPlants.projectConfig.catalog.configuration.WaterMyPlantsTestCatalogConfigurator
 import com.marmatsan.waterMyPlants.projectConfig.catalog.configuration.WaterMyPlantsToolingPluginCatalogConfigurator
-import com.marmatsan.waterMyPlants.projectConfig.catalog.configuration.WaterMyPlantsVersionProperties
+import com.marmatsan.waterMyPlants.projectConfig.catalog.version.WaterMyPlantsVersionProperties
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
 import org.gradle.kotlin.dsl.configure

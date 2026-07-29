@@ -111,7 +111,7 @@ catalog, so it never enters the production `libs` tree or app runtime graph.
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/dependency-catalog/catalog-api/` | `:catalog-api` | Immutable catalog model and segregated resolved/aliased provider APIs. |
-| `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, traversal, and mappers for provider implementations. |
+| `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, version strategies, traversal, and canonical mapping to `:catalog-api` for provider implementations. |
 | `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
 | `repo/dependency-catalog/catalog-tree-gradle-plugin/` | `:catalog-tree-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog.tree` settings plugin for consumer-owned compact trees and version registries. |
 
@@ -151,7 +151,7 @@ changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
-| `repo/water-my-plants-project-config/catalog/` | `:catalog` | Water My Plants dependency trees, `DependencyCatalogProvider`, and product-version schema. Depends on the public catalog API and optional core DSL. |
+| `repo/water-my-plants-project-config/catalog/` | `:catalog` | Water My Plants dependency trees, `DependencyCatalogProvider`, and shared product-version source. Depends on the public catalog API and optional core DSL. |
 | `repo/water-my-plants-project-config/plugin/` | `:plugin` | Settings/project plugins, Figma catalog adapter, Figma identities, TeamCity wiring, operational tasks, and adapter tests. |
 
 The composition build's `settings.gradle.kts` owns local `libs` and `plugins`

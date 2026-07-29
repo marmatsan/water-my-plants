@@ -30,7 +30,10 @@ export function libraryBundles(entries) {
         version: entry.version,
         artifacts: (entry.artifacts || []).map((artifact) => ({
           name: artifact,
-          version: entry.version,
+          version: {
+            value: null,
+            visible: false,
+          },
           requiredByModules: [],
           providedByConventionPlugins: [],
           configuredByConventionPlugins: [],

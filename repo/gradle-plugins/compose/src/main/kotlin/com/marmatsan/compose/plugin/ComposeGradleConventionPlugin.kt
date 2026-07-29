@@ -72,7 +72,7 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
                 artifact = "activity-compose"
             )
             libs.implementationBundle(
-                bundle = "lifecycleCompose"
+                bundle = "lifecycleComposeBundle"
             )
             libs.implementation(
                 libraryGroup = "androidx.navigation",

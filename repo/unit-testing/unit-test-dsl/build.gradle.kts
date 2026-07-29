@@ -15,7 +15,7 @@ java {
 }
 
 dependencies {
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

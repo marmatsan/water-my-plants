@@ -37,5 +37,22 @@ internal class DependencyCatalogTest :
                         "Plugin id 'org.jetbrains' must be one non-blank path segment without dots or whitespace"
                 }
             }
+
+            test("library bundle aliases require the Bundle suffix") {
+                given {
+                    "composeUi"
+                }.whenever { alias ->
+                    shouldThrow<IllegalArgumentException> {
+                        LibraryCatalogEntry.Bundle(
+                            alias = alias,
+                            artifacts = listOf("ui"),
+                            version = null
+                        )
+                    }
+                }.then { failure ->
+                    failure.message shouldBe
+                        "Library bundle alias 'composeUi' must end in Bundle"
+                }
+            }
         }
     )

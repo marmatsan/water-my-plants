@@ -31,7 +31,7 @@ internal class UnitTestDependencyConfigurator {
                 )
 
             catalogDependencies.testImplementationBundle(
-                bundle = "kotest"
+                bundle = "kotestBundle"
             )
             catalogDependencies.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",

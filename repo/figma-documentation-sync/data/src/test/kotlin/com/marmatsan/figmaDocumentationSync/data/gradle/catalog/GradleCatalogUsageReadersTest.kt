@@ -53,7 +53,7 @@ internal class GradleCatalogUsageReadersTest :
                                     bundle = "composeBundle"
                                 )
                                 libs.testImplementationBundle(
-                                    bundle = "kotest"
+                                    bundle = "kotestBundle"
                                 )
                             }
                             """.trimIndent()
@@ -75,7 +75,7 @@ internal class GradleCatalogUsageReadersTest :
                             bundles =
                                 mapOf(
                                     "composeBundle" to setOf(":gradle-plugins:android"),
-                                    "kotest" to setOf(":gradle-plugins:android")
+                                    "kotestBundle" to setOf(":gradle-plugins:android")
                                 )
                         )
                 }

@@ -69,8 +69,8 @@ class LibraryScope(
      * dependency constraint.
      *
      * @param artifacts A vararg list of artifact names to include in the bundle (e.g., `"ui"`, `"ui-tooling"`).
-     * @param alias The unique alias that identifies the bundle. This is used to reference all artifacts together so
-     * it can be referenced via `libs.bundles.<alias>`.
+     * @param alias The unique alias that identifies the bundle. It must end in `Bundle` and is
+     * used to reference all artifacts together via `libs.bundles.<alias>`.
      * @param version The shared version for all artifacts in the bundle. If `null`, the version will not be declared.
      */
     fun artifactsBundle(
@@ -117,7 +117,7 @@ class LibraryScope(
      *     library("ui") {
      *         artifactsBundle(
      *             "ui", "ui-tooling", "ui-preview",
-     *             alias = "composeUi", version = "1.6.0"
+     *             alias = "composeUiBundle", version = "1.6.0"
      *         )
      *     }
      * }

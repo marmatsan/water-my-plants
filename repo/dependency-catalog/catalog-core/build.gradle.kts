@@ -5,12 +5,15 @@ import org.gradle.api.publish.maven.MavenPublication
 plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm)
     alias(plugins.plugins.org.jetbrains.dokka)
+    `java-library`
     `maven-publish`
 }
 
 dependencies {
+    api(projects.catalogApi)
+
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

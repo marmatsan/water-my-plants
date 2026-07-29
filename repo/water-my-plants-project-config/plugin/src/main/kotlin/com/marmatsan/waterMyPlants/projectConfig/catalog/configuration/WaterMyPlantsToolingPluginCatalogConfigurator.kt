@@ -1,5 +1,6 @@
 package com.marmatsan.waterMyPlants.projectConfig.catalog.configuration
 
+import com.marmatsan.waterMyPlants.projectConfig.catalog.version.WaterMyPlantsVersionProperties
 import org.gradle.api.initialization.Settings
 
 /**

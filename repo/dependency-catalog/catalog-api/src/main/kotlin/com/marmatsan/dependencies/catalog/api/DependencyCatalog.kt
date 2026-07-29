@@ -51,12 +51,19 @@ sealed interface LibraryCatalogEntry {
      * @property alias Gradle version catalog bundle alias.
      * @property artifacts Maven artifact identifiers included in the bundle.
      * @property version Version shared by every artifact, or `null` when externally managed.
+     * @throws IllegalArgumentException when [alias] does not end in `Bundle`.
      */
     data class Bundle(
         val alias: String,
         val artifacts: List<String>,
         val version: String?
-    ) : LibraryCatalogEntry
+    ) : LibraryCatalogEntry {
+        init {
+            require(alias.endsWith("Bundle")) {
+                "Library bundle alias '$alias' must end in Bundle"
+            }
+        }
+    }
 }
 
 /**

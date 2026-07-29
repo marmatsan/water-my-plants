@@ -7,7 +7,8 @@ package com.marmatsan.dependencies.tree.model
  * whole group from `libs.bundles.<alias>`. When [version] is provided, the DSL propagates that same
  * version to the artifacts in the bundle.
  *
- * @property alias Version catalog bundle alias.
+ * @property alias Version catalog bundle alias. The public catalog contract requires the
+ * `Bundle` suffix.
  * @property artifacts Artifacts that belong to this bundle.
  * @property version Optional version shared by the bundle artifacts.
  */

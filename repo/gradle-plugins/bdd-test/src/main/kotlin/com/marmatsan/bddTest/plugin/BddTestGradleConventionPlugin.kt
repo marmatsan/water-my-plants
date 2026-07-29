@@ -52,7 +52,7 @@ class BddTestGradleConventionPlugin : Plugin<Project> {
                 artifact = "cucumber-bom"
             )
             libs.testImplementationBundle(
-                bundle = "cucumber"
+                bundle = "cucumberBundle"
             )
             libs.testImplementation(
                 libraryGroup = "org.junit.platform",

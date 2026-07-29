@@ -68,7 +68,7 @@ test("preflight validates hidden templates through an instance main component", 
   );
 });
 
-test("bundle entries keep artifacts inside the bundle instead of exposing direct artifacts", () => {
+test("bundle entries keep child artifact versions hidden and expose only the bundle version", () => {
   const entries = [
     {
       type: "bundle",
@@ -80,8 +80,8 @@ test("bundle entries keep artifacts inside the bundle instead of exposing direct
         "ui-tooling-preview",
       ],
       version: {
-        value: null,
-        visible: false,
+        value: "1.7.8",
+        visible: true,
       },
       requiredByModules: [],
       providedByConventionPlugins: [
@@ -103,8 +103,8 @@ test("bundle entries keep artifacts inside the bundle instead of exposing direct
     {
       alias: "composeBundle",
       version: {
-        value: null,
-        visible: false,
+        value: "1.7.8",
+        visible: true,
       },
       artifacts: [
         {
@@ -291,7 +291,7 @@ function lifecycleCatalogNode() {
       },
       {
         type: "bundle",
-        alias: "lifecycleCompose",
+        alias: "lifecycleComposeBundle",
         artifacts: [
           "lifecycle-runtime-compose",
           "lifecycle-viewmodel-compose",

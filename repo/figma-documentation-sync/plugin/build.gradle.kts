@@ -45,9 +45,9 @@ dependencies {
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotestBundle)
     testImplementation(platform(libs.io.cucumber.bom))
-    testImplementation(libs.bundles.cucumber)
+    testImplementation(libs.bundles.cucumberBundle)
     testImplementation(libs.org.junit.platform.suite)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
