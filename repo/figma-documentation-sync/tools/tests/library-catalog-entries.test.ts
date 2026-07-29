@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { TREE_NODE_PROPS } from "@figma-documentation-sync/project-config";
 import {
   libraryArtifacts,
   libraryBundles,
 } from "../src/domain/catalog/library-catalog-entries";
 import { directCatalogItemInstances } from "../src/figma/figma-consumer-modules-gateway";
+import { canRepresentLibraryCatalogEntries } from "../src/figma/figma-library-tree-node-capacity";
+import { findTreeNodeTemplate } from "../src/figma/figma-tree-node-gateway";
 import { requireNestedTemplateInstance } from "../src/figma/figma-visual-contract-check-gateway";
 
 test("direct artifact selection excludes rows owned by an artifacts bundle", () => {
@@ -166,3 +169,121 @@ test("bundle entries keep artifacts inside the bundle instead of exposing direct
     },
   ]);
 });
+
+test("library tree node capacity rejects a legacy direct-artifact-only structure when the model requires a bundle", () => {
+  const instance = libraryTreeNodeStructure(3, []);
+
+  assert.equal(
+    canRepresentLibraryCatalogEntries(instance, lifecycleCatalogNode()),
+    false
+  );
+});
+
+test("library tree node capacity accepts direct artifacts and sufficiently large bundle slots", () => {
+  const instance = libraryTreeNodeStructure(1, [2]);
+
+  assert.equal(
+    canRepresentLibraryCatalogEntries(instance, lifecycleCatalogNode()),
+    true
+  );
+});
+
+test("library tree node capacity rejects a bundle slot with too few nested artifact rows", () => {
+  const instance = libraryTreeNodeStructure(1, [1]);
+
+  assert.equal(
+    canRepresentLibraryCatalogEntries(instance, lifecycleCatalogNode()),
+    false
+  );
+});
+
+test("library template selection skips an incompatible local node and uses a compatible section template", () => {
+  const incompatible = libraryTreeNodeStructure(3, []);
+  incompatible.id = "incompatible";
+  incompatible.name = ".tree node";
+  incompatible.componentProperties = libraryTreeNodeProperties(true);
+  const compatible = libraryTreeNodeStructure(1, [2]);
+  compatible.id = "compatible";
+  compatible.name = ".tree node";
+  compatible.componentProperties = libraryTreeNodeProperties(true);
+  const container = searchableContainer([incompatible]);
+  const section = searchableContainer([incompatible, compatible]);
+
+  assert.equal(
+    findTreeNodeTemplate(section, container, {
+      ...lifecycleCatalogNode(),
+      artifactsVisible: true,
+    }),
+    compatible
+  );
+});
+
+function lifecycleCatalogNode() {
+  return {
+    type: "Library",
+    label: "lifecycle",
+    parentPath: ["androidx"],
+    path: ["androidx", "lifecycle"],
+    children: [],
+    entries: [
+      {
+        type: "artifact",
+        artifact: "lifecycle-runtime-ktx",
+        version: { value: "1.0", visible: true },
+        requiredByModules: [":app"],
+      },
+      {
+        type: "bundle",
+        alias: "lifecycleCompose",
+        artifacts: [
+          "lifecycle-runtime-compose",
+          "lifecycle-viewmodel-compose",
+        ],
+        version: { value: "1.0", visible: true },
+        requiredByModules: [":app"],
+      },
+    ],
+  };
+}
+
+function libraryTreeNodeStructure(directArtifactCount: number, bundleArtifactCounts: number[]) {
+  const directArtifacts = Array.from({ length: directArtifactCount }, (_, index) => ({
+    id: `artifact-${index}`,
+    type: "INSTANCE",
+    name: ".artifact",
+  }));
+  const bundles = bundleArtifactCounts.map((artifactCount, bundleIndex) => ({
+    id: `bundle-${bundleIndex}`,
+    type: "INSTANCE",
+    name: ".artifacts bundle",
+    children: Array.from({ length: artifactCount }, (_, artifactIndex) => ({
+      id: `bundle-${bundleIndex}-artifact-${artifactIndex}`,
+      type: "INSTANCE",
+      name: ".artifact",
+    })),
+  }));
+  const catalogItems = [...directArtifacts, ...bundles];
+
+  return {
+    id: "tree-node",
+    children: [{ id: "artifacts", name: "artifacts", children: catalogItems }],
+    findAllWithCriteria() {
+      return catalogItems;
+    },
+  };
+}
+
+function libraryTreeNodeProperties(showArtifacts: boolean) {
+  return {
+    [TREE_NODE_PROPS.type]: { value: "Library" },
+    [TREE_NODE_PROPS.showArtifacts]: { value: showArtifacts },
+  };
+}
+
+function searchableContainer(instances) {
+  return {
+    findAllWithCriteria() {
+      return instances;
+    },
+  };
+}

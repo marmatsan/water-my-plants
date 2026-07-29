@@ -5,6 +5,7 @@ import {
   buildPartialCatalogSyncScope,
   catalogTraversalRoots,
   constrainCatalogLayoutToPadding,
+  markIncompatibleLibraryTreeNodesForReplacement,
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
@@ -117,6 +118,25 @@ test("ambiguous legacy duplicate labels remain unresolved instead of being match
 
   assert.deepEqual([...instances.keys()].sort(), ["unresolved:android-2-id", "unresolved:android-id"]);
   assert.deepEqual(mutatedNodeIds, []);
+});
+
+test("an incompatible path-addressed library node becomes stale before its replacement is created", () => {
+  const legacyInstance = incompatibleLibraryTreeNodeInstance("lifecycle");
+  const lifecyclePath = catalogNodePathKey(["androidx", "lifecycle"]);
+  const instancesByPath = new Map([[lifecyclePath, legacyInstance]]);
+  const mutatedNodeIds = [];
+
+  const replacedPaths = markIncompatibleLibraryTreeNodesForReplacement(
+    [libraryCatalogNodeWithBundle("lifecycle", ["androidx"])],
+    instancesByPath,
+    mutatedNodeIds
+  );
+
+  assert.deepEqual(replacedPaths, [lifecyclePath]);
+  assert.equal(instancesByPath.has(lifecyclePath), false);
+  assert.equal(instancesByPath.get("unresolved:lifecycle-id"), legacyInstance);
+  assert.equal(legacyInstance.nodePath, "");
+  assert.deepEqual(mutatedNodeIds, ["lifecycle-id"]);
 });
 
 test("partial connector collection never traverses the catalog page", () => {
@@ -491,5 +511,49 @@ function libraryTreeNodeInstance(label: string, path?: string[]) {
     setSharedPluginData(_namespace: string, key: string, value: string) {
       if (key === "treeNodePath") nodePath = value;
     },
+  };
+}
+
+function incompatibleLibraryTreeNodeInstance(label: string) {
+  const directArtifacts = Array.from({ length: 3 }, (_, index) => ({
+    id: `${label}-artifact-${index}`,
+    type: "INSTANCE",
+    name: ".artifact",
+  }));
+  return {
+    id: `${label}-id`,
+    nodePath: catalogNodePathKey(["androidx", label]),
+    children: [{ name: "artifacts", children: directArtifacts }],
+    findAllWithCriteria() {
+      return directArtifacts;
+    },
+    setSharedPluginData(_namespace: string, key: string, value: string) {
+      if (key === "treeNodePath") this.nodePath = value;
+    },
+  };
+}
+
+function libraryCatalogNodeWithBundle(label: string, parentPath: string[]) {
+  return {
+    type: "Library",
+    label,
+    parentPath,
+    path: [...parentPath, label],
+    children: [],
+    entries: [
+      {
+        type: "artifact",
+        artifact: `${label}-runtime`,
+        version: { value: "1.0", visible: true },
+        requiredByModules: [":app"],
+      },
+      {
+        type: "bundle",
+        alias: `${label}Compose`,
+        artifacts: [`${label}-compose`, `${label}-viewmodel-compose`],
+        version: { value: "1.0", visible: true },
+        requiredByModules: [":app"],
+      },
+    ],
   };
 }
