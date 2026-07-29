@@ -54,6 +54,11 @@ aggregator so existing consumers do not need to know its internal projects.
 - This included build resolves its own compile/test toolchain from
   `repo/verification-platform/versions.properties`; it does not read the
   Water My Plants product catalog registry.
+- Its library bundle aliases follow the shared dependency-catalog contract and
+  end in `Bundle`. Build scripts therefore consume accessors such as
+  `libs.bundles.kotestBundle`, `libs.bundles.cucumberBundle`, and
+  `libs.bundles.ktlintBundle`; do not reintroduce aliases that hide their bundle
+  identity.
 - Its generated `plugins` catalog owns the versions of Kotlin JVM, Kotlin
   Serialization, and Dokka. `pluginManagement.plugins` declares only the
   `com.marmatsan.dependencyCatalog.tree` settings bootstrap; repeating project
