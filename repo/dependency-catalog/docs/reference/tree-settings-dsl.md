@@ -70,6 +70,13 @@ dependencyCatalogTree
 | `artifact(artifact, version)` | `artifact: String`, `version: String? = null` | Registers `<full-group>:<artifact>`. A null version calls Gradle's `withoutVersion()` and requires external version management. |
 | `artifactsBundle(*artifacts, alias, version)` | artifact names, required bundle `alias`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. |
 
+Use `artifactsBundle` only when every artifact represents one cohesive dependency
+set, shares version management, and is normally added to the same Gradle
+configuration. Keep BOMs outside the bundle so consumers can add them through
+`platform(...)`. Keep artifacts separate when they belong to different
+configurations, such as a compiler on `ksp`, a runtime on `implementation`, or
+a launcher on `testRuntimeOnly`.
+
 Library aliases start with the complete group. When the artifact begins with a
 suffix already represented by that group, the longest repeated prefix is
 removed; hyphens in the remaining artifact part become dots.

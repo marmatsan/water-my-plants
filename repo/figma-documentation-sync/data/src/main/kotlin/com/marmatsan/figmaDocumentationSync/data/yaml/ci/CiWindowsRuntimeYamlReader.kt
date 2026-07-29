@@ -71,46 +71,4 @@ class CiWindowsRuntimeYamlReader {
             identity = service.requiredString("identity"),
         )
     }
-
-    private fun Any?.asStringMap(
-        context: String,
-    ): Map<String, Any?> {
-        val source = this as? Map<*, *> ?: error("Expected YAML mapping for $context")
-        return source.entries.associate { (key, value) ->
-            val stringKey = key as? String ?: error("Expected string key in $context")
-            stringKey to value
-        }
-    }
-
-    private fun Map<String, Any?>.requiredMap(
-        key: String,
-    ): Map<String, Any?> =
-        get(
-            key = key,
-        ).asStringMap(
-            context = key,
-        )
-
-    private fun Map<String, Any?>.requiredList(
-        key: String,
-    ): List<Any?> =
-        get(
-            key = key,
-        ) as? List<*> ?: error("Expected YAML list '$key'")
-
-    private fun Map<String, Any?>.requiredString(
-        key: String,
-    ): String =
-        get(
-            key = key,
-        ) as? String ?: error("Expected YAML string '$key'")
-
-    private fun Map<String, Any?>.requiredInt(
-        key: String,
-    ): Int =
-        (
-            get(
-                key = key,
-            ) as? Number
-        )?.toInt() ?: error("Expected YAML integer '$key'")
 }

@@ -10,7 +10,6 @@ import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_ARGUMENT_NAME
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import com.pinterest.ktlint.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.ifAutocorrectAllowed
@@ -34,12 +33,7 @@ internal class MultilineFunctionArgumentsRule(
     private val callableSignatures: KotlinCallableSignatureIndex,
 ) : Rule(
         ruleId = RuleId("repository-verification:multiline-function-arguments"),
-        about =
-            About(
-                maintainer = "Repository Verification",
-                repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-                issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
-            ),
+        about = RepositoryKotlinRuleMetadata.about,
     ),
     RuleAutocorrectApproveHandler {
     /** Inspects parameter and argument lists and emits repository layout or naming violations. */

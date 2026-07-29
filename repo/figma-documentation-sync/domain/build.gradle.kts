@@ -13,10 +13,8 @@ dependencies {
     api(libs.com.michael.bull.kotlin.result)
     implementation(libs.me.tatarka.inject.kotlin.inject.runtime)
 
-    // Kotest
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 
@@ -31,11 +29,6 @@ publishing {
             pom {
                 name.set("Figma Documentation Sync Domain")
                 description.set("Portable models and ports for Figma design synchronization.")
-                url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/figma-documentation-sync")
-                scm {
-                    connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
-                    url.set("https://github.com/marmatsan/water-my-plants")
-                }
             }
         }
     }

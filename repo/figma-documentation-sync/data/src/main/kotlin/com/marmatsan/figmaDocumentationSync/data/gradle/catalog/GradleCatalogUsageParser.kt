@@ -311,7 +311,8 @@ internal class GradleCatalogUsageParser(
             )
         val libraryBundleUsageRegex =
             Regex(
-                """(?:\blibs\.)?implementationBundle\s*\(\s*(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
+                """(?:\blibs\.)?(?:implementation|testImplementation)Bundle\s*\(\s*""" +
+                    """(?:libs\s*=\s*libs\s*,\s*)?bundle\s*=\s*"([^"]+)"""",
                 RegexOption.DOT_MATCHES_ALL,
             )
         val libraryConfigurationUsageRegex =

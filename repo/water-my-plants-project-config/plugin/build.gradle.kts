@@ -21,8 +21,7 @@ dependencies {
     implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

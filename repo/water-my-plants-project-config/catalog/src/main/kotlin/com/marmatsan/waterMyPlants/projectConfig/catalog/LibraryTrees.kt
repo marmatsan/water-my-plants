@@ -69,12 +69,10 @@ private fun androidxLibrariesTree(
             artifact = "lifecycle-runtime-ktx",
             version = versions.lifecycleLibraryVersion,
         )
-        artifact(
-            artifact = "lifecycle-viewmodel-compose",
-            version = versions.lifecycleLibraryVersion,
-        )
-        artifact(
-            artifact = "lifecycle-runtime-compose",
+        artifactsBundle(
+            "lifecycle-viewmodel-compose",
+            "lifecycle-runtime-compose",
+            alias = "lifecycleCompose",
             version = versions.lifecycleLibraryVersion,
         )
     }
@@ -119,20 +117,17 @@ private fun ioLibrariesTree(
             artifact = "cucumber-bom",
             version = versions.cucumberLibraryVersion,
         )
-        artifact(
-            artifact = "cucumber-java8",
-        )
-        artifact(
-            artifact = "cucumber-junit-platform-engine",
+        artifactsBundle(
+            "cucumber-java8",
+            "cucumber-junit-platform-engine",
+            alias = "cucumber",
         )
     }
     library("kotest") {
-        artifact(
-            artifact = "kotest-runner-junit5",
-            version = versions.kotestLibraryVersion,
-        )
-        artifact(
-            artifact = "kotest-assertions-core",
+        artifactsBundle(
+            "kotest-runner-junit5",
+            "kotest-assertions-core",
+            alias = "kotest",
             version = versions.kotestLibraryVersion,
         )
     }

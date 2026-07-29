@@ -71,13 +71,8 @@ class ComposeGradleConventionPlugin : Plugin<Project> {
                 libraryGroup = "androidx.activity",
                 artifact = "activity-compose",
             )
-            libs.implementation(
-                libraryGroup = "androidx.lifecycle",
-                artifact = "lifecycle-viewmodel-compose",
-            )
-            libs.implementation(
-                libraryGroup = "androidx.lifecycle",
-                artifact = "lifecycle-runtime-compose",
+            libs.implementationBundle(
+                bundle = "lifecycleCompose",
             )
             libs.implementation(
                 libraryGroup = "androidx.navigation",

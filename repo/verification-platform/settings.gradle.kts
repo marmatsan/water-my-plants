@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
@@ -32,7 +32,6 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -58,12 +57,10 @@ dependencyCatalogTree {
         }
         root("io") {
             library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
                     version = version("kotestLibraryVersion"),
                 )
             }
@@ -72,11 +69,10 @@ dependencyCatalogTree {
                     artifact = "cucumber-bom",
                     version = version("cucumberLibraryVersion"),
                 )
-                artifact(
-                    artifact = "cucumber-java8",
-                )
-                artifact(
-                    artifact = "cucumber-junit-platform-engine",
+                artifactsBundle(
+                    "cucumber-java8",
+                    "cucumber-junit-platform-engine",
+                    alias = "cucumber",
                 )
             }
         }
@@ -94,12 +90,10 @@ dependencyCatalogTree {
                 )
             }
             library("pinterest.ktlint") {
-                artifact(
-                    artifact = "ktlint-rule-engine",
-                    version = version("ktlintLibraryVersion"),
-                )
-                artifact(
-                    artifact = "ktlint-ruleset-standard",
+                artifactsBundle(
+                    "ktlint-rule-engine",
+                    "ktlint-ruleset-standard",
+                    alias = "ktlint",
                     version = version("ktlintLibraryVersion"),
                 )
             }

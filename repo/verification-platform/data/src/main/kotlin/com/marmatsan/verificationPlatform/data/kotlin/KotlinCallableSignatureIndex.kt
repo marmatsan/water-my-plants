@@ -4,7 +4,6 @@ import com.pinterest.ktlint.rule.engine.api.Code
 import com.pinterest.ktlint.rule.engine.api.KtLintRuleEngine
 import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision
 import com.pinterest.ktlint.rule.engine.core.api.Rule
-import com.pinterest.ktlint.rule.engine.core.api.Rule.About
 import com.pinterest.ktlint.rule.engine.core.api.RuleAutocorrectApproveHandler
 import com.pinterest.ktlint.rule.engine.core.api.RuleId
 import com.pinterest.ktlint.rule.engine.core.api.RuleProvider
@@ -169,12 +168,7 @@ private class KotlinCallableSignatureCollectorRule(
     private val functionValues: MutableSet<KotlinFunctionValue>,
 ) : Rule(
         ruleId = RuleId("repository-verification:kotlin-callable-signature-collector"),
-        about =
-            About(
-                maintainer = "Repository Verification",
-                repositoryUrl = "https://github.com/marmatsan/water-my-plants",
-                issueTrackerUrl = "https://github.com/marmatsan/water-my-plants/issues",
-            ),
+        about = RepositoryKotlinRuleMetadata.about,
     ),
     RuleAutocorrectApproveHandler {
     override fun beforeVisitChildNodes(

@@ -23,13 +23,20 @@ class VersionCatalogDependencyHandler internal constructor(
     fun implementationBundle(
         bundle: String,
     ) {
-        libs
-            .requireBundle(
-                alias = bundle,
-            ).get()
-            .forEach { dependency ->
-                dependencies.implementation(dependency)
-            }
+        addBundle(
+            configuration = "implementation",
+            bundle = bundle,
+        )
+    }
+
+    /** Adds every dependency in [bundle] to the `testImplementation` configuration. */
+    fun testImplementationBundle(
+        bundle: String,
+    ) {
+        addBundle(
+            configuration = "testImplementation",
+            bundle = bundle,
+        )
     }
 
     fun implementationPlatform(
@@ -95,6 +102,22 @@ class VersionCatalogDependencyHandler internal constructor(
                     artifact = artifact,
                 ),
         )
+
+    private fun addBundle(
+        configuration: String,
+        bundle: String,
+    ) {
+        libs
+            .requireBundle(
+                alias = bundle,
+            ).get()
+            .forEach { dependency ->
+                dependencies.add(
+                    configuration,
+                    dependency,
+                )
+            }
+    }
 }
 
 fun DependencyHandlerScope.withVersionCatalog(

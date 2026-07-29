@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
@@ -43,12 +43,10 @@ dependencyCatalogTree {
     libraries {
         root("io") {
             library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
                     version = version("kotestLibraryVersion"),
                 )
             }

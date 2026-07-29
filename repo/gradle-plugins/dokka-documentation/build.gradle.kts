@@ -6,23 +6,11 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
 dependencies {
     implementation(libs.org.jetbrains.dokka.gradle.plugin)
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
 
-    // Kotest
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

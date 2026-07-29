@@ -2,7 +2,6 @@
 
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -11,11 +10,10 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
         mavenCentral()
     }
 
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
@@ -32,6 +30,13 @@ dependencyResolutionManagement {
                 "io.kotest",
                 "kotest-assertions-core",
             ).version(versions.getProperty("kotestLibraryVersion"))
+            bundle(
+                "kotest",
+                listOf(
+                    "io.kotest.runner.junit5",
+                    "io.kotest.assertions.core",
+                ),
+            )
             library(
                 "io.mockk",
                 "io.mockk",

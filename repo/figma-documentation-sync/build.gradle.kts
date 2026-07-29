@@ -2,6 +2,7 @@
 
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.dokka.gradle.DokkaExtension
@@ -63,11 +64,11 @@ abstract class VerifyPublicationVersionAlignmentTask : DefaultTask() {
     }
 }
 
-val publicationGroup =
+val publicationGroup: String =
     providers
         .gradleProperty("figmaDocumentationSyncGroup")
         .getOrElse("com.marmatsan.figma-documentation-sync")
-val publicationVersion =
+val publicationVersion: String =
     providers
         .gradleProperty("figmaDocumentationSyncVersion")
         .getOrElse(
@@ -76,11 +77,11 @@ val publicationVersion =
                 getProperty("figmaDocumentationSyncVersion")
             },
         )
-val configuredPublicationRepository =
+val configuredPublicationRepository: String? =
     providers
         .gradleProperty("figmaDocumentationSyncPublicationRepository")
         .orNull
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     configuredPublicationRepository
         ?: layout.buildDirectory
             .dir("publication-repository")
@@ -92,12 +93,6 @@ allprojects {
 }
 
 subprojects {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-
     pluginManager.withPlugin("java") {
         extensions.configure<JavaPluginExtension> {
             withSourcesJar()
@@ -155,6 +150,16 @@ subprojects {
 
     pluginManager.withPlugin("maven-publish") {
         extensions.configure<PublishingExtension> {
+            publications.withType<MavenPublication>().configureEach {
+                pom {
+                    url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/figma-documentation-sync")
+                    scm {
+                        connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                        url.set("https://github.com/marmatsan/water-my-plants")
+                    }
+                }
+            }
+
             repositories {
                 maven {
                     name = "staging"

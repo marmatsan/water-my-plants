@@ -1,5 +1,5 @@
 pluginManagement {
-    val pluginRepository =
+    val pluginRepository: String =
         providers
             .gradleProperty("figmaDocumentationSyncPublicationRepository")
             .get()
@@ -12,15 +12,6 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositories {
-        maven {
-            url = uri(providers.gradleProperty("figmaDocumentationSyncPublicationRepository").get())
-        }
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-
     versionCatalogs {
         create("plugins") {
             plugin(

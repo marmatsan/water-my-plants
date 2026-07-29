@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
@@ -35,6 +35,13 @@ plugins {
     id("com.marmatsan.dependencyCatalog.tree")
 }
 
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+    }
+}
+
 rootProject.name = "figma-documentation-sync"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -63,17 +70,12 @@ dependencyCatalogTree {
                     artifact = "ktor-bom",
                     version = version("ktorLibraryVersion"),
                 )
-                artifact(
-                    artifact = "ktor-client-core",
-                )
-                artifact(
-                    artifact = "ktor-client-cio",
-                )
-                artifact(
-                    artifact = "ktor-client-content-negotiation",
-                )
-                artifact(
-                    artifact = "ktor-serialization-kotlinx-json",
+                artifactsBundle(
+                    "ktor-client-core",
+                    "ktor-client-cio",
+                    "ktor-client-content-negotiation",
+                    "ktor-serialization-kotlinx-json",
+                    alias = "ktorClient",
                 )
             }
             library("modelcontextprotocol") {
@@ -87,20 +89,17 @@ dependencyCatalogTree {
                     artifact = "cucumber-bom",
                     version = version("cucumberLibraryVersion"),
                 )
-                artifact(
-                    artifact = "cucumber-java8",
-                )
-                artifact(
-                    artifact = "cucumber-junit-platform-engine",
+                artifactsBundle(
+                    "cucumber-java8",
+                    "cucumber-junit-platform-engine",
+                    alias = "cucumber",
                 )
             }
             library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
                     version = version("kotestLibraryVersion"),
                 )
             }

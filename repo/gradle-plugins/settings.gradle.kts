@@ -1,10 +1,10 @@
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
 
-    val dependencyCatalogSourceBuild =
+    val dependencyCatalogSourceBuild: String? =
         providers.gradleProperty("dependencyCatalogSourceBuild").orNull
     if (
         dependencyCatalogSourceBuild != null &&
@@ -26,13 +26,6 @@ pluginManagement {
         providers.gradleProperty("dependencyCatalogPublicationRepository").orNull?.let { repository ->
             maven { url = uri(repository) }
         }
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -51,6 +44,14 @@ plugins {
 // inclusion above separately makes the settings plugin available during bootstrap.
 providers.gradleProperty("dependencyCatalogSourceBuild").orNull?.let { sourceBuild ->
     includeBuild(sourceBuild)
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 rootProject.name = "gradle-plugins"
@@ -106,12 +107,10 @@ dependencyCatalogTree {
         }
         root("io") {
             library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
                     version = version("kotestLibraryVersion"),
                 )
             }

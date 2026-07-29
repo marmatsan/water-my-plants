@@ -6,17 +6,8 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    google()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
-    // Modules
     implementation(projects.dependencies)
-
-    // Build
     compileOnly(libs.com.android.tools.build.gradle)
     compileOnly(libs.org.jetbrains.kotlin.gradle.plugin)
 }

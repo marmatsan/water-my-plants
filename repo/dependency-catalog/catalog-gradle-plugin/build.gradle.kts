@@ -9,24 +9,13 @@ plugins {
     `maven-publish`
 }
 
-java {
-    withSourcesJar()
-}
-
 dependencies {
     implementation(projects.catalogApi)
-    implementation(gradleApi())
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
-    testImplementation(gradleTestKit())
-    testImplementation(libs.io.kotest.runner.junit5)
-    testImplementation(libs.io.kotest.assertions.core)
+    testImplementation(libs.bundles.kotest)
     testImplementation(libs.io.mockk)
     testRuntimeOnly(libs.org.junit.platform.launcher)
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }
 
 gradlePlugin {
@@ -48,25 +37,6 @@ publishing {
         pom {
             name.set("Dependency Catalog Gradle Plugin")
             description.set("Gradle settings adapter for portable dependency catalog trees.")
-            url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/dependency-catalog")
-            scm {
-                connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
-                url.set("https://github.com/marmatsan/water-my-plants")
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "staging"
-            url =
-                uri(
-                    providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
-                        ?: rootProject.layout.buildDirectory
-                            .dir("publication-repository")
-                            .get()
-                            .asFile,
-                )
         }
     }
 }

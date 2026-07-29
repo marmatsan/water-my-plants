@@ -1,17 +1,16 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
-    val versions =
+    val versions: java.util.Properties =
         java.util.Properties().apply {
             file("versions.properties").inputStream().use(::load)
         }
-    val dependencyCatalogSourceBuild =
+    val dependencyCatalogSourceBuild: String =
         providers.gradleProperty("dependencyCatalogSourceBuild").orNull
             ?: file("../dependency-catalog").absolutePath
     includeBuild(dependencyCatalogSourceBuild)
 
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -33,7 +32,7 @@ includeBuild("../figma-documentation-sync")
 includeBuild("../gradle-plugins")
 includeBuild("../unit-testing")
 
-val portableVersion =
+val portableVersion: String =
     providers
         .gradleProperty("figmaDocumentationSyncVersion")
         .getOrElse("0.1.0-SNAPSHOT")
@@ -47,9 +46,7 @@ dependencyResolutionManagement {
         providers.gradleProperty("figmaDocumentationSyncCatalogPublicationRepository").orNull?.let { repository ->
             maven { url = uri(repository) }
         }
-        google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -117,12 +114,10 @@ dependencyCatalogTree {
         }
         root("io") {
             library("kotest") {
-                artifact(
-                    artifact = "kotest-runner-junit5",
-                    version = version("kotestLibraryVersion"),
-                )
-                artifact(
-                    artifact = "kotest-assertions-core",
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotest",
                     version = version("kotestLibraryVersion"),
                 )
             }

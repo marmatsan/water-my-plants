@@ -30,13 +30,8 @@ internal class UnitTestDependencyConfigurator {
                     libs = productLibraries,
                 )
 
-            catalogDependencies.testImplementation(
-                libraryGroup = "io.kotest",
-                artifact = "kotest-runner-junit5",
-            )
-            catalogDependencies.testImplementation(
-                libraryGroup = "io.kotest",
-                artifact = "kotest-assertions-core",
+            catalogDependencies.testImplementationBundle(
+                bundle = "kotest",
             )
             catalogDependencies.testRuntimeOnly(
                 libraryGroup = "org.junit.platform",

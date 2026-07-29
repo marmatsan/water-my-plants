@@ -37,6 +37,13 @@ dependencyResolutionManagement {
                 "io.kotest",
                 "kotest-assertions-core",
             ).version(providers.gradleProperty("kotestVersion").get())
+            bundle(
+                "kotest",
+                listOf(
+                    "io.kotest.runner.junit5",
+                    "io.kotest.assertions.core",
+                ),
+            )
             library(
                 "io.mockk",
                 "io.mockk",
@@ -58,7 +65,7 @@ dependencyResolutionManagement {
         }
 
         create("plugins") {
-            val conventionVersion = providers.gradleProperty("gradlePluginsVersion").get()
+            val conventionVersion: String = providers.gradleProperty("gradlePluginsVersion").get()
             plugin(
                 "com.marmatsan.android",
                 "com.marmatsan.android",

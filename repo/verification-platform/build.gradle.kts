@@ -16,15 +16,15 @@ plugins {
     alias(plugins.plugins.org.jetbrains.dokka) apply false
 }
 
-val versions =
+val versions: Properties =
     Properties().apply {
         file("versions.properties").inputStream().use(::load)
     }
-val publicationVersion =
+val publicationVersion: String =
     providers.gradleProperty("verificationPlatformVersion").getOrElse(
         versions.getProperty("verificationPlatformVersion"),
     )
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     providers.gradleProperty("verificationPlatformPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")

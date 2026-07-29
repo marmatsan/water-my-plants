@@ -64,6 +64,24 @@ Compose state are not domain models and MUST NOT leak across their boundary.
 - Gradle core plugins MUST use their Kotlin DSL accessors, such as
   `` `maven-publish` ``, because Gradle does not generate catalog aliases for
   core plugins.
+- Each multi-project included build MUST centralize dependency repositories in
+  its `settings.gradle.kts` `dependencyResolutionManagement` block and enforce
+  `RepositoriesMode.FAIL_ON_PROJECT_REPOS`. Module `build.gradle.kts` files
+  MUST NOT repeat dependency-resolution repositories. Publication repositories
+  remain owned by the included build's publishing configuration.
+- Configuration shared by every compatible subproject in one included build,
+  such as JUnit Platform activation, sources JARs, common Dokka metadata, or a
+  staging publication repository, SHOULD be declared once in that included
+  build's root `build.gradle.kts` and activated lazily with `withPlugin`.
+  Configuration MUST remain module-local when root preloading would put an
+  incompatible plugin version on a shared classpath, as can happen when a
+  build mixes versioned Kotlin JVM aliases with Gradle's embedded
+  `kotlin-dsl` plugin. Reusable included builds MUST NOT deduplicate by
+  importing scripts or conventions from sibling builds through filesystem
+  paths.
+- `java-gradle-plugin` modules MUST use the Gradle API and TestKit dependencies
+  supplied by that plugin. They MUST NOT redeclare `gradleApi()` or
+  `gradleTestKit()` in their dependency blocks.
 - Repository-owned plugins with a stable marker and a consumer-owned catalog
   entry MUST use a type-safe alias at their direct `build.gradle.kts`
   consumption point. When `pluginManagement.includeBuild` supplies the source

@@ -1,5 +1,9 @@
 @file:Suppress("AvoidDuplicateDependencies")
 
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
@@ -12,15 +16,15 @@ plugins {
     alias(plugins.plugins.org.jetbrains.kotlin.jvm) apply false
 }
 
-val versions =
+val versions: Properties =
     Properties().apply {
         file("versions.properties").inputStream().use(::load)
     }
-val publicationVersion =
+val publicationVersion: String =
     providers.gradleProperty("dependencyCatalogVersion").getOrElse(
         versions.getProperty("dependencyCatalogVersion"),
     )
-val stagingPublicationRepository =
+val stagingPublicationRepository: String =
     providers.gradleProperty("dependencyCatalogPublicationRepository").orNull
         ?: layout.buildDirectory
             .dir("publication-repository")
@@ -33,6 +37,15 @@ allprojects {
 }
 
 subprojects {
+    pluginManager.withPlugin("java") {
+        extensions.configure<JavaPluginExtension> {
+            withSourcesJar()
+        }
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
+    }
+
     pluginManager.withPlugin("org.jetbrains.dokka") {
         extensions.configure<DokkaExtension> {
             moduleName.convention(
@@ -75,10 +88,31 @@ subprojects {
                 }
             }
         }
+
+        tasks.matching { task -> task.name == "check" }.configureEach {
+            dependsOn("dokkaGenerate")
+        }
     }
 
-    tasks.matching { task -> task.name == "check" }.configureEach {
-        dependsOn("dokkaGenerate")
+    pluginManager.withPlugin("maven-publish") {
+        extensions.configure<PublishingExtension> {
+            publications.withType<MavenPublication>().configureEach {
+                pom {
+                    url.set("https://github.com/marmatsan/water-my-plants/tree/main/repo/dependency-catalog")
+                    scm {
+                        connection.set("scm:git:https://github.com/marmatsan/water-my-plants.git")
+                        url.set("https://github.com/marmatsan/water-my-plants")
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    name = "staging"
+                    url = uri(stagingPublicationRepository)
+                }
+            }
+        }
     }
 }
 
