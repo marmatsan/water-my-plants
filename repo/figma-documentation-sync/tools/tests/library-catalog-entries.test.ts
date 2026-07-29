@@ -6,7 +6,10 @@ import {
   libraryBundles,
 } from "../src/domain/catalog/library-catalog-entries";
 import { directCatalogItemInstances } from "../src/figma/figma-consumer-modules-gateway";
-import { canRepresentLibraryCatalogEntries } from "../src/figma/figma-library-tree-node-capacity";
+import {
+  canRepresentLibraryCatalogEntries,
+  configureLibraryCatalogItemSlots,
+} from "../src/figma/figma-library-tree-node-capacity";
 import { findTreeNodeTemplate } from "../src/figma/figma-tree-node-gateway";
 import { requireNestedTemplateInstance } from "../src/figma/figma-visual-contract-check-gateway";
 
@@ -197,7 +200,7 @@ test("library tree node capacity rejects a bundle slot with too few nested artif
   );
 });
 
-test("library template selection skips an incompatible local node and uses a compatible section template", () => {
+test("library template selection reuses a local node with enough interchangeable slots", () => {
   const incompatible = libraryTreeNodeStructure(3, []);
   incompatible.id = "incompatible";
   incompatible.name = ".tree node";
@@ -214,8 +217,34 @@ test("library template selection skips an incompatible local node and uses a com
       ...lifecycleCatalogNode(),
       artifactsVisible: true,
     }),
-    compatible
+    incompatible
   );
+});
+
+test("library catalog-item slots can mix artifacts and bundles without a precomposed tree-node template", async () => {
+  const artifactComponent = catalogItemComponent("artifact-component", ".artifact", 0);
+  const bundleComponent = catalogItemComponent("bundle-component", ".artifacts bundle", 4);
+  const instance = configurableLibraryTreeNode(3, artifactComponent);
+  const bundleTemplate = configurableCatalogItemSlot("bundle-template", bundleComponent);
+  const section = searchableContainer([
+    ...instance.children[0].children,
+    bundleTemplate,
+  ]);
+  const mutatedNodeIds = [];
+
+  const configured = await configureLibraryCatalogItemSlots(
+    section,
+    instance,
+    lifecycleCatalogNode(),
+    mutatedNodeIds
+  );
+
+  assert.equal(configured, true);
+  assert.equal(instance.children[0].children[0].name, ".artifact");
+  assert.equal(instance.children[0].children[1].name, ".artifacts bundle");
+  assert.equal(instance.children[0].children[1].children.length, 4);
+  assert.equal(canRepresentLibraryCatalogEntries(instance, lifecycleCatalogNode()), true);
+  assert.deepEqual(mutatedNodeIds, ["slot-1"]);
 });
 
 function lifecycleCatalogNode() {
@@ -286,4 +315,53 @@ function searchableContainer(instances) {
       return instances;
     },
   };
+}
+
+function catalogItemComponent(id: string, name: string, nestedArtifactCount: number) {
+  return {
+    id,
+    name,
+    nestedArtifactCount,
+  };
+}
+
+function configurableLibraryTreeNode(slotCount: number, component) {
+  const slots = Array.from({ length: slotCount }, (_, index) =>
+    configurableCatalogItemSlot(`slot-${index}`, component)
+  );
+  return {
+    id: "configurable-tree-node",
+    children: [{ id: "artifacts", name: "artifacts", children: slots }],
+    findAllWithCriteria() {
+      return this.children[0].children.flatMap((slot) => [slot, ...(slot.children || [])]);
+    },
+  };
+}
+
+function configurableCatalogItemSlot(id: string, initialComponent) {
+  return {
+    id,
+    type: "INSTANCE",
+    name: initialComponent.name,
+    children: nestedArtifacts(id, initialComponent.nestedArtifactCount),
+    async getMainComponentAsync() {
+      return this.component;
+    },
+    component: initialComponent,
+    swapComponent(component) {
+      this.component = component;
+      this.children = nestedArtifacts(id, component.nestedArtifactCount);
+    },
+    findAllWithCriteria() {
+      return this.children;
+    },
+  };
+}
+
+function nestedArtifacts(parentId: string, count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    id: `${parentId}-artifact-${index}`,
+    type: "INSTANCE",
+    name: ".artifact",
+  }));
 }

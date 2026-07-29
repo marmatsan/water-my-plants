@@ -5,7 +5,7 @@ import {
   buildPartialCatalogSyncScope,
   catalogTraversalRoots,
   constrainCatalogLayoutToPadding,
-  markIncompatibleLibraryTreeNodesForReplacement,
+  prepareLibraryTreeNodesForSync,
   removeEmptyStaleCatalogRootSections,
   removeStaleCatalogNodes,
 } from "../src/figma/figma-catalog-tree-sync-gateway";
@@ -120,13 +120,14 @@ test("ambiguous legacy duplicate labels remain unresolved instead of being match
   assert.deepEqual(mutatedNodeIds, []);
 });
 
-test("an incompatible path-addressed library node becomes stale before its replacement is created", () => {
+test("an undersized path-addressed library node becomes stale before its replacement is created", async () => {
   const legacyInstance = incompatibleLibraryTreeNodeInstance("lifecycle");
   const lifecyclePath = catalogNodePathKey(["androidx", "lifecycle"]);
   const instancesByPath = new Map([[lifecyclePath, legacyInstance]]);
   const mutatedNodeIds = [];
 
-  const replacedPaths = markIncompatibleLibraryTreeNodesForReplacement(
+  const replacedPaths = await prepareLibraryTreeNodesForSync(
+    searchableRoot("androidx", []),
     [libraryCatalogNodeWithBundle("lifecycle", ["androidx"])],
     instancesByPath,
     mutatedNodeIds
@@ -515,7 +516,7 @@ function libraryTreeNodeInstance(label: string, path?: string[]) {
 }
 
 function incompatibleLibraryTreeNodeInstance(label: string) {
-  const directArtifacts = Array.from({ length: 3 }, (_, index) => ({
+  const directArtifacts = Array.from({ length: 1 }, (_, index) => ({
     id: `${label}-artifact-${index}`,
     type: "INSTANCE",
     name: ".artifact",

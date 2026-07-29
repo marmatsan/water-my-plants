@@ -41,7 +41,10 @@ import {
   updateLibraryTreeNode,
   updatePluginTreeNode,
 } from "./figma-tree-node-gateway";
-import { canRepresentLibraryCatalogEntries } from "./figma-library-tree-node-capacity";
+import {
+  canRepresentLibraryCatalogEntries,
+  configureLibraryCatalogItemSlots,
+} from "./figma-library-tree-node-capacity";
 
 export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
   async syncCatalogTrees(designModel: DesignModel, options: CatalogTreeSyncOptions = {}) {
@@ -146,7 +149,8 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       continue;
     }
 
-    markIncompatibleLibraryTreeNodesForReplacement(
+    await prepareLibraryTreeNodesForSync(
+      section,
       expectedNodes,
       instancesByPath,
       mutatedNodeIds
@@ -485,7 +489,8 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
   return { paths };
 }
 
-export function markIncompatibleLibraryTreeNodesForReplacement(
+export async function prepareLibraryTreeNodesForSync(
+  section,
   expectedNodes,
   instancesByPath,
   mutatedNodeIds
@@ -498,6 +503,7 @@ export function markIncompatibleLibraryTreeNodesForReplacement(
     const pathKey = catalogNodePathKey(node.path);
     const instance = instancesByPath.get(pathKey);
     if (!instance || canRepresentLibraryCatalogEntries(instance, node)) continue;
+    if (await configureLibraryCatalogItemSlots(section, instance, node, mutatedNodeIds)) continue;
 
     markTreeNodeForReplacement(instancesByPath, node.path, mutatedNodeIds);
     replacedPaths.push(pathKey);
