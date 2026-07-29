@@ -545,6 +545,12 @@ For each section:
   versions, and artifact visibility.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
+- Before updating a path-addressed library node, verify that it has enough
+  direct `.artifact` and `.artifacts bundle` slots and that every selected
+  bundle has enough nested `.artifact` rows. If the structure is insufficient,
+  clear the legacy instance's path assignment, clone a compatible template for
+  the expected path, and remove the legacy instance through normal stale-node
+  cleanup only after the replacement has been created.
 - After preserving an existing root position during a root-scoped sync, shift
   the complete subtree when necessary so its leftmost group remains at least
   100 px inside the owning root section. A wider regenerated descendant must
@@ -665,7 +671,7 @@ For each section:
   connectors, record connector ids before `connector.remove()` and keep the
   remaining connector list by id. Do not inspect connector endpoints or shared
   plugin data after removal.
-- Fail without writing metadata if an existing or cloned instance cannot
+- Fail without writing metadata if no existing template or base component can
   represent artifact text or consumer module structure from the generated model.
 - Child library/plugin catalog sections must not have fill. Every configured
   parent documentation section keeps exactly one visible solid fill bound to
@@ -828,4 +834,7 @@ Path metadata is a forward-compatible identity boundary for catalog evolution.
 New writers must preserve `treeNodePath`; changing or removing the key requires
 an explicit migration because labels are not guaranteed to be unique. The
 conservative legacy fallback is intentionally limited to one untagged node and
-one expected path for the same label.
+one expected path for the same label. A path-addressed node whose component
+structure has become too small is not updated partially: its path is reassigned
+to a compatible replacement and the old node is removed as stale in the same
+visual transaction.

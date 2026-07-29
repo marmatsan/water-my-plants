@@ -77,6 +77,27 @@ export function syncTreeNodePath(instance, path, mutatedNodeIds) {
   mutatedNodeIds.push(instance.id);
 }
 
+/**
+ * Removes a path assignment from an incompatible instance while retaining the
+ * instance under an unresolved key so normal stale-node cleanup can remove it
+ * only after its replacement has been created.
+ */
+export function markTreeNodeForReplacement(instancesByPath, path, mutatedNodeIds) {
+  const pathKey = catalogNodePathKey(path);
+  const instance = instancesByPath.get(pathKey);
+  if (!instance) return null;
+
+  instancesByPath.delete(pathKey);
+  instance.setSharedPluginData(METADATA_NAMESPACE, TREE_NODE_PATH_PLUGIN_DATA_KEY, "");
+  mutatedNodeIds.push(instance.id);
+  instancesByPath.set(unresolvedTreeNodeKey(instance), instance);
+  return instance;
+}
+
+export function isUnresolvedTreeNodeKey(pathKey) {
+  return pathKey.startsWith(UNRESOLVED_TREE_NODE_PREFIX);
+}
+
 function treeNodeLabel(instance, type) {
   return type === "Library"
     ? getComponentPropertyValue(instance, TREE_NODE_PROPS.libraryGroup)

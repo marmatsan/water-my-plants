@@ -13,6 +13,7 @@ import {
 import { updateNamedTextNodes } from "./figma-text-gateway";
 import { syncTreeNodeGroup, treeNodeLayoutNode } from "./figma-connector-gateway";
 import { catalogNodePathKey, syncTreeNodePath } from "./figma-catalog-node-identity";
+import { canRepresentLibraryCatalogEntries } from "./figma-library-tree-node-capacity";
 
 export async function createMissingTreeNode(
   target,
@@ -23,7 +24,7 @@ export async function createMissingTreeNode(
   mutatedNodeIds
 ) {
   const container = requireTreeNodeContainer(section, node);
-  const template = findTreeNodeTemplate(container, node);
+  const template = findTreeNodeTemplate(section, container, node);
   const instance = template
     ? template.clone()
     : (await requireTreeNodeComponent(node.type, TREE_NODE_COMPONENT_IDS, componentCache)).createInstance();
@@ -209,9 +210,15 @@ function nextTopLevelSectionPosition(section) {
   };
 }
 
-function findTreeNodeTemplate(container, node) {
-  const candidates = container.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((instance) => isTreeNodeInstance(instance, node.type));
+export function findTreeNodeTemplate(section, container, node) {
+  const localCandidates = treeNodeTemplateCandidates(container, node.type);
+  const candidates = localCandidates.length > 0
+    ? [
+        ...localCandidates,
+        ...treeNodeTemplateCandidates(section, node.type)
+          .filter((candidate) => !localCandidates.some((local) => local.id === candidate.id)),
+      ]
+    : treeNodeTemplateCandidates(section, node.type);
 
   if (node.type === "Plugin") {
     const showPluginVersion = node.version?.visible === true && Boolean(node.version?.value);
@@ -220,11 +227,19 @@ function findTreeNodeTemplate(container, node) {
     ) || candidates[0];
   }
 
+  const compatibleCandidates = candidates.filter((instance) =>
+    canRepresentLibraryCatalogEntries(instance, node)
+  );
   const hasVisibleCatalogItems = libraryArtifacts(node.entries).length > 0 ||
     libraryBundles(node.entries).length > 0;
-  return candidates.find((instance) =>
+  return compatibleCandidates.find((instance) =>
     getComponentPropertyValue(instance, TREE_NODE_PROPS.showArtifacts) === (node.artifactsVisible && hasVisibleCatalogItems)
-  ) || candidates[0];
+  ) || compatibleCandidates[0];
+}
+
+function treeNodeTemplateCandidates(container, type) {
+  return container.findAllWithCriteria({ types: ["INSTANCE"] })
+    .filter((instance) => isTreeNodeInstance(instance, type));
 }
 
 function isTreeNodeInstance(instance, type) {

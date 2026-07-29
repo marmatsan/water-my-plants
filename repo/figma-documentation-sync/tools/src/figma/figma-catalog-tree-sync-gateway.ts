@@ -32,6 +32,8 @@ import {
 import {
   catalogNodePathKey,
   collectTreeNodeInstancesByPath,
+  isUnresolvedTreeNodeKey,
+  markTreeNodeForReplacement,
   syncTreeNodePath,
 } from "./figma-catalog-node-identity";
 import {
@@ -39,6 +41,7 @@ import {
   updateLibraryTreeNode,
   updatePluginTreeNode,
 } from "./figma-tree-node-gateway";
+import { canRepresentLibraryCatalogEntries } from "./figma-library-tree-node-capacity";
 
 export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
   async syncCatalogTrees(designModel: DesignModel, options: CatalogTreeSyncOptions = {}) {
@@ -128,7 +131,6 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       traversalRoots,
       mutatedNodeIds
     );
-
     if (cleanupOnly) {
       const cleanupResult = cleanupCatalogTreeTarget({
         target,
@@ -143,6 +145,12 @@ export class FigmaCatalogTreeSyncGateway implements CatalogTreeSyncGateway {
       removedCatalogConnectors.push(...cleanupResult.removedCatalogConnectors);
       continue;
     }
+
+    markIncompatibleLibraryTreeNodesForReplacement(
+      expectedNodes,
+      instancesByPath,
+      mutatedNodeIds
+    );
 
     if (!isPartialRootSync) {
       const disconnectedConnectors = connectors.filter((connector) =>
@@ -431,7 +439,7 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
   for (const [path, instance] of instancesByPath.entries()) {
     instanceIdByPath.set(path, instance.id);
     pathByInstanceId.set(instance.id, path);
-    if (path.startsWith("unresolved:") || catalogPathBelongsToRoots(path, requestedRoots)) {
+    if (isUnresolvedTreeNodeKey(path) || catalogPathBelongsToRoots(path, requestedRoots)) {
       paths.add(path);
     }
   }
@@ -475,6 +483,27 @@ export function buildPartialCatalogSyncScope({ expectedNodes, rootLabels, instan
   }
 
   return { paths };
+}
+
+export function markIncompatibleLibraryTreeNodesForReplacement(
+  expectedNodes,
+  instancesByPath,
+  mutatedNodeIds
+) {
+  const replacedPaths = [];
+
+  for (const node of expectedNodes) {
+    if (node.type !== "Library") continue;
+
+    const pathKey = catalogNodePathKey(node.path);
+    const instance = instancesByPath.get(pathKey);
+    if (!instance || canRepresentLibraryCatalogEntries(instance, node)) continue;
+
+    markTreeNodeForReplacement(instancesByPath, node.path, mutatedNodeIds);
+    replacedPaths.push(pathKey);
+  }
+
+  return replacedPaths;
 }
 
 function errorMessage(error) {
