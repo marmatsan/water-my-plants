@@ -583,6 +583,11 @@ For each section:
   model source for `Used by convention plugin` `.usage block
   type=used-by-convention-plugin` rows on the `Plugin` `.tree node` variant,
   even when no module currently applies that convention plugin.
+- Usage blocks reserve reusable `.usage chip` and `.tool artifact usage` slots
+  that generated instances may hide. Slot discovery must temporarily include
+  invisible instance descendants, populate and reveal exactly the rows required
+  by the model, hide the remainder, and restore the caller's Figma traversal
+  option. A hidden block must not be interpreted as zero structural capacity.
 - Library artifacts may also carry `configuredByConventionPlugins`. Each usage
   has `pluginId`, `pluginModule`, and `target`; it means the convention plugin
   uses the artifact as build tooling configuration, not that it provides the

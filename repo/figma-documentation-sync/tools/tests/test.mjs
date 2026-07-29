@@ -31,6 +31,7 @@ for (const testName of [
   "write-mcp-preview",
   "catalog-root-filter-scope",
   "library-catalog-entries",
+  "usage-chip-visibility",
   "catalog-tree-targets",
   "ci-visual-plan",
 ]) {

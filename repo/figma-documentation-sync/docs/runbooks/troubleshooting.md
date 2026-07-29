@@ -287,6 +287,20 @@ by the model, and restore the previous option in both success and failure paths.
 Do not duplicate visible rows manually in the document to bypass this adapter
 responsibility.
 
+The same traversal rule applies to reserved usage rows. A cloned plugin node
+can reveal its `Applied by module` block while Figma still omits every hidden
+`.usage chip` descendant, producing an error such as:
+
+```text
+Node '...' expected at least 3 '.usage chip' instances for 'Applied by module', found 0.
+```
+
+Inspect the `.tree node` master with invisible instance children included. If
+the master already reserves enough chips, keep the component unchanged and fix
+the adapter to enumerate, populate, and reveal those slots within the temporary
+traversal scope. Apply the same rule to `.tool artifact usage`; do not clone
+rows manually into generated instances.
+
 When deriving a new component set from existing variants, cloning a variant
 preserves its layers but does not recreate the shared component-set property
 contract reliably. Create the shared properties on the new set, wire every

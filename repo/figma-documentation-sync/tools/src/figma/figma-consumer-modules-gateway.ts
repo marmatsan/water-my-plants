@@ -13,6 +13,7 @@ import {
 } from "@figma-documentation-sync/project-config";
 import { sortedUnique } from "../domain/catalog/library-catalog-entries";
 import { loadTextNodeFonts } from "./figma-text-gateway";
+import { withInvisibleInstanceChildren } from "./figma-instance-traversal";
 
 type ConsumerModuleOptions = {
   excludeArtifactDescendants?: boolean;
@@ -340,30 +341,32 @@ export async function updateUsageChipInstances(
   mutatedNodeIds,
   options: ConsumerModuleOptions = {}
 ) {
-  if (usages.length > 0) {
-    requireUsageChipHeading(root, heading, options);
-  }
+  return withInvisibleInstanceChildren(async () => {
+    if (usages.length > 0) {
+      requireUsageChipHeading(root, heading, options);
+    }
 
-  const usageChipInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME)
-    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading, options))
-    .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
+    const usageChipInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
+      .filter((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME)
+      .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading, options))
+      .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
-  if (usageChipInstances.length < usages.length) {
-    throw new Error(
-      `Node '${root.id}' expected at least ${usages.length} '${USAGE_CHIP_INSTANCE_NAME}' instances for '${heading}', ` +
-        `found ${usageChipInstances.length}. Update the .tree node component structure before writing metadata.`
-    );
-  }
+    if (usageChipInstances.length < usages.length) {
+      throw new Error(
+        `Node '${root.id}' expected at least ${usages.length} '${USAGE_CHIP_INSTANCE_NAME}' instances for '${heading}', ` +
+          `found ${usageChipInstances.length}. Update the .tree node component structure before writing metadata.`
+      );
+    }
 
-  for (let index = 0; index < usages.length; index += 1) {
-    const usageChipInstance = usageChipInstances[index];
-    await setUsageChipInstance(usageChipInstance, usages[index], mutatedNodeIds);
-  }
+    for (let index = 0; index < usages.length; index += 1) {
+      const usageChipInstance = usageChipInstances[index];
+      await setUsageChipInstance(usageChipInstance, usages[index], mutatedNodeIds);
+    }
 
-  for (const usageChipInstance of usageChipInstances.slice(usages.length)) {
-    hideInstance(usageChipInstance, mutatedNodeIds);
-  }
+    for (const usageChipInstance of usageChipInstances.slice(usages.length)) {
+      hideInstance(usageChipInstance, mutatedNodeIds);
+    }
+  });
 }
 
 async function updateToolArtifactUsageInstances(
@@ -372,29 +375,31 @@ async function updateToolArtifactUsageInstances(
   mutatedNodeIds,
   options: ConsumerModuleOptions = {}
 ) {
-  if (usages.length > 0) {
-    requireUsageChipHeading(root, TOOL_ARTIFACTS_HEADING, options);
-  }
+  return withInvisibleInstanceChildren(async () => {
+    if (usages.length > 0) {
+      requireUsageChipHeading(root, TOOL_ARTIFACTS_HEADING, options);
+    }
 
-  const toolArtifactUsageInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
-    .filter((candidate) => candidate.name === TOOL_ARTIFACT_USAGE_INSTANCE_NAME)
-    .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, TOOL_ARTIFACTS_HEADING, options))
-    .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
+    const toolArtifactUsageInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
+      .filter((candidate) => candidate.name === TOOL_ARTIFACT_USAGE_INSTANCE_NAME)
+      .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, TOOL_ARTIFACTS_HEADING, options))
+      .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
-  if (toolArtifactUsageInstances.length < usages.length) {
-    throw new Error(
-      `Node '${root.id}' expected at least ${usages.length} '${TOOL_ARTIFACT_USAGE_INSTANCE_NAME}' instances for '${TOOL_ARTIFACTS_HEADING}', ` +
-        `found ${toolArtifactUsageInstances.length}. Update the .artifact component structure before writing metadata.`
-    );
-  }
+    if (toolArtifactUsageInstances.length < usages.length) {
+      throw new Error(
+        `Node '${root.id}' expected at least ${usages.length} '${TOOL_ARTIFACT_USAGE_INSTANCE_NAME}' instances for '${TOOL_ARTIFACTS_HEADING}', ` +
+          `found ${toolArtifactUsageInstances.length}. Update the .artifact component structure before writing metadata.`
+      );
+    }
 
-  for (let index = 0; index < usages.length; index += 1) {
-    await setToolArtifactUsageInstance(toolArtifactUsageInstances[index], usages[index], mutatedNodeIds);
-  }
+    for (let index = 0; index < usages.length; index += 1) {
+      await setToolArtifactUsageInstance(toolArtifactUsageInstances[index], usages[index], mutatedNodeIds);
+    }
 
-  for (const toolArtifactUsageInstance of toolArtifactUsageInstances.slice(usages.length)) {
-    hideInstance(toolArtifactUsageInstance, mutatedNodeIds);
-  }
+    for (const toolArtifactUsageInstance of toolArtifactUsageInstances.slice(usages.length)) {
+      hideInstance(toolArtifactUsageInstance, mutatedNodeIds);
+    }
+  });
 }
 
 async function setToolArtifactUsageInstance(toolArtifactUsageInstance, usage, mutatedNodeIds) {
