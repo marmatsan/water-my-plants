@@ -544,9 +544,10 @@ For each section:
 - Update exposed component properties for library groups, plugin ids, plugin
   versions, and artifact visibility.
 - When a plugin target configures `versionValuesPath`, keep the catalog version
-  key as the source reference and render it separately from the value resolved
-  at that path. Keys listed in `sharedVersionKeys` also render `policy shared`;
-  this presentation explains a coordinated release train without replacing the
+  key as the source reference and render only that property name. The value
+  resolved at that path and the release policy represented by
+  `sharedVersionKeys` remain available as sync metadata but are not rendered in
+  the catalog node. This keeps the visual tree concise without replacing the
   source alias in `design-model.json`.
 - Update existing library artifact name/version text overrides when the
   instance structure can represent the model.
