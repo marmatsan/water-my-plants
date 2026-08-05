@@ -132,8 +132,8 @@ The contract has one main output:
 
 | Content key          | Meaning                                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------------------------|
-| `versions`           | Sorted flat map of version keys to repository values, used for deterministic comparison.                     |
-| `versionSections`    | Ordered groups from the configured product versions file, used to preserve the source section layout.   |
+| `versions`           | Sorted flat map of version keys referenced by visible production catalog nodes, used for deterministic comparison. |
+| `versionSections`    | Ordered groups from the configured product versions file, filtered to visible references while preserving empty sections for cleanup. |
 | `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins, including direct and convention-plugin-provided usage metadata. |
 | `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                            |
 | `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                      |
@@ -144,7 +144,8 @@ The current executable scenarios assert these guarantees:
 - The model contains repository metadata.
 - The model contains `versions`, `versionSections`, `catalogs`, `modules`,
   `moduleDependencies`, and `ci`.
-- Version keys are sorted.
+- Version keys are sorted and limited to references rendered by the production
+  catalog trees.
 - Version sections keep repository order.
 - The model stores a reproducible `modelHash`.
 - `generatedAt` is written to the model but does not affect `modelHash`.

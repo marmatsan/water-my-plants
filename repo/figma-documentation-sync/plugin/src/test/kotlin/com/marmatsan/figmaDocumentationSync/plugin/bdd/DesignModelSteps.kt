@@ -32,6 +32,7 @@ import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGen
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationResult
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerator
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
+import com.marmatsan.figmaDocumentationSync.plugin.generator.versions.VisuallyReferencedVersionSectionsSelector
 import io.cucumber.datatable.DataTable
 import io.cucumber.java8.En
 import io.cucumber.java8.StepDefinitionBody.A1
@@ -169,16 +170,14 @@ class DesignModelSteps : En {
             }
         )
 
-        Then("the version keys are sorted") {
+        Then("the version keys are sorted and limited to visible catalog references") {
             firstResult.content["versions"]
                 ?.jsonObject
                 ?.keys
                 ?.toList() shouldBe
                 listOf(
                     "activityComposeLibraryVersion",
-                    "androidGradlePluginVersion",
-                    "kotlinVersion",
-                    "kspPluginVersion"
+                    "kotlinVersion"
                 )
         }
 
@@ -267,7 +266,8 @@ class DesignModelSteps : En {
                 projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
                 ciExternalTopologyPort = FakeCiExternalTopologyPort,
                 ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
-                ciConfigurationPort = FakeCiConfigurationPort
+                ciConfigurationPort = FakeCiConfigurationPort,
+                visuallyReferencedVersionSectionsSelector = VisuallyReferencedVersionSectionsSelector()
             )
     }
 
@@ -370,7 +370,7 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                     artifact = "kotlin-stdlib",
                                     version =
                                         CatalogVersion(
-                                            value = "2.4.0"
+                                            value = "activityComposeLibraryVersion"
                                         ),
                                     requiredByModules = listOf(":app")
                                 )
@@ -389,7 +389,7 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                         id = "org.jetbrains.kotlin.android",
                         version =
                             CatalogVersion(
-                                value = "2.4.0"
+                                value = "kotlinVersion"
                             ),
                         appliedToModules = listOf(":app")
                     )

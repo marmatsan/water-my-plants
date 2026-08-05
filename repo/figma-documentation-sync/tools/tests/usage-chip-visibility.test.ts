@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { updateUsageChipInstances } from "../src/figma/figma-consumer-modules-gateway";
+import {
+  gradleProjectDisplayName,
+  updateUsageChipInstances,
+} from "../src/figma/figma-consumer-modules-gateway";
+
+test("Gradle root project paths use an explicit visual label", () => {
+  assert.equal(gradleProjectDisplayName(":"), "Water My Plants — root project (:)");
+  assert.equal(gradleProjectDisplayName(":app"), ":app");
+});
 
 test("usage chip synchronization reveals hidden reserved slots and restores traversal", async () => {
   const previousFigma = (globalThis as { figma?: unknown }).figma;

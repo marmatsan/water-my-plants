@@ -126,10 +126,13 @@ The TeamCity artifact JSON contains:
 
 Important generation details:
 
-- `content.versions` is the sorted flat map used for deterministic comparison.
+- `content.versions` is the sorted flat map of version keys referenced by the
+  visible production library and plugin trees.
 - `content.versionSections` preserves grouping from
-  `repo/water-my-plants-project-config/versions.properties` so the MCP sync can place
-  visual version nodes in the correct frame.
+  `repo/water-my-plants-project-config/versions.properties` while removing
+  properties with no visible production catalog reference. Empty configured
+  sections remain in the model so the MCP sync can remove stale visual version
+  nodes from the correct frame.
 - `checkFigmaVersionNaming` runs through `.\gradlew.bat check` and enforces
   the version key format rendered in Figma: only `androidGradlePluginVersion` and
   `kotlinVersion` live in `Main project dependencies`, library keys end with
@@ -144,9 +147,12 @@ Important generation details:
   dependency but no module applies the convention plugin yet.
 - Water My Plants plugin entries include `providedByConventionPlugins` when a
   convention plugin applies a catalog plugin. Direct plugin applications remain
-  in `appliedToModules`; the visual `Applied by module` row combines direct
-  modules with the modules listed in each
+  in `appliedToModules`; the visual `Applied by Gradle project` row combines
+  direct projects with the projects listed in each
   `providedByConventionPlugins.requiredByModules` entry, which may be empty.
+  The model keeps the Gradle root path as `:`, while the writer renders it as
+  `Water My Plants — root project (:)` so it cannot be mistaken for
+  punctuation or for the root of an included build.
 - `dependencyCatalog` contributes reusable modules and module dependencies but
   not a visual catalog target. The product `catalog` module is contributed by
   `waterMyPlantsProjectConfig`, and its adapter supplies the only production

@@ -24,7 +24,7 @@ Feature: Figma design model generation
       | modules            |
       | moduleDependencies |
       | ci                 |
-    And the version keys are sorted
+    And the version keys are sorted and limited to visible catalog references
     And the version sections keep repository order
     And the CI model contains external topology Windows runtime and effective TeamCity configuration
     And the model hash is stored in the generated model
