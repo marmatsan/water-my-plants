@@ -30,6 +30,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPo
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesSource
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.VersionsFileSource
+import com.marmatsan.figmaDocumentationSync.plugin.generator.versions.VisuallyReferencedVersionSectionsSelector
 import com.marmatsan.unitTest.dsl.given
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -115,9 +116,7 @@ internal class FigmaDesignModelGeneratorTest :
                             ?.toList() shouldBe
                             listOf(
                                 "activityComposeLibraryVersion",
-                                "androidGradlePluginVersion",
-                                "kotlinVersion",
-                                "kspPluginVersion"
+                                "kotlinVersion"
                             )
                     }
             }
@@ -450,7 +449,8 @@ private fun generator(): FigmaDesignModelGenerator =
         projectModuleDependenciesPort = FakeProjectModuleDependenciesPort,
         ciExternalTopologyPort = FakeCiExternalTopologyPort,
         ciWindowsRuntimePort = FakeCiWindowsRuntimePort,
-        ciConfigurationPort = FakeCiConfigurationPort
+        ciConfigurationPort = FakeCiConfigurationPort,
+        visuallyReferencedVersionSectionsSelector = VisuallyReferencedVersionSectionsSelector()
     )
 
 private fun request(
@@ -496,7 +496,8 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             "activityComposeLibraryVersion" to "1.13.0",
             "kotlinVersion" to "2.4.0",
             "androidGradlePluginVersion" to "9.2.1",
-            "kspPluginVersion" to "2.3.9"
+            "kspPluginVersion" to "2.3.9",
+            "verificationPlatformPluginVersion" to "0.1.0-SNAPSHOT"
         )
 
     override fun readVersionSections(
@@ -517,7 +518,11 @@ private object FakeRepositoryVersionsPort : RepositoryVersionsPort {
             ),
             RepositoryVersionSection(
                 name = "Plugins",
-                versions = mapOf("kspPluginVersion" to "2.3.9")
+                versions =
+                    mapOf(
+                        "kspPluginVersion" to "2.3.9",
+                        "verificationPlatformPluginVersion" to "0.1.0-SNAPSHOT"
+                    )
             )
         )
 }
@@ -584,7 +589,7 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                                     artifact = "kotlin-stdlib",
                                     version =
                                         CatalogVersion(
-                                            value = "2.4.0"
+                                            value = "activityComposeLibraryVersion"
                                         ),
                                     requiredByModules = listOf(":app"),
                                     providedByConventionPlugins = conventionPluginUsages,
@@ -657,7 +662,7 @@ private object FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
                         id = "org.jetbrains.kotlin.android",
                         version =
                             CatalogVersion(
-                                value = "2.4.0"
+                                value = "kotlinVersion"
                             ),
                         appliedToModules = listOf(":app"),
                         providedByConventionPlugins = conventionPluginUsages

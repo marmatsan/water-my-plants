@@ -231,8 +231,8 @@ The stable `content` object contains:
 
 | Key | Meaning |
 |-----|---------|
-| `versions` | Flat map of version keys to values. |
-| `versionSections` | Ordered version sections used by the Figma versions page. |
+| `versions` | Flat map of version keys referenced by visible production catalog nodes. |
+| `versionSections` | Ordered visual version sections, filtered to those references while preserving empty configured sections for stale-node cleanup. |
 | `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
 | `modules` | Repository module paths discovered from the root project and included builds. |
 | `moduleDependencies` | Module dependency edges grouped by source build. |

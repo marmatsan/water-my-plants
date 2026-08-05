@@ -1,5 +1,7 @@
 package com.marmatsan.figmaDocumentationSync.plugin.generator
 
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiConfigurationPort
@@ -16,6 +18,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPo
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesSource
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.RepositoryVersionsPort
 import com.marmatsan.figmaDocumentationSync.domain.port.versions.VersionsFileSource
+import com.marmatsan.figmaDocumentationSync.plugin.generator.versions.VisuallyReferencedVersionSectionsSelector
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import me.tatarka.inject.annotations.Inject
@@ -40,7 +43,8 @@ internal class FigmaDesignModelGenerator(
     private val projectModuleDependenciesPort: ProjectModuleDependenciesPort,
     private val ciExternalTopologyPort: CiExternalTopologyPort,
     private val ciWindowsRuntimePort: CiWindowsRuntimePort,
-    private val ciConfigurationPort: CiConfigurationPort
+    private val ciConfigurationPort: CiConfigurationPort,
+    private val visuallyReferencedVersionSectionsSelector: VisuallyReferencedVersionSectionsSelector
 ) {
     /**
      * Generates the complete model and stable model hash for [request].
@@ -114,14 +118,37 @@ internal class FigmaDesignModelGenerator(
                 request.includedBuilds.map(
                     transform = FigmaDesignModelIncludedBuildSource::toDomainSource
                 )
-            val versionSections =
-                repositoryVersionsPort
-                    .readVersionSections(
-                        source =
-                            VersionsFileSource(
-                                path = request.versionsFile.absolutePath
-                            )
+            val conventionPluginIncludedBuilds =
+                includedBuilds.filter(IncludedBuildSource::publishesConventionPlugins)
+            val primaryLibraryTree =
+                projectCatalogTreesPort.readLibraryTree(
+                    ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                        rootDirPath = request.projectRootDirectory.absolutePath,
+                        providerClassName = request.dependencyCatalogProviderClassName,
+                        conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
                     )
+                )
+            val primaryPluginTree =
+                projectCatalogTreesPort.readPluginTree(
+                    ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                        rootDirPath = request.projectRootDirectory.absolutePath,
+                        providerClassName = request.dependencyCatalogProviderClassName,
+                        conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+                    )
+                )
+            val versionSections =
+                visuallyReferencedVersionSectionsSelector.select(
+                    sections =
+                        repositoryVersionsPort
+                            .readVersionSections(
+                                source =
+                                    VersionsFileSource(
+                                        path = request.versionsFile.absolutePath
+                                    )
+                            ),
+                    libraryTree = primaryLibraryTree,
+                    pluginTree = primaryPluginTree
+                )
             put(
                 "versions",
                 versionSections
@@ -136,7 +163,10 @@ internal class FigmaDesignModelGenerator(
             put(
                 "catalogs",
                 buildCatalogs(
-                    request = request
+                    request = request,
+                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds,
+                    primaryLibraryTree = primaryLibraryTree,
+                    primaryPluginTree = primaryPluginTree
                 )
             )
             put(
@@ -221,38 +251,22 @@ internal class FigmaDesignModelGenerator(
         }
 
     private fun buildCatalogs(
-        request: FigmaDesignModelGenerationRequest
+        request: FigmaDesignModelGenerationRequest,
+        conventionPluginIncludedBuilds: List<IncludedBuildSource>,
+        primaryLibraryTree: LibraryCatalogTree,
+        primaryPluginTree: PluginCatalogTree
     ) =
         buildJsonObject {
-            val conventionPluginIncludedBuilds =
-                request.includedBuilds
-                    .map(
-                        transform = FigmaDesignModelIncludedBuildSource::toDomainSource
-                    ).filter(IncludedBuildSource::publishesConventionPlugins)
             put(
                 request.primaryCatalogModelName,
                 buildJsonObject {
                     put(
                         "libraries",
-                        projectCatalogTreesPort
-                            .readLibraryTree(
-                                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath,
-                                    providerClassName = request.dependencyCatalogProviderClassName,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                                )
-                            ).toDesignJson()
+                        primaryLibraryTree.toDesignJson()
                     )
                     put(
                         "plugins",
-                        projectCatalogTreesPort
-                            .readPluginTree(
-                                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                                    rootDirPath = request.projectRootDirectory.absolutePath,
-                                    providerClassName = request.dependencyCatalogProviderClassName,
-                                    conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                                )
-                            ).toDesignJson()
+                        primaryPluginTree.toDesignJson()
                     )
                     put(
                         "customGradleConventionPlugins",

@@ -427,12 +427,21 @@ The version sync reads `content.versionSections` from `design-model.json` and
 uses the Figma variable collection named
 `repo\water-my-plants-project-config\versions.properties`.
 
+`content.versionSections` is a visual projection, not a copy of every property
+in that file. The generator keeps only version keys referenced by visible
+nodes in the production library or plugin tree. It preserves all configured
+section names, including a section with no remaining entries, so the writer can
+remove stale `.dependency version` instances. Repository-tooling properties
+such as `dependencyCatalogPluginVersion` and
+`verificationPlatformPluginVersion` remain valid Gradle inputs but must not be
+published as version cards while no visual tree node references them.
+
 The `Project versions` header definition and source link are managed from the
 writer project configuration. Both must name
 `repo/water-my-plants-project-config/versions.properties`; the header must not
 retain the retired product-catalog path under `repo/dependency-catalog`.
 
-For each repository version:
+For each visually referenced repository version:
 
 - Find an existing variable whose name is either the version key or ends with
   `/<versionKey>`, such as `Libraries/kotestLibraryVersion`.
@@ -632,14 +641,17 @@ For each section:
   the bundle `requiredByModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry. Child `.artifact`
   instances inside a bundle must not show their own `Used by module` section.
-- Update `Applied by module` instances for plugin tree nodes from
+- Update the visual `Applied by Gradle project` instances for plugin tree nodes
+  from
   `appliedToModules` plus the modules listed by each
   `providedByConventionPlugins.requiredByModules` entry.
 - Derive custom-plugin `appliedToModules` from both literal `id("...")`
   declarations and type-safe `alias(<catalog>.plugins....)` declarations.
-  Include the root project as `:` when it applies a plugin and exclude every
-  declaration followed by `apply false`.
-- For plugin tree nodes, hide `Applied by module` and
+  Include the root project as `:` in the model when it applies a plugin and
+  exclude every declaration followed by `apply false`. Render that root path as
+  `Water My Plants — root project (:)`; other Gradle project paths remain
+  unchanged.
+- For plugin tree nodes, hide the visual `Applied by Gradle project` block and
   `Used by convention plugin` when their source lists are empty. Plugin catalog
   entries with no `appliedToModules` and no `providedByConventionPlugins` are
   invalid catalog data and must be rejected by `checkFigmaCatalogUsage`.
@@ -659,6 +671,9 @@ For each section:
   type=used-by-convention-plugin`, plus a static `No module applies it` status
   block for the custom-plugin warning, each controlled by its own boolean. Do
   not require a wrapper frame named `content`.
+- Keep `Show applied by module` and `type=applied-by-module` as the stable
+  component API identifiers. Their user-facing heading is `Applied by Gradle
+  project`, which accurately covers both the root project and subprojects.
 - Parent components must expose every usage section in their template. The sync
   decides visibility on each generated instance from the model data by setting
   the granular boolean and the direct block visibility for that section.

@@ -288,11 +288,11 @@ Do not duplicate visible rows manually in the document to bypass this adapter
 responsibility.
 
 The same traversal rule applies to reserved usage rows. A cloned plugin node
-can reveal its `Applied by module` block while Figma still omits every hidden
-`.usage chip` descendant, producing an error such as:
+can reveal its `Applied by Gradle project` block while Figma still omits every
+hidden `.usage chip` descendant, producing an error such as:
 
 ```text
-Node '...' expected at least 3 '.usage chip' instances for 'Applied by module', found 0.
+Node '...' expected at least 3 '.usage chip' instances for 'Applied by Gradle project' or 'Applied by module', found 0.
 ```
 
 Inspect the `.tree node` master with invisible instance children included. If
@@ -398,7 +398,7 @@ visible `.artifact` either still exposed the obsolete aggregate
 `Show consumer modules` property or kept its direct `Applied by plugin` /
 `Used by module` blocks hidden. The equivalent plugin failure is a
 `Plugin` `.tree node` whose model contains `appliedToModules` or
-`providedByConventionPlugins`, while `Applied by module` /
+`providedByConventionPlugins`, while `Applied by Gradle project` /
 `Used by convention plugin` stay hidden or the custom-plugin warning block
 remains visible. Hidden template internals under the same `.tree node` can
 still contain chips, which makes the file look partially updated through the
@@ -681,6 +681,25 @@ successful or failed generated unit in `execution-state.json` as described in
 [visual-sync-efficiency.md](visual-sync-efficiency.md). Re-test the endpoint
 with `probeFigmaMcp` before enabling direct execution; do not infer write support
 from a successful MCP handshake.
+
+## Code Connect Component Is Not Published
+
+Code Connect mappings require a component or component set published to a
+Figma team library. A local component can still appear in
+`get_code_connect_suggestions`, but `send_code_connect_mappings` rejects it
+atomically with:
+
+```text
+Published component not found
+```
+
+Inspect the component and every nested component targeted by the mapping with
+`getPublishStatusAsync()`. When `publishStatus` is `UNPUBLISHED`, publish the
+component sets from the Figma library UI before retrying. Do not redirect the
+mapping to a variant id or resend the same payload: neither operation publishes
+the component. After publication, rerun the suggestions, confirm the resolved
+main component ids, save the approved mappings, and read them back with the
+Code Connect map endpoint.
 
 ## Prerequisites
 

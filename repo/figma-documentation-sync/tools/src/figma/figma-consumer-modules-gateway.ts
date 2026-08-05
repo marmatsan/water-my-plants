@@ -271,7 +271,7 @@ export async function updateConsumerModuleInstances(
     heading,
     modules.map((moduleName) => ({
       kind: USAGE_CHIP_KINDS.module,
-      name: moduleName,
+      name: gradleProjectDisplayName(moduleName),
     })),
     mutatedNodeIds,
     options
@@ -317,18 +317,18 @@ export async function updatePluginUsageBlocks(
   setUsageBlockVisible(root, USED_BY_CONVENTION_PLUGIN_HEADING, showUsedByConventionPlugin, mutatedNodeIds);
   await updateConsumerModuleInstances(
     root,
-    APPLIED_BY_MODULE_HEADING,
+    APPLIED_BY_GRADLE_PROJECT_HEADINGS,
     appliedToModules,
     mutatedNodeIds
   );
-  setUsageBlockVisible(root, APPLIED_BY_MODULE_HEADING, showAppliedByModule, mutatedNodeIds);
+  setUsageBlockVisible(root, APPLIED_BY_GRADLE_PROJECT_HEADINGS, showAppliedByModule, mutatedNodeIds);
   setUsageBlockVisible(root, UNUSED_PLUGIN_WARNING_HEADINGS, showUnusedPluginWarning, mutatedNodeIds);
   syncDirectUsageSeparators(root, mutatedNodeIds);
   assertUsageSurface(
     root,
     [
       [USED_BY_CONVENTION_PLUGIN_HEADING, showUsedByConventionPlugin],
-      [APPLIED_BY_MODULE_HEADING, showAppliedByModule],
+      [APPLIED_BY_GRADLE_PROJECT_HEADINGS, showAppliedByModule],
       [UNUSED_PLUGIN_WARNING_HEADINGS, showUnusedPluginWarning],
     ]
   );
@@ -336,24 +336,25 @@ export async function updatePluginUsageBlocks(
 
 export async function updateUsageChipInstances(
   root,
-  heading,
+  headingOrHeadings,
   usages,
   mutatedNodeIds,
   options: ConsumerModuleOptions = {}
 ) {
   return withInvisibleInstanceChildren(async () => {
     if (usages.length > 0) {
-      requireUsageChipHeading(root, heading, options);
+      requireUsageChipHeading(root, headingOrHeadings, options);
     }
 
     const usageChipInstances = root.findAllWithCriteria({ types: ["INSTANCE"] })
       .filter((candidate) => candidate.name === USAGE_CHIP_INSTANCE_NAME)
-      .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, heading, options))
+      .filter((candidate) => belongsToHeadingUsageChipBlock(candidate, root, headingOrHeadings, options))
       .filter((candidate) => !options.excludeArtifactDescendants || !hasAncestorInstanceNamed(candidate, ARTIFACT_INSTANCE_NAME, root));
 
     if (usageChipInstances.length < usages.length) {
       throw new Error(
-        `Node '${root.id}' expected at least ${usages.length} '${USAGE_CHIP_INSTANCE_NAME}' instances for '${heading}', ` +
+        `Node '${root.id}' expected at least ${usages.length} '${USAGE_CHIP_INSTANCE_NAME}' instances for ` +
+          `'${headingLabel(headingOrHeadings)}', ` +
           `found ${usageChipInstances.length}. Update the .tree node component structure before writing metadata.`
       );
     }
@@ -564,11 +565,11 @@ function hasAncestorInstanceNamed(node, name, boundary) {
   return false;
 }
 
-function requireUsageChipHeading(root, heading, options: ConsumerModuleOptions = {}) {
-  const hasHeading = findUsageChipHeading(root, heading, options) !== undefined;
+function requireUsageChipHeading(root, headingOrHeadings, options: ConsumerModuleOptions = {}) {
+  const hasHeading = findUsageChipHeading(root, headingOrHeadings, options) !== undefined;
 
   if (!hasHeading) {
-    throw new Error(`Node '${root.id}' is missing '${heading}' usage chip heading text.`);
+    throw new Error(`Node '${root.id}' is missing '${headingLabel(headingOrHeadings)}' usage chip heading text.`);
   }
 }
 
@@ -635,19 +636,20 @@ async function updateUsageChipLabelText(usageChipInstance, name, mutatedNodeIds)
   mutatedNodeIds.push(label.id);
 }
 
-function belongsToHeadingUsageChipBlock(candidate, root, heading, options: ConsumerModuleOptions = {}) {
-  const headingNode = findUsageChipHeading(root, heading, options);
+function belongsToHeadingUsageChipBlock(candidate, root, headingOrHeadings, options: ConsumerModuleOptions = {}) {
+  const headingNode = findUsageChipHeading(root, headingOrHeadings, options);
   if (!headingNode) return false;
 
   const container = nearestAncestorWithUsageChips(headingNode, root) || root;
   return candidate.id === container.id || hasAncestor(candidate, container);
 }
 
-function findUsageChipHeading(root, heading, options: ConsumerModuleOptions = {}) {
+function findUsageChipHeading(root, headingOrHeadings, options: ConsumerModuleOptions = {}) {
+  const headings = headingsOf(headingOrHeadings);
   return root.findAllWithCriteria({ types: ["TEXT"] })
     .find((textNode) =>
       textNode.name === "label" &&
-      textNode.characters === heading &&
+      headings.includes(textNode.characters) &&
       (!options.excludeArtifactDescendants || !hasAncestorInstanceNamed(textNode, ARTIFACT_INSTANCE_NAME, root))
     );
 }
@@ -837,12 +839,20 @@ function usageChipsForConventionPlugins(providedByConventionPlugins) {
   }));
 }
 
+/** Returns the unambiguous label rendered for a Gradle project path. */
+export function gradleProjectDisplayName(projectPath: string): string {
+  return projectPath === ":" ? "Water My Plants — root project (:)" : projectPath;
+}
+
 const MODULE_HORIZONTAL_PADDING = 26;
 const MODULE_VERTICAL_PADDING = 6;
 const STRUCTURAL_SEPARATOR_FRAME_NAME = "separator";
 const USAGE_SEPARATOR_FRAME_NAME = "usage separator";
 const APPLIED_BY_PLUGIN_HEADING = "Applied by plugin";
-const APPLIED_BY_MODULE_HEADING = "Applied by module";
+const APPLIED_BY_GRADLE_PROJECT_HEADINGS = [
+  "Applied by Gradle project",
+  "Applied by module",
+];
 const USED_BY_MODULE_HEADING = "Used by module";
 const USED_BY_CONVENTION_PLUGIN_HEADING = "Used by convention plugin";
 const TOOL_ARTIFACTS_HEADING = "Tool artifacts";
@@ -855,7 +865,7 @@ const UNUSED_PLUGIN_WARNING_HEADINGS = [
 ];
 const USAGE_BLOCK_HEADINGS = [
   APPLIED_BY_PLUGIN_HEADING,
-  APPLIED_BY_MODULE_HEADING,
+  APPLIED_BY_GRADLE_PROJECT_HEADINGS,
   USED_BY_MODULE_HEADING,
   USED_BY_CONVENTION_PLUGIN_HEADING,
   TOOL_ARTIFACTS_HEADING,
@@ -865,6 +875,7 @@ const USAGE_BLOCK_HEADINGS = [
 const USAGE_BLOCK_FRAME_NAMES = new Set([
   ".usage block",
   "applied by plugin",
+  "applied by gradle project",
   "applied by module",
   "used by module",
   "used by convention plugin",
