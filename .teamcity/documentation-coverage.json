@@ -91,6 +91,11 @@
     {
       "id": "product-composition",
       "sourcePaths": [
+        "repo/project-config/plugin/src/*",
+        "repo/project-config/samples/*",
+        "repo/project-config/*/build.gradle.kts",
+        "repo/project-config/settings.gradle.kts",
+        "repo/project-config/versions.properties",
         "repo/water-my-plants-project-config/catalog/src/*",
         "repo/water-my-plants-project-config/plugin/src/*",
         "repo/water-my-plants-project-config/water-my-plants/*",
@@ -101,6 +106,8 @@
         "build.gradle.kts"
       ],
       "documentationPaths": [
+        "repo/project-config/README.md",
+        "repo/project-config/docs/reference/*.md",
         "repo/water-my-plants-project-config/README.md",
         "docs/decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md",
         "docs/decisions/adr-0010-isolate-product-composition-from-reusable-builds.md",

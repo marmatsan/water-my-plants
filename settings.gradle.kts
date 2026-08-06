@@ -24,6 +24,7 @@ pluginManagement {
     includeBuild("./repo/dependency-catalog")
     includeBuild("./repo/gradle-plugins")
     includeBuild("./repo/figma-documentation-sync")
+    includeBuild("./repo/project-config")
     includeBuild("./repo/verification-platform")
     includeBuild("./repo/water-my-plants-project-config")
 }

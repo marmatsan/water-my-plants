@@ -20,6 +20,8 @@ sources:
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-documentation-sync/teamcity-operations/build.gradle.kts
   - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/task/UploadCanonicalFigmaPayloadTask.kt
+  - repo/project-config/settings.gradle.kts
+  - repo/project-config/plugin/build.gradle.kts
   - repo/water-my-plants-project-config/settings.gradle.kts
   - repo/water-my-plants-project-config/plugin/build.gradle.kts
 ---
@@ -80,16 +82,18 @@ modules support the repository and CI; they are not production app modules.
 | `repo/unit-testing/` | `unit-testing` | Assertion-framework-agnostic typed test APIs that can be consumed independently. |
 | `repo/verification-platform/` | `verification-platform` | Provider-neutral Kotlin platform that plans and executes repository verification through Gradle. |
 | `repo/figma-documentation-sync/` | `figma-documentation-sync` | Kotlin infrastructure that generates and executes the Figma sync contract, plus the TypeScript boundary evaluated by the Figma Plugin API. |
+| `repo/project-config/` | `project-config` | Reusable Settings and Project composition entry points for consumer-owned dependency catalogs and repository capabilities. |
 | `repo/water-my-plants-project-config/` | `water-my-plants-project-config` | Product catalog, product versions, and adapters that compose reusable builds for Water My Plants. |
 
-The root build includes the five plugin-producing builds through
+The root build includes its plugin-producing builds through
 `pluginManagement.includeBuild(...)`. It includes `gradle-plugins` and
 `unit-testing` as regular composite participants so repository-owned library
 coordinates are substituted from source. Reusable builds do not include
 sibling builds or import product implementations. They declare test-only API
 coordinates in their own catalogs; the root composite substitutes those
-coordinates during repository development. The root and
-`repo/water-my-plants-project-config` are the composition boundaries that bind
+coordinates during repository development. During the incremental migration,
+the root, `repo/project-config`, and `repo/water-my-plants-project-config` are
+the composition boundaries that bind
 versioned APIs to local implementations. Every included build reads its own
 root `versions.properties` and remains independent from another build's
 compile/test registry.
@@ -115,6 +119,17 @@ catalog, so it never enters the production `libs` tree or app runtime graph.
 | `repo/dependency-catalog/catalog-core/` | `:catalog-core` | Optional tree DSL, version strategies, traversal, and canonical mapping to `:catalog-api` for provider implementations. |
 | `repo/dependency-catalog/catalog-gradle-plugin/` | `:catalog-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog` settings plugin. Depends only on `:catalog-api`. |
 | `repo/dependency-catalog/catalog-tree-gradle-plugin/` | `:catalog-tree-gradle-plugin` | Reusable `com.marmatsan.dependencyCatalog.tree` settings plugin for consumer-owned compact trees and version registries. |
+
+`repo/project-config` contains one reusable plugin module:
+
+| Path | Gradle module | Purpose |
+|------|---------------|---------|
+| `repo/project-config/plugin/` | `:plugin` | `com.marmatsan.projectConfig.settings` captures a consumer-owned inline tree and materializes Gradle catalogs; `com.marmatsan.projectConfig` anchors matching project-phase composition. |
+
+The `samples/health-consumer` fixture resolves published plugin markers and
+runtime artifacts from staged Maven repositories. It deliberately has no
+source `includeBuild`, product-specific adapter, or `health-project-config`
+build. Its tree and `versions.properties` belong to the consumer.
 
 Repository tooling consumes stable Maven/plugin coordinates. The included-build
 root does not publish a compatibility artifact; its standalone consumer proves
@@ -144,9 +159,10 @@ configuration:
 | `repo/figma-documentation-sync/teamcity-operations/` | `:teamcity-operations` | Optional Gradle plugin for canonical artifact handoff, verified Figma PNG upload, Cloudflare credentials, and idempotent TeamCity reruns. |
 | `repo/figma-documentation-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
-The root build applies the Water My Plants project adapter. That adapter applies
-the portable plugin; another repository supplies its own composition adapter without
-changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
+Until final adoption, the root build applies the Water My Plants project
+adapter. That adapter applies the portable plugin; another repository supplies
+its own composition adapter without changing `domain`, `data`, `plugin`, or the
+writer implementation. It reuses
 `teamcity-adapter` only if its CI provider is TeamCity and applies
 `teamcity-operations` only when it exposes supervised TeamCity/Figma operations.
 
