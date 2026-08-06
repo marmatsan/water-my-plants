@@ -4,7 +4,7 @@ type: reference
 scope: repo/dependency-catalog
 owner: dependency-catalog
 status: active
-last-reviewed: 2026-07-29
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - repo/dependency-catalog/build.gradle.kts
@@ -14,6 +14,8 @@ sources:
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesBuilder.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/LibraryCatalogTreesScope.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/PluginCatalogTreesScope.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/definition/DependencyCatalogDefinition.kt
+  - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/definition/DependencyCatalogDefinitionProvider.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/mapping/DependencyCatalogApiMapping.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/DependencyVersionResolver.kt
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/PropertiesDependencyVersionResolver.kt
@@ -195,6 +197,51 @@ root and child order, namespace nodes, artifacts, bundles, and version text.
 Provider implementations and the Settings adapter use this same mapping rather
 than maintaining consumer-specific conversions.
 
+### Reusable catalog definitions
+
+`dependencyCatalogDefinition { ... }` captures the library and plugin tree
+without selecting how version keys are represented. The returned
+`DependencyCatalogDefinition` is reusable: `catalog(versionResolver)`
+materializes a new immutable public `DependencyCatalog` for each supplied
+`DependencyVersionResolver`.
+
+`DependencyCatalogDefinitionProvider` adapts one definition to the segregated
+provider contract used by consumers:
+
+- `resolved(rootDir)` reads concrete values through
+  `PropertiesDependencyVersionResolver`. By default the version registry is
+  `<rootDir>/versions.properties`; callers may inject another file resolver.
+- `withVersionAliases()` uses `DependencyVersionAliasResolver`, so every
+  `version("key")` call retains `key` as its value for documentation and other
+  symbolic consumers.
+
+The definition is the single source of truth for roots, nodes, artifacts,
+bundles, and plugins. The provider owns only the choice of version strategy and
+the location of the consumer-owned registry. Product composition roots remain
+responsible for declaring their catalog and passing the correct root directory;
+`dependency-catalog` does not contain product coordinates or product paths.
+
+```kotlin
+val catalogDefinition =
+    dependencyCatalogDefinition {
+        libraries {
+            root("io") {
+                library("ktor") {
+                    artifact(
+                        artifact = "ktor-client-core",
+                        version = version("ktorLibraryVersion")
+                    )
+                }
+            }
+        }
+    }
+
+val provider =
+    DependencyCatalogDefinitionProvider(
+        definition = catalogDefinition
+    )
+```
+
 ### Registration lifecycle
 
 The plugin collects declarations while `settings.gradle.kts` is evaluated and
@@ -274,6 +321,7 @@ the source. JetBrains tracks improvements to this association in
 - Settings extension: `catalog-tree-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/tree/TreeDependencyCatalogSettingsExtension.kt`.
 - Shared catalog builder: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/dsl/DependencyCatalogTreesDsl.kt`.
 - Public API mapping: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/mapping/DependencyCatalogApiMapping.kt`.
+- Reusable definitions and provider adapter: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/definition/`.
 - Version strategies: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/version/`.
 - Library tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/library/LibraryScope.kt`.
 - Plugin tree DSL: `catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/plugin/PluginScope.kt`.

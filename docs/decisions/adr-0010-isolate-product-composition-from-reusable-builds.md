@@ -3,7 +3,7 @@ title: Isolate product composition from reusable builds
 type: adr
 scope: repository
 owner: architecture
-status: accepted
+status: superseded
 last-reviewed: 2026-07-27
 review-cycle-days: 365
 sources:
@@ -122,4 +122,8 @@ included build.
 
 ## Supersession
 
-None. This decision refines the dependency direction recorded by ADR-0009.
+Superseded by
+[ADR-0013](adr-0013-use-reusable-project-config.md), which retains the dependency
+direction while replacing the product-specific composition build with a
+reusable project-config build. This decision refined the dependency direction
+recorded by ADR-0009.
