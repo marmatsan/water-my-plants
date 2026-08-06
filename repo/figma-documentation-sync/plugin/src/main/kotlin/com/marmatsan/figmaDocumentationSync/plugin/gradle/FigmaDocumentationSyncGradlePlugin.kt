@@ -22,5 +22,6 @@ class FigmaDocumentationSyncGradlePlugin : Plugin<Project> {
         FigmaMcpTasksRegistrar(context).register()
         FigmaVerificationTasksRegistrar(context).register()
         CanonicalFigmaSyncTasksRegistrar(context).register()
+        FigmaWriterTasksRegistrar(context).register()
     }
 }

@@ -17,11 +17,11 @@ dependencies {
     implementation(libs.com.marmatsan.figma.documentation.sync.data)
     implementation(libs.com.marmatsan.figma.documentation.sync.plugin)
     implementation(libs.com.marmatsan.figma.documentation.sync.teamcity.adapter)
-    implementation(libs.com.michael.bull.kotlin.result)
-    implementation(libs.org.jetbrains.kotlinx.serialization.json)
+    implementation(libs.com.marmatsan.figma.documentation.sync.teamcity.operations)
 
     testImplementation(libs.com.marmatsan.repo.unit.test.dsl)
     testImplementation(libs.bundles.kotestBundle)
+    testImplementation(libs.org.jetbrains.kotlinx.serialization.json)
     testRuntimeOnly(libs.org.junit.platform.launcher)
 }
 

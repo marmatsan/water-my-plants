@@ -4,7 +4,7 @@ type: reference
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - settings.gradle.kts
@@ -18,9 +18,10 @@ sources:
   - repo/figma-documentation-sync/settings.gradle.kts
   - repo/figma-documentation-sync/data/build.gradle.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
+  - repo/figma-documentation-sync/teamcity-operations/build.gradle.kts
+  - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/task/UploadCanonicalFigmaPayloadTask.kt
   - repo/water-my-plants-project-config/settings.gradle.kts
   - repo/water-my-plants-project-config/plugin/build.gradle.kts
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # Project Structure
@@ -140,19 +141,21 @@ configuration:
 | `repo/figma-documentation-sync/data/` | `:data` | Portable filesystem, Gradle, Figma-owned catalog port, CI, official MCP SDK, allow-listed PNG upload, runner-generation, and checkpoint adapters. It does not depend on Dependency Catalog in production. |
 | `repo/figma-documentation-sync/plugin/` | `:plugin` | Reusable Gradle tasks, model generation, checks, and composition. |
 | `repo/figma-documentation-sync/teamcity-adapter/` | `:teamcity-adapter` | Optional Kotlin translation from generated TeamCity YAML/XML to the portable CI model, plus typed TeamCity CLI access for artifacts and runs. |
+| `repo/figma-documentation-sync/teamcity-operations/` | `:teamcity-operations` | Optional Gradle plugin for canonical artifact handoff, verified Figma PNG upload, Cloudflare credentials, and idempotent TeamCity reruns. |
 | `repo/figma-documentation-sync/tools/` | not a Gradle module | TypeScript writer evaluated inside the Figma Plugin API runtime, plus preview tooling selected through the active project configuration. |
 
 The root build applies the Water My Plants project adapter. That adapter applies
 the portable plugin; another repository supplies its own composition adapter without
 changing `domain`, `data`, `plugin`, or the writer implementation. It reuses
-`teamcity-adapter` only if its CI provider is TeamCity.
+`teamcity-adapter` only if its CI provider is TeamCity and applies
+`teamcity-operations` only when it exposes supervised TeamCity/Figma operations.
 
 `repo/water-my-plants-project-config` contains the product-owned modules:
 
 | Path | Gradle module | Purpose |
 |------|---------------|---------|
 | `repo/water-my-plants-project-config/catalog/` | `:catalog` | Water My Plants dependency trees, `DependencyCatalogProvider`, and shared product-version source. Depends on the public catalog API and optional core DSL. |
-| `repo/water-my-plants-project-config/plugin/` | `:plugin` | Settings/project plugins, Figma catalog adapter, Figma identities, TeamCity wiring, operational tasks, and adapter tests. |
+| `repo/water-my-plants-project-config/plugin/` | `:plugin` | Settings/project plugins, Figma catalog adapter, Figma identities, consumer-owned TeamCity selections, and adapter tests. |
 
 The composition build's `settings.gradle.kts` owns local `libs` and `plugins`
 catalogs for compiling these modules. Portable repository-tooling aliases share

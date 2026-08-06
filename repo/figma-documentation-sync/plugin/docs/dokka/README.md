@@ -10,8 +10,8 @@ about Gradle tasks.
 Read this module by workflow:
 
 1. `FigmaDocumentationSyncGradlePlugin` is the composition root and delegates
-   model, MCP, verification, and canonical-sync task registration to focused
-   registrars.
+   model, MCP, verification, canonical-sync, and configured-writer task
+   registration to focused registrars.
 2. `GenerateFigmaDesignModelTask` creates the local `design-model.json`.
 3. `FigmaDesignModelGenerator` builds the executable design model contract.
 4. `CheckFigmaTrunkSyncTask` verifies that Figma was synced from that contract.
@@ -36,3 +36,8 @@ model reconstruction consistent across tasks without coupling task behavior.
 
 Checker classes compare generated model metadata with the shared plugin data
 stored in the Figma document.
+
+# Package com.marmatsan.figmaDocumentationSync.plugin.gradle.platform
+
+Provides the documented host-platform fact used to select portable command
+executables without product-specific duplication.

@@ -21,7 +21,8 @@ tasks.named("check") {
         ":data:check",
         ":domain:check",
         ":plugin:check",
-        ":teamcity-adapter:check"
+        ":teamcity-adapter:check",
+        ":teamcity-operations:check"
     )
 }
 
@@ -32,7 +33,8 @@ tasks.register("dokkaGenerate") {
         ":data:dokkaGenerate",
         ":domain:dokkaGenerate",
         ":plugin:dokkaGenerate",
-        ":teamcity-adapter:dokkaGenerate"
+        ":teamcity-adapter:dokkaGenerate",
+        ":teamcity-operations:dokkaGenerate"
     )
 }
 
@@ -190,7 +192,8 @@ tasks.register("publishPortablePublicationToStagingRepository") {
         ":domain:publishAllPublicationsToStagingRepository",
         ":data:publishAllPublicationsToStagingRepository",
         ":plugin:publishAllPublicationsToStagingRepository",
-        ":teamcity-adapter:publishAllPublicationsToStagingRepository"
+        ":teamcity-adapter:publishAllPublicationsToStagingRepository",
+        ":teamcity-operations:publishAllPublicationsToStagingRepository"
     )
 }
 

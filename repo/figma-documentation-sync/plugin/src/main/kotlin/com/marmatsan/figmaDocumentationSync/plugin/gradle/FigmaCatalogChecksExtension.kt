@@ -139,6 +139,9 @@ abstract class figmaDocumentationSyncExtension
         /** TypeScript package containing the portable Figma writer. */
         val toolsDirectory: DirectoryProperty = objects.directoryProperty()
 
+        /** Serialized writer configuration supplied by the consuming project composition root. */
+        val writerProjectConfigJson: Property<String> = objects.property(String::class.java)
+
         /**
          * Included builds that contribute repository model data.
          */

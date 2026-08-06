@@ -50,6 +50,7 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/figma-documentation-sync/data/",
                 "repo/figma-documentation-sync/plugin/",
                 "repo/figma-documentation-sync/teamcity-adapter/",
+                "repo/figma-documentation-sync/teamcity-operations/",
                 "repo/figma-documentation-sync/tools/",
                 "repo/figma-documentation-sync/samples/standalone-consumer/",
                 "repo/gradle-plugins/",

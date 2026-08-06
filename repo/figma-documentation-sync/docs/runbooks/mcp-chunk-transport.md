@@ -4,14 +4,14 @@ type: runbook
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-08-06
 review-cycle-days: 90
 sources:
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt
+  - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/task/UploadCanonicalFigmaPayloadTask.kt
 ---
 
 # MCP Payload Transport Runbook
@@ -309,7 +309,7 @@ the required write tools.
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/McpRunnerExecutor.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/KtorFigmaPngAssetUploader.kt`
 - `data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/png/PayloadPngEncoder.kt`
-- `../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/UploadCanonicalFigmaPayloadTask.kt`
+- `teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/task/UploadCanonicalFigmaPayloadTask.kt`
 - `tools/src/sync-trunk-design-model.ts`
 
 ## Run The Planned Visual Sync

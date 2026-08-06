@@ -4,14 +4,14 @@ type: runbook
 scope: repository-ci
 owner: ci-platform
 status: active
-last-reviewed: 2026-07-19
+last-reviewed: 2026-08-06
 review-cycle-days: 90
 sources:
   - .teamcity/settings.kts
   - docs/ci/external-topology.yaml
   - docs/ci/windows-runtime.yaml
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/task/RerunTeamCityFigmaSyncTask.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/teamcity/auth/EnvironmentTeamCityAutomationCredentialsProvider.kt
+  - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/task/RerunTeamCityFigmaSyncTask.kt
+  - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/auth/EnvironmentTeamCityAutomationCredentialsProvider.kt
   - repo/figma-documentation-sync/teamcity-adapter/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcityAdapter/TeamCityRestRunStarter.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/teamcity/RunTeamCityInfrastructureHealthTask.kt
   - .teamcity/scripts/invoke-infrastructure-health-at-startup.ps1
