@@ -29,6 +29,18 @@ class DocumentationValidatorTest :
                                 DocumentationFile(
                                     path = "docs/decisions/adr-0001-historical-decision.md",
                                     content = supersededAdr
+                                ),
+                                DocumentationFile(
+                                    path = "specs/001-example-change/spec.md",
+                                    content = validSpecification
+                                ),
+                                DocumentationFile(
+                                    path = "specs/001-example-change/plan.md",
+                                    content = validImplementationPlan
+                                ),
+                                DocumentationFile(
+                                    path = "specs/001-example-change/checklist.md",
+                                    content = validChecklist
                                 )
                             ),
                         entries = setOf("source.txt")
@@ -40,7 +52,10 @@ class DocumentationValidatorTest :
                     listOf(
                         "docs/decisions/adr-0001-historical-decision.md",
                         "docs/runbooks/example.md",
-                        "docs/standards/example.md"
+                        "docs/standards/example.md",
+                        "specs/001-example-change/checklist.md",
+                        "specs/001-example-change/plan.md",
+                        "specs/001-example-change/spec.md"
                     )
             }
 
@@ -72,6 +87,7 @@ class DocumentationValidatorTest :
                     DocumentationValidator(
                         classifier = DocumentationTypeClassifier(),
                         frontmatterParser = DocumentationFrontmatterParser(),
+                        agentSkillValidator = AgentSkillValidator(),
                         typedRules =
                             listOf(
                                 TypedDocumentationRule { _, findings ->
@@ -126,6 +142,70 @@ class DocumentationValidatorTest :
                     )
 
                 result.errors shouldContain "[docs/runbooks/incomplete.md] Runbook section 'Recovery' is required."
+            }
+
+            test("active specifications require their file-specific sections") {
+                val incomplete =
+                    validSpecification.replace(
+                        "## Acceptance Criteria\nExample.\n",
+                        ""
+                    )
+
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = "specs/001-example-change/spec.md",
+                                    content = incomplete
+                                )
+                            ),
+                        entries = setOf("source.txt")
+                    )
+
+                result.errors shouldContain
+                    "[specs/001-example-change/spec.md] Specification section 'acceptance criteria' is required."
+            }
+
+            test("repository skills require a matching name and supported trigger metadata") {
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = ".agents/skills/add-feature/SKILL.md",
+                                    content =
+                                        validSkill.replace(
+                                            "name: add-feature",
+                                            "name: wrong-name\nowner: engineering"
+                                        )
+                                )
+                            ),
+                        entries = setOf("source.txt")
+                    )
+
+                result.errors shouldContain
+                    "[.agents/skills/add-feature/SKILL.md] Skill name 'wrong-name' does not match its directory 'add-feature'."
+                result.errors shouldContain
+                    "[.agents/skills/add-feature/SKILL.md] Unsupported skill frontmatter field 'owner'."
+            }
+
+            test("repository skills require the canonical one-level kebab-case path") {
+                val result =
+                    validate(
+                        documents =
+                            listOf(
+                                DocumentationFile(
+                                    path = ".agents/skills/add_feature/SKILL.md",
+                                    content = validSkill
+                                )
+                            ),
+                        entries = setOf("source.txt")
+                    )
+
+                result.errors shouldContain
+                    "[.agents/skills/add_feature/SKILL.md] " +
+                    "Skill must use .agents/skills/<kebab-case-name>/SKILL.md."
             }
 
             test("broken local Markdown links fail") {
@@ -295,6 +375,106 @@ class DocumentationValidatorTest :
             Historical alternatives.
             ## Supersession
             Superseded by a current decision.
+            """.trimIndent()
+
+        private val validSpecification =
+            """
+            ---
+            title: Example specification
+            type: specification
+            scope: repository
+            owner: engineering
+            status: active
+            last-reviewed: 2026-07-18
+            review-cycle-days: 30
+            sources:
+              - source.txt
+            ---
+
+            # Example Specification
+
+            ## Outcome
+            Example.
+            ## Context
+            Example.
+            ## Required Behavior
+            Example.
+            ## Acceptance Criteria
+            Example.
+            ## Non-Goals
+            Example.
+            ## Decision Log
+            Example.
+            ## Sources
+            Example.
+            """.trimIndent()
+
+        private val validImplementationPlan =
+            """
+            ---
+            title: Example implementation plan
+            type: specification
+            scope: repository
+            owner: engineering
+            status: active
+            last-reviewed: 2026-07-18
+            review-cycle-days: 30
+            sources:
+              - source.txt
+            ---
+
+            # Example Implementation Plan
+
+            ## Outcome
+            Example.
+            ## Steps
+            Example.
+            ## Verification
+            Example.
+            ## Decision Documentation
+            Example.
+            """.trimIndent()
+
+        private val validChecklist =
+            """
+            ---
+            title: Example checklist
+            type: specification
+            scope: repository
+            owner: engineering
+            status: active
+            last-reviewed: 2026-07-18
+            review-cycle-days: 30
+            sources:
+              - source.txt
+            ---
+
+            # Example Checklist
+
+            ## Scope
+            Example.
+            ## Implementation
+            Example.
+            ## Architecture And SOLID
+            Example.
+            ## Testing And Verification
+            Example.
+            ## Documentation
+            Example.
+            ## Completion
+            Example.
+            """.trimIndent()
+
+        private val validSkill =
+            """
+            ---
+            name: add-feature
+            description: Add one product feature. Use for product capability implementation.
+            ---
+
+            # Add Feature
+
+            Follow the canonical feature guide.
             """.trimIndent()
     }
 }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add API Adapter"
+  short_description: "Implement one isolated transport adapter"
+  default_prompt: "Use $add-api-adapter to implement one transport adapter behind a domain port."

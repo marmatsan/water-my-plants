@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Product Module"
+  short_description: "Create one focused product Gradle module"
+  default_prompt: "Use $add-product-module to create one focused product module."

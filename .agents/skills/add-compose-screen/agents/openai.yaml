@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Compose Screen"
+  short_description: "Build a state-driven accessible Compose screen"
+  default_prompt: "Use $add-compose-screen to implement one accessible Compose screen."

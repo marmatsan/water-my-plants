@@ -27,6 +27,13 @@ class FileSystemDocumentationSourceTest :
                         }
                     root
                         .resolve(
+                            relative = "specs/001-example-change/spec.md"
+                        ).apply {
+                            parentFile.mkdirs()
+                            writeText("# Specification")
+                        }
+                    root
+                        .resolve(
                             relative = "module/build/generated.md"
                         ).apply {
                             parentFile.mkdirs()
@@ -40,6 +47,8 @@ class FileSystemDocumentationSourceTest :
                     val snapshot = FileSystemDocumentationSource().read(root)
 
                     snapshot.documents.map { document -> document.path } shouldContain "docs/standards/example.md"
+                    snapshot.documents.map { document -> document.path } shouldContain
+                        "specs/001-example-change/spec.md"
                     snapshot.documents.map { document -> document.path } shouldNotContain "docs/templates/standard.md"
                     snapshot.repositoryEntries shouldContain "source.txt"
                     snapshot.repositoryEntries shouldNotContain "module/build/generated.md"

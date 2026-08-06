@@ -23,6 +23,8 @@ sources:
   - repo/project-config/settings.gradle.kts
   - repo/project-config/plugin/build.gradle.kts
   - repo/project-config/figma-adapter/build.gradle.kts
+  - .agents/README.md
+  - specs/README.md
 ---
 
 # Project Structure
@@ -34,11 +36,13 @@ documentation, CI configuration, and generated build output.
 
 ```text
 water-my-plants/
+├── .agents/
 ├── app/
 ├── core/
 ├── onboarding/
 ├── repo/
 ├── docs/
+├── specs/
 ├── .teamcity/
 ├── gradle/
 ├── build.gradle.kts
@@ -52,6 +56,10 @@ water-my-plants/
 - `gradle/`, `gradlew`, and `gradlew.bat` are the Gradle wrapper used to run the
   build consistently.
 - `.teamcity/` and `teamcity.toml` contain CI configuration.
+- `.agents/` contains repository-scoped reviewer and skill adapters that route
+  work to canonical documentation.
+- `specs/` contains approved active change intent and is not a description of
+  current implemented behavior.
 - `local.properties`, `.env`, `build/`, `.gradle/`, `.kotlin/`, `tmp/`, and
   module `build/` directories are local or generated state, not source of truth.
 
@@ -195,6 +203,8 @@ directions recorded above.
 | `docs/decisions/` | Architecture Decision Records. |
 | `docs/runbooks/` | Project-wide operational execution and recovery procedures. |
 | `docs/templates/` | Starting points for typed documentation. |
+| `specs/` | Active specification packages that are removed after durable knowledge is promoted. |
+| `.agents/` | Thin reviewer profiles and reusable skills that link canonical repository documents. |
 | `docs/ci/` | CI and branch protection documentation. |
 | `docs/uml/` | Project-wide PlantUML diagrams and shared UML includes. |
 | `<module>/docs/README.md` | Module documentation index and orientation. |

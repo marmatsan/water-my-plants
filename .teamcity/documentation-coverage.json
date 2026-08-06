@@ -5,10 +5,20 @@
       "id": "documentation-system",
       "sourcePaths": [
         "AGENTS.md",
+        "*/AGENTS.md",
+        "*/*/AGENTS.md",
+        ".agents/*",
+        "specs/*",
         "docs/documentation.md",
+        "docs/standards/code-generation.md",
+        "docs/reference/code-generation-context.md",
         "docs/templates/*.md",
         "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/model/DocumentationValidation.kt",
         "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/DocumentationValidator.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/documentation/DocumentationTypeClassifier.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/documentation/DocumentationHeadingValidator.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/documentation/AgentSkillValidator.kt",
+        "repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/documentation/DocumentationPathResolver.kt",
         "repo/verification-platform/data/src/main/kotlin/com/marmatsan/verificationPlatform/data/documentation/*",
         "repo/verification-platform/data/src/main/kotlin/com/marmatsan/verificationPlatform/data/json/DocumentationCoverageJson.kt",
         "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/CheckDocumentationTask.kt"
@@ -16,6 +26,10 @@
       "documentationPaths": [
         "docs/documentation.md",
         "docs/README.md",
+        "docs/standards/code-generation.md",
+        "docs/reference/code-generation-context.md",
+        ".agents/*",
+        "specs/*",
         ".teamcity/README.md",
         "docs/ci/documentation-coverage.md"
       ]

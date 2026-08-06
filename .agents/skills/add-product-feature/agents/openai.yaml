@@ -1,0 +1,4 @@
+interface:
+  display_name: "Add Product Feature"
+  short_description: "Implement one product capability safely"
+  default_prompt: "Use $add-product-feature to implement one scoped product capability."

@@ -65,6 +65,11 @@ provider-specific protection and CI details remain in
   commit on `main` is a Conventional Commit.
 - The title summary MUST describe the concrete resulting change, not an
   activity such as "update files".
+- Local commits MUST use `<type>(<scope>): <summary>` and keep one coherent
+  change. The summary states the concrete result.
+- Add a commit body when the reason is not evident from the diff. Explain why
+  the change exists, the decision or tradeoff it preserves, and what future
+  maintainers should avoid undoing accidentally.
 - The branch MUST be up to date with `main` before the strict required status
   can permit merge.
 - Zero approving reviews MAY be used while the repository has one maintainer.
