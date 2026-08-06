@@ -53,15 +53,15 @@ silently rewrite approved intent.
 
 ## Document Types
 
-| Type | Question answered | Canonical location |
-|------|-------------------|--------------------|
-| `README.md` | What does this area own and where should I continue? | Repository, documentation root, or module `docs/` root. |
-| `standard` | What must or should implementation follow? | `docs/standards/` or `<module>/docs/standards/`. |
-| `guide` | How do I implement a supported development change? | `docs/guides/` or `<module>/docs/guides/`. |
-| `runbook` | How do I execute, verify, or recover an operation? | `docs/runbooks/` or `<module>/docs/runbooks/`. |
-| `reference` | What is the exact current contract or inventory? | `docs/reference/` or `<module>/docs/reference/`. |
-| `adr` | Why was a durable architectural decision taken? | `docs/decisions/`. |
-| `specification` | What approved change is active and how will it be delivered and verified? | `specs/<id>-<name>/`. |
+| Type            | Question answered                                                         | Canonical location                                      |
+|-----------------|---------------------------------------------------------------------------|---------------------------------------------------------|
+| `README.md`     | What does this area own and where should I continue?                      | Repository, documentation root, or module `docs/` root. |
+| `standard`      | What must or should implementation follow?                                | `docs/standards/` or `<module>/docs/standards/`.        |
+| `guide`         | How do I implement a supported development change?                        | `docs/guides/` or `<module>/docs/guides/`.              |
+| `runbook`       | How do I execute, verify, or recover an operation?                        | `docs/runbooks/` or `<module>/docs/runbooks/`.          |
+| `reference`     | What is the exact current contract or inventory?                          | `docs/reference/` or `<module>/docs/reference/`.        |
+| `adr`           | Why was a durable architectural decision taken?                           | `docs/decisions/`.                                      |
+| `specification` | What approved change is active and how will it be delivered and verified? | `specs/<id>-<name>/`.                                   |
 
 Specialized executable or generated documentation may remain in `docs/ci/`,
 `docs/bdd/`, `docs/dokka/`, or `docs/uml/`. These directories do not replace
@@ -82,6 +82,19 @@ State the supported outcome and preferred pattern before its constraints. A
 `MUST NOT` or `SHOULD NOT` rule MUST name the supported replacement in the same
 rule or identify the safety boundary that leaves no valid replacement. Prefer
 "use X when Y" over a list of rejected implementations.
+
+## Markdown Formatting
+
+Checked-in Markdown tables MUST use the aligned table format produced by the
+Android Studio Markdown table formatter. After adding or changing a table,
+invoke `Alt+Shift+Enter` with the cursor in the table, or apply an exact
+equivalent formatter. The header, separator, and body cells align to the widest
+value in each column; a compact separator remains valid Markdown but is not the
+repository format.
+
+Table formatting MUST preserve cell content, ordering, links, alignment
+markers, and meaning. A repository-wide formatting change must be reviewed as
+a mechanical diff rather than combined with unrelated prose changes.
 
 ## Placement And Ownership
 

@@ -75,13 +75,13 @@ The UML documentation page is
 
 ## Disallowed Alternatives
 
-| Do not use | Use instead | Reason |
-|------------|-------------|--------|
-| Manually recreated native Figma UML shapes | The generated PlantUML SVG | Preserves the reviewed source and repeatable publication. |
-| PNG or image-fill publication | SVG import producing vector and text descendants | Keeps UML inspectable and scalable. |
-| Loose top-level diagram sections | A named parent documentation section with `.Header` | Preserves scope and navigation. |
-| Checked-in rendered SVG by default | Temporary `tmp/uml/` output | Prevents derived artifacts from becoming source. |
-| One catch-all diagram | Focused diagrams with stable purpose names | Keeps change reasons and review scope cohesive. |
+| Do not use                                 | Use instead                                         | Reason                                                    |
+|--------------------------------------------|-----------------------------------------------------|-----------------------------------------------------------|
+| Manually recreated native Figma UML shapes | The generated PlantUML SVG                          | Preserves the reviewed source and repeatable publication. |
+| PNG or image-fill publication              | SVG import producing vector and text descendants    | Keeps UML inspectable and scalable.                       |
+| Loose top-level diagram sections           | A named parent documentation section with `.Header` | Preserves scope and navigation.                           |
+| Checked-in rendered SVG by default         | Temporary `tmp/uml/` output                         | Prevents derived artifacts from becoming source.          |
+| One catch-all diagram                      | Focused diagrams with stable purpose names          | Keeps change reasons and review scope cohesive.           |
 
 ## Exceptions
 

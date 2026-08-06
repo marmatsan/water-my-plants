@@ -78,16 +78,16 @@ explain the decision or tradeoff and what maintainers should preserve.
 
 Use the type that owns the value of a new decision:
 
-| Decision | Canonical destination |
-|----------|-----------------------|
-| Current observable behavior | Code, test, schema, or `.feature` |
-| Recurring implementation rule | Standard |
-| Durable architectural choice and tradeoff | ADR |
-| Exact name, path, field, inventory, or relationship | Reference |
-| Supported development outcome | Guide |
-| Operational execution, recovery, permissions, or safety | Runbook |
-| Approved temporary change intent | Active specification |
-| AI-specific reusable procedure | Thin skill linked to canonical documents |
+| Decision                                                | Canonical destination                    |
+|---------------------------------------------------------|------------------------------------------|
+| Current observable behavior                             | Code, test, schema, or `.feature`        |
+| Recurring implementation rule                           | Standard                                 |
+| Durable architectural choice and tradeoff               | ADR                                      |
+| Exact name, path, field, inventory, or relationship     | Reference                                |
+| Supported development outcome                           | Guide                                    |
+| Operational execution, recovery, permissions, or safety | Runbook                                  |
+| Approved temporary change intent                        | Active specification                     |
+| AI-specific reusable procedure                          | Thin skill linked to canonical documents |
 
 Start typed documents from `docs/templates/`, link them from the nearest index,
 and run `.\gradlew.bat checkDocumentation` after editing documentation or an

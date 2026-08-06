@@ -50,17 +50,17 @@ projection of the objects and actions needed for one user outcome.
 
 Use a compact action contract with these fields:
 
-| Field | Required meaning |
-|-------|------------------|
-| Action | Stable domain-oriented verb or CTA name. |
-| Trigger and target | What the user does and which object receives it. |
-| Preconditions | State, permission, or prerequisite required before the action. |
-| Input | User-provided or contextual values consumed by the action. |
-| Success | Observable state transition and next available actions. |
+| Field                | Required meaning                                                           |
+|----------------------|----------------------------------------------------------------------------|
+| Action               | Stable domain-oriented verb or CTA name.                                   |
+| Trigger and target   | What the user does and which object receives it.                           |
+| Preconditions        | State, permission, or prerequisite required before the action.             |
+| Input                | User-provided or contextual values consumed by the action.                 |
+| Success              | Observable state transition and next available actions.                    |
 | Failure and recovery | Expected failure, feedback, retained state, and retry or alternative path. |
-| External effects | Persistence, network, notification, navigation, or permission effects. |
-| Accessibility | Semantics, focus, announcement, and non-visual feedback required. |
-| BDD example | Representative Given/When/Then outcome using the same vocabulary. |
+| External effects     | Persistence, network, notification, navigation, or permission effects.     |
+| Accessibility        | Semantics, focus, announcement, and non-visual feedback required.          |
+| BDD example          | Representative Given/When/Then outcome using the same vocabulary.          |
 
 Keep Gherkin representative. Put exhaustive validation and adapter edge cases
 in the narrowest deterministic tests. Keep Figma component properties and
@@ -85,13 +85,13 @@ to source without interpretation.
 
 ## Disallowed Alternatives
 
-| Do not use | Use instead | Reason |
-|------------|-------------|--------|
-| A finished screen as the first behavior specification | An OOUX object and action contract followed by a wireframe | Layout alone does not define behavior. |
-| A CTA with only a label and destination | The complete action contract including failure, recovery, and side effects | Prevents hidden product decisions during implementation. |
-| Figma-only BDD after implementation starts | Approved examples mirrored to repository `.feature` files | Makes stable business behavior executable. |
-| A detached local visual or duplicated component | The shared Figma component and stable Code Connect mapping | Preserves one design-to-code contract. |
-| MVI events or technical callbacks as OOUX actions | User-domain verbs translated later into UI actions | Keeps product language independent of implementation. |
+| Do not use                                            | Use instead                                                                | Reason                                                   |
+|-------------------------------------------------------|----------------------------------------------------------------------------|----------------------------------------------------------|
+| A finished screen as the first behavior specification | An OOUX object and action contract followed by a wireframe                 | Layout alone does not define behavior.                   |
+| A CTA with only a label and destination               | The complete action contract including failure, recovery, and side effects | Prevents hidden product decisions during implementation. |
+| Figma-only BDD after implementation starts            | Approved examples mirrored to repository `.feature` files                  | Makes stable business behavior executable.               |
+| A detached local visual or duplicated component       | The shared Figma component and stable Code Connect mapping                 | Preserves one design-to-code contract.                   |
+| MVI events or technical callbacks as OOUX actions     | User-domain verbs translated later into UI actions                         | Keeps product language independent of implementation.    |
 
 ## Exceptions
 

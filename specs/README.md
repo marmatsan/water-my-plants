@@ -6,12 +6,12 @@ executable code, tests, standards, or accepted ADRs.
 
 Each active initiative uses `specs/<three-digit-id>-<kebab-case-name>/` with:
 
-| File | Purpose |
-|------|---------|
-| `spec.md` | Outcome, required behavior, acceptance criteria, non-goals, and decisions. |
-| `plan.md` | Ordered implementation slices, verification, and decision-documentation work. |
-| `checklist.md` | Completion evidence for implementation, architecture, testing, and documentation. |
-| `contracts/` | Optional exact schemas or boundary contracts that genuinely need a separate artifact. |
+| File           | Purpose                                                                               |
+|----------------|---------------------------------------------------------------------------------------|
+| `spec.md`      | Outcome, required behavior, acceptance criteria, non-goals, and decisions.            |
+| `plan.md`      | Ordered implementation slices, verification, and decision-documentation work.         |
+| `checklist.md` | Completion evidence for implementation, architecture, testing, and documentation.     |
+| `contracts/`   | Optional exact schemas or boundary contracts that genuinely need a separate artifact. |
 
 Do not create empty research, quick-start, contract, or checklist artifacts.
 Add a file only when it carries information required to execute or verify the

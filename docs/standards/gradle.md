@@ -102,13 +102,13 @@ custom tasks express reusable repository build policy.
 
 ## Disallowed Alternatives
 
-| Do not use | Use instead | Reason |
-|------------|-------------|--------|
-| Hard-coded external versions in module build scripts | The owning generated catalog and `versions.properties` | Keeps versions owned and verifiable. |
-| Dependency-resolution repositories repeated in modules | Included-build `dependencyResolutionManagement` | Prevents repository drift. |
-| Filesystem imports from a sibling reusable build | Published coordinates and composition-root substitution | Preserves independent distribution. |
-| `afterEvaluate` for ordinary plugin configuration | Lazy typed Gradle APIs and `withPlugin` | Preserves configuration-cache-compatible ordering. |
-| Product-specific branches in reusable plugins | Consumer configuration or a focused adapter | Keeps reusable builds product-neutral. |
+| Do not use                                             | Use instead                                             | Reason                                             |
+|--------------------------------------------------------|---------------------------------------------------------|----------------------------------------------------|
+| Hard-coded external versions in module build scripts   | The owning generated catalog and `versions.properties`  | Keeps versions owned and verifiable.               |
+| Dependency-resolution repositories repeated in modules | Included-build `dependencyResolutionManagement`         | Prevents repository drift.                         |
+| Filesystem imports from a sibling reusable build       | Published coordinates and composition-root substitution | Preserves independent distribution.                |
+| `afterEvaluate` for ordinary plugin configuration      | Lazy typed Gradle APIs and `withPlugin`                 | Preserves configuration-cache-compatible ordering. |
+| Product-specific branches in reusable plugins          | Consumer configuration or a focused adapter             | Keeps reusable builds product-neutral.             |
 
 ## Exceptions
 

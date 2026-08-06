@@ -24,13 +24,13 @@ relationships used to design Water My Plants product behavior.
 The canonical product-design workspace is the Figma file **Water My Plants**
 with file key `YBZXsd8oyGLbcI2KWxJvRK`.
 
-| Surface | Stable node | Purpose |
-|---------|-------------|---------|
-| Wireframe | [`62796:601`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62796-601) | OOUX object cards, action tags, BDD examples, and screen wireframes. |
-| Design | [`62868:156`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62868-156) | Approved visual screen designs derived from the wireframes. |
-| Assets | [`63010:1484`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63010-1484) | Reusable asset component sets such as plant, shape, dots, and leaf variants. |
-| Illustration | [`62937:7521`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62937-7521) | Reusable illustration component variants. |
-| Gradle dependencies | [`62934:908`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908) | Published Gradle dependency documentation inside the same file; it is not the product-screen root. |
+| Surface             | Stable node                                                                                            | Purpose                                                                                            |
+|---------------------|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| Wireframe           | [`62796:601`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62796-601)   | OOUX object cards, action tags, BDD examples, and screen wireframes.                               |
+| Design              | [`62868:156`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62868-156)   | Approved visual screen designs derived from the wireframes.                                        |
+| Assets              | [`63010:1484`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63010-1484) | Reusable asset component sets such as plant, shape, dots, and leaf variants.                       |
+| Illustration        | [`62937:7521`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62937-7521) | Reusable illustration component variants.                                                          |
+| Gradle dependencies | [`62934:908`](https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908)   | Published Gradle dependency documentation inside the same file; it is not the product-screen root. |
 
 The inspected onboarding wireframe currently demonstrates this OOUX shape:
 
@@ -48,10 +48,10 @@ Compose Code Connect mappings for onboarding assets live in
 `onboarding/ui/src/main/kotlin/com/marmatsan/onboarding/ui/figma/`. Examples
 include:
 
-| Figma component | Stable node | Checked-in mapping |
-|-----------------|-------------|--------------------|
-| Illustration | `62815:331` | `Illustration.figma.kt` |
-| Plant asset | `62873:2534` | `AssetsPlant.figma.kt` |
+| Figma component | Stable node  | Checked-in mapping      |
+|-----------------|--------------|-------------------------|
+| Illustration    | `62815:331`  | `Illustration.figma.kt` |
+| Plant asset     | `62873:2534` | `AssetsPlant.figma.kt`  |
 
 The same package owns the background, dots, leaf, and shape mappings. The
 checked-in annotation URL and property mappings are the executable source for

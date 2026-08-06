@@ -30,14 +30,14 @@ not authorize a branch-local model or an early metadata write.
 
 Generated runner manifests use these independent identity fields:
 
-| Field | Meaning | Invalidates |
-|-------|---------|-------------|
-| `modelHash` | Stable hash of the visual model content. | Targets whose model fingerprints changed. |
-| `writerHash` | Hash of the compiled visual writer. | Starts writer-scope comparison. |
-| `writerScopeFingerprints` | Source fingerprints for each writer target family. | Only changed writer scopes when the change is mapped safely. |
-| `writerScopeFingerprintSchemaVersion` | Version of writer source classification. | A complete migration sync when it changes. |
-| `transportHash` | Hash of PNG/chunk staging behavior. | Staging only; it does not make unchanged visuals stale. |
-| `gitSha` | Revision that produced the canonical artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
+| Field                                 | Meaning                                                       | Invalidates                                                   |
+|---------------------------------------|---------------------------------------------------------------|---------------------------------------------------------------|
+| `modelHash`                           | Stable hash of the visual model content.                      | Targets whose model fingerprints changed.                     |
+| `writerHash`                          | Hash of the compiled visual writer.                           | Starts writer-scope comparison.                               |
+| `writerScopeFingerprints`             | Source fingerprints for each writer target family.            | Only changed writer scopes when the change is mapped safely.  |
+| `writerScopeFingerprintSchemaVersion` | Version of writer source classification.                      | A complete migration sync when it changes.                    |
+| `transportHash`                       | Hash of PNG/chunk staging behavior.                           | Staging only; it does not make unchanged visuals stale.       |
+| `gitSha`                              | Revision that produced the canonical artifact and checkpoint. | Artifact/checkpoint traceability, not visual state by itself. |
 
 `manifestHash` binds those values to the exact generated files. Each visual
 scope also has a model `targetFingerprint`. Model and writer fingerprints are
@@ -58,11 +58,11 @@ For a model-affecting `main` revision, `Generate main design model` publishes:
 
 `visual-sync-plan.json` has one of these decisions:
 
-| Decision | Meaning |
-|----------|---------|
-| `none` | `modelHash` and `writerHash` already match Figma; skip visual and metadata writes. |
-| `partial` | Known model-target or writer-scope fingerprints changed; execute `preflight` plus their union. |
-| `full` | Metadata is unavailable or legacy, the fingerprint schema changed, shared writer code changed, or a model/writer difference cannot be mapped safely. |
+| Decision  | Meaning                                                                                                                                              |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `none`    | `modelHash` and `writerHash` already match Figma; skip visual and metadata writes.                                                                   |
+| `partial` | Known model-target or writer-scope fingerprints changed; execute `preflight` plus their union.                                                       |
+| `full`    | Metadata is unavailable or legacy, the fingerprint schema changed, shared writer code changed, or a model/writer difference cannot be mapped safely. |
 
 Metadata read failures fail closed to `full`. A plan never turns an unknown
 change into a no-op. The first canonical sync after introducing or changing the

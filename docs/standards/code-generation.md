@@ -74,18 +74,18 @@ quality, documentation, and verification obligations as manually written code.
 
 ## Disallowed Alternatives
 
-| Do not generate | Generate or use instead | Reason |
-|-----------------|-------------------------|--------|
-| Product behavior in `:app` or repository tooling | A focused feature/core capability assembled by the product composition root | Keeps product and tooling boundaries explicit. |
-| A service locator or global mutable container | Constructor-injected collaborators selected by a composition root | Preserves ownership and testability. |
-| Transport DTOs, persistence entities, or Compose state as domain models | Explicit boundary models and tested mapping | Prevents infrastructure leakage. |
-| `null` or catch-all exceptions for expected failure | Consumer-owned typed errors in the repository `Result` contract | Makes recoverable behavior explicit. |
-| Generic packages such as `model`, `service`, `manager`, `helper`, or `utils` | A capability package with one cohesive reason to change | Makes ownership and change boundaries visible. |
-| Hard-coded dependency versions or repeated Gradle defaults | Type-safe catalogs and repository convention plugins | Keeps build policy centralized and verifiable. |
-| Sleeps, machine state, or real external services in deterministic tests | Controlled clocks, dispatchers, fixtures, and local boundary doubles | Keeps tests reliable. |
-| Copied standards inside an agent or skill | Links to the canonical standard, guide, reference, and focused checks | Prevents instruction drift. |
-| A speculative abstraction, module, standard, or skill | The simplest current implementation plus a documented promotion trigger | Avoids unsupported architecture. |
-| Generated or temporary artifacts as source of truth | Reviewed source plus a documented regeneration path | Preserves reviewable ownership. |
+| Do not generate                                                              | Generate or use instead                                                     | Reason                                         |
+|------------------------------------------------------------------------------|-----------------------------------------------------------------------------|------------------------------------------------|
+| Product behavior in `:app` or repository tooling                             | A focused feature/core capability assembled by the product composition root | Keeps product and tooling boundaries explicit. |
+| A service locator or global mutable container                                | Constructor-injected collaborators selected by a composition root           | Preserves ownership and testability.           |
+| Transport DTOs, persistence entities, or Compose state as domain models      | Explicit boundary models and tested mapping                                 | Prevents infrastructure leakage.               |
+| `null` or catch-all exceptions for expected failure                          | Consumer-owned typed errors in the repository `Result` contract             | Makes recoverable behavior explicit.           |
+| Generic packages such as `model`, `service`, `manager`, `helper`, or `utils` | A capability package with one cohesive reason to change                     | Makes ownership and change boundaries visible. |
+| Hard-coded dependency versions or repeated Gradle defaults                   | Type-safe catalogs and repository convention plugins                        | Keeps build policy centralized and verifiable. |
+| Sleeps, machine state, or real external services in deterministic tests      | Controlled clocks, dispatchers, fixtures, and local boundary doubles        | Keeps tests reliable.                          |
+| Copied standards inside an agent or skill                                    | Links to the canonical standard, guide, reference, and focused checks       | Prevents instruction drift.                    |
+| A speculative abstraction, module, standard, or skill                        | The simplest current implementation plus a documented promotion trigger     | Avoids unsupported architecture.               |
+| Generated or temporary artifacts as source of truth                          | Reviewed source plus a documented regeneration path                         | Preserves reviewable ownership.                |
 
 ## Exceptions
 

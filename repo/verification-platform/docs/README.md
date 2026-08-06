@@ -26,11 +26,11 @@ configuration and Maven publication identity.
 
 ## Dependencies
 
-| Module | Direct project dependencies | Responsibility |
-|---|---|---|
-| `domain` | None | Provider-neutral models, ports, and planning services. |
-| `data` | `domain` | Git, Gradle, JSON, and TeamCity adapters. |
-| `plugin` | `data`, `domain` | Gradle tasks and composition of the verification platform. |
+| Module   | Direct project dependencies | Responsibility                                             |
+|----------|-----------------------------|------------------------------------------------------------|
+| `domain` | None                        | Provider-neutral models, ports, and planning services.     |
+| `data`   | `domain`                    | Git, Gradle, JSON, and TeamCity adapters.                  |
+| `plugin` | `data`, `domain`            | Gradle tasks and composition of the verification platform. |
 
 The dependency direction is inward toward `domain`; provider and build-tool
 details must not leak into domain contracts.

@@ -48,14 +48,14 @@ provide that repository or build the artifacts from source.
 
 ## Select Capabilities
 
-| Build | Public contract |
-|-------|-----------------|
-| `dependency-catalog` | `com.marmatsan.dependencyCatalog`, `com.marmatsan.dependencyCatalog.tree`; `com.marmatsan.repo:catalog-api`, `catalog-core`, `catalog-gradle-plugin`, and `catalog-tree-gradle-plugin` |
-| `figma-documentation-sync` | `com.marmatsan.figmaDocumentationSync`; portable domain, data, plugin, and optional TeamCity adapter artifacts |
-| `gradle-plugins` | `com.marmatsan.android`, `bddTest`, `compose`, `dokkaDocumentation`, `protobuf`, and `unitTest` |
-| `unit-testing` | `com.marmatsan.repo:unit-test-dsl` |
-| `verification-platform` | `com.marmatsan.verificationPlatform`; domain, data, and plugin artifacts |
-| `project-config` | `com.marmatsan.projectConfig.settings`, `com.marmatsan.projectConfig`, and optional `com.marmatsan.projectConfig.figma` |
+| Build                      | Public contract                                                                                                                                                                        |
+|----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `dependency-catalog`       | `com.marmatsan.dependencyCatalog`, `com.marmatsan.dependencyCatalog.tree`; `com.marmatsan.repo:catalog-api`, `catalog-core`, `catalog-gradle-plugin`, and `catalog-tree-gradle-plugin` |
+| `figma-documentation-sync` | `com.marmatsan.figmaDocumentationSync`; portable domain, data, plugin, and optional TeamCity adapter artifacts                                                                         |
+| `gradle-plugins`           | `com.marmatsan.android`, `bddTest`, `compose`, `dokkaDocumentation`, `protobuf`, and `unitTest`                                                                                        |
+| `unit-testing`             | `com.marmatsan.repo:unit-test-dsl`                                                                                                                                                     |
+| `verification-platform`    | `com.marmatsan.verificationPlatform`; domain, data, and plugin artifacts                                                                                                               |
+| `project-config`           | `com.marmatsan.projectConfig.settings`, `com.marmatsan.projectConfig`, and optional `com.marmatsan.projectConfig.figma`                                                                |
 
 Apply `project-config` and keep product-specific catalogs, Figma node IDs,
 TeamCity configuration, and change-impact policy in the consuming repository's

@@ -42,13 +42,13 @@ plugin id: com.marmatsan.figmaDocumentationSync.teamcityOperations
 
 The Maven publication set is:
 
-| Coordinate | Visibility | Responsibility |
-|------------|------------|----------------|
-| `com.marmatsan.figma-documentation-sync:plugin` | Public entry point | Gradle plugin implementation and tasks. |
-| `com.marmatsan.figma-documentation-sync:domain` | Transitive implementation | Portable models and ports. |
-| `com.marmatsan.figma-documentation-sync:data` | Transitive implementation | Portable filesystem, Gradle, catalog, and Figma adapters. |
-| `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter` | Optional | TeamCity parser and typed CLI boundary. |
-| `com.marmatsan.figma-documentation-sync:teamcity-operations` | Optional Gradle entry point | TeamCity handoff, upload, rerun, credential adapters, and Gradle tasks. |
+| Coordinate                                                                         | Visibility                  | Responsibility                                                          |
+|------------------------------------------------------------------------------------|-----------------------------|-------------------------------------------------------------------------|
+| `com.marmatsan.figma-documentation-sync:plugin`                                    | Public entry point          | Gradle plugin implementation and tasks.                                 |
+| `com.marmatsan.figma-documentation-sync:domain`                                    | Transitive implementation   | Portable models and ports.                                              |
+| `com.marmatsan.figma-documentation-sync:data`                                      | Transitive implementation   | Portable filesystem, Gradle, catalog, and Figma adapters.               |
+| `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter` | Optional                    | TeamCity parser and typed CLI boundary.                                 |
+| `com.marmatsan.figma-documentation-sync:teamcity-operations`                       | Optional Gradle entry point | TeamCity handoff, upload, rerun, credential adapters, and Gradle tasks. |
 
 Gradle also publishes the standard plugin marker coordinates generated for both
 plugin ids. Dependency Catalog has an independent publication and
@@ -62,10 +62,10 @@ The portable writer package is:
 
 Its `figma-documentation-sync-build` executable accepts:
 
-| Argument | Required | Meaning |
-|----------|----------|---------|
+| Argument                     | Required                 | Meaning                                                                    |
+|------------------------------|--------------------------|----------------------------------------------------------------------------|
 | `--project-config-json=PATH` | One project-config input | Schema-versioned JSON projection of the typed Kotlin writer configuration. |
-| `--output-dir=PATH` | No | Materialized tool workspace; defaults to the current directory. |
+| `--output-dir=PATH`          | No                       | Materialized tool workspace; defaults to the current directory.            |
 
 `FIGMA_DOCUMENTATION_SYNC_PROJECT_CONFIG` may provide the JSON path instead of the
 command-line argument; an explicit argument takes precedence. The

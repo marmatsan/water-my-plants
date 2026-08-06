@@ -46,39 +46,39 @@ define active consumption.
 
 ### Active Foundations
 
-| Capability | Technology | Canonical version or configuration | Activation and ownership |
-|------------|------------|------------------------------------|--------------------------|
-| Android build | Android Gradle Plugin | `androidGradlePluginVersion` | Product Android modules apply `com.marmatsan.android`; the convention owns SDK and Java 21 configuration. |
-| Language | Kotlin | `kotlinVersion`; language and JVM targets in the Android convention | Kotlin is the implementation language for product modules. |
-| Dependency injection | kotlin-inject with KSP | `kotlinInjectLibraryVersion`, `kspPluginVersion` | The Android convention supplies the compiler and runtime. `:app` owns the product composition root. |
-| Concurrency | Kotlin coroutines and Flow | `androidCoroutinesLibraryVersion` | The Android convention supplies coroutine support; structured concurrency and lifecycle rules remain mandatory. |
-| UI | Jetpack Compose and Material 3 | `composeBomLibraryVersion`, `activityComposeLibraryVersion` | `com.marmatsan.compose` enables Compose and supplies BOM-managed UI dependencies. Shared tokens live in `:core:ui`. |
-| Lifecycle | AndroidX Lifecycle and ViewModel Compose | `lifecycleLibraryVersion` | State owners expose read-only observable state and routes collect it with lifecycle awareness. |
-| Navigation foundation | Navigation Compose | `navigationComposeLibraryVersion` | The Compose convention supplies the library. `:app` owns the navigation graph; feature screens expose callbacks instead of `NavController`. |
-| Design binding | Figma Code Connect | `figmaCodeConnectLibraryVersion`, `figmaCodeConnectPluginVersion` | The runtime is available to Compose modules; the plugin activates only with `figmaCodeConnectEnabled=true`. |
-| Unit testing | Kotest, MockK, and JUnit Platform | `kotestLibraryVersion`, `mockkLibraryVersion`; `com.marmatsan.unitTest` | Kotest owns assertions and specifications, MockK owns external collaborator doubles, and JUnit Platform executes tests. |
-| Business behavior testing | Cucumber on JUnit Platform | `cucumberLibraryVersion`; `com.marmatsan.bddTest` | Reserved for stable business behavior and cross-boundary living documentation. |
+| Capability                | Technology                               | Canonical version or configuration                                      | Activation and ownership                                                                                                                    |
+|---------------------------|------------------------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Android build             | Android Gradle Plugin                    | `androidGradlePluginVersion`                                            | Product Android modules apply `com.marmatsan.android`; the convention owns SDK and Java 21 configuration.                                   |
+| Language                  | Kotlin                                   | `kotlinVersion`; language and JVM targets in the Android convention     | Kotlin is the implementation language for product modules.                                                                                  |
+| Dependency injection      | kotlin-inject with KSP                   | `kotlinInjectLibraryVersion`, `kspPluginVersion`                        | The Android convention supplies the compiler and runtime. `:app` owns the product composition root.                                         |
+| Concurrency               | Kotlin coroutines and Flow               | `androidCoroutinesLibraryVersion`                                       | The Android convention supplies coroutine support; structured concurrency and lifecycle rules remain mandatory.                             |
+| UI                        | Jetpack Compose and Material 3           | `composeBomLibraryVersion`, `activityComposeLibraryVersion`             | `com.marmatsan.compose` enables Compose and supplies BOM-managed UI dependencies. Shared tokens live in `:core:ui`.                         |
+| Lifecycle                 | AndroidX Lifecycle and ViewModel Compose | `lifecycleLibraryVersion`                                               | State owners expose read-only observable state and routes collect it with lifecycle awareness.                                              |
+| Navigation foundation     | Navigation Compose                       | `navigationComposeLibraryVersion`                                       | The Compose convention supplies the library. `:app` owns the navigation graph; feature screens expose callbacks instead of `NavController`. |
+| Design binding            | Figma Code Connect                       | `figmaCodeConnectLibraryVersion`, `figmaCodeConnectPluginVersion`       | The runtime is available to Compose modules; the plugin activates only with `figmaCodeConnectEnabled=true`.                                 |
+| Unit testing              | Kotest, MockK, and JUnit Platform        | `kotestLibraryVersion`, `mockkLibraryVersion`; `com.marmatsan.unitTest` | Kotest owns assertions and specifications, MockK owns external collaborator doubles, and JUnit Platform executes tests.                     |
+| Business behavior testing | Cucumber on JUnit Platform               | `cucumberLibraryVersion`; `com.marmatsan.bddTest`                       | Reserved for stable business behavior and cross-boundary living documentation.                                                              |
 
 ### Consumer-Gated Technologies
 
-| Capability | Technology | Activation contract |
-|------------|------------|---------------------|
-| Typed recoverable failures | `com.michael-bull.kotlin-result` 2.3.1 | Approved by ADR-0011. Add it to the product catalog with the first production consumer and only to modules whose code uses it. |
-| Relational persistence | Room | Selected by ADR-0015 for plants, watering records, and other relational data. Add Room runtime and compiler aliases with the first database consumer, use KSP, and keep entities and DAOs in the data adapter. |
-| Typed settings persistence | AndroidX Proto DataStore | Selected by ADR-0015 for small typed settings. Add DataStore aliases with the first settings consumer; one owned Protocol Buffers schema backs each store. |
-| Remote API | Ktor Client | Selected by ADR-0016. Add product-owned client and engine aliases with the first endpoint and configure one client at the transport composition boundary. |
-| JSON serialization | Kotlin Serialization | Selected by ADR-0016 for Ktor request and response DTOs. Apply the plugin and JSON library only to consuming modules and keep DTOs inside the transport adapter. |
-| Type-safe navigation routes | Kotlin Serialization with Navigation Compose | Apply the serialization plugin and library with the first serializable route. Route types carry stable arguments; the graph remains in `:app`. |
-| Typed persistence schemas | Protocol Buffers | `protobufLibraryVersion` and `protobufPluginVersion` are cataloged. The first approved use is Proto DataStore; generated messages remain adapter types. |
-| Application startup | AndroidX SplashScreen | Add the product alias when `:app` implements startup. The application shell owns installation and keeps the splash visible only for observable initialization that gates the first destination. |
+| Capability                  | Technology                                   | Activation contract                                                                                                                                                                                            |
+|-----------------------------|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Typed recoverable failures  | `com.michael-bull.kotlin-result` 2.3.1       | Approved by ADR-0011. Add it to the product catalog with the first production consumer and only to modules whose code uses it.                                                                                 |
+| Relational persistence      | Room                                         | Selected by ADR-0015 for plants, watering records, and other relational data. Add Room runtime and compiler aliases with the first database consumer, use KSP, and keep entities and DAOs in the data adapter. |
+| Typed settings persistence  | AndroidX Proto DataStore                     | Selected by ADR-0015 for small typed settings. Add DataStore aliases with the first settings consumer; one owned Protocol Buffers schema backs each store.                                                     |
+| Remote API                  | Ktor Client                                  | Selected by ADR-0016. Add product-owned client and engine aliases with the first endpoint and configure one client at the transport composition boundary.                                                      |
+| JSON serialization          | Kotlin Serialization                         | Selected by ADR-0016 for Ktor request and response DTOs. Apply the plugin and JSON library only to consuming modules and keep DTOs inside the transport adapter.                                               |
+| Type-safe navigation routes | Kotlin Serialization with Navigation Compose | Apply the serialization plugin and library with the first serializable route. Route types carry stable arguments; the graph remains in `:app`.                                                                 |
+| Typed persistence schemas   | Protocol Buffers                             | `protobufLibraryVersion` and `protobufPluginVersion` are cataloged. The first approved use is Proto DataStore; generated messages remain adapter types.                                                        |
+| Application startup         | AndroidX SplashScreen                        | Add the product alias when `:app` implements startup. The application shell owns installation and keeps the splash visible only for observable initialization that gates the first destination.                |
 
 ### Unselected Product Technologies
 
-| Capability | Current contract |
-|------------|------------------|
-| Image loading | No image loading library is selected. Choose one with the first real plant-image source and verify caching, cancellation, errors, and Compose accessibility. |
-| MVI implementation | No external MVI framework is selected. Build the documented unidirectional presentation contract from Compose, Lifecycle ViewModel, StateFlow, coroutines, and saved state. |
-| Background scheduling | No scheduler is selected. Select Android scheduling or notification technology only with the first watering-reminder contract. |
+| Capability            | Current contract                                                                                                                                                            |
+|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Image loading         | No image loading library is selected. Choose one with the first real plant-image source and verify caching, cancellation, errors, and Compose accessibility.                |
+| MVI implementation    | No external MVI framework is selected. Build the documented unidirectional presentation contract from Compose, Lifecycle ViewModel, StateFlow, coroutines, and saved state. |
+| Background scheduling | No scheduler is selected. Select Android scheduling or notification technology only with the first watering-reminder contract.                                              |
 
 ## Invariants
 

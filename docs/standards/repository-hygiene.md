@@ -58,12 +58,12 @@ longer contributes its own `clean` tasks to the active graph.
 
 ## Disallowed Alternatives
 
-| Do not use | Use instead | Reason |
-|------------|-------------|--------|
+| Do not use                                                  | Use instead                                      | Reason                                             |
+|-------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------|
 | A broad recursive delete inferred from an unknown directory | An explicitly resolved and inspected target path | Protects user-owned and unrelated repository data. |
-| Successful assertions as temporary-resource cleanup | A lifecycle fixture or `finally` cleanup | Preserves cleanup on failure. |
-| A generated output as reviewed source | Versioned input plus regeneration instructions | Keeps authorship and review reproducible. |
-| A retired empty directory or ignored cache left behind | Verified complete path removal | Prevents stale boundaries and future ambiguity. |
+| Successful assertions as temporary-resource cleanup         | A lifecycle fixture or `finally` cleanup         | Preserves cleanup on failure.                      |
+| A generated output as reviewed source                       | Versioned input plus regeneration instructions   | Keeps authorship and review reproducible.          |
+| A retired empty directory or ignored cache left behind      | Verified complete path removal                   | Prevents stale boundaries and future ambiguity.    |
 
 ## Exceptions
 

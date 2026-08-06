@@ -28,10 +28,10 @@ server at `https://teamcity.marmatsan.dev`.
 The public hostname is exposed through Cloudflare Tunnel and has three distinct
 access paths. Do not collapse them into one policy:
 
-| Client | Cloudflare policy | TeamCity authentication |
-|--------|-------------------|-------------------------|
-| Browser | Interactive `Allow` policy | TeamCity user session |
-| TeamCity CLI | `Service Auth` policy | TeamCity access token |
+| Client             | Cloudflare policy             | TeamCity authentication  |
+|--------------------|-------------------------------|--------------------------|
+| Browser            | Interactive `Allow` policy    | TeamCity user session    |
+| TeamCity CLI       | `Service Auth` policy         | TeamCity access token    |
 | GitHub App webhook | Path-specific `Bypass` policy | GitHub webhook signature |
 
 The repository documents the contract, but Cloudflare, GitHub, and TeamCity
@@ -64,11 +64,11 @@ before updating its validation date.
 
 The supported local runtime uses three automatic Windows services:
 
-| CI actor | Service name | Windows display name | Service account | Responsibility |
-|----------|--------------|----------------------|-----------------|----------------|
-| TeamCity Server | `TeamCity` | `TeamCity Server` | `NT SERVICE\TeamCity` | Hosts the TeamCity server and owns its data directory. |
-| Build Agent | `TCBuildAgent` | `TeamCity Build Agent` | `NT SERVICE\TCBuildAgent` | Executes repository jobs in the agent work directories. |
-| Cloudflare Tunnel | `Cloudflared` | `Cloudflared agent` | `LocalSystem` | Publishes the private TeamCity origin through Cloudflare Tunnel. |
+| CI actor          | Service name   | Windows display name   | Service account           | Responsibility                                                   |
+|-------------------|----------------|------------------------|---------------------------|------------------------------------------------------------------|
+| TeamCity Server   | `TeamCity`     | `TeamCity Server`      | `NT SERVICE\TeamCity`     | Hosts the TeamCity server and owns its data directory.           |
+| Build Agent       | `TCBuildAgent` | `TeamCity Build Agent` | `NT SERVICE\TCBuildAgent` | Executes repository jobs in the agent work directories.          |
+| Cloudflare Tunnel | `Cloudflared`  | `Cloudflared agent`    | `LocalSystem`             | Publishes the private TeamCity origin through Cloudflare Tunnel. |
 
 Inspect status, startup mode, and service identity from an elevated PowerShell
 session:

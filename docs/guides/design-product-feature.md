@@ -40,8 +40,8 @@ requires those implementation boundaries.
 3. For every action, complete this contract before laying out the final
    wireframe:
 
-   | Action | Trigger and target | Preconditions and input | Success state | Failure and recovery | External effects | Feedback and accessibility | BDD example |
-   |--------|--------------------|-------------------------|---------------|----------------------|------------------|----------------------------|-------------|
+   | Action      | Trigger and target      | Preconditions and input   | Success state         | Failure and recovery                           | External effects                                              | Feedback and accessibility      | BDD example             |
+   |-------------|-------------------------|---------------------------|-----------------------|------------------------------------------------|---------------------------------------------------------------|---------------------------------|-------------------------|
    | Domain verb | User gesture and object | Required state and values | Observable transition | Expected failure, retained state, and recovery | Persistence, network, permission, navigation, or notification | Visible and non-visual response | Given/When/Then outcome |
 
 4. Write representative Given/When/Then examples beside the object and action

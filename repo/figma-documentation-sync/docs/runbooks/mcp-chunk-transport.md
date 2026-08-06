@@ -203,16 +203,16 @@ the checkpoint rules in [visual-sync-efficiency.md](visual-sync-efficiency.md).
 Stage these keys on page `62934:908` under
 `water_my_plants_sync_staging`:
 
-| Key | Value |
-|-----|-------|
-| `designModelJson` | Minified JSON text from TeamCity's canonical `design-model.json` artifact. |
-| `designModelHash` | The artifact `modelHash`, used to validate the staged model. |
-| `designModelGitSha` | The artifact `gitSha`, used to validate the staged model. |
+| Key                 | Value                                                                          |
+|---------------------|--------------------------------------------------------------------------------|
+| `designModelJson`   | Minified JSON text from TeamCity's canonical `design-model.json` artifact.     |
+| `designModelHash`   | The artifact `modelHash`, used to validate the staged model.                   |
+| `designModelGitSha` | The artifact `gitSha`, used to validate the staged model.                      |
 | `designModelLength` | Character length of `designModelJson`, used to catch truncated staging writes. |
-| `script` | Generated `sync-trunk-design-model.mcp.js` content in plain text. |
-| `scriptLength` | Character length of `script`, used to catch truncated staging writes. |
-| `writerHash` | Hash of the compiled visual writer staged for execution. |
-| `transportHash` | Hash of the staging contract used to deliver the payload. |
+| `script`            | Generated `sync-trunk-design-model.mcp.js` content in plain text.              |
+| `scriptLength`      | Character length of `script`, used to catch truncated staging writes.          |
+| `writerHash`        | Hash of the compiled visual writer staged for execution.                       |
+| `transportHash`     | Hash of the staging contract used to deliver the payload.                      |
 
 The PNG transport writes all keys in one staging step after validating the
 payload hash, Git SHA, model length, script length, writer hash, and transport

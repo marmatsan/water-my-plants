@@ -59,23 +59,23 @@ dependencyCatalogTree
 
 ### Settings properties and operations
 
-| API | Type/default | Contract |
-|-----|--------------|----------|
-| `versionsFile` | `RegularFileProperty`; `<settings-dir>/versions.properties` | Consumer-owned property file used by every `version(key)` lookup. Configure it before the first lookup. |
-| `librariesCatalogName` | `Property<String>`; `libs` | Name of the generated library version catalog and its type-safe root accessor. |
-| `pluginsCatalogName` | `Property<String>`; `plugins` | Name of the generated plugin version catalog and its type-safe root accessor. |
-| `libraries { ... }` | `LibraryCatalogTreesScope` | Accumulates Maven group roots. Multiple calls contribute to the same generated library catalog. |
-| `plugins { ... }` | `PluginCatalogTreesScope` | Accumulates Gradle plugin id roots. Multiple calls contribute to the same generated plugin catalog. |
-| `version(key)` | `String` | Returns the value of the exact, case-sensitive key in `versionsFile`. The properties are loaded once per settings evaluation. |
+| API                    | Type/default                                                | Contract                                                                                                                      |
+|------------------------|-------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| `versionsFile`         | `RegularFileProperty`; `<settings-dir>/versions.properties` | Consumer-owned property file used by every `version(key)` lookup. Configure it before the first lookup.                       |
+| `librariesCatalogName` | `Property<String>`; `libs`                                  | Name of the generated library version catalog and its type-safe root accessor.                                                |
+| `pluginsCatalogName`   | `Property<String>`; `plugins`                               | Name of the generated plugin version catalog and its type-safe root accessor.                                                 |
+| `libraries { ... }`    | `LibraryCatalogTreesScope`                                  | Accumulates Maven group roots. Multiple calls contribute to the same generated library catalog.                               |
+| `plugins { ... }`      | `PluginCatalogTreesScope`                                   | Accumulates Gradle plugin id roots. Multiple calls contribute to the same generated plugin catalog.                           |
+| `version(key)`         | `String`                                                    | Returns the value of the exact, case-sensitive key in `versionsFile`. The properties are loaded once per settings evaluation. |
 
 ### Library declarations
 
-| API | Parameters | Contract |
-|-----|------------|----------|
-| `root(group) { ... }` | `group: String`, `content` | Creates a unique top-level Maven group value containing exactly one path segment, conventionally `com`, `io`, `me`, or `org`. It becomes the first part of descendant coordinates and aliases and may own artifacts directly for a single-segment Maven group. |
-| `library(group) { ... }` | `group: String`, optional `content` | Creates or reuses a relative Maven group path. Dots create real nested nodes: below `root("org")`, `library("jetbrains.kotlinx")` equals nested `jetbrains` and `kotlinx` declarations. A node without entries is only a namespace. |
-| `artifact(artifact, version)` | `artifact: String`, `version: String? = null` | Registers `<full-group>:<artifact>`. A null version calls Gradle's `withoutVersion()` and requires external version management. |
-| `artifactsBundle(*artifacts, alias, version)` | artifact names, required `alias` ending in `Bundle`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. The public catalog model rejects aliases without the `Bundle` suffix. |
+| API                                           | Parameters                                                                     | Contract                                                                                                                                                                                                                                                       |
+|-----------------------------------------------|--------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `root(group) { ... }`                         | `group: String`, `content`                                                     | Creates a unique top-level Maven group value containing exactly one path segment, conventionally `com`, `io`, `me`, or `org`. It becomes the first part of descendant coordinates and aliases and may own artifacts directly for a single-segment Maven group. |
+| `library(group) { ... }`                      | `group: String`, optional `content`                                            | Creates or reuses a relative Maven group path. Dots create real nested nodes: below `root("org")`, `library("jetbrains.kotlinx")` equals nested `jetbrains` and `kotlinx` declarations. A node without entries is only a namespace.                            |
+| `artifact(artifact, version)`                 | `artifact: String`, `version: String? = null`                                  | Registers `<full-group>:<artifact>`. A null version calls Gradle's `withoutVersion()` and requires external version management.                                                                                                                                |
+| `artifactsBundle(*artifacts, alias, version)` | artifact names, required `alias` ending in `Bundle`, optional shared `version` | Registers every artifact individually and creates `<librariesCatalogName>.bundles.<alias>` from their generated aliases. A null version makes every artifact versionless. The public catalog model rejects aliases without the `Bundle` suffix.                |
 
 Use `artifactsBundle` only when every artifact represents one cohesive dependency
 set, shares version management, and is normally added to the same Gradle
@@ -93,18 +93,18 @@ Library aliases start with the complete group. When the artifact begins with a
 suffix already represented by that group, the longest repeated prefix is
 removed; hyphens in the remaining artifact part become dots.
 
-| Maven coordinate | Default catalog alias/accessor |
-|------------------|--------------------------------|
-| `io.ktor:ktor-client-core` | `io.ktor.client.core` / `libs.io.ktor.client.core` |
-| `androidx.compose:compose-bom` | `androidx.compose.bom` / `libs.androidx.compose.bom` |
-| `com.google.protobuf:protoc` | `com.google.protobuf.protoc` / `libs.com.google.protobuf.protoc` |
+| Maven coordinate               | Default catalog alias/accessor                                   |
+|--------------------------------|------------------------------------------------------------------|
+| `io.ktor:ktor-client-core`     | `io.ktor.client.core` / `libs.io.ktor.client.core`               |
+| `androidx.compose:compose-bom` | `androidx.compose.bom` / `libs.androidx.compose.bom`             |
+| `com.google.protobuf:protoc`   | `com.google.protobuf.protoc` / `libs.com.google.protobuf.protoc` |
 
 ### Plugin declarations
 
-| API | Parameters | Contract |
-|-----|------------|----------|
-| `root(id, version) { ... }` | `id: String`, optional `version`, optional `content` | Creates a unique top-level plugin id containing exactly one path segment, conventionally `com` or `org`. A non-null version registers the root itself, which represents a single-segment plugin id. |
-| `plugin(id, version) { ... }` | `id: String`, `version: String? = null`, optional `content` | Creates or reuses a relative plugin id path. Dots create nested nodes. Only nodes with a version are registered; unversioned nodes are namespaces. |
+| API                           | Parameters                                                  | Contract                                                                                                                                                                                            |
+|-------------------------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `root(id, version) { ... }`   | `id: String`, optional `version`, optional `content`        | Creates a unique top-level plugin id containing exactly one path segment, conventionally `com` or `org`. A non-null version registers the root itself, which represents a single-segment plugin id. |
+| `plugin(id, version) { ... }` | `id: String`, `version: String? = null`, optional `content` | Creates or reuses a relative plugin id path. Dots create nested nodes. Only nodes with a version are registered; unversioned nodes are namespaces.                                                  |
 
 A registered plugin uses its complete dotted path as both its Gradle plugin id
 and catalog alias. For example, the following declaration registers

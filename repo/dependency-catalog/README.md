@@ -6,11 +6,11 @@ declarations and can be built or published without any sibling source build.
 
 ## Modules
 
-| Module | Responsibility |
-|--------|----------------|
-| `:catalog-api` | Immutable catalog model plus segregated resolved and version-aliased provider boundaries. |
-| `:catalog-core` | Shared catalog-tree builder, version-resolution strategies, traversal, and mappers used by providers and settings adapters. |
-| `:catalog-gradle-plugin` | Settings plugin that maps a provider's API model to Gradle version catalogs. Depends only on `:catalog-api`. |
+| Module                        | Responsibility                                                                                                                       |
+|-------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| `:catalog-api`                | Immutable catalog model plus segregated resolved and version-aliased provider boundaries.                                            |
+| `:catalog-core`               | Shared catalog-tree builder, version-resolution strategies, traversal, and mappers used by providers and settings adapters.          |
+| `:catalog-gradle-plugin`      | Settings plugin that maps a provider's API model to Gradle version catalogs. Depends only on `:catalog-api`.                         |
 | `:catalog-tree-gradle-plugin` | Settings-facing tree DSL plugin that reads a consumer-owned version registry and delegates registration to `:catalog-gradle-plugin`. |
 
 The allowed dependency direction is:

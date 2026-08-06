@@ -6,14 +6,14 @@ plugin marker to a Maven repository without hard-coding a sibling source path.
 See the [documentation index](docs/README.md) for its boundaries and shared
 build-policy contract.
 
-| Module | Plugin ID |
-|--------|-----------|
-| `android` | `com.marmatsan.android` |
-| `bdd-test` | `com.marmatsan.bddTest` |
-| `compose` | `com.marmatsan.compose` |
+| Module                | Plugin ID                          |
+|-----------------------|------------------------------------|
+| `android`             | `com.marmatsan.android`            |
+| `bdd-test`            | `com.marmatsan.bddTest`            |
+| `compose`             | `com.marmatsan.compose`            |
 | `dokka-documentation` | `com.marmatsan.dokkaDocumentation` |
-| `protobuf` | `com.marmatsan.protobuf` |
-| `unit-test` | `com.marmatsan.unitTest` |
+| `protobuf`            | `com.marmatsan.protobuf`           |
+| `unit-test`           | `com.marmatsan.unitTest`           |
 
 The `dependencies` module is an implementation library shared by convention
 plugins. It consumes the stable `com.marmatsan.repo:catalog-api` alias policy
