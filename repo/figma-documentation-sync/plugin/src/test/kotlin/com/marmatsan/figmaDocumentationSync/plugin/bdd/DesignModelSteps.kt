@@ -290,7 +290,11 @@ class DesignModelSteps : En {
             gitSha = gitSha,
             generatedAt = generatedAt,
             primaryCatalogModelName = "waterMyPlants",
-            dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
+            primaryCatalogTreeSource =
+                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                    rootDirPath = ".",
+                    providerClassName = "example.DependencyCatalogProvider"
+                ),
             ciDocumentationEnabled = true,
             ciConfigurationModelName = "teamCity",
             ciConfigurationProviderClassName = "example.CiConfigurationProvider",

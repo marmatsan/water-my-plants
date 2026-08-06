@@ -89,8 +89,11 @@ abstract class figmaDocumentationSyncExtension
         /** JSON key used for the repository's primary dependency catalog. */
         val primaryCatalogModelName: Property<String> = objects.property(String::class.java)
 
-        /** Project adapter implementing the portable dependency catalog contract. */
+        /** Legacy project adapter implementing the portable dependency catalog contract. */
         val dependencyCatalogProviderClassName: Property<String> = objects.property(String::class.java)
+
+        /** Dependency catalog trees serialized by a reusable project-config adapter. */
+        val dependencyCatalogTreesJson: Property<String> = objects.property(String::class.java)
 
         /** Whether this project publishes the optional CI documentation model. */
         val ciDocumentationEnabled: Property<Boolean> =

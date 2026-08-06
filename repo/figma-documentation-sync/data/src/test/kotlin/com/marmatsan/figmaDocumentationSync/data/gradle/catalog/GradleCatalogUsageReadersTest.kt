@@ -202,7 +202,7 @@ internal class GradleCatalogUsageReadersTest :
                             plugins {
                                 alias(toolPlugins.plugins.com.marmatsan.verificationPlatform)
                                 alias(plugins.plugins.com.android.application) apply false
-                                id("com.marmatsan.waterMyPlantsProjectConfig")
+                                id("com.marmatsan.projectConfig.figma")
                                 id("com.marmatsan.figmaDocumentationSync") apply false
                             }
                             """.trimIndent()
@@ -227,7 +227,7 @@ internal class GradleCatalogUsageReadersTest :
                     usages shouldBe
                         mapOf(
                             "com.marmatsan.verificationPlatform" to setOf(":"),
-                            "com.marmatsan.waterMyPlantsProjectConfig" to setOf(":"),
+                            "com.marmatsan.projectConfig.figma" to setOf(":"),
                             "com.marmatsan.android" to setOf(":app"),
                             "com.marmatsan.compose" to setOf(":app")
                         )

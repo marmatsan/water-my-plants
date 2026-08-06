@@ -65,6 +65,11 @@ internal class IncludedBuildVerificationTasksExtensionTest :
                         listOf(
                             fixture.expectedWrapper.absolutePath,
                             "--no-daemon",
+                            "--gradle-user-home",
+                            fixture.task.project.layout.buildDirectory
+                                .dir("gradle-user-home/verifyToolingDistribution")
+                                .get()
+                                .asFile.absolutePath,
                             ":verifyStagedPublication",
                             "-PdependencySourceBuild=C:/source/dependency",
                             "--stacktrace"

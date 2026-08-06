@@ -24,7 +24,7 @@ publishing {
             from(
                 components["java"]
             )
-            artifactId = "figma-documentation-sync-domain"
+            artifactId = "domain"
 
             pom {
                 name.set("Figma Documentation Sync Domain")

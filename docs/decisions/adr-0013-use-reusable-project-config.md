@@ -10,7 +10,8 @@ sources:
   - settings.gradle.kts
   - build.gradle.kts
   - repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/catalog/definition/DependencyCatalogDefinition.kt
-  - repo/water-my-plants-project-config/settings.gradle.kts
+  - repo/project-config/settings.gradle.kts
+  - repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaRegistration.kt
 ---
 
 # ADR-0013: Use Reusable Project Configuration
@@ -52,10 +53,10 @@ aliases. Both views must come from one tree declaration so they cannot drift.
 - A source-independent fixture with a different product identity, initially
   `Health`, verifies that the reusable build contains no hidden Water My Plants
   assumptions.
-- The migration is incremental. `water-my-plants-project-config` remains the
-  active composition root until the reusable plugin and its standalone fixture
-  pass their contracts; the final adoption removes the old build and plugin
-  ids.
+- Water My Plants applies the reusable Settings plugin and optional Figma
+  adapter directly. The former `water-my-plants-project-config` build and its
+  plugin ids are removed after the standalone fixture passes its publication
+  and configuration-cache contracts.
 
 ## Consequences
 
@@ -66,8 +67,8 @@ aliases. Both views must come from one tree declaration so they cannot drift.
 - The reusable build gains a public DSL and staged-publication compatibility
   contract that require semantic-versioning discipline.
 - Water My Plants source paths, Figma source links, plugin inventory, boundary
-  rules, and documentation must change during final adoption even when the
-  dependency tree content remains identical.
+  rules, and documentation now point to root consumer configuration even though
+  the dependency tree content remains identical.
 - The architecture avoids a generic megaplugin by keeping catalog declaration,
   cross-capability mapping, Figma operations, and TeamCity operations in
   focused collaborators and modules.

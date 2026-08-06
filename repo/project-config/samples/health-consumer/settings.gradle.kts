@@ -11,6 +11,9 @@ pluginManagement {
         maven {
             url = uri(providers.gradleProperty("dependencyCatalogPublicationRepository").get())
         }
+        maven {
+            url = uri(providers.gradleProperty("figmaDocumentationSyncPublicationRepository").get())
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -18,6 +21,7 @@ pluginManagement {
     plugins {
         id("com.marmatsan.projectConfig.settings") version projectConfigVersion
         id("com.marmatsan.projectConfig") version projectConfigVersion
+        id("com.marmatsan.projectConfig.figma") version projectConfigVersion
     }
 }
 
@@ -33,6 +37,9 @@ dependencyResolutionManagement {
         }
         maven {
             url = uri(providers.gradleProperty("dependencyCatalogPublicationRepository").get())
+        }
+        maven {
+            url = uri(providers.gradleProperty("figmaDocumentationSyncPublicationRepository").get())
         }
         mavenCentral()
     }

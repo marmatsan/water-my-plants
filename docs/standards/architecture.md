@@ -93,9 +93,10 @@ Compose state are not domain models and MUST NOT leak across their boundary.
   settings/bootstrap boundary or when a settings plugin has already placed the
   same implementation JAR on the build-script classpath with an unknown
   version. Water My Plants therefore keeps
-  `com.marmatsan.waterMyPlantsSettings` in `settings.gradle.kts` and
-  `com.marmatsan.waterMyPlantsProjectConfig` in the root `build.gradle.kts` as
-  explicit composition exceptions.
+  `com.marmatsan.projectConfig.settings` in `settings.gradle.kts` as an
+  explicit bootstrap exception. Root project plugins with generated catalog
+  aliases, including `com.marmatsan.projectConfig.figma`, use those type-safe
+  aliases.
 - Literal plugin IDs in `settings.gradle.kts` `pluginManagement` declarations
   are reserved for settings/bootstrap plugins that must resolve before their
   generated catalog exists. Project-plugin defaults are redundant when the

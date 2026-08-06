@@ -115,7 +115,7 @@ A release is successful only when:
 
 - Do not publish from a feature branch, dirty checkout, or unverified staging
   repository.
-- Do not publish `water-my-plants-project-config` as a portable artifact.
+- Publish `project-config` only after its source-independent Health fixture passes.
 - Do not use different Maven and npm versions.
 - Do not bypass `verifyStagedPublication` or make `includeBuild` part of the
   consumer fixture.

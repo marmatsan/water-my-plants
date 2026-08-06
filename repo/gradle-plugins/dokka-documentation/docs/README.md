@@ -49,7 +49,7 @@ Use `remoteLineSuffix = "#L"` for GitHub line links.
 - Use Dokka Gradle Plugin v2.
 - Keep the Dokka version used to compile this included build in
   `repo/gradle-plugins/versions.properties`. Keep the product plugin-catalog
-  alias in `repo/water-my-plants-project-config/versions.properties` while Water My Plants
+  alias in root `versions.properties` while Water My Plants
   applies Dokka through that catalog.
 - Configure Dokka with the top-level `dokka { ... }` DSL.
 - Do not add new task-based Dokka v1 configuration such as

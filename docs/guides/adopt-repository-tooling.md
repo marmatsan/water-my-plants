@@ -55,10 +55,11 @@ provide that repository or build the artifacts from source.
 | `gradle-plugins` | `com.marmatsan.android`, `bddTest`, `compose`, `dokkaDocumentation`, `protobuf`, and `unitTest` |
 | `unit-testing` | `com.marmatsan.repo:unit-test-dsl` |
 | `verification-platform` | `com.marmatsan.verificationPlatform`; domain, data, and plugin artifacts |
+| `project-config` | `com.marmatsan.projectConfig.settings`, `com.marmatsan.projectConfig`, and optional `com.marmatsan.projectConfig.figma` |
 
-Do not copy `repo/water-my-plants-project-config`. It is an example composition
-root and intentionally contains product-specific catalogs, Figma node IDs,
-TeamCity configuration, and change-impact policy.
+Apply `project-config` and keep product-specific catalogs, Figma node IDs,
+TeamCity configuration, and change-impact policy in the consuming repository's
+root configuration and data files.
 
 ## Own Versions And Catalogs
 

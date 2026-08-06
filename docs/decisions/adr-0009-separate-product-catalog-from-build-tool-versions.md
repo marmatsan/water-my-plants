@@ -16,9 +16,9 @@ sources:
   - repo/gradle-plugins/settings.gradle.kts
   - repo/unit-testing/settings.gradle.kts
   - repo/verification-platform/settings.gradle.kts
-  - repo/water-my-plants-project-config/settings.gradle.kts
-  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogProvider.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
+  - settings.gradle.kts
+  - versions.properties
+  - repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaRegistration.kt
   - repo/verification-platform/domain/src/main/kotlin/com/marmatsan/verificationPlatform/domain/service/ci/CiPlanFactory.kt
 ---
 
@@ -51,8 +51,10 @@ different owners and release reasons.
   DSL directly during settings evaluation, resolves values from the consuming
   build's `versions.properties`, and delegates registration to the provider-based
   plugin. A build needs no dedicated catalog module to use this adapter.
-- A consuming repository owns one provider for each product catalog it chooses
-  to expose. It does not create a `*-catalog` module for every included build.
+- A consuming repository owns one tree declaration for each product catalog it
+  chooses to expose. It does not create a `*-catalog` module for every included
+  build. A public provider remains available for consumers that need that port,
+  but the reusable project-config path does not require reflection.
 - Every included build owns a local `versions.properties` for the dependencies
   needed to compile and test that build. Cross-build reads of another build's
   registry are forbidden. Deliberate duplicated version values are acceptable;
@@ -62,8 +64,8 @@ different owners and release reasons.
   `plugins` catalogs. `repo/dependency-catalog` retains a manual bootstrap
   catalog because a plugin producer cannot resolve the settings plugin that it
   is currently building.
-- `repo/water-my-plants-project-config/versions.properties` is the Water My
-  Plants product catalog source. `repo/dependency-catalog/versions.properties`
+- Root `versions.properties` is the Water My Plants product catalog source.
+  `repo/dependency-catalog/versions.properties`
   contains only the reusable build's compile/test versions.
 - The Water My Plants Figma adapter publishes only
   `waterMyPlants.libraries` and `waterMyPlants.plugins` as catalog-tree visual
@@ -78,12 +80,11 @@ different owners and release reasons.
 The dependency direction is:
 
 ```text
-repository provider -> catalog-api (+ optional catalog-core)
+repository tree -> project-config -> catalog-api (+ optional catalog-core)
 catalog-gradle-plugin -> catalog-api
 catalog-tree-gradle-plugin -> catalog-core + catalog-api + catalog-gradle-plugin
-Gradle settings adapter -> catalog-gradle-plugin + repository provider
-Water My Plants Figma adapter -> catalog-api + figma-documentation-sync port
-Water My Plants catalog -> catalog-api + catalog-core
+Gradle settings adapter -> catalog-gradle-plugin + consumer tree
+project-config Figma adapter -> catalog-api + figma-documentation-sync API
 ```
 
 ## Consequences

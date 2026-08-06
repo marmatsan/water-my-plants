@@ -92,23 +92,19 @@
       "id": "product-composition",
       "sourcePaths": [
         "repo/project-config/plugin/src/*",
+        "repo/project-config/figma-adapter/src/*",
         "repo/project-config/samples/*",
         "repo/project-config/*/build.gradle.kts",
         "repo/project-config/settings.gradle.kts",
         "repo/project-config/versions.properties",
-        "repo/water-my-plants-project-config/catalog/src/*",
-        "repo/water-my-plants-project-config/plugin/src/*",
-        "repo/water-my-plants-project-config/water-my-plants/*",
-        "repo/water-my-plants-project-config/*/build.gradle.kts",
-        "repo/water-my-plants-project-config/settings.gradle.kts",
-        "repo/water-my-plants-project-config/versions.properties",
+        "config/figma/*",
+        "versions.properties",
         "settings.gradle.kts",
         "build.gradle.kts"
       ],
       "documentationPaths": [
         "repo/project-config/README.md",
         "repo/project-config/docs/reference/*.md",
-        "repo/water-my-plants-project-config/README.md",
         "docs/decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md",
         "docs/decisions/adr-0010-isolate-product-composition-from-reusable-builds.md",
         "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
@@ -143,9 +139,9 @@
         "repo/figma-documentation-sync/settings.gradle.kts",
         "repo/figma-documentation-sync/versions.properties",
         "repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/sync/TeamCityFigmaSyncRerunner.kt",
-        "repo/water-my-plants-project-config/plugin/build.gradle.kts",
-        "repo/water-my-plants-project-config/settings.gradle.kts",
-        "repo/water-my-plants-project-config/versions.properties",
+        "repo/project-config/figma-adapter/build.gradle.kts",
+        "repo/project-config/settings.gradle.kts",
+        "repo/project-config/versions.properties",
         "build.gradle.kts"
       ],
       "documentationPaths": [
@@ -153,8 +149,7 @@
         "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
         "repo/verification-platform/README.md",
         "repo/figma-documentation-sync/README.md",
-        "repo/project-config/docs/reference/consumer-contract.md",
-        "repo/water-my-plants-project-config/README.md"
+        "repo/project-config/docs/reference/consumer-contract.md"
       ]
     },
     {
@@ -198,6 +193,11 @@
         "repo/gradle-plugins/settings.gradle.kts",
         "repo/gradle-plugins/versions.properties",
         "repo/gradle-plugins/samples/*",
+        "repo/project-config/build.gradle.kts",
+        "repo/project-config/settings.gradle.kts",
+        "repo/project-config/versions.properties",
+        "repo/project-config/*/build.gradle.kts",
+        "repo/project-config/samples/*",
         "repo/unit-testing/*",
         "repo/unit-testing/unit-test-dsl/*",
         "repo/unit-testing/unit-test-dsl/src/*",
@@ -216,6 +216,8 @@
         "repo/dependency-catalog/README.md",
         "repo/figma-documentation-sync/README.md",
         "repo/gradle-plugins/README.md",
+        "repo/project-config/README.md",
+        "repo/project-config/docs/reference/*.md",
         "repo/unit-testing/README.md",
         "repo/unit-testing/unit-test-dsl/docs/README.md",
         "repo/verification-platform/README.md"

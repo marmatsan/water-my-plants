@@ -40,7 +40,7 @@ internal class FigmaTrunkSyncChecker(
                         gitSha = request.gitSha,
                         generatedAt = request.generatedAt,
                         primaryCatalogModelName = request.primaryCatalogModelName,
-                        dependencyCatalogProviderClassName = request.dependencyCatalogProviderClassName,
+                        primaryCatalogTreeSource = request.primaryCatalogTreeSource,
                         ciDocumentationEnabled = request.ciDocumentationEnabled,
                         ciConfigurationModelName = request.ciConfigurationModelName,
                         ciConfigurationProviderClassName = request.ciConfigurationProviderClassName,

@@ -32,14 +32,17 @@ Verify the published, source-independent consumer contract with:
 ```
 
 The source-independent `samples/health-consumer` fixture proves that a second
-product can apply both entry points and declare its own catalog without a
-`health-project-config` build or source substitution.
+product can apply the Settings entry point and optional Figma adapter, then
+declare its own catalog without a `health-project-config` build or source
+substitution.
 
 The consumer applies `com.marmatsan.projectConfig.settings` in
 `settings.gradle.kts`, sets `versionsFile`, and declares its `libraries` and
 `plugins` below `dependencyCatalog`. The corresponding root project applies
-`com.marmatsan.projectConfig`. Catalog names default to `libs` and `plugins`
-and can be changed through `librariesCatalogName` and `pluginsCatalogName`.
+`com.marmatsan.projectConfig`, or the optional
+`com.marmatsan.projectConfig.figma` adapter when it publishes dependency trees
+to Figma. Catalog names default to `libs` and `plugins` and can be changed
+through `librariesCatalogName` and `pluginsCatalogName`.
 
 See the [consumer contract](docs/reference/consumer-contract.md) for the exact
 application order, DSL fields, version-key semantics, invariants, and failure

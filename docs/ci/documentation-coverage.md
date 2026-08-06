@@ -16,7 +16,7 @@ rule. Filesystem traversal and manifest parsing live in `repo/verification-platf
 composition lives in `repo/verification-platform/plugin`. No PowerShell runtime is required for
 documentation validation. Figma scope is classified separately by the portable
 `classifyFigmaChangeImpact` Gradle task and
-`repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`.
+`config/figma/change-impact-policy.json`.
 
 CI validation scripts and the coverage manifest are `model-neutral`: their
 normal CI build still runs Gradle, but post-merge Figma Sync publishes only the
@@ -61,7 +61,7 @@ for that documentation-system review.
 When adding a documentation coverage area, add a narrow rule to the manifest
 and focused Kotlin cases under `repo/verification-platform/domain` and `repo/verification-platform/data`. When adding
 a Figma-relevant source area, update
-`repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`
+`config/figma/change-impact-policy.json`
 and the Kotlin classifier
 tests.
 

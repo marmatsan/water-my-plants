@@ -129,7 +129,7 @@ Important generation details:
 - `content.versions` is the sorted flat map of version keys referenced by the
   visible production library and plugin trees.
 - `content.versionSections` preserves grouping from
-  `repo/water-my-plants-project-config/versions.properties` while removing
+  root `versions.properties` while removing
   properties with no visible production catalog reference. Empty configured
   sections remain in the model so the MCP sync can remove stale visual version
   nodes from the correct frame.
@@ -155,7 +155,7 @@ Important generation details:
   punctuation or for the root of an included build.
 - `dependencyCatalog` contributes reusable modules and module dependencies but
   not a visual catalog target. The product `catalog` module is contributed by
-  `waterMyPlantsProjectConfig`, and its adapter supplies the only production
+  `projectConfig`, and its adapter supplies the only production
   library/plugin trees.
 - Custom Gradle convention plugins are detected from `repo/gradle-plugins`
   build files that declare an implementation class ending in

@@ -65,6 +65,11 @@ tasks.register<Exec>("verifyStagedPublication") {
     commandLine(
         wrapper.asFile.absolutePath,
         "--no-daemon",
+        "--gradle-user-home",
+        layout.buildDirectory
+            .dir("gradle-user-home/standalone-consumer")
+            .get()
+            .asFile.absolutePath,
         "verifyDslConsumption",
         "-PunitTestDslVersion=$publicationVersion",
         "-PunitTestingPublicationRepository=$stagingPublicationRepository",

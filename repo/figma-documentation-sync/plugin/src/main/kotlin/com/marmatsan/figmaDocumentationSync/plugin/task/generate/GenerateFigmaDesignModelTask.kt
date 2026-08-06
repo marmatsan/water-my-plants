@@ -1,9 +1,12 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.generate
 
+import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelGenerationRequest
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.DependencyCatalogTaskInputs
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.IncludedBuildTaskInputs
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveDependencyCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveIncludedBuildSources
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -39,14 +42,11 @@ import java.time.Instant
 )
 abstract class GenerateFigmaDesignModelTask :
     DefaultTask(),
-    IncludedBuildTaskInputs {
+    IncludedBuildTaskInputs,
+    DependencyCatalogTaskInputs {
     /** Design-model name of the repository's primary dependency catalog. */
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
-
-    /** Provider class used to expose the main dependency catalog. */
-    @get:Input
-    abstract val dependencyCatalogProviderClassName: Property<String>
 
     /** Whether the optional CI documentation adapter contributes model content. */
     @get:Input
@@ -116,6 +116,16 @@ abstract class GenerateFigmaDesignModelTask :
             branch = branch
         )
 
+        val includedBuildSources = resolveIncludedBuildSources()
+        val conventionPluginIncludedBuilds =
+            includedBuildSources
+                .map { source -> source.toDomainSource() }
+                .filter(IncludedBuildSource::publishesConventionPlugins)
+        val primaryCatalogTreeSource =
+            resolveDependencyCatalogTreeSource(
+                projectRootDirectory = projectRootDirectory.get().asFile,
+                conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+            )
         val result =
             FigmaDocumentationSyncComponent::class.create().designModelGenerator.generate(
                 request =
@@ -128,7 +138,7 @@ abstract class GenerateFigmaDesignModelTask :
                             ),
                         generatedAt = Instant.now(),
                         primaryCatalogModelName = primaryCatalogModelName.get(),
-                        dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                        primaryCatalogTreeSource = primaryCatalogTreeSource,
                         ciDocumentationEnabled = ciDocumentationEnabled.get(),
                         ciConfigurationModelName = ciConfigurationModelName.orNull,
                         ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
@@ -138,7 +148,7 @@ abstract class GenerateFigmaDesignModelTask :
                         ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
                         ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                         projectRootDirectory = projectRootDirectory.get().asFile,
-                        includedBuilds = resolveIncludedBuildSources()
+                        includedBuilds = includedBuildSources
                     )
             )
 

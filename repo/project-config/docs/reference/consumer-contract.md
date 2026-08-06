@@ -10,6 +10,7 @@ sources:
   - repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/settings/ProjectConfigSettingsExtension.kt
   - repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/settings/ProjectConfigSettingsPlugin.kt
   - repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/project/ProjectConfigGradlePlugin.kt
+  - repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaGradlePlugin.kt
   - repo/project-config/samples/health-consumer/settings.gradle.kts
   - repo/project-config/samples/health-consumer/build.gradle.kts
 ---
@@ -70,6 +71,46 @@ The root `build.gradle.kts` applies `com.marmatsan.projectConfig`. This project
 plugin requires the matching Settings plugin and fails during configuration
 with an actionable message when the Settings composition is absent.
 
+Repositories that publish dependency trees through Figma apply
+`com.marmatsan.projectConfig.figma` instead. This optional adapter applies the
+base project plugin plus Figma Documentation Sync, maps the consumer-owned
+catalog through public models, enriches it with module and convention-plugin
+usage, and supplies `dependencyCatalogTreesJson`. Consumers do not implement or
+name a reflective catalog provider.
+
+## Distribution
+
+A source-independent consumer resolves three publication repositories: Project
+Config for its plugin markers and implementations, Dependency Catalog for the
+Settings DSL, and Figma Documentation Sync when the optional Figma adapter is
+applied. The staged contract passes them as
+`projectConfigPublicationRepository`,
+`dependencyCatalogPublicationRepository`, and
+`figmaDocumentationSyncPublicationRepository` respectively. The Health sample
+is the executable reference for repository and plugin-management ordering.
+
+Source development may substitute the builds through
+`dependencyCatalogSourceBuild`, `figmaDocumentationSyncSourceBuild`, and
+`unitTestingSourceBuild`. Those properties are build inputs for developing
+Project Config; consumers must not depend on their filesystem paths.
+
+Figma's portable implementation artifacts use the module-name coordinates
+`com.marmatsan.figma-documentation-sync:domain`, `:data`, and `:plugin`. Keeping
+those coordinates aligned with the included-build project names makes the same
+dependencies resolvable from a staged Maven repository or source substitution.
+
+## Failure behavior
+
+- Missing plugin versions or publication repositories fail during Gradle plugin
+  resolution before the consumer catalog is configured.
+- Applying `com.marmatsan.projectConfig` without the Settings plugin fails with
+  an actionable configuration error.
+- Figma catalog tasks require exactly one primary representation. The reusable
+  adapter supplies `dependencyCatalogTreesJson`; consumers must not also set the
+  legacy `dependencyCatalogProviderClassName` input.
+- A missing consumer version key fails while the Settings catalog tree is
+  materialized and names the unresolved property.
+
 ## Invariants
 
 - Library and plugin trees remain inline in the consumer's root
@@ -80,8 +121,9 @@ with an actionable message when the Settings composition is absent.
 - The reusable build contains no consumer tree, product identity, Figma node,
   TeamCity build id, or consumer repository path.
 - A consumer does not need a product-specific `*-project-config` included build.
-- The staged Health fixture has no source `includeBuild` and verifies both the
-  published plugin markers and configuration-cache reuse.
+- The staged Health fixture has no source `includeBuild` and verifies the
+  published Settings, project, and Figma-adapter plugin markers plus
+  configuration-cache compatibility.
 
 ## Sources
 

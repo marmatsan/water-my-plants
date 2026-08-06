@@ -25,6 +25,13 @@ Gradle tasks:
 .\gradlew.bat testFigmaDocumentationSyncTools buildFigmaDocumentationSyncTools
 ```
 
+These tasks automatically run `installFigmaDocumentationSyncTools`, whose
+locked `npm ci` installation is tracked by the package manifests, a build
+marker, and the installed `esbuild` package. `node_modules` is deliberately not
+declared as a Gradle output because repository verification scans `repo/` as an
+input. Direct npm execution remains an explicit developer choice; Gradle-owned
+verification must not rely on pre-existing dependencies.
+
 The package remains `private` until a release is explicitly authorized. The
 publication runbook describes the release gate and version alignment contract.
 

@@ -32,7 +32,7 @@ publishing {
             from(
                 components["java"]
             )
-            artifactId = "figma-documentation-sync-data"
+            artifactId = "data"
 
             pom {
                 name.set("Figma Documentation Sync Data")

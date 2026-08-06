@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "documentationOnlyPaths": [
+    "README.md",
+    "AGENTS.md",
+    "docs/*.md",
+    "*/docs/*.md",
+    "*/*/docs/*.md",
+    "*/AGENTS.md",
+    "*/*/AGENTS.md",
+    ".teamcity/README.md",
+    "repo/*/README.md",
+    "repo/*/docs/*.md"
+  ],
+  "figmaTransportOnlyPaths": [
+    "repo/figma-documentation-sync/tools/scripts/write-mcp-preview.ts",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/writer/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/writer/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/hash/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/CanonicalJson.kt",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/mcp/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/*",
+    "repo/figma-documentation-sync/data/src/main/resources/figma-mcp/*",
+    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/mcp/*",
+    "repo/figma-documentation-sync/tools/src/app/sync-catalog-tree-preview.mcp.ts",
+    "repo/figma-documentation-sync/tools/tests/*"
+  ],
+  "figmaModelNeutralPaths": [
+    ".teamcity/documentation-coverage.json",
+    ".teamcity/scripts/tests/*",
+    "repo/verification-platform/*",
+    "repo/unit-testing/versions.properties",
+    "repo/unit-testing/unit-test-dsl/src/*",
+    "repo/unit-testing/samples/*",
+    "repo/gradle-plugins/versions.properties",
+    "repo/figma-documentation-sync/versions.properties",
+    "repo/figma-documentation-sync/teamcity-operations/src/*",
+    "repo/figma-documentation-sync/teamcity-operations/build.gradle.kts",
+    "config/figma/change-impact-policy.json",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/impact/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/impact/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/datasource/impact/*",
+    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/checker/impact/*",
+    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/impact/*",
+    "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/canonical/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/sync/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/figma/sync/*",
+    "repo/figma-documentation-sync/plugin/src/test/kotlin/com/marmatsan/figmaDocumentationSync/plugin/checker/impact/*",
+    "repo/figma-documentation-sync/data/src/test/kotlin/com/marmatsan/figmaDocumentationSync/data/figma/sync/*"
+  ],
+  "figmaModelContentPaths": [
+    ".teamcity/settings.kts",
+    "docs/ci/*.yaml",
+    "repo/dependency-catalog/*",
+    "repo/gradle-plugins/settings.gradle.kts",
+    "repo/unit-testing/settings.gradle.kts",
+    "repo/unit-testing/build.gradle.kts",
+    "repo/unit-testing/unit-test-dsl/build.gradle.kts",
+    "repo/figma-documentation-sync/settings.gradle.kts",
+    "repo/figma-documentation-sync/teamcity-adapter/src/*",
+    "repo/project-config/plugin/src/*",
+    "repo/project-config/figma-adapter/src/*",
+    "versions.properties",
+    "settings.gradle.kts",
+    "build.gradle.kts",
+    "*/build.gradle.kts",
+    "*/*/build.gradle.kts"
+  ],
+  "figmaVisualWriterPaths": [
+    "repo/figma-documentation-sync/tools/src/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/visual/*",
+    "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/visual/*",
+    "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/visual/*",
+    "build.gradle.kts"
+  ],
+  "figmaVisualTargetRules": [
+    {
+      "paths": ["repo/figma-documentation-sync/tools/src/figma/figma-visual-contract-*"],
+      "targets": ["preflight"]
+    },
+    {
+      "paths": ["repo/figma-documentation-sync/tools/src/figma/figma-metadata-*"],
+      "targets": ["metadata"]
+    },
+    {
+      "paths": ["repo/figma-documentation-sync/tools/src/figma/figma-version-*", "repo/figma-documentation-sync/tools/src/domain/version/*"],
+      "targets": ["versions"]
+    },
+    {
+      "paths": ["repo/figma-documentation-sync/tools/src/figma/figma-header-*", "repo/figma-documentation-sync/tools/src/domain/header/*"],
+      "targets": ["headers"]
+    },
+    {
+      "paths": [
+        "repo/figma-documentation-sync/tools/src/figma/figma-ci-*",
+        "repo/figma-documentation-sync/tools/src/domain/ci/*",
+        "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/visual/*",
+        "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/visual/*",
+        "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/visual/*"
+      ],
+      "targets": ["ci.overview", "ci.pullRequestIntegration", "ci.postMergeDesignDocumentation", "ci.jobTasks", "ci.infrastructureAndAccess", "ci.windowsRuntime"]
+    },
+    {
+      "paths": [
+        "repo/figma-documentation-sync/tools/src/figma/figma-catalog-*",
+        "repo/figma-documentation-sync/tools/src/figma/figma-connector-*",
+        "repo/figma-documentation-sync/tools/src/figma/figma-consumer-modules-*",
+        "repo/figma-documentation-sync/tools/src/figma/figma-tree-node-*",
+        "repo/figma-documentation-sync/tools/src/domain/catalog/*"
+      ],
+      "targets": [
+        "preflight",
+        "waterMyPlants.libraries",
+        "waterMyPlants.plugins",
+        "waterMyPlants.customGradleConventionPlugins",
+        "waterMyPlants.customGradlePlugins"
+      ]
+    }
+  ]
+}

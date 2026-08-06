@@ -122,19 +122,11 @@ internal class FigmaDesignModelGenerator(
                 includedBuilds.filter(IncludedBuildSource::publishesConventionPlugins)
             val primaryLibraryTree =
                 projectCatalogTreesPort.readLibraryTree(
-                    ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                        rootDirPath = request.projectRootDirectory.absolutePath,
-                        providerClassName = request.dependencyCatalogProviderClassName,
-                        conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                    )
+                    request.primaryCatalogTreeSource
                 )
             val primaryPluginTree =
                 projectCatalogTreesPort.readPluginTree(
-                    ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                        rootDirPath = request.projectRootDirectory.absolutePath,
-                        providerClassName = request.dependencyCatalogProviderClassName,
-                        conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-                    )
+                    request.primaryCatalogTreeSource
                 )
             val versionSections =
                 visuallyReferencedVersionSectionsSelector.select(

@@ -42,6 +42,10 @@ class ProjectCatalogTreesDataSource(
         source: ProjectCatalogTreeSource
     ): LibraryCatalogTree =
         when (source) {
+            is ProjectCatalogTreeSource.PreconfiguredVersionAliases -> {
+                source.trees.libraries
+            }
+
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
                 DependencyDslCatalogProviderFactory
                     .create(source.providerClassName)
@@ -79,6 +83,10 @@ class ProjectCatalogTreesDataSource(
         source: ProjectCatalogTreeSource
     ): PluginCatalogTree =
         when (source) {
+            is ProjectCatalogTreeSource.PreconfiguredVersionAliases -> {
+                source.trees.plugins
+            }
+
             is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
                 DependencyDslCatalogProviderFactory
                     .create(source.providerClassName)

@@ -4,14 +4,14 @@ type: adr
 scope: repository
 owner: architecture
 status: superseded
-last-reviewed: 2026-07-27
+last-reviewed: 2026-08-06
 review-cycle-days: 365
 sources:
   - settings.gradle.kts
   - repo/figma-documentation-sync/settings.gradle.kts
-  - repo/water-my-plants-project-config/settings.gradle.kts
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt
+  - repo/project-config/settings.gradle.kts
+  - repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/project/ProjectConfigGradlePlugin.kt
+  - repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaGradlePlugin.kt
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/extension/VerificationPlatformExtension.kt
 ---
 
@@ -67,11 +67,8 @@ The allowed dependency direction is:
 
 ```text
 water-my-plants root
-        |
-        v
-water-my-plants-project-config
-        |-- dependency-catalog API + Water My Plants implementation
-        |-- figma-documentation-sync API
+        |-- project-config API + Water My Plants declaration
+        |-- project-config Figma adapter
         |-- gradle convention-plugin APIs
         `-- verification-platform API
 

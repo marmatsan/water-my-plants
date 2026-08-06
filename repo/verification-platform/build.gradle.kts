@@ -155,6 +155,11 @@ tasks.register<Exec>("verifyStagedPublication") {
     commandLine(
         wrapper.asFile.absolutePath,
         "--no-daemon",
+        "--gradle-user-home",
+        layout.buildDirectory
+            .dir("gradle-user-home/standalone-consumer")
+            .get()
+            .asFile.absolutePath,
         "verifyPluginApplication",
         "-PverificationPlatformVersion=$publicationVersion",
         "-PverificationPlatformPublicationRepository=$stagingPublicationRepository",

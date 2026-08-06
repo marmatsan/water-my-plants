@@ -24,6 +24,7 @@ import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiExternalTopologySou
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiGeneratedConfigurationSource
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimePort
 import com.marmatsan.figmaDocumentationSync.domain.port.ci.CiWindowsRuntimeSource
+import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesPort
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModuleDependenciesSource
 import com.marmatsan.figmaDocumentationSync.domain.port.modules.ProjectModulesPort
@@ -465,7 +466,21 @@ private fun request(
         gitSha = gitSha,
         generatedAt = generatedAt,
         primaryCatalogModelName = "waterMyPlants",
-        dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
+        primaryCatalogTreeSource =
+            ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                rootDirPath = ".",
+                providerClassName = "example.DependencyCatalogProvider",
+                conventionPluginIncludedBuilds =
+                    listOf(
+                        IncludedBuildSource(
+                            settingsFilePath = "repo/gradle-plugins/settings.gradle.kts",
+                            rootDirPath = "repo/gradle-plugins",
+                            modulePathPrefix = ":gradle-plugins",
+                            publishesCatalogs = true,
+                            publishesConventionPlugins = true
+                        )
+                    )
+            ),
         ciDocumentationEnabled = true,
         ciConfigurationModelName = "teamCity",
         ciConfigurationProviderClassName = "example.CiConfigurationProvider",

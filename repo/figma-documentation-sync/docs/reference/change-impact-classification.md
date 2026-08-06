@@ -7,7 +7,7 @@ status: active
 last-reviewed: 2026-07-28
 review-cycle-days: 90
 sources:
-  - repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json
+  - config/figma/change-impact-policy.json
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/fingerprint/WriterScopeFingerprintCalculator.kt
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/checker/impact/FigmaChangeImpactClassifier.kt
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/task/impact/ClassifyFigmaChangeImpactTask.kt
@@ -33,7 +33,7 @@ compares the current commit with its first parent so a post-merge build
 classifies the merged revision.
 
 Path rules for this repository live in
-`repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json`.
+`config/figma/change-impact-policy.json`.
 The project-config policy is the only source for documentation-only, transport-only,
 model-neutral, model-content, visual-writer, and visual-target path patterns.
 
