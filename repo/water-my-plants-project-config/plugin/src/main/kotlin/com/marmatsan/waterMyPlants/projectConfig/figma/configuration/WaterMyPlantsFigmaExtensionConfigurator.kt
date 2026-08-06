@@ -1,10 +1,11 @@
 package com.marmatsan.waterMyPlants.projectConfig.figma.configuration
 
+import com.marmatsan.figmaDocumentationSync.data.json.writer.FigmaWriterProjectConfigJson
 import com.marmatsan.figmaDocumentationSync.domain.model.writer.FigmaWriterProjectConfig
 import com.marmatsan.figmaDocumentationSync.plugin.gradle.figmaDocumentationSyncExtension
+import com.marmatsan.figmaDocumentationSync.plugin.gradle.platform.HostOperatingSystem
 import com.marmatsan.figmaDocumentationSync.teamcityAdapter.TeamCityCiConfigurationProvider
 import com.marmatsan.waterMyPlants.projectConfig.catalog.WaterMyPlantsDependencyDslCatalogProvider
-import com.marmatsan.waterMyPlants.projectConfig.platform.HostOperatingSystem
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 
@@ -46,6 +47,7 @@ internal class WaterMyPlantsFigmaExtensionConfigurator(
                 )
             )
             toolsDirectory.set(project.layout.projectDirectory.dir("repo/figma-documentation-sync/tools"))
+            writerProjectConfigJson.set(FigmaWriterProjectConfigJson.encode(writerConfig))
             ciConfigurationCommand.set(teamCityConfigurationCommand())
 
             includedBuilds.register("dependency-catalog") {

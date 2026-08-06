@@ -2,6 +2,7 @@ package com.marmatsan.waterMyPlants.projectConfig.gradle
 
 import com.marmatsan.waterMyPlants.projectConfig.figma.configuration.WaterMyPlantsFigmaExtensionConfigurator
 import com.marmatsan.waterMyPlants.projectConfig.figma.configuration.WaterMyPlantsFigmaWriterProjectConfig
+import com.marmatsan.waterMyPlants.projectConfig.teamcity.configuration.WaterMyPlantsTeamCityOperationsConfigurator
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -12,16 +13,13 @@ class WaterMyPlantsProjectConfigPlugin : Plugin<Project> {
         project: Project
     ) {
         project.pluginManager.apply("com.marmatsan.figmaDocumentationSync")
+        project.pluginManager.apply("com.marmatsan.figmaDocumentationSync.teamcityOperations")
         WaterMyPlantsFigmaExtensionConfigurator(
             project = project,
             writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
         ).configure()
-        WaterMyPlantsFigmaWriterTasksRegistrar(
-            project = project,
-            writerConfig = WaterMyPlantsFigmaWriterProjectConfig.value
-        ).register()
-        WaterMyPlantsTeamCityFigmaTasksRegistrar(
+        WaterMyPlantsTeamCityOperationsConfigurator(
             project = project
-        ).register()
+        ).configure()
     }
 }

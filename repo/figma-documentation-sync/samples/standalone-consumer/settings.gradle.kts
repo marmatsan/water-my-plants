@@ -20,6 +20,12 @@ dependencyResolutionManagement {
             ).version(
                 providers.gradleProperty("figmaDocumentationSyncVersion").get()
             )
+            plugin(
+                "com.marmatsan.figmaDocumentationSync.teamcityOperations",
+                "com.marmatsan.figmaDocumentationSync.teamcityOperations"
+            ).version(
+                providers.gradleProperty("figmaDocumentationSyncVersion").get()
+            )
         }
     }
 }

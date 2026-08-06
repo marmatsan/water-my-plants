@@ -1,0 +1,13 @@
+package com.marmatsan.figmaDocumentationSync.teamcity.operations.handoff.port
+
+import com.marmatsan.figmaDocumentationSync.teamcity.operations.handoff.model.CanonicalFigmaRunnerInspection
+import java.nio.file.Path
+
+/** Supplies the deterministic runner inspection required to create the handoff. */
+internal fun interface CanonicalFigmaRunnerInspector {
+    /** Inspects [manifestPath] under the execution selection recorded by [planPath]. */
+    fun inspect(
+        manifestPath: Path,
+        planPath: Path
+    ): CanonicalFigmaRunnerInspection
+}

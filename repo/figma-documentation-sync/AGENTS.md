@@ -12,6 +12,8 @@ used by CI.
   - `data` depends on `domain` and implements domain ports.
   - `teamcity-adapter` depends on `data` and `domain`; portable modules must
     not depend on it.
+  - `teamcity-operations` depends on `teamcity-adapter`, `data`, and `domain`;
+    the portable `plugin` must not depend on either TeamCity module.
   - `plugin` is the Gradle adapter and composition root; it may know about
     `data` only for dependency injection bindings.
 - Keep one top-level class, interface, object, or data class per Kotlin file.
@@ -69,6 +71,12 @@ used by CI.
 - `data/properties/versions`: readers for version properties files.
 - `teamcity-adapter/configuration`: optional reader for TeamCity generated YAML
   and XML. Keep TeamCity-specific parsing out of portable modules.
+- `teamcity-operations/gradle` and `teamcity-operations/task`: optional plugin,
+  consumer extension, and Gradle tasks for supervised TeamCity/Figma operations.
+- `teamcity-operations/handoff`, `teamcity-operations/sync`, and
+  `teamcity-operations/auth`: canonical artifact handoff, verified upload,
+  idempotent rerun, and credential boundaries. Consumer identities enter only
+  through the operations extension.
 - `data/yaml/ci`: YAML 1.2 readers for the versioned external topology and
   Windows service runtime.
 - `plugin/generator`: design model JSON generation and hash calculation.
@@ -91,20 +99,14 @@ used by CI.
 - `plugin/di`: kotlin-inject component and bindings.
 - `plugin/gradle`: Gradle plugin and extension classes.
 - `project-config/catalog`: the Water My Plants dependency catalog provider.
-- `project-config/gradle`: product Gradle entry points and composition
-  registrars.
+- `project-config/gradle`: product Gradle entry points and composition.
 - `project-config/figma/configuration`: Water My Plants Figma identities,
   targets, and reusable extension configuration.
-- `project-config/figma/handoff`: canonical handoff orchestration, with its
-  adapters, ports, and models in the corresponding capability subpackages.
-- `project-config/figma/task` and `project-config/figma/sync`: product-owned
-  operational Gradle tasks and their TeamCity/Figma runtime collaborators.
-- `project-config/teamcity/auth`: TeamCity and Cloudflare credential contracts
-  and adapters.
-- `project-config/platform`: host-platform detection used by composition.
-  Together these packages form the repository adapter that owns Water My
-  Plants paths, identities, branch aliases, and optional CI commands. Portable
-  modules must depend on adapter contracts, never on this implementation.
+- `project-config/teamcity/configuration`: Water My Plants build id, branch,
+  aliases, artifact job, and public TeamCity origin. Together with the Figma
+  configuration packages, it forms the repository adapter that owns product
+  paths, identities, and optional CI commands. Reusable modules must depend on
+  adapter contracts, never on this implementation.
 - `tools`: portable TypeScript writer and MCP transport. Project-specific
   constants are selected through `@figma-documentation-sync/project-config` and must
   not be added under `tools/src` or `tools/scripts`.
@@ -140,14 +142,14 @@ used by CI.
   plugin data.
 - `validateCanonicalFigmaArtifactSet`: validates the downloaded main model,
   scope, plan, and runner manifests before MCP-operated publication.
-- `prepareTeamCityFigmaSyncHandoff`: Water My Plants project adapter that
+- `prepareTeamCityFigmaSyncHandoff`: optional `teamcity-operations` task that
   prepares a validated local handoff from a TeamCity build id or existing
   artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
-- `uploadCanonicalFigmaPayload`: Water My Plants project adapter that accepts
-  only a successful main TeamCity build and a single-use
+- `uploadCanonicalFigmaPayload`: optional `teamcity-operations` task that
+  accepts only a successful canonical TeamCity build and a single-use
   `mcp.figma.com/mcp/upload/.../submit` URL, then verifies and uploads the
   manifest-declared PNG through Kotlin.
-- `rerunTeamCityFigmaSync`: Water My Plants project adapter that obtains
+- `rerunTeamCityFigmaSync`: optional `teamcity-operations` task that obtains
   credentials through a port, exchanges Cloudflare service auth, and reuses or
   queues the canonical `main` pipeline. Keep TeamCity CLI reads and cookie-free
   REST writes in `teamcity-adapter`, and keep secret-store selection outside
@@ -268,6 +270,7 @@ used by CI.
 .\gradlew.bat :figma-documentation-sync:domain:check `
     :figma-documentation-sync:data:check `
     :figma-documentation-sync:teamcity-adapter:check `
+    :figma-documentation-sync:teamcity-operations:check `
     :figma-documentation-sync:plugin:check
 
 .\gradlew.bat -p repo\water-my-plants-project-config check

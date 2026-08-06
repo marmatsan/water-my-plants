@@ -172,5 +172,6 @@ include(
     ":data",
     ":domain",
     ":plugin",
-    ":teamcity-adapter"
+    ":teamcity-adapter",
+    ":teamcity-operations"
 )

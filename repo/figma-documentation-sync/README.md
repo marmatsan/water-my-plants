@@ -27,7 +27,7 @@ model, but they do not affect `modelHash`.
 ## Included Build Shape
 
 This directory is an included Gradle build with three portable Kotlin modules,
-one CI-system adapter, and one portable TypeScript Figma
+two optional TeamCity modules, and one portable TypeScript Figma
 Plugin API boundary:
 
 | Path | Role |
@@ -36,6 +36,7 @@ Plugin API boundary:
 | `data/` | File, Gradle, catalog-port, JSON, MCP, and Figma API adapters that implement domain ports. |
 | `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
 | `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
+| `teamcity-operations/` | Optional Gradle plugin for canonical artifact handoff, verified PNG upload, Cloudflare credentials, and idempotent TeamCity reruns. |
 | `tools/` | Thin TypeScript Figma Plugin API boundary plus optional preview packaging and adapter tests. |
 | `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
 
@@ -44,14 +45,17 @@ Dependency direction is intentional:
 ```text
 consumer adapter -> plugin -> data -> domain
 consumer adapter -> teamcity-adapter -> data -> domain
+consumer adapter -> teamcity-operations -> teamcity-adapter -> data -> domain
+teamcity-operations -> data + domain
 tools <- transient writer-project-config.json <- consumer adapter
 ```
 
 `domain` must stay independent from Gradle, files, Figma clients, and plugin
 composition. `plugin` wires portable Gradle tasks to domain ports through
-`data`; `teamcity-adapter` owns the vendor-specific parser; a consumer adapter
-applies the plugin and selects one repository's concrete catalog port, layout,
-Figma document, and CI adapter.
+`data`; `teamcity-adapter` owns the vendor-specific parser and typed clients;
+`teamcity-operations` owns the optional operational Gradle surface. A consumer
+adapter applies only the capabilities it needs and selects one repository's
+concrete catalog port, layout, Figma document, and CI identities.
 
 Gradle tasks that consume the same included-build configuration expose the
 public `IncludedBuildTaskInputs` contract from the `plugin.task.input`
@@ -94,7 +98,7 @@ catalog.
 
 ## API Documentation
 
-The `domain`, `data`, `plugin`, and `teamcity-adapter` modules generate Dokka
+The `domain`, `data`, `plugin`, `teamcity-adapter`, and `teamcity-operations` modules generate Dokka
 HTML for public and internal Kotlin declarations. Every module `check` reports
 undocumented declarations and fails on Dokka warnings, so ports, models,
 adapters, tasks, and composition boundaries must keep useful KDoc current.
@@ -174,7 +178,9 @@ for the adapter contract required by another repository.
 Consumers will apply one versioned Gradle plugin rather than addressing the
 internal projects. The staged publication contains the plugin marker,
 `figma-documentation-sync-gradle-plugin`, transitive domain and data artifacts,
-and the optional `teamcity-adapter`. Dependency Catalog is distributed and
+and the optional `teamcity-adapter` and `teamcity-operations` artifacts. The
+optional operations plugin has its own marker and is not a transitive
+dependency of the portable plugin. Dependency Catalog is distributed and
 verified independently. Water My Plants product configuration is deliberately
 excluded.
 
@@ -275,9 +281,9 @@ Task responsibilities:
 | `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
 | `verifyCanonicalFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
 | `validateCanonicalFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one canonical `main` identity before the MCP handoff. |
-| `prepareTeamCityFigmaSyncHandoff` | Water My Plants Kotlin adapter that downloads or opens canonical TeamCity artifacts, validates them, and writes `figma-sync-handoff.json`. |
-| `uploadCanonicalFigmaPayload` | Water My Plants Kotlin adapter that downloads one successful main TeamCity artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
-| `rerunTeamCityFigmaSync` | Water My Plants Kotlin adapter that authenticates through Cloudflare, reuses or queues the canonical TeamCity pipeline, and optionally waits for success. |
+| `prepareTeamCityFigmaSyncHandoff` | Optional TeamCity operations task that downloads or opens canonical artifacts, validates them, and writes `figma-sync-handoff.json`. |
+| `uploadCanonicalFigmaPayload` | Optional TeamCity operations task that downloads one successful canonical artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
+| `rerunTeamCityFigmaSync` | Optional TeamCity operations task that authenticates through Cloudflare, reuses or queues the consumer-selected pipeline, and optionally waits for success. |
 | `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
 | `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
 | `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |

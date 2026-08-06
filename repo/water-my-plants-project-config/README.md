@@ -22,9 +22,12 @@ The active adapter consists of:
   which supplies repository paths, Figma metadata identity, included builds,
   the TeamCity adapter class, its `teamCity` model key, and the optional
   TeamCity generation command;
-- `plugin/src/main/kotlin/.../WaterMyPlantsFigmaWriterTasksRegistrar.kt` and
-  `WaterMyPlantsTeamCityFigmaTasksRegistrar.kt`, which independently own writer
-  task bindings and supervised TeamCity operations;
+- `../figma-documentation-sync/plugin/src/main/kotlin/.../FigmaWriterTasksRegistrar.kt`,
+  which owns writer task registration and consumes the serialized configuration
+  selected here;
+- `../figma-documentation-sync/teamcity-operations`, whose optional Gradle
+  plugin owns supervised handoff, upload, and rerun behavior while this adapter
+  supplies only Water My Plants TeamCity identities;
 - `../figma-documentation-sync/teamcity-adapter/src/main/kotlin/.../TeamCityCiConfigurationProvider.kt`,
   which translates TeamCity's generated YAML/XML into the portable CI model;
 - `catalog/src/main/kotlin/.../WaterMyPlantsCatalogDefinition.kt`, which owns
@@ -92,12 +95,11 @@ not expand the `waterMyPlants.libraries` or `waterMyPlants.plugins` trees
 published to Figma.
 
 The repository [error-handling standard](../../docs/standards/error-handling.md)
-selects kotlin-result. This composition build consumes it through its local
-type-safe `libs` catalog to collapse the TeamCity queue contract at the
-Water My Plants operator boundary. That tooling alias is deliberately absent
-from `WaterMyPlantsCatalogProvider`, so the product catalog still omits the
-library until an app production module consumes it. This keeps the Figma
-product tree limited to dependencies used to produce the app.
+selects kotlin-result. The reusable `teamcity-operations` module consumes it to
+collapse the TeamCity queue contract at the operator boundary. This composition
+build no longer carries that dependency, and `WaterMyPlantsCatalogProvider`
+still omits the library until an app production module consumes it. This keeps
+the Figma product tree limited to dependencies used to produce the app.
 
 ## Reusing The Engine
 
@@ -162,15 +164,19 @@ while developing the engine itself.
 ## Optional Operational Adapters
 
 TeamCity is not required by the portable Kotlin plugin or writer. Water My
-Plants supplies its TeamCity command through the Kotlin project-config plugin
-and invokes the portable Gradle tasks from `.teamcity/settings.kts`.
+Plants applies the optional `com.marmatsan.figmaDocumentationSync.teamcityOperations`
+plugin and supplies its build configuration id, canonical branch, accepted
+branch aliases, artifact-producing job name, and HTTPS origin. It also supplies
+its TeamCity configuration-generation command through the project-config plugin
+and invokes the reusable Gradle tasks from `.teamcity/settings.kts`.
 
 The Kotlin `prepareTeamCityFigmaSyncHandoff` task coordinates consumer-owned
 ports for artifact selection, contract verification, runner inspection, and
 summary writing. Focused adapters own TeamCity download, safe ZIP extraction,
 canonical artifact validation, MCP runner inspection, and JSON serialization;
 the coordinator does not depend on those concrete implementations. These
-collaborators live under `projectConfig/figma/handoff`, grouped into `port`,
+collaborators live under
+`figmaDocumentationSync/teamcity/operations/handoff`, grouped into `port`,
 `model`, and `adapter` packages. The
 Kotlin `uploadCanonicalFigmaPayload` task accepts only a successful main
 `Generate main design model` build, verifies the manifest-declared PNG bytes,
@@ -229,6 +235,7 @@ From the repository root:
 .\gradlew.bat :figma-documentation-sync:domain:check `
     :figma-documentation-sync:data:check `
     :figma-documentation-sync:teamcity-adapter:check `
+    :figma-documentation-sync:teamcity-operations:check `
     :figma-documentation-sync:plugin:check
 
 .\gradlew.bat -p repo\water-my-plants-project-config check

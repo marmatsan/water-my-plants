@@ -4,12 +4,13 @@ type: reference
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - repo/figma-documentation-sync/gradle.properties
   - repo/figma-documentation-sync/build.gradle.kts
   - repo/figma-documentation-sync/plugin/build.gradle.kts
+  - repo/figma-documentation-sync/teamcity-operations/build.gradle.kts
   - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/FigmaWriterProjectConfig.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt
   - repo/figma-documentation-sync/tools/package.json
@@ -27,10 +28,16 @@ included build.
 
 ## Contract
 
-The public Gradle entry point is:
+The portable Gradle entry point is:
 
 ```text
 plugin id: com.marmatsan.figmaDocumentationSync
+```
+
+Repositories using the optional TeamCity operational surface also apply:
+
+```text
+plugin id: com.marmatsan.figmaDocumentationSync.teamcityOperations
 ```
 
 The Maven publication set is:
@@ -41,10 +48,11 @@ The Maven publication set is:
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-domain` | Transitive implementation | Portable models and ports. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-data` | Transitive implementation | Portable filesystem, Gradle, catalog, and Figma adapters. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter` | Optional | TeamCity parser and typed CLI boundary. |
+| `com.marmatsan.figma-documentation-sync:teamcity-operations` | Optional Gradle entry point | TeamCity handoff, upload, rerun, credential adapters, and Gradle tasks. |
 
-Gradle also publishes the standard plugin marker coordinates generated for
-`com.marmatsan.figmaDocumentationSync`. Dependency Catalog has an independent
-publication and standalone-consumer contract.
+Gradle also publishes the standard plugin marker coordinates generated for both
+plugin ids. Dependency Catalog has an independent publication and
+standalone-consumer contract.
 
 The portable writer package is:
 
@@ -96,8 +104,8 @@ package from assuming the Water My Plants directory structure.
 - Product composition builds are never part of the portable publication set.
 - Repository identities enter the writer through a transient project-config
   projection; generated JSON is not published as a source artifact.
-- The TeamCity adapter is never a transitive dependency of the portable
-  Gradle plugin.
+- The TeamCity adapter and operations plugin are never transitive dependencies
+  of the portable Gradle plugin.
 - Figma Maven artifacts, their plugin marker, and the npm package use one
   release version.
 - The npm package remains `private` until an explicit release authorizes the
@@ -111,6 +119,7 @@ package from assuming the Water My Plants directory structure.
 
 - [`../../build.gradle.kts`](../../build.gradle.kts)
 - [`../../plugin/build.gradle.kts`](../../plugin/build.gradle.kts)
+- [`../../teamcity-operations/build.gradle.kts`](../../teamcity-operations/build.gradle.kts)
 - [`../../tools/package.json`](../../tools/package.json)
 - [`../../tools/bin/build.mjs`](../../tools/bin/build.mjs)
 - [`../../domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/FigmaWriterProjectConfig.kt`](../../domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/FigmaWriterProjectConfig.kt)

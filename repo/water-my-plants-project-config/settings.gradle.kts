@@ -91,11 +91,9 @@ dependencyCatalogTree {
                     artifact = "teamcity-adapter",
                     version = portableVersion
                 )
-            }
-            library("michael-bull.kotlin-result") {
                 artifact(
-                    artifact = "kotlin-result",
-                    version = version("kotlinResultLibraryVersion")
+                    artifact = "teamcity-operations",
+                    version = portableVersion
                 )
             }
         }

@@ -4,11 +4,12 @@ type: guide
 scope: repo/figma-documentation-sync
 owner: figma-documentation-sync
 status: active
-last-reviewed: 2026-07-26
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaDocumentationSyncGradlePlugin.kt
   - repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaCatalogChecksExtension.kt
+  - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/gradle/FigmaTeamCityOperationsExtension.kt
   - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/FigmaWriterProjectConfig.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt
   - repo/figma-documentation-sync/tools/bin/build.mjs
@@ -101,11 +102,10 @@ consumer repository.
    ```
 
 5. Create a repository-owned `FigmaWriterProjectConfig`, encode it with
-   `FigmaWriterProjectConfigJson`, and register
-   `WriteFigmaWriterProjectConfigTask`. Wire its output into
-   `PrepareCanonicalFigmaSyncTask.writerProjectConfigFile`,
-   `RunFigmaMcpTask.writerProjectConfigFile`, and
-   `ProbeFigmaMcpTask.writerProjectConfigFile`. The model supplies
+   `FigmaWriterProjectConfigJson`, and assign the result to
+   `figmaDocumentationSync.writerProjectConfigJson`. The portable plugin writes
+   the transient file and wires it into canonical, visual-plan, MCP execution,
+   and probe tasks. The model supplies
    repository paths, Figma component identities, visual targets, and the
    relative repository root used for writer fingerprints. Keep the JSON under
    `build/`; do not version it.
@@ -126,11 +126,15 @@ consumer repository.
    included build as product documentation. Water My Plants publishes only its
    production `libraries` and `plugins` trees.
 
-8. For TeamCity, add the optional
+8. For TeamCity CI documentation, add the optional
    `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter:<version>`
-   dependency to the repository adapter and select
-   `TeamCityCiConfigurationProvider`. Other repositories may supply a sibling
-   `CiConfigurationProvider` or leave CI documentation disabled.
+   dependency and select `TeamCityCiConfigurationProvider`. To expose the
+   supervised handoff, upload, and rerun tasks, also apply
+   `com.marmatsan.figmaDocumentationSync.teamcityOperations` and configure
+   `figmaTeamCityOperations` with the consumer's build configuration, branch,
+   accepted aliases, artifact-producing job name, and HTTPS origin. Other
+   repositories may supply a sibling `CiConfigurationProvider` or omit both
+   TeamCity capabilities.
 
 9. Add the relevant verification tasks to CI. Treat the model generated on the
    default branch as the only canonical publication input.

@@ -36,6 +36,8 @@
     "repo/unit-testing/samples/*",
     "repo/gradle-plugins/versions.properties",
     "repo/figma-documentation-sync/versions.properties",
+    "repo/figma-documentation-sync/teamcity-operations/src/*",
+    "repo/figma-documentation-sync/teamcity-operations/build.gradle.kts",
     "repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/impact/*",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/port/impact/*",
@@ -72,7 +74,7 @@
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/visual/*",
     "repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/service/visual/*",
     "repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/visual/*",
-    "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/WaterMyPlantsFigmaWriterProjectConfig.kt"
+    "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt"
   ],
   "figmaVisualTargetRules": [
     {

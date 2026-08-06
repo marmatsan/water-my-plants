@@ -30,6 +30,9 @@ teamcity-adapter -> data -> domain
 The portable `domain`, `data`, and `plugin` modules do not depend on this
 module. A project using another CI system can provide a sibling adapter that
 implements `CiConfigurationProvider`, or disable CI documentation entirely.
+The optional [`teamcity-operations`](../teamcity-operations/README.md) plugin
+consumes these typed clients to expose supervised handoff, upload, and rerun
+tasks without moving TeamCity knowledge into the portable plugin.
 
 Verify the adapter from the repository root:
 
