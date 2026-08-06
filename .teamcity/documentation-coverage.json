@@ -153,6 +153,7 @@
         "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
         "repo/verification-platform/README.md",
         "repo/figma-documentation-sync/README.md",
+        "repo/project-config/docs/reference/consumer-contract.md",
         "repo/water-my-plants-project-config/README.md"
       ]
     },
@@ -176,6 +177,7 @@
         "repo/dependency-catalog/docs/guides/adopt-dependency-catalog.md",
         "repo/dependency-catalog/docs/reference/tree-settings-dsl.md",
         "repo/gradle-plugins/README.md",
+        "repo/project-config/docs/reference/consumer-contract.md",
         "repo/figma-documentation-sync/docs/runbooks/canonical-artifact-visual-sync.md",
         "repo/figma-documentation-sync/docs/standards/dependency-version-naming.md",
         "repo/figma-documentation-sync/docs/reference/visual-sync-contract.md"
