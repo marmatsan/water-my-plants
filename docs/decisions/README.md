@@ -19,3 +19,4 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0011](adr-0011-standardize-typed-errors-with-kotlin-result.md) | Accepted | Use kotlin-result for typed recoverable failures while capabilities own their error hierarchies. |
 | [ADR-0012](adr-0012-coordinate-repository-gradle-plugin-releases.md) | Accepted | Release repository convention plugins together and derive accurate plugin usage in Figma. |
 | [ADR-0013](adr-0013-use-reusable-project-config.md) | Accepted | Configure products through one reusable project-config included build and inline Kotlin catalog trees. |
+| [ADR-0014](adr-0014-use-canonical-code-generation-decisions.md) | Accepted | Use typed documentation as the canonical decision system and keep specifications, agents, and skills in focused roles. |

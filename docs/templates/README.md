@@ -12,6 +12,9 @@ index.
 | `reference.md` | `docs/reference/` or `<module>/docs/reference/` |
 | `adr.md` | `docs/decisions/adr-NNNN-*.md` |
 | `module-readme.md` | `<module>/docs/README.md` |
+| `specification.md` | `specs/NNN-kebab-case-name/spec.md` |
+| `implementation-plan.md` | `specs/NNN-kebab-case-name/plan.md` |
+| `checklist.md` | `specs/NNN-kebab-case-name/checklist.md` |
 
 Templates are excluded from metadata validation because they intentionally
 contain placeholders. Every document created from them is validated by CI.

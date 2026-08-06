@@ -13,6 +13,7 @@ standard and source-of-truth hierarchy.
 | `ci/` | Versioned CI topology, branch protection, and validation contracts. |
 | `uml/` | Project-wide PlantUML sources and shared includes. |
 | `templates/` | Starting points for typed documentation. |
+| [`../specs/`](../specs/README.md) | Approved active change intent, plans, and completion evidence. |
 
 Module-specific documentation belongs in the module's top-level `docs/`
 directory and links back to shared project standards instead of duplicating
@@ -31,8 +32,17 @@ them.
 
 ## Engineering Standards
 
+- [Code-Generation Standard](standards/code-generation.md)
 - [Product Architecture Standard](standards/architecture.md)
+- [Gradle Build Standard](standards/gradle.md)
+- [Repository Hygiene Standard](standards/repository-hygiene.md)
 - [Typed Error Handling Standard](standards/error-handling.md)
+- [UML Documentation Standard](standards/uml.md)
+
+## Code-Generation Reference
+
+- [Code-Generation Context Map](reference/code-generation-context.md)
+- [Active Specifications](../specs/README.md)
 
 ## CI References
 

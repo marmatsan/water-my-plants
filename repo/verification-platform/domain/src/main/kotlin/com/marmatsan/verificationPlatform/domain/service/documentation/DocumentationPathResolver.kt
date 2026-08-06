@@ -11,10 +11,8 @@ internal class DocumentationPathResolver {
             .replace(
                 '\\',
                 '/'
-            ).trimStart(
-                '.',
-                '/'
-            )
+            ).removePrefix("./")
+            .trimStart('/')
 
     /** Returns whether a literal or wildcard source declaration matches a repository entry. */
     fun sourceExists(

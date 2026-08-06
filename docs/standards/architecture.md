@@ -50,69 +50,6 @@ interfaces but domain code MUST remain free of Android framework types.
 Cross-layer types MUST be explicit. Transport DTOs, persistence entities, and
 Compose state are not domain models and MUST NOT leak across their boundary.
 
-## Gradle Build Scripts
-
-- Every checked-in `build.gradle.kts` MUST declare
-  `@file:Suppress("AvoidDuplicateDependencies")` as its first line. This
-  suppresses the IDE inspection that reports version-catalog-backed
-  dependencies as duplicate declarations even when Gradle resolves them
-  correctly.
-- External plugins declared in `build.gradle.kts` MUST use a type-safe plugin
-  catalog alias. A build whose `kotlin-dsl` classpath owns Kotlin MAY use the
-  type-safe `kotlin("...")` accessor without a second plugin version request.
-  External dependencies MUST use type-safe `libs` accessors.
-- Gradle core plugins MUST use their Kotlin DSL accessors, such as
-  `` `maven-publish` ``, because Gradle does not generate catalog aliases for
-  core plugins.
-- Each multi-project included build MUST centralize dependency repositories in
-  its `settings.gradle.kts` `dependencyResolutionManagement` block and enforce
-  `RepositoriesMode.FAIL_ON_PROJECT_REPOS`. Module `build.gradle.kts` files
-  MUST NOT repeat dependency-resolution repositories. Publication repositories
-  remain owned by the included build's publishing configuration.
-- Configuration shared by every compatible subproject in one included build,
-  such as JUnit Platform activation, sources JARs, common Dokka metadata, or a
-  staging publication repository, SHOULD be declared once in that included
-  build's root `build.gradle.kts` and activated lazily with `withPlugin`.
-  Configuration MUST remain module-local when root preloading would put an
-  incompatible plugin version on a shared classpath, as can happen when a
-  build mixes versioned Kotlin JVM aliases with Gradle's embedded
-  `kotlin-dsl` plugin. Reusable included builds MUST NOT deduplicate by
-  importing scripts or conventions from sibling builds through filesystem
-  paths.
-- `java-gradle-plugin` modules MUST use the Gradle API and TestKit dependencies
-  supplied by that plugin. They MUST NOT redeclare `gradleApi()` or
-  `gradleTestKit()` in their dependency blocks.
-- Repository-owned plugins with a stable marker and a consumer-owned catalog
-  entry MUST use a type-safe alias at their direct `build.gradle.kts`
-  consumption point. When `pluginManagement.includeBuild` supplies the source
-  implementation, the root build MUST NOT preload those versioned aliases with
-  `apply false` before subprojects consume them: Gradle exposes an included
-  plugin on the shared classpath with an unknown version and cannot validate a
-  later versioned catalog request.
-- A repository-owned plugin MAY use a versionless literal `id(...)` only at a
-  settings/bootstrap boundary or when a settings plugin has already placed the
-  same implementation JAR on the build-script classpath with an unknown
-  version. Water My Plants therefore keeps
-  `com.marmatsan.projectConfig.settings` in `settings.gradle.kts` as an
-  explicit bootstrap exception. Root project plugins with generated catalog
-  aliases, including `com.marmatsan.projectConfig.figma`, use those type-safe
-  aliases.
-- Literal plugin IDs in `settings.gradle.kts` `pluginManagement` declarations
-  are reserved for settings/bootstrap plugins that must resolve before their
-  generated catalog exists. Project-plugin defaults are redundant when the
-  generated plugin alias already carries its version and MUST NOT be repeated
-  in `pluginManagement.plugins`.
-- Repository-owned catalogs built with `dependencyCatalogTree` MUST declare
-  every top-level declaration through `root`; top-level `library` and `plugin`
-  leaves are prohibited. A root MUST contain exactly one path segment. Relative
-  `library` and `plugin` declarations MAY use dotted compact paths because the
-  DSL expands every segment into a distinct node. Within a plugin root, dotted
-  paths MUST collapse every maximal linear namespace chain; retain a nested
-  block only where one node owns multiple plugin descendants.
-- Every custom Gradle task MUST declare its cache contract explicitly with
-  `@CacheableTask`, `@DisableCachingByDefault`, or `@UntrackedTask`. Validation
-  tasks with no reusable output SHOULD disable caching with a concrete reason.
-
 ## Public API
 
 - Declarations SHOULD be `internal` unless another module consumes them.
@@ -209,58 +146,19 @@ Review both physical package correctness and semantic cohesion. A path can
 match its declaration while still hiding unrelated responsibilities in an
 overly broad namespace.
 
-## Temporary Artifact Ownership
-
-- Code that creates a temporary file or directory MUST own its lifecycle and
-  remove it after its final consumer finishes.
-- A producer MUST clean partially written temporary artifacts when it fails.
-- An artifact that intentionally crosses process or operational phases MAY
-  survive its producer, but its final consumer or documented completion step
-  MUST delete it.
-- Repository-local temporary artifacts MUST live below `tmp/`, a module
-  `build/` directory, or another explicitly ignored generated-output root.
-- Tests MUST register temporary resources with a lifecycle-aware fixture or
-  delete them from `finally`; successful assertions alone are not cleanup.
-- Run `./gradlew cleanTemporaryArtifacts` after supervised repository work that
-  creates root-level temporary or generated tooling artifacts.
-
-## Module Retirement
-
-A migration that replaces, renames, merges, or removes a module is not complete
-while the retired module path still exists in the checkout.
-
-- Remove the retired module from Gradle composition, project dependencies,
-  catalogs, plugin registrations, CI configuration, and current documentation.
-- Preserve accepted ADR references when they are historical evidence; those
-  references do not keep the retired path alive.
-- Before deleting the directory, verify its resolved absolute path is the exact
-  retired module inside the repository and inspect tracked, untracked, and
-  ignored contents so user-owned work is not removed accidentally.
-- Delete both tracked sources and ignored build state owned by the retired
-  module, including its `.gradle/`, `.kotlin/`, and `build/` directories. The
-  migration owner performs this cleanup because an inactive build no longer
-  contributes its own `clean` tasks to the active Gradle graph.
-- Verify that the retired path no longer exists, repository status is clean
-  apart from the intended migration, and the replacement build passes its
-  focused checks plus the repository boundary checks.
-
-`cleanTemporaryArtifacts` removes temporary outputs owned by the active
-repository graph. It MUST NOT infer and recursively delete unknown directories
-under `repo/`; retirement cleanup always targets an explicitly verified path.
-
 Line count alone is not a SOLID rule. Review reasons to change, dependency
 direction, contract size, substitutability, and extension points instead of
 using arbitrary class-size thresholds.
 
 ## Verification
 
-Run `./gradlew checkModuleBoundaries checkIncludedBuildVersions` after
-dependency-boundary changes, `./gradlew check` before completion, and
-`./gradlew cleanTemporaryArtifacts` after temporary outputs reach their final
-consumer. A module retirement additionally verifies that its former directory
-is absent. Review each affected production type against all five SOLID
-principles. Automated boundary checks support this review but do not replace
-it.
+Run `./gradlew checkModuleBoundaries` after dependency-boundary changes and
+`./gradlew check` before completion. Review each affected production type
+against all five SOLID principles. Automated boundary checks support this
+review but do not replace it. Apply the [Gradle](gradle.md) and
+[repository-hygiene](repository-hygiene.md) standards when the change also
+affects build behavior, generated output, temporary artifacts, or module
+retirement.
 
 ## Sources
 
@@ -272,3 +170,5 @@ it.
 - `repo/unit-testing/`
 - `repo/dependency-catalog/catalog-api/`
 - `repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckModuleBoundariesTask.kt`
+- [Gradle build standard](gradle.md)
+- [Repository hygiene standard](repository-hygiene.md)

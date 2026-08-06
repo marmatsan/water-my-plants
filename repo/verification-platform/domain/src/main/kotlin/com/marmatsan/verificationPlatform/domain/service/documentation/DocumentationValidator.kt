@@ -19,6 +19,7 @@ import java.time.LocalDate
 class DocumentationValidator internal constructor(
     private val classifier: DocumentationTypeClassifier,
     private val frontmatterParser: DocumentationFrontmatterParser,
+    private val agentSkillValidator: AgentSkillValidator,
     private val typedRules: List<TypedDocumentationRule>,
     private val linkValidator: DocumentationLinkValidator,
     private val coverageValidator: DocumentationCoverageValidator,
@@ -27,6 +28,7 @@ class DocumentationValidator internal constructor(
     constructor() : this(
         classifier = DocumentationTypeClassifier(),
         frontmatterParser = DocumentationFrontmatterParser(),
+        agentSkillValidator = AgentSkillValidator(),
         typedRules =
             listOf(
                 DocumentationMetadataValidator(),
@@ -60,6 +62,11 @@ class DocumentationValidator internal constructor(
             val path = paths.normalize(document.path)
             val expectedType = classifier.expectedType(path)
             val frontmatter = frontmatterParser.parse(document.content)
+            agentSkillValidator.validate(
+                path = path,
+                frontmatter = frontmatter,
+                findings = findings
+            )
             if (expectedType == null) {
                 if (frontmatter?.metadata?.get("type") in classifier.typedDocumentTypes) {
                     findings.errors += "[$path] Typed document is outside its canonical directory."

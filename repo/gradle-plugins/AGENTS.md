@@ -1,111 +1,54 @@
-# gradle-plugins Agent Instructions
+# Gradle Plugins Agent Instructions
 
-This directory contains Gradle convention plugins used by the rest of the project. Treat changes here as build infrastructure changes: small edits can affect every Android module.
+## Context
 
-## Scope
+Apply the root [`AGENTS.md`](../../AGENTS.md), the
+[Gradle standard](../../docs/standards/gradle.md), the
+[architecture standard](../../docs/standards/architecture.md), the
+[testing standard](../../docs/standards/testing.md), and this included build's
+[README](README.md) and [documentation index](docs/README.md).
 
-- Keep plugin behavior explicit and centralized in the existing Gradle Convention plugin modules:
-  - `android`: Android application/library defaults and shared Android dependencies.
-  - `bdd-test`: Cucumber/JUnit Platform BDD test configuration.
-  - `compose`: Jetpack Compose setup and shared Jetpack Compose dependencies.
-  - `dependencies`: version catalog generation for consumers of the shared dependency catalog.
-  - `dokka-documentation`: shared Dokka API documentation setup.
-  - `protobuf`: Protobuf Gradle plugin setup and lite runtime dependencies.
-  - `unit-test`: Kotest test configuration and shared test dependencies.
-- Keep the assertion-framework-agnostic behavior API in the autonomous
-  `repo/unit-testing` build. Convention plugins consume its published
-  `com.marmatsan.repo:unit-test-dsl` coordinate through the consumer-owned
-  `testLibs` catalog.
-- Do not add product, UI, feature, or Android screen logic here.
-- Do not edit generated Gradle outputs under `build/`, `.gradle/`, or `.kotlin/`.
-- All Gradle Convention plugins are named with the format `*GradleConventionPlugin` where `*` is the name of the module (for example, `AndroidGradleConventionPlugin`)
+## Local Boundaries
 
-## Branching
+- Keep this included build reusable and independently publishable. Product,
+  feature, UI, screen, and Water My Plants configuration belongs outside it.
+- Keep convention-plugin responsibilities in their existing capability module.
+  Keep assertion-framework-independent test behavior in `repo/unit-testing` and
+  consume its published `com.marmatsan.repo:unit-test-dsl` coordinate.
+- Own compile, test, plugin, and publication versions in this build's
+  `versions.properties`. Consume dependency-catalog APIs by stable coordinate
+  and let composition roots substitute source during repository development.
+- Name convention plugin implementations `<Capability>GradleConventionPlugin`
+  and preserve the stable `com.marmatsan.<name>` plugin-id family.
+- Extend catalog alias behavior through the reusable dependency-catalog API.
+  Keep alias creation and alias lookup on the same canonical mapping.
+- Configure plugins through lazy typed Gradle APIs. Use `afterEvaluate` only
+  when no supported lazy API can express the required ordering, and document
+  that external constraint.
 
-- Use trunk-based development as the branching strategy.
-- Treat `main` as the trunk and keep it stable, tested, and releasable.
-- Create short-lived branches from `main` using `feature/<short-description>`, `fix/<short-description>`, or `chore/<short-description>`.
-- Keep branches small and merge them back into `main` quickly through pull requests.
-- Prefer feature flags or hidden entry points for incomplete work instead of long-running branches.
-- Delete short-lived branches after they have been merged into `main`.
-- Use version tags such as `v1.4.0` to mark releases.
-- Create temporary `release/<version>` stabilization branches only when a release needs focused QA or last-mile fixes.
-- Create `hotfix/<short-description>` branches from `main` only for urgent production fixes, then merge the fix back into `main` and tag the patch release.
+Use the supported replacement when enforcing a boundary: published coordinates
+instead of sibling filesystem paths, consumer configuration instead of product
+branches, type-safe catalogs instead of hard-coded versions, and focused
+capability modules instead of catch-all plugin behavior.
 
-## Dependency and Version Rules
+## Testing And Documentation
 
-- Keep versions used to compile and test this included build in
-  `repo/gradle-plugins/versions.properties`. Keep Water My Plants product
-  dependency versions in root `versions.properties`.
-- The `dependencies` module exposes only reusable version-catalog helpers to
-  convention plugins. It does not select or depend on a product catalog.
-- Product library and plugin trees share one declaration in root `settings.gradle.kts`.
-- When adding a new product version key, add it to root `versions.properties` and resolve that exact key with `version("<key>")` in `settings.gradle.kts`.
-- Version keys under `Libraries` must end with `LibraryVersion`; version keys
-  under `Plugins` must end with `PluginVersion`; only `androidGradlePluginVersion` and
-  `kotlinVersion` belong under `Main project dependencies`.
-- Run `.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage` after
-  adding or moving dependency catalog entries.
-- Prefer adding dependencies through the existing dependency tree helpers instead of hardcoding aliases across product modules.
-- Keep gradle-plugins's own catalog in `settings.gradle.kts` limited to dependencies needed to compile and test the convention plugins. Declare that catalog through `com.marmatsan.dependencyCatalog.tree`; do not reintroduce manual `VersionCatalogBuilder` entries.
-- Do not add library-only test support modules to this plugin-producing build;
-  publish them from `repo/unit-testing` so consumers can adopt them without
-  adopting the convention plugins.
+- Use Kotest and MockK for Kotlin tests.
+- Express Given-When-Then unit behavior with the typed
+  `given { }.whenever { }.then { }` chain from `unit-test-dsl`.
+- Keep assertions in Kotest and executable business behavior in Cucumber.
+- Update the owning module `docs/README.md` when a plugin's public behavior,
+  requirements, or focused verification changes.
+- Apply the root documentation-learning review before completion.
 
-## Dependency Tree and Catalog Model
+## Verification
 
-- `DependencyNode.Library` and `DependencyNode.Plugin` are tree payloads. Their nullable catalog data marks structural nodes:
-  - `DependencyNode.Library.entries == null` means the node only contributes a Maven group path segment.
-  - `DependencyNode.Plugin.version == null` means the node only contributes a Gradle plugin id path segment.
-- `Dependency.Library` and `Dependency.Plugin` are final values emitted after tree traversal and are ready to register in a version catalog.
-- `Dependency.Plugin.version` is intentionally non-null. A final plugin dependency must have a version because `registerPlugins` registers it in the generated `plugins` catalog.
-- `toDependencyPlugins()` should include only plugin nodes with a version before mapping them to `Dependency.Plugin`.
-- Library aliases are generated by `libraryAlias(libraryGroup, artifact)` in
-  `repo/dependency-catalog/catalog-gradle-plugin`. The alias starts with the
-  Maven group and removes the longest artifact prefix already represented by
-  the group path, then normalizes hyphens to dots.
-- Important alias examples:
-  - `androidx.compose:compose-bom` -> `androidx.compose.bom`
-  - `androidx.activity:activity-compose` -> `androidx.activity.compose`
-  - `org.junit.jupiter:junit-jupiter-api` -> `org.junit.jupiter.api`
-  - `com.google.protobuf:protoc` -> `com.google.protobuf.protoc`
-- `VersionCatalogExtension.requireLibraryNotation(libraryGroup, artifact)` must use the same alias rule as `registerLibraries`, so consumers can request real Maven coordinates without hardcoding generated aliases.
+Run focused module checks while iterating. Before completion run:
 
-## Plugin Rules
+```powershell
+.\gradlew.bat -p repo/gradle-plugins check verifyStagedPublication
+```
 
-- Preserve the existing plugin ID pattern: `com.marmatsan.<name>`.
-- Keep implementation classes under `com.marmatsan.<name>.plugin` by default. Modules with internal architecture packages may use a nested package such as `com.marmatsan.figmaDocumentationSync.plugin.gradle`.
-- Prefer Gradle typed APIs and Kotlin DSL helpers over strongly typed configuration when the API is available.
-- Avoid `afterEvaluate` unless there is no stable lazy Gradle API for the behavior.
-- Keep convention plugins idempotent and safe to apply to their intended project types.
-
-## Android and Compose Conventions
-
-- Shared Android defaults belong in `android/src/main/kotlin/com/marmatsan/android/plugin/AndroidGradleConventionPlugin.kt`.
-- Shared Jetpack Compose setup belongs in `compose/src/main/kotlin/com/marmatsan/compose/plugin/ComposeGradleConventionPlugin.kt`.
-- If a dependency is required by every module applying a convention plugin, add it in that plugin. If only one feature needs it, keep it in that feature module.
-- Be careful with SDK, Kotlin, JVM, and plugin version changes; they affect all consumers.
-
-## Module-Specific Instructions
-
-- Shared Dokka documentation setup is described in `dokka-documentation/docs/README.md`.
-- Each Gradle convention plugin module keeps its own `docs/README.md` describing its plugin ID, purpose, behavior, requirements, and focused verification command.
-- `figma-documentation-sync` has additional module-local instructions in `../figma-documentation-sync/AGENTS.md`. Follow them when editing its source, tests, documentation, generated design model, or Figma automation workflow.
-
-## Testing
-
-- Unit and integration tests must use Kotest and MockK.
-- Executable BDD scenarios may use Cucumber through the `com.marmatsan.bddTest` convention plugin.
-- When executable BDD scenarios live inside `gradle-plugins` itself, mirror the `bdd-test` convention configuration explicitly because a plugin produced by the same Gradle build cannot be resolved by id from sibling gradle-plugins modules.
-- These test dependencies are available through the gradle-plugins version catalog declared in `settings.gradle.kts`.
-- Structure Kotlin tests that express Given-When-Then behavior with the typed
-  `given { }.whenever { }.then { }` chain from
-  `com.marmatsan.repo:unit-test-dsl`. Do not use
-  section comments for these phases; repository Kotlin style verification
-  rejects them.
-- Keep assertions in Kotest and keep the behavior DSL independent of Kotest,
-  MockK, JUnit, and Cucumber. Cucumber step definitions remain the executable
-  boundary for `.feature` scenarios and do not use the unit-test DSL.
-- Do not execute tests for documentation-only changes. For gradle-plugins behavior changes, prefer focused verification commands for the modules that changed.
-- Useful verification commands:
-  - `.\gradlew.bat check`
+Run the root boundary, documentation, and aggregate checks selected by the
+[code-generation context map](../../docs/reference/code-generation-context.md)
+when composition, versions, or shared contracts change.

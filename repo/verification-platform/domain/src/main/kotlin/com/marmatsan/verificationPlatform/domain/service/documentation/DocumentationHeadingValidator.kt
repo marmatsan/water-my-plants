@@ -34,7 +34,26 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
                 }
             }
         }
+        if (context.expectedType == "specification") {
+            specificationSections(
+                path = context.path
+            ).forEach { heading ->
+                if (heading !in headings) {
+                    findings.errors += "[${context.path}] Specification section '$heading' is required."
+                }
+            }
+        }
     }
+
+    private fun specificationSections(
+        path: String
+    ): Set<String> =
+        when (path.substringAfterLast('/')) {
+            "spec.md" -> SPECIFICATION_SECTIONS
+            "plan.md" -> IMPLEMENTATION_PLAN_SECTIONS
+            "checklist.md" -> CHECKLIST_SECTIONS
+            else -> emptySet()
+        }
 
     private companion object {
         val LEVEL_ONE_HEADING_PATTERN =
@@ -71,6 +90,32 @@ internal class DocumentationHeadingValidator : TypedDocumentationRule {
                 "consequences",
                 "alternatives",
                 "supersession"
+            )
+        val SPECIFICATION_SECTIONS =
+            setOf(
+                "outcome",
+                "context",
+                "required behavior",
+                "acceptance criteria",
+                "non-goals",
+                "decision log",
+                "sources"
+            )
+        val IMPLEMENTATION_PLAN_SECTIONS =
+            setOf(
+                "outcome",
+                "steps",
+                "verification",
+                "decision documentation"
+            )
+        val CHECKLIST_SECTIONS =
+            setOf(
+                "scope",
+                "implementation",
+                "architecture and solid",
+                "testing and verification",
+                "documentation",
+                "completion"
             )
     }
 }

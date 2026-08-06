@@ -105,6 +105,17 @@ reason for the coordinator to change. The public coordinator remains at
 `domain.service.DocumentationValidator`, while its focused collaborators live
 under `domain.service.documentation`.
 
+Active specification artifacts under
+`specs/<three-digit-id>-<kebab-case-name>/` are typed documentation. The
+classifier accepts only `spec.md`, `plan.md`, and `checklist.md`, and the
+heading validator applies the required section contract for each file.
+Repository skills use `.agents/skills/<kebab-case-name>/SKILL.md`; their
+frontmatter must provide a matching `name` and a `description` without
+unsupported fields. Documentation paths preserve dot-prefixed roots such as
+`.agents/` while removing only an explicit leading `./` or `/`, so hidden
+repository directories remain addressable by discovery, link, and coverage
+validation.
+
 ## Verification
 
 ```powershell

@@ -1,270 +1,69 @@
-# figmaDocumentationSync Agent Instructions
+# Figma Documentation Sync Agent Instructions
 
-This module generates the Figma design model and verifies the Figma sync state
-used by CI.
+## Context
 
-## Architecture
+Apply the root [`AGENTS.md`](../../AGENTS.md), the
+[architecture standard](../../docs/standards/architecture.md), the
+[Gradle standard](../../docs/standards/gradle.md), the
+[testing standard](../../docs/standards/testing.md), and this included build's
+[README](README.md) and [documentation index](docs/README.md).
 
-- `figmaDocumentationSync` follows Clean Architecture. Preserve the dependency
-  direction:
-  - `domain` must not depend on `data`, `plugin`, Gradle APIs, or
-    `java.io.File`.
-  - `data` depends on `domain` and implements domain ports.
-  - `teamcity-adapter` depends on `data` and `domain`; portable modules must
-    not depend on it.
-  - `teamcity-operations` depends on `teamcity-adapter`, `data`, and `domain`;
-    the portable `plugin` must not depend on either TeamCity module.
-  - `plugin` is the Gradle adapter and composition root; it may know about
-    `data` only for dependency injection bindings.
-- Keep one top-level class, interface, object, or data class per Kotlin file.
-  Nested types are allowed only when they are owned by and used only by the
-  parent type, such as sealed result variants or private implementation
-  helpers.
-- Use `kotlin-inject` for classes created by `FigmaDocumentationSyncComponent`.
-- Keep Gradle-created types compatible with Gradle injection. Do not replace
-  Gradle constructor injection annotations with
-  `me.tatarka.inject.annotations.Inject` on extension/task/plugin types.
-- `FigmaDocumentationSyncComponent` is the composition root. Bind domain ports to
-  `data/datasource` implementations there.
+## Local Architecture
 
-## Package Layout
+- Keep `domain` portable and independent from Gradle, filesystems, Figma,
+  TeamCity, and concrete data modules.
+- Keep portable infrastructure adapters in `data`; they implement
+  consumer-owned domain ports.
+- Keep `plugin` as the Gradle adapter and portable composition root.
+- Keep TeamCity translation in `teamcity-adapter` and supervised credentialed
+  operations in `teamcity-operations`. Portable modules do not depend on those
+  provider-specific modules.
+- Keep Water My Plants identities and concrete product composition in
+  `repo/project-config`; reusable Figma modules depend on adapter contracts.
+- Keep the Figma Plugin API runtime in `tools` and select product configuration
+  through its project adapter. Do not add product constants to portable writer
+  source.
+- Use `kotlin-inject` for portable component-created collaborators and Gradle's
+  supported injection model for Gradle-created extensions, tasks, and plugins.
 
-- `domain/model/catalog`: catalog tree, node, entry, and version models.
-- `domain/model/ci`: external topology, Windows service runtime, and generic
-  effective CI configuration models used by CI documentation.
-- `domain/model/figma`: Figma references used by domain requests.
-- `domain/model/modules`: module dependency models included in the generated
-  design model.
-- `domain/model/impact`: portable Figma verification scopes, impacts, policy,
-  and repository change-set models.
-- `domain/model/sync`: portable identity shared by canonical preparation and
-  verification jobs.
-- `domain/model/artifact` and `domain/service/artifact`: pure canonical artifact
-  identities and cross-file validation rules used by the MCP handoff.
-- `domain/port/catalog`, `domain/port/modules`, and `domain/port/versions`:
-  source ports used to build the generated design model.
-- `domain/port/ci`: path-based sources and ports for external topology,
-  Windows service runtime, and project-selected effective CI configuration.
-- `domain/port/impact`: policy and Git change-set source boundaries used by
-  Figma impact classification.
-- `data/datasource/catalog`, `data/datasource/modules`, and
-  `data/datasource/versions`: implementations of domain ports grouped by
-  capability.
-- `data/datasource/ci`: filesystem adapters for CI documentation sources.
-- `data/ci/configuration`: portable provider contract and reflective provider
-  selection used by project configuration.
-- `data/datasource/impact`: JSON policy and Git adapters for change-impact
-  classification.
-- `data/figma/client`: Figma API client and client exceptions.
-- `data/figma/dto`: serializable Figma API response and node DTOs.
-- `data/figma/common`: shared Figma URL helpers.
-- `data/figma/artifact`: filesystem and JSON readers for canonical TeamCity
-  artifact sets.
-- `data/figma/sync`: JSON adapters for the canonical preparation scope, runner
-  identities, and visual sync plan.
-- `data/gradle/catalog` and `data/gradle/modules`: readers for Gradle settings
-  catalog declarations, included modules, and module dependencies.
-- `data/dependencies/catalog`: portable adapters from the reusable
-  `catalog-core` tree types and the `VersionAliasedDependencyCatalogProvider` contract to
-  domain catalog models. Concrete repository catalogs belong in
-  `project-config`.
-- `data/properties/versions`: readers for version properties files.
-- `teamcity-adapter/configuration`: optional reader for TeamCity generated YAML
-  and XML. Keep TeamCity-specific parsing out of portable modules.
-- `teamcity-operations/gradle` and `teamcity-operations/task`: optional plugin,
-  consumer extension, and Gradle tasks for supervised TeamCity/Figma operations.
-- `teamcity-operations/handoff`, `teamcity-operations/sync`, and
-  `teamcity-operations/auth`: canonical artifact handoff, verified upload,
-  idempotent rerun, and credential boundaries. Consumer identities enter only
-  through the operations extension.
-- `data/yaml/ci`: YAML 1.2 readers for the versioned external topology and
-  Windows service runtime.
-- `plugin/generator`: design model JSON generation and hash calculation.
-- `plugin/checker/versions`: Gradle-facing adapter that verifies repository
-  version section and suffix naming before CI can merge catalog changes.
-- `plugin/checker/catalog`: Gradle-facing adapter that rejects unused
-  dependency catalog entries before CI can merge catalog changes.
-- `plugin/checker/sync`: Gradle-facing adapter that compares generated model
-  metadata with Figma shared plugin data.
-- `plugin/checker/impact`: pure classifier for repository paths that can affect
-  the Figma model or visual writer.
-- `plugin/task/generate` and `plugin/task/sync`: Gradle task classes for model
-  generation and sync verification.
-- `plugin/task/impact`: portable Gradle task that writes
-  `build/reports/figma-sync/change-impact.json`.
-- `plugin/task/artifact`: Gradle adapter that validates a canonical artifact
-  set and writes its typed handoff identity.
-- `plugin/task/canonical`: Gradle adapters that prepare and validate the scope
-  shared by the canonical TeamCity Figma Sync jobs.
-- `plugin/di`: kotlin-inject component and bindings.
-- `plugin/gradle`: Gradle plugin and extension classes.
-- `project-config/catalog`: the Water My Plants dependency catalog provider.
-- `project-config/gradle`: product Gradle entry points and composition.
-- `project-config/figma/configuration`: Water My Plants Figma identities,
-  targets, and reusable extension configuration.
-- `project-config/teamcity/configuration`: Water My Plants build id, branch,
-  aliases, artifact job, and public TeamCity origin. Together with the Figma
-  configuration packages, it forms the repository adapter that owns product
-  paths, identities, and optional CI commands. Reusable modules must depend on
-  adapter contracts, never on this implementation.
-- `tools`: portable TypeScript writer and MCP transport. Project-specific
-  constants are selected through `@figma-documentation-sync/project-config` and must
-  not be added under `tools/src` or `tools/scripts`.
+Use capability packages that match their source paths. Add the exact package,
+task, model, target, artifact, or writer contract to the closest module
+reference instead of maintaining a package inventory in this instruction file.
 
-## Gradle Tasks
+## Workflow Routing
 
-- `generateFigmaDesignModel`: generates
-  `build/reports/figma-sync/design-model.json`.
-- `classifyFigmaChangeImpact`: classifies the Git diff using
-  the policy selected by the project-config adapter. Water My Plants owns it at
-  `config/figma/change-impact-policy.json`.
-  Keep the classifier in Kotlin and do not duplicate its rules in TeamCity scripts.
-- `prepareCanonicalFigmaSync`: cleans stale reports, classifies the change,
-  conditionally runs the configured CI adapter and generates the canonical model, then
-  builds the MCP runner artifacts and `sync-scope.json`.
-- `verifyCanonicalFigmaSync`: validates the downloaded scope identity and
-  invokes the Kotlin trunk checker only for `full-verification`.
-- `checkFigmaCatalogUsage`: fails when dependency catalogs declare library or
-  plugin entries that are not used by a module, convention plugin, or tool
-  configuration. This task is wired into the root `check` lifecycle.
-- `checkFigmaVersionNaming`: fails when
-  root `versions.properties` does not use the Figma version
-  naming contract. This task is wired into the root `check` lifecycle.
-- `checkCiExternalTopologyFreshness`: emits a non-blocking warning after the
-  validation window in `docs/ci/external-topology.yaml` expires. This task is
-  wired into the root `check` lifecycle and skips when the project adapter
-  disables CI documentation.
-- `checkCiWindowsRuntimeFreshness`: emits a non-blocking warning after the
-  validation window in `docs/ci/windows-runtime.yaml` expires. This task is
-  wired into the root `check` lifecycle and skips when the project adapter
-  disables CI documentation.
-- `checkFigmaTrunkSync`: compares the generated model hash with Figma shared
-  plugin data.
-- `validateCanonicalFigmaArtifactSet`: validates the downloaded main model,
-  scope, plan, and runner manifests before MCP-operated publication.
-- `prepareTeamCityFigmaSyncHandoff`: optional `teamcity-operations` task that
-  prepares a validated local handoff from a TeamCity build id or existing
-  artifact directory. Keep its TeamCity CLI boundary in `teamcity-adapter`.
-- `uploadCanonicalFigmaPayload`: optional `teamcity-operations` task that
-  accepts only a successful canonical TeamCity build and a single-use
-  `mcp.figma.com/mcp/upload/.../submit` URL, then verifies and uploads the
-  manifest-declared PNG through Kotlin.
-- `rerunTeamCityFigmaSync`: optional `teamcity-operations` task that obtains
-  credentials through a port, exchanges Cloudflare service auth, and reuses or
-  queues the canonical `main` pipeline. Keep TeamCity CLI reads and cookie-free
-  REST writes in `teamcity-adapter`, and keep secret-store selection outside
-  portable modules.
-- Treat `figmaDocumentationSync` as a CI-owned verification step. Developers may run it
-  locally for diagnosis, but CI is the source of truth before merging into
-  `main`.
-- Module dependency extraction reads Gradle dependencies from `project(":...")`
-  and type-safe project accessors such as `projects.core.ui` or
-  `projects.domain`. Resolve type-safe accessors against real module paths so
-  camel-case accessors preserve kebab-case names; for example,
-  `projects.catalogCore` represents `:catalog-core`.
+| Work | Canonical document |
+|------|--------------------|
+| Public coordinates and independent distribution | [`docs/reference/distribution-contract.md`](docs/reference/distribution-contract.md) |
+| Canonical `main` sync | [`docs/runbooks/trunk-sync.md`](docs/runbooks/trunk-sync.md) |
+| Authorized TeamCity artifact and visual handoff | [`docs/runbooks/canonical-artifact-visual-sync.md`](docs/runbooks/canonical-artifact-visual-sync.md) |
+| MCP transport and runner execution | [`docs/runbooks/mcp-chunk-transport.md`](docs/runbooks/mcp-chunk-transport.md) |
+| Smallest visual target | [`docs/reference/target-scopes.md`](docs/reference/target-scopes.md) |
+| Visual structure, layout, connectors, and locking | [`docs/reference/visual-sync-contract.md`](docs/reference/visual-sync-contract.md) |
+| Change-impact selection | [`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md) |
+| Preview-only iteration | [`docs/runbooks/visual-preview.md`](docs/runbooks/visual-preview.md) |
+| Failure diagnosis | [`docs/runbooks/troubleshooting.md`](docs/runbooks/troubleshooting.md) |
+| PlantUML publication | [`docs/uml/figma-import.md`](docs/uml/figma-import.md) and the root [UML standard](../../docs/standards/uml.md) |
 
-## Figma Automation
+Only TeamCity Figma Sync on `main` produces the canonical design-model artifact.
+Use local or branch execution for diagnosis and preview under the documented
+scope; do not present it as authoritative publication state.
 
-- The Figma sync namespace is `water_my_plants_sync`. Figma shared plugin data
-  namespaces must not contain hyphens.
-- The Figma write step is MCP-operated.
-- Detailed Figma automation runbooks live in `docs/runbooks/`, except UML
-  publication runbooks, which live under `docs/uml/` next to the diagrams and
-  helper tools. Agents must follow:
-  - `docs/runbooks/trunk-sync.md` when validating or publishing the Figma trunk
-    sync state.
-  - `docs/runbooks/canonical-artifact-visual-sync.md` when deciding whether a
-    `design-model.json` may be used for a canonical or branch-local visual sync.
-  - `docs/runbooks/mcp-chunk-transport.md` when staging TeamCity artifacts and
-    generated MCP scripts through Figma shared plugin data.
-  - `docs/reference/target-scopes.md` when choosing the smallest sync target for
-    a Figma section.
-  - `docs/reference/visual-sync-contract.md` when changing or validating Figma
-    visual sync behavior, especially catalog tree nodes, connectors, layout, and
-    locking.
-  - `docs/runbooks/troubleshooting.md` when diagnosing failed or visually
-    incorrect Figma sync runs.
-  - `docs/uml/figma-import.md` when publishing PlantUML-generated UML diagrams
-    to Figma.
-- When adding or updating a `.Header` component for a Figma documentation
-  section, make the header describe the section it belongs to. Fill the header
-  content with:
-  - `Header`: the section/module/diagram name the reader is looking at.
-  - `Link`: relevant repository files that live in GitHub, with each file
-    hyperlink applied to its GitHub `main` branch URL, for example
-    `https://github.com/marmatsan/water-my-plants/blob/main/<path>`. If the
-    `Link` field lists multiple files, apply hyperlinks to the individual
-    filename ranges and leave separators unlinked.
-  - `Definition`: a concise explanation of what this section documents and why
-    it matters.
+## BDD And Tests
 
-## UML Publication
+- Keep executable feature behavior in
+  `plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/`
+  and Java 8 style step definitions in the matching test package.
+- Describe observable guarantees in feature files. Keep packages, adapters,
+  ports, and generated artifact inventories in technical documentation.
+- Add focused tests to the owning portable service, adapter, Gradle task, or
+  writer boundary.
+- Keep filesystem, network, Gradle, TeamCity, and Figma details outside pure
+  domain tests.
 
-- Required local SVG tooling is documented in `docs/uml/figma-import.md`.
-  Check Java, PlantUML, Graphviz `dot`, PowerShell, and optional Inkscape before
-  diagnosing render or import failures.
-- Import PlantUML SVGs through the generated SVG directly.
-- Do not publish UML diagrams to Figma as PNG/image fills. PNG exports may be
-  used only for diagnosis; final UML publication must use
-  `figma.createNodeFromSvg(svg)`.
-- Publish diagrams inside a parent documentation section, not as loose top-level
-  sections. The parent section owns the `.Header`, uses
-  `md/sys/color/surface` as fill, has corner radius `28`, and is named after the
-  scope that groups the included `.puml` diagrams.
-- The individual diagram section is nested inside that parent section and is
-  named after the `.puml` file, for example `model-generation-flow.puml`.
-- Flatten the Figma wrapper structure so only the imported `Group` node remains
-  inside the diagram section, then center that `Group`.
-- The final imported `Group` must be a Figma `GROUP`, not a `FRAME`. If
-  `createNodeFromSvg()` leaves `FRAME:Group`, group its children into
-  `GROUP:Group` and remove the wrapper frame.
-- Do not leave nested imported layers also named `Group`. A diagram section
-  should have exactly one layer named `Group`; rename internal groups to
-  meaningful names such as `Title`, `Legend`, or the PlantUML entity/link id.
-- Before importing PlantUML SVGs into Figma with `createNodeFromSvg()`, sanitize
-  them with `docs/uml/tools/sanitize-svg-for-figma.ps1`.
-- Keep sanitized SVGs as temporary `tmp/uml/figmaDocumentationSync/` artifacts.
-- Treat UML publication as a `main` CI requirement. Any `.puml` diagram added
-  or changed in this module must live in the Figma UML documentation page after
-  the branch is merged to `main`; do not consider the merge complete while the
-  corresponding Figma section is missing or stale.
-- Do not remove PlantUML SVG `lengthAdjust`, `textLength`, or
-  `stroke-dasharray` attributes during normal sanitization. They preserve text
-  fit and dashed sequence-diagram semantics in Figma.
-- After importing PlantUML SVGs into Figma, verify text alignment visually.
-  Figma can recalculate SVG text widths differently from PlantUML.
-- After importing PlantUML SVGs into Figma, verify structurally that the section
-  has no descendant with an `IMAGE` fill. A valid import should contain SVG
-  `VECTOR` and `TEXT` descendants created by `createNodeFromSvg()`.
-- After importing sequence diagrams into Figma, verify dashed lifelines and
-  return arrows visually. If Figma flattened them into solid vectors, restore
-  `dashPattern` on the imported nodes.
-- If a PlantUML sequence lifeline is missing after import, prefer cloning an
-  existing imported lifeline group and copying its exact `strokes`,
-  `strokeWeight`, `dashPattern`, and opacity. Newly created Figma `LINE` nodes
-  can render with different bounds, z-order, or stroke weight than the imported
-  SVG vectors.
+## Verification
 
-## BDD
-
-- The executable BDD source of truth lives in
-  `plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/`.
-- Step definitions live in
-  `plugin/src/test/kotlin/com/marmatsan/figmaDocumentationSync/plugin/bdd/`.
-- Use `io.cucumber.java8.En` style definitions. Do not add
-  `io.cucumber.java` annotations unless the project intentionally changes
-  style.
-- Keep `.feature` files focused on observable behavior. Put concrete files,
-  adapters, ports, and generated artifacts in `docs/bdd/README.md` or module
-  architecture docs unless a scenario is explicitly about that path.
-- Feature diagrams are derived documentation. Keep the `.feature` file as the
-  executable source of truth.
-
-## Testing
-
-- Keep focused tests around model generation, hashing, and sync verification.
-- Keep Figma/API/file-system details in `data` or task/checker tests.
-- Useful verification command:
+Run focused checks for the changed module, then before completion run:
 
 ```powershell
 .\gradlew.bat :figma-documentation-sync:domain:check `
@@ -276,11 +75,6 @@ used by CI.
 .\gradlew.bat :project-config:check
 ```
 
-- Useful root-project diagnostic command:
-
-```powershell
-.\gradlew.bat checkFigmaVersionNaming checkFigmaCatalogUsage
-```
-
-- Do not generate `design-model.json` locally or from a feature branch. Only
-  TeamCity `Figma Sync` on `main` may produce the canonical model artifact.
+Run root catalog, version, boundary, documentation, and aggregate checks when
+the corresponding contract changes. Complete Figma/UML work with the
+documented structural and visual verification, not only local code tests.

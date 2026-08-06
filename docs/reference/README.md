@@ -6,3 +6,4 @@ lookup and point back to executable or versioned sources.
 | Reference | Contract |
 |-----------|----------|
 | [Project structure](project-structure.md) | Product modules, repository included builds, documentation, and generated output. |
+| [Code-generation context](code-generation-context.md) | Map each change context to canonical instructions, evidence, and verification. |

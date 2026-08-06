@@ -4,10 +4,11 @@ type: standard
 scope: repository
 owner: engineering
 status: active
-last-reviewed: 2026-07-20
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - AGENTS.md
+  - docs/decisions/adr-0014-use-canonical-code-generation-decisions.md
   - .teamcity/documentation-coverage.json
 ---
 
@@ -16,7 +17,7 @@ sources:
 This document is the canonical documentation policy for Water My Plants. It
 defines where knowledge belongs, which documents are normative, and what CI
 must validate. Documentation must describe the current repository or clearly
-label a future decision as proposed.
+label future intent as an active specification or proposed decision.
 
 ## Source Of Truth
 
@@ -34,6 +35,12 @@ Use this precedence when two artifacts disagree:
 Correct the lower-precedence document when it diverges. Do not weaken an
 executable contract only to preserve stale prose.
 
+An active specification describes approved change intent, not current
+behavior. Apply it together with standards and accepted ADRs. When the desired
+outcome conflicts with either, record and approve the new decision or exception
+before implementation. Current code and tests remain the source for what the
+repository does until the change is implemented.
+
 ## Document Types
 
 | Type | Question answered | Canonical location |
@@ -44,6 +51,7 @@ executable contract only to preserve stale prose.
 | `runbook` | How do I execute, verify, or recover an operation? | `docs/runbooks/` or `<module>/docs/runbooks/`. |
 | `reference` | What is the exact current contract or inventory? | `docs/reference/` or `<module>/docs/reference/`. |
 | `adr` | Why was a durable architectural decision taken? | `docs/decisions/`. |
+| `specification` | What approved change is active and how will it be delivered and verified? | `specs/<id>-<name>/`. |
 
 Specialized executable or generated documentation may remain in `docs/ci/`,
 `docs/bdd/`, `docs/dokka/`, or `docs/uml/`. These directories do not replace
@@ -60,11 +68,20 @@ Standards use these terms deliberately:
 Rules that can be checked mechanically SHOULD be enforced by tests, lint, or
 CI. Prose remains necessary for design constraints that cannot be automated.
 
+State the supported outcome and preferred pattern before its constraints. A
+`MUST NOT` or `SHOULD NOT` rule MUST name the supported replacement in the same
+rule or identify the safety boundary that leaves no valid replacement. Prefer
+"use X when Y" over a list of rejected implementations.
+
 ## Placement And Ownership
 
 Project-wide rules and concepts belong under `docs/`. Documentation specific
 to one module belongs under that module's single top-level `docs/` directory.
 Do not create nested documentation roots.
+
+Active change intent belongs under the root `specs/` directory. Do not place
+standards, general guides, current reference material, or operational runbooks
+inside a specification package.
 
 A rule used by multiple modules MUST have one canonical project-wide document.
 Module documentation links to that rule and records only ownership, contracts,
@@ -80,7 +97,7 @@ Typed Markdown documents MUST start with YAML frontmatter containing:
 ```yaml
 ---
 title: Human-readable title
-type: standard | guide | runbook | reference | adr
+type: standard | guide | runbook | reference | adr | specification
 scope: repository or module path
 owner: stable area name
 status: draft | active | accepted | deprecated | superseded
@@ -98,6 +115,8 @@ machine paths in metadata.
 Runbooks and external integration references SHOULD use a 90-day review cycle.
 Standards and guides SHOULD use 180 days. ADRs record review metadata but are
 changed by superseding decisions, not rewritten to hide history.
+Active specifications SHOULD use a 30-day review cycle because stale change
+intent is especially likely to misdirect implementation.
 
 ## Runbook Contract
 
@@ -125,6 +144,29 @@ A reference MUST describe current names, fields, paths, or contracts precisely.
 It should optimize for lookup rather than teach a workflow. Generated data may
 support a reference but must not replace its canonical source.
 
+## Specification Contract
+
+Create `specs/<three-digit-id>-<kebab-case-name>/` when approved work needs
+durable context across several implementation steps, contracts, or sessions.
+The package MUST contain:
+
+1. `spec.md` with outcome, context, required behavior, acceptance criteria,
+   non-goals, decision log, and sources;
+2. `plan.md` with outcome, ordered steps, verification, and decision
+   documentation;
+3. `checklist.md` with scope, implementation, architecture and SOLID, testing
+   and verification, documentation, and completion evidence.
+
+Add `contracts/` or another supporting artifact only when it carries real
+information required by the change. Do not generate placeholder research,
+quick-start, data-model, contract, or checklist files.
+
+Use `draft` while shaping intent and `active` after approval. Before completing
+the implementation, promote every reusable decision to code, tests, a schema,
+standard, ADR, reference, guide, or runbook. Remove the active package after
+that promotion; Git history and the pull request retain the execution record
+without presenting an old plan as current policy.
+
 ## ADR Contract
 
 ADRs use `adr-NNNN-kebab-case-title.md`. An ADR records context, decision,
@@ -137,7 +179,9 @@ evidence; validation does not require those retired paths to remain present.
 
 Before production behavior is added, the applicable project standards MUST be
 identified. New product work begins with the standards under
-`docs/standards/` and the relevant implementation guide under `docs/guides/`.
+`docs/standards/`, the
+[code-generation context](reference/code-generation-context.md), and the
+relevant implementation guide under `docs/guides/`.
 
 Product modules keep `<module>/docs/README.md` as their local entry point. The
 module README MUST link to shared standards and describe only module purpose,
@@ -179,10 +223,21 @@ published visual result and must link back to canonical repository sources.
 Manual Figma edits cannot override a versioned standard, reference, YAML model,
 test, or runbook.
 
+## Agent And Skill Adapters
+
+`AGENTS.md` routes a change to canonical repository documents and states
+completion obligations. A scoped `AGENTS.md` adds only local boundaries,
+exceptions, and focused verification.
+
+Repository reviewer profiles and skills live under `.agents/`. They MAY select
+documents and execute a repeatable workflow, but MUST link standards, guides,
+references, and runbooks instead of copying their rules. Provider-specific
+configuration is an adapter and cannot redefine the repository contract.
+
 ## CI Enforcement
 
 CI validates typed document placement, frontmatter, review dates, ADR names,
-runbook sections, and local Markdown links. Documentation coverage rules in
+runbook and specification sections, and local Markdown links. Documentation coverage rules in
 `.teamcity/documentation-coverage.json` map implementation areas to canonical
 documents that must change with them.
 
@@ -191,5 +246,6 @@ broken links, and uncovered mapped implementation changes are failures.
 
 ## Templates
 
-Start new documents from `docs/templates/`. Remove all placeholder text before
-review and add the new document to the closest README index.
+Start new documents and active specification artifacts from `docs/templates/`.
+Remove all placeholder text before review and add the new durable document or
+active specification to the closest README index.

@@ -7,8 +7,24 @@ module graph.
 `checkDocumentation` is the Gradle-owned verification entry point. Its Kotlin
 domain service checks the typed documentation contract from
 `docs/documentation.md`: canonical placement, frontmatter, review dates,
-canonical sources, runbook and ADR sections, and local Markdown links. Expired
-review dates warn; structural or link errors fail the task.
+canonical sources, runbook, ADR, and active-specification sections, and local
+Markdown links. Expired review dates warn; structural or link errors fail the
+task.
+
+Root and scoped `AGENTS.md`, repository adapters under `.agents/`, active
+specifications, their templates, and the code-generation context map belong to
+the `documentation-system` coverage area. Agent and skill files may route work
+to canonical documents; changing them does not authorize a second copy of the
+same engineering rule.
+
+Repository `SKILL.md` manifests additionally require `name` and `description`
+frontmatter, an exact match between skill name and directory, and no unsupported
+frontmatter fields. Local Markdown links receive the same validation as other
+authored documentation.
+
+Repository-relative path normalization removes an explicit `./` or root `/`
+prefix and converts separators, while preserving dot-prefixed directory names
+such as `.agents` and `.teamcity`.
 
 The task consumes `build/reports/ci/ci-plan.json`, which resolves the committed
 revision range against `origin/main`, and evaluates every affected coverage
@@ -64,6 +80,10 @@ a Figma-relevant source area, update
 `config/figma/change-impact-policy.json`
 and the Kotlin classifier
 tests.
+
+When adding a specification artifact, keep it in a canonical active package so
+its metadata, required sections, sources, and links are validated. Remove the
+package after its durable decisions and learning have been promoted.
 
 ## CI Execution
 

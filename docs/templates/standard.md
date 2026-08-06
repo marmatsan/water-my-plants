@@ -16,11 +16,25 @@ sources:
 
 State which implementation this standard governs.
 
-## Rules
+## Required Outcomes
 
-- `MUST`: add required behavior.
-- `SHOULD`: add the default behavior and acceptable exception.
-- `MAY`: add optional behavior.
+State the observable or architectural results the implementation must preserve.
+
+## Preferred Patterns
+
+Describe the supported implementation patterns positively and state when to
+use them.
+
+## Decision Rules
+
+- When condition X applies, use pattern Y.
+- When the available patterns conflict, name the decision owner.
+
+## Disallowed Alternatives
+
+| Do not use | Use instead | Reason |
+|------------|-------------|--------|
+| Name the invalid alternative. | Name the supported replacement or safety boundary. | Explain the contract protected by the rule. |
 
 ## Exceptions
 
