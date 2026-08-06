@@ -15,6 +15,7 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0007](adr-0007-use-trunk-based-development.md) | Accepted | Use one protected trunk with short-lived branches and squash integration. |
 | [ADR-0008](adr-0008-use-canonical-for-authoritative-figma-sync.md) | Accepted | Use canonical for the authoritative Figma Sync process and reserve official for vendor-provided technology. |
 | [ADR-0009](adr-0009-separate-product-catalog-from-build-tool-versions.md) | Accepted | Keep build-tool versions local and exclude included-build dependency catalogs from the product tree. |
-| [ADR-0010](adr-0010-isolate-product-composition-from-reusable-builds.md) | Accepted | Keep product wiring in one composition build and allow reusable builds to consume only public APIs. |
+| [ADR-0010](adr-0010-isolate-product-composition-from-reusable-builds.md) | Superseded | Keep product wiring in one composition build and allow reusable builds to consume only public APIs. |
 | [ADR-0011](adr-0011-standardize-typed-errors-with-kotlin-result.md) | Accepted | Use kotlin-result for typed recoverable failures while capabilities own their error hierarchies. |
 | [ADR-0012](adr-0012-coordinate-repository-gradle-plugin-releases.md) | Accepted | Release repository convention plugins together and derive accurate plugin usage in Figma. |
+| [ADR-0013](adr-0013-use-reusable-project-config.md) | Accepted | Configure products through one reusable project-config included build and inline Kotlin catalog trees. |
