@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.plugin.generator
 
+import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import java.io.File
 import java.time.Instant
 
@@ -14,7 +15,7 @@ import java.time.Instant
  * @property gitSha Current Git commit recorded in the generated metadata.
  * @property generatedAt Timestamp written for traceability.
  * @property primaryCatalogModelName Stable JSON key for the project's main catalog.
- * @property dependencyCatalogProviderClassName Project-config catalog adapter.
+ * @property primaryCatalogTreeSource Project-config catalog tree source.
  * @property ciDocumentationEnabled Whether the optional CI model is included.
  * @property versionsFile source versions file selected by the consuming project.
  * @property rootSettingsFile Root `settings.gradle.kts`.
@@ -32,7 +33,7 @@ internal data class FigmaDesignModelGenerationRequest(
     val gitSha: String,
     val generatedAt: Instant,
     val primaryCatalogModelName: String,
-    val dependencyCatalogProviderClassName: String,
+    val primaryCatalogTreeSource: ProjectCatalogTreeSource,
     val ciDocumentationEnabled: Boolean,
     val ciConfigurationModelName: String?,
     val ciConfigurationProviderClassName: String?,

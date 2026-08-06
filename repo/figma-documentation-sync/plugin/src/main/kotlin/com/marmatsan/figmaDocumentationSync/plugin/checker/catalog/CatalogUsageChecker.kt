@@ -7,7 +7,6 @@ import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNo
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreesPort
-import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import me.tatarka.inject.annotations.Inject
 
@@ -27,28 +26,17 @@ internal class CatalogUsageChecker(
     fun check(
         request: CatalogUsageCheckRequest
     ): CatalogUsageCheckResult {
-        val includedBuilds =
-            request.includedBuilds.map(
-                transform = FigmaDesignModelIncludedBuildSource::toDomainSource
-            )
-        val conventionPluginIncludedBuilds = includedBuilds.filter(IncludedBuildSource::publishesConventionPlugins)
         val unusedEntries = mutableListOf<UnusedCatalogEntry>()
 
-        val dependencyDslSource =
-            ProjectCatalogTreeSource.DependenciesDslVersionAliases(
-                rootDirPath = request.projectRootDirectory.absolutePath,
-                providerClassName = request.dependencyCatalogProviderClassName,
-                conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
-            )
         unusedEntries +=
             projectCatalogTreesPort
-                .readLibraryTree(dependencyDslSource)
+                .readLibraryTree(request.primaryCatalogTreeSource)
                 .unusedEntries(
                     catalogName = "${request.primaryCatalogModelName}.libraries"
                 )
         unusedEntries +=
             projectCatalogTreesPort
-                .readPluginTree(dependencyDslSource)
+                .readPluginTree(request.primaryCatalogTreeSource)
                 .unusedEntries(
                     catalogName = "${request.primaryCatalogModelName}.plugins"
                 )

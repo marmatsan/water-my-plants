@@ -81,12 +81,12 @@ test("header source map covers every managed parent documentation section", () =
   assert.deepEqual(
     HEADER_SECTION_TARGETS[2].links.map((link) => link.label),
     [
-      "repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt",
+      "settings.gradle.kts",
     ]
   );
   assert.equal(
     HEADER_SECTION_TARGETS[1].definition,
-    "Represents repo/water-my-plants-project-config/versions.properties, " +
+    "Represents versions.properties, " +
       "the repository-owned source for dependency and plugin versions consumed by the Gradle builds."
   );
   assert.deepEqual(
@@ -99,8 +99,9 @@ test("header source map covers every managed parent documentation section", () =
       "repo/dependency-catalog/catalog-gradle-plugin/src/main/kotlin/com/marmatsan/dependencies/gradle/DependencyCatalogSettingsPlugin.kt",
       "repo/figma-documentation-sync/plugin/src/main/kotlin/com/marmatsan/figmaDocumentationSync/plugin/gradle/FigmaDocumentationSyncGradlePlugin.kt",
       "repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/VerificationPlatformPlugin.kt",
-      "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsProjectConfigPlugin.kt",
-      "repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/gradle/WaterMyPlantsSettingsPlugin.kt",
+      "repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/project/ProjectConfigGradlePlugin.kt",
+      "repo/project-config/plugin/src/main/kotlin/com/marmatsan/projectConfig/settings/ProjectConfigSettingsPlugin.kt",
+      "repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaGradlePlugin.kt",
     ]
   );
 });

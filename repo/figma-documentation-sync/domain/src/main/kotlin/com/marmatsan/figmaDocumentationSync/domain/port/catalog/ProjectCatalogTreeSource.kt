@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.domain.port.catalog
 
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.DependencyCatalogTrees
 import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 
 /**
@@ -20,6 +21,15 @@ import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSour
  * ```
  */
 sealed interface ProjectCatalogTreeSource {
+    /**
+     * Catalog trees materialized by a configuration adapter before task execution.
+     *
+     * @property trees Complete library and plugin catalog snapshot.
+     */
+    data class PreconfiguredVersionAliases(
+        val trees: DependencyCatalogTrees
+    ) : ProjectCatalogTreeSource
+
     /**
      * Source for dependencies declared through the repository dependency DSL.
      *

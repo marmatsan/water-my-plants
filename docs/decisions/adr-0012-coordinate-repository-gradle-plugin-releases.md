@@ -9,8 +9,8 @@ review-cycle-days: 365
 sources:
   - repo/gradle-plugins/build.gradle.kts
   - repo/gradle-plugins/versions.properties
-  - repo/water-my-plants-project-config/versions.properties
-  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt
+  - versions.properties
+  - settings.gradle.kts
   - repo/verification-platform/plugin/src/main/kotlin/com/marmatsan/verificationPlatform/plugin/task/boundary/CheckIncludedBuildVersionsTask.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/gradle/catalog/GradleMainCatalogUsageReader.kt
 ---
@@ -41,10 +41,10 @@ the executable Gradle build applied them.
   read the other's registry.
 - A plural `PluginsVersion` suffix denotes a coordinated plugin release train.
   Independently versioned plugins retain the singular `PluginVersion` suffix.
-- The Water My Plants plugin catalog renders the source version reference, its
-  resolved value, and `policy shared` for `gradlePluginsVersion`. The portable
-  writer receives the version value path and shared keys from host
-  configuration; it contains no Water My Plants-specific branch.
+- The Water My Plants plugin catalog renders the source version name for
+  `gradlePluginsVersion`; the internal resolved value and sharing policy remain
+  model inputs rather than additional visual labels. The portable writer
+  contains no Water My Plants-specific branch.
 - The separate Gradle convention plugin and Gradle plugin inventories remain
   Figma documentation targets. Their usage model combines applied literal ids
   and type-safe plugin aliases, includes the root module as `:`, and ignores

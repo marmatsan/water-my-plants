@@ -10,7 +10,7 @@ sources:
   - repo/figma-documentation-sync/settings.gradle.kts
   - repo/figma-documentation-sync/gradle.properties
   - repo/figma-documentation-sync/plugin/build.gradle.kts
-  - repo/water-my-plants-project-config/plugin/build.gradle.kts
+  - repo/project-config/figma-adapter/build.gradle.kts
   - repo/figma-documentation-sync/tools/package.json
   - repo/figma-documentation-sync/docs/reference/distribution-contract.md
 ---
@@ -39,8 +39,8 @@ Use these public identities:
 | Repository path and included build | `repo/figma-documentation-sync`, `figma-documentation-sync` |
 | Kotlin package | `com.marmatsan.figmaDocumentationSync` |
 | Portable Gradle plugin | `com.marmatsan.figmaDocumentationSync` |
-| Water My Plants adapter | `com.marmatsan.waterMyPlantsProjectConfig` |
-| Maven group and artifacts | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-*` |
+| Reusable project-config adapter | `com.marmatsan.projectConfig.figma` |
+| Maven group and core artifacts | `com.marmatsan.figma-documentation-sync:{domain,data,plugin}` |
 | TypeScript package and executable | `@marmatsan/figma-documentation-sync-tools`, `figma-documentation-sync-build` |
 | Gradle extension | `figmaDocumentationSync` |
 

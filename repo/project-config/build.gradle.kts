@@ -78,17 +78,26 @@ subprojects {
 }
 
 tasks.named("check") {
-    dependsOn(":plugin:check")
+    dependsOn(
+        ":figma-adapter:check",
+        ":plugin:check"
+    )
 }
 
 tasks.register("dokkaGenerate") {
     group = "documentation"
     description = "Generates the reusable project-config API reference."
-    dependsOn(":plugin:dokkaGenerate")
+    dependsOn(
+        ":figma-adapter:dokkaGenerate",
+        ":plugin:dokkaGenerate"
+    )
 }
 
 tasks.register("publishPortablePublicationToStagingRepository") {
     group = "publishing"
     description = "Publishes the reusable project-config Gradle plugins to staging."
-    dependsOn(":plugin:publishAllPublicationsToStagingRepository")
+    dependsOn(
+        ":figma-adapter:publishAllPublicationsToStagingRepository",
+        ":plugin:publishAllPublicationsToStagingRepository"
+    )
 }

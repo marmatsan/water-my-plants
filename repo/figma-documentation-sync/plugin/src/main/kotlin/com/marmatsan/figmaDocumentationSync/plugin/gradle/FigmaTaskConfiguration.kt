@@ -13,6 +13,7 @@ internal fun GenerateFigmaDesignModelTask.configureDesignModelInputs(
     val extension = context.extension
     primaryCatalogModelName.set(extension.primaryCatalogModelName)
     dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+    dependencyCatalogTreesJson.set(extension.dependencyCatalogTreesJson)
     ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
     ciConfigurationModelName.set(extension.ciConfigurationModelName)
     ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
@@ -37,6 +38,7 @@ internal fun CheckFigmaTrunkSyncTask.configureTrunkSyncInputs(
     metadataNamespace.set(extension.metadataNamespace)
     primaryCatalogModelName.set(extension.primaryCatalogModelName)
     dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+    dependencyCatalogTreesJson.set(extension.dependencyCatalogTreesJson)
     ciDocumentationEnabled.set(extension.ciDocumentationEnabled)
     ciConfigurationModelName.set(extension.ciConfigurationModelName)
     ciConfigurationProviderClassName.set(extension.ciConfigurationProviderClassName)
@@ -59,6 +61,7 @@ internal fun CheckFigmaCatalogUsageTask.configureCatalogInputs(
     val extension = context.extension
     primaryCatalogModelName.set(extension.primaryCatalogModelName)
     dependencyCatalogProviderClassName.set(extension.dependencyCatalogProviderClassName)
+    dependencyCatalogTreesJson.set(extension.dependencyCatalogTreesJson)
     rootSettingsFile.set(extension.rootSettingsFile)
     configureIncludedBuildInputs(
         context = context

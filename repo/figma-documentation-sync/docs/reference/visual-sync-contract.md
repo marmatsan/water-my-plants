@@ -425,7 +425,7 @@ the requested target.
 
 The version sync reads `content.versionSections` from `design-model.json` and
 uses the Figma variable collection named
-`repo\water-my-plants-project-config\versions.properties`.
+root `versions.properties`.
 
 `content.versionSections` is a visual projection, not a copy of every property
 in that file. The generator keeps only version keys referenced by visible
@@ -438,7 +438,7 @@ published as version cards while no visual tree node references them.
 
 The `Project versions` header definition and source link are managed from the
 writer project configuration. Both must name
-`repo/water-my-plants-project-config/versions.properties`; the header must not
+root `versions.properties`; the header must not
 retain the retired product-catalog path under `repo/dependency-catalog`.
 
 For each visually referenced repository version:
@@ -826,13 +826,12 @@ Layout rules:
   - `Gradle dependency visualization components`: `LibraryTreeDsl.kt`,
     `LibraryScope.kt`, and `PluginTreeDsl.kt` under
     `repo/dependency-catalog/catalog-core/src/main/kotlin/com/marmatsan/dependencies/tree/dsl/`.
-  - `Project versions`: `repo/water-my-plants-project-config/versions.properties`.
-  - `Water My Plants version catalogs`: `WaterMyPlantsCatalogDefinition.kt`
-    under `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/`.
+  - `Project versions`: root `versions.properties`.
+  - `Water My Plants version catalogs`: root `settings.gradle.kts`.
   - `Gradle convention plugins`: the `repo/gradle-plugins` directory.
   - `Gradle plugins`: the regular plugin implementations under
     `repo/dependency-catalog`, `repo/figma-documentation-sync`,
-    `repo/verification-platform`, and `repo/water-my-plants-project-config`.
+    `repo/verification-platform`, and `repo/project-config`.
 - Keep explanatory prose outside generated catalog containers. In particular,
   do not recreate the removed free-standing `Not actually trees` text in the
   repository tooling catalog parent; future contextual guidance belongs in a

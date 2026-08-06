@@ -138,18 +138,19 @@ The model is generated from repository source files, not from Figma:
 
 | Input | Purpose |
 |-------|---------|
-| `repo/water-my-plants-project-config/versions.properties` | Ordered product version sections rendered in Figma and validated by CI. |
-| `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | Source of truth for both production catalog trees. Concrete and symbolic version strategies evaluate this same declaration. |
+| `versions.properties` | Ordered product version sections rendered in Figma and validated by CI. |
+| Root `settings.gradle.kts` | Source of truth for both production catalog trees. Resolved and symbolic version strategies evaluate this same declaration. |
 | Root `settings.gradle.kts` | Main project module discovery. |
 | Included-build `settings.gradle.kts` files | Included-build module discovery and optional usage metadata. Their local tool catalogs are not Water My Plants visual targets. |
 | Gradle build files | Module dependency edges and applied plugin usage. |
 | `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
 | `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
 | `.teamcity/target/generated-configs` | Water My Plants effective CI configuration. `TeamCityCiConfigurationProvider` translates its generated YAML/XML into the portable pipeline model. |
-| `repo/water-my-plants-project-config/water-my-plants/change-impact-policy.json` | Water My Plants path policy used to classify whether a change can affect the model or visual writer. |
+| `config/figma/change-impact-policy.json` | Water My Plants path policy used to classify whether a change can affect the model or visual writer. |
 
-The Water My Plants included-build sources are configured by the
-`com.marmatsan.waterMyPlantsProjectConfig` project adapter:
+The Water My Plants included-build sources are configured in root
+`build.gradle.kts`; `com.marmatsan.projectConfig.figma` supplies the product
+catalog through its reusable adapter:
 
 | Included build | Model name | Purpose |
 |----------------|------------|---------|
@@ -157,7 +158,7 @@ The Water My Plants included-build sources are configured by the
 | `repo/figma-documentation-sync` | `figmaDocumentationSync` | Describes tooling modules and dependency edges; it does not publish a catalog tree to Figma. |
 | `repo/gradle-plugins` | `gradlePlugins` | Describes convention-plugin modules and usage. Its private catalogs are not visual targets; its convention-plugin declarations feed the Water My Plants plugin inventory. |
 | `repo/verification-platform` | `verificationPlatform` | Describes provider-neutral verification modules; it does not publish a catalog tree to Figma. |
-| `repo/water-my-plants-project-config` | `waterMyPlantsProjectConfig` | Describes the product catalog and composition modules; its provider supplies the two production trees below. |
+| `repo/project-config` | `projectConfig` | Describes reusable composition and its optional Figma adapter; the consumer root supplies the two production trees below. |
 
 The only dependency-catalog visual targets in the Water My Plants adapter are
 `waterMyPlants.libraries` and `waterMyPlants.plugins`. They describe the
@@ -169,15 +170,15 @@ remain private build-tool inputs and are not rendered as application dependency
 trees.
 
 The portable plugin id is `com.marmatsan.figmaDocumentationSync`. It intentionally has
-no Water My Plants defaults. See
-[`../water-my-plants-project-config/README.md`](../water-my-plants-project-config/README.md)
+no Water My Plants defaults. See the
+[`project-config` consumer contract](../project-config/docs/reference/consumer-contract.md)
 for the adapter contract required by another repository.
 
 ## Distribution Readiness
 
 Consumers will apply one versioned Gradle plugin rather than addressing the
 internal projects. The staged publication contains the plugin marker,
-`figma-documentation-sync-gradle-plugin`, transitive domain and data artifacts,
+`plugin`, transitive `domain` and `data` artifacts,
 and the optional `teamcity-adapter` and `teamcity-operations` artifacts. The
 optional operations plugin has its own marker and is not a transitive
 dependency of the portable plugin. Dependency Catalog is distributed and
@@ -372,7 +373,7 @@ For code changes in this module:
 
 ```powershell
 .\gradlew.bat :figma-documentation-sync:check
-.\gradlew.bat :water-my-plants-project-config:check
+.\gradlew.bat :project-config:check
 ```
 
 For visual tooling changes:
@@ -380,6 +381,11 @@ For visual tooling changes:
 ```powershell
 .\gradlew.bat testFigmaDocumentationSyncTools buildFigmaDocumentationSyncTools
 ```
+
+The Water My Plants root `check` task also runs
+`testFigmaDocumentationSyncTools` against the consumer-owned writer
+configuration, so moving that configuration does not remove its executable
+contract coverage.
 
 For dependency catalog changes that affect Figma:
 

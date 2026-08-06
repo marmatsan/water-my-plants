@@ -7,8 +7,8 @@ status: active
 last-reviewed: 2026-07-29
 review-cycle-days: 180
 sources:
-  - repo/water-my-plants-project-config/versions.properties
-  - repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt
+  - versions.properties
+  - settings.gradle.kts
 ---
 
 # Dependency Version Naming
@@ -16,7 +16,7 @@ sources:
 ## Purpose
 
 Use this standard when adding or renaming entries in
-`repo/water-my-plants-project-config/versions.properties`.
+root `versions.properties`.
 
 The names are rendered in the Figma `versions` section, so the file must keep a
 stable semantic grouping instead of using generic `*Version` keys.
@@ -85,10 +85,10 @@ gradlePluginsVersion=...
 ## Adding A Dependency
 
 1. Add the version key under the correct section in
-   `repo/water-my-plants-project-config/versions.properties`.
+   root `versions.properties`.
 2. Resolve the exact key with `version("<key>")` in the matching library or
    plugin declaration in
-   `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt`.
+   root `settings.gradle.kts`.
 3. Use the generated alias from the product module that consumes the
    dependency. Do not copy the product key into a reusable included build's
    local toolchain registry.

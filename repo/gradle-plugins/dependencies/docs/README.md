@@ -17,7 +17,7 @@ catalog.
 - This module must not import `WaterMyPlantsCatalog`, catalog implementation
   classes, or sibling included builds.
 - Product versions and trees live under
-  `repo/water-my-plants-project-config`; this build's compile/test versions
+  the root project configuration; this build's compile/test versions
   live in `repo/gradle-plugins/versions.properties`.
 
 ## Verification

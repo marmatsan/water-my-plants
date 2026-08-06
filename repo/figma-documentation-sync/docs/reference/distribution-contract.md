@@ -44,9 +44,9 @@ The Maven publication set is:
 
 | Coordinate | Visibility | Responsibility |
 |------------|------------|----------------|
-| `com.marmatsan.figma-documentation-sync:figma-documentation-sync-gradle-plugin` | Public entry point | Gradle plugin implementation and tasks. |
-| `com.marmatsan.figma-documentation-sync:figma-documentation-sync-domain` | Transitive implementation | Portable models and ports. |
-| `com.marmatsan.figma-documentation-sync:figma-documentation-sync-data` | Transitive implementation | Portable filesystem, Gradle, catalog, and Figma adapters. |
+| `com.marmatsan.figma-documentation-sync:plugin` | Public entry point | Gradle plugin implementation and tasks. |
+| `com.marmatsan.figma-documentation-sync:domain` | Transitive implementation | Portable models and ports. |
+| `com.marmatsan.figma-documentation-sync:data` | Transitive implementation | Portable filesystem, Gradle, catalog, and Figma adapters. |
 | `com.marmatsan.figma-documentation-sync:figma-documentation-sync-teamcity-adapter` | Optional | TeamCity parser and typed CLI boundary. |
 | `com.marmatsan.figma-documentation-sync:teamcity-operations` | Optional Gradle entry point | TeamCity handoff, upload, rerun, credential adapters, and Gradle tasks. |
 
@@ -126,4 +126,4 @@ package from assuming the Water My Plants directory structure.
 - [`../../data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt`](../../data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt)
 - [`../../tools/fixtures/contracts/writer-runtime-contract.json`](../../tools/fixtures/contracts/writer-runtime-contract.json)
 - [`../../samples/standalone-consumer`](../../samples/standalone-consumer)
-- [`../../../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt`](../../../water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt)
+- [`../../../../build.gradle.kts`](../../../../build.gradle.kts)

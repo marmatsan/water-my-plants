@@ -1,7 +1,12 @@
+import com.marmatsan.figmaDocumentationSync.plugin.gradle.figmaDocumentationSyncExtension
+import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 
 plugins {
-    id("com.marmatsan.projectConfig")
+    id("com.marmatsan.projectConfig.figma")
 }
 
 val catalogs = extensions.getByType(VersionCatalogsExtension::class.java)
@@ -23,8 +28,26 @@ check(
         .pluginId == "org.jetbrains.kotlin.jvm"
 )
 check(pluginManager.hasPlugin("com.marmatsan.projectConfig"))
+check(pluginManager.hasPlugin("com.marmatsan.projectConfig.figma"))
+val figmaCatalogTreesJson =
+    extensions
+        .getByType(figmaDocumentationSyncExtension::class.java)
+        .dependencyCatalogTreesJson
 
-tasks.register("verifyProjectConfig") {
+abstract class VerifyProjectConfigTask : DefaultTask() {
+    @get:Input
+    abstract val dependencyCatalogTreesJson: Property<String>
+
+    @TaskAction
+    fun verify() {
+        val catalogJson = dependencyCatalogTreesJson.get()
+        check("ktor-client-core" in catalogJson)
+        check("org" in catalogJson)
+    }
+}
+
+tasks.register<VerifyProjectConfigTask>("verifyProjectConfig") {
     group = "verification"
-    description = "Verifies source-independent reusable composition for the Health fixture."
+    description = "Verifies source-independent reusable composition and its optional Figma adapter."
+    dependencyCatalogTreesJson.set(figmaCatalogTreesJson)
 }

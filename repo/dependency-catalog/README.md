@@ -58,8 +58,8 @@ and symbolic documentation aliases through `DependencyVersionAliasResolver`.
 mapping is shared by provider implementations and the Settings adapter.
 
 Water My Plants keeps its implementation in
-`repo/water-my-plants-project-config/catalog` and its product versions in
-`repo/water-my-plants-project-config/versions.properties`.
+the root `settings.gradle.kts` and its product versions in root
+`versions.properties`.
 
 Each autonomous included build declares only the dependencies it consumes in
 its own `versions.properties` and local catalog. A dependency first used by

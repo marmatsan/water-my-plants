@@ -70,7 +70,7 @@ intentionally non-authoritative and must not write canonical metadata.
 | Shared plugin data namespace | `water_my_plants_sync` |
 | Temporary staging namespace | `water_my_plants_sync_staging` |
 | Generated model artifact | `build/reports/figma-sync/design-model.json` |
-| Repository versions file | `repo/water-my-plants-project-config/versions.properties` |
+| Repository versions file | `versions.properties` |
 | Figma versions section | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183` |
 | Figma UML documentation page | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386` |
 | Root settings file | `settings.gradle.kts` |

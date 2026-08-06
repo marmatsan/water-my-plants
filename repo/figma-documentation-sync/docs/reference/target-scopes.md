@@ -7,7 +7,7 @@ status: active
 last-reviewed: 2026-07-28
 review-cycle-days: 90
 sources:
-  - repo/water-my-plants-project-config/plugin/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/figma/configuration/WaterMyPlantsFigmaWriterProjectConfig.kt
+  - build.gradle.kts
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/writer/CanonicalMcpRunnerGenerator.kt
 ---
 
@@ -32,14 +32,15 @@ Default included builds:
 | `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | No | Yes |
 | `unit-testing` | `unitTesting` | `repo/unit-testing` | `:unit-testing` | No | No |
 | `verification-platform` | `verificationPlatform` | `repo/verification-platform` | `:verification-platform` | No | No |
-| `water-my-plants-project-config` | `waterMyPlantsProjectConfig` | `repo/water-my-plants-project-config` | `:water-my-plants-project-config` | No | No |
+| `project-config` | `projectConfig` | `repo/project-config` | `:project-config` | No | No |
 
 Included builds contribute module topology and convention-plugin usage where
 configured, but none publishes its local tool catalog as a Water My Plants
 visual target. `repo/dependency-catalog` contributes only reusable catalog
 modules, while `repo/unit-testing` contributes its independent test API module.
-The product configuration build contributes its `catalog` and
-`plugin` modules and supplies the production trees through the configured port.
+The reusable project configuration build contributes its `plugin` and
+`figma-adapter` modules; the consumer root supplies the production trees through
+the adapter's serialized contract.
 
 ## Visual Target Map
 
@@ -47,8 +48,8 @@ Catalog tree visual targets:
 
 | Model target | Source | Figma section |
 |--------------|--------|---------------|
-| `waterMyPlants.libraries` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | `63069:629` |
-| `waterMyPlants.plugins` | `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt` | `63069:594` |
+| `waterMyPlants.libraries` | Root `settings.gradle.kts` | `63069:629` |
+| `waterMyPlants.plugins` | Root `settings.gradle.kts` | `63069:594` |
 | `waterMyPlants.customGradleConventionPlugins` | Convention-plugin declarations under `repo/gradle-plugins` | `64886:247` |
 | `waterMyPlants.customGradlePlugins` | Regular repository Gradle plugin declarations | `64886:248` |
 
@@ -69,11 +70,10 @@ bound to `md/sys/color/surface` and corner radius `28`; catalog synchronization
 must never clear or flatten either property.
 
 The `headers` target also owns the `Definition` text of section `62936:183`.
-Its product configuration identifies
-`repo/water-my-plants-project-config/versions.properties` as the
+Its product configuration identifies root `versions.properties` as the
 repository-owned source for dependency and plugin versions consumed by the
 Gradle builds. Both that definition and the `Link` property are generated from
-`WaterMyPlantsFigmaWriterProjectConfig`; operators must not maintain either
+root `WaterMyPlantsFigmaWriterProjectConfig`; operators must not maintain either
 value manually in Figma.
 
 The generic domain can model additional catalog collections for another host,

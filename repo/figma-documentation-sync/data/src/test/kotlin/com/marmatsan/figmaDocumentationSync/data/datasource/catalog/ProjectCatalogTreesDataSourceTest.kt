@@ -5,7 +5,10 @@ import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleIncludedBu
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradleMainCatalogUsageReader
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.GradlePluginTreeReader
 import com.marmatsan.figmaDocumentationSync.data.gradle.catalog.IncludedBuildSettingsCatalogReader
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.DependencyCatalogTrees
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.LibraryCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogNode
+import com.marmatsan.figmaDocumentationSync.domain.model.catalog.PluginCatalogTree
 import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.unitTest.dsl.given
@@ -21,6 +24,44 @@ internal class ProjectCatalogTreesDataSourceTest :
                 tempdir(
                     prefix = "project-catalog-trees-data-source"
                 )
+
+            test("preconfigured catalog source returns the supplied trees") {
+                given {
+                    DependencyCatalogTrees(
+                        libraries =
+                            LibraryCatalogTree(
+                                roots = emptyList()
+                            ),
+                        plugins =
+                            PluginCatalogTree(
+                                roots =
+                                    listOf(
+                                        PluginCatalogNode(
+                                            id = "com"
+                                        )
+                                    )
+                            )
+                    )
+                }.whenever { trees ->
+                    val source = ProjectCatalogTreeSource.PreconfiguredVersionAliases(trees)
+                    dataSource().readLibraryTree(source) to dataSource().readPluginTree(source)
+                }.then { trees ->
+                    trees shouldBe
+                        (
+                            LibraryCatalogTree(
+                                roots = emptyList()
+                            ) to
+                                PluginCatalogTree(
+                                    roots =
+                                        listOf(
+                                            PluginCatalogNode(
+                                                id = "com"
+                                            )
+                                        )
+                                )
+                        )
+                }
+            }
 
             test("custom convention plugin tree maps type-safe aliases to applying modules") {
                 given {
@@ -88,20 +129,20 @@ internal class ProjectCatalogTreesDataSourceTest :
                         content =
                             """
                             plugins {
-                                alias(toolPlugins.plugins.com.marmatsan.verificationPlatform)
-                                id("com.marmatsan.waterMyPlantsProjectConfig")
+                                alias(toolPlugins.plugins.com.marmatsan.projectConfig.figma)
+                                id("com.marmatsan.figmaDocumentationSync.teamcityOperations")
                             }
                             """.trimIndent()
                     )
                     rootDir.writeRegularIncludedBuildPlugin(
-                        buildPath = "repo/verification-platform",
-                        modulePath = "plugin",
-                        pluginId = "com.marmatsan.verificationPlatform"
+                        buildPath = "repo/project-config",
+                        modulePath = "figma-adapter",
+                        pluginId = "com.marmatsan.projectConfig.figma"
                     )
                     rootDir.writeRegularIncludedBuildPlugin(
-                        buildPath = "repo/water-my-plants-project-config",
-                        modulePath = "plugin",
-                        pluginId = "com.marmatsan.waterMyPlantsProjectConfig"
+                        buildPath = "repo/figma-documentation-sync",
+                        modulePath = "teamcity-operations",
+                        pluginId = "com.marmatsan.figmaDocumentationSync.teamcityOperations"
                     )
                     rootDir
                 }.whenever { rootDir ->
@@ -111,8 +152,10 @@ internal class ProjectCatalogTreesDataSourceTest :
                         )
                     )
                 }.then { tree ->
-                    tree.findPlugin("com.marmatsan.verificationPlatform").appliedToModules shouldBe listOf(":")
-                    tree.findPlugin("com.marmatsan.waterMyPlantsProjectConfig").appliedToModules shouldBe listOf(":")
+                    tree.findPlugin("com.marmatsan.projectConfig.figma").appliedToModules shouldBe listOf(":")
+                    tree
+                        .findPlugin("com.marmatsan.figmaDocumentationSync.teamcityOperations")
+                        .appliedToModules shouldBe listOf(":")
                 }
             }
         }

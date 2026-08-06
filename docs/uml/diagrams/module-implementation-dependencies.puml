@@ -85,11 +85,11 @@ package "included build verification-platform module :domain" as ModuleVerificat
   VerificationPluginConsumesDomain --> VerificationDomainTarget
 }
 
-package "included build water-my-plants-project-config module :catalog" as ModuleWaterMyPlantsCatalog {
-  component ":water-my-plants-project-config:plugin" as ProductPluginConsumesCatalog <<gradle>>
-  component ":water-my-plants-project-config:catalog" as ProductCatalogTarget <<domain>>
+package "included build project-config module :plugin" as ModuleProjectConfigPlugin {
+  component ":project-config:figma-adapter" as ProjectConfigFigmaConsumesPlugin <<adapter>>
+  component ":project-config:plugin" as ProjectConfigPluginTarget <<gradle>>
 
-  ProductPluginConsumesCatalog --> ProductCatalogTarget
+  ProjectConfigFigmaConsumesPlugin --> ProjectConfigPluginTarget
 }
 
 package "modules without incoming implementation(projects...) consumers" as ModuleNoIncomingConsumers {
@@ -104,9 +104,9 @@ package "modules without incoming implementation(projects...) consumers" as Modu
   component ":figma-documentation-sync:teamcity-adapter" as FigmaTeamCityTarget <<adapter>>
   component ":onboarding:ui" as OnboardingTarget
   component ":protobuf" as ProtobufTarget <<gradle>>
+  component ":project-config:figma-adapter" as ProjectConfigFigmaTarget <<adapter>>
   component ":unit-test" as UnitTestTarget <<gradle>>
   component ":verification-platform:plugin" as VerificationPluginTarget <<gradle>>
-  component ":water-my-plants-project-config:plugin" as ProductPluginTarget <<gradle>>
 }
 
 ModuleCoreUi -[hidden]down-> ModuleCatalogApi
@@ -115,7 +115,7 @@ ModuleDependencies -[hidden]down-> ModuleFigmaDocumentationSyncData
 ModuleFigmaDocumentationSyncData -[hidden]down-> ModuleFigmaDocumentationSyncDomain
 ModuleFigmaDocumentationSyncDomain -[hidden]down-> ModuleVerificationPlatformData
 ModuleVerificationPlatformData -[hidden]down-> ModuleVerificationPlatformDomain
-ModuleVerificationPlatformDomain -[hidden]down-> ModuleWaterMyPlantsCatalog
-ModuleWaterMyPlantsCatalog -[hidden]down-> ModuleNoIncomingConsumers
+ModuleVerificationPlatformDomain -[hidden]down-> ModuleProjectConfigPlugin
+ModuleProjectConfigPlugin -[hidden]down-> ModuleNoIncomingConsumers
 
 @enduml

@@ -36,11 +36,11 @@ This directory contains Gradle convention plugins used by the rest of the projec
 
 - Keep versions used to compile and test this included build in
   `repo/gradle-plugins/versions.properties`. Keep Water My Plants product
-  dependency versions in `repo/water-my-plants-project-config/versions.properties`.
+  dependency versions in root `versions.properties`.
 - The `dependencies` module exposes only reusable version-catalog helpers to
   convention plugins. It does not select or depend on a product catalog.
-- Product library and plugin trees share one declaration in `repo/water-my-plants-project-config/catalog/src/main/kotlin/com/marmatsan/waterMyPlants/projectConfig/catalog/WaterMyPlantsCatalogDefinition.kt`.
-- When adding a new product version key, add it to `repo/water-my-plants-project-config/versions.properties` and resolve that exact key with `version("<key>")` in `WaterMyPlantsCatalogDefinition.kt`.
+- Product library and plugin trees share one declaration in root `settings.gradle.kts`.
+- When adding a new product version key, add it to root `versions.properties` and resolve that exact key with `version("<key>")` in `settings.gradle.kts`.
 - Version keys under `Libraries` must end with `LibraryVersion`; version keys
   under `Plugins` must end with `PluginVersion`; only `androidGradlePluginVersion` and
   `kotlinVersion` belong under `Main project dependencies`.

@@ -1,5 +1,6 @@
 package com.marmatsan.figmaDocumentationSync.plugin.checker.sync
 
+import com.marmatsan.figmaDocumentationSync.domain.port.catalog.ProjectCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.plugin.generator.FigmaDesignModelIncludedBuildSource
 import java.io.File
 import java.time.Instant
@@ -19,7 +20,7 @@ import java.time.Instant
  * @property gitSha repository revision expected in Figma metadata.
  * @property generatedAt generation timestamp used to reproduce the expected model.
  * @property primaryCatalogModelName main dependency catalog name in the design model.
- * @property dependencyCatalogProviderClassName main catalog provider implementation name.
+ * @property primaryCatalogTreeSource main dependency catalog tree source.
  * @property ciDocumentationEnabled whether CI documentation contributes to the model.
  * @property ciConfigurationModelName optional design-model name for generated CI configuration.
  * @property ciConfigurationProviderClassName optional provider for generated CI configuration.
@@ -39,7 +40,7 @@ internal data class FigmaTrunkSyncCheckRequest(
     val gitSha: String,
     val generatedAt: Instant,
     val primaryCatalogModelName: String,
-    val dependencyCatalogProviderClassName: String,
+    val primaryCatalogTreeSource: ProjectCatalogTreeSource,
     val ciDocumentationEnabled: Boolean,
     val ciConfigurationModelName: String?,
     val ciConfigurationProviderClassName: String?,

@@ -12,6 +12,7 @@ sources:
   - repo/figma-documentation-sync/teamcity-operations/src/main/kotlin/com/marmatsan/figmaDocumentationSync/teamcity/operations/gradle/FigmaTeamCityOperationsExtension.kt
   - repo/figma-documentation-sync/domain/src/main/kotlin/com/marmatsan/figmaDocumentationSync/domain/model/writer/FigmaWriterProjectConfig.kt
   - repo/figma-documentation-sync/data/src/main/kotlin/com/marmatsan/figmaDocumentationSync/data/json/writer/FigmaWriterProjectConfigJson.kt
+  - repo/project-config/figma-adapter/src/main/kotlin/com/marmatsan/projectConfig/figma/ProjectConfigFigmaGradlePlugin.kt
   - repo/figma-documentation-sync/tools/bin/build.mjs
   - repo/figma-documentation-sync/samples/standalone-consumer
 ---
@@ -20,10 +21,10 @@ sources:
 
 ## Outcome
 
-A Gradle repository consumes the versioned `com.marmatsan.figmaDocumentationSync`
-plugin without including this source build. The repository owns its Figma
-identities and catalog adapters, may select an optional CI adapter, and builds
-the portable writer with a transient JSON projection of its typed Kotlin
+A Gradle repository consumes versioned `project-config` and Figma Documentation
+Sync plugins without including either source build. The repository owns its
+dependency trees and Figma identities, may select an optional CI adapter, and
+builds the portable writer with a transient JSON projection of its typed Kotlin
 configuration.
 
 Until an external repository is selected, use the staged publication produced
@@ -37,12 +38,12 @@ consumer repository.
 - Follow [the documentation standard](../../../../docs/documentation.md) for
   the consumer repository's project adapter documentation.
 - Keep project identities outside the portable modules as required by
-  [the Water My Plants composition example](../../../water-my-plants-project-config/README.md).
+  [the project-config consumer contract](../../../project-config/docs/reference/consumer-contract.md).
 
 ## Steps
 
-1. Add the release Maven repository to `pluginManagement` and select one
-   version for every Figma Documentation Sync artifact:
+1. Add the release Maven repositories to `pluginManagement` and select the
+   project-config Settings and Figma adapter plugins:
 
    ```kotlin
    pluginManagement {
@@ -52,51 +53,70 @@ consumer repository.
            mavenCentral()
        }
        plugins {
-           id("com.marmatsan.figmaDocumentationSync") version "<version>"
+           id("com.marmatsan.projectConfig.settings") version "<project-config-version>"
+           id("com.marmatsan.projectConfig.figma") version "<project-config-version>"
        }
    }
    ```
 
-2. Create a repository-owned versions file and catalog source. When reusing
-   Dependency Catalog, follow its separate adoption guide and implement
-   `VersionAliasedDependencyCatalogProvider`. Then add a product adapter that
-   maps that consumer-specific API to Figma's
-   `DependencyDslCatalogProvider`. A consumer may instead implement the
-   Figma-owned port directly.
-
-3. When Dependency Catalog is used, apply its settings plugin and select the provider. `from` is the
-   terminal operation because Gradle must register catalogs while evaluating
-   settings:
+2. Create a repository-owned `versions.properties`, apply the reusable Settings
+   plugin, and declare the product catalog tree inline in root
+   `settings.gradle.kts`:
 
    ```kotlin
    plugins {
-       id("com.marmatsan.dependencyCatalog")
+       id("com.marmatsan.projectConfig.settings")
    }
 
-   dependencyCatalog {
-       from(ExampleCatalogProvider())
+   projectConfig {
+       versionsFile.set(file("versions.properties"))
+       dependencyCatalog {
+           libraries {
+               root("com") {
+                   library("example") {
+                       artifact(
+                           artifact = "client",
+                           version = version("exampleClientLibraryVersion")
+                       )
+                   }
+               }
+           }
+           plugins {
+               root("org") {
+                   plugin(
+                       id = "example",
+                       version = version("examplePluginVersion")
+                   )
+               }
+           }
+       }
    }
    ```
 
-4. Create a repository-owned Gradle project adapter. It applies the portable
-   Figma plugin and configures `figmaDocumentationSync`. Keep Figma node ids,
-   paths, catalog names, and CI commands in that adapter.
+3. Apply the optional reusable adapter in root `build.gradle.kts`. It applies
+   the base project-config and Figma plugins, enriches both catalog trees with
+   usage, and supplies their serialized task input without a reflective
+   provider:
 
    ```kotlin
    plugins {
-       id("com.marmatsan.figmaDocumentationSync")
+       id("com.marmatsan.projectConfig.figma")
    }
+   ```
 
+4. Configure `figmaDocumentationSync` with consumer-owned identities, paths,
+   catalog names, and CI inputs. Do not set
+   `dependencyCatalogProviderClassName`; the project-config adapter supplies
+   `dependencyCatalogTreesJson`:
+
+   ```kotlin
    figmaDocumentationSync {
        metadataNamespace.set("example_project_sync")
        designModelMetadataNodeUrl.set(
            "https://www.figma.com/design/<file-key>/<file>?node-id=<page-node>"
        )
        primaryCatalogModelName.set("exampleProject")
-       dependencyCatalogProviderClassName.set(
-           "com.example.figma.ExampleDependencyDslCatalogProvider"
-       )
-       versionsFile.set(layout.projectDirectory.file("gradle/versions.properties"))
+       versionsFile.set(layout.projectDirectory.file("versions.properties"))
        toolsDirectory.set(layout.buildDirectory.dir("figma-documentation-sync-tools"))
    }
    ```
@@ -170,6 +190,6 @@ branch.
 
 - [Distribution contract](../reference/distribution-contract.md)
 - [Publication runbook](../runbooks/publishing-release.md)
-- [Water My Plants composition example](../../../water-my-plants-project-config/README.md)
+- [Project Config consumer contract](../../../project-config/docs/reference/consumer-contract.md)
 - [Canonical trunk sync](../runbooks/trunk-sync.md)
 - [Reusable dependency catalog adoption](../../../dependency-catalog/docs/guides/adopt-dependency-catalog.md)

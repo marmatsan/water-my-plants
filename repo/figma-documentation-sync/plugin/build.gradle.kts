@@ -65,7 +65,7 @@ gradlePlugin {
 publishing {
     publications.withType<MavenPublication>().configureEach {
         if (name == "pluginMaven") {
-            artifactId = "figma-documentation-sync-gradle-plugin"
+            artifactId = "plugin"
         }
 
         pom {

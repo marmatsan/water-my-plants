@@ -1,6 +1,7 @@
 package com.marmatsan.projectConfig.project
 
 import com.marmatsan.projectConfig.catalog.ProjectConfigCatalogState
+import com.marmatsan.projectConfig.catalog.ProjectConfigCatalogs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -10,6 +11,11 @@ class ProjectConfigGradlePlugin : Plugin<Project> {
     override fun apply(
         project: Project
     ) {
-        ProjectConfigCatalogState.require(project.gradle)
+        val provider = ProjectConfigCatalogState.require(project.gradle)
+        project.extensions.add(
+            ProjectConfigCatalogs::class.java,
+            "projectConfigCatalogs",
+            ProjectConfigCatalogs(provider)
+        )
     }
 }

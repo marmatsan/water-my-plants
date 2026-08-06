@@ -1,9 +1,12 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.catalog
 
+import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.plugin.checker.catalog.CatalogUsageCheckRequest
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.DependencyCatalogTaskInputs
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.IncludedBuildTaskInputs
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveDependencyCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveIncludedBuildSources
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -27,14 +30,11 @@ import org.gradle.work.DisableCachingByDefault
 )
 abstract class CheckFigmaCatalogUsageTask :
     DefaultTask(),
-    IncludedBuildTaskInputs {
+    IncludedBuildTaskInputs,
+    DependencyCatalogTaskInputs {
     /** Design-model name of the main dependency catalog. */
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
-
-    /** Provider class that exposes the main catalog to the scanner. */
-    @get:Input
-    abstract val dependencyCatalogProviderClassName: Property<String>
 
     /** Main settings script used to discover project modules. */
     @get:InputFile
@@ -48,13 +48,22 @@ abstract class CheckFigmaCatalogUsageTask :
     /** Fails when a declared dependency catalog entry has no supported consumer. */
     @TaskAction
     fun checkCatalogUsage() {
+        val includedBuildSources = resolveIncludedBuildSources()
+        val conventionPluginIncludedBuilds =
+            includedBuildSources
+                .map { source -> source.toDomainSource() }
+                .filter(IncludedBuildSource::publishesConventionPlugins)
         val result =
             FigmaDocumentationSyncComponent::class.create().catalogUsageChecker.check(
                 CatalogUsageCheckRequest(
                     projectRootDirectory = projectRootDirectory.get().asFile,
                     primaryCatalogModelName = primaryCatalogModelName.get(),
-                    dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
-                    includedBuilds = resolveIncludedBuildSources()
+                    primaryCatalogTreeSource =
+                        resolveDependencyCatalogTreeSource(
+                            projectRootDirectory = projectRootDirectory.get().asFile,
+                            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+                        ),
+                    includedBuilds = includedBuildSources
                 )
             )
 

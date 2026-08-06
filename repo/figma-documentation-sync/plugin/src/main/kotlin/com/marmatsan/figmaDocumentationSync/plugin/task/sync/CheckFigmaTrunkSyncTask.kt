@@ -1,9 +1,12 @@
 package com.marmatsan.figmaDocumentationSync.plugin.task.sync
 
+import com.marmatsan.figmaDocumentationSync.domain.port.gradle.IncludedBuildSource
 import com.marmatsan.figmaDocumentationSync.plugin.checker.sync.FigmaTrunkSyncCheckRequest
 import com.marmatsan.figmaDocumentationSync.plugin.di.FigmaDocumentationSyncComponent
 import com.marmatsan.figmaDocumentationSync.plugin.di.create
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.DependencyCatalogTaskInputs
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.IncludedBuildTaskInputs
+import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveDependencyCatalogTreeSource
 import com.marmatsan.figmaDocumentationSync.plugin.task.input.resolveIncludedBuildSources
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -34,7 +37,8 @@ import java.time.Instant
 )
 abstract class CheckFigmaTrunkSyncTask :
     DefaultTask(),
-    IncludedBuildTaskInputs {
+    IncludedBuildTaskInputs,
+    DependencyCatalogTaskInputs {
     /** Figma metadata node whose shared plugin data records the published identity. */
     @get:Input
     abstract val metadataNodeUrl: Property<String>
@@ -46,10 +50,6 @@ abstract class CheckFigmaTrunkSyncTask :
     /** Design-model name of the main dependency catalog. */
     @get:Input
     abstract val primaryCatalogModelName: Property<String>
-
-    /** Provider class used to expose the main dependency catalog. */
-    @get:Input
-    abstract val dependencyCatalogProviderClassName: Property<String>
 
     /** Whether CI documentation contributes to the expected model. */
     @get:Input
@@ -110,6 +110,11 @@ abstract class CheckFigmaTrunkSyncTask :
         val token =
             figmaToken.orNull
                 ?: throw GradleException("Missing FIGMA_FILE_CONTENT_ACCESS_TOKEN environment variable")
+        val includedBuildSources = resolveIncludedBuildSources()
+        val conventionPluginIncludedBuilds =
+            includedBuildSources
+                .map { source -> source.toDomainSource() }
+                .filter(IncludedBuildSource::publishesConventionPlugins)
         val result =
             FigmaDocumentationSyncComponent::class.create().trunkSyncChecker.check(
                 FigmaTrunkSyncCheckRequest(
@@ -129,7 +134,11 @@ abstract class CheckFigmaTrunkSyncTask :
                         ),
                     generatedAt = Instant.now(),
                     primaryCatalogModelName = primaryCatalogModelName.get(),
-                    dependencyCatalogProviderClassName = dependencyCatalogProviderClassName.get(),
+                    primaryCatalogTreeSource =
+                        resolveDependencyCatalogTreeSource(
+                            projectRootDirectory = projectRootDirectory.get().asFile,
+                            conventionPluginIncludedBuilds = conventionPluginIncludedBuilds
+                        ),
                     ciDocumentationEnabled = ciDocumentationEnabled.get(),
                     ciConfigurationModelName = ciConfigurationModelName.orNull,
                     ciConfigurationProviderClassName = ciConfigurationProviderClassName.orNull,
@@ -139,7 +148,7 @@ abstract class CheckFigmaTrunkSyncTask :
                     ciWindowsRuntimeFile = ciWindowsRuntimeFile.orNull?.asFile,
                     ciGeneratedConfigurationDirectory = ciGeneratedConfigurationDirectory.orNull?.asFile,
                     projectRootDirectory = projectRootDirectory.get().asFile,
-                    includedBuilds = resolveIncludedBuildSources()
+                    includedBuilds = includedBuildSources
                 )
             )
 

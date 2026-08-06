@@ -34,7 +34,11 @@ internal class CatalogUsageCheckerTest :
                         CatalogUsageCheckRequest(
                             projectRootDirectory = rootDir,
                             primaryCatalogModelName = "waterMyPlants",
-                            dependencyCatalogProviderClassName = "example.DependencyCatalogProvider",
+                            primaryCatalogTreeSource =
+                                ProjectCatalogTreeSource.DependenciesDslVersionAliases(
+                                    rootDirPath = rootDir.absolutePath,
+                                    providerClassName = "example.DependencyCatalogProvider"
+                                ),
                             includedBuilds =
                                 listOf(
                                     FigmaDesignModelIncludedBuildSource(
@@ -84,7 +88,8 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         source: ProjectCatalogTreeSource
     ): LibraryCatalogTree =
         when (source) {
-            is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
+            is ProjectCatalogTreeSource.DependenciesDslVersionAliases,
+            is ProjectCatalogTreeSource.PreconfiguredVersionAliases -> {
                 LibraryCatalogTree(
                     roots =
                         listOf(
@@ -198,7 +203,8 @@ private class FakeProjectCatalogTreesPort : ProjectCatalogTreesPort {
         source: ProjectCatalogTreeSource
     ): PluginCatalogTree =
         when (source) {
-            is ProjectCatalogTreeSource.DependenciesDslVersionAliases -> {
+            is ProjectCatalogTreeSource.DependenciesDslVersionAliases,
+            is ProjectCatalogTreeSource.PreconfiguredVersionAliases -> {
                 PluginCatalogTree(
                     roots =
                         listOf(

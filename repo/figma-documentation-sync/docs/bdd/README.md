@@ -57,13 +57,13 @@ Avoid replacing behavior language with file-system details unless the file path
 is the behavior being tested:
 
 ```gherkin
-Given the repository version source exists at "repo/water-my-plants-project-config/versions.properties"
+Given the repository version source exists at "versions.properties"
 ```
 
 The step definition owns the implementation detail. For example, the current
 `repository versions are available` step prepares the `RepositoryVersionsPort`
 used by the design model generator. In the real Gradle task, that port is backed
-by `repo/water-my-plants-project-config/versions.properties`; in the domain scenario, it is backed by a
+by root `versions.properties`; in the domain scenario, it is backed by a
 test double so the behavior stays fast and focused.
 
 Use this rule when adding or editing scenarios:

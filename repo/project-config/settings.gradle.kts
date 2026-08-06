@@ -31,11 +31,20 @@ plugins {
 providers.gradleProperty("dependencyCatalogSourceBuild").orNull?.let { sourceBuild ->
     includeBuild(sourceBuild)
 }
+providers.gradleProperty("figmaDocumentationSyncSourceBuild").orNull?.let { sourceBuild ->
+    includeBuild(sourceBuild)
+}
+providers.gradleProperty("unitTestingSourceBuild").orNull?.let { sourceBuild ->
+    includeBuild(sourceBuild)
+}
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         providers.gradleProperty("dependencyCatalogPublicationRepository").orNull?.let { repository ->
+            maven { url = uri(repository) }
+        }
+        providers.gradleProperty("figmaDocumentationSyncPublicationRepository").orNull?.let { repository ->
             maven { url = uri(repository) }
         }
         mavenCentral()
@@ -53,12 +62,51 @@ dependencyCatalogTree {
         root("com") {
             library("marmatsan.repo") {
                 artifact(
+                    artifact = "catalog-api",
+                    version = version("dependencyCatalogVersion")
+                )
+                artifact(
                     artifact = "catalog-core",
                     version = version("dependencyCatalogVersion")
                 )
                 artifact(
                     artifact = "catalog-gradle-plugin",
                     version = version("dependencyCatalogVersion")
+                )
+                artifact(
+                    artifact = "unit-test-dsl",
+                    version = version("unitTestDslLibraryVersion")
+                )
+            }
+            library("marmatsan.figma-documentation-sync") {
+                artifact(
+                    artifact = "domain",
+                    version = version("figmaDocumentationSyncVersion")
+                )
+                artifact(
+                    artifact = "data",
+                    version = version("figmaDocumentationSyncVersion")
+                )
+                artifact(
+                    artifact = "plugin",
+                    version = version("figmaDocumentationSyncVersion")
+                )
+            }
+        }
+        root("io") {
+            library("kotest") {
+                artifactsBundle(
+                    "kotest-runner-junit5",
+                    "kotest-assertions-core",
+                    alias = "kotestBundle",
+                    version = version("kotestLibraryVersion")
+                )
+            }
+        }
+        root("org") {
+            library("junit.platform") {
+                artifact(
+                    artifact = "junit-platform-launcher"
                 )
             }
         }
@@ -80,4 +128,7 @@ dependencyCatalogTree {
     }
 }
 
-include(":plugin")
+include(
+    ":figma-adapter",
+    ":plugin"
+)
