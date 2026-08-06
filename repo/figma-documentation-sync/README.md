@@ -382,6 +382,11 @@ For visual tooling changes:
 .\gradlew.bat testFigmaDocumentationSyncTools buildFigmaDocumentationSyncTools
 ```
 
+Both entry points depend on `installFigmaDocumentationSyncTools`, which runs
+`npm ci` against the checked-in lockfile when `node_modules` is absent or stale.
+CI and clean worktrees therefore do not depend on an operator having installed
+the writer dependencies beforehand.
+
 The Water My Plants root `check` task also runs
 `testFigmaDocumentationSyncTools` against the consumer-owned writer
 configuration, so moving that configuration does not remove its executable

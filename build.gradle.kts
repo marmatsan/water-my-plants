@@ -318,6 +318,11 @@ val projectConfigConsumerCommand: List<String> =
                 }
             ).asFile.absolutePath,
         "--no-daemon",
+        "--gradle-user-home",
+        layout.buildDirectory
+            .dir("gradle-user-home/project-config-consumer")
+            .get()
+            .asFile.absolutePath,
         "--configuration-cache",
         "verifyProjectConfig",
         "-PprojectConfigVersion=$projectConfigVersion",

@@ -177,6 +177,11 @@ val verifyProviderStagedPublication =
         commandLine(
             wrapper.asFile.absolutePath,
             "--no-daemon",
+            "--gradle-user-home",
+            layout.buildDirectory
+                .dir("gradle-user-home/standalone-consumer")
+                .get()
+                .asFile.absolutePath,
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",
@@ -208,6 +213,11 @@ val verifyTreeStagedPublication =
         commandLine(
             wrapper.asFile.absolutePath,
             "--no-daemon",
+            "--gradle-user-home",
+            layout.buildDirectory
+                .dir("gradle-user-home/standalone-tree-consumer")
+                .get()
+                .asFile.absolutePath,
             "verifyCatalogs",
             "-PdependencyCatalogVersion=$publicationVersion",
             "-PdependencyCatalogPublicationRepository=$stagingPublicationRepository",

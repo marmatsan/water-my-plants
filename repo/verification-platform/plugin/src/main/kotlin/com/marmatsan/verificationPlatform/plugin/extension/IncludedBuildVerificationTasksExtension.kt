@@ -42,7 +42,8 @@ class IncludedBuildVerificationTasksExtension internal constructor(
      * Use this binding when a source-independent verification needs values that Gradle task
      * references cannot forward into an included build. The nested invocation remains explicit:
      * [buildDirectory] selects the build, [taskPath] selects its public verification entry point,
-     * and [projectProperties] declares every composition-owned input.
+     * and [projectProperties] declares every composition-owned input. The nested invocation uses a
+     * task-specific Gradle user home so it cannot contend with the orchestrating build's caches.
      *
      * @param name Stable task name exposed by the root build.
      * @param buildDirectory Reusable build directory to execute.
@@ -87,6 +88,13 @@ class IncludedBuildVerificationTasksExtension internal constructor(
                     buildList {
                         add(wrapper.absolutePath)
                         add("--no-daemon")
+                        add("--gradle-user-home")
+                        add(
+                            project.layout.buildDirectory
+                                .dir("gradle-user-home/$name")
+                                .get()
+                                .asFile.absolutePath
+                        )
                         add(taskPath)
                         projectProperties.forEach { (key, value) ->
                             add("-P$key=$value")

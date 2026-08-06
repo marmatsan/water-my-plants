@@ -31,11 +31,48 @@ internal class FigmaWriterTasksRegistrar(
 
         val generatedWriterProjectConfigFile = writeWriterProjectConfig.flatMap { task -> task.outputFile }
         val toolsDirectory = context.extension.toolsDirectory
+        val writerToolsInstallationMarker =
+            project.layout.buildDirectory.file(
+                "figma-documentation-sync/tools-installation/package-lock.marker"
+            )
+        val installWriterTools =
+            project.tasks.register<Exec>("installFigmaDocumentationSyncTools") {
+                group = "figma design sync"
+                description = "Installs the locked Node.js dependencies required by the Figma writer."
+                inputs.files(
+                    toolsDirectory.file("package.json"),
+                    toolsDirectory.file("package-lock.json")
+                )
+                outputs.file(writerToolsInstallationMarker)
+                outputs.upToDateWhen {
+                    toolsDirectory
+                        .file("node_modules/esbuild/package.json")
+                        .get()
+                        .asFile.isFile
+                }
+                workingDir(toolsDirectory)
+                commandLine(
+                    if (HostOperatingSystem.isWindows) "npm.cmd" else "npm",
+                    "ci"
+                )
+                doLast {
+                    writerToolsInstallationMarker
+                        .get()
+                        .asFile
+                        .apply {
+                            parentFile.mkdirs()
+                            writeText("installed from package-lock.json")
+                        }
+                }
+            }
 
         project.tasks.register<Exec>("buildFigmaDocumentationSyncTools") {
             group = "figma design sync"
             description = "Builds the TypeScript Figma boundary from the Kotlin project configuration."
-            dependsOn(writeWriterProjectConfig)
+            dependsOn(
+                installWriterTools,
+                writeWriterProjectConfig
+            )
             inputs.file(generatedWriterProjectConfigFile)
             workingDir(toolsDirectory)
             doFirst {
@@ -51,7 +88,10 @@ internal class FigmaWriterTasksRegistrar(
         project.tasks.register<Exec>("testFigmaDocumentationSyncTools") {
             group = "verification"
             description = "Tests the TypeScript Figma boundary against the Kotlin project configuration."
-            dependsOn(writeWriterProjectConfig)
+            dependsOn(
+                installWriterTools,
+                writeWriterProjectConfig
+            )
             inputs.file(generatedWriterProjectConfigFile)
             workingDir(toolsDirectory)
             commandLine(

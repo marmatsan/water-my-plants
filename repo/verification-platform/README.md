@@ -50,7 +50,10 @@ aggregator so existing consumers do not need to know its internal projects.
   inputs are needed. Distribution checks that must compose multiple reusable
   builds use `isolatedGradleBuildTask` with an explicit build directory and
   project-property map owned by the consuming root; Verification Platform does
-  not infer sibling paths or dependency coordinates.
+  not infer sibling paths or dependency coordinates. Each isolated invocation
+  also receives a task-specific Gradle user home under the root build directory,
+  preventing the child process from timing out on cache locks held by the
+  orchestrating Gradle process.
 - This included build resolves its own compile/test toolchain from
   `repo/verification-platform/versions.properties`; it does not read the
   Water My Plants product catalog registry.
