@@ -26,6 +26,7 @@ extensions.configure<VerificationPlatformExtension> {
             listOf(
                 "repo/dependency-catalog/",
                 "repo/gradle-plugins/",
+                "repo/project-config/",
                 "repo/unit-testing/",
                 "repo/verification-platform/",
                 "repo/water-my-plants-project-config/"
@@ -70,6 +71,9 @@ extensions.configure<VerificationPlatformExtension> {
                 "repo/gradle-plugins/build.gradle.kts",
                 "repo/gradle-plugins/settings.gradle.kts",
                 "repo/gradle-plugins/versions.properties",
+                "repo/project-config/build.gradle.kts",
+                "repo/project-config/settings.gradle.kts",
+                "repo/project-config/versions.properties",
                 "repo/unit-testing/build.gradle.kts",
                 "repo/unit-testing/settings.gradle.kts",
                 "repo/unit-testing/versions.properties",
@@ -122,6 +126,7 @@ extensions.configure<VerificationPlatformExtension> {
             "repo/dependency-catalog",
             "repo/gradle-plugins",
             "repo/figma-documentation-sync",
+            "repo/project-config",
             "repo/verification-platform",
             "repo/unit-testing",
             "repo/water-my-plants-project-config"
@@ -167,6 +172,11 @@ extensions.configure<VerificationPlatformExtension> {
             "WaterMyPlantsCatalog",
             "com.marmatsan.figmaDocumentationSync",
             "com.marmatsan.verificationPlatform",
+            "com.marmatsan.waterMyPlants"
+        )
+        reusableScope(
+            "repo/project-config",
+            "WaterMyPlants",
             "com.marmatsan.waterMyPlants"
         )
         reusableScope(
@@ -273,9 +283,78 @@ tasks.register("verifyPortableDistribution") {
         "verifyDependencyCatalogDistribution",
         "verifyFigmaDocumentationSyncDistribution",
         "verifyGradlePluginsDistribution",
+        "verifyProjectConfigDistribution",
         "verifyUnitTestingDistribution",
         "verifyVerificationPlatformDistribution"
     )
+}
+
+val projectConfigVersion: String =
+    java.util.Properties().run {
+        file("repo/project-config/versions.properties").inputStream().use(::load)
+        getProperty("projectConfigVersion")
+    }
+val projectConfigConsumerWorkingDirectory =
+    layout.projectDirectory.dir("repo/project-config/samples/health-consumer")
+val projectConfigConsumerCommand: List<String> =
+    listOf(
+        layout.projectDirectory
+            .file(
+                if (
+                    System
+                        .getProperty("os.name")
+                        .startsWith(
+                            "Windows",
+                            ignoreCase = true
+                        )
+                ) {
+                    "gradlew.bat"
+                } else {
+                    "gradlew"
+                }
+            ).asFile.absolutePath,
+        "--no-daemon",
+        "--configuration-cache",
+        "verifyProjectConfig",
+        "-PprojectConfigVersion=$projectConfigVersion",
+        "-PprojectConfigPublicationRepository=" +
+            layout.projectDirectory
+                .dir("repo/project-config/build/publication-repository")
+                .asFile.absolutePath,
+        "-PdependencyCatalogPublicationRepository=" +
+            layout.projectDirectory
+                .dir("repo/dependency-catalog/build/publication-repository")
+                .asFile.absolutePath,
+        "--stacktrace"
+    )
+val verifyProjectConfigPublishedConsumer =
+    tasks.register<Exec>("verifyProjectConfigPublishedConsumer") {
+        group = "verification"
+        description = "Verifies project-config from the staged publications."
+        dependsOn(
+            gradle
+                .includedBuild("dependency-catalog")
+                .task(":publishPortablePublicationToStagingRepository"),
+            gradle
+                .includedBuild("project-config")
+                .task(":publishPortablePublicationToStagingRepository")
+        )
+        workingDir(projectConfigConsumerWorkingDirectory)
+        commandLine(projectConfigConsumerCommand)
+    }
+val verifyProjectConfigConsumerConfigurationCache =
+    tasks.register<Exec>("verifyProjectConfigConsumerConfigurationCache") {
+        group = "verification"
+        description = "Verifies that the published Health consumer reuses configuration-cache."
+        dependsOn(verifyProjectConfigPublishedConsumer)
+        workingDir(projectConfigConsumerWorkingDirectory)
+        commandLine(projectConfigConsumerCommand)
+    }
+
+tasks.register("verifyProjectConfigDistribution") {
+    group = "verification"
+    description = "Verifies the source-independent project-config distribution contract."
+    dependsOn(verifyProjectConfigConsumerConfigurationCache)
 }
 
 val cleanTemporaryArtifacts =
@@ -296,6 +375,7 @@ val reusableBuildChecks =
     listOf(
         "figma-documentation-sync",
         "gradle-plugins",
+        "project-config",
         "unit-testing",
         "verification-platform",
         "water-my-plants-project-config"
