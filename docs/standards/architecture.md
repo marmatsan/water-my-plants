@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: architecture
 status: active
-last-reviewed: 2026-07-29
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - build.gradle.kts
@@ -224,6 +224,30 @@ overly broad namespace.
 - Run `./gradlew cleanTemporaryArtifacts` after supervised repository work that
   creates root-level temporary or generated tooling artifacts.
 
+## Module Retirement
+
+A migration that replaces, renames, merges, or removes a module is not complete
+while the retired module path still exists in the checkout.
+
+- Remove the retired module from Gradle composition, project dependencies,
+  catalogs, plugin registrations, CI configuration, and current documentation.
+- Preserve accepted ADR references when they are historical evidence; those
+  references do not keep the retired path alive.
+- Before deleting the directory, verify its resolved absolute path is the exact
+  retired module inside the repository and inspect tracked, untracked, and
+  ignored contents so user-owned work is not removed accidentally.
+- Delete both tracked sources and ignored build state owned by the retired
+  module, including its `.gradle/`, `.kotlin/`, and `build/` directories. The
+  migration owner performs this cleanup because an inactive build no longer
+  contributes its own `clean` tasks to the active Gradle graph.
+- Verify that the retired path no longer exists, repository status is clean
+  apart from the intended migration, and the replacement build passes its
+  focused checks plus the repository boundary checks.
+
+`cleanTemporaryArtifacts` removes temporary outputs owned by the active
+repository graph. It MUST NOT infer and recursively delete unknown directories
+under `repo/`; retirement cleanup always targets an explicitly verified path.
+
 Line count alone is not a SOLID rule. Review reasons to change, dependency
 direction, contract size, substitutability, and extension points instead of
 using arbitrary class-size thresholds.
@@ -233,7 +257,8 @@ using arbitrary class-size thresholds.
 Run `./gradlew checkModuleBoundaries checkIncludedBuildVersions` after
 dependency-boundary changes, `./gradlew check` before completion, and
 `./gradlew cleanTemporaryArtifacts` after temporary outputs reach their final
-consumer. Review each affected production type against all five SOLID
+consumer. A module retirement additionally verifies that its former directory
+is absent. Review each affected production type against all five SOLID
 principles. Automated boundary checks support this review but do not replace
 it.
 
