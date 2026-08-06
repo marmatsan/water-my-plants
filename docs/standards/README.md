@@ -6,6 +6,7 @@ review-blocking; `SHOULD` rules require a documented reason when not followed.
 | Standard | Scope |
 |----------|-------|
 | [Code generation](code-generation.md) | Context selection, positive-first instructions, active specifications, generation workflow, and completion. |
+| [Product design](product-design.md) | OOUX objects, action consequences, wireframes, visual design, BDD, and Code Connect handoff. |
 | [Architecture](architecture.md) | Module boundaries, dependency direction, composition, and SOLID design. |
 | [Gradle](gradle.md) | Build scripts, convention plugins, catalogs, included builds, and custom tasks. |
 | [Repository hygiene](repository-hygiene.md) | Temporary artifacts, generated output, and safe module retirement. |

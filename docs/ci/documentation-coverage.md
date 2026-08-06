@@ -4,6 +4,14 @@
 for changes that can alter CI, Figma, the documentation system, or the product
 module graph.
 
+The `product-design-contract` rule keeps user-visible implementation contracts
+connected to their design sources. Changes to checked-in Code Connect mappings,
+MVI state/action/effect contracts, or product `.feature` files require a review
+of the product-design standard, testing or Compose standard, design guide,
+workspace reference, or owning module documentation. Figma-only changes remain
+outside Git detection and must be reconciled manually through the same design
+workflow before implementation.
+
 `checkDocumentation` is the Gradle-owned verification entry point. Its Kotlin
 domain service checks the typed documentation contract from
 `docs/documentation.md`: canonical placement, frontmatter, review dates,

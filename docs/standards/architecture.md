@@ -9,6 +9,7 @@ review-cycle-days: 180
 sources:
   - build.gradle.kts
   - settings.gradle.kts
+  - docs/decisions/adr-0015-use-room-and-proto-datastore-for-product-persistence.md
   - docs/reference/project-structure.md
   - docs/standards/error-handling.md
   - repo/gradle-plugins
@@ -21,8 +22,8 @@ sources:
 
 ## Purpose
 
-Define dependency direction and ownership for production Android code without
-committing the project to infrastructure that has not yet been selected.
+Define dependency direction and ownership for production Android code while
+keeping selected infrastructure behind explicit adapter boundaries.
 
 ## Module Boundaries
 
@@ -40,6 +41,26 @@ committing the project to infrastructure that has not yet been selected.
 The existing greeting classes in `:app` are scaffold code, not an architectural
 precedent for future production features.
 
+## Feature Slices
+
+Organize product behavior by capability before introducing technical layers.
+A feature MAY expose `ui`, `domain`, and `data` modules when each module has a
+durable consumer or dependency boundary. When those boundaries are not yet
+demonstrated, keep the capability cohesive in one module and separate its
+responsibilities with meaningful packages.
+
+When a feature has all three boundaries, use this dependency direction:
+
+```text
+:app -> :feature:ui -> :feature:domain
+:app -> :feature:data -> :feature:domain
+```
+
+`:app` selects the data adapter and assembles it with the feature UI. The domain
+module MUST NOT depend on the UI, the data adapter, `:app`, or Android framework
+types. A layer name alone does not justify a module; add the module only when its
+independent API, consumers, or verification boundary makes the split durable.
+
 ## Dependency Direction
 
 New domain behavior MUST depend on abstractions it owns, not concrete Android,
@@ -49,6 +70,46 @@ interfaces but domain code MUST remain free of Android framework types.
 
 Cross-layer types MUST be explicit. Transport DTOs, persistence entities, and
 Compose state are not domain models and MUST NOT leak across their boundary.
+
+## Ports, Adapters, And Boundary Models
+
+A capability that needs external state or behavior MUST define the narrow port
+required by its inward-facing consumer. A filesystem, database, network, or
+Android implementation is an adapter that depends on that port and translates
+its vendor contract at the boundary.
+
+Adapters MUST map transport DTOs and persistence entities explicitly to domain
+models. Mapping MUST preserve domain invariants and translate malformed or
+unsupported external values into the consumer-owned typed error contract. Add
+an additional data-source or DAO interface only when it isolates an independently
+consumed capability, failure contract, or variation point; a second interface
+that merely mirrors and forwards every repository operation is prohibited.
+
+Product persistence follows
+[ADR-0015](../decisions/adr-0015-use-room-and-proto-datastore-for-product-persistence.md):
+Room owns relational product data and Proto DataStore owns small typed settings.
+Do not use DataStore for relational entity collections or Room for a single
+settings document.
+
+Every production schema MUST have explicit ownership, evolution, migration,
+failure handling, and recovery. A production migration MUST preserve user data.
+Destructive reset is permitted only for explicitly disposable development or
+test state and MUST NOT be the fallback for an unknown production schema.
+Room entities, DAOs, DataStore serializers, and generated Protocol Buffers
+messages remain adapter types and MUST NOT cross the domain boundary.
+
+## Application Services And Use Cases
+
+Represent a business intention with a focused use case or application service
+when it enforces a domain rule, coordinates ports, or gives a consumer a stable
+operation such as creating, observing, or deleting a plant. Prefer one concrete
+operation with explicit input, success, and error types.
+
+A use case that only forwards one call without adding a consumer boundary,
+policy, or orchestration SHOULD be replaced by the narrow port or focused
+concrete behavior. Shared marker interfaces, abstract `UseCase` base classes,
+and generic bundles of unrelated use cases are prohibited unless multiple real
+consumers demonstrate a substitutable contract.
 
 ## Public API
 
@@ -164,6 +225,7 @@ retirement.
 
 - `build.gradle.kts`
 - `settings.gradle.kts`
+- `docs/decisions/adr-0015-use-room-and-proto-datastore-for-product-persistence.md`
 - `docs/reference/project-structure.md`
 - `docs/standards/error-handling.md`
 - `repo/gradle-plugins/`

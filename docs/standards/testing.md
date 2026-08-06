@@ -4,7 +4,7 @@ type: standard
 scope: repository
 owner: quality
 status: active
-last-reviewed: 2026-07-28
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
   - repo/gradle-plugins/unit-test
@@ -14,6 +14,7 @@ sources:
   - app/src/test/resources/features
   - repo/verification-platform/domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd
   - repo/figma-documentation-sync/plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd
+  - docs/standards/product-design.md
 ---
 
 # Testing Standard
@@ -54,10 +55,17 @@ sources:
 
 ## BDD And TDD Workflow
 
+- User-visible behavior MUST begin with the OOUX objects, action consequences,
+  and representative BDD examples required by the
+  [product design standard](product-design.md). Figma owns this approved design
+  intent before implementation; it does not claim that the behavior is shipped.
 - Product and infrastructure behavior MUST be clarified with concrete examples
   before implementation when a change introduces or alters an observable rule.
 - A `.feature` file SHOULD be created or updated before production code when
   the behavior is important enough to remain executable living documentation.
+- An approved product-design example that expresses stable business behavior
+  MUST be mirrored into the owning `.feature` file when implementation begins.
+  The scenario uses the same object and action vocabulary as the OOUX contract.
 - Implementation details SHOULD be developed in short TDD cycles with the
   smallest deterministic Kotlin test that drives the design.
 - Gherkin MUST NOT replace focused unit, adapter-contract, integration, Compose
@@ -69,6 +77,10 @@ sources:
 ## Living Documentation
 
 - Gherkin describes what behavior the system guarantees and why it matters.
+- OOUX and adjacent BDD examples in Figma describe approved future product
+  intent. After implementation starts, repository Gherkin owns the executable
+  representative behavior; changes to user-visible semantics are reconciled
+  back into both artifacts.
 - KDoc and generated Dokka describe the public and internal Kotlin API, parameters,
   invariants, and technical usage that implement those guarantees.
 - KtLint owns mechanical Kotlin and KDoc formatting; it does not establish that

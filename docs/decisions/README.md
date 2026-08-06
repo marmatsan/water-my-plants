@@ -20,3 +20,6 @@ ADRs explain durable project decisions and their tradeoffs. Use
 | [ADR-0012](adr-0012-coordinate-repository-gradle-plugin-releases.md) | Accepted | Release repository convention plugins together and derive accurate plugin usage in Figma. |
 | [ADR-0013](adr-0013-use-reusable-project-config.md) | Accepted | Configure products through one reusable project-config included build and inline Kotlin catalog trees. |
 | [ADR-0014](adr-0014-use-canonical-code-generation-decisions.md) | Accepted | Use typed documentation as the canonical decision system and keep specifications, agents, and skills in focused roles. |
+| [ADR-0015](adr-0015-use-room-and-proto-datastore-for-product-persistence.md) | Accepted | Use Room for relational product data and Proto DataStore for small typed settings. |
+| [ADR-0016](adr-0016-use-ktor-and-kotlin-serialization-for-product-apis.md) | Accepted | Use Ktor Client and Kotlin Serialization JSON for product APIs. |
+| [ADR-0017](adr-0017-use-ooux-and-bdd-before-product-implementation.md) | Accepted | Define user-visible behavior through OOUX, Figma, and BDD before implementation. |

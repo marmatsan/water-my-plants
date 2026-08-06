@@ -5,6 +5,7 @@ that govern them.
 
 | Guide | Outcome |
 |-------|---------|
+| [Design a product feature](design-product-feature.md) | Define OOUX objects and actions, wireframe and visual design, BDD, and Code Connect before implementation. |
 | [Add a module](add-module.md) | Register and document a product Gradle module. |
 | [Add a feature](add-feature.md) | Introduce a feature without breaking module boundaries. |
 | [Add an API endpoint](add-api-endpoint.md) | Add transport and domain behavior without leaking client types. |

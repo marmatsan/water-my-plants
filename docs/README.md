@@ -29,10 +29,12 @@ them.
 - [ADR-0009: Separate the Product Catalog From Build-Tool Versions](decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md)
 - [ADR-0010: Isolate Product Composition From Reusable Builds](decisions/adr-0010-isolate-product-composition-from-reusable-builds.md)
 - [ADR-0011: Standardize Typed Errors With kotlin-result](decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md)
+- [ADR-0017: Use OOUX And BDD Before Product Implementation](decisions/adr-0017-use-ooux-and-bdd-before-product-implementation.md)
 
 ## Engineering Standards
 
 - [Code-Generation Standard](standards/code-generation.md)
+- [Product Design Standard](standards/product-design.md)
 - [Product Architecture Standard](standards/architecture.md)
 - [Gradle Build Standard](standards/gradle.md)
 - [Repository Hygiene Standard](standards/repository-hygiene.md)
@@ -42,6 +44,8 @@ them.
 ## Code-Generation Reference
 
 - [Code-Generation Context Map](reference/code-generation-context.md)
+- [Product Design Workspace](reference/product-design-workspace.md)
+- [Design A Product Feature](guides/design-product-feature.md)
 - [Active Specifications](../specs/README.md)
 
 ## CI References

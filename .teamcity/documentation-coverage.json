@@ -122,9 +122,33 @@
         "docs/decisions/adr-0009-separate-product-catalog-from-build-tool-versions.md",
         "docs/decisions/adr-0010-isolate-product-composition-from-reusable-builds.md",
         "docs/decisions/adr-0011-standardize-typed-errors-with-kotlin-result.md",
+        "docs/decisions/adr-0015-use-room-and-proto-datastore-for-product-persistence.md",
+        "docs/decisions/adr-0016-use-ktor-and-kotlin-serialization-for-product-apis.md",
+        "docs/standards/api-client.md",
+        "docs/standards/architecture.md",
         "docs/standards/error-handling.md",
+        "docs/reference/product-technology-stack.md",
         "docs/reference/project-structure.md",
         "repo/figma-documentation-sync/docs/reference/target-scopes.md"
+      ]
+    },
+    {
+      "id": "product-design-contract",
+      "sourcePaths": [
+        "*/ui/src/main/kotlin/*/figma/*.figma.kt",
+        "*/ui/src/main/kotlin/*/*UiAction.kt",
+        "*/ui/src/main/kotlin/*/*UiEffect.kt",
+        "*/ui/src/main/kotlin/*/*UiState.kt",
+        "*/src/test/resources/features/*.feature"
+      ],
+      "documentationPaths": [
+        "docs/standards/product-design.md",
+        "docs/standards/testing.md",
+        "docs/standards/compose.md",
+        "docs/guides/design-product-feature.md",
+        "docs/reference/product-design-workspace.md",
+        "*/docs/README.md",
+        "*/*/docs/README.md"
       ]
     },
     {
