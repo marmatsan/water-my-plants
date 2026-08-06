@@ -38,13 +38,13 @@ provider-specific protection and CI details remain in
 
 ### Short-Lived Branches
 
-| Branch | Purpose | Example |
-|--------|---------|---------|
-| `feature/<short-description>` | New user or system capability. | `feature/plant-reminders` |
-| `fix/<short-description>` | Ordinary defect correction. | `fix/watering-date-calculation` |
-| `chore/<short-description>` | Documentation, CI, dependencies, or maintenance. | `chore/git-branching-strategy` |
-| `release/<x.y.z>` | Exceptional stabilization for one release. | `release/1.4.0` |
-| `hotfix/<short-description>` | Urgent production correction. | `hotfix/reminder-crash` |
+| Branch                        | Purpose                                          | Example                         |
+|-------------------------------|--------------------------------------------------|---------------------------------|
+| `feature/<short-description>` | New user or system capability.                   | `feature/plant-reminders`       |
+| `fix/<short-description>`     | Ordinary defect correction.                      | `fix/watering-date-calculation` |
+| `chore/<short-description>`   | Documentation, CI, dependencies, or maintenance. | `chore/git-branching-strategy`  |
+| `release/<x.y.z>`             | Exceptional stabilization for one release.       | `release/1.4.0`                 |
+| `hotfix/<short-description>`  | Urgent production correction.                    | `hotfix/reminder-crash`         |
 
 - Branches MUST start from the current `main`.
 - Descriptions MUST use lowercase English `kebab-case` containing letters,

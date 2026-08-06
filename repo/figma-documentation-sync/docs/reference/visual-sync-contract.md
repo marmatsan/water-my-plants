@@ -167,11 +167,11 @@ range. Layer names are presentation details and are not hyperlink selectors.
 
 The reserved component hierarchy is:
 
-| Owner | Direct slot container | Component | Exposed slots |
-|-------|-----------------------|-----------|---------------|
-| `.ci node` | `execution plan` | `.ci phase` (`64668:2944`) | `phase 01` through `phase 08` |
-| `.ci phase` | `steps` | `.ci step` (`64665:2991`) | `step 01` through `step 08` |
-| `.ci node` | `outcome` | `.ci outcome` (`64669:3118`) | `outcome 01` through `outcome 04` |
+| Owner       | Direct slot container | Component                    | Exposed slots                     |
+|-------------|-----------------------|------------------------------|-----------------------------------|
+| `.ci node`  | `execution plan`      | `.ci phase` (`64668:2944`)   | `phase 01` through `phase 08`     |
+| `.ci phase` | `steps`               | `.ci step` (`64665:2991`)    | `step 01` through `step 08`       |
+| `.ci node`  | `outcome`             | `.ci outcome` (`64669:3118`) | `outcome 01` through `outcome 04` |
 
 The corresponding limits are 8 phases per node, 8 steps per phase, and 4
 outcomes per node. Masters keep every slot visible; generated instances reveal
@@ -278,13 +278,13 @@ colors to Figma variables. The `CI connector colors` collection and the legend
 in the component documentation area mirror this palette for readers, but they
 are not runtime dependencies of the sync.
 
-| Kind | Meaning | Direct stroke |
-|------|---------|---------------|
-| `control` | Trigger, command, scheduling, gate, or rerun flow | `#0067C0` |
-| `data` | Source, artifact, model, metadata, or visual payload | `#7A3E9D` |
-| `status` | Check, result, or status publication | `#2E7D32` |
-| `attention` | Mismatch or operator action required | `#C62828` |
-| `neutral` | Reserved contextual relation with no stronger semantic kind | `#6B7280` |
+| Kind        | Meaning                                                     | Direct stroke |
+|-------------|-------------------------------------------------------------|---------------|
+| `control`   | Trigger, command, scheduling, gate, or rerun flow           | `#0067C0`     |
+| `data`      | Source, artifact, model, metadata, or visual payload        | `#7A3E9D`     |
+| `status`    | Check, result, or status publication                        | `#2E7D32`     |
+| `attention` | Mismatch or operator action required                        | `#C62828`     |
+| `neutral`   | Reserved contextual relation with no stronger semantic kind | `#6B7280`     |
 
 Color never replaces the native connection label. Keep both the label and kind
 stable in the plan so the visual meaning survives every granular or canonical

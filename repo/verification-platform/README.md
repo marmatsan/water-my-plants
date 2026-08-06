@@ -9,11 +9,11 @@ locally and by CI adapters.
 
 This directory is an included Gradle build with three modules:
 
-| Path | Role |
-|------|------|
+| Path      | Role                                                                                                                                           |
+|-----------|------------------------------------------------------------------------------------------------------------------------------------------------|
 | `domain/` | Provider-neutral plans, topology, module-impact rules, ports, and services. It has no Gradle, TeamCity, Git, filesystem, or HTTP dependencies. |
-| `data/` | Git, filesystem, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries. |
-| `plugin/` | Reusable Gradle tasks and the `com.marmatsan.verificationPlatform` configuration API. |
+| `data/`   | Git, filesystem, Gradle-model, JSON, TeamCity REST, parameter, and service-message adapters that implement domain boundaries.                  |
+| `plugin/` | Reusable Gradle tasks and the `com.marmatsan.verificationPlatform` configuration API.                                                          |
 
 The dependency direction is `plugin -> data -> domain`; `plugin` may also use
 domain types while composing tasks. The included build keeps a root `check`

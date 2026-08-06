@@ -29,19 +29,19 @@ parallel without changing this contract.
 `generateCiPlan` writes schema version `5` to
 `build/reports/ci/ci-plan.json` with:
 
-| Field | Meaning |
-|-------|---------|
-| `schemaVersion` | Version of the JSON compatibility contract. |
-| `mode` | `enforced` when provider execution decisions are derived from this plan. |
-| `comparisonBase` | Git revision used as the start of the committed diff. |
-| `head` | Exact revision being planned. |
-| `scope` | Primary path classification for reporting. |
-| `changedFiles` | Normalized repository-relative paths. |
-| `changedModules` | Gradle modules that own changed implementation paths. |
-| `affectedModules` | Changed modules plus all transitive reverse dependents. |
+| Field               | Meaning                                                                         |
+|---------------------|---------------------------------------------------------------------------------|
+| `schemaVersion`     | Version of the JSON compatibility contract.                                     |
+| `mode`              | `enforced` when provider execution decisions are derived from this plan.        |
+| `comparisonBase`    | Git revision used as the start of the committed diff.                           |
+| `head`              | Exact revision being planned.                                                   |
+| `scope`             | Primary path classification for reporting.                                      |
+| `changedFiles`      | Normalized repository-relative paths.                                           |
+| `changedModules`    | Gradle modules that own changed implementation paths.                           |
+| `affectedModules`   | Changed modules plus all transitive reverse dependents.                         |
 | `verificationUnits` | Allow-listed work units, dependencies, capabilities, Gradle tasks, and reasons. |
-| `fullVerification` | Whether root `check` remains required. |
-| `fallbackReason` | Fail-closed explanation when targeted classification is unsafe. |
+| `fullVerification`  | Whether root `check` remains required.                                          |
+| `fallbackReason`    | Fail-closed explanation when targeted classification is unsafe.                 |
 
 Stable verification unit identifiers are `git-workflow`, `documentation`,
 `repository-diff`, `teamcity-dsl`, `tooling`, `build-infrastructure`,
@@ -81,17 +81,17 @@ de-duplicated, allow-listed task list. TeamCity passes that value to one Gradle
 invocation after agent preflight and does not implement individual verification
 rules:
 
-| Plan unit | TeamCity execution |
-|-----------|--------------------|
-| `git-workflow` | Always select `checkGitWorkflow` using TeamCity's server-resolved logical branch name. |
-| `documentation` | Always select `checkDocumentation`. |
-| `repository-diff` | Select `checkRepositoryDiff` for documentation-only changes. |
-| `teamcity-dsl` | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution. |
-| `tooling` | Uses the configured tooling paths/capabilities and is coalesced into heavy Gradle verification on the single agent. |
-| `build-infrastructure` | Selects the configured architecture, version-ownership, and module-boundary tasks. Water My Plants binds these to `checkDependencyCatalogArchitecture`, `checkIncludedBuildVersions`, and `checkModuleBoundaries`. |
+| Plan unit               | TeamCity execution                                                                                                                                                                                                                                           |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `git-workflow`          | Always select `checkGitWorkflow` using TeamCity's server-resolved logical branch name.                                                                                                                                                                       |
+| `documentation`         | Always select `checkDocumentation`.                                                                                                                                                                                                                          |
+| `repository-diff`       | Select `checkRepositoryDiff` for documentation-only changes.                                                                                                                                                                                                 |
+| `teamcity-dsl`          | Select `checkTeamCityDsl` when `.teamcity` changes; the task owns Maven-wrapper execution.                                                                                                                                                                   |
+| `tooling`               | Uses the configured tooling paths/capabilities and is coalesced into heavy Gradle verification on the single agent.                                                                                                                                          |
+| `build-infrastructure`  | Selects the configured architecture, version-ownership, and module-boundary tasks. Water My Plants binds these to `checkDependencyCatalogArchitecture`, `checkIncludedBuildVersions`, and `checkModuleBoundaries`.                                           |
 | `portable-distribution` | Selects the configured staged-consumer aggregate. Water My Plants binds this to `verifyPortableDistribution`, which independently stages and consumes Dependency Catalog, Figma Documentation Sync, Gradle Plugins, Unit Testing, and Verification Platform. |
-| `gradle-verification` | Select affected module checks plus catalog usage for safe module-only changes; otherwise select root `check`. |
-| `publish-reports` | Publish `build/reports/ci` through the job artifact contract. |
+| `gradle-verification`   | Select affected module checks plus catalog usage for safe module-only changes; otherwise select root `check`.                                                                                                                                                |
+| `publish-reports`       | Publish `build/reports/ci` through the job artifact contract.                                                                                                                                                                                                |
 
 This topology keeps one checkout, one agent allocation, one Gradle-owned
 verification API, and one authoritative GitHub status. Units remain explicit
@@ -105,11 +105,11 @@ classification policy.
 `preview-only` contract: the active TeamCity Kotlin DSL does not read it and
 continues to define one `Verify` job while only one agent exists.
 
-| Available agents | Previewed execution |
-|------------------|---------------------|
-| `1` | One `verify` lane runs every required unit sequentially and publishes the authoritative status. |
-| `2` | `documentation` runs first; `supplemental-verification` and `gradle-verification` may then run in parallel; `ci-gate` waits for both and publishes the status. |
-| `3+` | `documentation` runs first; repository, tooling, and Gradle lanes may then run in parallel; `ci-gate` waits for every required lane and publishes the status. |
+| Available agents | Previewed execution                                                                                                                                            |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `1`              | One `verify` lane runs every required unit sequentially and publishes the authoritative status.                                                                |
+| `2`              | `documentation` runs first; `supplemental-verification` and `gradle-verification` may then run in parallel; `ci-gate` waits for both and publishes the status. |
+| `3+`             | `documentation` runs first; repository, tooling, and Gradle lanes may then run in parallel; `ci-gate` waits for every required lane and publishes the status.  |
 
 The planner omits empty lanes, derives lane capabilities from their units, and
 preserves every required dependency. It fails when no agent is available,
@@ -129,10 +129,10 @@ The ten most recent successful `main` CI pipeline heads before this rollout
 (TeamCity runs `1615` through `1685`, sampled on 2026-07-19) establish the
 comparison baseline:
 
-| Metric | Minimum | Median | Maximum |
-|--------|---------|--------|---------|
-| Queue wait | 19 s | 28.5 s | 47 s |
-| Aggregate execution | 21 s | 41.5 s | 51 s |
+| Metric              | Minimum | Median | Maximum |
+|---------------------|---------|--------|---------|
+| Queue wait          | 19 s    | 28.5 s | 47 s    |
+| Aggregate execution | 21 s    | 41.5 s | 51 s    |
 
 Enforced selection records the same metrics for documentation-only,
 module-only, tooling, and full-verification changes. A targeted path must not

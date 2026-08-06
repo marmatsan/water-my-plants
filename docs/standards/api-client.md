@@ -4,21 +4,25 @@ type: standard
 scope: product-data
 owner: data
 status: active
-last-reviewed: 2026-07-18
+last-reviewed: 2026-08-06
 review-cycle-days: 180
 sources:
+  - docs/decisions/adr-0016-use-ktor-and-kotlin-serialization-for-product-apis.md
   - docs/standards/architecture.md
+  - docs/reference/product-technology-stack.md
   - versions.properties
 ---
 
 # API Client Standard
 
-## Current Boundary
+## Selected Stack
 
-The repository has not selected an HTTP client or serialization stack for
-production APIs. That selection MUST be recorded in an ADR when the first real
-endpoint is implemented. This standard defines the boundary independently of
-that library choice.
+Product API adapters use Ktor Client with Kotlin Serialization JSON as selected
+by
+[ADR-0016](../decisions/adr-0016-use-ktor-and-kotlin-serialization-for-product-apis.md).
+The first production endpoint activates the root product aliases and chooses
+the Android-compatible Ktor engine. Included-build Ktor dependencies under
+`repo/` are implementation evidence, not product catalog ownership.
 
 ## Transport Isolation
 
@@ -29,6 +33,15 @@ that library choice.
 - DTO-to-domain mapping MUST be explicit and tested.
 - Endpoint paths, base URLs, authentication, timeouts, and retry policy MUST be
   configured centrally for a client instance.
+
+## Serialization
+
+- Request and response DTOs use Kotlin Serialization and remain inside the
+  transport adapter.
+- One centrally configured `Json` instance owns unknown-key, default,
+  nullability, and enum-evolution behavior for an API boundary.
+- Protocol Buffers is the selected Proto DataStore schema format. An API uses
+  it instead of JSON only when the server contract explicitly requires it.
 
 ## Errors And Cancellation
 
@@ -56,5 +69,7 @@ deterministic server rather than the real service.
 
 ## Sources
 
+- `docs/decisions/adr-0016-use-ktor-and-kotlin-serialization-for-product-apis.md`
 - `docs/standards/architecture.md`
+- `docs/reference/product-technology-stack.md`
 - `versions.properties`

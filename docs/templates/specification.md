@@ -35,8 +35,8 @@ Describe the current behavior, problem, consumers, and constraints.
 
 ## Decision Log
 
-| Date | Decision | Durable destination |
-|------|----------|---------------------|
+| Date       | Decision                   | Durable destination                                        |
+|------------|----------------------------|------------------------------------------------------------|
 | YYYY-MM-DD | Record an approved choice. | ADR, standard, reference, guide, runbook, test, or schema. |
 
 ## Sources

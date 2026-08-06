@@ -83,17 +83,17 @@ These resources explain what the current feature language means in the real
 project. They are supporting documentation, not the preferred wording for
 Gherkin steps.
 
-| Feature language                               | Runtime resource or adapter                                                                                  | Test double or setup                                         |
-|------------------------------------------------|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `repository versions are available`            | Configured product versions through `RepositoryVersionsPort`                                           | `FakeRepositoryVersionsPort` in `DesignModelSteps.kt`        |
-| `repository catalog trees are available`       | Product-adapter trees and configured included-build usage through `ProjectCatalogTreesPort` | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
-| `repository project modules are available`     | `settings.gradle.kts` and configured included-build settings files through `ProjectModulesPort`                     | `FakeProjectModulesPort` in `DesignModelSteps.kt`            |
-| `repository module dependencies are available` | Project `build.gradle.kts` dependency blocks through `ProjectModuleDependenciesPort`                         | `FakeProjectModuleDependenciesPort` in `DesignModelSteps.kt` |
-| `the external CI topology is available`         | `docs/ci/external-topology.yaml` through `CiExternalTopologyPort`                                            | `FakeCiExternalTopologyPort` in `DesignModelSteps.kt`        |
-| `the Windows CI runtime is available`           | `docs/ci/windows-runtime.yaml` through `CiWindowsRuntimePort`                                                | `FakeCiWindowsRuntimePort` in `DesignModelSteps.kt`          |
-| `the effective TeamCity configuration is available` | `.teamcity/target/generated-configs` through `TeamCityConfigurationPort`                                  | `FakeTeamCityConfigurationPort` in `DesignModelSteps.kt`     |
-| `the design model is generated`                | `FigmaDesignModelGenerator` producing the in-memory design model                                             | Direct generator call from `DesignModelSteps.kt`             |
-| `generateFigmaDesignModel runs`                | Gradle task writing `build/reports/figma-sync/design-model.json`                                             | Temporary Gradle project assembled by `GradleTaskSteps.kt`   |
+| Feature language                                    | Runtime resource or adapter                                                                     | Test double or setup                                         |
+|-----------------------------------------------------|-------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| `repository versions are available`                 | Configured product versions through `RepositoryVersionsPort`                                    | `FakeRepositoryVersionsPort` in `DesignModelSteps.kt`        |
+| `repository catalog trees are available`            | Product-adapter trees and configured included-build usage through `ProjectCatalogTreesPort`     | `FakeProjectCatalogTreesPort` in `DesignModelSteps.kt`       |
+| `repository project modules are available`          | `settings.gradle.kts` and configured included-build settings files through `ProjectModulesPort` | `FakeProjectModulesPort` in `DesignModelSteps.kt`            |
+| `repository module dependencies are available`      | Project `build.gradle.kts` dependency blocks through `ProjectModuleDependenciesPort`            | `FakeProjectModuleDependenciesPort` in `DesignModelSteps.kt` |
+| `the external CI topology is available`             | `docs/ci/external-topology.yaml` through `CiExternalTopologyPort`                               | `FakeCiExternalTopologyPort` in `DesignModelSteps.kt`        |
+| `the Windows CI runtime is available`               | `docs/ci/windows-runtime.yaml` through `CiWindowsRuntimePort`                                   | `FakeCiWindowsRuntimePort` in `DesignModelSteps.kt`          |
+| `the effective TeamCity configuration is available` | `.teamcity/target/generated-configs` through `TeamCityConfigurationPort`                        | `FakeTeamCityConfigurationPort` in `DesignModelSteps.kt`     |
+| `the design model is generated`                     | `FigmaDesignModelGenerator` producing the in-memory design model                                | Direct generator call from `DesignModelSteps.kt`             |
+| `generateFigmaDesignModel runs`                     | Gradle task writing `build/reports/figma-sync/design-model.json`                                | Temporary Gradle project assembled by `GradleTaskSteps.kt`   |
 
 ## Generated Design Model Contract
 
@@ -109,17 +109,17 @@ verify against `main`.
 
 The contract has these inputs:
 
-| Input concept            | Runtime source                                                                                           |
-|--------------------------|----------------------------------------------------------------------------------------------------------|
-| Repository metadata      | Current branch, current git SHA, and generation timestamp                                                |
-| Versions                 | Configured product versions file                                                                        |
-| Version sections         | Ordered sections from the configured product versions file                                                  |
+| Input concept            | Runtime source                                                                                    |
+|--------------------------|---------------------------------------------------------------------------------------------------|
+| Repository metadata      | Current branch, current git SHA, and generation timestamp                                         |
+| Versions                 | Configured product versions file                                                                  |
+| Version sections         | Ordered sections from the configured product versions file                                        |
 | Catalog trees            | Trees supplied through the Figma-owned catalog port plus configured included-build usage metadata |
-| Project modules          | Root and configured included-build Gradle settings                                                          |
-| Module dependency graphs | Parsed `build.gradle.kts` dependency blocks for root and configured included-build modules                  |
-| External CI topology     | `docs/ci/external-topology.yaml`                                                                            |
-| Windows CI runtime       | `docs/ci/windows-runtime.yaml`                                                                              |
-| Effective TeamCity model | Generated XML and YAML under `.teamcity/target/generated-configs`                                           |
+| Project modules          | Root and configured included-build Gradle settings                                                |
+| Module dependency graphs | Parsed `build.gradle.kts` dependency blocks for root and configured included-build modules        |
+| External CI topology     | `docs/ci/external-topology.yaml`                                                                  |
+| Windows CI runtime       | `docs/ci/windows-runtime.yaml`                                                                    |
+| Effective TeamCity model | Generated XML and YAML under `.teamcity/target/generated-configs`                                 |
 
 The contract has one main output:
 
@@ -130,14 +130,14 @@ The contract has one main output:
 `content` is the stable body of that artifact and participates in
 `modelHash`. It contains these sections:
 
-| Content key          | Meaning                                                                                                      |
-|----------------------|--------------------------------------------------------------------------------------------------------------|
-| `versions`           | Sorted flat map of version keys referenced by visible production catalog nodes, used for deterministic comparison. |
-| `versionSections`    | Ordered groups from the configured product versions file, filtered to visible references while preserving empty sections for cleanup. |
+| Content key          | Meaning                                                                                                                                                                                     |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `versions`           | Sorted flat map of version keys referenced by visible production catalog nodes, used for deterministic comparison.                                                                          |
+| `versionSections`    | Ordered groups from the configured product versions file, filtered to visible references while preserving empty sections for cleanup.                                                       |
 | `catalogs`           | Dependency and plugin trees for Water My Plants, configured included builds, custom Gradle convention plugins, and plugins, including direct and convention-plugin-provided usage metadata. |
-| `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                            |
-| `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                      |
-| `ci`                 | Versioned external topology, Windows service runtime, and effective TeamCity pipelines, jobs, triggers, artifacts, checks, and VCS roots. |
+| `modules`            | Sorted Gradle module paths discovered from root and configured included-build settings files.                                                                                               |
+| `moduleDependencies` | Main and configured included-build module dependency edges, grouped by graph scope.                                                                                                         |
+| `ci`                 | Versioned external topology, Windows service runtime, and effective TeamCity pipelines, jobs, triggers, artifacts, checks, and VCS roots.                                                   |
 
 The current executable scenarios assert these guarantees:
 
@@ -200,8 +200,8 @@ The Figma import runbook and helper scripts for this module live in:
 
 ## Current Contracts
 
-| Contract                               | Executable source | Step glue  | UML diagram | Figma publication                                     |
-|----------------------------------------|-------------------|------------|-------------|-------------------------------------------------------|
+| Contract                               | Executable source | Step glue  | UML diagram | Figma publication                                            |
+|----------------------------------------|-------------------|------------|-------------|--------------------------------------------------------------|
 | Generated `design-model.json` artifact | [feature][1]      | [steps][2] | [uml][3]    | `figmaDocumentationSync` / `figma-design-model-feature.puml` |
 
 [1]: ../../plugin/src/test/resources/com/marmatsan/figmaDocumentationSync/plugin/bdd/figma-design-model.feature

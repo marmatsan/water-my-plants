@@ -128,12 +128,12 @@ do not break them. Literal command content remains in the linked TeamCity DSL.
 
 The visual model uses four composable components:
 
-| Component | Reading purpose |
-|-----------|-----------------|
-| `.ci node` | Identifies the actor, system, pipeline, job, artifact, check, or gate and summarizes its responsibility. |
-| `.ci phase` | Represents one ordered TeamCity build step and owns its Gradle-task detail. |
-| `.ci step` | Represents a Gradle action, runtime decision, or compact task group inside one phase. |
-| `.ci outcome` | Represents a published artifact or GitHub check after successful job execution. |
+| Component     | Reading purpose                                                                                          |
+|---------------|----------------------------------------------------------------------------------------------------------|
+| `.ci node`    | Identifies the actor, system, pipeline, job, artifact, check, or gate and summarizes its responsibility. |
+| `.ci phase`   | Represents one ordered TeamCity build step and owns its Gradle-task detail.                              |
+| `.ci step`    | Represents a Gradle action, runtime decision, or compact task group inside one phase.                    |
+| `.ci outcome` | Represents a published artifact or GitHub check after successful job execution.                          |
 
 The semantic composition is `.ci node` -> `.ci phase` -> `.ci step`, with
 `.ci outcome` as a sibling result under `.ci node`. The Figma layout places
@@ -152,11 +152,11 @@ display metadata.
 
 The stable capacity is:
 
-| Owner | Slot container | Exposed slots | Capacity |
-|-------|----------------|---------------|----------|
-| `.ci node` | `execution plan` | `phase 01` through `phase 08` | 8 phases |
-| `.ci phase` | `steps` | `step 01` through `step 08` | 8 steps per phase |
-| `.ci node` | `outcome` | `outcome 01` through `outcome 04` | 4 outcomes |
+| Owner       | Slot container   | Exposed slots                     | Capacity          |
+|-------------|------------------|-----------------------------------|-------------------|
+| `.ci node`  | `execution plan` | `phase 01` through `phase 08`     | 8 phases          |
+| `.ci phase` | `steps`          | `step 01` through `step 08`       | 8 steps per phase |
+| `.ci node`  | `outcome`        | `outcome 01` through `outcome 04` | 4 outcomes        |
 
 Every slot is visible in its master component so maintainers can inspect the
 complete composition. Generated instances reveal only populated slots and hide
@@ -217,11 +217,11 @@ fails when the binding is missing or duplicated.
 
 Use the step variants consistently:
 
-| Variant axis | Value | Meaning |
-|--------------|-------|---------|
-| `role` | `action` | Work executed by TeamCity or Gradle. |
-| `role` | `decision` | A runtime selection or branch in the verification plan. |
-| `role` | `group` | A compact family of tasks selected by the same impact rule. |
+| Variant axis | Value      | Meaning                                                     |
+|--------------|------------|-------------------------------------------------------------|
+| `role`       | `action`   | Work executed by TeamCity or Gradle.                        |
+| `role`       | `decision` | A runtime selection or branch in the verification plan.     |
+| `role`       | `group`    | A compact family of tasks selected by the same impact rule. |
 
 `role=group` keeps the exact identifiers in the typed `technicalId` field but
 projects them through the component's public `tasks` property. The value is one

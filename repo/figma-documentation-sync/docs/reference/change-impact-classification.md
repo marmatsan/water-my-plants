@@ -56,13 +56,13 @@ build/reports/figma-sync/change-impact.json
 
 The contract contains:
 
-| Field | Meaning |
-|-------|---------|
-| `scope` | Repository verification scope. |
-| `figmaImpact` | Kind of possible Figma change. |
+| Field                   | Meaning                                                                      |
+|-------------------------|------------------------------------------------------------------------------|
+| `scope`                 | Repository verification scope.                                               |
+| `figmaImpact`           | Kind of possible Figma change.                                               |
 | `affectedVisualTargets` | Smallest configured writer targets, or `all` when a writer path is unmapped. |
-| `comparisonBase` | Git revision used as the diff base. |
-| `changedPaths` | Normalized repository-relative paths classified by the task. |
+| `comparisonBase`        | Git revision used as the diff base.                                          |
+| `changedPaths`          | Normalized repository-relative paths classified by the task.                 |
 
 ## Classification Precedence
 

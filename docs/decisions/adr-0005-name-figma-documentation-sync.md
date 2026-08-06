@@ -34,15 +34,15 @@ existing consumer.
 Name the subsystem and its portable distribution **Figma Documentation Sync**.
 Use these public identities:
 
-| Surface | Identity |
-|---------|----------|
-| Repository path and included build | `repo/figma-documentation-sync`, `figma-documentation-sync` |
-| Kotlin package | `com.marmatsan.figmaDocumentationSync` |
-| Portable Gradle plugin | `com.marmatsan.figmaDocumentationSync` |
-| Reusable project-config adapter | `com.marmatsan.projectConfig.figma` |
-| Maven group and core artifacts | `com.marmatsan.figma-documentation-sync:{domain,data,plugin}` |
-| TypeScript package and executable | `@marmatsan/figma-documentation-sync-tools`, `figma-documentation-sync-build` |
-| Gradle extension | `figmaDocumentationSync` |
+| Surface                            | Identity                                                                      |
+|------------------------------------|-------------------------------------------------------------------------------|
+| Repository path and included build | `repo/figma-documentation-sync`, `figma-documentation-sync`                   |
+| Kotlin package                     | `com.marmatsan.figmaDocumentationSync`                                        |
+| Portable Gradle plugin             | `com.marmatsan.figmaDocumentationSync`                                        |
+| Reusable project-config adapter    | `com.marmatsan.projectConfig.figma`                                           |
+| Maven group and core artifacts     | `com.marmatsan.figma-documentation-sync:{domain,data,plugin}`                 |
+| TypeScript package and executable  | `@marmatsan/figma-documentation-sync-tools`, `figma-documentation-sync-build` |
+| Gradle extension                   | `figmaDocumentationSync`                                                      |
 
 Do not add aliases for the pre-publication identities.
 

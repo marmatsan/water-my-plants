@@ -22,14 +22,14 @@ considered synchronized only when the configured metadata page stores the same
 This runbook is the canonical execution path. Keep reusable details in the
 fine-grained runbooks:
 
-| Runbook | Use it for |
-|---------|------------|
+| Runbook                                                                | Use it for                                                                                                                        |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | [canonical-artifact-visual-sync.md](canonical-artifact-visual-sync.md) | Choosing and validating the TeamCity `design-model.json` artifact, and deciding whether branch-local visual iteration is allowed. |
-| [mcp-chunk-transport.md](mcp-chunk-transport.md) | Building the MCP bundle, staging canonical payloads through PNG or chunk fallback, running targets, and writing metadata. |
-| [visual-sync-efficiency.md](visual-sync-efficiency.md) | Reading the visual plan, probing MCP capabilities, and resuming checkpointed execution without repeating completed work. |
-| [target-scopes.md](../reference/target-scopes.md) | Understanding the complete target order and choosing partial diagnostic scopes. |
-| [visual-sync-contract.md](../reference/visual-sync-contract.md) | Validating the expected Figma component, connector, layout, and locking behavior. |
-| [troubleshooting.md](troubleshooting.md) | Diagnosing failed or visually incorrect sync runs. |
+| [mcp-chunk-transport.md](mcp-chunk-transport.md)                       | Building the MCP bundle, staging canonical payloads through PNG or chunk fallback, running targets, and writing metadata.         |
+| [visual-sync-efficiency.md](visual-sync-efficiency.md)                 | Reading the visual plan, probing MCP capabilities, and resuming checkpointed execution without repeating completed work.          |
+| [target-scopes.md](../reference/target-scopes.md)                      | Understanding the complete target order and choosing partial diagnostic scopes.                                                   |
+| [visual-sync-contract.md](../reference/visual-sync-contract.md)        | Validating the expected Figma component, connector, layout, and locking behavior.                                                 |
+| [troubleshooting.md](troubleshooting.md)                               | Diagnosing failed or visually incorrect sync runs.                                                                                |
 
 ## Ownership
 
@@ -62,18 +62,18 @@ intentionally non-authoritative and must not write canonical metadata.
 
 ## Sources
 
-| Source | Value |
-|--------|-------|
-| Figma page URL | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908` |
-| Figma file key | `YBZXsd8oyGLbcI2KWxJvRK` |
-| Metadata page node id | `62934:908` |
-| Shared plugin data namespace | `water_my_plants_sync` |
-| Temporary staging namespace | `water_my_plants_sync_staging` |
-| Generated model artifact | `build/reports/figma-sync/design-model.json` |
-| Repository versions file | `versions.properties` |
-| Figma versions section | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183` |
+| Source                       | Value                                                                                    |
+|------------------------------|------------------------------------------------------------------------------------------|
+| Figma page URL               | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62934-908`  |
+| Figma file key               | `YBZXsd8oyGLbcI2KWxJvRK`                                                                 |
+| Metadata page node id        | `62934:908`                                                                              |
+| Shared plugin data namespace | `water_my_plants_sync`                                                                   |
+| Temporary staging namespace  | `water_my_plants_sync_staging`                                                           |
+| Generated model artifact     | `build/reports/figma-sync/design-model.json`                                             |
+| Repository versions file     | `versions.properties`                                                                    |
+| Figma versions section       | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=62936-183`  |
 | Figma UML documentation page | `https://www.figma.com/design/YBZXsd8oyGLbcI2KWxJvRK/Water-My-Plants?node-id=63308-2386` |
-| Root settings file | `settings.gradle.kts` |
+| Root settings file           | `settings.gradle.kts`                                                                    |
 
 ## Canonical Execution Path
 

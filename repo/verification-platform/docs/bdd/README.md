@@ -11,11 +11,11 @@ must explain technical usage without copying the scenarios.
 
 ## Current Executable Features
 
-| Behavior contract | Feature | Primary Kotlin API |
-|---|---|---|
-| Trunk-based branch naming | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/git-workflow.feature` | `GitBranchNameValidator` |
-| Verification selection and fail-closed behavior | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/ci-verification-plan.feature` | `CiPlanFactory` |
-| Single-agent and future multi-agent topology | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/ci-execution-topology.feature` | `CiTopologyPlanner` |
+| Behavior contract                               | Feature                                                                                                       | Primary Kotlin API       |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------------------|--------------------------|
+| Trunk-based branch naming                       | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/git-workflow.feature`          | `GitBranchNameValidator` |
+| Verification selection and fail-closed behavior | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/ci-verification-plan.feature`  | `CiPlanFactory`          |
+| Single-agent and future multi-agent topology    | `../../domain/src/test/resources/com/marmatsan/verificationPlatform/domain/bdd/ci-execution-topology.feature` | `CiTopologyPlanner`      |
 
 Step definitions live under
 `../../domain/src/test/kotlin/com/marmatsan/verificationPlatform/domain/bdd/`.

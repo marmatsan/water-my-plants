@@ -32,18 +32,18 @@ reference instead of maintaining a package inventory in this instruction file.
 
 ## Workflow Routing
 
-| Work | Canonical document |
-|------|--------------------|
-| Public coordinates and independent distribution | [`docs/reference/distribution-contract.md`](docs/reference/distribution-contract.md) |
-| Canonical `main` sync | [`docs/runbooks/trunk-sync.md`](docs/runbooks/trunk-sync.md) |
-| Authorized TeamCity artifact and visual handoff | [`docs/runbooks/canonical-artifact-visual-sync.md`](docs/runbooks/canonical-artifact-visual-sync.md) |
-| MCP transport and runner execution | [`docs/runbooks/mcp-chunk-transport.md`](docs/runbooks/mcp-chunk-transport.md) |
-| Smallest visual target | [`docs/reference/target-scopes.md`](docs/reference/target-scopes.md) |
-| Visual structure, layout, connectors, and locking | [`docs/reference/visual-sync-contract.md`](docs/reference/visual-sync-contract.md) |
-| Change-impact selection | [`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md) |
-| Preview-only iteration | [`docs/runbooks/visual-preview.md`](docs/runbooks/visual-preview.md) |
-| Failure diagnosis | [`docs/runbooks/troubleshooting.md`](docs/runbooks/troubleshooting.md) |
-| PlantUML publication | [`docs/uml/figma-import.md`](docs/uml/figma-import.md) and the root [UML standard](../../docs/standards/uml.md) |
+| Work                                              | Canonical document                                                                                              |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Public coordinates and independent distribution   | [`docs/reference/distribution-contract.md`](docs/reference/distribution-contract.md)                            |
+| Canonical `main` sync                             | [`docs/runbooks/trunk-sync.md`](docs/runbooks/trunk-sync.md)                                                    |
+| Authorized TeamCity artifact and visual handoff   | [`docs/runbooks/canonical-artifact-visual-sync.md`](docs/runbooks/canonical-artifact-visual-sync.md)            |
+| MCP transport and runner execution                | [`docs/runbooks/mcp-chunk-transport.md`](docs/runbooks/mcp-chunk-transport.md)                                  |
+| Smallest visual target                            | [`docs/reference/target-scopes.md`](docs/reference/target-scopes.md)                                            |
+| Visual structure, layout, connectors, and locking | [`docs/reference/visual-sync-contract.md`](docs/reference/visual-sync-contract.md)                              |
+| Change-impact selection                           | [`docs/reference/change-impact-classification.md`](docs/reference/change-impact-classification.md)              |
+| Preview-only iteration                            | [`docs/runbooks/visual-preview.md`](docs/runbooks/visual-preview.md)                                            |
+| Failure diagnosis                                 | [`docs/runbooks/troubleshooting.md`](docs/runbooks/troubleshooting.md)                                          |
+| PlantUML publication                              | [`docs/uml/figma-import.md`](docs/uml/figma-import.md) and the root [UML standard](../../docs/standards/uml.md) |
 
 Only TeamCity Figma Sync on `main` produces the canonical design-model artifact.
 Use local or branch execution for diagnosis and preview under the documented

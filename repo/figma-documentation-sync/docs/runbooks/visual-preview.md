@@ -60,10 +60,10 @@ repo/figma-documentation-sync/tools/fixtures/visual/
 
 Available fixtures:
 
-| Fixture | Purpose |
-|---------|---------|
+| Fixture                          | Purpose                                                                                                      |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------|
 | `catalog-tree.design-model.json` | Catalog tree layout, connectors, `.tree node`, `.artifact`, `.artifacts bundle`, and `.usage chip` variants. |
-| `versions.design-model.json` | Version variables and `.dependency version` visual nodes. |
+| `versions.design-model.json`     | Version variables and `.dependency version` visual nodes.                                                    |
 
 Fixture models keep `branch = "main"` because the MCP bundle refuses non-main
 models. They use preview `gitSha` and `modelHash` values and must not be treated

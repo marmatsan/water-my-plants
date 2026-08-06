@@ -30,15 +30,15 @@ This directory is an included Gradle build with three portable Kotlin modules,
 two optional TeamCity modules, and one portable TypeScript Figma
 Plugin API boundary:
 
-| Path | Role |
-|------|------|
-| `domain/` | Pure model, port, and visual-planning definitions for versions, catalogs, modules, CI, and writer execution. |
-| `data/` | File, Gradle, catalog-port, JSON, MCP, and Figma API adapters that implement domain ports. |
-| `plugin/` | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration. |
-| `teamcity-adapter/` | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations. |
+| Path                   | Role                                                                                                                                |
+|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `domain/`              | Pure model, port, and visual-planning definitions for versions, catalogs, modules, CI, and writer execution.                        |
+| `data/`                | File, Gradle, catalog-port, JSON, MCP, and Figma API adapters that implement domain ports.                                          |
+| `plugin/`              | Gradle plugin, tasks, checkers, dependency injection bindings, and model generation orchestration.                                  |
+| `teamcity-adapter/`    | Optional Kotlin adapter that translates generated TeamCity YAML/XML and provides typed TeamCity CLI operations.                     |
 | `teamcity-operations/` | Optional Gradle plugin for canonical artifact handoff, verified PNG upload, Cloudflare credentials, and idempotent TeamCity reruns. |
-| `tools/` | Thin TypeScript Figma Plugin API boundary plus optional preview packaging and adapter tests. |
-| `docs/` | Runbooks, BDD notes, UML diagrams, and visual contract documentation. |
+| `tools/`               | Thin TypeScript Figma Plugin API boundary plus optional preview packaging and adapter tests.                                        |
+| `docs/`                | Runbooks, BDD notes, UML diagrams, and visual contract documentation.                                                               |
 
 Dependency direction is intentional:
 
@@ -136,29 +136,29 @@ for the measured trade-off and reconsideration criteria.
 
 The model is generated from repository source files, not from Figma:
 
-| Input | Purpose |
-|-------|---------|
-| `versions.properties` | Ordered product version sections rendered in Figma and validated by CI. |
-| Root `settings.gradle.kts` | Source of truth for both production catalog trees. Resolved and symbolic version strategies evaluate this same declaration. |
-| Root `settings.gradle.kts` | Main project module discovery. |
-| Included-build `settings.gradle.kts` files | Included-build module discovery and optional usage metadata. Their local tool catalogs are not Water My Plants visual targets. |
-| Gradle build files | Module dependency edges and applied plugin usage. |
-| `docs/ci/external-topology.yaml` | Versioned external systems, access boundaries, and directed connections. |
-| `docs/ci/windows-runtime.yaml` | Versioned Windows services, startup modes, and service identities for the local CI runtime. |
-| `.teamcity/target/generated-configs` | Water My Plants effective CI configuration. `TeamCityCiConfigurationProvider` translates its generated YAML/XML into the portable pipeline model. |
-| `config/figma/change-impact-policy.json` | Water My Plants path policy used to classify whether a change can affect the model or visual writer. |
+| Input                                      | Purpose                                                                                                                                           |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `versions.properties`                      | Ordered product version sections rendered in Figma and validated by CI.                                                                           |
+| Root `settings.gradle.kts`                 | Source of truth for both production catalog trees. Resolved and symbolic version strategies evaluate this same declaration.                       |
+| Root `settings.gradle.kts`                 | Main project module discovery.                                                                                                                    |
+| Included-build `settings.gradle.kts` files | Included-build module discovery and optional usage metadata. Their local tool catalogs are not Water My Plants visual targets.                    |
+| Gradle build files                         | Module dependency edges and applied plugin usage.                                                                                                 |
+| `docs/ci/external-topology.yaml`           | Versioned external systems, access boundaries, and directed connections.                                                                          |
+| `docs/ci/windows-runtime.yaml`             | Versioned Windows services, startup modes, and service identities for the local CI runtime.                                                       |
+| `.teamcity/target/generated-configs`       | Water My Plants effective CI configuration. `TeamCityCiConfigurationProvider` translates its generated YAML/XML into the portable pipeline model. |
+| `config/figma/change-impact-policy.json`   | Water My Plants path policy used to classify whether a change can affect the model or visual writer.                                              |
 
 The Water My Plants included-build sources are configured in root
 `build.gradle.kts`; `com.marmatsan.projectConfig.figma` supplies the product
 catalog through its reusable adapter:
 
-| Included build | Model name | Purpose |
-|----------------|------------|---------|
-| `repo/dependency-catalog` | `dependencyCatalog` | Describes the reusable catalog API, core, and Gradle adapter; it does not publish a product catalog tree. |
-| `repo/figma-documentation-sync` | `figmaDocumentationSync` | Describes tooling modules and dependency edges; it does not publish a catalog tree to Figma. |
-| `repo/gradle-plugins` | `gradlePlugins` | Describes convention-plugin modules and usage. Its private catalogs are not visual targets; its convention-plugin declarations feed the Water My Plants plugin inventory. |
-| `repo/verification-platform` | `verificationPlatform` | Describes provider-neutral verification modules; it does not publish a catalog tree to Figma. |
-| `repo/project-config` | `projectConfig` | Describes reusable composition and its optional Figma adapter; the consumer root supplies the two production trees below. |
+| Included build                  | Model name               | Purpose                                                                                                                                                                   |
+|---------------------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `repo/dependency-catalog`       | `dependencyCatalog`      | Describes the reusable catalog API, core, and Gradle adapter; it does not publish a product catalog tree.                                                                 |
+| `repo/figma-documentation-sync` | `figmaDocumentationSync` | Describes tooling modules and dependency edges; it does not publish a catalog tree to Figma.                                                                              |
+| `repo/gradle-plugins`           | `gradlePlugins`          | Describes convention-plugin modules and usage. Its private catalogs are not visual targets; its convention-plugin declarations feed the Water My Plants plugin inventory. |
+| `repo/verification-platform`    | `verificationPlatform`   | Describes provider-neutral verification modules; it does not publish a catalog tree to Figma.                                                                             |
+| `repo/project-config`           | `projectConfig`          | Describes reusable composition and its optional Figma adapter; the consumer root supplies the two production trees below.                                                 |
 
 The only dependency-catalog visual targets in the Water My Plants adapter are
 `waterMyPlants.libraries` and `waterMyPlants.plugins`. They describe the
@@ -236,14 +236,14 @@ build/reports/figma-sync/design-model.json
 
 The stable `content` object contains:
 
-| Key | Meaning |
-|-----|---------|
-| `versions` | Flat map of version keys referenced by visible production catalog nodes. |
-| `versionSections` | Ordered visual version sections, filtered to those references while preserving empty configured sections for stale-node cleanup. |
-| `catalogs` | Library, plugin, custom Gradle plugin, and convention plugin trees. |
-| `modules` | Repository module paths discovered from the root project and included builds. |
-| `moduleDependencies` | Module dependency edges grouped by source build. |
-| `ci` | Optional CI topology, runtime, and generated CI configuration selected by the project adapter. |
+| Key                  | Meaning                                                                                                                          |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `versions`           | Flat map of version keys referenced by visible production catalog nodes.                                                         |
+| `versionSections`    | Ordered visual version sections, filtered to those references while preserving empty configured sections for stale-node cleanup. |
+| `catalogs`           | Library, plugin, custom Gradle plugin, and convention plugin trees.                                                              |
+| `modules`            | Repository module paths discovered from the root project and included builds.                                                    |
+| `moduleDependencies` | Module dependency edges grouped by source build.                                                                                 |
+| `ci`                 | Optional CI topology, runtime, and generated CI configuration selected by the project adapter.                                   |
 
 The portable plugin leaves `ciDocumentationEnabled` disabled. Water My Plants
 enables it in `project-config` with the JSON key `teamCity` and the Kotlin
@@ -273,24 +273,24 @@ Run these from the repository root:
 
 Task responsibilities:
 
-| Task | Responsibility |
-|------|----------------|
-| `classifyFigmaChangeImpact` | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`. |
-| `prepareCanonicalFigmaSync` | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`. |
-| `probeFigmaMcp` | Probes endpoint capabilities through the official Kotlin MCP SDK client. |
-| `runFigmaMcp` | Inspects, checkpoints, or executes a canonical runner through the Kotlin MCP adapter. |
-| `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured. |
-| `verifyCanonicalFigmaSync` | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`. |
-| `validateCanonicalFigmaArtifactSet` | Validates that the downloaded model, scope, plan, and runner manifests share one canonical `main` identity before the MCP handoff. |
-| `prepareTeamCityFigmaSyncHandoff` | Optional TeamCity operations task that downloads or opens canonical artifacts, validates them, and writes `figma-sync-handoff.json`. |
-| `uploadCanonicalFigmaPayload` | Optional TeamCity operations task that downloads one successful canonical artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
-| `rerunTeamCityFigmaSync` | Optional TeamCity operations task that authenticates through Cloudflare, reuses or queues the consumer-selected pipeline, and optionally waits for success. |
-| `checkFigmaVersionNaming` | Fails when version keys do not follow the Figma naming contract. |
-| `checkFigmaCatalogUsage` | Fails when catalog entries are declared but unused according to the repository usage contract. |
-| `checkCiExternalTopologyFreshness` | Emits a non-blocking warning when the external topology has not been manually validated within its configured window. |
-| `checkCiWindowsRuntimeFreshness` | Emits a non-blocking warning when the Windows service runtime has not been manually validated within its configured window. |
-| `generateFigmaDesignModel` | Generates the canonical JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path. |
-| `checkFigmaTrunkSync` | Compares the generated `modelHash` with Figma shared plugin metadata inside the canonical pipeline. |
+| Task                                  | Responsibility                                                                                                                                                                           |
+|---------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `classifyFigmaChangeImpact`           | Writes the Git-derived verification scope and affected visual targets to `build/reports/figma-sync/change-impact.json`.                                                                  |
+| `prepareCanonicalFigmaSync`           | Cleans stale reports, classifies the main revision, conditionally generates the model and MCP runner artifacts, and writes `sync-scope.json`.                                            |
+| `probeFigmaMcp`                       | Probes endpoint capabilities through the official Kotlin MCP SDK client.                                                                                                                 |
+| `runFigmaMcp`                         | Inspects, checkpoints, or executes a canonical runner through the Kotlin MCP adapter.                                                                                                    |
+| `materializeFigmaSyncCiConfiguration` | Runs the optional CI adapter command before a full model generation; it is skipped when CI documentation is disabled or no command is configured.                                        |
+| `verifyCanonicalFigmaSync`            | Validates the downloaded scope identity and runs the trunk metadata check only for `full-verification`.                                                                                  |
+| `validateCanonicalFigmaArtifactSet`   | Validates that the downloaded model, scope, plan, and runner manifests share one canonical `main` identity before the MCP handoff.                                                       |
+| `prepareTeamCityFigmaSyncHandoff`     | Optional TeamCity operations task that downloads or opens canonical artifacts, validates them, and writes `figma-sync-handoff.json`.                                                     |
+| `uploadCanonicalFigmaPayload`         | Optional TeamCity operations task that downloads one successful canonical artifact, verifies its manifest-declared PNG, and uploads it only to an allow-listed single-use Figma MCP URL. |
+| `rerunTeamCityFigmaSync`              | Optional TeamCity operations task that authenticates through Cloudflare, reuses or queues the consumer-selected pipeline, and optionally waits for success.                              |
+| `checkFigmaVersionNaming`             | Fails when version keys do not follow the Figma naming contract.                                                                                                                         |
+| `checkFigmaCatalogUsage`              | Fails when catalog entries are declared but unused according to the repository usage contract.                                                                                           |
+| `checkCiExternalTopologyFreshness`    | Emits a non-blocking warning when the external topology has not been manually validated within its configured window.                                                                    |
+| `checkCiWindowsRuntimeFreshness`      | Emits a non-blocking warning when the Windows service runtime has not been manually validated within its configured window.                                                              |
+| `generateFigmaDesignModel`            | Generates the canonical JSON artifact inside TeamCity `Figma Sync` on `main`; do not run it as a local publication path.                                                                 |
+| `checkFigmaTrunkSync`                 | Compares the generated `modelHash` with Figma shared plugin metadata inside the canonical pipeline.                                                                                      |
 
 TeamCity may expose canonical synchronization as sequential steps by passing
 `-PfigmaCanonicalTeamCityPhasedExecution=true`. In that mode it invokes
@@ -407,12 +407,12 @@ Use `docs/README.md` as the documentation index.
 
 High-signal entry points:
 
-| Document | Use When |
-|----------|----------|
-| `docs/standards/dependency-version-naming.md` | Adding or renaming dependency version keys. |
-| `docs/reference/visual-sync-contract.md` | Changing component bindings, catalog trees, connectors, layout, or locking. |
-| `docs/runbooks/trunk-sync.md` | Running the canonical trunk sync workflow. |
-| `docs/runbooks/canonical-artifact-visual-sync.md` | Deciding whether a `design-model.json` is canonical enough for sync. |
-| `docs/runbooks/visual-sync-efficiency.md` | Executing the smallest safe target set and resuming from checkpoints. |
-| `docs/reference/target-scopes.md` | Updating the smallest possible Figma section. |
-| `docs/runbooks/troubleshooting.md` | Diagnosing broken sync output or metadata mismatches. |
+| Document                                          | Use When                                                                    |
+|---------------------------------------------------|-----------------------------------------------------------------------------|
+| `docs/standards/dependency-version-naming.md`     | Adding or renaming dependency version keys.                                 |
+| `docs/reference/visual-sync-contract.md`          | Changing component bindings, catalog trees, connectors, layout, or locking. |
+| `docs/runbooks/trunk-sync.md`                     | Running the canonical trunk sync workflow.                                  |
+| `docs/runbooks/canonical-artifact-visual-sync.md` | Deciding whether a `design-model.json` is canonical enough for sync.        |
+| `docs/runbooks/visual-sync-efficiency.md`         | Executing the smallest safe target set and resuming from checkpoints.       |
+| `docs/reference/target-scopes.md`                 | Updating the smallest possible Figma section.                               |
+| `docs/runbooks/troubleshooting.md`                | Diagnosing broken sync output or metadata mismatches.                       |

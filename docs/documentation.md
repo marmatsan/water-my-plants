@@ -9,6 +9,7 @@ review-cycle-days: 180
 sources:
   - AGENTS.md
   - docs/decisions/adr-0014-use-canonical-code-generation-decisions.md
+  - docs/decisions/adr-0017-use-ooux-and-bdd-before-product-implementation.md
   - .teamcity/documentation-coverage.json
 ---
 
@@ -30,7 +31,8 @@ Use this precedence when two artifacts disagree:
 4. references describe exact contracts derived from source;
 5. guides explain supported development workflows;
 6. runbooks execute or recover operational procedures;
-7. Figma and rendered UML are derived publication surfaces.
+7. Figma product designs define approved pre-implementation intent, while
+   rendered UML and published architecture views are derived surfaces.
 
 Correct the lower-precedence document when it diverges. Do not weaken an
 executable contract only to preserve stale prose.
@@ -41,17 +43,25 @@ outcome conflicts with either, record and approve the new decision or exception
 before implementation. Current code and tests remain the source for what the
 repository does until the change is implemented.
 
+For user-visible product work, the approved OOUX, wireframe, action, and BDD
+contract in the canonical Figma workspace defines the design target before
+production implementation. It MUST clearly remain future intent until its
+behavior is executable. Implementation discoveries that change an object,
+action, outcome, failure, or side effect return to the design contract; Figma
+does not silently override shipped behavior, and shipped behavior does not
+silently rewrite approved intent.
+
 ## Document Types
 
-| Type | Question answered | Canonical location |
-|------|-------------------|--------------------|
-| `README.md` | What does this area own and where should I continue? | Repository, documentation root, or module `docs/` root. |
-| `standard` | What must or should implementation follow? | `docs/standards/` or `<module>/docs/standards/`. |
-| `guide` | How do I implement a supported development change? | `docs/guides/` or `<module>/docs/guides/`. |
-| `runbook` | How do I execute, verify, or recover an operation? | `docs/runbooks/` or `<module>/docs/runbooks/`. |
-| `reference` | What is the exact current contract or inventory? | `docs/reference/` or `<module>/docs/reference/`. |
-| `adr` | Why was a durable architectural decision taken? | `docs/decisions/`. |
-| `specification` | What approved change is active and how will it be delivered and verified? | `specs/<id>-<name>/`. |
+| Type            | Question answered                                                         | Canonical location                                      |
+|-----------------|---------------------------------------------------------------------------|---------------------------------------------------------|
+| `README.md`     | What does this area own and where should I continue?                      | Repository, documentation root, or module `docs/` root. |
+| `standard`      | What must or should implementation follow?                                | `docs/standards/` or `<module>/docs/standards/`.        |
+| `guide`         | How do I implement a supported development change?                        | `docs/guides/` or `<module>/docs/guides/`.              |
+| `runbook`       | How do I execute, verify, or recover an operation?                        | `docs/runbooks/` or `<module>/docs/runbooks/`.          |
+| `reference`     | What is the exact current contract or inventory?                          | `docs/reference/` or `<module>/docs/reference/`.        |
+| `adr`           | Why was a durable architectural decision taken?                           | `docs/decisions/`.                                      |
+| `specification` | What approved change is active and how will it be delivered and verified? | `specs/<id>-<name>/`.                                   |
 
 Specialized executable or generated documentation may remain in `docs/ci/`,
 `docs/bdd/`, `docs/dokka/`, or `docs/uml/`. These directories do not replace
@@ -72,6 +82,19 @@ State the supported outcome and preferred pattern before its constraints. A
 `MUST NOT` or `SHOULD NOT` rule MUST name the supported replacement in the same
 rule or identify the safety boundary that leaves no valid replacement. Prefer
 "use X when Y" over a list of rejected implementations.
+
+## Markdown Formatting
+
+Checked-in Markdown tables MUST use the aligned table format produced by the
+Android Studio Markdown table formatter. After adding or changing a table,
+invoke `Alt+Shift+Enter` with the cursor in the table, or apply an exact
+equivalent formatter. The header, separator, and body cells align to the widest
+value in each column; a compact separator remains valid Markdown but is not the
+repository format.
+
+Table formatting MUST preserve cell content, ordering, links, alignment
+markers, and meaning. A repository-wide formatting change must be reviewed as
+a mechanical diff rather than combined with unrelated prose changes.
 
 ## Placement And Ownership
 
@@ -187,6 +210,12 @@ Product modules keep `<module>/docs/README.md` as their local entry point. The
 module README MUST link to shared standards and describe only module purpose,
 public boundaries, dependencies, and focused verification.
 
+User-visible product work MUST first apply the
+[product design standard](standards/product-design.md) and the
+[design-product-feature guide](guides/design-product-feature.md). Its OOUX
+objects, complete user-action consequences, wireframe, visual design, and
+representative BDD examples form the implementation handoff.
+
 Production standards evolve incrementally with the implementation. When
 product work introduces a new recurring concern, such as coroutine usage,
 database access, `data`/`domain`/`ui` layer responsibilities, ViewModels, or
@@ -216,12 +245,20 @@ paths, or unsafe emergency workarounds as normal procedure. Record a safe
 recovery boundary when the exceptional behavior is important for future
 diagnosis.
 
-## Derived Visual Documentation
+## Figma And Derived Visual Documentation
 
 PlantUML source remains the reviewed UML source of truth. Figma contains the
 published visual result and must link back to canonical repository sources.
 Manual Figma edits cannot override a versioned standard, reference, YAML model,
 test, or runbook.
+
+Product design is a separate Figma responsibility. The canonical product file
+owns approved pre-implementation OOUX, wireframe, visual, and component intent
+under [ADR-0017](decisions/adr-0017-use-ooux-and-bdd-before-product-implementation.md).
+Stable business examples move into repository `.feature` files when
+implementation starts, and checked-in `.figma.kt` mappings own Code Connect
+bindings. Product design pages are not a substitute for executable current
+behavior or PlantUML architecture source.
 
 ## Agent And Skill Adapters
 

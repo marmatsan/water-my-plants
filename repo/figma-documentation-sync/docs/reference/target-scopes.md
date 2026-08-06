@@ -25,14 +25,14 @@ supervised diagnosis and repair.
 
 Default included builds:
 
-| Gradle build name | Model name | Root directory | Module path prefix | Publishes catalogs | Publishes convention plugins |
-|-------------------|------------|----------------|--------------------|--------------------|------------------------------|
-| `dependency-catalog` | `dependencyCatalog` | `repo/dependency-catalog` | `:dependency-catalog` | No | No |
-| `figma-documentation-sync` | `figmaDocumentationSync` | `repo/figma-documentation-sync` | `:figma-documentation-sync` | No | No |
-| `gradle-plugins` | `gradlePlugins` | `repo/gradle-plugins` | `:gradle-plugins` | No | Yes |
-| `unit-testing` | `unitTesting` | `repo/unit-testing` | `:unit-testing` | No | No |
-| `verification-platform` | `verificationPlatform` | `repo/verification-platform` | `:verification-platform` | No | No |
-| `project-config` | `projectConfig` | `repo/project-config` | `:project-config` | No | No |
+| Gradle build name          | Model name               | Root directory                  | Module path prefix          | Publishes catalogs | Publishes convention plugins |
+|----------------------------|--------------------------|---------------------------------|-----------------------------|--------------------|------------------------------|
+| `dependency-catalog`       | `dependencyCatalog`      | `repo/dependency-catalog`       | `:dependency-catalog`       | No                 | No                           |
+| `figma-documentation-sync` | `figmaDocumentationSync` | `repo/figma-documentation-sync` | `:figma-documentation-sync` | No                 | No                           |
+| `gradle-plugins`           | `gradlePlugins`          | `repo/gradle-plugins`           | `:gradle-plugins`           | No                 | Yes                          |
+| `unit-testing`             | `unitTesting`            | `repo/unit-testing`             | `:unit-testing`             | No                 | No                           |
+| `verification-platform`    | `verificationPlatform`   | `repo/verification-platform`    | `:verification-platform`    | No                 | No                           |
+| `project-config`           | `projectConfig`          | `repo/project-config`           | `:project-config`           | No                 | No                           |
 
 Included builds contribute module topology and convention-plugin usage where
 configured, but none publishes its local tool catalog as a Water My Plants
@@ -46,12 +46,12 @@ the adapter's serialized contract.
 
 Catalog tree visual targets:
 
-| Model target | Source | Figma section |
-|--------------|--------|---------------|
-| `waterMyPlants.libraries` | Root `settings.gradle.kts` | `63069:629` |
-| `waterMyPlants.plugins` | Root `settings.gradle.kts` | `63069:594` |
-| `waterMyPlants.customGradleConventionPlugins` | Convention-plugin declarations under `repo/gradle-plugins` | `64886:247` |
-| `waterMyPlants.customGradlePlugins` | Regular repository Gradle plugin declarations | `64886:248` |
+| Model target                                  | Source                                                     | Figma section |
+|-----------------------------------------------|------------------------------------------------------------|---------------|
+| `waterMyPlants.libraries`                     | Root `settings.gradle.kts`                                 | `63069:629`   |
+| `waterMyPlants.plugins`                       | Root `settings.gradle.kts`                                 | `63069:594`   |
+| `waterMyPlants.customGradleConventionPlugins` | Convention-plugin declarations under `repo/gradle-plugins` | `64886:247`   |
+| `waterMyPlants.customGradlePlugins`           | Regular repository Gradle plugin declarations              | `64886:248`   |
 
 The first two targets are the only dependency-catalog trees used by Water My
 Plants. The other two are product-wide plugin inventories: they show the
@@ -82,14 +82,14 @@ targets.
 
 CI documentation visual targets:
 
-| Model target | Source | Figma scope |
-|--------------|--------|-------------|
-| `ci.overview` | `content.ci` aggregate | `Overview` inside page `63153:2876` |
-| `ci.pullRequestIntegration` | Effective `.teamcity/settings.kts` model and branch protection contract | `Pull Request Integration` inside page `63153:2876` |
-| `ci.postMergeDesignDocumentation` | Effective Figma Sync pipeline and the operator/MCP loop | `Post-merge Design Documentation` inside page `63153:2876` |
-| `ci.jobTasks` | Ordered TeamCity phases, Gradle tasks, decisions, and outcomes | `Job Tasks` inside page `63153:2876` |
-| `ci.infrastructureAndAccess` | `docs/ci/external-topology.yaml` | `Infrastructure and Access` inside page `63153:2876` |
-| `ci.windowsRuntime` | `docs/ci/windows-runtime.yaml` | `Windows Service Runtime` inside page `63153:2876` |
+| Model target                      | Source                                                                  | Figma scope                                                |
+|-----------------------------------|-------------------------------------------------------------------------|------------------------------------------------------------|
+| `ci.overview`                     | `content.ci` aggregate                                                  | `Overview` inside page `63153:2876`                        |
+| `ci.pullRequestIntegration`       | Effective `.teamcity/settings.kts` model and branch protection contract | `Pull Request Integration` inside page `63153:2876`        |
+| `ci.postMergeDesignDocumentation` | Effective Figma Sync pipeline and the operator/MCP loop                 | `Post-merge Design Documentation` inside page `63153:2876` |
+| `ci.jobTasks`                     | Ordered TeamCity phases, Gradle tasks, decisions, and outcomes          | `Job Tasks` inside page `63153:2876`                       |
+| `ci.infrastructureAndAccess`      | `docs/ci/external-topology.yaml`                                        | `Infrastructure and Access` inside page `63153:2876`       |
+| `ci.windowsRuntime`               | `docs/ci/windows-runtime.yaml`                                          | `Windows Service Runtime` inside page `63153:2876`         |
 
 The six targets share the parent section `Continuous Integration and
 Documentation Automation`. Both a generated partial plan and a diagnostic
@@ -137,22 +137,22 @@ complete. A mapped target-specific writer change selects only its affected
 scope family plus `preflight`; shared, unmapped, or unexplained writer changes
 produce a `full` plan automatically.
 
-| Order | Target | Scope | Typical failure | Quick check |
-|-------|--------|-------|-----------------|-------------|
-| 0 | `preflight` | Figma variables, component contracts, configured sections, and target model shape | Missing component property, usage chip variant, section, variable collection, or invalid root filter | Returned `checkedComponents`, `checkedSections`, `checkedVariables`, and `checkedTargets` are populated and `mutatedNodeIds` is empty. |
-| 1 | `headers` | Parent documentation `.Header` links | Stale `build-logic` URL, centered link text, missing `Link` property, or multiple source paths sharing one hyperlink | Every displayed source path is left-aligned, opens its own canonical GitHub `main` URL, and `updatedHeaders` lists all configured parent sections. |
-| 2 | `versions` | Version variables and `.dependency version` nodes | Missing variable collection, stale version section, or duplicate renamed version key | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed. |
-| 3 | `waterMyPlants.libraries` | Main app libraries and usage chips | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance | Returned `completedTargets` contains `preflight` and this target, and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips. |
-| 4 | `waterMyPlants.plugins` | Main app plugin catalog tree | Missing `.tree node` property or connector binding issue | Returned catalog nodes match the plugin tree and connectors stay in the section. |
-| 5 | `waterMyPlants.customGradleConventionPlugins` | Convention plugins available to compose application modules | Stale plugin IDs or incorrect module usage | Returned nodes match the convention plugins declared under `repo/gradle-plugins`. |
-| 6 | `waterMyPlants.customGradlePlugins` | Regular Gradle plugins in the repository | A convention plugin is classified as regular, or a regular plugin is omitted | Returned nodes contain only regular repository Gradle plugin declarations. |
-| 7 | `ci.overview` | Simplified PR and post-merge journeys | Generic connector labels or missing check/gate distinction | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels. |
-| 8 | `ci.pullRequestIntegration` | Detailed PR pipeline, jobs, checks, and merge gate | Effective TeamCity job, Gradle selection path, or published check missing from Figma | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract. |
-| 9 | `ci.postMergeDesignDocumentation` | Canonical model generation and operator-assisted visual update loop | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
-| 10 | `ci.jobTasks` | Ordered TeamCity phases, tasks, decisions, and outcomes | Job steps or selected Gradle tasks differ from the effective CI model | Job details match the generated TeamCity configuration and CI plan contract. |
-| 11 | `ci.infrastructureAndAccess` | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology | Connection collapsed or external system duplicated from TeamCity DSL | Nodes and directed connections match `content.ci.externalTopology`. |
-| 12 | `ci.windowsRuntime` | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services | Runtime block hidden, stale service identity, or incorrect icon environment | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors. |
-| 13 | `metadata` | Shared plugin sync metadata | Metadata written before visual targets complete | Figma shared plugin data matches the TeamCity artifact. |
+| Order | Target                                        | Scope                                                                             | Typical failure                                                                                                                                                                 | Quick check                                                                                                                                                                                                                            |
+|-------|-----------------------------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0     | `preflight`                                   | Figma variables, component contracts, configured sections, and target model shape | Missing component property, usage chip variant, section, variable collection, or invalid root filter                                                                            | Returned `checkedComponents`, `checkedSections`, `checkedVariables`, and `checkedTargets` are populated and `mutatedNodeIds` is empty.                                                                                                 |
+| 1     | `headers`                                     | Parent documentation `.Header` links                                              | Stale `build-logic` URL, centered link text, missing `Link` property, or multiple source paths sharing one hyperlink                                                            | Every displayed source path is left-aligned, opens its own canonical GitHub `main` URL, and `updatedHeaders` lists all configured parent sections.                                                                                     |
+| 2     | `versions`                                    | Version variables and `.dependency version` nodes                                 | Missing variable collection, stale version section, or duplicate renamed version key                                                                                            | Returned `updatedVersions` contains the expected version keys and stale visual version nodes are removed.                                                                                                                              |
+| 3     | `waterMyPlants.libraries`                     | Main app libraries and usage chips                                                | Ambiguous `.artifact` / `.artifacts bundle` usage headings or hidden usage blocks on the visible instance                                                                       | Returned `completedTargets` contains `preflight` and this target, and a spot-checked artifact with model usage shows `Applied by plugin` / `Used by module` chips.                                                                     |
+| 4     | `waterMyPlants.plugins`                       | Main app plugin catalog tree                                                      | Missing `.tree node` property or connector binding issue                                                                                                                        | Returned catalog nodes match the plugin tree and connectors stay in the section.                                                                                                                                                       |
+| 5     | `waterMyPlants.customGradleConventionPlugins` | Convention plugins available to compose application modules                       | Stale plugin IDs or incorrect module usage                                                                                                                                      | Returned nodes match the convention plugins declared under `repo/gradle-plugins`.                                                                                                                                                      |
+| 6     | `waterMyPlants.customGradlePlugins`           | Regular Gradle plugins in the repository                                          | A convention plugin is classified as regular, or a regular plugin is omitted                                                                                                    | Returned nodes contain only regular repository Gradle plugin declarations.                                                                                                                                                             |
+| 7     | `ci.overview`                                 | Simplified PR and post-merge journeys                                             | Generic connector labels or missing check/gate distinction                                                                                                                      | Trigger, check, gate, merge, artifact, and hash-verification connections have explicit labels.                                                                                                                                         |
+| 8     | `ci.pullRequestIntegration`                   | Detailed PR pipeline, jobs, checks, and merge gate                                | Effective TeamCity job, Gradle selection path, or published check missing from Figma                                                                                            | Nodes match `content.ci.teamCity`; `Verify` shows `prepareTeamCityCiPlan`, the dynamic `ci.plan.gradleTasks` paths, and the root `check` contract.                                                                                     |
+| 9     | `ci.postMergeDesignDocumentation`             | Canonical model generation and operator-assisted visual update loop               | Automatic Figma write implied, internal results derived from an optional published status, artifact or Figma metadata input disconnected, or rerun targeting only the check job | The compact `Check Figma trunk sync` job exposes `Metadata matches` and `Visual sync required`; the mismatch branch reaches Operator, Codex/MCP, Figma, `rerunTeamCityFigmaSync`, and queues the complete `Figma Sync` pipeline again. |
+| 10    | `ci.jobTasks`                                 | Ordered TeamCity phases, tasks, decisions, and outcomes                           | Job steps or selected Gradle tasks differ from the effective CI model                                                                                                           | Job details match the generated TeamCity configuration and CI plan contract.                                                                                                                                                           |
+| 11    | `ci.infrastructureAndAccess`                  | GitHub, Cloudflare, TeamCity, Figma, browser, CLI, and operator topology          | Connection collapsed or external system duplicated from TeamCity DSL                                                                                                            | Nodes and directed connections match `content.ci.externalTopology`.                                                                                                                                                                    |
+| 12    | `ci.windowsRuntime`                           | TeamCity Server, Build Agent, and Cloudflare Tunnel Windows services              | Runtime block hidden, stale service identity, or incorrect icon environment                                                                                                     | Three nodes match `content.ci.windowsRuntime`, expose complete runtime fields, and have no inferred connectors.                                                                                                                        |
+| 13    | `metadata`                                    | Shared plugin sync metadata                                                       | Metadata written before visual targets complete                                                                                                                                 | Figma shared plugin data matches the TeamCity artifact.                                                                                                                                                                                |
 
 ## Subtree Scoped Runs
 
@@ -186,16 +186,16 @@ keeps the runtime memory boundary aligned with the model scope.
 
 Known child sections:
 
-| Target | Root | Child section |
-|--------|------|---------------|
-| `waterMyPlants.libraries` | `androidx` | `63069:630` |
-| `waterMyPlants.libraries` | `com` | `63069:647` |
-| `waterMyPlants.libraries` | `io` | `63069:655` |
-| `waterMyPlants.libraries` | `me` | `63069:659` |
-| `waterMyPlants.libraries` | `org` | `63069:665` |
-| `waterMyPlants.plugins` | `com` | `63069:595` |
-| `waterMyPlants.plugins` | `de` | `63069:611` |
-| `waterMyPlants.plugins` | `org` | `63069:617` |
+| Target                    | Root       | Child section |
+|---------------------------|------------|---------------|
+| `waterMyPlants.libraries` | `androidx` | `63069:630`   |
+| `waterMyPlants.libraries` | `com`      | `63069:647`   |
+| `waterMyPlants.libraries` | `io`       | `63069:655`   |
+| `waterMyPlants.libraries` | `me`       | `63069:659`   |
+| `waterMyPlants.libraries` | `org`      | `63069:665`   |
+| `waterMyPlants.plugins`   | `com`      | `63069:595`   |
+| `waterMyPlants.plugins`   | `de`       | `63069:611`   |
+| `waterMyPlants.plugins`   | `org`      | `63069:617`   |
 
 Use a subtree scoped run instead of editing `design-model.json` manually. The
 artifact must still come from `main`; the filter is a transport/runtime scope,

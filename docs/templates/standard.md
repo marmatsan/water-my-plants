@@ -32,8 +32,8 @@ use them.
 
 ## Disallowed Alternatives
 
-| Do not use | Use instead | Reason |
-|------------|-------------|--------|
+| Do not use                    | Use instead                                        | Reason                                      |
+|-------------------------------|----------------------------------------------------|---------------------------------------------|
 | Name the invalid alternative. | Name the supported replacement or safety boundary. | Explain the contract protected by the rule. |
 
 ## Exceptions
